@@ -1,0 +1,12 @@
+# Documentation
+# ------------------------------------------------------------------------------
+Sphinx                                        # https://github.com/sphinx-doc/sphinx
+sphinx_rtd_theme
+sphinxcontrib-django2                         # https://github.com/timoludwig/sphinxcontrib-django2
+sphinxcontrib-openapi                         # https://github.com/sphinx-contrib/openapi
+sphinxcontrib-jsonglobaltoc                   # https://github.com/caltechads/sphinxcontrib-jsonglobaltoc
+sphinxcontrib-images
+# We use our own version of sphinx-terraform that fixes a bug in the
+# the upstream version that has yet to be merged
+git+https://gitlab.com/cmalek1/sphinx-terraform.git
+diagrams==0.23.3
