@@ -1,0 +1,53 @@
+---
+Service:
+  operations:
+    create:
+      boto3_name: create_service
+      mapping:
+        cluster: clusterArn
+        role: roleArn
+      explicit_kwargs:
+        - clientToken
+        - serviceConnectConfiguration
+    delete:
+      boto3_name: delete_service
+    get:
+      boto3_name: describe_services
+    list:
+      boto3_name: list_services
+      response_attr: serviceArns
+    update:
+      boto3_name: update_service
+      mapping:
+        cluster: clusterArn
+        service: serviceName
+      explicit_kwargs:
+        - forceNewDeployment
+        - serviceConnectConfiguration
+Cluster:
+  operations:
+    create:
+      boto3_name: create_cluster
+    delete:
+      boto3_name: delete_cluster
+    get:
+      boto3_name: describe_clusters
+    list:
+      boto3_name: list_clusters
+      response_attr: clusterArns
+    update:
+      boto3_name: update_cluster
+      mapping:
+        cluster: clusterName
+TaskDefinition:
+  operations:
+    create:
+      boto3_name: register_task_definition
+    delete:
+      boto3_name: deregister_task_definition
+    get:
+      boto3_name: describe_task_definition
+    list:
+      boto3_name: list_task_definitions
+    update:
+      boto3_name: register_task_definition

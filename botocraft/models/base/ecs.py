@@ -3,8 +3,10 @@ from typing import Optional, List, Literal
 
 from pydantic import BaseModel
 
+from .abstract import Boto3Model
 
-class LoadBalancer(BaseModel):
+
+class LoadBalancer(Boto3Model):
     """
     The load balancer configuration to use with a service or task set.
 
@@ -39,7 +41,7 @@ class LoadBalancer(BaseModel):
     containerPort: Optional[int] = None
 
 
-class ServiceRegistry(BaseModel):
+class ServiceRegistry(Boto3Model):
     """
     The details for the service registry.
 
@@ -79,7 +81,7 @@ class ServiceRegistry(BaseModel):
     containerPort: Optional[int] = None
 
 
-class CapacityProviderStrategyItem(BaseModel):
+class CapacityProviderStrategyItem(Boto3Model):
     """
     The details of a capacity provider strategy. A capacity provider strategy
     can be set when using the RunTask or CreateCluster APIs or as the default
@@ -116,7 +118,7 @@ class CapacityProviderStrategyItem(BaseModel):
     base: Optional[int] = None
 
 
-class DeploymentCircuitBreaker(BaseModel):
+class DeploymentCircuitBreaker(Boto3Model):
     """
     The deployment circuit breaker can only be used for services using the
     rolling update (``ECS``) deployment type.
@@ -139,7 +141,7 @@ class DeploymentCircuitBreaker(BaseModel):
     rollback: bool
 
 
-class DeploymentAlarms(BaseModel):
+class DeploymentAlarms(Boto3Model):
     """
     Information about the CloudWatch alarms.
     """
@@ -155,7 +157,7 @@ class DeploymentAlarms(BaseModel):
     rollback: bool
 
 
-class DeploymentConfiguration(BaseModel):
+class DeploymentConfiguration(Boto3Model):
     """
     Optional deployment parameters that control how many tasks run during the
     deployment and the ordering of stopping and starting tasks.
@@ -189,7 +191,7 @@ class DeploymentConfiguration(BaseModel):
     alarms: Optional[DeploymentAlarms] = None
 
 
-class AwsVpcConfiguration(BaseModel):
+class AwsVpcConfiguration(Boto3Model):
     """
     The VPC subnets and security groups that are associated with a task.
 
@@ -209,7 +211,7 @@ class AwsVpcConfiguration(BaseModel):
     assignPublicIp: Optional[Literal["ENABLED", "DISABLED"]] = None
 
 
-class NetworkConfiguration(BaseModel):
+class NetworkConfiguration(Boto3Model):
     """
     The network configuration for the task set.
     """
@@ -218,17 +220,20 @@ class NetworkConfiguration(BaseModel):
     awsvpcConfiguration: Optional[AwsVpcConfiguration] = None
 
 
-class Scale(BaseModel):
+class Scale(Boto3Model):
     """
     A floating-point percentage of your desired number of tasks to place and
     keep running in the task set.
     """
 
+    #: The value, specified as a percent total of a service's ``desiredCount``, to
+    #: scale the task set. Accepted values are numbers between 0 and 100.
+    value: Optional[float] = None
     #: The unit of measure for the scale value.
     unit: Optional[Literal["PERCENT"]] = None
 
 
-class Tag(BaseModel):
+class Tag(Boto3Model):
     """
     The metadata that you apply to a resource to help you categorize and
     organize them. Each tag consists of a key and an optional value. You define
@@ -260,7 +265,7 @@ class Tag(BaseModel):
     value: Optional[str] = None
 
 
-class TaskSet(BaseModel):
+class TaskSet(Boto3Model):
     """
     Information about a set of Amazon ECS tasks in either an CodeDeploy or an
     ``EXTERNAL`` deployment.
@@ -339,7 +344,7 @@ class TaskSet(BaseModel):
     tags: Optional[List[Tag]] = None
 
 
-class ServiceConnectClientAlias(BaseModel):
+class ServiceConnectClientAlias(Boto3Model):
     """
     Each alias ("endpoint") is a fully-qualified name and port number that
     other tasks ("clients") can use to connect to this service.
@@ -367,7 +372,7 @@ class ServiceConnectClientAlias(BaseModel):
     dnsName: Optional[str] = None
 
 
-class ServiceConnectService(BaseModel):
+class ServiceConnectService(Boto3Model):
     """
     The Service Connect service object configuration.
 
@@ -393,7 +398,7 @@ class ServiceConnectService(BaseModel):
     ingressPortOverride: Optional[int] = None
 
 
-class Secret(BaseModel):
+class Secret(Boto3Model):
     """An object representing the secret to expose to your container. Secrets can be
     exposed to a container in the following ways:
 
@@ -415,7 +420,7 @@ class Secret(BaseModel):
     valueFrom: str
 
 
-class LogConfiguration(BaseModel):
+class LogConfiguration(Boto3Model):
     """The log configuration for the container. This parameter maps to ``LogConfig``
     in the `Create a
     container <https://docs.docker.com/engine/api/v1.35/#operation/ContainerCreate>`_
@@ -478,7 +483,7 @@ class LogConfiguration(BaseModel):
     secretOptions: Optional[List[Secret]] = None
 
 
-class ServiceConnectConfiguration(BaseModel):
+class ServiceConnectConfiguration(Boto3Model):
     """
     The details of the Service Connect configuration that's used by this
     deployment. Compare the configuration between multiple deployments when
@@ -519,7 +524,7 @@ class ServiceConnectConfiguration(BaseModel):
     logConfiguration: Optional[LogConfiguration] = None
 
 
-class ServiceConnectServiceResource(BaseModel):
+class ServiceConnectServiceResource(Boto3Model):
     """
     The Service Connect resource. Each configuration maps a discovery name to a
     Cloud Map service name. The data is stored in Cloud Map as part of the
@@ -541,7 +546,7 @@ class ServiceConnectServiceResource(BaseModel):
     discoveryArn: Optional[str] = None
 
 
-class Deployment(BaseModel):
+class Deployment(Boto3Model):
     """
     The details of an Amazon ECS service deployment.
 
@@ -603,7 +608,7 @@ class Deployment(BaseModel):
     serviceConnectResources: Optional[List[ServiceConnectServiceResource]] = None
 
 
-class ServiceEvent(BaseModel):
+class ServiceEvent(Boto3Model):
     """
     The details for an event that's associated with a service.
     """
@@ -614,7 +619,7 @@ class ServiceEvent(BaseModel):
     message: Optional[str] = None
 
 
-class PlacementConstraint(BaseModel):
+class PlacementConstraint(Boto3Model):
     """An object representing a constraint on task placement. For more information,
     see `Task placement
     constraints <https://docs.aws.amazon.com/AmazonECS/latest/developerguide/task-
@@ -638,7 +643,7 @@ class PlacementConstraint(BaseModel):
     expression: Optional[str] = None
 
 
-class PlacementStrategy(BaseModel):
+class PlacementStrategy(Boto3Model):
     """
     The task placement strategy for a task or service.
 
@@ -666,7 +671,7 @@ class PlacementStrategy(BaseModel):
     field: Optional[str] = None
 
 
-class DeploymentController(BaseModel):
+class DeploymentController(Boto3Model):
     """
     The deployment controller type the service is using.
     """
@@ -675,7 +680,7 @@ class DeploymentController(BaseModel):
     type: Literal["ECS", "CODE_DEPLOY", "EXTERNAL"]
 
 
-class Service(BaseModel):
+class Service(Boto3Model):
     """
     Details on a service within a cluster.
     """
@@ -689,9 +694,9 @@ class Service(BaseModel):
     #: underscores, and hyphens are allowed. Service names must be unique within a
     #: cluster. However, you can have similarly named services in multiple clusters
     #: within a Region or across multiple Regions.
-    serviceName: Optional[str] = None
+    serviceName: str
     #: The Amazon Resource Name (ARN) of the cluster that hosts the service.
-    clusterArn: Optional[str] = None
+    clusterArn: str
     #: A list of Elastic Load Balancing load balancer objects. It contains the load
     #: balancer name, the container name, and the container port to access from the
     #: load balancer. The container name is as it appears in a container definition.
@@ -707,14 +712,14 @@ class Service(BaseModel):
     #: The desired number of instantiations of the task definition to keep running on
     #: the service. This value is specified when the service is created with
     #: CreateService, and it can be modified with UpdateService.
-    desiredCount: Optional[int] = None
+    desiredCount: int = 1
     #: The number of tasks in the cluster that are in the ``RUNNING`` state.
     runningCount: Optional[int] = None
     #: The number of tasks in the cluster that are in the ``PENDING`` state.
     pendingCount: Optional[int] = None
     #: The launch type the service is using. When using the DescribeServices API, this
     #: field is omitted if the service was created using a capacity provider strategy.
-    launchType: Optional[Literal["EC2", "FARGATE", "EXTERNAL"]] = None
+    launchType: Literal["EC2", "FARGATE", "EXTERNAL"] = "FARGATE"
     #: The capacity provider strategy the service uses. When using the
     #: DescribeServices API, this field is omitted if the service was created using a
     #: launch type.
@@ -732,7 +737,7 @@ class Service(BaseModel):
     #: The task definition to use for tasks in the service. This value is specified
     #: when the service is created with CreateService, and it can be modified with
     #: UpdateService.
-    taskDefinition: Optional[str] = None
+    taskDefinition: str
     #: Optional deployment parameters that control how many tasks run during the
     #: deployment and the ordering of stopping and starting tasks.
     deploymentConfiguration: Optional[DeploymentConfiguration] = None
@@ -746,7 +751,7 @@ class Service(BaseModel):
     #: The ARN of the IAM role that's associated with the service. It allows the
     #: Amazon ECS container agent to register container instances with an Elastic Load
     #: Balancing load balancer.
-    roleArn: Optional[str] = None
+    roleArn: str
     #: The event stream for your service. A maximum of 100 of the latest events are
     #: displayed.
     events: Optional[List[ServiceEvent]] = None
@@ -764,7 +769,7 @@ class Service(BaseModel):
     #: The scheduling strategy to use for the service. For more information, see `Serv
     #: ices <https://docs.aws.amazon.com/AmazonECS/latest/developerguide/ecs_services.
     #: html>`_.
-    schedulingStrategy: Optional[Literal["REPLICA", "DAEMON"]] = None
+    schedulingStrategy: Literal["REPLICA", "DAEMON"] = "REPLICA"
     #: The deployment controller type the service is using.
     deploymentController: Optional[DeploymentController] = None
     #: The metadata that you apply to the service to help you categorize and organize
@@ -787,7 +792,7 @@ class Service(BaseModel):
     enableExecuteCommand: Optional[bool] = None
 
 
-class ExecuteCommandLogConfiguration(BaseModel):
+class ExecuteCommandLogConfiguration(Boto3Model):
     """
     The log configuration for the results of the execute command actions.
 
@@ -810,7 +815,7 @@ class ExecuteCommandLogConfiguration(BaseModel):
     s3KeyPrefix: Optional[str] = None
 
 
-class ExecuteCommandConfiguration(BaseModel):
+class ExecuteCommandConfiguration(Boto3Model):
     """
     The details of the execute command configuration.
     """
@@ -827,7 +832,7 @@ class ExecuteCommandConfiguration(BaseModel):
     logConfiguration: Optional[ExecuteCommandLogConfiguration] = None
 
 
-class ClusterConfiguration(BaseModel):
+class ClusterConfiguration(Boto3Model):
     """
     The execute command configuration for the cluster.
     """
@@ -836,7 +841,7 @@ class ClusterConfiguration(BaseModel):
     executeCommandConfiguration: Optional[ExecuteCommandConfiguration] = None
 
 
-class KeyValuePair(BaseModel):
+class KeyValuePair(Boto3Model):
     """
     A key-value pair object.
     """
@@ -849,7 +854,7 @@ class KeyValuePair(BaseModel):
     value: Optional[str] = None
 
 
-class ClusterSetting(BaseModel):
+class ClusterSetting(Boto3Model):
     """
     The settings to use when creating a cluster.
 
@@ -864,7 +869,7 @@ class ClusterSetting(BaseModel):
     value: Optional[str] = None
 
 
-class Attachment(BaseModel):
+class Attachment(Boto3Model):
     """
     An object representing a container instance or task attachment.
     """
@@ -883,7 +888,7 @@ class Attachment(BaseModel):
     details: Optional[List[KeyValuePair]] = None
 
 
-class ClusterServiceConnectDefaults(BaseModel):
+class ClusterServiceConnectDefaults(Boto3Model):
     """
     Use this parameter to set a default Service Connect namespace. After you
     set a default Service Connect namespace, any new services with Service
@@ -910,7 +915,7 @@ class ClusterServiceConnectDefaults(BaseModel):
     namespace: Optional[str] = None
 
 
-class Cluster(BaseModel):
+class Cluster(Boto3Model):
     """
     A regional grouping of one or more container instances where you can run
     task requests.
@@ -926,7 +931,7 @@ class Cluster(BaseModel):
     #: settings.html#ecs-resource-ids>`_ in the *Amazon ECS Developer Guide*.
     clusterArn: Optional[str] = None
     #: A user-generated string that you use to identify your cluster.
-    clusterName: Optional[str] = None
+    clusterName: str = "default"
     #: The execute command configuration for the cluster.
     configuration: Optional[ClusterConfiguration] = None
     #: The status of the cluster. The following are the possible states that are
@@ -974,7 +979,7 @@ class Cluster(BaseModel):
     serviceConnectDefaults: Optional[ClusterServiceConnectDefaults] = None
 
 
-class RepositoryCredentials(BaseModel):
+class RepositoryCredentials(Boto3Model):
     """
     The private repository authentication credentials to use.
     """
@@ -984,7 +989,7 @@ class RepositoryCredentials(BaseModel):
     credentialsParameter: str
 
 
-class PortMapping(BaseModel):
+class PortMapping(Boto3Model):
     """
     Port mappings allow containers to access ports on the host container
     instance to send or receive traffic. Port mappings are specified as part of
@@ -1037,7 +1042,7 @@ class PortMapping(BaseModel):
     containerPortRange: Optional[str] = None
 
 
-class EnvironmentFile(BaseModel):
+class EnvironmentFile(Boto3Model):
     """A list of files containing the environment variables to pass to a container.
     You can specify up to ten environment files. The file must have a ``.env`` file
     extension. Each line in an environment file should contain an environment
@@ -1067,7 +1072,7 @@ class EnvironmentFile(BaseModel):
     type: Literal["s3"]
 
 
-class MountPoint(BaseModel):
+class MountPoint(Boto3Model):
     """
     The details for a volume mount point that's used in a container definition.
     """
@@ -1083,7 +1088,7 @@ class MountPoint(BaseModel):
     readOnly: Optional[bool] = None
 
 
-class VolumeFrom(BaseModel):
+class VolumeFrom(Boto3Model):
     """
     Details on a data volume from another container in the same task
     definition.
@@ -1098,7 +1103,7 @@ class VolumeFrom(BaseModel):
     readOnly: Optional[bool] = None
 
 
-class KernelCapabilities(BaseModel):
+class KernelCapabilities(Boto3Model):
     """
     The Linux capabilities for the container that are added to or dropped from
     the default configuration provided by Docker.
@@ -1126,7 +1131,7 @@ class KernelCapabilities(BaseModel):
     drop: Optional[List[str]] = None
 
 
-class Device(BaseModel):
+class Device(Boto3Model):
     """
     An object representing a container instance host device.
     """
@@ -1141,7 +1146,7 @@ class Device(BaseModel):
     permissions: Optional[List[Literal["read", "write", "mknod"]]] = None
 
 
-class Tmpfs(BaseModel):
+class Tmpfs(Boto3Model):
     """
     The container path, mount options, and size of the tmpfs mount.
     """
@@ -1154,7 +1159,7 @@ class Tmpfs(BaseModel):
     mountOptions: Optional[List[str]] = None
 
 
-class LinuxParameters(BaseModel):
+class LinuxParameters(Boto3Model):
     """
     Linux-specific modifications that are applied to the container, such as
     Linux kernel capabilities. For more information see KernelCapabilities.
@@ -1205,7 +1210,7 @@ class LinuxParameters(BaseModel):
     swappiness: Optional[int] = None
 
 
-class ContainerDependency(BaseModel):
+class ContainerDependency(Boto3Model):
     """
     The dependencies defined for container startup and shutdown. A container
     can contain multiple dependencies. When a dependency is defined for
@@ -1240,7 +1245,7 @@ class ContainerDependency(BaseModel):
     condition: Literal["START", "COMPLETE", "SUCCESS", "HEALTHY"]
 
 
-class HostEntry(BaseModel):
+class HostEntry(Boto3Model):
     """
     Hostnames and IP address entries that are added to the ``/etc/hosts`` file
     of a container via the ``extraHosts`` parameter of its ContainerDefinition.
@@ -1252,7 +1257,7 @@ class HostEntry(BaseModel):
     ipAddress: str
 
 
-class Ulimit(BaseModel):
+class Ulimit(Boto3Model):
     """
     The ``ulimit`` settings to pass to the container.
 
@@ -1289,7 +1294,7 @@ class Ulimit(BaseModel):
     hardLimit: int
 
 
-class HealthCheck(BaseModel):
+class HealthCheck(Boto3Model):
     """
     The container health check command and associated configuration parameters
     for the container.
@@ -1323,7 +1328,7 @@ class HealthCheck(BaseModel):
     startPeriod: Optional[int] = None
 
 
-class SystemControl(BaseModel):
+class SystemControl(Boto3Model):
     """A list of namespaced kernel parameters to set in the container. This parameter
     maps to ``Sysctls`` in the `Create a
     container <https://docs.docker.com/engine/api/v1.35/#operation/ContainerCreate>`_
@@ -1350,7 +1355,7 @@ class SystemControl(BaseModel):
     value: Optional[str] = None
 
 
-class ResourceRequirement(BaseModel):
+class ResourceRequirement(Boto3Model):
     """
     The type and amount of a resource to assign to a container.
 
@@ -1369,7 +1374,7 @@ class ResourceRequirement(BaseModel):
     type: Literal["GPU", "InferenceAccelerator"]
 
 
-class FirelensConfiguration(BaseModel):
+class FirelensConfiguration(Boto3Model):
     """
     The FireLens configuration for the container.
 
@@ -1383,7 +1388,7 @@ class FirelensConfiguration(BaseModel):
     type: Literal["fluentd", "fluentbit"]
 
 
-class ContainerDefinition(BaseModel):
+class ContainerDefinition(Boto3Model):
     """
     Container definitions are used in task definitions to describe the
     different containers that are launched as part of a task.
@@ -1650,7 +1655,7 @@ class ContainerDefinition(BaseModel):
     credentialSpecs: Optional[List[str]] = None
 
 
-class HostVolumeProperties(BaseModel):
+class HostVolumeProperties(Boto3Model):
     """
     This parameter is specified when you use bind mount host volumes. The
     contents of the ``host`` parameter determine whether your bind mount host
@@ -1677,7 +1682,7 @@ class HostVolumeProperties(BaseModel):
     sourcePath: Optional[str] = None
 
 
-class DockerVolumeConfiguration(BaseModel):
+class DockerVolumeConfiguration(Boto3Model):
     """
     This parameter is specified when you use Docker volumes.
 
@@ -1710,7 +1715,7 @@ class DockerVolumeConfiguration(BaseModel):
     driver: Optional[str] = None
 
 
-class EFSAuthorizationConfig(BaseModel):
+class EFSAuthorizationConfig(Boto3Model):
     """
     The authorization configuration details for the Amazon EFS file system.
     """
@@ -1734,7 +1739,7 @@ class EFSAuthorizationConfig(BaseModel):
     iam: Optional[Literal["ENABLED", "DISABLED"]] = None
 
 
-class EFSVolumeConfiguration(BaseModel):
+class EFSVolumeConfiguration(Boto3Model):
     """
     This parameter is specified when you use an Amazon Elastic File System file
     system for task storage.
@@ -1765,7 +1770,7 @@ class EFSVolumeConfiguration(BaseModel):
     authorizationConfig: Optional[EFSAuthorizationConfig] = None
 
 
-class FSxWindowsFileServerAuthorizationConfig(BaseModel):
+class FSxWindowsFileServerAuthorizationConfig(Boto3Model):
     """
     The authorization configuration details for the Amazon FSx for Windows File
     Server file system.
@@ -1783,7 +1788,7 @@ class FSxWindowsFileServerAuthorizationConfig(BaseModel):
     domain: str
 
 
-class FSxWindowsFileServerVolumeConfiguration(BaseModel):
+class FSxWindowsFileServerVolumeConfiguration(Boto3Model):
     """
     This parameter is specified when you use Amazon FSx for Windows File Server
     file system for task storage.
@@ -1799,7 +1804,7 @@ class FSxWindowsFileServerVolumeConfiguration(BaseModel):
     authorizationConfig: FSxWindowsFileServerAuthorizationConfig
 
 
-class Volume(BaseModel):
+class Volume(Boto3Model):
     """
     A data volume that's used in a task definition.
 
@@ -1836,7 +1841,7 @@ class Volume(BaseModel):
     ] = None
 
 
-class Attribute(BaseModel):
+class Attribute(Boto3Model):
     """
     An attribute is a name-value pair that's associated with an Amazon ECS
     object.
@@ -1866,7 +1871,7 @@ class Attribute(BaseModel):
     targetId: Optional[str] = None
 
 
-class TaskDefinitionPlacementConstraint(BaseModel):
+class TaskDefinitionPlacementConstraint(Boto3Model):
     """The constraint on task placement in the task definition. For more information,
     see `Task placement
     constraints <https://docs.aws.amazon.com/AmazonECS/latest/developerguide/task-
@@ -1886,7 +1891,7 @@ class TaskDefinitionPlacementConstraint(BaseModel):
     expression: Optional[str] = None
 
 
-class RuntimePlatform(BaseModel):
+class RuntimePlatform(Boto3Model):
     """
     The operating system that your task definitions are running on. A platform
     family is specified only for tasks using the Fargate launch type.
@@ -1912,7 +1917,7 @@ class RuntimePlatform(BaseModel):
     ] = None
 
 
-class InferenceAccelerator(BaseModel):
+class InferenceAccelerator(Boto3Model):
     """
     Details on an Elastic Inference accelerator.
 
@@ -1929,7 +1934,7 @@ class InferenceAccelerator(BaseModel):
     deviceType: str
 
 
-class ProxyConfiguration(BaseModel):
+class ProxyConfiguration(Boto3Model):
     """
     The configuration details for the App Mesh proxy.
 
@@ -1952,7 +1957,7 @@ class ProxyConfiguration(BaseModel):
     properties: Optional[List[KeyValuePair]] = None
 
 
-class EphemeralStorage(BaseModel):
+class EphemeralStorage(Boto3Model):
     """
     The ephemeral storage settings to use for tasks run with the task
     definition.
@@ -1963,7 +1968,7 @@ class EphemeralStorage(BaseModel):
     sizeInGiB: int
 
 
-class TaskDefinition(BaseModel):
+class TaskDefinition(Boto3Model):
     """
     The details of a task definition which describes the container and volume
     definitions of an Amazon Elastic Container Service task.
@@ -1980,17 +1985,17 @@ class TaskDefinition(BaseModel):
     #: definition parameters and defaults, see `Amazon ECS Task Definitions <https://d
     #: ocs.aws.amazon.com/AmazonECS/latest/developerguide/task_defintions.html>`_ in
     #: the *Amazon Elastic Container Service Developer Guide*.
-    containerDefinitions: Optional[List[ContainerDefinition]] = None
+    containerDefinitions: List[ContainerDefinition]
     #: The name of a family that this task definition is registered to. Up to 255
     #: characters are allowed. Letters (both uppercase and lowercase letters),
     #: numbers, hyphens (-), and underscores (\_) are allowed.
-    family: Optional[str] = None
+    family: str
     #: The short name or full Amazon Resource Name (ARN) of the Identity and Access
     #: Management role that grants containers in the task permission to call Amazon
     #: Web Services APIs on your behalf. For more information, see `Amazon ECS Task
     #: Role <https://docs.aws.amazon.com/AmazonECS/latest/developerguide/task-iam-
     #: roles.html>`_ in the *Amazon Elastic Container Service Developer Guide*.
-    taskRoleArn: Optional[str] = None
+    taskRoleArn: str
     #: The Amazon Resource Name (ARN) of the task execution role that grants the
     #: Amazon ECS container agent permission to make Amazon Web Services API calls on
     #: your behalf. The task execution IAM role is required depending on the
@@ -2002,7 +2007,7 @@ class TaskDefinition(BaseModel):
     #: The Docker networking mode to use for the containers in the task. The valid
     #: values are ``none``, ``bridge``, ``awsvpc``, and ``host``. If no network mode
     #: is specified, the default is ``bridge``.
-    networkMode: Optional[Literal["bridge", "host", "awsvpc", "none"]] = None
+    networkMode: Literal["bridge", "host", "awsvpc", "none"] = "awsvpc"
     #: The revision of the task in a particular family. The revision is a version
     #: number of a task definition in a family. When you register a task definition
     #: for the first time, the revision is ``1``. Each time that you register a new

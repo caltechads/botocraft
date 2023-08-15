@@ -1,0 +1,45 @@
+---
+Parameter:
+  operations:
+    create:
+      boto3_name: put_parameter
+      return_type: int
+      response_attr: Version
+      defaults:
+        Overwrite: "False"
+      explicit_kwargs:
+        - Description
+        - AllowedPattern
+        - Tags
+        - Tier
+        - Policies
+        - Overwrite
+        - KeyId
+    update:
+      boto3_name: put_parameter
+      return_type: >-
+        "int"
+      response_attr: Version
+      defaults:
+        Overwrite: "True"
+      explicit_kwargs:
+        - Description
+        - AllowedPattern
+        - Tags
+        - Tier
+        - Policies
+        - Overwrite
+        - KeyId
+    get:
+      boto3_name: get_parameters
+      response_attr: Parameters
+      explicit_kwargs:
+        - WithDecryption
+    list:
+      boto3_name: describe_parameters
+      return_type: List[ParameterMetadata]
+      response_attr: Parameters
+    delete:
+      boto3_name: delete_parameter
+      return_type: None
+

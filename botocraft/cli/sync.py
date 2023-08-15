@@ -1,10 +1,9 @@
 import click
 from .cli import cli
 
-from ..sync import (
+from botocraft.sync import (
     PydanticModelGenerator,
-    PydanticManagerGenerator,
-    CRUDLMapping
+    PydanticServiceGenerator
 )
 
 
@@ -18,9 +17,8 @@ def models_group():
 
 @models_group.command('sync', short_help="Sync shapes for a service to Pydantic models")
 @click.argument('service')
-@click.argument('model', nargs=-1)
-def models_sync(service, model):
-    generator = PydanticModelGenerator(service, model)
+def models_sync(service):
+    generator = PydanticModelGenerator(service)
     generator.generate()
 
 
@@ -34,15 +32,6 @@ def managers_group():
 
 @managers_group.command('sync', short_help="Sync shapes for a service to Pydantic managers")
 @click.argument('service')
-@click.argument('model_name')
-@click.argument('operation', nargs=-1)
-def managers_sync(service, model_name, operation):
-    mapping = CRUDLMapping(
-        create='create_service',
-        get='describe_services',
-        update='update_service',
-        delete='delete_service',
-        list='list_services',
-    )
-    generator = PydanticManagerGenerator('ecs', 'Service', mapping)
+def managers_sync(service):
+    generator = PydanticServiceGenerator(service)
     generator.generate()

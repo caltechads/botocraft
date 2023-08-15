@@ -1,0 +1,23 @@
+---
+Parameter:
+  fields:
+    Name:
+      required: true
+    Value:
+      default: >-
+        "None"
+    Type:
+      required: true
+    Overwrite:
+      default: >-
+        "False"
+ParametersFilter:
+  fields:
+    Key:
+      required: true
+    Values:
+      required: true
+ParameterStringFilter:
+  fields:
+    Key:
+      required: true

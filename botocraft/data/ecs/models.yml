@@ -1,0 +1,42 @@
+---
+Service:
+  fields:
+    serviceName:
+      required: true
+    taskDefinition:
+      required: true
+    roleArn:
+      required: true
+    clusterArn:
+      required: true
+    desiredCount:
+      required: true
+      default: 1
+    launchType:
+      required: true
+      default: >-
+        "FARGATE"
+    schedulingStrategy:
+      required: true
+      default: >-
+        "REPLICA"
+Cluster:
+  fields:
+    clusterName:
+      required: true
+      default: >-
+        "default"
+TaskDefinition:
+  fields:
+    family:
+      required: true
+    taskRoleArn:
+      required: true
+    containerDefinitions:
+      required: true
+    networkMode:
+      required: true
+      default: >-
+        "awsvpc"
+Deployment:
+  readonly: true
