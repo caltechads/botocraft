@@ -1,1 +1,0 @@
-from .abstract import Boto3Model, ReadonlyBoto3Model

@@ -1,0 +1,101 @@
+---
+LoadBalancer:
+  operations:
+    create:
+      boto3_name: create_load_balancer
+      response_attr: LoadBalancers[0]
+      args:
+        Name:
+          attribute: LoadBalancerName
+        role:
+          attribute: roleArn
+        Subnets:
+          explicit: true
+          required: true
+        SubnetMappings:
+          explicit: true
+        Tags:
+          explicit: true
+    delete:
+      boto3_name: delete_load_balancer
+      return_type: None
+    get:
+      boto3_name: describe_load_balancers
+      response_attr: LoadBalancers
+    list:
+      boto3_name: describe_load_balancers
+      response_attr: LoadBalancers
+Listener:
+  operations:
+    create:
+      boto3_name: create_listener
+      response_attr: Listeners[0]
+      args:
+        Tags:
+          explicit: true
+    update:
+      boto3_name: modify_listener
+      response_attr: Listeners[0]
+    delete:
+      boto3_name: delete_listener
+      return_type: None
+    get:
+      boto3_name: describe_listeners
+      response_attr: Listeners
+      args:
+        LoadBalancerArn:
+          hidden: true
+        ListenerArns:
+          required: true
+    list:
+      boto3_name: describe_listeners
+      response_attr: Listeners
+Rule:
+  operations:
+    create:
+      boto3_name: create_rule
+      response_attr: Rules[0]
+      args:
+        Tags:
+          explicit: true
+    update:
+      boto3_name: modify_rule
+      response_attr: Rules[0]
+    delete:
+      boto3_name: delete_rule
+      return_type: None
+    get:
+      boto3_name: describe_rules
+      response_attr: Rules
+      args:
+        ListenerArn:
+          hidden: true
+        RuleArns:
+          required: true
+    list:
+      boto3_name: describe_rules
+      response_attr: Rules
+TargetGroup:
+  operations:
+    create:
+      boto3_name: create_target_group
+      response_attr: TargetGroups[0]
+      explicit_kwargs:
+        - Tags
+    update:
+      boto3_name: modify_target_group
+      response_attr: TargetGroups[0]
+    delete:
+      boto3_name: delete_target_group
+      return_type: None
+    get:
+      boto3_name: describe_target_groups
+      response_attr: TargetGroups
+      args:
+        LoadBalancerArn:
+          hidden: true
+        TargetGroupArns:
+          required: true
+    list:
+      boto3_name: describe_target_groups
+      response_attr: TargetGroups

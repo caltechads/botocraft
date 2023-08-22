@@ -22,12 +22,12 @@ sys.path.insert(0, os.path.abspath('../..'))
 # the master toctree document
 master_doc: str = "index"
 
-project: str = 'caltech_docs'
+project: str = 'botocraft'
 copyright: str = 'Caltech IMSS ADS'  # pylint: disable=redefined-builtin
 author: str = 'Caltech IMSS ADS'
 
 # The full version, including alpha/beta/rc tags
-release = '0.3.5'
+release = '0.1.0'
 
 
 # -- General configuration ---------------------------------------------------
@@ -40,13 +40,8 @@ extensions: List[str] = [
     'sphinx.ext.napoleon',
     'sphinx.ext.viewcode',
     'sphinxcontrib.images',
-    'sphinx_terraform',
-    'sphinx_terraform.viewcode',
     'sphinx.ext.intersphinx',
     'sphinx_rtd_theme',
-    "sphinxcontrib_django2",
-    'sphinx_json_globaltoc',
-    "sphinxcontrib.openapi",
 ]
 
 source_suffix: str = ".rst"
@@ -65,24 +60,11 @@ add_module_names: bool = True
 autodoc_member_order: str = 'groupwise'
 autodoc_type_aliases: Dict[str, str] = {}
 
-terraform_sources: Dict[str, str] = {
-    'common': '../../terraform/common',
-    'app': '../../terraform/app'
-}
-terraform_comment_markup = "rst"
-
 # the locations and names of other projects that should be linked to this one
 intersphinx_mapping: Dict[str, Tuple[str, Optional[str]]] = {
     'python': ('https://docs.python.org/3', None),
-    'django': ('http://docs.djangoproject.com/en/dev/', 'http://docs.djangoproject.com/en/dev/_objects/'),
-    'sphinx': ('https://www.sphinx-doc.org/en/master/', None),
-    'django-sphinx-hosting': ('https://django-sphinx-hosting.readthedocs.io/en/latest/', None),
 }
 
-# Configure the path to the Django settings module
-django_settings: str = "caltech_docs.settings"
-# Include the database table names of Django models
-django_show_db_tables: bool = True
 
 # -- Options for HTML output -------------------------------------------------
 

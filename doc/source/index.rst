@@ -1,33 +1,17 @@
-============
-caltech_docs
-============
+=========
+botocraft
+=========
 
 .. toctree::
    :caption: Overview
    :hidden:
 
-   overview/authorization
-   overview/api
-
-.. toctree::
-   :caption: Authoring Docs
-   :hidden:
-
    overview/authoring
-   overview/importing
 
 .. toctree::
    :caption: Runbook
    :hidden:
 
-   runbook/granting
-   runbook/revoking
-   runbook/users/enabling
-   runbook/users/disabling
-   runbook/users/add_token
-   runbook/api_users/creating
-   runbook/api_users/deleting
-   runbook/api_users/get_token
    runbook/contributing
 
 .. toctree::
@@ -35,53 +19,73 @@ caltech_docs
    :hidden:
 
    api/models
-   api/rest
-   api/terraform
 
 Current version is |release|.
 
-access.caltech name
-    IMSS ADS Documentation
+``botocraft`` is an opinionated re-implemenation of the AWS `boto3 <https://boto3.amazonaws.com/v1/documentation/api/latest/index.html>`_ and `botocore <https://botocore.amazonaws.com/v1/documentation/api/latest/index.html>`_ python libraries.
 
-This Django access.caltech application provides private, authenticated access to
-Sphinx documentation generated within IMSS ADS.   This uses the
-`django-sphinx-hosting
-<https://django-sphinx-hosting.readthedocs.io/en/latest/>`_ Django extension to
-do most of the hard work.
+Why make this library?
+----------------------
 
-This application was built so that we in ADS can use `Sphinx
-<https://www.sphinx-doc.org/en/master/>`_  to author our code base documentation and have it
-be published automatially to a system that is accessible only to Caltech
-authenticated users.
+While boto3 and botocore are wonderful libraries, and I honor the AWS teams for
+making them available to us developers, one of the problems we have had is that
+there is no standard interface in boto3 to all resources.  For example,
+imagine you want to list a certain kind of resource:
 
-This allows us to:
+* If you want to get a list of all ECS clusters, you use the ``list_clusters``
+  method on the ``ecs`` client.  This returns a list of ARNs.  You then use
+  ``describe_clusters`` to get the details of each of those ARNs.
+  ``list_clusters`` can be paginated, but ``describe_clusters`` cannot, and can
+  take a maximum of 10 ARNs.  So if you want to get the details of your clusters,
+  you have to combine ``list_clusters`` and ``describe_clusters`` in chunks of 10.
+* If you want to get a list of all EC2 instances, on the other hand, you use the
+  ``describe_instances`` method on the ``ec2`` client.  This returns a list of detailed
+  information about each instance.  ``describe_instances`` can be paginated.  There is
+  no ``list_instances`` method.
+* If you want to get a list of all S3 buckets, you use the ``list_buckets``
+  method on the ``s3`` client.  This returns a list of bucket names.  There is no
+  ``describe_buckets`` method.  And buckets are a mess of different resources,
+  so to figure out how an S3 bucket is configured, you might have to make some or all
+  of the following boto3 calls:
+  * ``get_bucket_acl``
+  * ``get_bucket_cors``
+  * ``get_bucket_encryption``
+  * ``get_bucket_lifecycle``
+  * ``get_bucket_location``
+  * etc.
 
-* have a single source of truth for our documentation
-* have our documentation be private
-* have our documentation be versioned with our code
-* have our documentation be searchable
+This is just a small sampling of the inconsistencies in the boto3 API.  These
+inconsistencies make it mandatory to have a deep understanding of the AWS API in
+order to write code that interacts with consistently across codebases.
+
+What does ``botocraft`` do?
+---------------------------
+
+It provides AWS resources as objects, with Django ORM-like managers that provide
+a CRUDL and foreign key/many-to-many resolution like functionality for selected
+AWS services.
+
+.. note::
+  You might ask, "Why not use the `AWS Cloud Control API
+  <https://aws.amazon.com/cloudcontrolapi/>`_?".  While that does implement the
+  CRUDL that we were looking for, we lose access to some of the more advanced
+  features of the AWS API, like the ability to see the current status of a
+  resource, or see ephemeral runtime or computed configuration.
+
+  For example, ``describe_services`` in the ``ecs`` client returns the current
+  deployments, events, task sets, running count, etc. for a service, but the
+  ``get_resource`` for ``AWS::ECS::Service`` via the Cloud Control API does not.
+  So we would have to make a call to the Cloud Control API to get a service, and
+  then go back to ``boto3`` to use the ``ecs`` client to get the current status
+  of the service.
+
 
 Features
 --------
 
-* Users must be authenticated via access.caltech, and authorized with the proper
-  ``nsrole`` to view docs
-* Users can be granted various levels of privileges within the system based on
-  Django privileges
-* Renders all documentation published within with a consistent theme
-* You may multiple versions of your docs per project
-* Navigation for each version of your documentation is automatially generated
-  from the Sphinx table of contents
-* Projects can be tagged with classifiers (like PyPI classifiers) to refine
-  searching and filtering
-* Projects can have external links associated with them
-* Provides full-text search functionality across all projects
-* Provides a REST API to programmatically interact with the system.  Useful for
-  integrating into a CI/CD system.
-
-AWS Architecture
-----------------
-
-.. thumbnail:: ../images/caltech_docs.png
-   :alt: AWS architecture
-   :title: AWS architecture
+* Provide AWS resources as Python classes, backed by `pydantic
+  <https://github.com/pydantic/pydantic>`
+* Automatically generate resource classes and manager classes by inspecting the
+  ``botocore`` definitions, overlaid with our customizations
+* Automatically paginate results if they are paginated in the AWS API
+* Automatically resolve foreign keys and many-to-many relationships to resource objects

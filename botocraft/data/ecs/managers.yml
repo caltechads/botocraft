@@ -3,14 +3,20 @@ Service:
   operations:
     create:
       boto3_name: create_service
-      mapping:
-        cluster: clusterArn
-        role: roleArn
-      explicit_kwargs:
-        - clientToken
-        - serviceConnectConfiguration
+      args:
+        cluster:
+          attribute: clusterArn
+        role:
+          attribute: roleArn
+        clientToken:
+          explicit: true
+        serviceConnectConfiguration:
+          explicit: true
     delete:
       boto3_name: delete_service
+      args:
+        force:
+          default: "False"
     get:
       boto3_name: describe_services
     list:
@@ -18,12 +24,15 @@ Service:
       response_attr: serviceArns
     update:
       boto3_name: update_service
-      mapping:
-        cluster: clusterArn
-        service: serviceName
-      explicit_kwargs:
-        - forceNewDeployment
-        - serviceConnectConfiguration
+      args:
+        cluster:
+          source: clusterArn
+        service:
+          source: serviceName
+        forceNewDeployment:
+          explicit: true
+        serviceConnectConfiguration:
+          explicit: true
 Cluster:
   operations:
     create:
@@ -37,17 +46,24 @@ Cluster:
       response_attr: clusterArns
     update:
       boto3_name: update_cluster
-      mapping:
-        cluster: clusterName
+      args:
+        cluster:
+          source: clusterName
 TaskDefinition:
   operations:
     create:
       boto3_name: register_task_definition
+      response_attr: taskDefinition
     delete:
       boto3_name: deregister_task_definition
+      response_attr: taskDefinition
     get:
       boto3_name: describe_task_definition
+      response_attr: taskDefinitions
     list:
       boto3_name: list_task_definitions
+      response_attr: taskDefinitionArns
+      return_type: List[str]
     update:
       boto3_name: register_task_definition
+      response_attr: taskDefinition

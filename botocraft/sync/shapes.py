@@ -47,6 +47,14 @@ class DoubleShapeConverter(AbstractShapeConverter):
         raise ValueError(f'Not double type: {value.type_name}')
 
 
+class TimestampShapeConverter(AbstractShapeConverter):
+
+    def to_python(self, value: botocore.model.Shape) -> str:
+        if value.type_name == 'timestamp':
+            return 'datetime'
+        raise ValueError(f'Not double type: {value.type_name}')
+
+
 class PythonTypeShapeConverter:
 
     CONVERTERS: Dict[str, AbstractShapeConverter] = {
@@ -54,6 +62,7 @@ class PythonTypeShapeConverter:
         'boolean': BooleanShapeConverter(),
         'integer': IntegerShapeConverter(),
         'double': DoubleShapeConverter(),
+        'timestamp': TimestampShapeConverter(),
     }
 
     def convert(self, value: botocore.model.Shape) -> str:

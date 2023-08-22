@@ -11,6 +11,12 @@ Parameter:
     Overwrite:
       default: >-
         "False"
+    LastModifiedDate:
+      readonly: true
+    Version:
+      readonly: true
+    ARN:
+      readonly: true
 ParametersFilter:
   fields:
     Key:

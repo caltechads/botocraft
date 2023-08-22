@@ -1,8 +1,22 @@
 ---
 Service:
   fields:
+    serviceArn:
+      readonly: true
+    status:
+      readonly: true
+    runningCount:
+      readonly: true
+    pendingCount:
+      readonly: true
     serviceName:
       required: true
+    deployments:
+      readonly: true
+    events:
+      readonly: true
+    createdBy:
+      readonly: true
     taskDefinition:
       required: true
     roleArn:
@@ -22,12 +36,36 @@ Service:
         "REPLICA"
 Cluster:
   fields:
+    clusterArn:
+      readonly: true
+    status:
+      readonly: true
+    registeredContainerInstancesCount:
+      readonly: true
+    runningTasksCount:
+      readonly: true
+    pendingTasksCount:
+      readonly: true
+    activeServicesCount:
+      readonly: true
+    statistics:
+      readonly: true
+    attachmentsStatus:
+      readonly: true
     clusterName:
       required: true
       default: >-
         "default"
 TaskDefinition:
   fields:
+    taskDefinitionArn:
+      readonly: true
+    revision:
+      readonly: true
+    status:
+      readonly: true
+    registeredBy:
+      readonly: true
     family:
       required: true
     taskRoleArn:
@@ -40,3 +78,15 @@ TaskDefinition:
         "awsvpc"
 Deployment:
   readonly: true
+ContainerDefinition:
+  fields:
+    name:
+      required: true
+    image:
+      required: true
+    essential:
+      required: true
+      default: >-
+        True
+LoadBalancer:
+  alternate_name: LoadBalancerConfiguration

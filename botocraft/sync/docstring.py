@@ -125,7 +125,7 @@ class DocumentationFormatter:
         documentation = self.clean(documentation)
         return documentation
 
-    def format_attribute(self, shape: botocore.model.Shape) -> str:
+    def format_attribute(self, docs: str) -> str:
         """
         Format the documentation for a single attribute of a model.
 
@@ -135,7 +135,7 @@ class DocumentationFormatter:
         Returns:
             The formatted documentation for the attribute as reStructuredText.
         """
-        documentation = shape.documentation
+        documentation = docs
         documentation = self.clean(documentation, max_lines=1)
         lines = wrap(documentation, self.max_length)
         return '\n'.join([f'    #: {line.strip()}' for line in lines])

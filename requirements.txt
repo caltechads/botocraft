@@ -17,6 +17,9 @@ pycodestyle                                   # https://github.com/PyCQA/pycodes
 mypy                                          # https://github.com/python/mypy
 types-boto3
 types-botocore
+types-PyYAML
+botocore-stubs
+boto3-stubs
 
 # Other utils
 # ------------------------------------------------------------------------------
