@@ -9,6 +9,7 @@ import boto3
 import botocore.model
 import botocore.session
 from docformatter.format import Formatter
+import isort
 
 from .docstring import DocumentationFormatter, FormatterArgs
 from .methods import (  # pylint: disable=import-error
@@ -352,7 +353,6 @@ class ServiceGenerator:
                 'import boto3',
                 'from pydantic import Field',
                 'from .abstract import Boto3Model, ReadonlyBoto3Model',
-                'from .tagging import Tag'
             ]
         )
         #: A dictionary of model names to class code.  This is populated by
@@ -435,7 +435,7 @@ class ServiceGenerator:
         self.manager_generator.generate()
         self.response_classes = deepcopy(self.model_generator.classes)
         self.manager_classes = deepcopy(self.manager_generator.classes)
-        self.imports.update(self.model_generator.imports)
+        self.imports.update(self.manager_generator.imports)
         self.model_generator.clear()
 
         self.write()
@@ -462,6 +462,7 @@ class ServiceGenerator:
         except (KeyError, black.parsing.InvalidInput):
             print(code)
             raise
+        formatted_code = isort.code(formatted_code)
         formatted_code = Formatter(FormatterArgs(), None, None, None)._format_code(formatted_code)
         output_file = self.service_path / f'{self.service_def.name}.py'
         with open(output_file, 'w', encoding='utf-8') as fd:

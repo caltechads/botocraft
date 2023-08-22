@@ -215,7 +215,7 @@ class BotocraftInterface(BaseModel):
         # Tag is defined in so many services that we manually
         # defined it in the botocraft.models.tagging module and
         # define it here so it doesn't get generated.
-        'Tag': 'botocraft.service.tagging',
+        'Tag': 'botocraft.services.tagging',
     }
 
     def load(self) -> None:
@@ -250,7 +250,7 @@ class BotocraftInterface(BaseModel):
         init_path = SERVICES_DIR / '__init__.py'
         with open(init_path, 'w', encoding='utf-8') as f:
             for service in self.services:
-                f.write(f'from {service} import *  # noqa: F401,F403\n')
+                f.write(f'from .{service} import *  # noqa: F401,F403\n')
 
     def update_init_py(self, service: str) -> None:
         """

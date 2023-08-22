@@ -102,6 +102,7 @@ class MethodGenerator:
                 # This is a list of submodels
                 element_shape = shape.member  # type: ignore
                 inner_model_name: str = element_shape.name
+                import_model = None
                 if inner_model_name == 'String' or element_shape.type_name == 'string':
                     inner_model_name = self.shape_converter.convert(element_shape)
                 else:
@@ -119,6 +120,8 @@ class MethodGenerator:
                 import_model = inner_model_name
                 python_type = inner_model_name
         if import_model:
+            if import_model == "Tag":
+                pass
             if import_model in self.generator.service_generator.classes:
                 # We generated this model in this service so we don't need to
                 # import it

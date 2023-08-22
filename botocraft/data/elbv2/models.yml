@@ -27,6 +27,8 @@ LoadBalancer:
         "ipv4"
     CreatedTime:
       readonly: true
+    CanonicalHostedZoneId:
+      readonly: true
   extra_fields:
     EnforceSecurityGroupInboundRulesOnPrivateLinkTraffic:
       readonly: true
@@ -89,3 +91,5 @@ SubnetMapping:
   fields:
     SubnetId:
       required: true
+Certificate:
+  readonly: true
