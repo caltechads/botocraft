@@ -239,7 +239,10 @@ class MethodGenerator:
             return args
         for arg in self.operation_def.explicit_kwargs:
             if arg not in self.input_shape.required_members:
-                args[arg] = f'Optional[{self.resolve_type(self.input_shape.members[arg])}]'
+                args[arg] = self.resolve_type(self.input_shape.members[arg])
+                arg_def = self.operation_def.args.get(arg, OperationArgumentDefinition())
+                if arg_def.default in [None, "None"]:
+                    args[arg] = f'Optional[{args[arg]}]'
         return args
 
     @property

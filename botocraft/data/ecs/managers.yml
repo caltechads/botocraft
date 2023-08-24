@@ -19,12 +19,24 @@ Service:
           default: "False"
     get:
       boto3_name: describe_services
+      args:
+        cluster:
+          default: >-
+            "default"
     get_many:
       boto3_name: describe_services
+      args:
+        cluster:
+          default: >-
+            "default"
     list:
       boto3_name: list_services
       response_attr: serviceArns
       return_type: List[str]
+      args:
+        cluster:
+          default: >-
+            "default"
     update:
       boto3_name: update_service
       args:

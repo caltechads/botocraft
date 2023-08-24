@@ -71,7 +71,7 @@ class ServiceManager(Boto3ModelManager):
         self,
         service: "str",
         *,
-        cluster: Optional[str] = None,
+        cluster: str = "default",
         include: Optional[List["Literal['TAGS']"]] = None
     ) -> Optional["Service"]:
         _response = self.client.describe_services(
@@ -89,7 +89,7 @@ class ServiceManager(Boto3ModelManager):
         self,
         services: List["str"],
         *,
-        cluster: Optional[str] = None,
+        cluster: str = "default",
         include: Optional[List["Literal['TAGS']"]] = None
     ) -> List["Service"]:
         _response = self.client.describe_services(
@@ -105,7 +105,7 @@ class ServiceManager(Boto3ModelManager):
     def list(
         self,
         *,
-        cluster: Optional[str] = None,
+        cluster: str = "default",
         launchType: Optional[Literal["EC2", "FARGATE", "EXTERNAL"]] = None,
         schedulingStrategy: Optional[Literal["REPLICA", "DAEMON"]] = None
     ) -> List[str]:
@@ -127,7 +127,7 @@ class ServiceManager(Boto3ModelManager):
     def update(
         self,
         model: "Service",
-        forceNewDeployment: Optional[bool] = False,
+        forceNewDeployment: bool = False,
         serviceConnectConfiguration: Optional["ServiceConnectConfiguration"] = None,
     ) -> "Service":
         data = model.model_dump()
