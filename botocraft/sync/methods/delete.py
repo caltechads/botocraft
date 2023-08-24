@@ -23,13 +23,16 @@ class DeleteMethodGenerator(MethodGenerator):
             The name of the return type class.
         """
         _ = self.response_class
-        return_type = self.model_name
+        return_type = f'"{self.model_name}"'
         if self.operation_def.return_type:
             return_type = self.operation_def.return_type
         return return_type
 
     @property
     def body(self) -> str:
+        """
+        Generate the method body code for the delete method.
+        """
         response_attr = self.model_name.lower()
         if self.operation_def.response_attr:
             response_attr = self.operation_def.response_attr

@@ -21,7 +21,7 @@ class CreateMethodGenerator(MethodGenerator):
         Returns:
             The method signature for the operation.
         """
-        signature = f"    def {self.operation}(self, model: {self.model_name}"
+        signature = f'    def {self.operation}(self, model: "{self.model_name}"'
         if self.explicit_args or self.explicit_kwargs:
             signature += ", "
         signature += ", ".join([f"{arg}: {arg_type}" for arg, arg_type in self.explicit_args.items()])
@@ -35,18 +35,31 @@ class CreateMethodGenerator(MethodGenerator):
         return signature
 
     @property
-    def operation_args(self) -> OrderedDict[str, str]:
+    def operation_args(self) -> str:
         """
-        Get the map of argument name to value of arguments for the boto3 operation call.
+        Get positional argument string for the boto3 operation call.
+
+        Example:
+
+            .. code-block:: python
+
+                "arg1=data['arg1'], arg2=data['arg2']"
+
+        We're overriding this because we need to map get most of our arguments
+        for the boto3 call from the model attributes, not the method arguments,
+        which is what
+        :py:meth:`botocraft.sync.methods.base.MethodGenerator.operation_args`
+        provides.
 
         Returns:
-            The map of argument name to value of arguments for the boto3 operation call.
+            The string to use to represent the boto3 operation positional
+            arguments.
         """
         mapping = self.operation_def.args
         _args: OrderedDict[str, str] = OrderedDict()
         for arg in self.args:
             if arg in self.explicit_args:
-                _arg = arg
+                _arg = self.serialize(arg)
             else:
                 if arg in mapping:
                     if mapping[arg].hidden:
@@ -54,19 +67,40 @@ class CreateMethodGenerator(MethodGenerator):
                 _arg = f"data['{arg}']"
                 if arg in mapping:
                     if mapping[arg].source_arg:
-                        _arg = cast(str, mapping[arg].source_arg)
+                        _arg = self.serialize(cast(str, mapping[arg].source_arg))
                     elif mapping[arg].attribute:
                         _arg = f"data['{mapping[arg].attribute}']"
             _args[arg] = _arg
-        return _args
+        return ", ".join(
+            [f"{arg}={_arg}" for arg, _arg in _args.items()]
+        )
 
     @property
-    def operation_kwargs(self) -> OrderedDict[str, str]:
+    def operation_kwargs(self) -> str:
+        """
+        Get keyword argument string for the boto3 operation call.
+
+        Example:
+
+            .. code-block:: python
+
+                "arg1=data['arg1'], arg2=data['arg2']"
+
+        We're overriding this because we need to map get most of our arguments
+        for the boto3 call from the model attributes, not the method arguments,
+        which is what
+        :py:meth:`botocraft.sync.methods.base.MethodGenerator.operation_kwargs`
+        provides.
+
+        Returns:
+            The string to use to represent the boto3 operation positional
+            arguments.
+        """
         mapping = self.operation_def.args
         _args = OrderedDict()
         for arg in self.kwargs:
             if arg in self.explicit_kwargs:
-                _arg = arg
+                _arg = self.serialize(arg)
             else:
                 if arg in mapping:
                     if mapping[arg].hidden:
@@ -74,11 +108,13 @@ class CreateMethodGenerator(MethodGenerator):
                 _arg = f"data['{arg}']"
                 if arg in mapping:
                     if mapping[arg].source_arg:
-                        _arg = cast(str, mapping[arg].source_arg)
+                        _arg = self.serialize(cast(str, mapping[arg].source_arg))
                     elif mapping[arg].attribute:
                         _arg = f"data['{mapping[arg].attribute}']"
             _args[arg] = _arg
-        return _args
+        return ", ".join(
+            [f"{arg}={_arg}" for arg, _arg in _args.items()]
+        )
 
     @property
     def operation_call(self) -> str:
@@ -102,14 +138,12 @@ class CreateMethodGenerator(MethodGenerator):
         """
         call = "data = model.model_dump()"
         call += f"\n        _response = self.client.{self.boto3_name}("
-        call += ", ".join(
-            [f"{arg}={_arg}" for arg, _arg in self.operation_args.items()]
-        )
+        if args := self.operation_args:
+            call += args
         if self.args and self.kwargs:
             call += ", "
-        call += ", ".join(
-            [f"{arg}={_arg}" for arg, _arg in self.operation_kwargs.items()]
-        )
+        if kwargs := self.operation_kwargs:
+            call += kwargs
         call += ")"
         call += f"\n        response = {self.response_class}.model_construct(**_response)"
         return call
@@ -139,7 +173,7 @@ class CreateMethodGenerator(MethodGenerator):
         # imported into the generated class, even if it's not used in the
         # method signature.
         _ = super().return_type
-        return_type = self.model_name
+        return_type = f'"{self.model_name}"'
         if self.operation_def.return_type:
             return_type = self.operation_def.return_type
         return return_type

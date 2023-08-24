@@ -16,6 +16,7 @@ from .methods import (  # pylint: disable=import-error
     MethodGenerator,
     ListMethodGenerator,
     GetMethodGenerator,
+    GetManyMethodGenerator,
     CreateMethodGenerator,
     UpdateMethodGenerator,
     DeleteMethodGenerator,
@@ -105,7 +106,9 @@ class ModelGenerator(AbstractGenerator):
         Generate all the service models.
         """
         for model_name in self.service_def.models:
-            self.generate_model(model_name)
+            model_def = self.get_model_def(model_name)
+            base_class = model_def.base_class if model_def.base_class else 'PrimaryBoto3Model'
+            _ = self.generate_model(model_name, base_class=base_class)
 
     def resolve_type(self, field_shape: botocore.model.Shape) -> str:
         """
@@ -117,18 +120,17 @@ class ModelGenerator(AbstractGenerator):
         Returns:
             The Python type for the shape.
         """
+        inner_model_name: str
         try:
             python_type = self.shape_converter.convert(field_shape)
         except ValueError as exc:
             if field_shape.type_name == 'list':
                 # This is a list of submodels
                 element_shape = field_shape.member  # type: ignore  # pylint: disable=no-member
-                inner_model_name: str = element_shape.name
-                if inner_model_name == 'String' or element_shape.type_name == 'string':
+                if element_shape.name == 'String' or element_shape.type_name == 'string':
                     inner_model_name = self.shape_converter.convert(element_shape)
                 else:
-                    self.generate_model(inner_model_name, shape=element_shape)
-                    inner_model_name = f'"{inner_model_name}"'
+                    inner_model_name = self.generate_model(element_shape.name, shape=element_shape)
                 python_type = f'List[{inner_model_name}]'
             elif field_shape.type_name == 'map':
                 # This is a map of submodels.  I'm assuming here that the key
@@ -138,9 +140,7 @@ class ModelGenerator(AbstractGenerator):
                 python_type = f'Dict[{key_type}, {value_type}]'
             elif field_shape.type_name == 'structure':
                 # This is a submodel
-                inner_model_name = field_shape.name
-                self.generate_model(inner_model_name, shape=field_shape)
-                python_type = f'"{inner_model_name}"'
+                python_type = self.generate_model(field_shape.name, shape=field_shape)
             elif field_shape.name in ['Timestamp', 'DateTime']:
                 python_type = 'datetime'
                 self.imports.add('from datetime import datetime')
@@ -185,11 +185,74 @@ class ModelGenerator(AbstractGenerator):
             fields.append(field)
         return fields
 
+    def get_properties(
+        self,
+        model_def: ModelDefinition,
+        base_class: str
+    ) -> Optional[str]:
+        """
+        Handle the special properties for primary models.
+
+        Args:
+            model_def: the botocraft model definition for this model
+            base_class: the base class for this model
+
+        Returns:
+            The properties for this model, or ``None`` if this is not a primary
+            model.
+        """
+        properties: Optional[str] = None
+        if base_class in ['PrimaryBoto3Model', 'ReadonlyPrimaryBoto3Model']:
+            assert model_def.primary_key, f'Primary service model "{model_def.name}" has no primary key'
+            properties = f'''
+    @property
+    def pk(self) -> Optional[str]:
+        """
+        Return the primary key of the model.   This is the value of the
+        :py:attr:`{model_def.primary_key}` attribute.
+
+        Returns:
+            The primary key of the model instance.
+        """
+        return self.{model_def.primary_key}
+'''
+            if model_def.arn_key:
+                properties += f'''
+
+    @property
+    def arn(self) -> Optional[str]:
+        """
+        Return the ARN of the model.   This is the value of the
+        :py:attr:`{model_def.arn_key}` attribute.
+
+        Returns:
+            The ARN of the model instance.
+        """
+        return self.{model_def.arn_key}
+'''
+
+            if model_def.name_key:
+                properties += f'''
+
+    @property
+    def name(self) -> Optional[str]:
+        """
+        Return the name of the model.   This is the value of the
+        :py:attr:`{model_def.name_key}` attribute.
+
+        Returns:
+            The name of the model instance.
+        """
+        return self.{model_def.name_key}
+'''
+        return properties
+
     def generate_model(
         self,
         model_name: str,
-        shape: Optional[botocore.model.Shape] = None
-    ) -> None:
+        shape: Optional[botocore.model.Shape] = None,
+        base_class: str = 'Boto3Model'
+    ) -> str:
         """
         Generate the code for a single model and its dependent models and save
         them to :py:attr:`classes`.
@@ -215,12 +278,12 @@ class ModelGenerator(AbstractGenerator):
             model_name = model_def.alternate_name
         if model_name in self.classes or model_name in self.service_generator.classes:
             # We've already generated this model
-            return
+            return model_name
         if model_name in self.interface.models:
             # This is a model that we're importing from another service
             import_path = self.interface.models[model_name]
             self.imports.add(f'from {import_path} import {model_name}')
-            return
+            return model_name
 
         if hasattr(shape, 'members'):
             for field_name, field_shape in shape.members.items():
@@ -240,32 +303,39 @@ class ModelGenerator(AbstractGenerator):
                     python_type = f'Optional[{python_type}]'
                     if field_def.default is None:
                         default = 'None'
+                    else:
+                        default = field_def.default
                 # Add the docstring for this field
                 fields.append(
                     self.docformatter.format_attribute(field_shape.documentation)
                 )
                 field_line = f'    {field_name}: {python_type}'
                 if field_def.readonly:
-                    _default = f', default={field_def.default}' if field_def.default else ''
+                    _default = f', default={default}' if default else ''
                     field_line += f' = Field(frozen=True{_default})'
                 elif default:
                     field_line += f' = {field_def.default}'
                 fields.append(field_line)
             fields.extend(self.extra_fields(model_def))
 
-            base_class = 'Boto3Model'
             if model_def.readonly:
-                base_class = 'ReadonlyBoto3Model'
+                base_class = f'Readonly{base_class}'
 
             code: str = f'class {model_name}({base_class}):\n'
             docstring = self.docformatter.format_docstring(shape)
+            properties = self.get_properties(model_def, base_class)
             if docstring:
                 code += f'    """{docstring}"""\n'
+            if 'PrimaryBoto3Model' in base_class:
+                code += f'    manager: Boto3ModelManager = {model_name}Manager()\n\n'
             if fields:
                 code += '\n'.join(fields)
-            else:
+            if properties:
+                code += f'\n{properties}'
+            if not fields and not properties:
                 code += '    pass'
             self.classes[model_name] = code
+        return model_name
 
 
 class ManagerGenerator(AbstractGenerator):
@@ -277,6 +347,7 @@ class ManagerGenerator(AbstractGenerator):
         'update': UpdateMethodGenerator,
         'delete': DeleteMethodGenerator,
         'get': GetMethodGenerator,
+        'get_many': GetManyMethodGenerator,
         'list': ListMethodGenerator,
     }
 
@@ -313,16 +384,15 @@ class ManagerGenerator(AbstractGenerator):
             )
             methods[operation_name] = generator.code
         method_code = '\n\n'.join(methods.values())
+        base_class = 'Boto3ModelManager'
+        if manager_def.readonly:
+            base_class = 'ReadonlyBoto3ModelManager'
         code = f"""
 
 
-class {model_name}Manager:
+class {model_name}Manager({base_class}):
 
     service_name: str = '{self.service_name}'
-
-    def __init__(self) -> None:
-        #: The boto3 client for the AWS service
-        self.client = boto3.client(self.service_name)  # type: ignore
 
 {method_code}
 """
@@ -352,7 +422,8 @@ class ServiceGenerator:
                 'from typing import Optional, Literal, Dict, List, cast',
                 'import boto3',
                 'from pydantic import Field',
-                'from .abstract import Boto3Model, ReadonlyBoto3Model',
+                'from .abstract import Boto3Model, ReadonlyBoto3Model, PrimaryBoto3Model, '
+                'ReadonlyPrimaryBoto3Model, Boto3ModelManager, ReadonlyBoto3ModelManager',
             ]
         )
         #: A dictionary of model names to class code.  This is populated by
@@ -393,12 +464,20 @@ class ServiceGenerator:
         The code for this service.
         """
         imports = '\n'.join(list(self.imports))
-        model_classes = '\n\n'.join(sorted(self.model_classes.values()))
-        response_classes = '\n\n'.join(sorted(self.response_classes.values()))
-        manager_classes = '\n\n'.join(sorted(self.manager_classes.values()))
+        model_classes = '\n\n'.join(self.model_classes.values())
+        response_classes = '\n\n'.join(self.response_classes.values())
+        manager_classes = '\n\n'.join(self.manager_classes.values())
         return f"""
 # This file is automatically generated by botocraft.  Do not edit directly.
+# pylint: disable=anomalous-backslash-in-string,unsubscriptable-object,line-too-long,arguments-differ
+# mypy: disable-error-code="index, override"
 {imports}
+
+# ===============
+# Managers
+# ===============
+
+{manager_classes}
 
 
 # ==============
@@ -414,11 +493,6 @@ class ServiceGenerator:
 
 {response_classes}
 
-# ===============
-# Managers
-# ===============
-
-{manager_classes}
 """
 
     def generate(self) -> None:
@@ -431,7 +505,7 @@ class ServiceGenerator:
         self.imports.update(self.model_generator.imports)
         self.model_generator.clear()
 
-        # Generate the service managers and response models
+        # Generate the service managers and request/response models
         self.manager_generator.generate()
         self.response_classes = deepcopy(self.model_generator.classes)
         self.manager_classes = deepcopy(self.manager_generator.classes)
@@ -459,7 +533,7 @@ class ServiceGenerator:
         code = self.code
         try:
             formatted_code = black.format_str(code, mode=black.FileMode())
-        except (KeyError, black.parsing.InvalidInput):
+        except (KeyError, black.parsing.InvalidInput):  # pylint: disable=c-extension-no-member
             print(code)
             raise
         formatted_code = isort.code(formatted_code)

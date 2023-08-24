@@ -21,7 +21,7 @@ LoadBalancer:
       return_type: None
     get:
       boto3_name: describe_load_balancers
-      response_attr: LoadBalancers
+      response_attr: LoadBalancers[0]
     list:
       boto3_name: describe_load_balancers
       response_attr: LoadBalancers
@@ -41,7 +41,7 @@ Listener:
       return_type: None
     get:
       boto3_name: describe_listeners
-      response_attr: Listeners
+      response_attr: Listeners[0]
       args:
         LoadBalancerArn:
           hidden: true
@@ -66,7 +66,7 @@ Rule:
       return_type: None
     get:
       boto3_name: describe_rules
-      response_attr: Rules
+      response_attr: Rules[0]
       args:
         ListenerArn:
           hidden: true
@@ -90,7 +90,7 @@ TargetGroup:
       return_type: None
     get:
       boto3_name: describe_target_groups
-      response_attr: TargetGroups
+      response_attr: TargetGroups[0]
       args:
         LoadBalancerArn:
           hidden: true

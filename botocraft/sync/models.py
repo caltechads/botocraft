@@ -8,7 +8,7 @@ from pydantic import BaseModel
 DATA_DIR = Path(__file__).parent.parent / 'data'
 SERVICES_DIR = Path(__file__).parent.parent / 'services'
 
-Operation = Literal['create', 'update', 'delete', 'get', 'list']
+Operation = Literal['create', 'update', 'delete', 'get', 'get_many', 'list']
 
 # ------
 # Models
@@ -40,9 +40,22 @@ class ModelDefinition(BaseModel):
 
     #: The botocore model name
     name: str
+    #: The name of the base class for this model.  If not specified, we'll
+    #: use the default base class for the use case.
+    base_class: Optional[str] = None
     #: Our replacement model name.  We use this if some submodels have the
     #: same name as a model in another service.
     alternate_name: Optional[str] = None
+    #: The primary key for this model.  This is the field that will be used
+    #: to determine whether we need to create a new model instance or update
+    #: an existing one.
+    primary_key: Optional[str] = None
+    #: The ``ARN`` key for this model attribute if any.  Some AWS models
+    #: have an ARN, a name, and an ID.  Some have no ARN.
+    arn_key: Optional[str] = None
+    #: The ``name`` key for this model attribute if any.  Some AWS models
+    #: have an ARN, a name, and an ID.
+    name_key: Optional[str] = None
     #: A list of field overrides for this model.  If a field name is not
     #: specified in this list, it will be generated verbatim from the
     #: botocore model.
@@ -82,6 +95,12 @@ class OperationArgumentDefinition(BaseModel):
     #: If ``True``, don't include this argument in the method signature.
     #: or in the operation call invocation.
     hidden: bool = False
+    #: If specified, use this as the docstring for the argument.  Otherwise,
+    #: we'll use the docstring from the botocore operation.
+    docstring: Optional[str] = None
+    #: If this argument is a model instance, exclude any attributes that
+    #: are ``None`` from the serialized output we send to boto3.
+    exclude_none: bool = False
 
 
 class OperationDefinition(BaseModel):
@@ -149,6 +168,8 @@ class ManagerDefinition(BaseModel):
     name: str
     #: The operations to generate on this manager
     operations: Dict[Operation, OperationDefinition] = {}
+    #: If ``True``, make this manager use the :py:class:`ReadonlyBoto3ModelManager` superclass
+    readonly: bool = False
 
 
 # --------
@@ -277,7 +298,7 @@ class BotocraftInterface(BaseModel):
             service: If specified, only generate the interface for the given
                 service.  Otherwise, generate all interfaces.
         """
-        from .service import ServiceGenerator
+        from .service import ServiceGenerator  # pylint: disable=import-outside-toplevel
         if service:
             assert service in self.services, f'No service definition for AWS Service "{service}"'
             print(f'Generating {service} service interface')

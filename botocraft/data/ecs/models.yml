@@ -1,5 +1,8 @@
 ---
 Service:
+  primary_key: serviceArn
+  arn_key: serviceArn
+  name_key: serviceName
   fields:
     serviceArn:
       readonly: true
@@ -35,6 +38,9 @@ Service:
       default: >-
         "REPLICA"
 Cluster:
+  primary_key: clusterArn
+  arn_key: clusterArn
+  name_key: clusterName
   fields:
     clusterArn:
       readonly: true
@@ -57,6 +63,8 @@ Cluster:
       default: >-
         "default"
 TaskDefinition:
+  primary_key: taskDefinitionArn
+  arn_key: taskDefinitionArn
   fields:
     taskDefinitionArn:
       readonly: true
@@ -76,9 +84,15 @@ TaskDefinition:
       required: true
       default: >-
         "awsvpc"
+ContainerInstance:
+  primary_key: containerInstanceArn
+  arn_key: containerInstanceArn
+  readonly: true
 Deployment:
+  base_class: Boto3Model
   readonly: true
 ContainerDefinition:
+  base_class: Boto3Model
   fields:
     name:
       required: true
@@ -89,4 +103,5 @@ ContainerDefinition:
       default: >-
         True
 LoadBalancer:
+  base_class: Boto3Model
   alternate_name: LoadBalancerConfiguration

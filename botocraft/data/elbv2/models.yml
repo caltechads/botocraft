@@ -1,5 +1,8 @@
 ---
 LoadBalancer:
+  primary_key: LoadBalancerArn
+  arn_key: LoadBalancerArn
+  name_key: LoadBalancerName
   fields:
     LoadBalancerArn:
       readonly: true
@@ -38,6 +41,8 @@ LoadBalancer:
       python_type: Optional[bool]
       default: None
 Listener:
+  primary_key: ListenerArn
+  arn_key: ListenerArn
   fields:
     ListenerArn:
       readonly: true
@@ -50,6 +55,8 @@ Listener:
       default: >-
         "HTTPS"
 Rule:
+  primary_key: RuleArn
+  arn_key: RuleArn
   fields:
     ListenerArn:
       required: true
@@ -66,6 +73,9 @@ Rule:
       default: >-
         False
 TargetGroup:
+  primary_key: TargetGroupArn
+  arn_key: TargetGroupArn
+  name_key: TargetGroupName
   fields:
     TargetGroupArn:
       readonly: true
@@ -88,8 +98,10 @@ TargetGroup:
       default: >-
         "ipv4"
 SubnetMapping:
+  base_class: Boto3Model
   fields:
     SubnetId:
       required: true
 Certificate:
+  base_class: Boto3Model
   readonly: true

@@ -56,7 +56,7 @@ class GetMethodGenerator(MethodGenerator):
             The name of the return type class.
         """
         _ = super().return_type
-        return_type = f'Optional[{self.model_name}]'
+        return_type = f'Optional["{self.model_name}"]'
         if self.operation_def.return_type:
             return_type = self.operation_def.return_type
         return return_type
@@ -69,13 +69,20 @@ class GetMethodGenerator(MethodGenerator):
         Returns:
             The code for the get method.
         """
-        response_attr = self.model_name_plural.lower()
+        response_attr = f'{self.model_name_plural.lower()}[0]'
         if self.operation_def.response_attr:
             response_attr = self.operation_def.response_attr
         code = f"""
         {self.operation_call}
+"""
+        if response_attr.endswith('[0]'):
+            code += f"""
         if response.{response_attr}:
-            return response.{response_attr}[0]  # type: ignore # pylint: disable=unsubscriptable-object
+            return response.{response_attr}
         return None
+"""
+        else:
+            code += f"""
+        return response.{response_attr}
 """
         return code

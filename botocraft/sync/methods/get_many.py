@@ -1,0 +1,50 @@
+from .base import MethodGenerator
+
+
+class GetManyMethodGenerator(MethodGenerator):
+    """
+    Generate the code for the ``get_many`` method.  This differs from the
+    ``list`` method in that sometimes the boto3 operation that handles listing
+    does not actually return all the data we need to create our model.  In those
+    cases, there is usually a separate boto3 operation that returns lists of
+    objects that we can use to get the full data we need.
+
+    When this happens, the ``get_many`` boto3 operation typically cannot be
+    paginated, otherwise we would have used it as the ``list`` method.
+    """
+
+    operation: str = 'get_many'
+
+    @property
+    def return_type(self) -> str:
+        """
+        For get_many methods, we return a list of model instances, not the response
+        model, unless it's overriden in our botocraft operation config, in which
+        case we return that.
+
+        Thus we need to change the return type to a list of the model.
+
+        Returns:
+            The name of the return type class.
+        """
+        _ = self.response_class
+        return_type = f'List["{self.model_name}"]'
+        if self.operation_def.return_type:
+            return_type = self.operation_def.return_type
+        return return_type
+
+    @property
+    def body(self) -> str:
+        # This is a hard attribute to guess. Sometimes it's CamelCase, sometimes
+        # it's camelCase, sometimes it's snake_case.  We'll just assume it's a
+        # lowercase plural of the model name.
+        response_attr = self.model_name_plural.lower()
+        if self.operation_def.response_attr:
+            response_attr = self.operation_def.response_attr
+        code = f"""
+        {self.operation_call}
+        if response.{response_attr} is not None:
+            return response.{response_attr}
+        return []
+"""
+        return code

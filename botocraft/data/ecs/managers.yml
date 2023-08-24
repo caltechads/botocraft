@@ -19,9 +19,12 @@ Service:
           default: "False"
     get:
       boto3_name: describe_services
+    get_many:
+      boto3_name: describe_services
     list:
       boto3_name: list_services
       response_attr: serviceArns
+      return_type: List[str]
     update:
       boto3_name: update_service
       args:
@@ -31,6 +34,7 @@ Service:
           source: serviceName
         forceNewDeployment:
           explicit: true
+          default: "False"
         serviceConnectConfiguration:
           explicit: true
 Cluster:
@@ -44,6 +48,7 @@ Cluster:
     list:
       boto3_name: list_clusters
       response_attr: clusterArns
+      return_type: List[str]
     update:
       boto3_name: update_cluster
       args:
@@ -59,7 +64,7 @@ TaskDefinition:
       response_attr: taskDefinition
     get:
       boto3_name: describe_task_definition
-      response_attr: taskDefinitions
+      response_attr: taskDefinition
     list:
       boto3_name: list_task_definitions
       response_attr: taskDefinitionArns
@@ -67,3 +72,13 @@ TaskDefinition:
     update:
       boto3_name: register_task_definition
       response_attr: taskDefinition
+ContainerInstance:
+  readonly: true
+  operations:
+    get:
+      boto3_name: describe_container_instances
+      response_attr: containerInstances
+    list:
+      boto3_name: list_container_instances
+      response_attr: containerInstanceArns
+      return_type: List[str]

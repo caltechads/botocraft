@@ -4,3 +4,4 @@ from .delete import DeleteMethodGenerator  # noqa: F401
 from .list import ListMethodGenerator  # noqa: F401
 from .update import UpdateMethodGenerator  # noqa: F401
 from .get import GetMethodGenerator  # noqa: F401
+from .get_many import GetManyMethodGenerator  # noqa: F401
