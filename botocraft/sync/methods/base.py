@@ -1,3 +1,4 @@
+from dataclasses import dataclass, field
 from collections import OrderedDict
 from typing import (
     Optional,
@@ -10,9 +11,84 @@ import inflect
 
 
 from botocraft.sync.models import OperationDefinition, OperationArgumentDefinition
+from botocraft.sync.docstring import DocumentationFormatter
 
 if TYPE_CHECKING:
     from botocraft.sync.service import ManagerGenerator
+
+
+@dataclass
+class MethodDocstringDefinition:
+    """
+    A class to hold the different parts of the docstring for a method.
+    """
+
+    # The main method docstring
+    method: Optional[str] = None
+    #: The docstrings for our positional arguments
+    args: OrderedDict[str, Optional[str]] = field(default_factory=OrderedDict)
+    #: The docstrings for our keyword arguments
+    kwargs: OrderedDict[str, Optional[str]] = field(default_factory=OrderedDict)
+    #: The docstring for our return value
+    return_value: Optional[str] = None
+
+    @property
+    def is_empty(self) -> bool:
+        """
+        Return ``True`` if the docstring is empty, ``False`` otherwise.
+        """
+        return (
+            self.method is None and
+            not self.args and
+            not self.kwargs and
+            self.return_value is None
+        )
+
+    def Args(self, formatter: DocumentationFormatter) -> str:
+        """
+        Return the docstring for the positional arguments.
+        """
+        assert self.args, "No args"
+        docstring = '''
+        Args:
+'''
+        for arg_name, arg_docstring in self.args.items():
+            docstring += formatter.format_argument(arg_name, arg_docstring)
+            docstring += '\n'
+
+        return docstring
+
+    def Keyword_Args(self, formatter: DocumentationFormatter) -> str:
+        """
+        Return the docstring for the keyword arguments.
+        """
+        assert self.kwargs, "No args"
+        docstring = '''
+        Keyword Args:
+'''
+        for arg_name, arg_docstring in self.kwargs.items():
+            docstring += formatter.format_argument(arg_name, arg_docstring)
+            docstring += '\n'
+        return docstring
+
+    def render(self, formatter: DocumentationFormatter) -> Optional[str]:
+        """
+        Return the entire method docstring.
+        """
+        if self.is_empty:
+            return None
+
+        docstring = '''
+        """
+'''
+        if self.method:
+            docstring += f"        {formatter.clean(self.method, max_lines=1)}\n"
+        if self.args:
+            docstring += self.Args(formatter)
+        if self.kwargs:
+            docstring += self.Keyword_Args(formatter)
+        docstring += '\n        """'
+        return docstring
 
 
 class MethodGenerator:
@@ -81,6 +157,8 @@ class MethodGenerator:
         self.model_name = model_name
         #: The plural of the name of the model itself
         self.model_name_plural = self.inflect.plural(self.model_name)
+        #: Our documentation formatter
+        self.docformatter = generator.docformatter
 
     def resolve_type(self, shape: botocore.model.Shape) -> str:
         """
@@ -172,10 +250,10 @@ class MethodGenerator:
             return f'self.serialize({arg}, exclude_none=True)'
         return f'self.serialize({arg})'
 
-
     def _args(self, kind: Literal['args', 'kwargs']) -> OrderedDict[str, str]:
         """
-        This is used to generate the arguments for the botocraft method.
+        This is used to generate the arguments for the botocraft method
+        signature.
 
         If kind == 'args', then we generate the positional arguments, but
         if kind == 'kwargs', then we generate the keyword arguments.
@@ -392,6 +470,52 @@ class MethodGenerator:
         signature += f") -> {self.return_type}:"
         return signature
 
+    def get_arg_docstring(self, arg: str) -> Optional[str]:
+        """
+        Return the docstring for the given argument.
+
+        Args:
+            arg: the name of the argument
+
+        Returns:
+            The docstring for the argument.
+        """
+        if arg in self.operation_def.args:
+            arg_def = self.operation_def.args[arg]
+            if arg_def.docstring:
+                return arg_def.docstring
+        if self.input_shape is not None:
+            if arg in self.input_shape.members:
+                return self.input_shape.members[arg].documentation
+        return None
+
+    @property
+    def docstrings_def(self) -> MethodDocstringDefinition:
+        """
+        Build the docstring definition for the method.
+
+        Returns:
+            A :py:class:`MethodDocstringDefinition` instance.
+        """
+        docstrings: MethodDocstringDefinition = MethodDocstringDefinition()
+        docstrings.method = (
+            self.operation_def.docstring
+            if self.operation_def.docstring
+            else self.operation_model.documentation
+        )
+        for arg in self.args:
+            docstrings.args[arg] = self.get_arg_docstring(arg)
+        for arg in self.kwargs:
+            docstrings.kwargs[arg] = self.get_arg_docstring(arg)
+        return docstrings
+
+    @property
+    def docstring(self) -> Optional[str]:
+        """
+        Return the docstring for the method.
+        """
+        return self.docstrings_def.render(self.docformatter)
+
     @property
     def body(self) -> str:
         """
@@ -411,4 +535,9 @@ class MethodGenerator:
             The full code for the method, ready to be inserted into the
             generated manager class.
         """
-        return self.signature + self.body
+        code = self.signature
+        docstring = self.docstring
+        if docstring:
+            code += docstring
+        code += self.body
+        return code

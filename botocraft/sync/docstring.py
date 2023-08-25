@@ -130,12 +130,32 @@ class DocumentationFormatter:
         Format the documentation for a single attribute of a model.
 
         Args:
-            shape: the botocore shape for the attribute
+            docs: the documentation for the attribute
 
         Returns:
             The formatted documentation for the attribute as reStructuredText.
         """
-        documentation = docs
-        documentation = self.clean(documentation, max_lines=1)
+        documentation = self.clean(docs, max_lines=1)
         lines = wrap(documentation, self.max_length)
         return '\n'.join([f'    #: {line.strip()}' for line in lines])
+
+    def format_argument(self, arg: str, docs: Optional[str]) -> str:
+        """
+        Format the documentation for a single argument of a method.
+
+        Args:
+            arg: the name of the argument
+            docs: the documentation for the argument
+
+        Returns:
+            The formatted documentation for the argument as reStructuredText.
+        """
+        if not docs:
+            docs = f'the value to set for {arg}'
+        documentation = self.clean(docs, max_lines=1)
+        lines = wrap(f'{arg}: {documentation}', self.max_length - 4)
+        lines[0] = f'            {lines[0]}'
+        for i, line in enumerate(lines[1:]):
+            lines[i + 1] = f'                {line}'
+        lines[-1] += '\n'
+        return '\n'.join([line.rstrip() for line in lines])

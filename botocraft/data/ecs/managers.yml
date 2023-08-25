@@ -3,6 +3,8 @@ Service:
   operations:
     create:
       boto3_name: create_service
+      docstring: >-
+        Create an ECS service.
       args:
         cluster:
           attribute: clusterArn
@@ -14,6 +16,8 @@ Service:
           explicit: true
     delete:
       boto3_name: delete_service
+      docstring: >-
+        Delete an ECS service.
       args:
         force:
           default: "False"
@@ -23,6 +27,10 @@ Service:
         cluster:
           default: >-
             "default"
+        service:
+          docstring: >-
+            The name or full Amazon Resource Name (ARN) of the service to
+            describe.
     get_many:
       boto3_name: describe_services
       args:
@@ -53,8 +61,12 @@ Cluster:
   operations:
     create:
       boto3_name: create_cluster
+      docstring: >-
+        Create an ECS cluster.
     delete:
       boto3_name: delete_cluster
+      docstring: >-
+        Delete an ECS cluster.
     get:
       boto3_name: describe_clusters
     list:
@@ -63,6 +75,8 @@ Cluster:
       return_type: List[str]
     update:
       boto3_name: update_cluster
+      docstring: >-
+        Update an ECS cluster.
       args:
         cluster:
           source: clusterName

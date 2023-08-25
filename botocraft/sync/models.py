@@ -115,6 +115,10 @@ class OperationDefinition(BaseModel):
     #: method return object(s).  If not specified, we'll use the lowercased
     #: model name, pluralizing if necessary.
     response_attr: Optional[str] = None
+    #: If specified, use this as the docstring for the method itself (not
+    #: the args, kwargs or return type).  If not specified, we'll use the
+    #: docstring from the botocore operation.
+    docstring: Optional[str] = None
     #: If specified, use this as the return type for the method.  If not
     #: set, we'll use the model name, pluralizing if necessary.
     return_type: Optional[str] = None

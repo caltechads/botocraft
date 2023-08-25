@@ -3,7 +3,7 @@ from typing import cast
 
 from botocraft.sync.models import OperationArgumentDefinition
 
-from .base import MethodGenerator
+from .base import MethodGenerator, MethodDocstringDefinition
 
 
 class CreateMethodGenerator(MethodGenerator):
@@ -147,6 +147,24 @@ class CreateMethodGenerator(MethodGenerator):
         call += ")"
         call += f"\n        response = {self.response_class}.model_construct(**_response)"
         return call
+
+    @property
+    def docstrings_def(self) -> MethodDocstringDefinition:
+        """
+        Return the docstring for the method.
+        """
+        docstrings: MethodDocstringDefinition = MethodDocstringDefinition()
+        docstrings.method = (
+            self.operation_def.docstring
+            if self.operation_def.docstring
+            else self.operation_model.documentation
+        )
+        docstrings.args['model'] = f'The :py:class:`{self.model_name}` to create.'
+        for arg in self.explicit_args:
+            docstrings.args[arg] = self.get_arg_docstring(arg)
+        for arg in self.explicit_kwargs:
+            docstrings.kwargs[arg] = self.get_arg_docstring(arg)
+        return docstrings
 
     @property
     def body(self) -> str:
