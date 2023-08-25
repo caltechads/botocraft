@@ -456,6 +456,60 @@ class MethodGenerator:
         return model_name
 
     @property
+    def response_attr(self) -> Optional[str]:
+        """
+        Deduce the name of the attribute in the boto3 response that we want to
+        return from the method.  This is either some variation of the name of
+        the model itself, or whatever the botocraft config for the operation
+        specifies.
+
+        Returns:
+            _type_: _description_
+        """
+        if self.output_shape is None:
+            return None
+        if not hasattr(self.output_shape, 'members'):
+            return None
+        if self.operation_def.response_attr:
+            return self.operation_def.response_attr
+        potential_names = [
+            self.model_name.lower(),
+            self.model_name_plural.lower(),
+        ]
+        response_attrs = {attr.lower(): attr for attr in self.output_shape.members}
+        for attr in response_attrs:
+            if attr in potential_names:
+                return response_attrs[attr]
+        attrs = ", ".join([f'"{attr}"' for attr in response_attrs])
+        if not attrs:
+            attrs = "No attributes"
+        raise ValueError(
+            f"Can't deduce response attribute for response class {self.output_shape.name}: {attrs}"
+        )
+
+    @property
+    def response_attr_multiplicity(self) -> Literal['one', 'many']:
+        """
+        Determine if the response attribute is a list or not.
+
+        Returns:
+            ``'one'`` if the response attribute is not a list, ``'many'`` if it
+            is a list.
+        """
+        if self.output_shape is None:
+            return 'one'
+        if not hasattr(self.output_shape, 'members'):
+            return 'one'
+        if self.response_attr is None:
+            return 'one'
+        shape = self.output_shape.members[self.response_attr]
+        if hasattr(shape, 'type') and shape.type == 'list':
+            return 'many'
+        elif hasattr(shape, 'type_name') and shape.type_name == 'list':
+            return 'many'
+        return 'one'
+
+    @property
     def return_type(self) -> str:
         """
         Set the type hint for the return type of the method.  This is either the

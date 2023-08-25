@@ -406,7 +406,7 @@ class DBInstanceManager(Boto3ModelManager):
         )
         response = DBInstanceMessage.model_construct(**_response)
 
-        if response.DBInstances[0]:
+        if response.DBInstances:
             return response.DBInstances[0]
         return None
 

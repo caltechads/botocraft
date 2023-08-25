@@ -10,10 +10,6 @@ Service:
           attribute: clusterArn
         role:
           attribute: roleArn
-        clientToken:
-          explicit: true
-        serviceConnectConfiguration:
-          explicit: true
     delete:
       boto3_name: delete_service
       docstring: >-
@@ -55,8 +51,6 @@ Service:
         forceNewDeployment:
           explicit: true
           default: "False"
-        serviceConnectConfiguration:
-          explicit: true
 Cluster:
   operations:
     create:
@@ -84,26 +78,21 @@ TaskDefinition:
   operations:
     create:
       boto3_name: register_task_definition
-      response_attr: taskDefinition
     delete:
       boto3_name: deregister_task_definition
-      response_attr: taskDefinition
     get:
       boto3_name: describe_task_definition
-      response_attr: taskDefinition
     list:
       boto3_name: list_task_definitions
       response_attr: taskDefinitionArns
       return_type: List[str]
     update:
       boto3_name: register_task_definition
-      response_attr: taskDefinition
 ContainerInstance:
   readonly: true
   operations:
     get:
       boto3_name: describe_container_instances
-      response_attr: containerInstances
     list:
       boto3_name: list_container_instances
       response_attr: containerInstanceArns

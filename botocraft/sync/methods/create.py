@@ -1,6 +1,8 @@
 from collections import OrderedDict
 from typing import cast
 
+import botocore.model
+
 from botocraft.sync.models import OperationArgumentDefinition
 
 from .base import MethodGenerator, MethodDocstringDefinition
@@ -174,9 +176,9 @@ class CreateMethodGenerator(MethodGenerator):
 
     @property
     def body(self) -> str:
-        response_attr = self.model_name.lower()
-        if self.operation_def.response_attr:
-            response_attr = self.operation_def.response_attr
+        response_attr = cast(str, self.response_attr)
+        if self.response_attr_multiplicity == 'many':
+            response_attr = f"{response_attr}[0]"
         code = f"""
         {self.operation_call}
         return cast({self.return_type}, response.{response_attr})

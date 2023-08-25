@@ -38,13 +38,10 @@ class GetManyMethodGenerator(MethodGenerator):
         # This is a hard attribute to guess. Sometimes it's CamelCase, sometimes
         # it's camelCase, sometimes it's snake_case.  We'll just assume it's a
         # lowercase plural of the model name.
-        response_attr = self.model_name_plural.lower()
-        if self.operation_def.response_attr:
-            response_attr = self.operation_def.response_attr
         code = f"""
         {self.operation_call}
-        if response.{response_attr} is not None:
-            return response.{response_attr}
+        if response.{self.response_attr} is not None:
+            return response.{self.response_attr}
         return []
 """
         return code

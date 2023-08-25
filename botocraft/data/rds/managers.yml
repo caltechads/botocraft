@@ -3,22 +3,18 @@ DBInstance:
   operations:
     create:
       boto3_name: create_db_instance
-      response_attr: DBInstance
       args:
         DBSecurityGroups:
           hidden: true
     update:
       boto3_name: modify_db_instance
-      response_attr: DBInstance
       args:
         DBSecurityGroups:
           hidden: true
     delete:
       boto3_name: delete_db_instance
-      response_attr: DBInstance
     get:
       boto3_name: describe_db_instances
-      response_attr: DBInstances[0]
       args:
         DBInstanceIdentifier:
           required: true
@@ -30,7 +26,6 @@ DBInstance:
           hidden: true
     list:
       boto3_name: describe_db_instances
-      response_attr: DBInstances
 
 
 

@@ -125,7 +125,7 @@ class ServiceManager(Boto3ModelManager):
         )
         response = DescribeServicesResponse.model_construct(**_response)
 
-        if response.services[0]:
+        if response.services:
             return response.services[0]
         return None
 
@@ -307,7 +307,7 @@ class ClusterManager(Boto3ModelManager):
         )
         response = DescribeClustersResponse.model_construct(**_response)
 
-        if response.clusters[0]:
+        if response.clusters:
             return response.clusters[0]
         return None
 
@@ -567,7 +567,9 @@ class ContainerInstanceManager(ReadonlyBoto3ModelManager):
         )
         response = DescribeContainerInstancesResponse.model_construct(**_response)
 
-        return response.containerInstances
+        if response.containerInstances:
+            return response.containerInstances[0]
+        return None
 
     def list(
         self,

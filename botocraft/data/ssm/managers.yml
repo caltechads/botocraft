@@ -41,14 +41,12 @@ Parameter:
           explicit: true
     get:
       boto3_name: get_parameters
-      response_attr: Parameters[0]
       args:
         WithDecryption:
           explicit: true
     list:
       boto3_name: describe_parameters
       return_type: List["ParameterMetadata"]
-      response_attr: Parameters
     delete:
       boto3_name: delete_parameter
       return_type: None

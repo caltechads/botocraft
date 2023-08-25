@@ -146,7 +146,7 @@ class ParameterManager(Boto3ModelManager):
         )
         response = GetParametersResult.model_construct(**_response)
 
-        if response.Parameters[0]:
+        if response.Parameters:
             return response.Parameters[0]
         return None
 

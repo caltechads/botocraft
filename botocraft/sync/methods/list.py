@@ -43,9 +43,6 @@ class ListMethodGenerator(MethodGenerator):
         # This is a hard attribute to guess. Sometimes it's CamelCase, sometimes
         # it's camelCase, sometimes it's snake_case.  We'll just assume it's a
         # lowercase plural of the model name.
-        response_attr = self.model_name_plural.lower()
-        if self.operation_def.response_attr:
-            response_attr = self.operation_def.response_attr
         if self.client.can_paginate(self.boto3_name):
             code = f"""
         paginator = self.client.get_paginator('{self.boto3_name}')
@@ -53,8 +50,8 @@ class ListMethodGenerator(MethodGenerator):
         results: {self.return_type} = []
         for _response in response_iterator:
             response = {self.response_class}(**_response)
-            if response.{response_attr}:
-                results.extend(response.{response_attr})
+            if response.{self.response_attr}:
+                results.extend(response.{self.response_attr})
             else:
                 break
         return results
@@ -62,6 +59,6 @@ class ListMethodGenerator(MethodGenerator):
         else:
             code = f"""
         {self.operation_call}
-        return response.{response_attr}
+        return response.{self.response_attr}
 """
         return code

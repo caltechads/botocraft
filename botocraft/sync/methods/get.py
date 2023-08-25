@@ -1,5 +1,8 @@
 from collections import OrderedDict
 import re
+from typing import cast
+
+import botocore.model
 
 from .base import MethodGenerator
 
@@ -69,16 +72,18 @@ class GetMethodGenerator(MethodGenerator):
         Returns:
             The code for the get method.
         """
-        response_attr = f'{self.model_name_plural.lower()}[0]'
-        if self.operation_def.response_attr:
-            response_attr = self.operation_def.response_attr
         code = f"""
         {self.operation_call}
 """
-        if response_attr.endswith('[0]'):
+        # Assume the response attribute is a string and not None in this case,
+        # since we definitely want to return something
+        response_attr = cast(str, self.response_attr)
+        # Since this is a get method, we can assume that the response will
+        # always be a StructureShape
+        if self.response_attr_multiplicity == 'many':
             code += f"""
         if response.{response_attr}:
-            return response.{response_attr}
+            return response.{response_attr}[0]
         return None
 """
         else:

@@ -33,12 +33,9 @@ class DeleteMethodGenerator(MethodGenerator):
         """
         Generate the method body code for the delete method.
         """
-        response_attr = self.model_name.lower()
-        if self.operation_def.response_attr:
-            response_attr = self.operation_def.response_attr
         code = f"""
         {self.operation_call}
 """
         if not self.return_type == 'None':
-            code += f"        return cast({self.model_name}, response.{response_attr})"
+            code += f"        return cast({self.model_name}, response.{self.response_attr})"
         return code

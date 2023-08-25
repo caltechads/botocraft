@@ -94,7 +94,7 @@ class LoadBalancerManager(Boto3ModelManager):
         )
         response = DescribeLoadBalancersOutput.model_construct(**_response)
 
-        if response.LoadBalancers[0]:
+        if response.LoadBalancers:
             return response.LoadBalancers[0]
         return None
 
@@ -218,7 +218,7 @@ class ListenerManager(Boto3ModelManager):
         )
         response = DescribeListenersOutput.model_construct(**_response)
 
-        if response.Listeners[0]:
+        if response.Listeners:
             return response.Listeners[0]
         return None
 
@@ -333,7 +333,7 @@ class RuleManager(Boto3ModelManager):
         )
         response = DescribeRulesOutput.model_construct(**_response)
 
-        if response.Rules[0]:
+        if response.Rules:
             return response.Rules[0]
         return None
 
@@ -473,7 +473,7 @@ class TargetGroupManager(Boto3ModelManager):
         )
         response = DescribeTargetGroupsOutput.model_construct(**_response)
 
-        if response.TargetGroups[0]:
+        if response.TargetGroups:
             return response.TargetGroups[0]
         return None
 
