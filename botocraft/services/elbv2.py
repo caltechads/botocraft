@@ -103,7 +103,6 @@ class LoadBalancerManager(Boto3ModelManager):
         *,
         LoadBalancerArns: Optional[List["str"]] = None,
         Names: Optional[List["str"]] = None,
-        Marker: Optional[str] = None,
         PageSize: Optional[int] = None
     ) -> List["LoadBalancer"]:
         """
@@ -113,15 +112,12 @@ class LoadBalancerManager(Boto3ModelManager):
             LoadBalancerArns: The Amazon Resource Names (ARN) of the load balancers.
                 You can specify up to 20 load balancers in a single call.
             Names: The names of the load balancers.
-            Marker: The marker for the next set of results. (You received this marker
-                from a previous call.)
             PageSize: The maximum number of results to return with this call.
         """
         paginator = self.client.get_paginator("describe_load_balancers")
         response_iterator = paginator.paginate(
             LoadBalancerArns=self.serialize(LoadBalancerArns),
             Names=self.serialize(Names),
-            Marker=self.serialize(Marker),
             PageSize=self.serialize(PageSize),
         )
         results: List["LoadBalancer"] = []
@@ -231,7 +227,6 @@ class ListenerManager(Boto3ModelManager):
         *,
         LoadBalancerArn: Optional[str] = None,
         ListenerArns: Optional[List["str"]] = None,
-        Marker: Optional[str] = None,
         PageSize: Optional[int] = None
     ) -> List["Listener"]:
         """
@@ -243,15 +238,12 @@ class ListenerManager(Boto3ModelManager):
         Keyword Args:
             LoadBalancerArn: The Amazon Resource Name (ARN) of the load balancer.
             ListenerArns: The Amazon Resource Names (ARN) of the listeners.
-            Marker: The marker for the next set of results. (You received this marker
-                from a previous call.)
             PageSize: The maximum number of results to return with this call.
         """
         paginator = self.client.get_paginator("describe_listeners")
         response_iterator = paginator.paginate(
             LoadBalancerArn=self.serialize(LoadBalancerArn),
             ListenerArns=self.serialize(ListenerArns),
-            Marker=self.serialize(Marker),
             PageSize=self.serialize(PageSize),
         )
         results: List["Listener"] = []
@@ -350,7 +342,6 @@ class RuleManager(Boto3ModelManager):
         *,
         ListenerArn: Optional[str] = None,
         RuleArns: Optional[List["str"]] = None,
-        Marker: Optional[str] = None,
         PageSize: Optional[int] = None
     ) -> List["Rule"]:
         """
@@ -360,15 +351,12 @@ class RuleManager(Boto3ModelManager):
         Keyword Args:
             ListenerArn: The Amazon Resource Name (ARN) of the listener.
             RuleArns: The Amazon Resource Names (ARN) of the rules.
-            Marker: The marker for the next set of results. (You received this marker
-                from a previous call.)
             PageSize: The maximum number of results to return with this call.
         """
         paginator = self.client.get_paginator("describe_rules")
         response_iterator = paginator.paginate(
             ListenerArn=self.serialize(ListenerArn),
             RuleArns=self.serialize(RuleArns),
-            Marker=self.serialize(Marker),
             PageSize=self.serialize(PageSize),
         )
         results: List["Rule"] = []
@@ -384,16 +372,22 @@ class RuleManager(Boto3ModelManager):
 class TargetGroupManager(Boto3ModelManager):
     service_name: str = "elbv2"
 
-    def create(self, model: "TargetGroup") -> "TargetGroup":
+    def create(
+        self, model: "TargetGroup", Name: str, Tags: Optional[List["Tag"]] = None
+    ) -> "TargetGroup":
         """
         Creates a target group.
 
         Args:
             model: The :py:class:``TargetGroup`` to create.
+            Name: The name of the target group.
+
+        Keyword Args:
+            Tags: The tags to assign to the target group.
         """
         data = model.model_dump()
         _response = self.client.create_target_group(
-            Name=data["Name"],
+            Name=self.serialize(Name),
             Protocol=data["Protocol"],
             ProtocolVersion=data["ProtocolVersion"],
             Port=data["Port"],
@@ -408,7 +402,7 @@ class TargetGroupManager(Boto3ModelManager):
             UnhealthyThresholdCount=data["UnhealthyThresholdCount"],
             Matcher=data["Matcher"],
             TargetType=data["TargetType"],
-            Tags=data["Tags"],
+            Tags=self.serialize(Tags),
             IpAddressType=data["IpAddressType"],
         )
         response = CreateTargetGroupOutput.model_construct(**_response)
@@ -489,7 +483,6 @@ class TargetGroupManager(Boto3ModelManager):
         LoadBalancerArn: Optional[str] = None,
         TargetGroupArns: Optional[List["str"]] = None,
         Names: Optional[List["str"]] = None,
-        Marker: Optional[str] = None,
         PageSize: Optional[int] = None
     ) -> List["TargetGroup"]:
         """
@@ -502,8 +495,6 @@ class TargetGroupManager(Boto3ModelManager):
                     LoadBalancerArn: The Amazon Resource Name (ARN) of the load balancer.
                     TargetGroupArns: The Amazon Resource Names (ARN) of the target groups.
                     Names: The names of the target groups.
-                    Marker: The marker for the next set of results. (You received this marker
-                        from a previous call.)
                     PageSize: The maximum number of results to return with this call.
 
         """
@@ -512,7 +503,6 @@ class TargetGroupManager(Boto3ModelManager):
             LoadBalancerArn=self.serialize(LoadBalancerArn),
             TargetGroupArns=self.serialize(TargetGroupArns),
             Names=self.serialize(Names),
-            Marker=self.serialize(Marker),
             PageSize=self.serialize(PageSize),
         )
         results: List["TargetGroup"] = []
@@ -623,6 +613,9 @@ class LoadBalancer(PrimaryBoto3Model):
     #: [Application Load Balancers on Outposts] The ID of the customer-owned address
     #: pool.
     CustomerOwnedIpv4Pool: Optional[str] = None
+    #: Indicates whether to evaluate inbound security group rules for traffic sent to
+    #: a Network Load Balancer through Amazon Web Services PrivateLink.
+    EnforceSecurityGroupInboundRulesOnPrivateLinkTraffic: Optional[str] = None
     #: Indicates whether to evaluate inbound security group rules for traffic sent to
     #: a Network Load Balancer through Amazon Web Services PrivateLink.
     EnforceSecurityGroupInboundRulesOnPrivateLinkTraffic: Optional[bool] = Field(
@@ -1048,6 +1041,10 @@ class RuleCondition(Boto3Model):
     Each rule can also optionally include one or more of each of the following
     conditions: ``http-header`` and ``query-string``. Note that the value for a
     condition cannot be empty.
+
+    For more information, see `Quotas for your Application Load Balancers <https://
+    docs.aws.amazon.com/elasticloadbalancing/latest/application/load-balancer-
+    limits.html>`_.
     """
 
     #: The field in the HTTP request. The following are the possible values:
@@ -1151,8 +1148,8 @@ class TargetGroup(PrimaryBoto3Model):
     TargetGroupName: str
     #: The protocol to use for routing traffic to the targets.
     Protocol: Literal["HTTP", "HTTPS", "TCP", "TLS", "UDP", "TCP_UDP", "GENEVE"]
-    #: The port on which the targets are listening. Not used if the target is a Lambda
-    #: function.
+    #: The port on which the targets are listening. This parameter is not used if the
+    #: target is a Lambda function.
     Port: int
     #: The ID of the VPC for the targets.
     VpcId: str
@@ -1182,8 +1179,8 @@ class TargetGroup(PrimaryBoto3Model):
     #: The HTTP or gRPC codes to use when checking for a successful response from a
     #: target.
     Matcher: Optional[Matcher] = None
-    #: The Amazon Resource Names (ARN) of the load balancers that route traffic to
-    #: this target group.
+    #: The Amazon Resource Name (ARN) of the load balancer that routes traffic to this
+    #: target group. You can use each target group with only one load balancer.
     LoadBalancerArns: Optional[List[str]] = None
     #: The type of target that you must specify when registering targets with this
     #: target group. The possible values are ``instance`` (register targets by

@@ -13,6 +13,12 @@ class CreateMethodGenerator(MethodGenerator):
 
     operation: str = 'create'
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.operation_def.args.update(
+            self.get_explicit_args_from_request()
+        )
+
     @property
     def signature(self) -> str:
         """

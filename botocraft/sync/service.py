@@ -80,11 +80,7 @@ class AbstractGenerator:
         Returns:
             The shape object.
         """
-        return (
-            self.service_model  # type: ignore  # pylint: disable=protected-access
-            ._shape_resolver
-            .get_shape_by_name(name)
-        )
+        return self.service_model.shape_for(name)
 
     def generate(self) -> None:
         raise NotImplementedError
@@ -100,6 +96,31 @@ class ModelGenerator(AbstractGenerator):
         Return the :py:class:`ModelDefinition` for a model.
         """
         return self.service_def.models.get(model_name, ModelDefinition(name=model_name))
+
+    def fields(self, model_name: str) -> Dict[str, ModelAttributeDefinition]:
+        """
+        Return the fields for a model as a dictionary of field names to field
+        definitions.  This obeys the ``fields`` attribute of the model
+        definition, if it exists.
+
+        .. note::
+            This really only makes sense on `botocore.model.StructureShape` objects,
+            since they are the only ones that have fields.
+
+        Returns:
+            A dictionary of field names to field definitions.
+        """
+        fields: Dict[str, ModelAttributeDefinition] = deepcopy(
+            self.get_model_def(model_name).fields
+        )
+        model_shape = self.get_shape(model_name)
+        if hasattr(model_shape, 'members'):
+            for field in model_shape.members:
+                if field not in fields:
+                    fields[field] = ModelAttributeDefinition()
+                    if field in model_shape.required_members:
+                        fields[field].required = True
+        return fields
 
     def generate(self) -> None:
         """

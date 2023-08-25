@@ -61,8 +61,12 @@ class ModelDefinition(BaseModel):
     #: botocore model.
     fields: Dict[str, ModelAttributeDefinition] = {}
     #: A list of extra fields for this model.  These are fields that are
-    #: not in the botocore model, but are returned by boto3 calls as if they
-    #: were.  We need to add them to the model so that we can load the model
+    #: not in the botocore model, but are either:
+    #:
+    #: * returned by boto3 create/update/get/list methods as part of the
+    #:   response payload.
+    #: * or are needed at create time because they turn into something
+    #:   else in the response.  Or We need to add them to the model so that we can load the model
     #: successfully from the API response.  Typically these are fields that
     #: will be readonly because they are
     extra_fields: Dict[str, ModelAttributeDefinition] = {}
@@ -265,7 +269,7 @@ class BotocraftInterface(BaseModel):
         """
         if name in self.models:
             raise ValueError(f'Model {name} already defined by service "{service}"')
-        self.models[name] = f'botocraft.models.{service}'
+        self.models[name] = f'botocraft.services.{service}'
 
     def populate_init_py(self):
         """

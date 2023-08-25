@@ -73,25 +73,54 @@ class ParameterManager(Boto3ModelManager):
         response = PutParameterResult.model_construct(**_response)
         return cast(int, response.Version)
 
-    def update(self, model: "Parameter") -> int:
+    def update(
+        self,
+        model: "Parameter",
+        Description: Optional[str] = None,
+        KeyId: Optional[str] = None,
+        AllowedPattern: Optional[str] = None,
+        Tags: Optional[List["Tag"]] = None,
+        Tier: Optional[Literal["Standard", "Advanced", "Intelligent-Tiering"]] = None,
+        Policies: Optional[str] = None,
+    ) -> int:
         """
         Add a parameter to the system.
 
         Args:
             model: The :py:class:``Parameter`` to update.
+
+        Keyword Args:
+            Description: Information about the parameter that you want to add to the
+                system. Optional but recommended.
+            KeyId: The Key Management Service (KMS) ID that you want to use to encrypt
+                a parameter. Use a custom key for better security. Required for parameters
+                that use the ``SecureString`` data type.
+            AllowedPattern: A regular expression used to validate the parameter value.
+                For example, for String types with values restricted to numbers, you can
+                specify the following: AllowedPattern=^\d+$
+            Tags: Optional metadata that you assign to a resource. Tags enable you to
+                categorize a resource in different ways, such as by purpose, owner, or
+                environment. For example, you might want to tag a Systems Manager parameter
+                to identify the type of resource to which it applies, the environment, or
+                the type of configuration data referenced by the parameter. In this case,
+                you could specify the following key-value pairs:
+            Tier: The parameter tier to assign to a parameter.
+            Policies: One or more policies to apply to a parameter. This operation
+                takes a JSON array. Parameter Store, a capability of Amazon Web Services
+                Systems Manager supports the following policy types:
         """
         data = model.model_dump()
         _response = self.client.put_parameter(
             Name=data["Name"],
             Value=data["Value"],
-            Description=data["Description"],
+            Description=self.serialize(Description),
             Type=data["Type"],
-            KeyId=data["KeyId"],
+            KeyId=self.serialize(KeyId),
             Overwrite=data["Overwrite"],
-            AllowedPattern=data["AllowedPattern"],
-            Tags=data["Tags"],
-            Tier=data["Tier"],
-            Policies=data["Policies"],
+            AllowedPattern=self.serialize(AllowedPattern),
+            Tags=self.serialize(Tags),
+            Tier=self.serialize(Tier),
+            Policies=self.serialize(Policies),
             DataType=data["DataType"],
         )
         response = PutParameterResult.model_construct(**_response)

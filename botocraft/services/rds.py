@@ -23,10 +23,14 @@ class DBInstanceManager(Boto3ModelManager):
     def create(
         self,
         model: "DBInstance",
+        MasterUserPassword: Optional[str] = None,
+        VpcSecurityGroupIds: Optional[List["str"]] = None,
         DBSubnetGroupName: Optional[str] = None,
         DBParameterGroupName: Optional[str] = None,
-        VpcSecurityGroupIds: Optional[List["str"]] = None,
-        MasterUserPassword: Optional[str] = None,
+        Port: Optional[int] = None,
+        OptionGroupName: Optional[str] = None,
+        Tags: Optional[List["Tag"]] = None,
+        TdeCredentialPassword: Optional[str] = None,
         Domain: Optional[str] = None,
         DomainFqdn: Optional[str] = None,
         DomainOu: Optional[str] = None,
@@ -36,12 +40,8 @@ class DBInstanceManager(Boto3ModelManager):
         EnableIAMDatabaseAuthentication: Optional[bool] = None,
         EnablePerformanceInsights: Optional[bool] = None,
         EnableCloudwatchLogsExports: Optional[List["str"]] = None,
-        ManageMasterUserPassword: Optional[bool] = None,
         EnableCustomerOwnedIp: Optional[bool] = None,
-        Port: Optional[int] = None,
-        OptionGroupName: Optional[str] = None,
-        Tags: Optional[List["Tag"]] = None,
-        TdeCredentialPassword: Optional[str] = None,
+        ManageMasterUserPassword: Optional[bool] = None,
         MasterUserSecretKmsKeyId: Optional[str] = None,
     ) -> "DBInstance":
         """
@@ -51,13 +51,18 @@ class DBInstanceManager(Boto3ModelManager):
             model: The :py:class:``DBInstance`` to create.
 
         Keyword Args:
+            MasterUserPassword: The password for the master user.
+            VpcSecurityGroupIds: A list of Amazon EC2 VPC security groups to associate
+                with this DB instance.
             DBSubnetGroupName: A DB subnet group to associate with this DB instance.
             DBParameterGroupName: The name of the DB parameter group to associate with
                 this DB instance. If you don't specify a value, then Amazon RDS uses the
                 default DB parameter group for the specified DB engine and version.
-            VpcSecurityGroupIds: A list of Amazon EC2 VPC security groups to associate
-                with this DB instance.
-            MasterUserPassword: The password for the master user.
+            Port: The port number on which the database accepts connections.
+            OptionGroupName: The option group to associate the DB instance with.
+            Tags: Tags to assign to the DB instance.
+            TdeCredentialPassword: The password for the given ARN from the key store in
+                order to access the device.
             Domain: The Active Directory directory ID to create the DB instance in.
                 Currently, only Microsoft SQL Server, MySQL, Oracle, and PostgreSQL DB
                 instances can be created in an Active Directory Domain.
@@ -84,15 +89,10 @@ class DBInstanceManager(Boto3ModelManager):
                 Database Logs to Amazon CloudWatch Logs] (https://docs.aws.amazon.com/Amazo
                 nRDS/latest/UserGuide/USER_LogAccess.html#USE
                 R_LogAccess.Procedural.UploadtoCloudWatch) in the *Amazon RDS User Guide*.
-            ManageMasterUserPassword: Specifies whether to manage the master user
-                password with Amazon Web Services Secrets Manager.
             EnableCustomerOwnedIp: Specifies whether to enable a customer-owned IP
                 address (CoIP) for an RDS on Outposts DB instance.
-            Port: The port number on which the database accepts connections.
-            OptionGroupName: The option group to associate the DB instance with.
-            Tags: Tags to assign to the DB instance.
-            TdeCredentialPassword: The password for the given ARN from the key store in
-                order to access the device.
+            ManageMasterUserPassword: Specifies whether to manage the master user
+                password with Amazon Web Services Secrets Manager.
             MasterUserSecretKmsKeyId: The Amazon Web Services KMS key identifier to
                 encrypt a secret that is automatically generated and managed in Amazon Web
                 Services Secrets Manager.
@@ -164,41 +164,39 @@ class DBInstanceManager(Boto3ModelManager):
             DBSystemId=data["DBSystemId"],
         )
         response = CreateDBInstanceResult.model_construct(**_response)
-        return cast("DBInstance", response.dbinstance)
+        return cast("DBInstance", response.DBInstance)
 
     def update(
         self,
         model: "DBInstance",
-        NewDBInstanceIdentifier: Optional[str] = None,
-        ApplyImmediately: bool = True,
         DBSubnetGroupName: Optional[str] = None,
-        DBParameterGroupName: Optional[str] = None,
         VpcSecurityGroupIds: Optional[List["str"]] = None,
+        ApplyImmediately: Optional[bool] = None,
         MasterUserPassword: Optional[str] = None,
+        DBParameterGroupName: Optional[str] = None,
+        AllowMajorVersionUpgrade: Optional[bool] = None,
+        OptionGroupName: Optional[str] = None,
+        NewDBInstanceIdentifier: Optional[str] = None,
+        TdeCredentialPassword: Optional[str] = None,
+        Domain: Optional[str] = None,
         DomainFqdn: Optional[str] = None,
         DomainOu: Optional[str] = None,
         DomainAuthSecretArn: Optional[str] = None,
         DomainDnsIps: Optional[List["str"]] = None,
+        DBPortNumber: Optional[int] = None,
         DomainIAMRoleName: Optional[str] = None,
         DisableDomain: Optional[bool] = None,
         EnableIAMDatabaseAuthentication: Optional[bool] = None,
         EnablePerformanceInsights: Optional[bool] = None,
-        ManageMasterUserPassword: Optional[bool] = None,
-        RotateMasterUserPassword: Optional[bool] = None,
-        EnableCustomerOwnedIp: Optional[bool] = None,
         CloudwatchLogsExportConfiguration: Optional[
-            "CloudwatchLogsExportConfiguration"
+            "RDSCloudwatchLogsExportConfiguration"
         ] = None,
         UseDefaultProcessorFeatures: Optional[bool] = None,
         CertificateRotationRestart: Optional[bool] = None,
-        AutomationMode: Optional[Literal["full", "all-paused"]] = None,
+        EnableCustomerOwnedIp: Optional[bool] = None,
         ResumeFullAutomationModeMinutes: Optional[int] = None,
-        ReplicaMode: Optional[Literal["open-read-only", "mounted"]] = None,
-        AllowMajorVersionUpgrade: Optional[bool] = None,
-        OptionGroupName: Optional[str] = None,
-        TdeCredentialPassword: Optional[str] = None,
-        Domain: Optional[str] = None,
-        DBPortNumber: Optional[int] = None,
+        ManageMasterUserPassword: Optional[bool] = None,
+        RotateMasterUserPassword: Optional[bool] = None,
         MasterUserSecretKmsKeyId: Optional[str] = None,
     ) -> "DBInstance":
         """
@@ -212,15 +210,6 @@ class DBInstanceManager(Boto3ModelManager):
             model: The :py:class:``DBInstance`` to update.
 
         Keyword Args:
-            NewDBInstanceIdentifier: The new identifier for the DB instance when
-                renaming a DB instance. When you change the DB instance identifier, an
-                instance reboot occurs immediately if you enable ``ApplyImmediately``, or
-                will occur during the next maintenance window if you disable
-                ``ApplyImmediately``. This value is stored as a lowercase string.
-            ApplyImmediately: Specifies whether the modifications in this request and
-                any pending modifications are asynchronously applied as soon as possible,
-                regardless of the ``PreferredMaintenanceWindow`` setting for the DB
-                instance. By default, this parameter is disabled.
             DBSubnetGroupName: The new DB subnet group for the DB instance. You can use
                 this parameter to move your DB instance to a different VPC. If your DB
                 instance isn't in a VPC, you can also use this parameter to move your DB
@@ -228,12 +217,32 @@ class DBInstanceManager(Boto3ModelManager):
                 in a VPC <https://docs.aws.amazon. com/AmazonRDS/latest/UserGuide/USER_VPC.
                 WorkingWithRDSInstanceinaVPC.html#USER_ VPC.Non-VPC2VPC>`_ in the *Amazon
                 RDS User Guide*.
-            DBParameterGroupName: The name of the DB parameter group to apply to the DB
-                instance.
             VpcSecurityGroupIds: A list of Amazon EC2 VPC security groups to associate
                 with this DB instance. This change is asynchronously applied as soon as
                 possible.
+            ApplyImmediately: Specifies whether the modifications in this request and
+                any pending modifications are asynchronously applied as soon as possible,
+                regardless of the ``PreferredMaintenanceWindow`` setting for the DB
+                instance. By default, this parameter is disabled.
             MasterUserPassword: The new password for the master user.
+            DBParameterGroupName: The name of the DB parameter group to apply to the DB
+                instance.
+            AllowMajorVersionUpgrade: Specifies whether major version upgrades are
+                allowed. Changing this parameter doesn't result in an outage and the change
+                is asynchronously applied as soon as possible.
+            OptionGroupName: The option group to associate the DB instance with.
+            NewDBInstanceIdentifier: The new identifier for the DB instance when
+                renaming a DB instance. When you change the DB instance identifier, an
+                instance reboot occurs immediately if you enable ``ApplyImmediately``, or
+                will occur during the next maintenance window if you disable
+                ``ApplyImmediately``. This value is stored as a lowercase string.
+            TdeCredentialPassword: The password for the given ARN from the key store in
+                order to access the device.
+            Domain: The Active Directory directory ID to move the DB instance to.
+                Specify ``none`` to remove the instance from its current domain. You must
+                create the domain before this operation. Currently, you can create only
+                MySQL, Microsoft SQL Server, Oracle, and PostgreSQL DB instances in an
+                Active Directory Domain.
             DomainFqdn: The fully qualified domain name (FQDN) of an Active Directory
                 domain.
             DomainOu: The Active Directory organizational unit for your DB instance to
@@ -242,6 +251,7 @@ class DBInstanceManager(Boto3ModelManager):
                 credentials for the user joining the domain.
             DomainDnsIps: The IPv4 DNS IP addresses of your primary and secondary
                 Active Directory domain controllers.
+            DBPortNumber: The port number on which the database accepts connections.
             DomainIAMRoleName: The name of the IAM role to use when making API calls to
                 the Directory Service.
             DisableDomain: Specifies whether to remove the DB instance from the Active
@@ -251,38 +261,20 @@ class DBInstanceManager(Boto3ModelManager):
                 database accounts. By default, mapping isn't enabled.
             EnablePerformanceInsights: Specifies whether to enable Performance Insights
                 for the DB instance.
-            ManageMasterUserPassword: Specifies whether to manage the master user
-                password with Amazon Web Services Secrets Manager.
-            RotateMasterUserPassword: Specifies whether to rotate the secret managed by
-                Amazon Web Services Secrets Manager for the master user password.
-            EnableCustomerOwnedIp: Specifies whether to enable a customer-owned IP
-                address (CoIP) for an RDS on Outposts DB instance.
             CloudwatchLogsExportConfiguration: The log types to be enabled for export
                 to CloudWatch Logs for a specific DB instance.
             UseDefaultProcessorFeatures: Specifies whether the DB instance class of the
                 DB instance uses its default processor features.
             CertificateRotationRestart: Specifies whether the DB instance is restarted
                 when you rotate your SSL/TLS certificate.
-            AutomationMode: The automation mode of the RDS Custom DB instance. If
-                ``full``, the DB instance automates monitoring and instance recovery. If
-                ``all paused``, the instance pauses automation for the duration set by
-                ``ResumeFullAutomationModeMinutes``.
+            EnableCustomerOwnedIp: Specifies whether to enable a customer-owned IP
+                address (CoIP) for an RDS on Outposts DB instance.
             ResumeFullAutomationModeMinutes: The number of minutes to pause the
                 automation. When the time period ends, RDS Custom resumes full automation.
-            ReplicaMode: A value that sets the open mode of a replica database to
-                either mounted or read-only.
-            AllowMajorVersionUpgrade: Specifies whether major version upgrades are
-                allowed. Changing this parameter doesn't result in an outage and the change
-                is asynchronously applied as soon as possible.
-            OptionGroupName: The option group to associate the DB instance with.
-            TdeCredentialPassword: The password for the given ARN from the key store in
-                order to access the device.
-            Domain: The Active Directory directory ID to move the DB instance to.
-                Specify ``none`` to remove the instance from its current domain. You must
-                create the domain before this operation. Currently, you can create only
-                MySQL, Microsoft SQL Server, Oracle, and PostgreSQL DB instances in an
-                Active Directory Domain.
-            DBPortNumber: The port number on which the database accepts connections.
+            ManageMasterUserPassword: Specifies whether to manage the master user
+                password with Amazon Web Services Secrets Manager.
+            RotateMasterUserPassword: Specifies whether to rotate the secret managed by
+                Amazon Web Services Secrets Manager for the master user password.
             MasterUserSecretKmsKeyId: The Amazon Web Services KMS key identifier to
                 encrypt a secret that is automatically generated and managed in Amazon Web
                 Services Secrets Manager.
@@ -341,10 +333,10 @@ class DBInstanceManager(Boto3ModelManager):
             DeletionProtection=data["DeletionProtection"],
             MaxAllocatedStorage=data["MaxAllocatedStorage"],
             CertificateRotationRestart=self.serialize(CertificateRotationRestart),
-            ReplicaMode=self.serialize(ReplicaMode),
+            ReplicaMode=data["ReplicaMode"],
             EnableCustomerOwnedIp=self.serialize(EnableCustomerOwnedIp),
             AwsBackupRecoveryPointArn=data["AwsBackupRecoveryPointArn"],
-            AutomationMode=self.serialize(AutomationMode),
+            AutomationMode=data["AutomationMode"],
             ResumeFullAutomationModeMinutes=self.serialize(
                 ResumeFullAutomationModeMinutes
             ),
@@ -356,7 +348,7 @@ class DBInstanceManager(Boto3ModelManager):
             Engine=data["Engine"],
         )
         response = ModifyDBInstanceResult.model_construct(**_response)
-        return cast("DBInstance", response.dbinstance)
+        return cast("DBInstance", response.DBInstance)
 
     def delete(
         self,
@@ -397,7 +389,7 @@ class DBInstanceManager(Boto3ModelManager):
             DeleteAutomatedBackups=self.serialize(DeleteAutomatedBackups),
         )
         response = DeleteDBInstanceResult.model_construct(**_response)
-        return cast(DBInstance, response.dbinstance)
+        return cast(DBInstance, response.DBInstance)
 
     def get(self, DBInstanceIdentifier: str) -> Optional["DBInstance"]:
         """
@@ -454,7 +446,7 @@ class DBInstanceManager(Boto3ModelManager):
 # ==============
 
 
-class Endpoint(Boto3Model):
+class RDSEndpoint(Boto3Model):
     """
     The connection endpoint for the DB instance.
 
@@ -515,7 +507,7 @@ class DBParameterGroupStatus(Boto3Model):
     ParameterApplyStatus: Optional[str] = None
 
 
-class DBAvailabilityZone(Boto3Model):
+class RDSAvailabilityZone(Boto3Model):
     """
     Contains Availability Zone information.
 
@@ -550,7 +542,7 @@ class Subnet(Boto3Model):
     #: The identifier of the subnet.
     SubnetIdentifier: Optional[str] = None
     #: Contains Availability Zone information.
-    SubnetAvailabilityZone: Optional[DBAvailabilityZone] = None
+    SubnetAvailabilityZone: Optional[RDSAvailabilityZone] = None
     #: If the subnet is associated with an Outpost, this value specifies the Outpost.
     SubnetOutpost: Optional[Outpost] = None
     #: The status of the subnet.
@@ -854,7 +846,7 @@ class DBInstance(PrimaryBoto3Model):
     #: rather than the CDB.
     DBName: Optional[str] = None
     #: The connection endpoint for the DB instance.
-    Endpoint: Optional[Endpoint] = Field(frozen=True, default=None)
+    Endpoint: Optional[RDSEndpoint] = Field(frozen=True, default=None)
     #: The amount of storage in gibibytes (GiB) allocated for the DB instance.
     AllocatedStorage: Optional[int] = None
     #: The date and time when the DB instance was created.
@@ -1018,7 +1010,7 @@ class DBInstance(PrimaryBoto3Model):
     #: with the DB instance.
     AssociatedRoles: Optional[List[DBInstanceRole]] = Field(frozen=True, default=None)
     #: The listener connection endpoint for SQL Server Always On.
-    ListenerEndpoint: Optional[Endpoint] = Field(frozen=True, default=None)
+    ListenerEndpoint: Optional[RDSEndpoint] = Field(frozen=True, default=None)
     #: The upper limit in gibibytes (GiB) to which Amazon RDS can automatically scale
     #: the storage of the DB instance.
     MaxAllocatedStorage: Optional[int] = None
@@ -1128,6 +1120,32 @@ class DBInstance(PrimaryBoto3Model):
         return self.DBInstanceIdentifier
 
 
+class RDSCloudwatchLogsExportConfiguration(Boto3Model):
+    """
+    The configuration setting for the log types to be enabled for export to
+    CloudWatch Logs for a specific DB instance or DB cluster.
+
+    The ``EnableLogTypes`` and ``DisableLogTypes`` arrays determine which logs will
+    be exported (or not exported) to CloudWatch Logs. The values within these
+    arrays depend on the DB engine being used.
+
+    For more information about exporting CloudWatch Logs for Amazon RDS DB
+    instances, see `Publishing Database Logs to Amazon CloudWatch Logs <https://doc
+    s.aws.amazon.com/AmazonRDS/latest/UserGuide/USER_LogAccess.html#USER_LogAccess.
+    Procedural.UploadtoCloudWatch>`_  in the *Amazon RDS User Guide*.
+
+    For more information about exporting CloudWatch Logs for Amazon Aurora DB
+    clusters, see `Publishing Database Logs to Amazon CloudWatch Logs <https://docs
+    .aws.amazon.com/AmazonRDS/latest/AuroraUserGuide/USER_LogAccess.html#USER_LogAc
+    cess.Procedural.UploadtoCloudWatch>`_ in the *Amazon Aurora User Guide*.
+    """
+
+    #: The list of log types to enable.
+    EnableLogTypes: Optional[List[str]] = None
+    #: The list of log types to disable.
+    DisableLogTypes: Optional[List[str]] = None
+
+
 # =======================
 # Request/Response Models
 # =======================
@@ -1136,24 +1154,6 @@ class DBInstance(PrimaryBoto3Model):
 class CreateDBInstanceResult(Boto3Model):
     #: Contains the details of an Amazon RDS DB instance.
     DBInstance: Optional[DBInstance] = None
-
-
-class CloudwatchLogsExportConfiguration(Boto3Model):
-    """
-    The log types to be enabled for export to CloudWatch Logs for a specific DB
-    instance.
-
-    A change to the ``CloudwatchLogsExportConfiguration`` parameter is always
-    applied to the DB instance immediately. Therefore, the ``ApplyImmediately``
-    parameter has no effect.
-
-    This setting doesn't apply to RDS Custom DB instances.
-    """
-
-    #: The list of log types to enable.
-    EnableLogTypes: Optional[List[str]] = None
-    #: The list of log types to disable.
-    DisableLogTypes: Optional[List[str]] = None
 
 
 class ModifyDBInstanceResult(Boto3Model):

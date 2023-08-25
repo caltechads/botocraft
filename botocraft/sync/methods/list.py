@@ -16,7 +16,7 @@ class ListMethodGenerator(MethodGenerator):
         if self.client.can_paginate(self.boto3_name):
             _args: OrderedDict[str, str] = OrderedDict()
             for _arg, arg_type in super().kwargs.items():
-                if _arg not in ['nextToken', 'maxResults']:
+                if _arg not in ['nextToken', 'maxResults', 'Marker', 'MaxRecords']:
                     _args[_arg] = arg_type
         return _args
 

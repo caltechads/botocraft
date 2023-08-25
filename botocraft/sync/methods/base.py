@@ -3,6 +3,7 @@ from collections import OrderedDict
 from typing import (
     Optional,
     Literal,
+    cast,
     TYPE_CHECKING,
 )
 
@@ -159,6 +160,30 @@ class MethodGenerator:
         self.model_name_plural = self.inflect.plural(self.model_name)
         #: Our documentation formatter
         self.docformatter = generator.docformatter
+
+    def get_explicit_args_from_request(self) -> OrderedDict[str, OperationArgumentDefinition]:
+        """
+        Compare the botocore input shape for the operation with the
+        :py:class:`ModelAttributeDefinition` dict for the model we're working
+        with, and return a dictionary of the arguments that are not part of the
+        model.
+
+        Returns:
+            A dictionary of argument names to argument definitions.
+        """
+        model_fields = self.model_generator.fields(self.model_name)
+        args: OrderedDict[str, OperationArgumentDefinition] = OrderedDict()
+        if self.input_shape is not None:
+            for arg in self.input_shape.members:
+                if arg in self.operation_def.args:
+                    # We're explicitly defining this argument in our botocraft
+                    # config, so we don't need to do anything here.
+                    continue
+                if arg not in model_fields:
+                    args[arg] = OperationArgumentDefinition(explicit=True)
+                    if arg in self.input_shape.required_members:
+                        args[arg].required = True
+        return args
 
     def resolve_type(self, shape: botocore.model.Shape) -> str:
         """

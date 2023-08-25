@@ -95,7 +95,15 @@ DBInstance:
     CustomerOwnedIpEnabled:
       readonly: true
 AvailabilityZone:
-  alternate_name: DBAvailabilityZone
+  base_class: Boto3Model
+  alternate_name: RDSAvailabilityZone
+Endpoint:
+  base_class: Boto3Model
+  alternate_name: RDSEndpoint
+CloudwatchLogsExportConfiguration:
+  base_class: Boto3Model
+  alternate_name: RDSCloudwatchLogsExportConfiguration
+
 
 
 

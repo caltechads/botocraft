@@ -349,7 +349,9 @@ class ClusterManager(Boto3ModelManager):
 class TaskDefinitionManager(Boto3ModelManager):
     service_name: str = "ecs"
 
-    def create(self, model: "TaskDefinition") -> "TaskDefinition":
+    def create(
+        self, model: "TaskDefinition", tags: Optional[List["Tag"]] = None
+    ) -> "TaskDefinition":
         """
                 Registers a new task definition from the supplied ``family`` and
         ``containerDefinitions``. Optionally, you can add data volumes to your
@@ -360,6 +362,11 @@ class TaskDefinitionManager(Boto3ModelManager):
 
                 Args:
                     model: The :py:class:``TaskDefinition`` to create.
+
+                Keyword Args:
+                    tags: The metadata that you apply to the task definition to help you
+                        categorize and organize them. Each tag consists of a key and an optional
+                        value. You define both of them.
 
         """
         data = model.model_dump()
@@ -374,7 +381,7 @@ class TaskDefinitionManager(Boto3ModelManager):
             requiresCompatibilities=data["requiresCompatibilities"],
             cpu=data["cpu"],
             memory=data["memory"],
-            tags=data["tags"],
+            tags=self.serialize(tags),
             pidMode=data["pidMode"],
             ipcMode=data["ipcMode"],
             proxyConfiguration=data["proxyConfiguration"],
@@ -479,7 +486,9 @@ class TaskDefinitionManager(Boto3ModelManager):
                 break
         return results
 
-    def update(self, model: "TaskDefinition") -> "TaskDefinition":
+    def update(
+        self, model: "TaskDefinition", tags: Optional[List["Tag"]] = None
+    ) -> "TaskDefinition":
         """
                 Registers a new task definition from the supplied ``family`` and
         ``containerDefinitions``. Optionally, you can add data volumes to your
@@ -490,6 +499,11 @@ class TaskDefinitionManager(Boto3ModelManager):
 
                 Args:
                     model: The :py:class:``TaskDefinition`` to update.
+
+                Keyword Args:
+                    tags: The metadata that you apply to the task definition to help you
+                        categorize and organize them. Each tag consists of a key and an optional
+                        value. You define both of them.
 
         """
         data = model.model_dump()
@@ -504,7 +518,7 @@ class TaskDefinitionManager(Boto3ModelManager):
             requiresCompatibilities=data["requiresCompatibilities"],
             cpu=data["cpu"],
             memory=data["memory"],
-            tags=data["tags"],
+            tags=self.serialize(tags),
             pidMode=data["pidMode"],
             ipcMode=data["ipcMode"],
             proxyConfiguration=data["proxyConfiguration"],
