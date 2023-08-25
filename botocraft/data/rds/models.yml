@@ -1,0 +1,102 @@
+---
+DBInstance:
+  primary_key: DBInstanceArn
+  arn_key: DBInstanceArn
+  name_key: DBInstanceIdentifier
+  fields:
+    DBInstanceIdentifier:
+      required: true
+    DBInstanceClass:
+      required: true
+    MultiAZ:
+      default: false
+    Engine:
+      required: true
+    EngineVersion:
+      required: true
+    AutoMinorVersionUpgrade:
+      default: true
+    PubliclyAccessible:
+      default: false
+    StorageEncrypted:
+      default: true
+    AutomaticRestartTime:
+      readonly: true
+    OptionGroupMemberships:
+      readonly: true
+    SecondaryAvailabilityZone:
+      readonly: true
+    DBSecurityGroups:
+      hidden: true
+    DomainMemberships:
+      readonly: true
+    IAMDatabseAuthenticationEnabled:
+      readonly: true
+    PerformanceInsightsEnabled:
+      readonly: true
+    EnabledCloudwatchLogsExports:
+      readonly: true
+    VPCSecurityGroups:
+      readonly: true
+    PendingModifiedValues:
+      readonly: true
+    InstanceCreateTime:
+      readonly: true
+    LatestRestorableTime:
+      readonly: true
+    ReadReplicaDBInstanceIdentifiers:
+      readonly: true
+    ReadReplicaSourceDBInstanceIdentifier:
+      readonly: true
+    ReadReplicaDBClusterIdentifiers:
+      readonly: true
+    Endpoint:
+      readonly: true
+    BackupRetentionPeriod:
+      default: 1
+    StatusInfos:
+      readonly: true
+    DbiResourceId:
+      readonly: true
+    DBInstanceArn:
+      readonly: true
+    ListenerEndpoint:
+      readonly: true
+    ActivityStreamStatus:
+      readonly: true
+    CertificateRotationPending:
+      readonly: true
+    CerificateDetails:
+      readonly: true
+    PercentProgress:
+      readonly: true
+    DBEngineVersionArn:
+      readonly: true
+    ReplicaMode:
+      readonly: true
+    AssociatedRoles:
+      readonly: true
+    ActivityStreamKinesisStreamName:
+      readonly: true
+    ActivityStreamKinesisStreamStatus:
+      readonly: true
+    ActivityStreamKinesisStreamKmsKeyId:
+      readonly: true
+    ActivityStreamKinesisStreamConsumerArn:
+      readonly: true
+    ActivityStreamMode:
+      readonly: true
+    ActivityStreamKmsKeyId:
+      readonly: true
+    ResumeFullAutomationModeTime:
+      readonly: true
+    MasterUserSecret:
+      readonly: true
+    CustomerOwnedIpEnabled:
+      readonly: true
+AvailabilityZone:
+  alternate_name: DBAvailabilityZone
+
+
+
+

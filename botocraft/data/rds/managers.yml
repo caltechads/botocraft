@@ -1,0 +1,117 @@
+---
+DBInstance:
+  operations:
+    create:
+      boto3_name: create_db_instance
+      args:
+        DBSubnetGroupName:
+          explicit: true
+        DBParameterGroupName:
+          explicit: true
+        DBSecurityGroups:
+          hidden: true
+        VpcSecurityGroupIds:
+          explicit: true
+        MasterUserPassword:
+          explicit: true
+        Domain:
+          explicit: true
+        DomainFqdn:
+          explicit: true
+        DomainOu:
+          explicit: true
+        DomainAuthSecretArn:
+          explicit: true
+        DomainDnsIps:
+          explicit: true
+        DomainIAMRoleName:
+          explicit: true
+        EnableIAMDatabaseAuthentication:
+          explicit: true
+        EnablePerformanceInsights:
+          explicit: true
+        EnableCloudwatchLogsExports:
+          explicit: true
+        ManageMasterUserPassword:
+          explicit: true
+        EnableCustomerOwnedIp:
+          explicit: true
+    update:
+      boto3_name: modify_db_instance
+      args:
+        NewDBInstanceIdentifier:
+          explicit: true
+        ApplyImmediately:
+          explicit: true
+          default: true
+        DBSubnetGroupName:
+          explicit: true
+        DBParameterGroupName:
+          explicit: true
+        DBSecurityGroups:
+          hidden: true
+        VpcSecurityGroupIds:
+          explicit: true
+        MasterUserPassword:
+          explicit: true
+        DomainFqdn:
+          explicit: true
+        DomainOu:
+          explicit: true
+        DomainAuthSecretArn:
+          explicit: true
+        DomainDnsIps:
+          explicit: true
+        DomainIAMRoleName:
+          explicit: true
+        DisableDomain:
+          explicit: true
+        EnableIAMDatabaseAuthentication:
+          explicit: true
+        EnablePerformanceInsights:
+          explicit: true
+        ManageMasterUserPassword:
+          explicit: true
+        RotateMasterUserPassword:
+          explicit: true
+        EnableCustomerOwnedIp:
+          explicit: true
+        CloudwatchLogsExportConfiguration:
+          explicit: true
+        UseDefaultProcessorFeatures:
+          explicit: true
+        CertificateRotationRestart:
+          explicit: true
+        AutomationMode:
+          explicit: true
+        ResumeFullAutomationModeMinutes:
+          explicit: true
+        ReplicaMode:
+          explicit: true
+        AllowMajorVersionUpgrade:
+          explicit: true
+    delete:
+      boto3_name: delete_db_instance
+    get:
+      boto3_name: describe_db_instances
+      response_attr: DBInstances[0]
+      args:
+        DBInstanceIdentifier:
+          required: true
+        Filters:
+          hidden: true
+        MaxRecords:
+          hidden: true
+        Marker:
+          hidden: true
+    list:
+      boto3_name: describe_db_instances
+      response_attr: DBInstances
+
+
+
+
+
+
+
+
