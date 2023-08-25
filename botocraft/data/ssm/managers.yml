@@ -8,18 +8,6 @@ Parameter:
       args:
         Overwrite:
           default: "False"
-        Description:
-          explicit: true
-        AllowedPattern:
-          explicit: true
-        Tags:
-          explicit: true
-        Tier:
-          explicit: true
-        Policies:
-          explicit: true
-        KeyId:
-          explicit: true
     update:
       boto3_name: put_parameter
       return_type: int
@@ -27,23 +15,8 @@ Parameter:
       defaults:
         Overwrite:
           default: "True"
-        Description:
-          explicit: true
-        AllowedPattern:
-          explicit: true
-        Tags:
-          explicit: true
-        Tier:
-          explicit: true
-        Policies:
-          explicit: true
-        KeyId:
-          explicit: true
     get:
       boto3_name: get_parameters
-      args:
-        WithDecryption:
-          explicit: true
     list:
       boto3_name: describe_parameters
       return_type: List["ParameterMetadata"]

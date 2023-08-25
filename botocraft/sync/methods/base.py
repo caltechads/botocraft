@@ -521,6 +521,13 @@ class MethodGenerator:
         """
         if self.operation_def.return_type:
             return self.operation_def.return_type
+        # If our output shape has no members, then we return None
+        output_shape = cast(botocore.model.StructureShape, self.output_shape)
+        if (
+            not hasattr(output_shape, 'members') or
+            hasattr(output_shape, 'members') and not output_shape.members
+        ):
+            return 'None'
         return self.response_class
 
     @property

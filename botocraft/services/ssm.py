@@ -24,11 +24,11 @@ class ParameterManager(Boto3ModelManager):
         self,
         model: "Parameter",
         Description: Optional[str] = None,
+        KeyId: Optional[str] = None,
         AllowedPattern: Optional[str] = None,
         Tags: Optional[List["Tag"]] = None,
         Tier: Optional[Literal["Standard", "Advanced", "Intelligent-Tiering"]] = None,
         Policies: Optional[str] = None,
-        KeyId: Optional[str] = None,
     ) -> int:
         """
         Add a parameter to the system.
@@ -39,6 +39,9 @@ class ParameterManager(Boto3ModelManager):
         Keyword Args:
             Description: Information about the parameter that you want to add to the
                 system. Optional but recommended.
+            KeyId: The Key Management Service (KMS) ID that you want to use to encrypt
+                a parameter. Use a custom key for better security. Required for parameters
+                that use the ``SecureString`` data type.
             AllowedPattern: A regular expression used to validate the parameter value.
                 For example, for String types with values restricted to numbers, you can
                 specify the following: AllowedPattern=^\d+$
@@ -52,9 +55,6 @@ class ParameterManager(Boto3ModelManager):
             Policies: One or more policies to apply to a parameter. This operation
                 takes a JSON array. Parameter Store, a capability of Amazon Web Services
                 Systems Manager supports the following policy types:
-            KeyId: The Key Management Service (KMS) ID that you want to use to encrypt
-                a parameter. Use a custom key for better security. Required for parameters
-                that use the ``SecureString`` data type.
         """
         data = model.model_dump()
         _response = self.client.put_parameter(
@@ -127,7 +127,7 @@ class ParameterManager(Boto3ModelManager):
         return cast(int, response.Version)
 
     def get(
-        self, Names: List["str"], *, WithDecryption: bool = None
+        self, Names: List["str"], *, WithDecryption: Optional[bool] = None
     ) -> Optional["Parameter"]:
         """
         Get information about one or more parameters by specifying multiple

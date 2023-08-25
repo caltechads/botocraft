@@ -13,7 +13,6 @@ LoadBalancer:
           required: true
     delete:
       boto3_name: delete_load_balancer
-      return_type: None
     get:
       boto3_name: describe_load_balancers
     list:
@@ -22,14 +21,10 @@ Listener:
   operations:
     create:
       boto3_name: create_listener
-      args:
-        Tags:
-          explicit: true
     update:
       boto3_name: modify_listener
     delete:
       boto3_name: delete_listener
-      return_type: None
     get:
       boto3_name: describe_listeners
       args:
@@ -50,7 +45,6 @@ Rule:
       boto3_name: modify_rule
     delete:
       boto3_name: delete_rule
-      return_type: None
     get:
       boto3_name: describe_rules
       args:
@@ -64,13 +58,10 @@ TargetGroup:
   operations:
     create:
       boto3_name: create_target_group
-      explicit_kwargs:
-        - Tags
     update:
       boto3_name: modify_target_group
     delete:
       boto3_name: delete_target_group
-      return_type: None
     get:
       boto3_name: describe_target_groups
       args:
