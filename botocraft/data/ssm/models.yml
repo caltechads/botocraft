@@ -1,34 +1,36 @@
 ---
-Parameter:
-  primary_key: Name
-  arn_key: ARN
-  name_key: Name
-  fields:
-    Name:
-      required: true
-    Value:
-      default: >-
-        "None"
-    Type:
-      required: true
-    Overwrite:
-      default: >-
-        "False"
-    LastModifiedDate:
-      readonly: true
-    Version:
-      readonly: true
-    ARN:
-      readonly: true
-ParametersFilter:
-  base_class: Boto3Model
-  fields:
-    Key:
-      required: true
-    Values:
-      required: true
-ParameterStringFilter:
-  base_class: Boto3Model
-  fields:
-    Key:
-      required: true
+primary:
+  Parameter:
+    primary_key: Name
+    arn_key: ARN
+    name_key: Name
+    fields:
+      Name:
+        required: true
+      Value:
+        default: >-
+          "None"
+      Type:
+        required: true
+      Overwrite:
+        default: >-
+          "False"
+      LastModifiedDate:
+        readonly: true
+      Version:
+        readonly: true
+      ARN:
+        readonly: true
+secondary:
+  ParametersFilter:
+    base_class: Boto3Model
+    fields:
+      Key:
+        required: true
+      Values:
+        required: true
+  ParameterStringFilter:
+    base_class: Boto3Model
+    fields:
+      Key:
+        required: true

@@ -1120,32 +1120,6 @@ class DBInstance(PrimaryBoto3Model):
         return self.DBInstanceIdentifier
 
 
-class RDSCloudwatchLogsExportConfiguration(Boto3Model):
-    """
-    The configuration setting for the log types to be enabled for export to
-    CloudWatch Logs for a specific DB instance or DB cluster.
-
-    The ``EnableLogTypes`` and ``DisableLogTypes`` arrays determine which logs will
-    be exported (or not exported) to CloudWatch Logs. The values within these
-    arrays depend on the DB engine being used.
-
-    For more information about exporting CloudWatch Logs for Amazon RDS DB
-    instances, see `Publishing Database Logs to Amazon CloudWatch Logs <https://doc
-    s.aws.amazon.com/AmazonRDS/latest/UserGuide/USER_LogAccess.html#USER_LogAccess.
-    Procedural.UploadtoCloudWatch>`_  in the *Amazon RDS User Guide*.
-
-    For more information about exporting CloudWatch Logs for Amazon Aurora DB
-    clusters, see `Publishing Database Logs to Amazon CloudWatch Logs <https://docs
-    .aws.amazon.com/AmazonRDS/latest/AuroraUserGuide/USER_LogAccess.html#USER_LogAc
-    cess.Procedural.UploadtoCloudWatch>`_ in the *Amazon Aurora User Guide*.
-    """
-
-    #: The list of log types to enable.
-    EnableLogTypes: Optional[List[str]] = None
-    #: The list of log types to disable.
-    DisableLogTypes: Optional[List[str]] = None
-
-
 # =======================
 # Request/Response Models
 # =======================
@@ -1154,6 +1128,24 @@ class RDSCloudwatchLogsExportConfiguration(Boto3Model):
 class CreateDBInstanceResult(Boto3Model):
     #: Contains the details of an Amazon RDS DB instance.
     DBInstance: Optional[DBInstance] = None
+
+
+class RDSCloudwatchLogsExportConfiguration(Boto3Model):
+    """
+    The log types to be enabled for export to CloudWatch Logs for a specific DB
+    instance.
+
+    A change to the ``CloudwatchLogsExportConfiguration`` parameter is always
+    applied to the DB instance immediately. Therefore, the ``ApplyImmediately``
+    parameter has no effect.
+
+    This setting doesn't apply to RDS Custom DB instances.
+    """
+
+    #: The list of log types to enable.
+    EnableLogTypes: Optional[List[str]] = None
+    #: The list of log types to disable.
+    DisableLogTypes: Optional[List[str]] = None
 
 
 class ModifyDBInstanceResult(Boto3Model):

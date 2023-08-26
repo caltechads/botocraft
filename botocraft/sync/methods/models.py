@@ -1,6 +1,6 @@
 from collections import OrderedDict
 from dataclasses import dataclass, field
-from textwrap import wrap, indent
+from textwrap import indent
 from typing import Optional
 
 from botocraft.sync.docstring import DocumentationFormatter

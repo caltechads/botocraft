@@ -1,107 +1,107 @@
 ---
-LoadBalancer:
-  primary_key: LoadBalancerArn
-  arn_key: LoadBalancerArn
-  name_key: LoadBalancerName
-  fields:
-    LoadBalancerArn:
-      readonly: true
-    DNSName:
-      readonly: true
-    VpcId:
-      readonly: true
-    State:
-      readonly: true
-    AvailabilityZones:
-      readonly: true
-    LoadBalancerName:
-      required: true
-    Scheme:
-      required: true
-      default: >-
-        "internet-facing"
-    Type:
-      required: true
-      default: >-
-        "application"
-    IpAddressType:
-      required: true
-      default: >-
-        "ipv4"
-    CreatedTime:
-      readonly: true
-    CanonicalHostedZoneId:
-      readonly: true
-  extra_fields:
-    EnforceSecurityGroupInboundRulesOnPrivateLinkTraffic:
-      readonly: true
-      docstring: >-
-        Indicates whether to evaluate inbound security group rules for traffic
-        sent to a Network Load Balancer through Amazon Web Services PrivateLink.
-      python_type: Optional[bool]
-      default: None
-Listener:
-  primary_key: ListenerArn
-  arn_key: ListenerArn
-  fields:
-    ListenerArn:
-      readonly: true
-    LoadBalancerArn:
-      required: true
-    Port:
-      required: true
-    Protocol:
-      required: true
-      default: >-
-        "HTTPS"
-Rule:
-  primary_key: RuleArn
-  arn_key: RuleArn
-  fields:
-    ListenerArn:
-      required: true
-    Priority:
-      required: true
-      default: >-
-        "1"
-    Conditions:
-      required: true
-    Actions:
-      required: true
-    IsDefault:
-      required: true
-      default: >-
-        False
-TargetGroup:
-  primary_key: TargetGroupArn
-  arn_key: TargetGroupArn
-  name_key: TargetGroupName
-  fields:
-    TargetGroupArn:
-      readonly: true
-    TargetGroupName:
-      required: true
-    Protocol:
-      required: true
-      default: >-
-        "HTTPS"
-    Port:
-      required: true
-    VpcId:
-      required: true
-    TargetType:
-      required: true
-      default: >-
-        "ip"
-    IpAddressType:
-      required: true
-      default: >-
-        "ipv4"
-SubnetMapping:
-  base_class: Boto3Model
-  fields:
-    SubnetId:
-      required: true
-Certificate:
-  base_class: Boto3Model
-  readonly: true
+primary:
+  LoadBalancer:
+    primary_key: LoadBalancerArn
+    arn_key: LoadBalancerArn
+    name_key: LoadBalancerName
+    fields:
+      LoadBalancerArn:
+        readonly: true
+      DNSName:
+        readonly: true
+      VpcId:
+        readonly: true
+      State:
+        readonly: true
+      AvailabilityZones:
+        readonly: true
+      LoadBalancerName:
+        required: true
+      Scheme:
+        required: true
+        default: >-
+          "internet-facing"
+      Type:
+        required: true
+        default: >-
+          "application"
+      IpAddressType:
+        required: true
+        default: >-
+          "ipv4"
+      CreatedTime:
+        readonly: true
+      CanonicalHostedZoneId:
+        readonly: true
+    extra_fields:
+      EnforceSecurityGroupInboundRulesOnPrivateLinkTraffic:
+        readonly: true
+        docstring: >-
+          Indicates whether to evaluate inbound security group rules for traffic
+          sent to a Network Load Balancer through Amazon Web Services PrivateLink.
+        python_type: Optional[bool]
+        default: None
+  Listener:
+    primary_key: ListenerArn
+    arn_key: ListenerArn
+    fields:
+      ListenerArn:
+        readonly: true
+      LoadBalancerArn:
+        required: true
+      Port:
+        required: true
+      Protocol:
+        required: true
+        default: >-
+          "HTTPS"
+  Rule:
+    primary_key: RuleArn
+    arn_key: RuleArn
+    fields:
+      ListenerArn:
+        required: true
+      Priority:
+        required: true
+        default: >-
+          "1"
+      Conditions:
+        required: true
+      Actions:
+        required: true
+      IsDefault:
+        required: true
+        default: >-
+          False
+  TargetGroup:
+    primary_key: TargetGroupArn
+    arn_key: TargetGroupArn
+    name_key: TargetGroupName
+    fields:
+      TargetGroupArn:
+        readonly: true
+      TargetGroupName:
+        required: true
+      Protocol:
+        required: true
+        default: >-
+          "HTTPS"
+      Port:
+        required: true
+      VpcId:
+        required: true
+      TargetType:
+        required: true
+        default: >-
+          "ip"
+      IpAddressType:
+        required: true
+        default: >-
+          "ipv4"
+secondary:
+  SubnetMapping:
+    fields:
+      SubnetId:
+        required: true
+  Certificate:
+    readonly: true

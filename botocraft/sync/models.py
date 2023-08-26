@@ -193,8 +193,12 @@ class ServiceDefinition(BaseModel):
     interface: 'BotocraftInterface'
     #: The name of the botocore service
     name: str
-    #: The models to generate for this service
-    models: Dict[str, ModelDefinition] = {}
+    #: The models to generate for this service.  These are specifically models
+    #: that have managers.
+    primary_models: Dict[str, ModelDefinition] = {}
+    #: These are models that are used as attributes on other models, or as
+    #response : or request classes.
+    secondary_models: Dict[str, ModelDefinition] = {}
     #: The managers to generate for this service
     managers: Dict[str, ManagerDefinition] = {}
 
@@ -222,9 +226,13 @@ class ServiceDefinition(BaseModel):
                 }
         return cls(
             name=name,
-            models={
+            primary_models={
                 name: ModelDefinition(name=name, **defn)
-                for name, defn in models.items()
+                for name, defn in models.get('primary', {}).items()
+            },
+            secondary_models={
+                name: ModelDefinition(name=name, **defn)
+                for name, defn in models.get('secondary', {}).items()
             },
             managers=managers,
             interface=interface,

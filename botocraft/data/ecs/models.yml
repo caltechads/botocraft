@@ -1,107 +1,106 @@
 ---
-Service:
-  primary_key: serviceArn
-  arn_key: serviceArn
-  name_key: serviceName
-  fields:
-    serviceArn:
-      readonly: true
-    status:
-      readonly: true
-    runningCount:
-      readonly: true
-    pendingCount:
-      readonly: true
-    serviceName:
-      required: true
-    deployments:
-      readonly: true
-    events:
-      readonly: true
-    createdBy:
-      readonly: true
-    taskDefinition:
-      required: true
-    roleArn:
-      required: true
-    clusterArn:
-      required: true
-    desiredCount:
-      required: true
-      default: 1
-    launchType:
-      required: true
-      default: >-
-        "FARGATE"
-    schedulingStrategy:
-      required: true
-      default: >-
-        "REPLICA"
-Cluster:
-  primary_key: clusterArn
-  arn_key: clusterArn
-  name_key: clusterName
-  fields:
-    clusterArn:
-      readonly: true
-    status:
-      readonly: true
-    registeredContainerInstancesCount:
-      readonly: true
-    runningTasksCount:
-      readonly: true
-    pendingTasksCount:
-      readonly: true
-    activeServicesCount:
-      readonly: true
-    statistics:
-      readonly: true
-    attachmentsStatus:
-      readonly: true
-    clusterName:
-      required: true
-      default: >-
-        "default"
-TaskDefinition:
-  primary_key: taskDefinitionArn
-  arn_key: taskDefinitionArn
-  fields:
-    taskDefinitionArn:
-      readonly: true
-    revision:
-      readonly: true
-    status:
-      readonly: true
-    registeredBy:
-      readonly: true
-    family:
-      required: true
-    taskRoleArn:
-      required: true
-    containerDefinitions:
-      required: true
-    networkMode:
-      required: true
-      default: >-
-        "awsvpc"
-ContainerInstance:
-  primary_key: containerInstanceArn
-  arn_key: containerInstanceArn
-  readonly: true
-Deployment:
-  base_class: Boto3Model
-  readonly: true
-ContainerDefinition:
-  base_class: Boto3Model
-  fields:
-    name:
-      required: true
-    image:
-      required: true
-    essential:
-      required: true
-      default: >-
-        True
-LoadBalancer:
-  base_class: Boto3Model
-  alternate_name: LoadBalancerConfiguration
+primary:
+  Service:
+    primary_key: serviceArn
+    arn_key: serviceArn
+    name_key: serviceName
+    fields:
+      serviceArn:
+        readonly: true
+      status:
+        readonly: true
+      runningCount:
+        readonly: true
+      pendingCount:
+        readonly: true
+      serviceName:
+        required: true
+      deployments:
+        readonly: true
+      events:
+        readonly: true
+      createdBy:
+        readonly: true
+      taskDefinition:
+        required: true
+      roleArn:
+        required: true
+      clusterArn:
+        required: true
+      desiredCount:
+        required: true
+        default: 1
+      launchType:
+        required: true
+        default: >-
+          "FARGATE"
+      schedulingStrategy:
+        required: true
+        default: >-
+          "REPLICA"
+  Cluster:
+    primary_key: clusterArn
+    arn_key: clusterArn
+    name_key: clusterName
+    fields:
+      clusterArn:
+        readonly: true
+      status:
+        readonly: true
+      registeredContainerInstancesCount:
+        readonly: true
+      runningTasksCount:
+        readonly: true
+      pendingTasksCount:
+        readonly: true
+      activeServicesCount:
+        readonly: true
+      statistics:
+        readonly: true
+      attachmentsStatus:
+        readonly: true
+      clusterName:
+        required: true
+        default: >-
+          "default"
+  TaskDefinition:
+    primary_key: taskDefinitionArn
+    arn_key: taskDefinitionArn
+    fields:
+      taskDefinitionArn:
+        readonly: true
+      revision:
+        readonly: true
+      status:
+        readonly: true
+      registeredBy:
+        readonly: true
+      family:
+        required: true
+      taskRoleArn:
+        required: true
+      containerDefinitions:
+        required: true
+      networkMode:
+        required: true
+        default: >-
+          "awsvpc"
+  ContainerInstance:
+    primary_key: containerInstanceArn
+    arn_key: containerInstanceArn
+    readonly: true
+secondary:
+  Deployment:
+    readonly: true
+  ContainerDefinition:
+    fields:
+      name:
+        required: true
+      image:
+        required: true
+      essential:
+        required: true
+        default: >-
+          True
+  LoadBalancer:
+    alternate_name: LoadBalancerConfiguration

@@ -267,37 +267,6 @@ class Parameter(PrimaryBoto3Model):
         return self.Name
 
 
-class ParametersFilter(Boto3Model):
-    """
-    This data type is deprecated.
-
-    Instead, use ParameterStringFilter.
-    """
-
-    #: The name of the filter.
-    Key: Literal["Name", "Type", "KeyId"]
-    #: The filter values.
-    Values: List[str]
-
-
-class ParameterStringFilter(Boto3Model):
-    """
-    One or more filters.
-
-    Use a filter to return a more specific list of results.
-    """
-
-    #: The name of the filter.
-    Key: str
-    #: For all filters used with DescribeParameters, valid options include ``Equals``
-    #: and ``BeginsWith``. The ``Name`` filter additionally supports the ``Contains``
-    #: option. (Exception: For filters using the key ``Path``, valid options include
-    #: ``Recursive`` and ``OneLevel``.)
-    Option: Optional[str] = None
-    #: The value you want to search for.
-    Values: Optional[List[str]] = None
-
-
 # =======================
 # Request/Response Models
 # =======================

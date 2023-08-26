@@ -1,7 +1,7 @@
 from copy import deepcopy
 from collections import OrderedDict
 from pathlib import Path
-from typing import Dict, Set, List, Optional, Type
+from typing import Dict, Set, List, Optional, Type, cast
 
 import black
 import black.parsing
@@ -95,7 +95,23 @@ class ModelGenerator(AbstractGenerator):
         """
         Return the :py:class:`ModelDefinition` for a model.
         """
-        return self.service_def.models.get(model_name, ModelDefinition(name=model_name))
+        if model_name == 'Deployment':
+            pass
+        if model_name in self.service_def.primary_models:
+            defn = self.service_def.primary_models[model_name]
+            if defn.readonly:
+                defn.base_class = 'ReadonlyPrimaryBoto3Model'
+            else:
+                defn.base_class = 'PrimaryBoto3Model'
+            return defn
+        elif model_name in self.service_def.secondary_models:
+            defn = self.service_def.secondary_models[model_name]
+            if defn.readonly:
+                defn.base_class = 'ReadonlyBoto3Model'
+            else:
+                defn.base_class = 'Boto3Model'
+            return defn
+        return ModelDefinition(base_class='Boto3Model', name=model_name)
 
     def fields(self, model_name: str) -> Dict[str, ModelAttributeDefinition]:
         """
@@ -126,10 +142,9 @@ class ModelGenerator(AbstractGenerator):
         """
         Generate all the service models.
         """
-        for model_name in self.service_def.models:
+        for model_name in self.service_def.primary_models:
             model_def = self.get_model_def(model_name)
-            base_class = model_def.base_class if model_def.base_class else 'PrimaryBoto3Model'
-            _ = self.generate_model(model_name, base_class=base_class)
+            _ = self.generate_model(model_name)
 
     def resolve_type(self, field_shape: botocore.model.Shape) -> str:
         """
@@ -271,8 +286,7 @@ class ModelGenerator(AbstractGenerator):
     def generate_model(
         self,
         model_name: str,
-        shape: Optional[botocore.model.Shape] = None,
-        base_class: str = 'Boto3Model'
+        shape: Optional[botocore.model.Shape] = None
     ) -> str:
         """
         Generate the code for a single model and its dependent models and save
@@ -293,6 +307,8 @@ class ModelGenerator(AbstractGenerator):
         fields: List[str] = []
 
         model_def = self.get_model_def(model_name)
+        if not base_class:
+            base_class = model_def.base_class
         if not shape:
             shape = self.get_shape(model_name)
         if model_def.alternate_name:
@@ -338,9 +354,6 @@ class ModelGenerator(AbstractGenerator):
                     field_line += f' = {field_def.default}'
                 fields.append(field_line)
             fields.extend(self.extra_fields(model_def))
-
-            if model_def.readonly:
-                base_class = f'Readonly{base_class}'
 
             code: str = f'class {model_name}({base_class}):\n'
             docstring = self.docformatter.format_docstring(shape)

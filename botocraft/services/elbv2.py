@@ -1230,23 +1230,6 @@ class TargetGroup(PrimaryBoto3Model):
         return self.TargetGroupName
 
 
-class SubnetMapping(Boto3Model):
-    """
-    Information about a subnet mapping.
-    """
-
-    #: The ID of the subnet.
-    SubnetId: str
-    #: [Network Load Balancers] The allocation ID of the Elastic IP address for an
-    #: internet-facing load balancer.
-    AllocationId: Optional[str] = None
-    #: [Network Load Balancers] The private IPv4 address for an internal load
-    #: balancer.
-    PrivateIPv4Address: Optional[str] = None
-    #: [Network Load Balancers] The IPv6 address.
-    IPv6Address: Optional[str] = None
-
-
 # =======================
 # Request/Response Models
 # =======================
