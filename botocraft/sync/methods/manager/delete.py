@@ -1,8 +1,8 @@
 from typing import Optional
-from .base import MethodGenerator
+from .base import ManagerMethodGenerator
 
 
-class DeleteMethodGenerator(MethodGenerator):
+class DeleteMethodGenerator(ManagerMethodGenerator):
     """
     Generate the code for the delete method.
 

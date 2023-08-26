@@ -33,6 +33,10 @@ class DocumentationFormatter:
         r"(?:\[(?P<text>.*?)\])\((?P<link>.*?)\)",
         re.MULTILINE | re.DOTALL
     )
+    PY_OBJECT_RE = re.compile(
+        r'py:(.*?):``(.*?)``',
+        re.MULTILINE | re.DOTALL
+    )
 
     def __init__(self, max_length: int = 79):
         #: Wrap lines at this length.
@@ -90,6 +94,26 @@ class DocumentationFormatter:
             documentation = documentation.replace(match.group(0), f'`{text} <{link}>`_')
         return documentation
 
+    def _undo_double_quotes(self, documentation: str) -> str:
+        """
+        If we have custom docstrings that are already in reStructuredText, then
+        we can end up with double backticks in our documentation.  from when
+        we convert single back ticks to double in the Markdown -> reStructuredText
+        conversion.  We need to undo some of those, especially when we have
+        :py:obj: style references.
+
+        Args:
+            documentation: input documentation
+
+        Returns:
+            Cleaned up documentation.
+        """
+        for match in self.PY_OBJECT_RE.finditer(documentation):
+            py_obj = match.group(0)
+            updated_py_obj = py_obj.replace('``', '`')
+            documentation = documentation.replace(py_obj, updated_py_obj)
+        return documentation
+
     def clean(self, documentation: str, max_lines: Optional[int] = None) -> str:
         """
         Take the input documentation in HTML format and clean it up for use in a
@@ -109,6 +133,7 @@ class DocumentationFormatter:
         documentation = documentation.replace('`', '``')
         documentation = self._clean_uls(documentation)
         documentation = self._clean_links(documentation)
+        documentation = self._undo_double_quotes(documentation)
         return documentation
 
     def format_docstring(self, shape: botocore.model.Shape) -> str:

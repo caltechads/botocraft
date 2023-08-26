@@ -1,9 +1,9 @@
 from collections import OrderedDict
 
-from .base import MethodGenerator
+from .base import ManagerMethodGenerator
 
 
-class ListMethodGenerator(MethodGenerator):
+class ListMethodGenerator(ManagerMethodGenerator):
 
     operation: str = 'list'
 

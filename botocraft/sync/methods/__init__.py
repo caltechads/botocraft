@@ -1,7 +1,7 @@
-from .base import MethodGenerator  # noqa: F401
-from .create import CreateMethodGenerator  # noqa: F401
-from .delete import DeleteMethodGenerator  # noqa: F401
-from .list import ListMethodGenerator  # noqa: F401
-from .update import UpdateMethodGenerator  # noqa: F401
-from .get import GetMethodGenerator  # noqa: F401
-from .get_many import GetManyMethodGenerator  # noqa: F401
+from .manager.base import ManagerMethodGenerator  # noqa: F401
+from .manager.create import CreateMethodGenerator  # noqa: F401
+from .manager.delete import DeleteMethodGenerator  # noqa: F401
+from .manager.list import ListMethodGenerator  # noqa: F401
+from .manager.update import UpdateMethodGenerator  # noqa: F401
+from .manager.get import GetMethodGenerator  # noqa: F401
+from .manager.get_many import GetManyMethodGenerator  # noqa: F401

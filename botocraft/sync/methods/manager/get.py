@@ -2,12 +2,10 @@ from collections import OrderedDict
 import re
 from typing import cast
 
-import botocore.model
-
-from .base import MethodGenerator
+from .base import ManagerMethodGenerator
 
 
-class GetMethodGenerator(MethodGenerator):
+class GetMethodGenerator(ManagerMethodGenerator):
     """
     Generate the code for the ``get`` method.
 

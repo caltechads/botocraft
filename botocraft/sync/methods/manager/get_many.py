@@ -1,7 +1,7 @@
-from .base import MethodGenerator
+from .base import ManagerMethodGenerator
 
 
-class GetManyMethodGenerator(MethodGenerator):
+class GetManyMethodGenerator(ManagerMethodGenerator):
     """
     Generate the code for the ``get_many`` method.  This differs from the
     ``list`` method in that sometimes the boto3 operation that handles listing

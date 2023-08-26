@@ -13,7 +13,7 @@ import isort
 
 from .docstring import DocumentationFormatter, FormatterArgs
 from .methods import (  # pylint: disable=import-error
-    MethodGenerator,
+    ManagerMethodGenerator,
     ListMethodGenerator,
     GetMethodGenerator,
     GetManyMethodGenerator,
@@ -363,7 +363,7 @@ class ManagerGenerator(AbstractGenerator):
 
     #: A mapping of botocore operation names to the method generator class that
     #: will generate the code for that method.
-    METHOD_GENERATORS: Dict[str, Type[MethodGenerator]] = {
+    METHOD_GENERATORS: Dict[str, Type[ManagerMethodGenerator]] = {
         'create': CreateMethodGenerator,
         'update': UpdateMethodGenerator,
         'delete': DeleteMethodGenerator,

@@ -23,6 +23,7 @@ class ReadonlyBoto3Model(Boto3Model):
 
 class Boto3ModelManager:
 
+    #: The name of the boto3 service.  Example: ``ec2``, ``s3``, etc.
     service_name: str
 
     def __init__(self) -> None:
@@ -115,8 +116,8 @@ class ReadonlyPrimaryBoto3Model(  # pylint: disable=abstract-method
     ReadonlyBoto3Model
 ):
 
+    #: The manager for this model
     manager: Boto3ModelManager
-
 
     def save(self, **kwargs):
         """
@@ -140,6 +141,7 @@ class PrimaryBoto3Model(  # pylint: disable=abstract-method
     from a boto3 operation.
     """
 
+    #: The manager for this model
     manager: Boto3ModelManager
 
     def save(self, **kwargs):

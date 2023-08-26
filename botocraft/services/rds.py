@@ -48,7 +48,7 @@ class DBInstanceManager(Boto3ModelManager):
         Creates a new DB instance.
 
         Args:
-            model: The :py:class:``DBInstance`` to create.
+            model: The :py:class:`DBInstance` to create.
 
         Keyword Args:
             MasterUserPassword: The password for the master user.
@@ -207,7 +207,7 @@ class DBInstanceManager(Boto3ModelManager):
         before you call ``ModifyDBInstance``.
 
         Args:
-            model: The :py:class:``DBInstance`` to update.
+            model: The :py:class:`DBInstance` to update.
 
         Keyword Args:
             DBSubnetGroupName: The new DB subnet group for the DB instance. You can use

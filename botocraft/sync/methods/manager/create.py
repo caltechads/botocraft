@@ -1,14 +1,13 @@
 from collections import OrderedDict
 from typing import cast
 
-import botocore.model
-
 from botocraft.sync.models import OperationArgumentDefinition
 
-from .base import MethodGenerator, MethodDocstringDefinition
+from ..models import MethodDocstringDefinition
+from .base import ManagerMethodGenerator
 
 
-class CreateMethodGenerator(MethodGenerator):
+class CreateMethodGenerator(ManagerMethodGenerator):
     """
     Handle the generation of a create method.
     """
@@ -161,6 +160,8 @@ class CreateMethodGenerator(MethodGenerator):
         """
         Return the docstring for the method.
         """
+        if self.operation == 'update' and self.model_name == 'TaskDefinition':
+            pass
         docstrings: MethodDocstringDefinition = MethodDocstringDefinition()
         docstrings.method = (
             self.operation_def.docstring

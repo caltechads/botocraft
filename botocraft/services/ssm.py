@@ -34,7 +34,7 @@ class ParameterManager(Boto3ModelManager):
         Add a parameter to the system.
 
         Args:
-            model: The :py:class:``Parameter`` to create.
+            model: The :py:class:`Parameter` to create.
 
         Keyword Args:
             Description: Information about the parameter that you want to add to the
@@ -87,7 +87,7 @@ class ParameterManager(Boto3ModelManager):
         Add a parameter to the system.
 
         Args:
-            model: The :py:class:``Parameter`` to update.
+            model: The :py:class:`Parameter` to update.
 
         Keyword Args:
             Description: Information about the parameter that you want to add to the

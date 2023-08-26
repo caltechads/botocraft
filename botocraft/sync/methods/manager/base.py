@@ -1,4 +1,3 @@
-from dataclasses import dataclass, field
 from collections import OrderedDict
 from typing import (
     Optional,
@@ -10,89 +9,14 @@ from typing import (
 import botocore.session
 import inflect
 
-
 from botocraft.sync.models import OperationDefinition, OperationArgumentDefinition
-from botocraft.sync.docstring import DocumentationFormatter
+from botocraft.sync.methods.models import MethodDocstringDefinition
 
 if TYPE_CHECKING:
     from botocraft.sync.service import ManagerGenerator
 
 
-@dataclass
-class MethodDocstringDefinition:
-    """
-    A class to hold the different parts of the docstring for a method.
-    """
-
-    # The main method docstring
-    method: Optional[str] = None
-    #: The docstrings for our positional arguments
-    args: OrderedDict[str, Optional[str]] = field(default_factory=OrderedDict)
-    #: The docstrings for our keyword arguments
-    kwargs: OrderedDict[str, Optional[str]] = field(default_factory=OrderedDict)
-    #: The docstring for our return value
-    return_value: Optional[str] = None
-
-    @property
-    def is_empty(self) -> bool:
-        """
-        Return ``True`` if the docstring is empty, ``False`` otherwise.
-        """
-        return (
-            self.method is None and
-            not self.args and
-            not self.kwargs and
-            self.return_value is None
-        )
-
-    def Args(self, formatter: DocumentationFormatter) -> str:
-        """
-        Return the docstring for the positional arguments.
-        """
-        assert self.args, "No args"
-        docstring = '''
-        Args:
-'''
-        for arg_name, arg_docstring in self.args.items():
-            docstring += formatter.format_argument(arg_name, arg_docstring)
-            docstring += '\n'
-
-        return docstring
-
-    def Keyword_Args(self, formatter: DocumentationFormatter) -> str:
-        """
-        Return the docstring for the keyword arguments.
-        """
-        assert self.kwargs, "No args"
-        docstring = '''
-        Keyword Args:
-'''
-        for arg_name, arg_docstring in self.kwargs.items():
-            docstring += formatter.format_argument(arg_name, arg_docstring)
-            docstring += '\n'
-        return docstring
-
-    def render(self, formatter: DocumentationFormatter) -> Optional[str]:
-        """
-        Return the entire method docstring.
-        """
-        if self.is_empty:
-            return None
-
-        docstring = '''
-        """
-'''
-        if self.method:
-            docstring += f"        {formatter.clean(self.method, max_lines=1)}\n"
-        if self.args:
-            docstring += self.Args(formatter)
-        if self.kwargs:
-            docstring += self.Keyword_Args(formatter)
-        docstring += '\n        """'
-        return docstring
-
-
-class MethodGenerator:
+class ManagerMethodGenerator:
     """
     The base class for all method generators.  This is used to generate
     the code for a single method on a manager class.

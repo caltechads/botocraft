@@ -30,7 +30,7 @@ class ServiceManager(Boto3ModelManager):
         Create an ECS service.
 
         Args:
-            model: The :py:class:``Service`` to create.
+            model: The :py:class:`Service` to create.
 
         Keyword Args:
             clientToken: An identifier that you provide to ensure the idempotency of
@@ -208,7 +208,7 @@ class ServiceManager(Boto3ModelManager):
         Modifies the parameters of a service.
 
         Args:
-            model: The :py:class:``Service`` to update.
+            model: The :py:class:`Service` to update.
 
         Keyword Args:
             forceNewDeployment: Determines whether to force a new deployment of the
@@ -254,7 +254,7 @@ class ClusterManager(Boto3ModelManager):
         Create an ECS cluster.
 
         Args:
-            model: The :py:class:``Cluster`` to create.
+            model: The :py:class:`Cluster` to create.
         """
         data = model.model_dump()
         _response = self.client.create_cluster(
@@ -333,7 +333,7 @@ class ClusterManager(Boto3ModelManager):
         Update an ECS cluster.
 
         Args:
-            model: The :py:class:``Cluster`` to update.
+            model: The :py:class:`Cluster` to update.
         """
         data = model.model_dump()
         _response = self.client.update_cluster(
@@ -353,20 +353,20 @@ class TaskDefinitionManager(Boto3ModelManager):
         self, model: "TaskDefinition", tags: Optional[List["Tag"]] = None
     ) -> "TaskDefinition":
         """
-                Registers a new task definition from the supplied ``family`` and
+        Registers a new task definition from the supplied ``family`` and
         ``containerDefinitions``. Optionally, you can add data volumes to your
         containers with the ``volumes`` parameter. For more information about task
         definition parameters and defaults, see `Amazon ECS Task Definitions <https://d
         ocs.aws.amazon.com/AmazonECS/latest/developerguide/task_defintions.html>`_ in the
         *Amazon Elastic Container Service Developer Guide*.
 
-                Args:
-                    model: The :py:class:``TaskDefinition`` to create.
+        Args:
+            model: The :py:class:`TaskDefinition` to create.
 
-                Keyword Args:
-                    tags: The metadata that you apply to the task definition to help you
-                        categorize and organize them. Each tag consists of a key and an optional
-                        value. You define both of them.
+        Keyword Args:
+            tags: The metadata that you apply to the task definition to help you
+                categorize and organize them. Each tag consists of a key and an optional
+                value. You define both of them.
 
         """
         data = model.model_dump()
@@ -490,20 +490,20 @@ class TaskDefinitionManager(Boto3ModelManager):
         self, model: "TaskDefinition", tags: Optional[List["Tag"]] = None
     ) -> "TaskDefinition":
         """
-                Registers a new task definition from the supplied ``family`` and
+        Registers a new task definition from the supplied ``family`` and
         ``containerDefinitions``. Optionally, you can add data volumes to your
         containers with the ``volumes`` parameter. For more information about task
         definition parameters and defaults, see `Amazon ECS Task Definitions <https://d
         ocs.aws.amazon.com/AmazonECS/latest/developerguide/task_defintions.html>`_ in the
         *Amazon Elastic Container Service Developer Guide*.
 
-                Args:
-                    model: The :py:class:``TaskDefinition`` to update.
+        Args:
+            model: The :py:class:`TaskDefinition` to update.
 
-                Keyword Args:
-                    tags: The metadata that you apply to the task definition to help you
-                        categorize and organize them. Each tag consists of a key and an optional
-                        value. You define both of them.
+        Keyword Args:
+            tags: The metadata that you apply to the task definition to help you
+                categorize and organize them. Each tag consists of a key and an optional
+                value. You define both of them.
 
         """
         data = model.model_dump()
@@ -587,29 +587,29 @@ class ContainerInstanceManager(ReadonlyBoto3ModelManager):
         ] = None
     ) -> List[str]:
         """
-                Returns a list of container instances in a specified cluster. You can filter
+        Returns a list of container instances in a specified cluster. You can filter
         the results of a ``ListContainerInstances`` operation with cluster query
         language statements inside the ``filter`` parameter. For more information, see
         `Cluster Query
         Language <https://docs.aws.amazon.com/AmazonECS/latest/developerguide/cluster-
         query-language.html>`_ in the *Amazon Elastic Container Service Developer Guide*.
 
-                Keyword Args:
-                    cluster: The short name or full Amazon Resource Name (ARN) of the cluster
-                        that hosts the container instances to list. If you do not specify a
-                        cluster, the default cluster is assumed.
-                    filter: You can filter the results of a ``ListContainerInstances``
-                        operation with cluster query language statements. For more information, see
-                        `Cluster Query Language
-                        <https://docs.aws.amazon.com/AmazonECS/latest/developerguide/cluster-
-                        query-language.html>`_ in the *Amazon Elastic Container Service Developer
-                        Guide*.
-                    status: Filters the container instances by status. For example, if you
-                        specify the ``DRAINING`` status, the results include only container
-                        instances that have been set to ``DRAINING`` using
-                        UpdateContainerInstancesState. If you don't specify this parameter, the
-                        default is to include container instances set to all states other than
-                        ``INACTIVE``.
+        Keyword Args:
+            cluster: The short name or full Amazon Resource Name (ARN) of the cluster
+                that hosts the container instances to list. If you do not specify a
+                cluster, the default cluster is assumed.
+            filter: You can filter the results of a ``ListContainerInstances``
+                operation with cluster query language statements. For more information, see
+                `Cluster Query Language
+                <https://docs.aws.amazon.com/AmazonECS/latest/developerguide/cluster-
+                query-language.html>`_ in the *Amazon Elastic Container Service Developer
+                Guide*.
+            status: Filters the container instances by status. For example, if you
+                specify the ``DRAINING`` status, the results include only container
+                instances that have been set to ``DRAINING`` using
+                UpdateContainerInstancesState. If you don't specify this parameter, the
+                default is to include container instances set to all states other than
+                ``INACTIVE``.
 
         """
         paginator = self.client.get_paginator("list_container_instances")

@@ -31,7 +31,7 @@ class LoadBalancerManager(Boto3ModelManager):
         Load Balancer.
 
         Args:
-            model: The :py:class:``LoadBalancer`` to create.
+            model: The :py:class:`LoadBalancer` to create.
 
         Keyword Args:
             SubnetMappings: The IDs of the public subnets. You can specify only one
@@ -141,7 +141,7 @@ class ListenerManager(Boto3ModelManager):
         Load Balancer, or Gateway Load Balancer.
 
         Args:
-            model: The :py:class:``Listener`` to create.
+            model: The :py:class:`Listener` to create.
 
         Keyword Args:
             Tags: The tags to assign to the listener.
@@ -166,7 +166,7 @@ class ListenerManager(Boto3ModelManager):
         properties that you do not specify remain unchanged.
 
         Args:
-            model: The :py:class:``Listener`` to update.
+            model: The :py:class:`Listener` to update.
         """
         data = model.model_dump()
         _response = self.client.modify_listener(
@@ -265,7 +265,7 @@ class RuleManager(Boto3ModelManager):
         associated with an Application Load Balancer.
 
         Args:
-            model: The :py:class:``Rule`` to create.
+            model: The :py:class:`Rule` to create.
 
         Keyword Args:
             Tags: The tags to assign to the rule.
@@ -287,7 +287,7 @@ class RuleManager(Boto3ModelManager):
         that you do not specify are unchanged.
 
         Args:
-            model: The :py:class:``Rule`` to update.
+            model: The :py:class:`Rule` to update.
         """
         data = model.model_dump()
         _response = self.client.modify_rule(
@@ -379,7 +379,7 @@ class TargetGroupManager(Boto3ModelManager):
         Creates a target group.
 
         Args:
-            model: The :py:class:``TargetGroup`` to create.
+            model: The :py:class:`TargetGroup` to create.
             Name: The name of the target group.
 
         Keyword Args:
@@ -414,7 +414,7 @@ class TargetGroupManager(Boto3ModelManager):
         targets in the specified target group.
 
         Args:
-            model: The :py:class:``TargetGroup`` to update.
+            model: The :py:class:`TargetGroup` to update.
         """
         data = model.model_dump()
         _response = self.client.modify_target_group(
@@ -450,19 +450,19 @@ class TargetGroupManager(Boto3ModelManager):
         PageSize: Optional[int] = None
     ) -> Optional["TargetGroup"]:
         """
-                Describes the specified target groups or all of your target groups. By default,
+        Describes the specified target groups or all of your target groups. By default,
         all target groups are described. Alternatively, you can specify one of the
         following to filter the results: the ARN of the load balancer, the names of one
         or more target groups, or the ARNs of one or more target groups.
 
-                Args:
-                    TargetGroupArns: The Amazon Resource Names (ARN) of the target groups.
+        Args:
+            TargetGroupArns: The Amazon Resource Names (ARN) of the target groups.
 
-                Keyword Args:
-                    Names: The names of the target groups.
-                    Marker: The marker for the next set of results. (You received this marker
-                        from a previous call.)
-                    PageSize: The maximum number of results to return with this call.
+        Keyword Args:
+            Names: The names of the target groups.
+            Marker: The marker for the next set of results. (You received this marker
+                from a previous call.)
+            PageSize: The maximum number of results to return with this call.
 
         """
         _response = self.client.describe_target_groups(
@@ -486,16 +486,16 @@ class TargetGroupManager(Boto3ModelManager):
         PageSize: Optional[int] = None
     ) -> List["TargetGroup"]:
         """
-                Describes the specified target groups or all of your target groups. By default,
+        Describes the specified target groups or all of your target groups. By default,
         all target groups are described. Alternatively, you can specify one of the
         following to filter the results: the ARN of the load balancer, the names of one
         or more target groups, or the ARNs of one or more target groups.
 
-                Keyword Args:
-                    LoadBalancerArn: The Amazon Resource Name (ARN) of the load balancer.
-                    TargetGroupArns: The Amazon Resource Names (ARN) of the target groups.
-                    Names: The names of the target groups.
-                    PageSize: The maximum number of results to return with this call.
+        Keyword Args:
+            LoadBalancerArn: The Amazon Resource Name (ARN) of the load balancer.
+            TargetGroupArns: The Amazon Resource Names (ARN) of the target groups.
+            Names: The names of the target groups.
+            PageSize: The maximum number of results to return with this call.
 
         """
         paginator = self.client.get_paginator("describe_target_groups")
