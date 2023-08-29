@@ -39,16 +39,14 @@ class AbstractGenerator:
         self.service_name = service_generator.aws_service_name
         #: The botocraft service definition for our service.
         self.service_def = service_generator.service_def
-        #: The botocraft interface definition.  We collect things we need to know
-        #: globally here.
+        #: The botocraft interface definition.  We collect things we need to
+        #: know globally here.
         self.interface = service_generator.interface
         session = botocore.session.get_session()
         #: The botocore service model for our service.
         self.service_model = session.get_service_model(self.service_name)
         #: The documentation formatter we will use to format docstrings.
         self.docformatter = DocumentationFormatter()
-        #: The shape converter we will use to convert botocore shapes to python types
-        self.shape_converter = PythonTypeShapeConverter()
         self.classes: OrderedDict[str, str] = OrderedDict()
         self.imports: Set[str] = set()
 
@@ -91,12 +89,14 @@ class ModelGenerator(AbstractGenerator):
     Generate pydantic model definitions for a service.
     """
 
+    def __init__(self, service_generator: "ServiceGenerator") -> None:
+        super().__init__(service_generator)
+        self.shape_converter = PythonTypeShapeConverter(service_generator, self)
+
     def get_model_def(self, model_name: str) -> ModelDefinition:
         """
         Return the :py:class:`ModelDefinition` for a model.
         """
-        if model_name == 'Deployment':
-            pass
         if model_name in self.service_def.primary_models:
             defn = self.service_def.primary_models[model_name]
             if defn.readonly:
@@ -115,13 +115,14 @@ class ModelGenerator(AbstractGenerator):
 
     def fields(self, model_name: str) -> Dict[str, ModelAttributeDefinition]:
         """
-        Return the fields for a model as a dictionary of field names to field
-        definitions.  This obeys the ``fields`` attribute of the model
-        definition, if it exists.
+        Return the fields for a botocore shape as a dictionary of field names to
+        field definitions.  This incorporates settings from the
+        :py:class:`ModelAttributeDefinitions` from the  ``fields`` attribute of
+        the associated model definition, if it exists.
 
         .. note::
-            This really only makes sense on `botocore.model.StructureShape` objects,
-            since they are the only ones that have fields.
+            This really only makes sense on `botocore.model.StructureShape`
+            objects, since they are the only ones that have fields.
 
         Returns:
             A dictionary of field names to field definitions.
@@ -143,48 +144,7 @@ class ModelGenerator(AbstractGenerator):
         Generate all the service models.
         """
         for model_name in self.service_def.primary_models:
-            model_def = self.get_model_def(model_name)
             _ = self.generate_model(model_name)
-
-    def resolve_type(self, field_shape: botocore.model.Shape) -> str:
-        """
-        Resolve the Python type for a field shape.
-
-        Args:
-            field_shape: The shape to resolve.
-
-        Returns:
-            The Python type for the shape.
-        """
-        inner_model_name: str
-        try:
-            python_type = self.shape_converter.convert(field_shape)
-        except ValueError as exc:
-            if field_shape.type_name == 'list':
-                # This is a list of submodels
-                element_shape = field_shape.member  # type: ignore  # pylint: disable=no-member
-                if element_shape.name == 'String' or element_shape.type_name == 'string':
-                    inner_model_name = self.shape_converter.convert(element_shape)
-                else:
-                    inner_model_name = self.generate_model(element_shape.name, shape=element_shape)
-                python_type = f'List[{inner_model_name}]'
-            elif field_shape.type_name == 'map':
-                # This is a map of submodels.  I'm assuming here that the key
-                # and value types are simple types like String or Integer.
-                value_type = self.shape_converter.convert(field_shape.key)  # type: ignore  # pylint: disable=no-member
-                key_type = self.shape_converter.convert(field_shape.value)  # type: ignore  # pylint: disable=no-member
-                python_type = f'Dict[{key_type}, {value_type}]'
-            elif field_shape.type_name == 'structure':
-                # This is a submodel
-                python_type = self.generate_model(field_shape.name, shape=field_shape)
-            elif field_shape.name in ['Timestamp', 'DateTime', 'TStamp']:
-                python_type = 'datetime'
-                self.imports.add('from datetime import datetime')
-            else:
-                raise ValueError(
-                    f'Could not resolve type for field {field_shape.name}.  Shape: {field_shape}.'
-                ) from exc
-        return python_type
 
     def extra_fields(self, model_def: ModelDefinition) -> List[str]:
         """
@@ -194,10 +154,10 @@ class ModelGenerator(AbstractGenerator):
         create/get/list/update methods but not in actual models.  We add them to
         the models so that we can load them from the API responses.
 
-        Extra fields are exclusively defined in the botocore model definition.  We
-        add them manually to the model definition by inspecting the response shape
-        for the create/get/list/update methods and adding any fields that aren't
-        already defined in the service model shape.
+        Extra fields are exclusively defined in the botocore model definition.
+        We add them manually to the model definition by inspecting the response
+        shape for the create/get/list/update methods and adding any fields that
+        aren't already defined in the service model shape.
 
         Args:
             model_def: The botocraft model definition for this model
@@ -306,28 +266,21 @@ class ModelGenerator(AbstractGenerator):
         """
         fields: List[str] = []
 
+        if model_name == 'CloudwatchLogsExportConfiguration':
+            pass
         model_def = self.get_model_def(model_name)
-        if not base_class:
-            base_class = model_def.base_class
+        base_class = cast(str, model_def.base_class)
         if not shape:
             shape = self.get_shape(model_name)
         if model_def.alternate_name:
             model_name = model_def.alternate_name
-        if model_name in self.classes or model_name in self.service_generator.classes:
-            # We've already generated this model
-            return model_name
-        if model_name in self.interface.models:
-            # This is a model that we're importing from another service
-            import_path = self.interface.models[model_name]
-            self.imports.add(f'from {import_path} import {model_name}')
-            return model_name
 
         if hasattr(shape, 'members'):
             for field_name, field_shape in shape.members.items():
                 #: The botocraft definition for this field
                 field_def = model_def.fields.get(field_name, ModelAttributeDefinition())
                 # Our guess as to the python type for this field
-                python_type: Optional[str] = field_def.python_type or self.resolve_type(field_shape)
+                python_type: Optional[str] = field_def.python_type or self.shape_converter.convert(field_shape)
                 # Whether this field is required
                 required: bool = (field_name in shape.required_members) or field_def.required
 
@@ -388,6 +341,7 @@ class ManagerGenerator(AbstractGenerator):
     def __init__(self, service_generator: "ServiceGenerator") -> None:
         super().__init__(service_generator)
         self.model_generator = self.service_generator.model_generator
+        self.shape_converter = self.model_generator.shape_converter
         self.client = boto3.client(self.service_name)  # type: ignore
 
     def generate_manager(
@@ -435,6 +389,7 @@ class {model_name}Manager({base_class}):
     def generate(self) -> None:
         for model_name, manager_def in self.service_def.managers.items():
             self.generate_manager(model_name, manager_def)
+        self.imports.update(self.model_generator.imports)
 
 
 class ServiceGenerator:

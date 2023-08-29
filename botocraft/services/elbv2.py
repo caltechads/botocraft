@@ -24,7 +24,7 @@ class LoadBalancerManager(Boto3ModelManager):
         self,
         model: "LoadBalancer",
         SubnetMappings: Optional[List["SubnetMapping"]] = None,
-        Tags: Optional[List["Tag"]] = None,
+        Tags: Optional[List[Tag]] = None,
     ) -> "LoadBalancer":
         """
         Creates an Application Load Balancer, Network Load Balancer, or Gateway
@@ -70,8 +70,8 @@ class LoadBalancerManager(Boto3ModelManager):
     def get(
         self,
         *,
-        LoadBalancerArns: Optional[List["str"]] = None,
-        Names: Optional[List["str"]] = None,
+        LoadBalancerArns: Optional[List[str]] = None,
+        Names: Optional[List[str]] = None,
         Marker: Optional[str] = None,
         PageSize: Optional[int] = None
     ) -> Optional["LoadBalancer"]:
@@ -101,8 +101,8 @@ class LoadBalancerManager(Boto3ModelManager):
     def list(
         self,
         *,
-        LoadBalancerArns: Optional[List["str"]] = None,
-        Names: Optional[List["str"]] = None,
+        LoadBalancerArns: Optional[List[str]] = None,
+        Names: Optional[List[str]] = None,
         PageSize: Optional[int] = None
     ) -> List["LoadBalancer"]:
         """
@@ -133,9 +133,7 @@ class LoadBalancerManager(Boto3ModelManager):
 class ListenerManager(Boto3ModelManager):
     service_name: str = "elbv2"
 
-    def create(
-        self, model: "Listener", Tags: Optional[List["Tag"]] = None
-    ) -> "Listener":
+    def create(self, model: "Listener", Tags: Optional[List[Tag]] = None) -> "Listener":
         """
         Creates a listener for the specified Application Load Balancer, Network
         Load Balancer, or Gateway Load Balancer.
@@ -192,7 +190,7 @@ class ListenerManager(Boto3ModelManager):
 
     def get(
         self,
-        ListenerArns: List["str"],
+        ListenerArns: List[str],
         *,
         Marker: Optional[str] = None,
         PageSize: Optional[int] = None
@@ -226,7 +224,7 @@ class ListenerManager(Boto3ModelManager):
         self,
         *,
         LoadBalancerArn: Optional[str] = None,
-        ListenerArns: Optional[List["str"]] = None,
+        ListenerArns: Optional[List[str]] = None,
         PageSize: Optional[int] = None
     ) -> List["Listener"]:
         """
@@ -259,7 +257,7 @@ class ListenerManager(Boto3ModelManager):
 class RuleManager(Boto3ModelManager):
     service_name: str = "elbv2"
 
-    def create(self, model: "Rule", Tags: Optional[List["Tag"]] = None) -> "Rule":
+    def create(self, model: "Rule", Tags: Optional[List[Tag]] = None) -> "Rule":
         """
         Creates a rule for the specified listener. The listener must be
         associated with an Application Load Balancer.
@@ -309,7 +307,7 @@ class RuleManager(Boto3ModelManager):
 
     def get(
         self,
-        RuleArns: List["str"],
+        RuleArns: List[str],
         *,
         Marker: Optional[str] = None,
         PageSize: Optional[int] = None
@@ -341,7 +339,7 @@ class RuleManager(Boto3ModelManager):
         self,
         *,
         ListenerArn: Optional[str] = None,
-        RuleArns: Optional[List["str"]] = None,
+        RuleArns: Optional[List[str]] = None,
         PageSize: Optional[int] = None
     ) -> List["Rule"]:
         """
@@ -373,7 +371,7 @@ class TargetGroupManager(Boto3ModelManager):
     service_name: str = "elbv2"
 
     def create(
-        self, model: "TargetGroup", Name: str, Tags: Optional[List["Tag"]] = None
+        self, model: "TargetGroup", Name: str, Tags: Optional[List[Tag]] = None
     ) -> "TargetGroup":
         """
         Creates a target group.
@@ -443,9 +441,9 @@ class TargetGroupManager(Boto3ModelManager):
 
     def get(
         self,
-        TargetGroupArns: List["str"],
+        TargetGroupArns: List[str],
         *,
-        Names: Optional[List["str"]] = None,
+        Names: Optional[List[str]] = None,
         Marker: Optional[str] = None,
         PageSize: Optional[int] = None
     ) -> Optional["TargetGroup"]:
@@ -481,8 +479,8 @@ class TargetGroupManager(Boto3ModelManager):
         self,
         *,
         LoadBalancerArn: Optional[str] = None,
-        TargetGroupArns: Optional[List["str"]] = None,
-        Names: Optional[List["str"]] = None,
+        TargetGroupArns: Optional[List[str]] = None,
+        Names: Optional[List[str]] = None,
         PageSize: Optional[int] = None
     ) -> List["TargetGroup"]:
         """
@@ -569,7 +567,7 @@ class AvailabilityZone(Boto3Model):
     #: balancer, you can specify one Elastic IP address per Availability Zone when you
     #: create an internal-facing load balancer. For internal load balancers, you can
     #: specify a private IP address from the IPv4 range of the subnet.
-    LoadBalancerAddresses: Optional[List[LoadBalancerAddress]] = None
+    LoadBalancerAddresses: Optional[List["LoadBalancerAddress"]] = None
 
 
 class LoadBalancer(PrimaryBoto3Model):
@@ -601,7 +599,7 @@ class LoadBalancer(PrimaryBoto3Model):
     #: The type of load balancer.
     Type: Literal["application", "network", "gateway"]
     #: The subnets for the load balancer.
-    AvailabilityZones: Optional[List[AvailabilityZone]] = Field(
+    AvailabilityZones: Optional[List["AvailabilityZone"]] = Field(
         frozen=True, default=None
     )
     #: The IDs of the security groups for the load balancer.
@@ -615,10 +613,7 @@ class LoadBalancer(PrimaryBoto3Model):
     CustomerOwnedIpv4Pool: Optional[str] = None
     #: Indicates whether to evaluate inbound security group rules for traffic sent to
     #: a Network Load Balancer through Amazon Web Services PrivateLink.
-    EnforceSecurityGroupInboundRulesOnPrivateLinkTraffic: Optional[str] = None
-    #: Indicates whether to evaluate inbound security group rules for traffic sent to
-    #: a Network Load Balancer through Amazon Web Services PrivateLink.
-    EnforceSecurityGroupInboundRulesOnPrivateLinkTraffic: Optional[bool] = Field(
+    EnforceSecurityGroupInboundRulesOnPrivateLinkTraffic: Optional[str] = Field(
         frozen=True, default=None
     )
 
@@ -829,7 +824,7 @@ class ForwardActionConfig(Boto3Model):
 
     #: The target groups. For Network Load Balancers, you can specify a single target
     #: group.
-    TargetGroups: Optional[List[TargetGroupTuple]] = None
+    TargetGroups: Optional[List["TargetGroupTuple"]] = None
     #: The target group stickiness for the rule.
     TargetGroupStickinessConfig: Optional[TargetGroupStickinessConfig] = None
 
@@ -895,12 +890,12 @@ class Listener(PrimaryBoto3Model):
     #: The protocol for connections from clients to the load balancer.
     Protocol: Literal["HTTP", "HTTPS", "TCP", "TLS", "UDP", "TCP_UDP", "GENEVE"]
     #: [HTTPS or TLS listener] The default certificate for the listener.
-    Certificates: Optional[List[Certificate]] = None
+    Certificates: Optional[List["Certificate"]] = None
     #: [HTTPS or TLS listener] The security policy that defines which protocols and
     #: ciphers are supported.
     SslPolicy: Optional[str] = None
     #: The default actions for the listener.
-    DefaultActions: Optional[List[Action]] = None
+    DefaultActions: Optional[List["Action"]] = None
     #: [TLS listener] The name of the Application-Layer Protocol Negotiation (ALPN)
     #: policy.
     AlpnPolicy: Optional[List[str]] = None
@@ -1001,7 +996,7 @@ class QueryStringConditionConfig(Boto3Model):
     #: and ? (matches exactly 1 character). To search for a literal '\*' or '?'
     #: character in a query string, you must escape these characters in ``Values``
     #: using a '\' character.
-    Values: Optional[List[QueryStringKeyValuePair]] = None
+    Values: Optional[List["QueryStringKeyValuePair"]] = None
 
 
 class HttpRequestMethodConditionConfig(Boto3Model):
@@ -1088,11 +1083,11 @@ class Rule(PrimaryBoto3Model):
     #: ``http-request-method``, ``host-header``, ``path-pattern``, and ``source-ip``,
     #: and zero or more of the following conditions: ``http-header`` and ``query-
     #: string``.
-    Conditions: List[RuleCondition]
+    Conditions: List["RuleCondition"]
     #: The actions. Each rule must include exactly one of the following types of
     #: actions: ``forward``, ``redirect``, or ``fixed-response``, and it must be the
     #: last action to be performed.
-    Actions: List[Action]
+    Actions: List["Action"]
     #: Indicates whether this is the default rule.
     IsDefault: bool
 
@@ -1235,9 +1230,26 @@ class TargetGroup(PrimaryBoto3Model):
 # =======================
 
 
+class SubnetMapping(Boto3Model):
+    """
+    Information about a subnet mapping.
+    """
+
+    #: The ID of the subnet.
+    SubnetId: str
+    #: [Network Load Balancers] The allocation ID of the Elastic IP address for an
+    #: internet-facing load balancer.
+    AllocationId: Optional[str] = None
+    #: [Network Load Balancers] The private IPv4 address for an internal load
+    #: balancer.
+    PrivateIPv4Address: Optional[str] = None
+    #: [Network Load Balancers] The IPv6 address.
+    IPv6Address: Optional[str] = None
+
+
 class CreateLoadBalancerOutput(Boto3Model):
     #: Information about the load balancer.
-    LoadBalancers: Optional[List[LoadBalancer]] = None
+    LoadBalancers: Optional[List["LoadBalancer"]] = None
 
 
 class DeleteLoadBalancerOutput(Boto3Model):
@@ -1246,7 +1258,7 @@ class DeleteLoadBalancerOutput(Boto3Model):
 
 class DescribeLoadBalancersOutput(Boto3Model):
     #: Information about the load balancers.
-    LoadBalancers: Optional[List[LoadBalancer]] = None
+    LoadBalancers: Optional[List["LoadBalancer"]] = None
     #: If there are additional results, this is the marker for the next set of
     #: results. Otherwise, this is null.
     NextMarker: Optional[str] = None
@@ -1254,12 +1266,12 @@ class DescribeLoadBalancersOutput(Boto3Model):
 
 class CreateListenerOutput(Boto3Model):
     #: Information about the listener.
-    Listeners: Optional[List[Listener]] = None
+    Listeners: Optional[List["Listener"]] = None
 
 
 class ModifyListenerOutput(Boto3Model):
     #: Information about the modified listener.
-    Listeners: Optional[List[Listener]] = None
+    Listeners: Optional[List["Listener"]] = None
 
 
 class DeleteListenerOutput(Boto3Model):
@@ -1268,7 +1280,7 @@ class DeleteListenerOutput(Boto3Model):
 
 class DescribeListenersOutput(Boto3Model):
     #: Information about the listeners.
-    Listeners: Optional[List[Listener]] = None
+    Listeners: Optional[List["Listener"]] = None
     #: If there are additional results, this is the marker for the next set of
     #: results. Otherwise, this is null.
     NextMarker: Optional[str] = None
@@ -1276,12 +1288,12 @@ class DescribeListenersOutput(Boto3Model):
 
 class CreateRuleOutput(Boto3Model):
     #: Information about the rule.
-    Rules: Optional[List[Rule]] = None
+    Rules: Optional[List["Rule"]] = None
 
 
 class ModifyRuleOutput(Boto3Model):
     #: Information about the modified rule.
-    Rules: Optional[List[Rule]] = None
+    Rules: Optional[List["Rule"]] = None
 
 
 class DeleteRuleOutput(Boto3Model):
@@ -1290,7 +1302,7 @@ class DeleteRuleOutput(Boto3Model):
 
 class DescribeRulesOutput(Boto3Model):
     #: Information about the rules.
-    Rules: Optional[List[Rule]] = None
+    Rules: Optional[List["Rule"]] = None
     #: If there are additional results, this is the marker for the next set of
     #: results. Otherwise, this is null.
     NextMarker: Optional[str] = None
@@ -1298,12 +1310,12 @@ class DescribeRulesOutput(Boto3Model):
 
 class CreateTargetGroupOutput(Boto3Model):
     #: Information about the target group.
-    TargetGroups: Optional[List[TargetGroup]] = None
+    TargetGroups: Optional[List["TargetGroup"]] = None
 
 
 class ModifyTargetGroupOutput(Boto3Model):
     #: Information about the modified target group.
-    TargetGroups: Optional[List[TargetGroup]] = None
+    TargetGroups: Optional[List["TargetGroup"]] = None
 
 
 class DeleteTargetGroupOutput(Boto3Model):
@@ -1312,7 +1324,7 @@ class DeleteTargetGroupOutput(Boto3Model):
 
 class DescribeTargetGroupsOutput(Boto3Model):
     #: Information about the target groups.
-    TargetGroups: Optional[List[TargetGroup]] = None
+    TargetGroups: Optional[List["TargetGroup"]] = None
     #: If there are additional results, this is the marker for the next set of
     #: results. Otherwise, this is null.
     NextMarker: Optional[str] = None

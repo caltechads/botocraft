@@ -24,22 +24,22 @@ class DBInstanceManager(Boto3ModelManager):
         self,
         model: "DBInstance",
         MasterUserPassword: Optional[str] = None,
-        VpcSecurityGroupIds: Optional[List["str"]] = None,
+        VpcSecurityGroupIds: Optional[List[str]] = None,
         DBSubnetGroupName: Optional[str] = None,
         DBParameterGroupName: Optional[str] = None,
         Port: Optional[int] = None,
         OptionGroupName: Optional[str] = None,
-        Tags: Optional[List["Tag"]] = None,
+        Tags: Optional[List[Tag]] = None,
         TdeCredentialPassword: Optional[str] = None,
         Domain: Optional[str] = None,
         DomainFqdn: Optional[str] = None,
         DomainOu: Optional[str] = None,
         DomainAuthSecretArn: Optional[str] = None,
-        DomainDnsIps: Optional[List["str"]] = None,
+        DomainDnsIps: Optional[List[str]] = None,
         DomainIAMRoleName: Optional[str] = None,
         EnableIAMDatabaseAuthentication: Optional[bool] = None,
         EnablePerformanceInsights: Optional[bool] = None,
-        EnableCloudwatchLogsExports: Optional[List["str"]] = None,
+        EnableCloudwatchLogsExports: Optional[List[str]] = None,
         EnableCustomerOwnedIp: Optional[bool] = None,
         ManageMasterUserPassword: Optional[bool] = None,
         MasterUserSecretKmsKeyId: Optional[str] = None,
@@ -170,7 +170,7 @@ class DBInstanceManager(Boto3ModelManager):
         self,
         model: "DBInstance",
         DBSubnetGroupName: Optional[str] = None,
-        VpcSecurityGroupIds: Optional[List["str"]] = None,
+        VpcSecurityGroupIds: Optional[List[str]] = None,
         ApplyImmediately: Optional[bool] = None,
         MasterUserPassword: Optional[str] = None,
         DBParameterGroupName: Optional[str] = None,
@@ -182,7 +182,7 @@ class DBInstanceManager(Boto3ModelManager):
         DomainFqdn: Optional[str] = None,
         DomainOu: Optional[str] = None,
         DomainAuthSecretArn: Optional[str] = None,
-        DomainDnsIps: Optional[List["str"]] = None,
+        DomainDnsIps: Optional[List[str]] = None,
         DBPortNumber: Optional[int] = None,
         DomainIAMRoleName: Optional[str] = None,
         DisableDomain: Optional[bool] = None,
@@ -564,7 +564,7 @@ class DBSubnetGroup(Boto3Model):
     #: Provides the status of the DB subnet group.
     SubnetGroupStatus: Optional[str] = None
     #: Contains a list of ``Subnet`` elements.
-    Subnets: Optional[List[Subnet]] = None
+    Subnets: Optional[List["Subnet"]] = None
     #: The Amazon Resource Name (ARN) for the DB subnet group.
     DBSubnetGroupArn: Optional[str] = None
     #: The network type of the DB subnet group.
@@ -675,7 +675,7 @@ class PendingModifiedValues(Boto3Model):
     PendingCloudwatchLogsExports: Optional[PendingCloudwatchLogsExports] = None
     #: The number of CPU cores and the number of threads per core for the DB instance
     #: class of the DB instance.
-    ProcessorFeatures: Optional[List[ProcessorFeature]] = None
+    ProcessorFeatures: Optional[List["ProcessorFeature"]] = None
     #: Whether mapping of Amazon Web Services Identity and Access Management (IAM)
     #: accounts to database accounts is enabled.
     IAMDatabaseAuthenticationEnabled: Optional[bool] = None
@@ -858,11 +858,11 @@ class DBInstance(PrimaryBoto3Model):
     BackupRetentionPeriod: Optional[int] = 1
     #: A list of DB security group elements containing ``DBSecurityGroup.Name`` and
     #: ``DBSecurityGroup.Status`` subelements.
-    DBSecurityGroups: Optional[List[DBSecurityGroupMembership]] = None
+    DBSecurityGroups: Optional[List["DBSecurityGroupMembership"]] = None
     #: The list of Amazon EC2 VPC security groups that the DB instance belongs to.
-    VpcSecurityGroups: Optional[List[VpcSecurityGroupMembership]] = None
+    VpcSecurityGroups: Optional[List["VpcSecurityGroupMembership"]] = None
     #: The list of DB parameter groups applied to this DB instance.
-    DBParameterGroups: Optional[List[DBParameterGroupStatus]] = None
+    DBParameterGroups: Optional[List["DBParameterGroupStatus"]] = None
     #: The name of the Availability Zone where the DB instance is located.
     AvailabilityZone: Optional[str] = None
     #: Information about the subnet group associated with the DB instance, including
@@ -916,7 +916,7 @@ class DBInstance(PrimaryBoto3Model):
     #: The Provisioned IOPS (I/O operations per second) value for the DB instance.
     Iops: Optional[int] = None
     #: The list of option group memberships for this DB instance.
-    OptionGroupMemberships: Optional[List[OptionGroupMembership]] = Field(
+    OptionGroupMemberships: Optional[List["OptionGroupMembership"]] = Field(
         frozen=True, default=None
     )
     #: If present, specifies the name of the character set that this instance is
@@ -933,7 +933,9 @@ class DBInstance(PrimaryBoto3Model):
     PubliclyAccessible: Optional[bool]
     #: The status of a read replica. If the DB instance isn't a read replica, the
     #: value is blank.
-    StatusInfos: Optional[List[DBInstanceStatusInfo]] = Field(frozen=True, default=None)
+    StatusInfos: Optional[List["DBInstanceStatusInfo"]] = Field(
+        frozen=True, default=None
+    )
     #: The storage type associated with the DB instance.
     StorageType: Optional[str] = None
     #: The ARN from the key store with which the instance is associated for TDE
@@ -958,7 +960,7 @@ class DBInstance(PrimaryBoto3Model):
     #: The identifier of the CA certificate for this DB instance.
     CACertificateIdentifier: Optional[str] = None
     #: The Active Directory Domain membership records associated with the DB instance.
-    DomainMemberships: Optional[List[DomainMembership]] = Field(
+    DomainMemberships: Optional[List["DomainMembership"]] = Field(
         frozen=True, default=None
     )
     #: Indicates whether tags are copied from the DB instance to snapshots of the DB
@@ -1000,7 +1002,7 @@ class DBInstance(PrimaryBoto3Model):
     EnabledCloudwatchLogsExports: Optional[List[str]] = Field(frozen=True, default=None)
     #: The number of CPU cores and the number of threads per core for the DB instance
     #: class of the DB instance.
-    ProcessorFeatures: Optional[List[ProcessorFeature]] = None
+    ProcessorFeatures: Optional[List["ProcessorFeature"]] = None
     #: Indicates whether the DB instance has deletion protection enabled. The database
     #: can't be deleted when deletion protection is enabled. For more information, see
     #: `Deleting a DB Instance <https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide
@@ -1008,7 +1010,7 @@ class DBInstance(PrimaryBoto3Model):
     DeletionProtection: Optional[bool] = None
     #: The Amazon Web Services Identity and Access Management (IAM) roles associated
     #: with the DB instance.
-    AssociatedRoles: Optional[List[DBInstanceRole]] = Field(frozen=True, default=None)
+    AssociatedRoles: Optional[List["DBInstanceRole"]] = Field(frozen=True, default=None)
     #: The listener connection endpoint for SQL Server Always On.
     ListenerEndpoint: Optional[RDSEndpoint] = Field(frozen=True, default=None)
     #: The upper limit in gibibytes (GiB) to which Amazon RDS can automatically scale
@@ -1020,7 +1022,7 @@ class DBInstance(PrimaryBoto3Model):
     TagList: Optional[List[Tag]] = None
     #: The list of replicated automated backups associated with the DB instance.
     DBInstanceAutomatedBackupsReplications: Optional[
-        List[DBInstanceAutomatedBackupsReplication]
+        List["DBInstanceAutomatedBackupsReplication"]
     ] = None
     #: Indicates whether a customer-owned IP address (CoIP) is enabled for an RDS on
     #: Outposts DB instance.
@@ -1169,4 +1171,28 @@ class DBInstanceMessage(Boto3Model):
     #: value specified by ``MaxRecords`` .
     Marker: Optional[str] = None
     #: A list of ``DBInstance`` instances.
-    DBInstances: Optional[List[DBInstance]] = None
+    DBInstances: Optional[List["DBInstance"]] = None
+
+
+class Filter(Boto3Model):
+    """
+    A filter name and value pair that is used to return a more specific list of
+    results from a describe operation. Filters can be used to match a set of
+    resources by specific criteria, such as IDs. The filters supported by a
+    describe operation are documented with the describe operation.
+
+    Currently, wildcards are not supported in filters.
+
+    The following actions can be filtered:
+
+    * ``DescribeDBClusterBacktracks``
+    * ``DescribeDBClusterEndpoints``
+    * ``DescribeDBClusters``
+    * ``DescribeDBInstances``
+    * ``DescribePendingMaintenanceActions``
+    """
+
+    #: The name of the filter. Filter names are case-sensitive.
+    Name: str
+    #: One or more filter values. Filter values are case-sensitive.
+    Values: List[str]

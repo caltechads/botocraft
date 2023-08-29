@@ -28,6 +28,8 @@ class CreateMethodGenerator(ManagerMethodGenerator):
         Returns:
             The method signature for the operation.
         """
+        if self.operation == 'update' and self.model_name == 'DBInstance':
+            pass
         signature = f'    def {self.operation}(self, model: "{self.model_name}"'
         if self.explicit_args or self.explicit_kwargs:
             signature += ", "
@@ -160,8 +162,6 @@ class CreateMethodGenerator(ManagerMethodGenerator):
         """
         Return the docstring for the method.
         """
-        if self.operation == 'update' and self.model_name == 'TaskDefinition':
-            pass
         docstrings: MethodDocstringDefinition = MethodDocstringDefinition()
         docstrings.method = (
             self.operation_def.docstring

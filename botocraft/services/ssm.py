@@ -26,7 +26,7 @@ class ParameterManager(Boto3ModelManager):
         Description: Optional[str] = None,
         KeyId: Optional[str] = None,
         AllowedPattern: Optional[str] = None,
-        Tags: Optional[List["Tag"]] = None,
+        Tags: Optional[List[Tag]] = None,
         Tier: Optional[Literal["Standard", "Advanced", "Intelligent-Tiering"]] = None,
         Policies: Optional[str] = None,
     ) -> int:
@@ -79,7 +79,7 @@ class ParameterManager(Boto3ModelManager):
         Description: Optional[str] = None,
         KeyId: Optional[str] = None,
         AllowedPattern: Optional[str] = None,
-        Tags: Optional[List["Tag"]] = None,
+        Tags: Optional[List[Tag]] = None,
         Tier: Optional[Literal["Standard", "Advanced", "Intelligent-Tiering"]] = None,
         Policies: Optional[str] = None,
     ) -> int:
@@ -127,7 +127,7 @@ class ParameterManager(Boto3ModelManager):
         return cast(int, response.Version)
 
     def get(
-        self, Names: List["str"], *, WithDecryption: Optional[bool] = None
+        self, Names: List[str], *, WithDecryption: Optional[bool] = None
     ) -> Optional["Parameter"]:
         """
         Get information about one or more parameters by specifying multiple
@@ -286,10 +286,41 @@ class PutParameterResult(Boto3Model):
 
 class GetParametersResult(Boto3Model):
     #: A list of details for a parameter.
-    Parameters: Optional[List[Parameter]] = None
+    Parameters: Optional[List["Parameter"]] = None
     #: A list of parameters that aren't formatted correctly or don't run during an
     #: execution.
     InvalidParameters: Optional[List[str]] = None
+
+
+class ParametersFilter(Boto3Model):
+    """
+    This data type is deprecated.
+
+    Instead, use ParameterStringFilter.
+    """
+
+    #: The name of the filter.
+    Key: Literal["Name", "Type", "KeyId"]
+    #: The filter values.
+    Values: List[str]
+
+
+class ParameterStringFilter(Boto3Model):
+    """
+    One or more filters.
+
+    Use a filter to return a more specific list of results.
+    """
+
+    #: The name of the filter.
+    Key: str
+    #: For all filters used with DescribeParameters, valid options include ``Equals``
+    #: and ``BeginsWith``. The ``Name`` filter additionally supports the ``Contains``
+    #: option. (Exception: For filters using the key ``Path``, valid options include
+    #: ``Recursive`` and ``OneLevel``.)
+    Option: Optional[str] = None
+    #: The value you want to search for.
+    Values: Optional[List[str]] = None
 
 
 class ParameterInlinePolicy(Boto3Model):
@@ -337,7 +368,7 @@ class ParameterMetadata(Boto3Model):
     #: The parameter tier.
     Tier: Optional[Literal["Standard", "Advanced", "Intelligent-Tiering"]] = None
     #: A list of policies associated with a parameter.
-    Policies: Optional[List[ParameterInlinePolicy]] = None
+    Policies: Optional[List["ParameterInlinePolicy"]] = None
     #: The data type of the parameter, such as ``text`` or ``aws:ec2:image``. The
     #: default is ``text``.
     DataType: Optional[str] = None
@@ -345,7 +376,7 @@ class ParameterMetadata(Boto3Model):
 
 class DescribeParametersResult(Boto3Model):
     #: Parameters returned by the request.
-    Parameters: Optional[List[ParameterMetadata]] = None
+    Parameters: Optional[List["ParameterMetadata"]] = None
     #: The token to use when requesting the next set of items.
     NextToken: Optional[str] = None
 

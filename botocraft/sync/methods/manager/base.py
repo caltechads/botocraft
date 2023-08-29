@@ -109,60 +109,7 @@ class ManagerMethodGenerator:
                         args[arg].required = True
         return args
 
-    def resolve_type(self, shape: botocore.model.Shape) -> str:
-        """
-        Translate the given botocore argument shape into a python type.
-
-        Args:
-            shape: the botocore shape for the argument we're translating.
-
-        Returns:
-            A tuple of the python type and the model we need to import for it,
-            if that was created.
-        """
-        python_type: str
-        import_model: Optional[str] = None
-        try:
-            python_type = self.shape_converter.convert(shape)
-        except ValueError:
-            if shape.type_name == 'list':
-                # This is a list of submodels
-                element_shape = shape.member  # type: ignore
-                inner_model_name: str = element_shape.name
-                import_model = None
-                if inner_model_name == 'String' or element_shape.type_name == 'string':
-                    inner_model_name = self.shape_converter.convert(element_shape)
-                else:
-                    import_model = inner_model_name
-                python_type = f'List["{inner_model_name}"]'
-            elif shape.type_name == 'map':
-                # This is a map of submodels.  I'm assuming here that the key
-                # and value types are simple types like String or Integer.
-                value_type = self.shape_converter.convert(shape.key)  # type: ignore  # pylint: disable=no-member
-                key_type = self.shape_converter.convert(shape.value)  # type: ignore  # pylint: disable=no-member
-                python_type = f'Dict[{key_type}, {value_type}]'
-            elif shape.type_name == 'structure':
-                # This is a submodel
-                inner_model_name = shape.name
-                import_model = inner_model_name
-                python_type = f'"{inner_model_name}"'
-        if import_model:
-            if import_model in self.generator.service_generator.classes:
-                # We generated this model in this service so we don't need to
-                # import it
-                pass
-            elif import_model in self.generator.interface.models:
-                # We generated this model in another service, so we need to
-                # import it
-                import_path = self.generator.interface.models[import_model]
-                self.imports.add(f"from {import_path} import {import_model}")
-            else:
-                # we need to generate this model
-                new_name = self.model_generator.generate_model(import_model, shape=shape)
-                python_type = python_type.replace(import_model, new_name)
-        return python_type
-
-    def is_required(self, arg: str) -> bool:
+    def is_required(self, arg_name: str) -> bool:
         """
         Determine if the given argument is required for the method signature.
 
@@ -177,8 +124,8 @@ class ManagerMethodGenerator:
             return False
         mapping = self.operation_def.args
         return (
-            arg in self.input_shape.required_members or
-            (arg in mapping and mapping[arg].required)
+            arg_name in self.input_shape.required_members or
+            (arg_name in mapping and mapping[arg_name].required)
         )
 
     def serialize(self, arg: str) -> str:
@@ -217,24 +164,24 @@ class ManagerMethodGenerator:
         if self.input_shape is None:
             return args
         mapping = self.operation_def.args
-        for arg, arg_type in self.input_shape.members.items():
-            if arg in mapping and mapping[arg].hidden:
+        for arg_name, arg_shape in self.input_shape.members.items():
+            if arg_name in mapping and mapping[arg_name].hidden:
                 # This is a hidden argument, so we don't want to expose it
                 # in the method signature
                 continue
-            python_type = self.resolve_type(arg_type)
+            python_type = self.shape_converter.convert(arg_shape, quote=True)
             if kind == 'args':
-                if self.is_required(arg):
-                    args[arg] = python_type
+                if self.is_required(arg_name):
+                    args[arg_name] = python_type
             else:
-                if not self.is_required(arg):
+                if not self.is_required(arg_name):
                     default: Optional[str] = 'None'
-                    if arg in mapping:
-                        default = mapping[arg].default
+                    if arg_name in mapping:
+                        default = mapping[arg_name].default
                     if default == 'None':
-                        args[arg] = f'Optional[{python_type}] = None'
+                        args[arg_name] = f'Optional[{python_type}] = None'
                     else:
-                        args[arg] = f'{python_type} = {default}'
+                        args[arg_name] = f'{python_type} = {default}'
         return args
 
     @property
@@ -248,9 +195,12 @@ class ManagerMethodGenerator:
         args: OrderedDict[str, str] = OrderedDict()
         if not self.input_shape:
             return args
-        for arg in self.operation_def.explicit_args:
-            if arg in self.input_shape.required_members:
-                args[arg] = self.resolve_type(self.input_shape.members[arg])
+        for arg_name in self.operation_def.explicit_args:
+            if arg_name in self.input_shape.required_members:
+                args[arg_name] = self.shape_converter.convert(
+                    self.input_shape.members[arg_name],
+                    quote=True
+                )
         return args
 
     @property
@@ -264,12 +214,15 @@ class ManagerMethodGenerator:
         args: OrderedDict[str, str] = OrderedDict()
         if not self.input_shape:
             return args
-        for arg in self.operation_def.explicit_kwargs:
-            if arg not in self.input_shape.required_members:
-                args[arg] = self.resolve_type(self.input_shape.members[arg])
-                arg_def = self.operation_def.args.get(arg, OperationArgumentDefinition())
+        for arg_name in self.operation_def.explicit_kwargs:
+            if arg_name not in self.input_shape.required_members:
+                args[arg_name] = self.shape_converter.convert(
+                    self.input_shape.members[arg_name],
+                    quote=True
+                )
+                arg_def = self.operation_def.args.get(arg_name, OperationArgumentDefinition())
                 if arg_def.default in [None, "None"]:
-                    args[arg] = f'Optional[{args[arg]}]'
+                    args[arg_name] = f'Optional[{args[arg_name]}]'
         return args
 
     @property

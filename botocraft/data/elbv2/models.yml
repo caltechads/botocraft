@@ -33,14 +33,8 @@ primary:
         readonly: true
       CanonicalHostedZoneId:
         readonly: true
-    extra_fields:
       EnforceSecurityGroupInboundRulesOnPrivateLinkTraffic:
         readonly: true
-        docstring: >-
-          Indicates whether to evaluate inbound security group rules for traffic
-          sent to a Network Load Balancer through Amazon Web Services PrivateLink.
-        python_type: Optional[bool]
-        default: None
   Listener:
     primary_key: ListenerArn
     arn_key: ListenerArn
