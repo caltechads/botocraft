@@ -48,6 +48,9 @@ class ModelDefinition(BaseModel):
 
     #: The botocore model name
     name: str
+    #: The plural form of our model name, if different from
+    #: what the inflect library would generate.
+    plural: Optional[str] = None
     #: The name of the base class for this model.  If not specified, we'll
     #: use the default base class for the use case.
     base_class: Optional[str] = None

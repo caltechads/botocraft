@@ -80,8 +80,12 @@ class ManagerMethodGenerator:
         self.imports = generator.imports
         #: The name of the model itself
         self.model_name = model_name
+        #: The botocraft model definition for the model we're working with.
+        self.model_def = self.model_generator.get_model_def(self.model_name)
         #: The plural of the name of the model itself
         self.model_name_plural = self.inflect.plural(self.model_name)
+        if self.model_def.plural:
+            self.model_name_plural = self.model_def.plural
         #: Our documentation formatter
         self.docformatter = generator.docformatter
 
