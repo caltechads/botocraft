@@ -1,4 +1,5 @@
 from collections import OrderedDict
+from typing import cast
 
 from .base import ManagerMethodGenerator
 
@@ -32,8 +33,12 @@ class ListMethodGenerator(ManagerMethodGenerator):
         Returns:
             The name of the return type class.
         """
+        # We do this because :py:meth:`response_class` will create the response class
+        # if it doesn't exist, and we need that to happen so we can use its attributes
         _ = self.response_class
-        return_type = f'List["{self.model_name}"]'
+        if self.output_shape is not None:
+            response_attr_shape = self.output_shape.members[cast(str, self.response_attr)]
+        return_type = self.shape_converter.convert(response_attr_shape, quote=True)
         if self.operation_def.return_type:
             return_type = self.operation_def.return_type
         return return_type

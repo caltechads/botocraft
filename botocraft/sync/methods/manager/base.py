@@ -405,7 +405,9 @@ class ManagerMethodGenerator:
             hasattr(output_shape, 'members') and not output_shape.members
         ):
             return 'None'
-        return self.response_class
+        if self.output_shape is not None:
+            response_attr_shape = self.output_shape.members[cast(str, self.response_attr)]
+        return self.shape_converter.convert(response_attr_shape, quote=True)
 
     @property
     def signature(self) -> str:

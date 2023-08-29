@@ -3083,11 +3083,6 @@ class UpdateServiceResponse(Boto3Model):
     service: Optional[Service] = None
 
 
-class CreateClusterResponse(Boto3Model):
-    #: The full description of your new cluster.
-    cluster: Optional[Cluster] = None
-
-
 class ClusterServiceConnectDefaultsRequest(Boto3Model):
     """
     Use this parameter to set a default Service Connect namespace. After you
@@ -3115,6 +3110,11 @@ class ClusterServiceConnectDefaultsRequest(Boto3Model):
     #: The name is case-sensitive. The name can't include hyphens (-), tilde (~),
     #: greater than (>), less than (<), or slash (/).
     namespace: str
+
+
+class CreateClusterResponse(Boto3Model):
+    #: The full description of your new cluster.
+    cluster: Optional[Cluster] = None
 
 
 class DeleteClusterResponse(Boto3Model):

@@ -1,4 +1,5 @@
 from collections import OrderedDict
+import re
 from typing import cast
 
 from botocraft.sync.models import OperationArgumentDefinition
@@ -196,11 +197,10 @@ class CreateMethodGenerator(ManagerMethodGenerator):
         Returns:
             The name of the return type class.
         """
-        # We're doing this weird line to make sure that the return type is
-        # imported into the generated class, even if it's not used in the
-        # method signature.
-        _ = super().return_type
-        return_type = f'"{self.model_name}"'
-        if self.operation_def.return_type:
-            return_type = self.operation_def.return_type
+        return_type = super().return_type
+        # Sometimes the return type is a list of the model, e.g.
+        # ``elbv2:create_load_balancer``, so we need to strip the ``List`` part of the
+        # return type, because we want to return just the model, if possible.
+        if return_type.startswith('List['):
+            return_type = re.sub(r'List\[(.*)\]', r'\1', return_type)
         return return_type
