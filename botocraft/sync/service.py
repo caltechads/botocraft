@@ -19,6 +19,7 @@ from .methods import (  # pylint: disable=import-error
     GetManyMethodGenerator,
     CreateMethodGenerator,
     UpdateMethodGenerator,
+    PartialUpdateMethodGenerator,
     DeleteMethodGenerator,
 )
 from .models import (
@@ -332,6 +333,7 @@ class ManagerGenerator(AbstractGenerator):
     METHOD_GENERATORS: Dict[str, Type[ManagerMethodGenerator]] = {
         'create': CreateMethodGenerator,
         'update': UpdateMethodGenerator,
+        'partial_update': PartialUpdateMethodGenerator,
         'delete': DeleteMethodGenerator,
         'get': GetMethodGenerator,
         'get_many': GetManyMethodGenerator,

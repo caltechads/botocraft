@@ -6,11 +6,34 @@ DBInstance:
       args:
         DBSecurityGroups:
           hidden: true
+        Port:
+          attribute: DBInstancePort
+        EnableIAMDatabaseAuthentication:
+          attribute: IAMDatabaseAuthenticationEnabled
+        EnableCloudwatchLogsExports:
+          attribute: EnabledCloudwatchLogsExports
+        Tags:
+          attribute: TagList
+        EnableCustomerOwnedIp:
+          attribute: CustomerOwnedIpEnabled
+        EnablePerformanceInsights:
+          attribute: PerformanceInsightsEnabled
     update:
       boto3_name: modify_db_instance
       args:
         DBSecurityGroups:
           hidden: true
+        Port:
+          attribute: DBInstancePort
+        EnableIAMDatabaseAuthentication:
+          attribute: IAMDatabaseAuthenticationEnabled
+        Tags:
+          attribute: TagList
+        EnableCustomerOwnedIp:
+          attribute: CustomerOwnedIpEnabled
+        EnablePerformanceInsights:
+          attribute: PerformanceInsightsEnabled
+
     delete:
       boto3_name: delete_db_instance
     get:

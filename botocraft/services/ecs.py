@@ -245,6 +245,132 @@ class ServiceManager(Boto3ModelManager):
         response = UpdateServiceResponse.model_construct(**_response)
         return cast("Service", response.service)
 
+    def partial_update(
+        self,
+        service: str,
+        *,
+        cluster: Optional[str] = None,
+        desiredCount: Optional[int] = None,
+        taskDefinition: Optional[str] = None,
+        capacityProviderStrategy: Optional[List["CapacityProviderStrategyItem"]] = None,
+        deploymentConfiguration: Optional["DeploymentConfiguration"] = None,
+        networkConfiguration: Optional["NetworkConfiguration"] = None,
+        placementConstraints: Optional[List["PlacementConstraint"]] = None,
+        placementStrategy: Optional[List["PlacementStrategy"]] = None,
+        platformVersion: Optional[str] = None,
+        forceNewDeployment: bool = False,
+        healthCheckGracePeriodSeconds: Optional[int] = None,
+        enableExecuteCommand: Optional[bool] = None,
+        enableECSManagedTags: Optional[bool] = None,
+        loadBalancers: Optional[List["LoadBalancerConfiguration"]] = None,
+        propagateTags: Optional[Literal["TASK_DEFINITION", "SERVICE", "NONE"]] = None,
+        serviceRegistries: Optional[List["ServiceRegistry"]] = None,
+        serviceConnectConfiguration: Optional["ServiceConnectConfiguration"] = None
+    ) -> "Service":
+        """
+        Update individual attributes of an ECS service.
+
+        Args:
+            service: The name of the service to update.
+
+        Keyword Args:
+            cluster: The short name or full Amazon Resource Name (ARN) of the cluster
+                that your service runs on. If you do not specify a cluster, the default
+                cluster is assumed.
+            desiredCount: The number of instantiations of the task to place and keep
+                running in your service.
+            taskDefinition: The ``family`` and ``revision`` (``family:revision``) or
+                full ARN of the task definition to run in your service. If a ``revision``
+                is not specified, the latest ``ACTIVE`` revision is used. If you modify the
+                task definition with ``UpdateService``, Amazon ECS spawns a task with the
+                new version of the task definition and then stops an old task after the new
+                version is running.
+            capacityProviderStrategy: The capacity provider strategy to update the
+                service to use.
+            deploymentConfiguration: Optional deployment parameters that control how
+                many tasks run during the deployment and the ordering of stopping and
+                starting tasks.
+            networkConfiguration: An object representing the network configuration for
+                the service.
+            placementConstraints: An array of task placement constraint objects to
+                update the service to use. If no value is specified, the existing placement
+                constraints for the service will remain unchanged. If this value is
+                specified, it will override any existing placement constraints defined for
+                the service. To remove all existing placement constraints, specify an empty
+                array.
+            placementStrategy: The task placement strategy objects to update the
+                service to use. If no value is specified, the existing placement strategy
+                for the service will remain unchanged. If this value is specified, it will
+                override the existing placement strategy defined for the service. To remove
+                an existing placement strategy, specify an empty object.
+            platformVersion: The platform version that your tasks in the service run
+                on. A platform version is only specified for tasks using the Fargate launch
+                type. If a platform version is not specified, the ``LATEST`` platform
+                version is used. For more information, see `Fargate Platform Versions
+                <https://docs.aws.amazon.com/Amazon
+                ECS/latest/developerguide/platform_versions.html>`_ in the *Amazon Elastic
+                Container Service Developer Guide*.
+            forceNewDeployment: Determines whether to force a new deployment of the
+                service. By default, deployments aren't forced. You can use this option to
+                start a new deployment with no service definition changes. For example, you
+                can update a service's tasks to use a newer Docker image with the same
+                image/tag combination (``my_image:latest``) or to roll Fargate tasks onto a
+                newer platform version.
+            healthCheckGracePeriodSeconds: The period of time, in seconds, that the
+                Amazon ECS service scheduler ignores unhealthy Elastic Load Balancing
+                target health checks after a task has first started. This is only valid if
+                your service is configured to use a load balancer. If your service's tasks
+                take a while to start and respond to Elastic Load Balancing health checks,
+                you can specify a health check grace period of up to 2,147,483,647 seconds.
+                During that time, the Amazon ECS service scheduler ignores the Elastic Load
+                Balancing health check status. This grace period can prevent the ECS
+                service scheduler from marking tasks as unhealthy and stopping them before
+                they have time to come up.
+            enableExecuteCommand: If ``true``, this enables execute command
+                functionality on all task containers.
+            enableECSManagedTags: Determines whether to turn on Amazon ECS managed tags
+                for the tasks in the service. For more information, see `Tagging Your
+                Amazon ECS Resources
+                <https://docs.aws.amazon.com/AmazonECS/latest/developerguide/ecs- using-
+                tags.html>`_ in the *Amazon Elastic Container Service Developer Guide*.
+            loadBalancers: A list of Elastic Load Balancing load balancer objects. It
+                contains the load balancer name, the container name, and the container port
+                to access from the load balancer. The container name is as it appears in a
+                container definition.
+            propagateTags: Determines whether to propagate the tags from the task
+                definition or the service to the task. If no value is specified, the tags
+                aren't propagated.
+            serviceRegistries: The details for the service discovery registries to
+                assign to this service. For more information, see `Service Discovery
+                <https://docs.aws.amazon.com/AmazonECS/latest/developerguide/service-
+                discovery.html>`_.
+            serviceConnectConfiguration: The configuration for this service to discover
+                and connect to services, and be discovered by, and connected from, other
+                services within a namespace.
+        """
+        _response = self.client.update_service(
+            service=self.serialize(service),
+            cluster=self.serialize(cluster),
+            desiredCount=self.serialize(desiredCount),
+            taskDefinition=self.serialize(taskDefinition),
+            capacityProviderStrategy=self.serialize(capacityProviderStrategy),
+            deploymentConfiguration=self.serialize(deploymentConfiguration),
+            networkConfiguration=self.serialize(networkConfiguration),
+            placementConstraints=self.serialize(placementConstraints),
+            placementStrategy=self.serialize(placementStrategy),
+            platformVersion=self.serialize(platformVersion),
+            forceNewDeployment=self.serialize(forceNewDeployment),
+            healthCheckGracePeriodSeconds=self.serialize(healthCheckGracePeriodSeconds),
+            enableExecuteCommand=self.serialize(enableExecuteCommand),
+            enableECSManagedTags=self.serialize(enableECSManagedTags),
+            loadBalancers=self.serialize(loadBalancers),
+            propagateTags=self.serialize(propagateTags),
+            serviceRegistries=self.serialize(serviceRegistries),
+            serviceConnectConfiguration=self.serialize(serviceConnectConfiguration),
+        )
+        response = UpdateServiceResponse.model_construct(**_response)
+        return cast("Service", response.service)
+
 
 class ClusterManager(Boto3ModelManager):
     service_name: str = "ecs"
@@ -343,6 +469,41 @@ class ClusterManager(Boto3ModelManager):
             settings=data["settings"],
             configuration=data["configuration"],
             serviceConnectDefaults=data["serviceConnectDefaults"],
+        )
+        response = UpdateClusterResponse.model_construct(**_response)
+        return cast("Cluster", response.cluster)
+
+    def partial_update(
+        self,
+        cluster: str,
+        *,
+        settings: Optional[List["ClusterSetting"]] = None,
+        configuration: Optional["ClusterConfiguration"] = None,
+        serviceConnectDefaults: Optional["ClusterServiceConnectDefaultsRequest"] = None
+    ) -> "Cluster":
+        """
+        Update individual attributes of an ECS cluster.
+
+        Args:
+            cluster: The name of the cluster to modify the settings for.
+
+        Keyword Args:
+            settings: The cluster settings for your cluster.
+            configuration: The execute command configuration for the cluster.
+            serviceConnectDefaults: Use this parameter to set a default Service Connect
+                namespace. After you set a default Service Connect namespace, any new
+                services with Service Connect turned on that are created in the cluster are
+                added as client services in the namespace. This setting only applies to new
+                services that set the ``enabled`` parameter to ``true`` in the
+                ``ServiceConnectConfiguration``. You can set the namespace of each service
+                individually in the ``ServiceConnectConfiguration`` to override this
+                default parameter.
+        """
+        _response = self.client.update_cluster(
+            cluster=self.serialize(cluster),
+            settings=self.serialize(settings),
+            configuration=self.serialize(configuration),
+            serviceConnectDefaults=self.serialize(serviceConnectDefaults),
         )
         response = UpdateClusterResponse.model_construct(**_response)
         return cast("Cluster", response.cluster)

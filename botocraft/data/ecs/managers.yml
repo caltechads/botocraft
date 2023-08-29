@@ -50,6 +50,15 @@ Service:
         forceNewDeployment:
           explicit: true
           default: "False"
+    partial_update:
+      boto3_name: update_service
+      docstring: >-
+        Update individual attributes of an ECS service.
+      args:
+        service:
+          required: true
+        forceNewDeployment:
+          default: "False"
 Cluster:
   operations:
     create:
@@ -72,6 +81,18 @@ Cluster:
       args:
         cluster:
           source: clusterName
+    partial_update:
+      boto3_name: update_cluster
+      docstring: >-
+        Update individual attributes of an ECS cluster.
+      args:
+        service:
+          required: true
+        cluster:
+          default: >-
+            "default"
+        forceNewDeployment:
+          default: "False"
 TaskDefinition:
   operations:
     create:

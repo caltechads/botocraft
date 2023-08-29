@@ -57,6 +57,7 @@ class GetMethodGenerator(ManagerMethodGenerator):
             The name of the return type class.
         """
         _ = super().return_type
+
         return_type = f'Optional["{self.model_name}"]'
         if self.operation_def.return_type:
             return_type = self.operation_def.return_type

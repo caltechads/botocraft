@@ -27,9 +27,7 @@ class DBInstanceManager(Boto3ModelManager):
         VpcSecurityGroupIds: Optional[List[str]] = None,
         DBSubnetGroupName: Optional[str] = None,
         DBParameterGroupName: Optional[str] = None,
-        Port: Optional[int] = None,
         OptionGroupName: Optional[str] = None,
-        Tags: Optional[List[Tag]] = None,
         TdeCredentialPassword: Optional[str] = None,
         Domain: Optional[str] = None,
         DomainFqdn: Optional[str] = None,
@@ -37,10 +35,6 @@ class DBInstanceManager(Boto3ModelManager):
         DomainAuthSecretArn: Optional[str] = None,
         DomainDnsIps: Optional[List[str]] = None,
         DomainIAMRoleName: Optional[str] = None,
-        EnableIAMDatabaseAuthentication: Optional[bool] = None,
-        EnablePerformanceInsights: Optional[bool] = None,
-        EnableCloudwatchLogsExports: Optional[List[str]] = None,
-        EnableCustomerOwnedIp: Optional[bool] = None,
         ManageMasterUserPassword: Optional[bool] = None,
         MasterUserSecretKmsKeyId: Optional[str] = None,
     ) -> "DBInstance":
@@ -58,9 +52,7 @@ class DBInstanceManager(Boto3ModelManager):
             DBParameterGroupName: The name of the DB parameter group to associate with
                 this DB instance. If you don't specify a value, then Amazon RDS uses the
                 default DB parameter group for the specified DB engine and version.
-            Port: The port number on which the database accepts connections.
             OptionGroupName: The option group to associate the DB instance with.
-            Tags: Tags to assign to the DB instance.
             TdeCredentialPassword: The password for the given ARN from the key store in
                 order to access the device.
             Domain: The Active Directory directory ID to create the DB instance in.
@@ -76,21 +68,6 @@ class DBInstanceManager(Boto3ModelManager):
                 Active Directory domain controllers.
             DomainIAMRoleName: The name of the IAM role to use when making API calls to
                 the Directory Service.
-            EnableIAMDatabaseAuthentication: Specifies whether to enable mapping of
-                Amazon Web Services Identity and Access Management (IAM) accounts to
-                database accounts. By default, mapping isn't enabled.
-            EnablePerformanceInsights: Specifies whether to enable Performance Insights
-                for the DB instance. For more information, see `Using Amazon Performance
-                Insights <https://docs.aws.amazon.co
-                m/AmazonRDS/latest/UserGuide/USER_PerfInsights.html>`_ in the *Amazon RDS
-                User Guide*.
-            EnableCloudwatchLogsExports: The list of log types that need to be enabled
-                for exporting to CloudWatch Logs. For more information, see  [Publishing
-                Database Logs to Amazon CloudWatch Logs] (https://docs.aws.amazon.com/Amazo
-                nRDS/latest/UserGuide/USER_LogAccess.html#USE
-                R_LogAccess.Procedural.UploadtoCloudWatch) in the *Amazon RDS User Guide*.
-            EnableCustomerOwnedIp: Specifies whether to enable a customer-owned IP
-                address (CoIP) for an RDS on Outposts DB instance.
             ManageMasterUserPassword: Specifies whether to manage the master user
                 password with Amazon Web Services Secrets Manager.
             MasterUserSecretKmsKeyId: The Amazon Web Services KMS key identifier to
@@ -113,7 +90,7 @@ class DBInstanceManager(Boto3ModelManager):
             DBParameterGroupName=self.serialize(DBParameterGroupName),
             BackupRetentionPeriod=data["BackupRetentionPeriod"],
             PreferredBackupWindow=data["PreferredBackupWindow"],
-            Port=self.serialize(Port),
+            Port=data["DBInstancePort"],
             MultiAZ=data["MultiAZ"],
             EngineVersion=data["EngineVersion"],
             AutoMinorVersionUpgrade=data["AutoMinorVersionUpgrade"],
@@ -123,7 +100,7 @@ class DBInstanceManager(Boto3ModelManager):
             CharacterSetName=data["CharacterSetName"],
             NcharCharacterSetName=data["NcharCharacterSetName"],
             PubliclyAccessible=data["PubliclyAccessible"],
-            Tags=self.serialize(Tags),
+            Tags=data["TagList"],
             DBClusterIdentifier=data["DBClusterIdentifier"],
             StorageType=data["StorageType"],
             TdeCredentialArn=data["TdeCredentialArn"],
@@ -141,19 +118,17 @@ class DBInstanceManager(Boto3ModelManager):
             DomainIAMRoleName=self.serialize(DomainIAMRoleName),
             PromotionTier=data["PromotionTier"],
             Timezone=data["Timezone"],
-            EnableIAMDatabaseAuthentication=self.serialize(
-                EnableIAMDatabaseAuthentication
-            ),
-            EnablePerformanceInsights=self.serialize(EnablePerformanceInsights),
+            EnableIAMDatabaseAuthentication=data["IAMDatabaseAuthenticationEnabled"],
+            EnablePerformanceInsights=data["PerformanceInsightsEnabled"],
             PerformanceInsightsKMSKeyId=data["PerformanceInsightsKMSKeyId"],
             PerformanceInsightsRetentionPeriod=data[
                 "PerformanceInsightsRetentionPeriod"
             ],
-            EnableCloudwatchLogsExports=self.serialize(EnableCloudwatchLogsExports),
+            EnableCloudwatchLogsExports=data["EnabledCloudwatchLogsExports"],
             ProcessorFeatures=data["ProcessorFeatures"],
             DeletionProtection=data["DeletionProtection"],
             MaxAllocatedStorage=data["MaxAllocatedStorage"],
-            EnableCustomerOwnedIp=self.serialize(EnableCustomerOwnedIp),
+            EnableCustomerOwnedIp=data["CustomerOwnedIpEnabled"],
             CustomIamInstanceProfile=data["CustomIamInstanceProfile"],
             BackupTarget=data["BackupTarget"],
             NetworkType=data["NetworkType"],
@@ -186,14 +161,11 @@ class DBInstanceManager(Boto3ModelManager):
         DBPortNumber: Optional[int] = None,
         DomainIAMRoleName: Optional[str] = None,
         DisableDomain: Optional[bool] = None,
-        EnableIAMDatabaseAuthentication: Optional[bool] = None,
-        EnablePerformanceInsights: Optional[bool] = None,
         CloudwatchLogsExportConfiguration: Optional[
             "RDSCloudwatchLogsExportConfiguration"
         ] = None,
         UseDefaultProcessorFeatures: Optional[bool] = None,
         CertificateRotationRestart: Optional[bool] = None,
-        EnableCustomerOwnedIp: Optional[bool] = None,
         ResumeFullAutomationModeMinutes: Optional[int] = None,
         ManageMasterUserPassword: Optional[bool] = None,
         RotateMasterUserPassword: Optional[bool] = None,
@@ -256,19 +228,12 @@ class DBInstanceManager(Boto3ModelManager):
                 the Directory Service.
             DisableDomain: Specifies whether to remove the DB instance from the Active
                 Directory domain.
-            EnableIAMDatabaseAuthentication: Specifies whether to enable mapping of
-                Amazon Web Services Identity and Access Management (IAM) accounts to
-                database accounts. By default, mapping isn't enabled.
-            EnablePerformanceInsights: Specifies whether to enable Performance Insights
-                for the DB instance.
             CloudwatchLogsExportConfiguration: The log types to be enabled for export
                 to CloudWatch Logs for a specific DB instance.
             UseDefaultProcessorFeatures: Specifies whether the DB instance class of the
                 DB instance uses its default processor features.
             CertificateRotationRestart: Specifies whether the DB instance is restarted
                 when you rotate your SSL/TLS certificate.
-            EnableCustomerOwnedIp: Specifies whether to enable a customer-owned IP
-                address (CoIP) for an RDS on Outposts DB instance.
             ResumeFullAutomationModeMinutes: The number of minutes to pause the
                 automation. When the time period ends, RDS Custom resumes full automation.
             ManageMasterUserPassword: Specifies whether to manage the master user
@@ -317,10 +282,8 @@ class DBInstanceManager(Boto3ModelManager):
             DomainIAMRoleName=self.serialize(DomainIAMRoleName),
             DisableDomain=self.serialize(DisableDomain),
             PromotionTier=data["PromotionTier"],
-            EnableIAMDatabaseAuthentication=self.serialize(
-                EnableIAMDatabaseAuthentication
-            ),
-            EnablePerformanceInsights=self.serialize(EnablePerformanceInsights),
+            EnableIAMDatabaseAuthentication=data["IAMDatabaseAuthenticationEnabled"],
+            EnablePerformanceInsights=data["PerformanceInsightsEnabled"],
             PerformanceInsightsKMSKeyId=data["PerformanceInsightsKMSKeyId"],
             PerformanceInsightsRetentionPeriod=data[
                 "PerformanceInsightsRetentionPeriod"
@@ -334,7 +297,7 @@ class DBInstanceManager(Boto3ModelManager):
             MaxAllocatedStorage=data["MaxAllocatedStorage"],
             CertificateRotationRestart=self.serialize(CertificateRotationRestart),
             ReplicaMode=data["ReplicaMode"],
-            EnableCustomerOwnedIp=self.serialize(EnableCustomerOwnedIp),
+            EnableCustomerOwnedIp=data["CustomerOwnedIpEnabled"],
             AwsBackupRecoveryPointArn=data["AwsBackupRecoveryPointArn"],
             AutomationMode=data["AutomationMode"],
             ResumeFullAutomationModeMinutes=self.serialize(
@@ -991,7 +954,7 @@ class DBInstance(PrimaryBoto3Model):
     #: (IAM) accounts to database accounts is enabled for the DB instance.
     IAMDatabaseAuthenticationEnabled: Optional[bool] = None
     #: Indicates whether Performance Insights is enabled for the DB instance.
-    PerformanceInsightsEnabled: Optional[bool] = Field(frozen=True, default=None)
+    PerformanceInsightsEnabled: Optional[bool] = None
     #: The Amazon Web Services KMS key identifier for encryption of Performance
     #: Insights data.
     PerformanceInsightsKMSKeyId: Optional[str] = None
@@ -999,7 +962,7 @@ class DBInstance(PrimaryBoto3Model):
     PerformanceInsightsRetentionPeriod: Optional[int] = None
     #: A list of log types that this DB instance is configured to export to CloudWatch
     #: Logs.
-    EnabledCloudwatchLogsExports: Optional[List[str]] = Field(frozen=True, default=None)
+    EnabledCloudwatchLogsExports: Optional[List[str]] = None
     #: The number of CPU cores and the number of threads per core for the DB instance
     #: class of the DB instance.
     ProcessorFeatures: Optional[List["ProcessorFeature"]] = None
@@ -1026,7 +989,7 @@ class DBInstance(PrimaryBoto3Model):
     ] = None
     #: Indicates whether a customer-owned IP address (CoIP) is enabled for an RDS on
     #: Outposts DB instance.
-    CustomerOwnedIpEnabled: Optional[bool] = Field(frozen=True, default=None)
+    CustomerOwnedIpEnabled: Optional[bool] = None
     #: The Amazon Resource Name (ARN) of the recovery point in Amazon Web Services
     #: Backup.
     AwsBackupRecoveryPointArn: Optional[str] = None

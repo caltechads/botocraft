@@ -8,7 +8,15 @@ from pydantic import BaseModel
 DATA_DIR = Path(__file__).parent.parent / 'data'
 SERVICES_DIR = Path(__file__).parent.parent / 'services'
 
-Operation = Literal['create', 'update', 'delete', 'get', 'get_many', 'list']
+Operation = Literal[
+    'create',
+    'update',
+    'partial_update',
+    'delete',
+    'get',
+    'get_many',
+    'list'
+]
 
 # ------
 # Models

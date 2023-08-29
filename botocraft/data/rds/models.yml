@@ -33,10 +33,6 @@ primary:
         readonly: true
       IAMDatabseAuthenticationEnabled:
         readonly: true
-      PerformanceInsightsEnabled:
-        readonly: true
-      EnabledCloudwatchLogsExports:
-        readonly: true
       VPCSecurityGroups:
         readonly: true
       PendingModifiedValues:
@@ -92,8 +88,6 @@ primary:
       ResumeFullAutomationModeTime:
         readonly: true
       MasterUserSecret:
-        readonly: true
-      CustomerOwnedIpEnabled:
         readonly: true
 secondary:
   AvailabilityZone:
