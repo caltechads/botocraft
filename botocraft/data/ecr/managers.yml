@@ -1,0 +1,36 @@
+---
+Repository:
+  methods:
+    create:
+      boto3_name: create_repository
+      docstring: >-
+        Create an ECR repository.
+      args:
+        cluster:
+          attribute: clusterArn
+        role:
+          attribute: roleArn
+    delete:
+      boto3_name: delete_repository
+      docstring: >-
+        Delete an ECR repository.
+      args:
+        force:
+          default: "False"
+    get:
+      boto3_name: describe_repositories
+      args:
+        repositoryName:
+          explicit: true
+          required: true
+          docstring: >-
+            The name of the repository to describe.
+        repositoryNames:
+          hidden: true
+          source_arg: "[repositoryName]"
+        nextToken:
+          hidden: true
+        maxResults:
+          hidden: true
+    list:
+      boto3_name: describe_repositories

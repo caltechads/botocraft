@@ -1,0 +1,24 @@
+---
+primary:
+  Repository:
+    plural: Repositories
+    primary_key: repositoryArn
+    arn_key: repositoryArn
+    name_key: repositoryName
+    fields:
+      repositoryArn:
+        readonly: true
+      repositoryName:
+        required: true
+      repositoryUri:
+        readonly: true
+      createdAt:
+        readonly: true
+      imageTagMutability:
+        required: true
+        default: >-
+          "MUTABLE"
+      imageScanningConfiguration:
+        required: true
+        default: >-
+          "scanOnPush"
