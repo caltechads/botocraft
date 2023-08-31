@@ -359,20 +359,20 @@ class ManagerGenerator(AbstractGenerator):
             model_name: The name of the model to generate the manager for.
         """
         methods: OrderedDict[str, str] = OrderedDict()
-        for operation_name, operation_def in manager_def.operations.items():
+        for method_name, method_def in manager_def.methods.items():
             try:
-                method_generator_class = self.METHOD_GENERATORS[operation_name]
+                method_generator_class = self.METHOD_GENERATORS[method_name]
             except KeyError as exc:
                 raise NotImplementedError(
-                    f'{self.service_name}:{model_name}Manager: No method generator for operation {operation_name}'
+                    f'{self.service_name}:{model_name}Manager: No method generator for method name "{method_name}"'
                 ) from exc
 
             generator = method_generator_class(
                 self,
                 model_name,
-                operation_def
+                method_def
             )
-            methods[operation_name] = generator.code
+            methods[method_name] = generator.code
         method_code = '\n\n'.join(methods.values())
         base_class = 'Boto3ModelManager'
         if manager_def.readonly:

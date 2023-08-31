@@ -2,7 +2,7 @@ from collections import OrderedDict
 import re
 from typing import cast
 
-from botocraft.sync.models import OperationArgumentDefinition
+from botocraft.sync.models import MethodArgumentDefinition
 
 from ..models import MethodDocstringDefinition
 from .base import ManagerMethodGenerator
@@ -13,11 +13,11 @@ class CreateMethodGenerator(ManagerMethodGenerator):
     Handle the generation of a create method.
     """
 
-    operation: str = 'create'
+    method_name: str = 'create'
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.operation_def.args.update(
+        self.method_def.args.update(
             self.get_explicit_args_from_request()
         )
 
@@ -27,16 +27,16 @@ class CreateMethodGenerator(ManagerMethodGenerator):
         For create methods, we add the model as the only argument.
 
         Returns:
-            The method signature for the operation.
+            The method signature for the method.
         """
-        signature = f'    def {self.operation}(self, model: "{self.model_name}"'
+        signature = f'    def {self.method_name}(self, model: "{self.model_name}"'
         if self.explicit_args or self.explicit_kwargs:
             signature += ", "
         signature += ", ".join([f"{arg}: {arg_type}" for arg, arg_type in self.explicit_args.items()])
         if self.explicit_args and self.explicit_kwargs:
             signature += ", "
         signature += ", ".join([
-            f"{arg}: {arg_type} = {self.operation_def.args.get(arg, OperationArgumentDefinition()).default}"
+            f"{arg}: {arg_type} = {self.method_def.args.get(arg, MethodArgumentDefinition()).default}"
             for arg, arg_type in self.explicit_kwargs.items()
         ])
         signature += f") -> {self.return_type}:"
@@ -63,7 +63,7 @@ class CreateMethodGenerator(ManagerMethodGenerator):
             The string to use to represent the boto3 operation positional
             arguments.
         """
-        mapping = self.operation_def.args
+        mapping = self.method_def.args
         _args: OrderedDict[str, str] = OrderedDict()
         for arg in self.args:
             if arg in self.explicit_args:
@@ -104,7 +104,7 @@ class CreateMethodGenerator(ManagerMethodGenerator):
             The string to use to represent the boto3 operation positional
             arguments.
         """
-        mapping = self.operation_def.args
+        mapping = self.method_def.args
         _args = OrderedDict()
         for arg in self.kwargs:
             if arg in self.explicit_kwargs:
@@ -163,8 +163,8 @@ class CreateMethodGenerator(ManagerMethodGenerator):
         """
         docstrings: MethodDocstringDefinition = MethodDocstringDefinition()
         docstrings.method = (
-            self.operation_def.docstring
-            if self.operation_def.docstring
+            self.method_def.docstring
+            if self.method_def.docstring
             else self.operation_model.documentation
         )
         docstrings.args['model'] = f'The :py:class:`{self.model_name}` to create.'
@@ -189,7 +189,7 @@ class CreateMethodGenerator(ManagerMethodGenerator):
     def return_type(self) -> str:
         """
         For create, update and delete methods, we return the model itself, not
-        the response model, unless it's overriden in our botocraft operation
+        the response model, unless it's overriden in our botocraft method
         config, in which case we return that.
 
         Returns:

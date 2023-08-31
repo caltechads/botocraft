@@ -18,12 +18,12 @@ class GetMethodGenerator(ManagerMethodGenerator):
     asking for multiple objects.
     """
 
-    operation: str = 'get'
+    method_name: str = 'get'
 
     @property
     def args(self) -> OrderedDict[str, str]:
         """
-        Return the positional arguments for the given operation.
+        Return the positional arguments for the given method.
 
         This is the same as the parent class, except we change the name of the
         argument from the plural to the singular.
@@ -31,6 +31,9 @@ class GetMethodGenerator(ManagerMethodGenerator):
         Returns:
             A dictionary of argument names to types.
         """
+        # FIXME: this doesn't work most of the time.   The minimum argument
+        # set we need to identify a single object varies from service to
+        # service.
         args = super().args
         new_args = OrderedDict()
         for arg, arg_type in args.items():
@@ -50,7 +53,7 @@ class GetMethodGenerator(ManagerMethodGenerator):
     def return_type(self) -> str:
         """
         For get methods, we return the model itself, not the response model,
-        unless it's overriden in our botocraft operation config, in which case
+        unless it's overriden in our botocraft method config, in which case
         we return that.
 
         Returns:
@@ -59,8 +62,8 @@ class GetMethodGenerator(ManagerMethodGenerator):
         _ = super().return_type
 
         return_type = f'Optional["{self.model_name}"]'
-        if self.operation_def.return_type:
-            return_type = self.operation_def.return_type
+        if self.method_def.return_type:
+            return_type = self.method_def.return_type
         return return_type
 
     @property

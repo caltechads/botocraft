@@ -6,13 +6,13 @@ from .base import ManagerMethodGenerator
 
 class ListMethodGenerator(ManagerMethodGenerator):
 
-    operation: str = 'list'
+    method_name: str = 'list'
 
     @property
     def kwargs(self) -> OrderedDict[str, str]:
         """
         Override the kwargs to exclude the pagination arguments if
-        the operation can paginate.
+        the boto3 operation can paginate.
         """
         if self.client.can_paginate(self.boto3_name):
             _args: OrderedDict[str, str] = OrderedDict()
@@ -25,7 +25,7 @@ class ListMethodGenerator(ManagerMethodGenerator):
     def return_type(self) -> str:
         """
         For list methods, we return a list of model instances, not the response
-        model, unless it's overriden in our botocraft operation config, in which
+        model, unless it's overriden in our botocraft method config, in which
         case we return that.
 
         Thus we need to change the return type to a list of the model.
@@ -39,8 +39,8 @@ class ListMethodGenerator(ManagerMethodGenerator):
         if self.output_shape is not None:
             response_attr_shape = self.output_shape.members[cast(str, self.response_attr)]
         return_type = self.shape_converter.convert(response_attr_shape, quote=True)
-        if self.operation_def.return_type:
-            return_type = self.operation_def.return_type
+        if self.method_def.return_type:
+            return_type = self.method_def.return_type
         return return_type
 
     @property

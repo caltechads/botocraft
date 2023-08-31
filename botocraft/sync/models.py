@@ -8,7 +8,7 @@ from pydantic import BaseModel
 DATA_DIR = Path(__file__).parent.parent / 'data'
 SERVICES_DIR = Path(__file__).parent.parent / 'services'
 
-Operation = Literal[
+MethodNames = Literal[
     'create',
     'update',
     'partial_update',
@@ -89,18 +89,35 @@ class ModelDefinition(BaseModel):
 # Managers
 # --------
 
-class OperationArgumentDefinition(BaseModel):
+class MethodArgumentDefinition(BaseModel):
+    """
+    The definition of a single argument on a :py:class:`MethodDefinition`.
 
-    #: If specified, in the operation call invocation, set the value
+    Example:
+
+        .. code-block:: yaml
+            :emphasize-lines: 5,6
+
+            Repository:
+                methods:
+                    create:
+                        boto3_name: create_repository
+                        args:
+                            repositoryName:
+                                required: true
+
+    """
+
+    #: If specified, in the boto3 call invocation, set the value
     #: of this argument to the value of the model attribute specified
-    #: here.  This is only useful for operations that take a model instance
+    #: here.  This is only useful for methods that take a model instance
     #: as an argument.
     attribute: Optional[str] = None
-    #: If specified, in the operation call invocation, set the value
+    #: If specified, in the boto3 call invocation, set the value
     #: of this argument to the value of this method argument
     source_arg: Optional[str] = None
     #: If ``True``, force the argument to be in in the method
-    #: signature.  This is only useful for operations that take a model
+    #: signature.  This is only useful for methods that take a model
     #: instance as an argument.
     explicit: bool = False
     #: If ``True``, make this a postional argument.
@@ -108,7 +125,7 @@ class OperationArgumentDefinition(BaseModel):
     #: If specified, set this as the default value for the argument.
     default: Optional[Any] = None
     #: If ``True``, don't include this argument in the method signature.
-    #: or in the operation call invocation.
+    #: or in the boto3 call invocation.
     hidden: bool = False
     #: If specified, use this as the docstring for the argument.  Otherwise,
     #: we'll use the docstring from the botocore operation.
@@ -118,14 +135,31 @@ class OperationArgumentDefinition(BaseModel):
     exclude_none: bool = False
 
 
-class OperationDefinition(BaseModel):
+class MethodDefinition(BaseModel):
+    """
+    The definition of a single method on a :py:class:`ManagerDefinition`.
+
+    Example:
+
+        .. code-block:: yaml
+            :emphasize-lines: 2,3,4,5,6
+
+            Repository:
+                methods:
+                    create:
+                        boto3_name: create_repository
+                        args:
+                            repositoryName:
+                                required: true
+
+    """
 
     #: The name of the boto3 operation to call in the method body
     boto3_name: str
-    #: A list of argument overrides for this operation.  If an argument name
+    #: A list of argument overrides for this method.  If an argument name
     #: is not specified as a key in this dict, it will be generated as is
     #: appropriate for the operation type
-    args: Dict[str, OperationArgumentDefinition] = {}
+    args: Dict[str, MethodArgumentDefinition] = {}
     #: The attribute name to use on the response object to  use to build our
     #: method return object(s).  If not specified, we'll use the lowercased
     #: model name, pluralizing if necessary.
@@ -142,7 +176,7 @@ class OperationDefinition(BaseModel):
     def explicit_args(self) -> List[str]:
         """
         Return a list of positional arguments that should be explicitly
-        included in the method signature.  This is useful for operations
+        included in the method signature.  This is useful for methods
         that take a model instance as an argument, but some of the
         arguments are not model attributes.
 
@@ -163,7 +197,7 @@ class OperationDefinition(BaseModel):
     def explicit_kwargs(self) -> List[str]:
         """
         Return a list of positional arguments that should be explicitly
-        included in the method signature.  This is useful for operations
+        included in the method signature.  This is useful for methods
         that take a model instance as an argument, but some of the
         arguments are not model attributes.
 
@@ -182,11 +216,33 @@ class OperationDefinition(BaseModel):
 
 
 class ManagerDefinition(BaseModel):
+    """
+    The definition of a single manager on a :py:class:`ServiceDefinition`.
+
+    Example:
+
+        .. code-block:: yaml
+
+            Repository:
+                methods:
+                    create:
+                        boto3_name: create_repository
+                        args:
+                            repositoryName:
+                                required: true
+                    delete:
+                        boto3_name: delete_repository
+                        args:
+                            repositoryName:
+                                required: true
+                            force:
+                                default: false
+    """
 
     #: The name of the model this manager is for
     name: str
-    #: The operations to generate on this manager
-    operations: Dict[Operation, OperationDefinition] = {}
+    #: The methods to generate on this manager
+    methods: Dict[MethodNames, MethodDefinition] = {}
     #: If ``True``, make this manager use the :py:class:`ReadonlyBoto3ModelManager` superclass
     readonly: bool = False
 

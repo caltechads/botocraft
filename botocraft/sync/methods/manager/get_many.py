@@ -13,13 +13,13 @@ class GetManyMethodGenerator(ManagerMethodGenerator):
     paginated, otherwise we would have used it as the ``list`` method.
     """
 
-    operation: str = 'get_many'
+    method_name: str = 'get_many'
 
     @property
     def return_type(self) -> str:
         """
         For get_many methods, we return a list of model instances, not the response
-        model, unless it's overriden in our botocraft operation config, in which
+        model, unless it's overriden in our botocraft method config, in which
         case we return that.
 
         Thus we need to change the return type to a list of the model.
@@ -29,8 +29,8 @@ class GetManyMethodGenerator(ManagerMethodGenerator):
         """
         _ = self.response_class
         return_type = f'List["{self.model_name}"]'
-        if self.operation_def.return_type:
-            return_type = self.operation_def.return_type
+        if self.method_def.return_type:
+            return_type = self.method_def.return_type
         return return_type
 
     @property

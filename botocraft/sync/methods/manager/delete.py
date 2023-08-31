@@ -11,7 +11,7 @@ class DeleteMethodGenerator(ManagerMethodGenerator):
     that instead.
     """
 
-    operation: str = 'delete'
+    method_name: str = 'delete'
 
     @property
     def response_attr(self) -> Optional[str]:
@@ -32,7 +32,7 @@ class DeleteMethodGenerator(ManagerMethodGenerator):
     def return_type(self) -> str:
         """
         For delete methods, we return the model itself, not the response model,
-        unless it's overriden in our botocraft operation config, in which case
+        unless it's overriden in our botocraft method config, in which case
         we return that.
 
         Returns:
@@ -44,8 +44,8 @@ class DeleteMethodGenerator(ManagerMethodGenerator):
         return_type = super().return_type
         if return_type != 'None':
             return_type = f'"{self.model_name}"'
-            if self.operation_def.return_type:
-                return_type = self.operation_def.return_type
+            if self.method_def.return_type:
+                return_type = self.method_def.return_type
         return return_type
 
     @property

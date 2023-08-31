@@ -5,7 +5,7 @@ from ..models import MethodDocstringDefinition
 
 class UpdateMethodGenerator(CreateMethodGenerator):
 
-    operation: str = 'update'
+    method_name: str = 'update'
 
     @property
     def docstrings_def(self) -> MethodDocstringDefinition:

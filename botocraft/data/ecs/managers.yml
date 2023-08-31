@@ -1,6 +1,6 @@
 ---
 Service:
-  operations:
+  methods:
     create:
       boto3_name: create_service
       docstring: >-
@@ -60,7 +60,7 @@ Service:
         forceNewDeployment:
           default: "False"
 Cluster:
-  operations:
+  methods:
     create:
       boto3_name: create_cluster
       docstring: >-
@@ -94,7 +94,7 @@ Cluster:
         forceNewDeployment:
           default: "False"
 TaskDefinition:
-  operations:
+  methods:
     create:
       boto3_name: register_task_definition
     delete:
@@ -108,7 +108,7 @@ TaskDefinition:
       boto3_name: register_task_definition
 ContainerInstance:
   readonly: true
-  operations:
+  methods:
     get:
       boto3_name: describe_container_instances
     list:

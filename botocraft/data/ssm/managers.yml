@@ -1,6 +1,6 @@
 ---
 Parameter:
-  operations:
+  methods:
     create:
       boto3_name: put_parameter
       response_attr: Version

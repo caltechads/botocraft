@@ -14,7 +14,7 @@ class PartialUpdateMethodGenerator(ManagerMethodGenerator):
     updates like ``scale`` without having to fetch the model first.
     """
 
-    operation: str = 'partial_update'
+    method_name: str = 'partial_update'
 
     @property
     def body(self) -> str:

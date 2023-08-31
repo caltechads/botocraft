@@ -1,6 +1,6 @@
 ---
 DBInstance:
-  operations:
+  methods:
     create:
       boto3_name: create_db_instance
       args:

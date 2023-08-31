@@ -1,6 +1,6 @@
 ---
 LoadBalancer:
-  operations:
+  methods:
     create:
       boto3_name: create_load_balancer
       args:
@@ -18,7 +18,7 @@ LoadBalancer:
     list:
       boto3_name: describe_load_balancers
 Listener:
-  operations:
+  methods:
     create:
       boto3_name: create_listener
     update:
@@ -35,7 +35,7 @@ Listener:
     list:
       boto3_name: describe_listeners
 Rule:
-  operations:
+  methods:
     create:
       boto3_name: create_rule
       args:
@@ -55,7 +55,7 @@ Rule:
     list:
       boto3_name: describe_rules
 TargetGroup:
-  operations:
+  methods:
     create:
       boto3_name: create_target_group
     update:

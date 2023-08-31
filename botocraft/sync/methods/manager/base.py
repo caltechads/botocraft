@@ -9,7 +9,7 @@ from typing import (
 import botocore.session
 import inflect
 
-from botocraft.sync.models import OperationDefinition, OperationArgumentDefinition
+from botocraft.sync.models import MethodDefinition, MethodArgumentDefinition
 from botocraft.sync.methods.models import MethodDocstringDefinition
 
 if TYPE_CHECKING:
@@ -39,14 +39,14 @@ class ManagerMethodGenerator:
             and is where we're collecting all our code and imports.
     """
 
-    #: The botocraft operation we're implementing
-    operation: str
+    #: The botocraft method we're implementing
+    method_name: str
 
     def __init__(
         self,
         generator: "ManagerGenerator",
         model_name: str,
-        operation_def: OperationDefinition
+        method_def: MethodDefinition
     ):
         self.inflect = inflect.engine()
         #: The generator that is creating the entire manager file.  It
@@ -56,20 +56,20 @@ class ManagerMethodGenerator:
         #: The boto3 client for the service we're generating.
         self.client = generator.client  # type: ignore
         #: Our own botocraft config for this model.
-        self.operation_def = operation_def
+        self.method_def = method_def
         #: The botocore service model for the service we're generating.
         self.service_model = generator.service_model  # type: ignore
-        #: The boto3 operation name for the operation we're generating.  This is
+        #: The boto3 operation name for the method we're generating.  This is
         #: something like ``describe_instances``.
-        self.boto3_name = self.operation_def.boto3_name
+        self.boto3_name = self.method_def.boto3_name
         #: The AWS API method for the operation we're generating.  This is
         #: something like ``DescribeInstances``.
         botocore_name = self.client._PY_TO_OP_NAME[self.boto3_name]
         #: The botocore operation model for the operation we're generating.
         self.operation_model = self.service_model.operation_model(botocore_name)
-        #: The input shape for the operation we're generating.
+        #: The input shape for the boto3 operation
         self.input_shape = self.operation_model.input_shape
-        #: The output shape for the operation we're generating.
+        #: The output shape for the boto3 operation
         self.output_shape = self.operation_model.output_shape
         #: Our model generator, which we use to generate any response models we
         #: need.
@@ -89,7 +89,7 @@ class ManagerMethodGenerator:
         #: Our documentation formatter
         self.docformatter = generator.docformatter
 
-    def get_explicit_args_from_request(self) -> OrderedDict[str, OperationArgumentDefinition]:
+    def get_explicit_args_from_request(self) -> OrderedDict[str, MethodArgumentDefinition]:
         """
         Compare the botocore input shape for the operation with the
         :py:class:`ModelAttributeDefinition` dict for the model we're working
@@ -100,15 +100,15 @@ class ManagerMethodGenerator:
             A dictionary of argument names to argument definitions.
         """
         model_fields = self.model_generator.fields(self.model_name)
-        args: OrderedDict[str, OperationArgumentDefinition] = OrderedDict()
+        args: OrderedDict[str, MethodArgumentDefinition] = OrderedDict()
         if self.input_shape is not None:
             for arg in self.input_shape.members:
-                if arg in self.operation_def.args:
+                if arg in self.method_def.args:
                     # We're explicitly defining this argument in our botocraft
                     # config, so we don't need to do anything here.
                     continue
                 if arg not in model_fields:
-                    args[arg] = OperationArgumentDefinition(explicit=True)
+                    args[arg] = MethodArgumentDefinition(explicit=True)
                     if arg in self.input_shape.required_members:
                         args[arg].required = True
         return args
@@ -126,7 +126,7 @@ class ManagerMethodGenerator:
         """
         if self.input_shape is None:
             return False
-        mapping = self.operation_def.args
+        mapping = self.method_def.args
         return (
             arg_name in self.input_shape.required_members or
             (arg_name in mapping and mapping[arg_name].required)
@@ -144,8 +144,8 @@ class ManagerMethodGenerator:
             A string that is either the argument name, or the argument name
             wrapped in a call to ``self.serialize()``.
         """
-        mapping = self.operation_def.args
-        arg_def = mapping.get(arg, OperationArgumentDefinition())
+        mapping = self.method_def.args
+        arg_def = mapping.get(arg, MethodArgumentDefinition())
         if arg_def.exclude_none:
             return f'self.serialize({arg}, exclude_none=True)'
         return f'self.serialize({arg})'
@@ -167,7 +167,7 @@ class ManagerMethodGenerator:
         args: OrderedDict[str, str] = OrderedDict()
         if self.input_shape is None:
             return args
-        mapping = self.operation_def.args
+        mapping = self.method_def.args
         for arg_name, arg_shape in self.input_shape.members.items():
             if arg_name in mapping and mapping[arg_name].hidden:
                 # This is a hidden argument, so we don't want to expose it
@@ -191,7 +191,7 @@ class ManagerMethodGenerator:
     @property
     def explicit_args(self) -> OrderedDict[str, str]:
         """
-        Return the positional arguments for the given operation.
+        Return the positional arguments for the given method.
 
         Returns:
             A dictionary of argument names to types.
@@ -199,7 +199,7 @@ class ManagerMethodGenerator:
         args: OrderedDict[str, str] = OrderedDict()
         if not self.input_shape:
             return args
-        for arg_name in self.operation_def.explicit_args:
+        for arg_name in self.method_def.explicit_args:
             if arg_name in self.input_shape.required_members:
                 args[arg_name] = self.shape_converter.convert(
                     self.input_shape.members[arg_name],
@@ -210,7 +210,7 @@ class ManagerMethodGenerator:
     @property
     def explicit_kwargs(self) -> OrderedDict[str, str]:
         """
-        Return the positional arguments for the given operation.
+        Return the positional arguments for the given method.
 
         Returns:
             A dictionary of argument names to types.
@@ -218,13 +218,13 @@ class ManagerMethodGenerator:
         args: OrderedDict[str, str] = OrderedDict()
         if not self.input_shape:
             return args
-        for arg_name in self.operation_def.explicit_kwargs:
+        for arg_name in self.method_def.explicit_kwargs:
             if arg_name not in self.input_shape.required_members:
                 args[arg_name] = self.shape_converter.convert(
                     self.input_shape.members[arg_name],
                     quote=True
                 )
-                arg_def = self.operation_def.args.get(arg_name, OperationArgumentDefinition())
+                arg_def = self.method_def.args.get(arg_name, MethodArgumentDefinition())
                 if arg_def.default in [None, "None"]:
                     args[arg_name] = f'Optional[{args[arg_name]}]'
         return args
@@ -232,7 +232,7 @@ class ManagerMethodGenerator:
     @property
     def args(self) -> OrderedDict[str, str]:
         """
-        Return the keyword arguments for the given operation.  The
+        Return the keyword arguments for the given method.  The
         positional arguments are the arguments are required.
         They will include a type.
 
@@ -253,7 +253,7 @@ class ManagerMethodGenerator:
     @property
     def kwargs(self) -> OrderedDict[str, str]:
         """
-        Return the keyword arguments for the given operation.  These
+        Return the keyword arguments for the given method.  These
         apply to both the method signature and to the boto3 operation call.
 
         keyword arguments are the arguments that are not required.
@@ -321,7 +321,7 @@ class ManagerMethodGenerator:
         return the type string.  The response class is the class that we use to
         deserialize the boto3 response into a pydantic model.
 
-        If there is no output shape defined in botocore for the operation, then
+        If there is no output shape defined in botocore for the boto3 operation, then
         we return ``None``.
 
         Returns:
@@ -341,7 +341,7 @@ class ManagerMethodGenerator:
         """
         Deduce the name of the attribute in the boto3 response that we want to
         return from the method.  This is either some variation of the name of
-        the model itself, or whatever the botocraft config for the operation
+        the model itself, or whatever the botocraft config for the method
         specifies.
 
         Returns:
@@ -351,8 +351,8 @@ class ManagerMethodGenerator:
             return None
         if not hasattr(self.output_shape, 'members'):
             return None
-        if self.operation_def.response_attr:
-            return self.operation_def.response_attr
+        if self.method_def.response_attr:
+            return self.method_def.response_attr
         potential_names = [
             self.model_name.lower(),
             self.model_name_plural.lower(),
@@ -394,14 +394,14 @@ class ManagerMethodGenerator:
     def return_type(self) -> str:
         """
         Set the type hint for the return type of the method.  This is either the
-        response class, or whatever class the botocraft config for the operation
+        response class, or whatever class the botocraft config for the method
         specifies.
 
         Returns:
             The type hint for the return type of the method.
         """
-        if self.operation_def.return_type:
-            return self.operation_def.return_type
+        if self.method_def.return_type:
+            return self.method_def.return_type
         # If our output shape has no members, then we return None
         output_shape = cast(botocore.model.StructureShape, self.output_shape)
         if (
@@ -416,7 +416,7 @@ class ManagerMethodGenerator:
     @property
     def signature(self) -> str:
         """
-        Create the method signature for the operation.
+        Create the method signature for the method.
 
         Example:
 
@@ -425,11 +425,11 @@ class ManagerMethodGenerator:
                 def create(self, name: str, *, description: str) -> Model:
 
         Returns:
-            The method signature for the operation.
+            The method signature for the method.
         """
         args = ", ".join([f'{arg}: {arg_type}' for arg, arg_type in self.args.items()])
         kwargs = ", ".join([f'{arg}: {arg_type}' for arg, arg_type in self.kwargs.items()])
-        signature = f"    def {self.operation}(self, "
+        signature = f"    def {self.method_name}(self, "
         if args:
             signature += args
         if args and kwargs:
@@ -449,8 +449,8 @@ class ManagerMethodGenerator:
         Returns:
             The docstring for the argument.
         """
-        if arg in self.operation_def.args:
-            arg_def = self.operation_def.args[arg]
+        if arg in self.method_def.args:
+            arg_def = self.method_def.args[arg]
             if arg_def.docstring:
                 return arg_def.docstring
         if self.input_shape is not None:
@@ -468,8 +468,8 @@ class ManagerMethodGenerator:
         """
         docstrings: MethodDocstringDefinition = MethodDocstringDefinition()
         docstrings.method = (
-            self.operation_def.docstring
-            if self.operation_def.docstring
+            self.method_def.docstring
+            if self.method_def.docstring
             else self.operation_model.documentation
         )
         for arg in self.args:
