@@ -21,6 +21,7 @@ from .methods import (  # pylint: disable=import-error
     UpdateMethodGenerator,
     PartialUpdateMethodGenerator,
     DeleteMethodGenerator,
+    ModelPropertyGenerator,
 )
 from .models import (
     ServiceDefinition,
@@ -198,10 +199,12 @@ class ModelGenerator(AbstractGenerator):
             The properties for this model, or ``None`` if this is not a primary
             model.
         """
-        properties: Optional[str] = None
+        properties: str = ''
         if base_class in ['PrimaryBoto3Model', 'ReadonlyPrimaryBoto3Model']:
-            assert model_def.primary_key, f'Primary service model "{model_def.name}" has no primary key'
-            properties = f'''
+            assert model_def.primary_key or 'pk' in model_def.properties, f'Primary service model "{model_def.name}" has no primary key defined'
+
+            if 'pk' not in model_def.properties and model_def.primary_key:
+                properties = f'''
     @property
     def pk(self) -> Optional[str]:
         """
@@ -242,7 +245,52 @@ class ModelGenerator(AbstractGenerator):
         """
         return self.{model_def.name_key}
 '''
+        for property_name in model_def.properties:
+            if not properties:
+                properties = ''
+            properties += ModelPropertyGenerator(self, model_def.name, property_name).code
+
         return properties
+
+    def field_type(
+        self,
+        model_name: str,
+        field_name: str,
+        model_shape: Optional[botocore.model.Shape] = None,
+        field_shape: Optional[botocore.model.Shape] = None
+    ) -> str:
+        """
+        Return the python type annotation for a field.
+
+        Args:
+            model_name: The name of the model to get the field from.
+            field_name: The name of the field.
+
+        Keyword Args:
+            model_shape: The shape of the model.  If not provided, we will look
+                it up in the service model.
+            field_shape: The shape of the field.  If not provided, we will look
+                it up in the model shape.
+
+        Returns:
+            The python type annotation for the field.
+        """
+        if not model_shape:
+            model_shape = self.get_shape(model_name)
+        if not hasattr(model_shape, 'members'):
+            raise ValueError(f'Model {model_name} has no fields.')
+        if not field_shape:
+            field_shape = cast(botocore.model.StructureShape, model_shape).members.get(field_name)
+        if not field_shape:
+            raise ValueError(f'Model {model_name} has no field {field_name}.')
+        model_def = self.get_model_def(model_name)
+        field_def = model_def.fields.get(field_name, ModelAttributeDefinition())
+        python_type = field_def.python_type
+        if not python_type:
+            python_type = self.shape_converter.convert(field_shape)
+        if python_type is None:
+            raise ValueError(f'Could not determine type for field {field_name}.')
+        return python_type
 
     def generate_model(
         self,
@@ -280,15 +328,10 @@ class ModelGenerator(AbstractGenerator):
             for field_name, field_shape in shape.members.items():
                 #: The botocraft definition for this field
                 field_def = model_def.fields.get(field_name, ModelAttributeDefinition())
-                # Our guess as to the python type for this field
-                python_type: Optional[str] = field_def.python_type or self.shape_converter.convert(field_shape)
                 # Whether this field is required
                 required: bool = (field_name in shape.required_members) or field_def.required
-
-                if python_type is None:
-                    raise ValueError(
-                        f'Could not resolve type for field {field_name} in {model_name}.  Shape: {field_shape}.'
-                    )
+                # Our guess as to the python type for this field
+                python_type = self.field_type(model_name, field_name, model_shape=shape, field_shape=field_shape)
                 default = None
                 if not required:
                     python_type = f'Optional[{python_type}]'

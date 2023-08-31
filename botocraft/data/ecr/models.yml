@@ -2,7 +2,6 @@
 primary:
   Repository:
     plural: Repositories
-    primary_key: repositoryArn
     arn_key: repositoryArn
     name_key: repositoryName
     fields:
@@ -22,3 +21,9 @@ primary:
         required: true
         default: >-
           "scanOnPush"
+    properties:
+      pk:
+        mapping:
+          mapping:
+            repositoryName: repositoryName
+            registry: registryId

@@ -9,7 +9,7 @@ from typing import (
 import botocore.session
 import inflect
 
-from botocraft.sync.models import MethodDefinition, MethodArgumentDefinition
+from botocraft.sync.models import ManagerMethodDefinition, MethodArgumentDefinition
 from botocraft.sync.methods.models import MethodDocstringDefinition
 
 if TYPE_CHECKING:
@@ -18,7 +18,7 @@ if TYPE_CHECKING:
 
 class ManagerMethodGenerator:
     """
-    The base class for all method generators.  This is used to generate
+    The base class for all manager method generators.  This is used to generate
     the code for a single method on a manager class.
 
     To use this, you subclass it and implement the :py:meth:`body`
@@ -46,7 +46,7 @@ class ManagerMethodGenerator:
         self,
         generator: "ManagerGenerator",
         model_name: str,
-        method_def: MethodDefinition
+        method_def: ManagerMethodDefinition
     ):
         self.inflect = inflect.engine()
         #: The generator that is creating the entire manager file.  It

@@ -33,7 +33,6 @@ DBInstance:
           attribute: CustomerOwnedIpEnabled
         EnablePerformanceInsights:
           attribute: PerformanceInsightsEnabled
-
     delete:
       boto3_name: delete_db_instance
     get:

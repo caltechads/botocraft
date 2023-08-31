@@ -1573,17 +1573,6 @@ class Service(PrimaryBoto3Model):
     enableExecuteCommand: Optional[bool] = None
 
     @property
-    def pk(self) -> Optional[str]:
-        """
-        Return the primary key of the model.   This is the value of the
-        :py:attr:`serviceArn` attribute.
-
-        Returns:
-            The primary key of the model instance.
-        """
-        return self.serviceArn
-
-    @property
     def arn(self) -> Optional[str]:
         """
         Return the ARN of the model.   This is the value of the
@@ -1604,6 +1593,19 @@ class Service(PrimaryBoto3Model):
             The name of the model instance.
         """
         return self.serviceName
+
+    @property
+    def pk(self) -> Dict[str, Any]:
+        """
+        The primary key of the service.
+
+        This can be used to get the service with the :py:meth:`botocraft.services.ecs.ServiceManager.get` method, or to do :py:meth:`botocraft.services.ecs.ServiceManager.partial_update`.
+        """
+
+        return {
+            "service": self.serviceName,
+            "cluster": self.clusterArn,
+        }
 
 
 class ExecuteCommandLogConfiguration(Boto3Model):

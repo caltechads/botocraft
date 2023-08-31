@@ -1,4 +1,5 @@
 from typing import Optional, Any
+import re
 from pydantic import BaseModel, ConfigDict
 
 import boto3
@@ -67,6 +68,51 @@ class Boto3ModelManager:
 
     def delete(self, pk: str, **kwargs):
         raise NotImplementedError
+
+    def transform(
+        self,
+        attribrute: str,
+        transformer: Optional[str],
+    ) -> Any:
+        """
+        Transform an attribute into something else before it is returned.
+
+        .. important::
+            This only makes sense for attributes that are strings.
+
+        ``transformer`` is a regular expression that will be used to transform the value of the attribute.
+
+        * If the attribute is ``None``, it will be returned verbatim.
+        * If ``transformer`` is ``None``, the attribute will be returned verbatim.
+        * If ``transformer`` has no named groups, the attribute will be replaced with the value of the first group.
+        * If ``transformer`` has named groups, the attribute will be replaced with a dictionary of the named groups.
+
+        Raises:
+            ValueError: If the attribute does not exist on the model.
+            RuntimeError: If the transformer fails to match the attribute value.
+
+        Args:
+            attribute: The attribute to transform.
+            transformer: The regular expression to use to transform the attribute.
+
+        Returns:
+            The transformed attribute.
+        """
+        if not hasattr(self, attribrute):
+            raise ValueError(f"Invalid attribute: {self.__class__.__name__}.{attribrute}")
+        if transformer is None:
+            return getattr(self, attribrute)
+        if getattr(self, attribrute) is None:
+            return None
+        if match := re.match(transformer, str(getattr(self, attribrute))):
+            if match.groupdict():
+                return match.groupdict()
+            return match.group(1)
+        else:
+            raise RuntimeError(
+                f"Transformer failed to match: transformer=r'{transformer}', value='{getattr(self, attribrute)}'"
+            )
+
 
 
 class ReadonlyBoto3ModelManager(Boto3ModelManager):

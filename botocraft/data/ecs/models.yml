@@ -1,7 +1,6 @@
 ---
 primary:
   Service:
-    primary_key: serviceArn
     arn_key: serviceArn
     name_key: serviceName
     fields:
@@ -38,6 +37,19 @@ primary:
         required: true
         default: >-
           "REPLICA"
+    properties:
+      pk:
+        docstring: >-
+          The primary key of the service.  This can be used to get the service
+          with the :py:meth:`botocraft.services.ecs.ServiceManager.get` method,
+          or to do
+          :py:meth:`botocraft.services.ecs.ServiceManager.partial_update`.
+        mapping:
+          mapping:
+            service: serviceName
+            cluster: clusterArn
+
+
   Cluster:
     primary_key: clusterArn
     arn_key: clusterArn

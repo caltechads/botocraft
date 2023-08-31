@@ -1,9 +1,15 @@
 from pathlib import Path
+import re
 from typing import Optional, Dict, Literal, List, Any
 
 import yaml
 
-from pydantic import BaseModel
+from pydantic import (
+    BaseModel,
+    field_validator,
+    FieldValidationInfo,
+    model_validator
+)
 
 DATA_DIR = Path(__file__).parent.parent / 'data'
 SERVICES_DIR = Path(__file__).parent.parent / 'services'
@@ -18,9 +24,102 @@ MethodNames = Literal[
     'list'
 ]
 
+
 # ------
 # Models
 # ------
+
+class AliasTransformer(BaseModel):
+
+    #: The name of the attribute on our model to use as
+    #: the input to the regular expression.
+    attribute: str
+
+
+class MappingTransformer(BaseModel):
+
+    #: If defined, use this mapping of attribute values to
+    #: output keys
+    mapping: Dict[str, str] = {}
+
+
+class RegexTransformer(BaseModel):
+
+    #: The name of the attribute on our model to use as
+    #: the input to the regular expression.
+    attribute: str
+    #: Use this regular expression to transform the attribute value.
+    regex: str
+
+    @field_validator('regex')
+    @classmethod
+    def check_valid_regexp(
+        cls,
+        v: Optional[str],
+        info: FieldValidationInfo
+    ) -> Optional[str]:
+        """
+        Validate that the transformer is a valid regular expression.
+
+        Args:
+            v: the value of field
+            info: pydantic field validation info
+
+        Raises:
+            ValueError: if the transformer is not a valid regular expression
+
+        Returns:
+            The value of the field
+        """
+
+        if v is not None:
+            try:
+                re.compile(v)
+            except re.error as exc:
+                raise ValueError(f'{info.field_name} must be a valid regular expression') from exc
+        return v
+
+
+class ModelPropertyDefinition(BaseModel):
+
+    #: The docstring for this property
+    docstring: Optional[str] = None
+    #: If ``True``, make this property be cached
+    cached: bool = False
+    #: If specified, use this regular expression to build the
+    #: primary key for the ``get`` method on the other botocraft
+    #: model
+    regex: Optional[RegexTransformer] = None
+    #: If specified, use this mapping of attribute values to
+    #: output keys to generate the output
+    mapping: Optional[MappingTransformer] = None
+    #: If specified, use this property as an alias for this
+    #: attribute.  This may be an alias on another related
+    #: model
+    alias: Optional[AliasTransformer] = None
+
+    @model_validator(mode='before')
+    @classmethod
+    def check_transformer(cls, data: Any) -> Any:
+        """
+        Validate that only one of a regex, a mapping or an alias is specified,
+        but not more than one.
+
+        Args:
+            data: the input data for this model
+
+        Raises:
+            ValueError: both a regex and a mapping are specified
+
+        Returns:
+            The input data for this model
+        """
+        transformers = [data.get('regex'), data.get('mapping'), data.get('alias')]
+        if transformers.count(None) < 2:
+            raise ValueError('Only one of regex, mapping or alias can be specified')
+        if transformers.count(None) == 3:
+            raise ValueError('One of regex, mapping, or alias must be specified')
+        return data
 
 
 class ModelAttributeDefinition(BaseModel):
@@ -83,6 +182,8 @@ class ModelDefinition(BaseModel):
     extra_fields: Dict[str, ModelAttributeDefinition] = {}
     #: If ``True``, make this model immutable.
     readonly: bool = False
+    #: Computed properties
+    properties: Dict[str, ModelPropertyDefinition] = {}
 
 
 # --------
@@ -91,12 +192,12 @@ class ModelDefinition(BaseModel):
 
 class MethodArgumentDefinition(BaseModel):
     """
-    The definition of a single argument on a :py:class:`MethodDefinition`.
+    The definition of a single argument on a :py:class:`ManagerMethodDefinition`.
 
     Example:
 
         .. code-block:: yaml
-            :emphasize-lines: 5,6
+            :emphasize-lines: 6,7
 
             Repository:
                 methods:
@@ -135,14 +236,14 @@ class MethodArgumentDefinition(BaseModel):
     exclude_none: bool = False
 
 
-class MethodDefinition(BaseModel):
+class ManagerMethodDefinition(BaseModel):
     """
     The definition of a single method on a :py:class:`ManagerDefinition`.
 
     Example:
 
         .. code-block:: yaml
-            :emphasize-lines: 2,3,4,5,6
+            :emphasize-lines: 3,4,5,6,7
 
             Repository:
                 methods:
@@ -160,7 +261,7 @@ class MethodDefinition(BaseModel):
     #: is not specified as a key in this dict, it will be generated as is
     #: appropriate for the operation type
     args: Dict[str, MethodArgumentDefinition] = {}
-    #: The attribute name to use on the response object to  use to build our
+    #: The attribute name the response class to use in building our
     #: method return object(s).  If not specified, we'll use the lowercased
     #: model name, pluralizing if necessary.
     response_attr: Optional[str] = None
@@ -242,7 +343,7 @@ class ManagerDefinition(BaseModel):
     #: The name of the model this manager is for
     name: str
     #: The methods to generate on this manager
-    methods: Dict[MethodNames, MethodDefinition] = {}
+    methods: Dict[MethodNames, ManagerMethodDefinition] = {}
     #: If ``True``, make this manager use the :py:class:`ReadonlyBoto3ModelManager` superclass
     readonly: bool = False
 
