@@ -1,6 +1,5 @@
 from collections import OrderedDict
-import re
-from typing import cast
+from typing import cast, Literal
 
 from .base import ManagerMethodGenerator
 
@@ -20,34 +19,17 @@ class GetMethodGenerator(ManagerMethodGenerator):
 
     method_name: str = 'get'
 
-    @property
-    def args(self) -> OrderedDict[str, str]:
+    def kwargs(self, location: Literal['method', 'operation'] = 'method') -> OrderedDict[str, str]:
         """
-        Return the positional arguments for the given method.
-
-        This is the same as the parent class, except we change the name of the
-        argument from the plural to the singular.
-
-        Returns:
-            A dictionary of argument names to types.
+        Override the kwargs to exclude the pagination arguments if the boto3
+        operation can paginate.  We should only ever be returning one object, so
+        we don't need to paginate.
         """
-        # FIXME: this doesn't work most of the time.   The minimum argument
-        # set we need to identify a single object varies from service to
-        # service.
-        args = super().args
-        new_args = OrderedDict()
-        for arg, arg_type in args.items():
-            if arg == self.model_name_plural.lower():
-                arg = self.model_name.lower()
-                arg_type = re.sub(r'List\[(.*)\]', r'\1', arg_type)
-            new_args[arg] = arg_type
-        return new_args
-
-    @property
-    def operation_call(self) -> str:
-        name = self.model_name.lower()
-        plural = self.model_name_plural.lower()
-        return super().operation_call.replace(f'{name}={name}', f'{plural}=[{name}]')
+        _args: OrderedDict[str, str] = OrderedDict()
+        for _arg, arg_type in super().kwargs(location=location).items():
+            if _arg not in self.PAGINATOR_ARGS:
+                _args[_arg] = arg_type
+        return _args
 
     @property
     def return_type(self) -> str:

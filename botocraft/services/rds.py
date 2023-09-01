@@ -2,7 +2,7 @@
 # pylint: disable=anomalous-backslash-in-string,unsubscriptable-object,line-too-long,arguments-differ,arguments-renamed
 # mypy: disable-error-code="index, override"
 from datetime import datetime
-from typing import Dict, List, Literal, Optional, cast
+from typing import ClassVar, Dict, List, Literal, Optional, cast
 
 from pydantic import Field
 
@@ -788,7 +788,7 @@ class DBInstance(PrimaryBoto3Model):
     ``StartDBInstance``, and ``StopDBInstance``.
     """
 
-    manager: Boto3ModelManager = DBInstanceManager()
+    objects: ClassVar[Boto3ModelManager] = DBInstanceManager()
 
     #: The user-supplied database identifier. This identifier is the unique key that
     #: identifies a DB instance.

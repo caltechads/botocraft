@@ -4,7 +4,7 @@ from typing import cast
 
 from botocraft.sync.models import MethodArgumentDefinition
 
-from ..models import MethodDocstringDefinition
+from ...models import MethodDocstringDefinition
 from .base import ManagerMethodGenerator
 
 
@@ -65,7 +65,7 @@ class CreateMethodGenerator(ManagerMethodGenerator):
         """
         mapping = self.method_def.args
         _args: OrderedDict[str, str] = OrderedDict()
-        for arg in self.args:
+        for arg in self.args(location='operation'):
             if arg in self.explicit_args:
                 _arg = self.serialize(arg)
             else:
@@ -106,7 +106,7 @@ class CreateMethodGenerator(ManagerMethodGenerator):
         """
         mapping = self.method_def.args
         _args = OrderedDict()
-        for arg in self.kwargs:
+        for arg in self.kwargs(location='operation'):
             if arg in self.explicit_kwargs:
                 _arg = self.serialize(arg)
             else:
@@ -146,11 +146,13 @@ class CreateMethodGenerator(ManagerMethodGenerator):
         """
         call = "data = model.model_dump()"
         call += f"\n        _response = self.client.{self.boto3_name}("
-        if args := self.operation_args:
+        args = self.operation_args
+        kwargs = self.operation_kwargs
+        if args:
             call += args
-        if self.args and self.kwargs:
+        if args and kwargs:
             call += ", "
-        if kwargs := self.operation_kwargs:
+        if kwargs:
             call += kwargs
         call += ")"
         call += f"\n        response = {self.response_class}.model_construct(**_response)"

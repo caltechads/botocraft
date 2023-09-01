@@ -2,6 +2,7 @@ from collections import OrderedDict
 from typing import (
     Optional,
     Literal,
+    List,
     cast,
     TYPE_CHECKING,
 )
@@ -9,8 +10,11 @@ from typing import (
 import botocore.session
 import inflect
 
-from botocraft.sync.models import ManagerMethodDefinition, MethodArgumentDefinition
-from botocraft.sync.methods.models import MethodDocstringDefinition
+from botocraft.sync.models import (
+    ManagerMethodDefinition,
+    MethodArgumentDefinition,
+    MethodDocstringDefinition
+)
 
 if TYPE_CHECKING:
     from botocraft.sync.service import ManagerGenerator
@@ -38,6 +42,18 @@ class ManagerMethodGenerator:
             an object.  It has the information about the service and the models,
             and is where we're collecting all our code and imports.
     """
+
+    #: A list of arguments that various boto3 calls use for pagination.  We
+    #: want to hide them automatically sometimes.
+    PAGINATOR_ARGS: List[str] = [
+        'nextToken',
+        'maxResults',
+        'MaxResults',
+        'NextToken',
+        'Marker',
+        'MaxRecords',
+        'PageSize'
+    ]
 
     #: The botocraft method we're implementing
     method_name: str
@@ -113,24 +129,36 @@ class ManagerMethodGenerator:
                         args[arg].required = True
         return args
 
-    def is_required(self, arg_name: str) -> bool:
+    def is_required(
+        self,
+        arg_name: str,
+        location: Literal['method', 'operation'] = 'method'
+    ) -> bool:
         """
         Determine if the given argument is required for the method signature.
 
         Args:
             arg: the name of the argument
 
+        Keyword Args:
+            location: where these arguments will be used.  If ``'method'``, then
+                we obey both the boto3 operation definition and the botocraft
+                method definition.  If ``'operation'``, then we only obey the
+                boto3 operation definition.
+
         Returns:
-            If this argument is required for the method signature,
-            return ``True``, otherwise return ``False``.
+            If this argument is required, return ``True``, otherwise return
+            ``False``.
         """
         if self.input_shape is None:
             return False
         mapping = self.method_def.args
-        return (
-            arg_name in self.input_shape.required_members or
-            (arg_name in mapping and mapping[arg_name].required)
-        )
+        if location == 'method':
+            return (
+                arg_name in self.input_shape.required_members or
+                (arg_name in mapping and mapping[arg_name].required)
+            )
+        return arg_name in self.input_shape.required_members
 
     def serialize(self, arg: str) -> str:
         """
@@ -146,20 +174,33 @@ class ManagerMethodGenerator:
         """
         mapping = self.method_def.args
         arg_def = mapping.get(arg, MethodArgumentDefinition())
+        _arg = arg
+        if arg_def.source_arg:
+            _arg = arg_def.source_arg
         if arg_def.exclude_none:
-            return f'self.serialize({arg}, exclude_none=True)'
-        return f'self.serialize({arg})'
+            return f'self.serialize({_arg}, exclude_none=True)'
+        return f'self.serialize({_arg})'
 
-    def _args(self, kind: Literal['args', 'kwargs']) -> OrderedDict[str, str]:
+    def _args(
+        self,
+        kind: Literal['args', 'kwargs'],
+        location: Literal['method', 'operation'] = 'method'
+    ) -> OrderedDict[str, str]:
         """
         This is used to generate the arguments for the botocraft method
         signature.
 
-        If kind == 'args', then we generate the positional arguments, but
-        if kind == 'kwargs', then we generate the keyword arguments.
+        If kind == 'args', then we generate the positional arguments, but if
+        kind == 'kwargs', then we generate the keyword arguments.
 
         Args:
             kind: what kind of method arguments to generate.
+
+        Keyword Args:
+            location: where these arguments will be used.  If ``'method'``, then
+                we only generate the arguments that are required for the method
+                signature.  If ``'operation'``, then we generate all the arguments
+                that are required for the boto3 operation call.
 
         Returns:
             An ordered dictionary of argument names to types.
@@ -169,23 +210,28 @@ class ManagerMethodGenerator:
             return args
         mapping = self.method_def.args
         for arg_name, arg_shape in self.input_shape.members.items():
-            if arg_name in mapping and mapping[arg_name].hidden:
+            arg_def = mapping.get(arg_name, MethodArgumentDefinition())
+            _arg_name = arg_name
+            if location == 'method' and arg_def.rename:
+                _arg_name = arg_def.rename
+            if arg_def.hidden:
                 # This is a hidden argument, so we don't want to expose it
-                # in the method signature
+                # in the method signature or the boto3 call.
                 continue
-            python_type = self.shape_converter.convert(arg_shape, quote=True)
-            if kind == 'args':
-                if self.is_required(arg_name):
-                    args[arg_name] = python_type
+            if arg_def.python_type:
+                python_type = cast(str, arg_def.python_type)
             else:
-                if not self.is_required(arg_name):
-                    default: Optional[str] = 'None'
-                    if arg_name in mapping:
-                        default = mapping[arg_name].default
+                python_type = self.shape_converter.convert(arg_shape, quote=True)
+            if kind == 'args':
+                if self.is_required(arg_name, location=location):
+                    args[_arg_name] = python_type
+            else:
+                if not self.is_required(arg_name, location=location):
+                    default: Optional[str] = arg_def.default if arg_def.default else 'None'
                     if default == 'None':
-                        args[arg_name] = f'Optional[{python_type}] = None'
+                        args[_arg_name] = f'Optional[{python_type}] = None'
                     else:
-                        args[arg_name] = f'{python_type} = {default}'
+                        args[_arg_name] = f'{python_type} = {default}'
         return args
 
     @property
@@ -229,12 +275,13 @@ class ManagerMethodGenerator:
                     args[arg_name] = f'Optional[{args[arg_name]}]'
         return args
 
-    @property
-    def args(self) -> OrderedDict[str, str]:
+    def args(
+        self,
+        location: Literal['method', 'operation'] = 'method'
+    ) -> OrderedDict[str, str]:
         """
-        Return the keyword arguments for the given method.  The
-        positional arguments are the arguments are required.
-        They will include a type.
+        Return the keyword arguments for the given method.  The positional
+        arguments are the arguments are required.  They will include a type.
 
         Example:
 
@@ -245,19 +292,27 @@ class ManagerMethodGenerator:
                     'arg2': 'List[str]'
                 }
 
+        Keyword Args:
+            location: where these arguments will be used.  If ``'method'``, then
+                we only generate the arguments that are required for the method
+                signature.  If ``'operation'``, then we generate all the arguments
+                that are required for the boto3 operation call.
+
         Returns:
             A dictionary of argument names to types.
         """
-        return self._args('args')
+        return self._args('args', location=location)
 
-    @property
-    def kwargs(self) -> OrderedDict[str, str]:
+    def kwargs(
+        self,
+        location: Literal['method', 'operation'] = 'method'
+    ) -> OrderedDict[str, str]:
         """
-        Return the keyword arguments for the given method.  These
-        apply to both the method signature and to the boto3 operation call.
+        Return the keyword arguments for the given method.  These apply to both
+        the method signature and to the boto3 operation call.
 
-        keyword arguments are the arguments that are not required.
-        They will include a type and a default value.
+        Keyword arguments are the arguments that are not required.  They will
+        include a type and a default value.
 
         Example:
 
@@ -268,10 +323,16 @@ class ManagerMethodGenerator:
                     'arg2': 'Optional[str] = None'
                 }
 
+        Keyword Args:
+            location: where these arguments will be used.  If ``'method'``, then
+                we only generate the arguments that are required for the method
+                signature.  If ``'operation'``, then we generate all the arguments
+                that are required for the boto3 operation call.
+
         Returns:
             A dictionary of argument names to types/defaults.
         """
-        return self._args('kwargs')
+        return self._args('kwargs', location=location)
 
     @property
     def operation_args(self) -> str:
@@ -284,10 +345,12 @@ class ManagerMethodGenerator:
 
             ``name=name, description=description``
         """
-        arg_str = ", ".join([f"{arg}={self.serialize(arg)}" for arg in self.args])
-        if self.args and self.kwargs:
+        args = self.args(location='operation')
+        kwargs = self.kwargs(location='operation')
+        arg_str = ", ".join([f"{arg}={self.serialize(arg)}" for arg in args])
+        if args and kwargs:
             arg_str += ", "
-        arg_str += ", ".join([f"{arg}={self.serialize(arg)}" for arg in self.kwargs])
+        arg_str += ", ".join([f"{arg}={self.serialize(arg)}" for arg in kwargs])
         return arg_str
 
     @property
@@ -427,15 +490,17 @@ class ManagerMethodGenerator:
         Returns:
             The method signature for the method.
         """
-        args = ", ".join([f'{arg}: {arg_type}' for arg, arg_type in self.args.items()])
-        kwargs = ", ".join([f'{arg}: {arg_type}' for arg, arg_type in self.kwargs.items()])
+        args = self.args()
+        kwargs = self.kwargs()
+        args_str = ", ".join([f'{arg}: {arg_type}' for arg, arg_type in args.items()])
+        kwargs_str = ", ".join([f'{arg}: {arg_type}' for arg, arg_type in kwargs.items()])
         signature = f"    def {self.method_name}(self, "
-        if args:
-            signature += args
-        if args and kwargs:
+        if args_str:
+            signature += args_str
+        if args_str and kwargs_str:
             signature += ", "
-        if kwargs:
-            signature += f"*, {kwargs}"
+        if kwargs_str:
+            signature += f"*, {kwargs_str}"
         signature += f") -> {self.return_type}:"
         return signature
 
@@ -449,13 +514,21 @@ class ManagerMethodGenerator:
         Returns:
             The docstring for the argument.
         """
-        if arg in self.method_def.args:
-            arg_def = self.method_def.args[arg]
-            if arg_def.docstring:
-                return arg_def.docstring
+        _arg_name = arg
+        arg_def = MethodArgumentDefinition()
+        for arg_name, _arg_def in self.method_def.args.items():
+            if arg_name == arg:
+                arg_def = _arg_def
+                break
+            if _arg_def.rename == arg:
+                arg_def = _arg_def
+                _arg_name = arg_name
+                break
+        if arg_def.docstring:
+            return arg_def.docstring
         if self.input_shape is not None:
-            if arg in self.input_shape.members:
-                return self.input_shape.members[arg].documentation
+            if _arg_name in self.input_shape.members:
+                return self.input_shape.members[_arg_name].documentation
         return None
 
     @property
@@ -472,9 +545,9 @@ class ManagerMethodGenerator:
             if self.method_def.docstring
             else self.operation_model.documentation
         )
-        for arg in self.args:
+        for arg in self.args():
             docstrings.args[arg] = self.get_arg_docstring(arg)
-        for arg in self.kwargs:
+        for arg in self.kwargs():
             docstrings.kwargs[arg] = self.get_arg_docstring(arg)
         return docstrings
 

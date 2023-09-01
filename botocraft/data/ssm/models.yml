@@ -8,8 +8,7 @@ primary:
       Name:
         required: true
       Value:
-        default: >-
-          "None"
+        default: None
       Type:
         required: true
       Overwrite:

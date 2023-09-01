@@ -20,10 +20,11 @@ Service:
     get:
       boto3_name: describe_services
       args:
-        cluster:
-          default: >-
-            "default"
-        service:
+        services:
+          rename: service
+          required: true
+          python_type: str
+          source_arg: "[service]"
           docstring: >-
             The name or full Amazon Resource Name (ARN) of the service to
             describe.

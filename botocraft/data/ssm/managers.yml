@@ -15,6 +15,16 @@ Parameter:
           default: "True"
     get:
       boto3_name: get_parameters
+      args:
+        Names:
+          required: true
+          rename: Name
+          python_type: str
+          source_arg: "[Name]"
+          docstring: >-
+            The name of the parameter you want to query.
+        WithDecryption:
+          default: "True"
     list:
       boto3_name: describe_parameters
     delete:

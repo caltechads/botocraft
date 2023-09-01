@@ -1,5 +1,8 @@
+from collections import OrderedDict
+from dataclasses import dataclass, field
 from pathlib import Path
 import re
+from textwrap import indent
 from typing import Optional, Dict, Literal, List, Any
 
 import yaml
@@ -10,6 +13,8 @@ from pydantic import (
     FieldValidationInfo,
     model_validator
 )
+
+from botocraft.sync.docstring import DocumentationFormatter
 
 DATA_DIR = Path(__file__).parent.parent / 'data'
 SERVICES_DIR = Path(__file__).parent.parent / 'services'
@@ -214,6 +219,9 @@ class MethodArgumentDefinition(BaseModel):
     #: here.  This is only useful for methods that take a model instance
     #: as an argument.
     attribute: Optional[str] = None
+    #: If specified, in the method signature, use this as the argument
+    #: name.  Otherwise, we'll use the name of the boto3 argument.
+    rename: Optional[str] = None
     #: If specified, in the boto3 call invocation, set the value
     #: of this argument to the value of this method argument
     source_arg: Optional[str] = None
@@ -234,6 +242,8 @@ class MethodArgumentDefinition(BaseModel):
     #: If this argument is a model instance, exclude any attributes that
     #: are ``None`` from the serialized output we send to boto3.
     exclude_none: bool = False
+    #: If supplied, use this as the python type for the argument.
+    python_type: Optional[str] = None
 
 
 class ManagerMethodDefinition(BaseModel):
@@ -272,6 +282,8 @@ class ManagerMethodDefinition(BaseModel):
     #: If specified, use this as the return type for the method.  If not
     #: set, we'll use the model name, pluralizing if necessary.
     return_type: Optional[str] = None
+    #: Extra arguments for the method call
+    extra_args: Dict[str, MethodArgumentDefinition] = {}
 
     @property
     def explicit_args(self) -> List[str]:
@@ -495,3 +507,80 @@ class BotocraftInterface(BaseModel):
                 generator = ServiceGenerator(_service)
                 generator.generate()
             self.populate_init_py()
+
+
+@dataclass
+class MethodDocstringDefinition:
+    """
+    A class to hold the different parts of the docstring for a method, and
+    render them into a single sphinx-napoleon style docstring.
+    """
+
+    # The main method docstring.  This is the description of the method.
+    method: Optional[str] = None
+    #: The docstrings for our positional arguments
+    args: OrderedDict[str, Optional[str]] = field(default_factory=OrderedDict)
+    #: The docstrings for our keyword arguments
+    kwargs: OrderedDict[str, Optional[str]] = field(default_factory=OrderedDict)
+    #: The docstring for our return value
+    return_value: Optional[str] = None
+
+    @property
+    def is_empty(self) -> bool:
+        """
+        Return ``True`` if the docstring is empty, ``False`` otherwise.
+        """
+        return (
+            self.method is None and
+            not self.args and
+            not self.kwargs and
+            self.return_value is None
+        )
+
+    def Args(self, formatter: DocumentationFormatter) -> str:
+        """
+        Return the docstring for the positional arguments.
+        """
+        assert self.args, "No kwargs"
+        docstring = '''
+        Args:
+'''
+        for arg_name, arg_docstring in self.args.items():
+            docstring += formatter.format_argument(arg_name, arg_docstring)
+            docstring += '\n'
+
+        return docstring
+
+    def Keyword_Args(self, formatter: DocumentationFormatter) -> str:
+        """
+        Return the docstring for the keyword arguments.
+        """
+        assert self.kwargs, "No args"
+        docstring = '''
+        Keyword Args:
+'''
+        for arg_name, arg_docstring in self.kwargs.items():
+            docstring += formatter.format_argument(arg_name, arg_docstring)
+            docstring += '\n'
+        return docstring
+
+    def render(self, formatter: DocumentationFormatter) -> Optional[str]:
+        """
+        Return the entire method docstring.
+        """
+        if self.is_empty:
+            return None
+
+        docstring = '''
+        """
+'''
+        if self.method:
+            method_str = formatter.clean(self.method, max_lines=1).strip()
+            docstring += indent(method_str, '        ')
+            docstring += '\n'
+        if self.args:
+            docstring += self.Args(formatter)
+        if self.kwargs:
+            docstring += self.Keyword_Args(formatter)
+        docstring += '\n        """'
+        return docstring

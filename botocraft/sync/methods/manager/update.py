@@ -1,6 +1,6 @@
 from .create import CreateMethodGenerator
 
-from ..models import MethodDocstringDefinition
+from ...models import MethodDocstringDefinition
 
 
 class UpdateMethodGenerator(CreateMethodGenerator):

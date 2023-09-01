@@ -201,7 +201,8 @@ class ModelGenerator(AbstractGenerator):
         """
         properties: str = ''
         if base_class in ['PrimaryBoto3Model', 'ReadonlyPrimaryBoto3Model']:
-            assert model_def.primary_key or 'pk' in model_def.properties, f'Primary service model "{model_def.name}" has no primary key defined'
+            assert model_def.primary_key or 'pk' in model_def.properties, \
+                f'Primary service model "{model_def.name}" has no primary key defined'
 
             if 'pk' not in model_def.properties and model_def.primary_key:
                 properties = f'''
@@ -358,7 +359,7 @@ class ModelGenerator(AbstractGenerator):
             if docstring:
                 code += f'    """{docstring}"""\n'
             if 'PrimaryBoto3Model' in base_class:
-                code += f'    manager: Boto3ModelManager = {model_name}Manager()\n\n'
+                code += f'    objects: ClassVar[Boto3ModelManager] = {model_name}Manager()\n\n'
             if fields:
                 code += '\n'.join(fields)
             if properties:
@@ -453,7 +454,7 @@ class ServiceGenerator:
         self.imports: Set[str] = set(
             [
                 'from datetime import datetime',
-                'from typing import Optional, Literal, Dict, List, cast',
+                'from typing import ClassVar, Optional, Literal, Dict, List, cast',
                 'from pydantic import Field',
                 'from .abstract import Boto3Model, ReadonlyBoto3Model, PrimaryBoto3Model, '
                 'ReadonlyPrimaryBoto3Model, Boto3ModelManager, ReadonlyBoto3ModelManager',

@@ -20,17 +20,12 @@ Repository:
     get:
       boto3_name: describe_repositories
       args:
-        repositoryName:
-          explicit: true
-          required: true
-          docstring: >-
-            The name of the repository to describe.
         repositoryNames:
-          hidden: true
+          required: true
+          rename: repositoryName
+          python_type: str
           source_arg: "[repositoryName]"
-        nextToken:
-          hidden: true
-        maxResults:
-          hidden: true
+          docstring: >-
+            The name of the ECR repository to describe.
     list:
       boto3_name: describe_repositories

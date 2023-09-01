@@ -26,4 +26,4 @@ primary:
         mapping:
           mapping:
             repositoryName: repositoryName
-            registry: registryId
+            registryId: registryId

@@ -1,4 +1,4 @@
-from typing import Optional, Any
+from typing import Optional, Any, ClassVar
 import re
 from pydantic import BaseModel, ConfigDict
 
@@ -114,7 +114,6 @@ class Boto3ModelManager:
             )
 
 
-
 class ReadonlyBoto3ModelManager(Boto3ModelManager):
 
     def create(self, model, **kwargs):
@@ -163,7 +162,7 @@ class ReadonlyPrimaryBoto3Model(  # pylint: disable=abstract-method
 ):
 
     #: The manager for this model
-    manager: Boto3ModelManager
+    objects: Boto3ModelManager
 
     def save(self, **kwargs):
         """
@@ -188,7 +187,7 @@ class PrimaryBoto3Model(  # pylint: disable=abstract-method
     """
 
     #: The manager for this model
-    manager: Boto3ModelManager
+    manager: ClassVar[Boto3ModelManager]
 
     def save(self, **kwargs):
         """

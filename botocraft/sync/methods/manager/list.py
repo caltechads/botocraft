@@ -1,5 +1,5 @@
 from collections import OrderedDict
-from typing import cast
+from typing import cast, Literal
 
 from .base import ManagerMethodGenerator
 
@@ -8,16 +8,15 @@ class ListMethodGenerator(ManagerMethodGenerator):
 
     method_name: str = 'list'
 
-    @property
-    def kwargs(self) -> OrderedDict[str, str]:
+    def kwargs(self, location: Literal['method', 'operation'] = 'method') -> OrderedDict[str, str]:
         """
         Override the kwargs to exclude the pagination arguments if
         the boto3 operation can paginate.
         """
         if self.client.can_paginate(self.boto3_name):
             _args: OrderedDict[str, str] = OrderedDict()
-            for _arg, arg_type in super().kwargs.items():
-                if _arg not in ['nextToken', 'maxResults', 'Marker', 'MaxRecords']:
+            for _arg, arg_type in super().kwargs(location=location).items():
+                if _arg not in self.PAGINATOR_ARGS:
                     _args[_arg] = arg_type
         return _args
 

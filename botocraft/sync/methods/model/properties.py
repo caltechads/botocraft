@@ -16,6 +16,7 @@ class ModelPropertyGenerator:
 
     * :py:meth:`decorator`: The method decorators.
     * :py:meth:`signature`: The method signature.
+    * :py:meth:`docstring`: The method docstring.
     * :py:meth:`return_type`: The return type annotation.
 
     Args:
@@ -67,7 +68,8 @@ class ModelPropertyGenerator:
                 return_type = 'Optional[Dict[str, str]]'
         elif self.property_def.mapping:
             # FIXME: it'd be nice to do something like a typed dict here
-            return_type = 'Dict[str, Any]'
+            return_type = 'OrderedDict[str, Any]'
+            self.generator.imports.add('from collections import OrderedDict')
         return return_type
 
     @property
@@ -107,14 +109,14 @@ class ModelPropertyGenerator:
 """
         elif self.property_def.mapping:
             code = """
-        return {
+        return OrderedDict({
 """
             for key, value in self.property_def.mapping.mapping.items():
                 code += f"""
             "{key}": self.{value},
 """
             code += """
-        }
+        })
 """
         elif self.property_def.alias:
             code = f"""

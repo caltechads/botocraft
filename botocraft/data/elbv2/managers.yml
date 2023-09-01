@@ -15,6 +15,19 @@ LoadBalancer:
       boto3_name: delete_load_balancer
     get:
       boto3_name: describe_load_balancers
+      args:
+        LoadBalancerArns:
+          rename: LoadBalancerArn
+          python_type: str
+          source_arg: "[LoadBalancerArn]"
+          docstring: >-
+            The Amazon Resource Names (ARN) of the load balancer.
+        Names:
+          rename: Name
+          python_type: str
+          source_arg: "[Name]"
+          docstring: >-
+            The names of the load balancer.
     list:
       boto3_name: describe_load_balancers
 Listener:
@@ -31,7 +44,12 @@ Listener:
         LoadBalancerArn:
           hidden: true
         ListenerArns:
+          rename: ListenerArn
+          python_type: str
           required: true
+          source_arg: "[ListenerArn]"
+          docstring: >-
+            The Amazon Resource Names (ARN) of the listener.
     list:
       boto3_name: describe_listeners
 Rule:
@@ -51,7 +69,12 @@ Rule:
         ListenerArn:
           hidden: true
         RuleArns:
+          rename: RuleArn
           required: true
+          python_type: str
+          source_arg: "[RuleArn]"
+          docstring: >-
+            The Amazon Resource Names (ARN) of the rule.
     list:
       boto3_name: describe_rules
 TargetGroup:
@@ -68,6 +91,16 @@ TargetGroup:
         LoadBalancerArn:
           hidden: true
         TargetGroupArns:
-          required: true
+          rename: TargetGroupArn
+          python_type: str
+          source_arg: "[TargetGroupArn]"
+          docstring: >-
+            The Amazon Resource Names (ARN) of the target group.
+        Names:
+          rename: Name
+          python_type: str
+          source_arg: "[Name]"
+          docstring: >-
+            The name of the target group.
     list:
       boto3_name: describe_target_groups

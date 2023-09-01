@@ -2,7 +2,7 @@
 # pylint: disable=anomalous-backslash-in-string,unsubscriptable-object,line-too-long,arguments-differ,arguments-renamed
 # mypy: disable-error-code="index, override"
 from datetime import datetime
-from typing import Dict, List, Literal, Optional, cast
+from typing import ClassVar, Dict, List, Literal, Optional, cast
 
 from pydantic import Field
 
@@ -68,29 +68,18 @@ class LoadBalancerManager(Boto3ModelManager):
         )
 
     def get(
-        self,
-        *,
-        LoadBalancerArns: Optional[List[str]] = None,
-        Names: Optional[List[str]] = None,
-        Marker: Optional[str] = None,
-        PageSize: Optional[int] = None
+        self, *, LoadBalancerArn: Optional[str] = None, Name: Optional[str] = None
     ) -> Optional["LoadBalancer"]:
         """
         Describes the specified load balancers or all of your load balancers.
 
         Keyword Args:
-            LoadBalancerArns: The Amazon Resource Names (ARN) of the load balancers.
-                You can specify up to 20 load balancers in a single call.
-            Names: The names of the load balancers.
-            Marker: The marker for the next set of results. (You received this marker
-                from a previous call.)
-            PageSize: The maximum number of results to return with this call.
+            LoadBalancerArn: The Amazon Resource Names (ARN) of the load balancer.
+            Name: The names of the load balancer.
         """
         _response = self.client.describe_load_balancers(
-            LoadBalancerArns=self.serialize(LoadBalancerArns),
-            Names=self.serialize(Names),
-            Marker=self.serialize(Marker),
-            PageSize=self.serialize(PageSize),
+            LoadBalancerArns=self.serialize([LoadBalancerArn]),
+            Names=self.serialize([Name]),
         )
         response = DescribeLoadBalancersOutput.model_construct(**_response)
 
@@ -102,8 +91,7 @@ class LoadBalancerManager(Boto3ModelManager):
         self,
         *,
         LoadBalancerArns: Optional[List[str]] = None,
-        Names: Optional[List[str]] = None,
-        PageSize: Optional[int] = None
+        Names: Optional[List[str]] = None
     ) -> List["LoadBalancer"]:
         """
         Describes the specified load balancers or all of your load balancers.
@@ -112,13 +100,11 @@ class LoadBalancerManager(Boto3ModelManager):
             LoadBalancerArns: The Amazon Resource Names (ARN) of the load balancers.
                 You can specify up to 20 load balancers in a single call.
             Names: The names of the load balancers.
-            PageSize: The maximum number of results to return with this call.
         """
         paginator = self.client.get_paginator("describe_load_balancers")
         response_iterator = paginator.paginate(
             LoadBalancerArns=self.serialize(LoadBalancerArns),
             Names=self.serialize(Names),
-            PageSize=self.serialize(PageSize),
         )
         results: List["LoadBalancer"] = []
         for _response in response_iterator:
@@ -188,13 +174,7 @@ class ListenerManager(Boto3ModelManager):
         """
         self.client.delete_listener(ListenerArn=self.serialize(ListenerArn))
 
-    def get(
-        self,
-        ListenerArns: List[str],
-        *,
-        Marker: Optional[str] = None,
-        PageSize: Optional[int] = None
-    ) -> Optional["Listener"]:
+    def get(self, ListenerArn: str) -> Optional["Listener"]:
         """
         Describes the specified listeners or the listeners for the specified
         Application Load Balancer, Network Load Balancer, or Gateway Load
@@ -202,17 +182,10 @@ class ListenerManager(Boto3ModelManager):
         listeners.
 
         Args:
-            ListenerArns: The Amazon Resource Names (ARN) of the listeners.
-
-        Keyword Args:
-            Marker: The marker for the next set of results. (You received this marker
-                from a previous call.)
-            PageSize: The maximum number of results to return with this call.
+            ListenerArn: The Amazon Resource Names (ARN) of the listener.
         """
         _response = self.client.describe_listeners(
-            ListenerArns=self.serialize(ListenerArns),
-            Marker=self.serialize(Marker),
-            PageSize=self.serialize(PageSize),
+            ListenerArns=self.serialize([ListenerArn])
         )
         response = DescribeListenersOutput.model_construct(**_response)
 
@@ -224,8 +197,7 @@ class ListenerManager(Boto3ModelManager):
         self,
         *,
         LoadBalancerArn: Optional[str] = None,
-        ListenerArns: Optional[List[str]] = None,
-        PageSize: Optional[int] = None
+        ListenerArns: Optional[List[str]] = None
     ) -> List["Listener"]:
         """
         Describes the specified listeners or the listeners for the specified
@@ -236,13 +208,11 @@ class ListenerManager(Boto3ModelManager):
         Keyword Args:
             LoadBalancerArn: The Amazon Resource Name (ARN) of the load balancer.
             ListenerArns: The Amazon Resource Names (ARN) of the listeners.
-            PageSize: The maximum number of results to return with this call.
         """
         paginator = self.client.get_paginator("describe_listeners")
         response_iterator = paginator.paginate(
             LoadBalancerArn=self.serialize(LoadBalancerArn),
             ListenerArns=self.serialize(ListenerArns),
-            PageSize=self.serialize(PageSize),
         )
         results: List["Listener"] = []
         for _response in response_iterator:
@@ -305,30 +275,15 @@ class RuleManager(Boto3ModelManager):
         """
         self.client.delete_rule(RuleArn=self.serialize(RuleArn))
 
-    def get(
-        self,
-        RuleArns: List[str],
-        *,
-        Marker: Optional[str] = None,
-        PageSize: Optional[int] = None
-    ) -> Optional["Rule"]:
+    def get(self, RuleArn: str) -> Optional["Rule"]:
         """
         Describes the specified rules or the rules for the specified listener.
         You must specify either a listener or one or more rules.
 
         Args:
-            RuleArns: The Amazon Resource Names (ARN) of the rules.
-
-        Keyword Args:
-            Marker: The marker for the next set of results. (You received this marker
-                from a previous call.)
-            PageSize: The maximum number of results to return with this call.
+            RuleArn: The Amazon Resource Names (ARN) of the rule.
         """
-        _response = self.client.describe_rules(
-            RuleArns=self.serialize(RuleArns),
-            Marker=self.serialize(Marker),
-            PageSize=self.serialize(PageSize),
-        )
+        _response = self.client.describe_rules(RuleArns=self.serialize([RuleArn]))
         response = DescribeRulesOutput.model_construct(**_response)
 
         if response.Rules:
@@ -336,11 +291,7 @@ class RuleManager(Boto3ModelManager):
         return None
 
     def list(
-        self,
-        *,
-        ListenerArn: Optional[str] = None,
-        RuleArns: Optional[List[str]] = None,
-        PageSize: Optional[int] = None
+        self, *, ListenerArn: Optional[str] = None, RuleArns: Optional[List[str]] = None
     ) -> List["Rule"]:
         """
         Describes the specified rules or the rules for the specified listener.
@@ -349,13 +300,10 @@ class RuleManager(Boto3ModelManager):
         Keyword Args:
             ListenerArn: The Amazon Resource Name (ARN) of the listener.
             RuleArns: The Amazon Resource Names (ARN) of the rules.
-            PageSize: The maximum number of results to return with this call.
         """
         paginator = self.client.get_paginator("describe_rules")
         response_iterator = paginator.paginate(
-            ListenerArn=self.serialize(ListenerArn),
-            RuleArns=self.serialize(RuleArns),
-            PageSize=self.serialize(PageSize),
+            ListenerArn=self.serialize(ListenerArn), RuleArns=self.serialize(RuleArns)
         )
         results: List["Rule"] = []
         for _response in response_iterator:
@@ -440,12 +388,7 @@ class TargetGroupManager(Boto3ModelManager):
         self.client.delete_target_group(TargetGroupArn=self.serialize(TargetGroupArn))
 
     def get(
-        self,
-        TargetGroupArns: List[str],
-        *,
-        Names: Optional[List[str]] = None,
-        Marker: Optional[str] = None,
-        PageSize: Optional[int] = None
+        self, *, TargetGroupArn: Optional[str] = None, Name: Optional[str] = None
     ) -> Optional["TargetGroup"]:
         """
         Describes the specified target groups or all of your target groups. By default,
@@ -453,21 +396,14 @@ class TargetGroupManager(Boto3ModelManager):
         following to filter the results: the ARN of the load balancer, the names of one
         or more target groups, or the ARNs of one or more target groups.
 
-        Args:
-            TargetGroupArns: The Amazon Resource Names (ARN) of the target groups.
-
         Keyword Args:
-            Names: The names of the target groups.
-            Marker: The marker for the next set of results. (You received this marker
-                from a previous call.)
-            PageSize: The maximum number of results to return with this call.
+            TargetGroupArn: The Amazon Resource Names (ARN) of the target group.
+            Name: The name of the target group.
 
         """
         _response = self.client.describe_target_groups(
-            TargetGroupArns=self.serialize(TargetGroupArns),
-            Names=self.serialize(Names),
-            Marker=self.serialize(Marker),
-            PageSize=self.serialize(PageSize),
+            TargetGroupArns=self.serialize([TargetGroupArn]),
+            Names=self.serialize([Name]),
         )
         response = DescribeTargetGroupsOutput.model_construct(**_response)
 
@@ -480,8 +416,7 @@ class TargetGroupManager(Boto3ModelManager):
         *,
         LoadBalancerArn: Optional[str] = None,
         TargetGroupArns: Optional[List[str]] = None,
-        Names: Optional[List[str]] = None,
-        PageSize: Optional[int] = None
+        Names: Optional[List[str]] = None
     ) -> List["TargetGroup"]:
         """
         Describes the specified target groups or all of your target groups. By default,
@@ -493,7 +428,6 @@ class TargetGroupManager(Boto3ModelManager):
             LoadBalancerArn: The Amazon Resource Name (ARN) of the load balancer.
             TargetGroupArns: The Amazon Resource Names (ARN) of the target groups.
             Names: The names of the target groups.
-            PageSize: The maximum number of results to return with this call.
 
         """
         paginator = self.client.get_paginator("describe_target_groups")
@@ -501,7 +435,6 @@ class TargetGroupManager(Boto3ModelManager):
             LoadBalancerArn=self.serialize(LoadBalancerArn),
             TargetGroupArns=self.serialize(TargetGroupArns),
             Names=self.serialize(Names),
-            PageSize=self.serialize(PageSize),
         )
         results: List["TargetGroup"] = []
         for _response in response_iterator:
@@ -575,7 +508,7 @@ class LoadBalancer(PrimaryBoto3Model):
     Information about a load balancer.
     """
 
-    manager: Boto3ModelManager = LoadBalancerManager()
+    objects: ClassVar[Boto3ModelManager] = LoadBalancerManager()
 
     #: The Amazon Resource Name (ARN) of the load balancer.
     LoadBalancerArn: Optional[str] = Field(frozen=True, default=None)
@@ -879,7 +812,7 @@ class Listener(PrimaryBoto3Model):
     Information about a listener.
     """
 
-    manager: Boto3ModelManager = ListenerManager()
+    objects: ClassVar[Boto3ModelManager] = ListenerManager()
 
     #: The Amazon Resource Name (ARN) of the listener.
     ListenerArn: Optional[str] = Field(frozen=True, default=None)
@@ -1073,7 +1006,7 @@ class Rule(PrimaryBoto3Model):
     Information about a rule.
     """
 
-    manager: Boto3ModelManager = RuleManager()
+    objects: ClassVar[Boto3ModelManager] = RuleManager()
 
     #: The Amazon Resource Name (ARN) of the rule.
     RuleArn: Optional[str] = None
@@ -1135,7 +1068,7 @@ class TargetGroup(PrimaryBoto3Model):
     Information about a target group.
     """
 
-    manager: Boto3ModelManager = TargetGroupManager()
+    objects: ClassVar[Boto3ModelManager] = TargetGroupManager()
 
     #: The Amazon Resource Name (ARN) of the target group.
     TargetGroupArn: Optional[str] = Field(frozen=True, default=None)

@@ -2,7 +2,7 @@
 # pylint: disable=anomalous-backslash-in-string,unsubscriptable-object,line-too-long,arguments-differ,arguments-renamed
 # mypy: disable-error-code="index, override"
 from datetime import datetime
-from typing import Dict, List, Literal, Optional, cast
+from typing import ClassVar, Dict, List, Literal, Optional, cast
 
 from pydantic import Field
 
@@ -126,15 +126,13 @@ class ParameterManager(Boto3ModelManager):
         response = PutParameterResult.model_construct(**_response)
         return cast(int, response.Version)
 
-    def get(
-        self, Names: List[str], *, WithDecryption: Optional[bool] = None
-    ) -> Optional["Parameter"]:
+    def get(self, Name: str, *, WithDecryption: bool = True) -> Optional["Parameter"]:
         """
         Get information about one or more parameters by specifying multiple
         parameter names.
 
         Args:
-            Names: Names of the parameters for which you want to query information.
+            Name: The name of the parameter you want to query.
 
         Keyword Args:
             WithDecryption: Return decrypted secure string value. Return decrypted
@@ -142,7 +140,7 @@ class ParameterManager(Boto3ModelManager):
                 and ``StringList`` parameter types.
         """
         _response = self.client.get_parameters(
-            Names=self.serialize(Names), WithDecryption=self.serialize(WithDecryption)
+            Names=self.serialize([Name]), WithDecryption=self.serialize(WithDecryption)
         )
         response = GetParametersResult.model_construct(**_response)
 
@@ -154,9 +152,7 @@ class ParameterManager(Boto3ModelManager):
         self,
         *,
         Filters: Optional[List["ParametersFilter"]] = None,
-        ParameterFilters: Optional[List["ParameterStringFilter"]] = None,
-        MaxResults: Optional[int] = None,
-        NextToken: Optional[str] = None
+        ParameterFilters: Optional[List["ParameterStringFilter"]] = None
     ) -> List["ParameterMetadata"]:
         """
         Get information about a parameter.
@@ -164,18 +160,11 @@ class ParameterManager(Boto3ModelManager):
         Keyword Args:
             Filters: This data type is deprecated. Instead, use ``ParameterFilters``.
             ParameterFilters: Filters to limit the request results.
-            MaxResults: The maximum number of items to return for this call. The call
-                also returns a token that you can specify in a subsequent call to get the
-                next set of results.
-            NextToken: The token for the next set of items to return. (You received
-                this token from a previous call.)
         """
         paginator = self.client.get_paginator("describe_parameters")
         response_iterator = paginator.paginate(
             Filters=self.serialize(Filters),
             ParameterFilters=self.serialize(ParameterFilters),
-            MaxResults=self.serialize(MaxResults),
-            NextToken=self.serialize(NextToken),
         )
         results: List["ParameterMetadata"] = []
         for _response in response_iterator:
@@ -207,7 +196,7 @@ class Parameter(PrimaryBoto3Model):
     An Amazon Web Services Systems Manager parameter in Parameter Store.
     """
 
-    manager: Boto3ModelManager = ParameterManager()
+    objects: ClassVar[Boto3ModelManager] = ParameterManager()
 
     #: The name of the parameter.
     Name: str
@@ -215,7 +204,7 @@ class Parameter(PrimaryBoto3Model):
     #: ``StringList``, and ``SecureString``.
     Type: Literal["String", "StringList", "SecureString"]
     #: The parameter value.
-    Value: Optional[str] = "None"
+    Value: Optional[str] = None
     #: The parameter version.
     Version: Optional[int] = Field(frozen=True, default=None)
     #: Either the version number or the label used to retrieve the parameter value.
