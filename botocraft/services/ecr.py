@@ -3,11 +3,11 @@
 # mypy: disable-error-code="index, override"
 from collections import OrderedDict
 from datetime import datetime
-from typing import ClassVar, Dict, List, Literal, Optional, cast
+from typing import Any, ClassVar, Dict, List, Literal, Optional, cast
 
 from pydantic import Field
 
-from botocraft.services.tagging import Tag
+from botocraft.services.common import Tag
 
 from .abstract import (Boto3Model, Boto3ModelManager, PrimaryBoto3Model,
                        ReadonlyBoto3Model, ReadonlyBoto3ModelManager,
@@ -37,13 +37,16 @@ class RepositoryManager(Boto3ModelManager):
                 characters, and tag values can have a maximum length of 256 characters.
         """
         data = model.model_dump()
-        _response = self.client.create_repository(
+        args = dict(
             repositoryName=data["repositoryName"],
             registryId=data["registryId"],
             tags=self.serialize(tags),
             imageTagMutability=data["imageTagMutability"],
             imageScanningConfiguration=data["imageScanningConfiguration"],
             encryptionConfiguration=data["encryptionConfiguration"],
+        )
+        _response = self.client.create_repository(
+            **{k: v for k, v in args.items() if v is not None}
         )
         response = CreateRepositoryResponse.model_construct(**_response)
         return cast("Repository", response.repository)
@@ -67,10 +70,13 @@ class RepositoryManager(Boto3ModelManager):
                 the default registry is assumed.
             force:  If a repository contains images, forces the deletion.
         """
-        _response = self.client.delete_repository(
+        args = dict(
             repositoryName=self.serialize(repositoryName),
             registryId=self.serialize(registryId),
             force=self.serialize(force),
+        )
+        _response = self.client.delete_repository(
+            **{k: v for k, v in args.items() if v is not None}
         )
         response = DeleteRepositoryResponse.model_construct(**_response)
         return cast(Repository, response.repository)
@@ -89,9 +95,12 @@ class RepositoryManager(Boto3ModelManager):
                 that contains the repositories to be described. If you do not specify a
                 registry, the default registry is assumed.
         """
-        _response = self.client.describe_repositories(
+        args = dict(
             registryId=self.serialize(registryId),
             repositoryNames=self.serialize([repositoryName]),
+        )
+        _response = self.client.describe_repositories(
+            **{k: v for k, v in args.items() if v is not None}
         )
         response = DescribeRepositoriesResponse.model_construct(**_response)
 
@@ -116,9 +125,12 @@ class RepositoryManager(Boto3ModelManager):
                 omitted, then all repositories in a registry are described.
         """
         paginator = self.client.get_paginator("describe_repositories")
-        response_iterator = paginator.paginate(
+        args = dict(
             registryId=self.serialize(registryId),
             repositoryNames=self.serialize(repositoryNames),
+        )
+        response_iterator = paginator.paginate(
+            **{k: v for k, v in args.items() if v is not None}
         )
         results: List["Repository"] = []
         for _response in response_iterator:
@@ -177,7 +189,7 @@ class Repository(PrimaryBoto3Model):
     #: Web Services account ID of the repository owner, repository namespace, and
     #: repository name. For example,
     #: ``arn:aws:ecr:region:012345678910:repository/test``.
-    repositoryArn: Optional[str] = Field(frozen=True, default=None)
+    repositoryArn: str = Field(frozen=True, default=None)
     #: The Amazon Web Services account ID associated with the registry that contains
     #: the repository.
     registryId: Optional[str] = None
@@ -185,9 +197,9 @@ class Repository(PrimaryBoto3Model):
     repositoryName: str
     #: The URI for the repository. You can use this URI for container image ``push``
     #: and ``pull`` operations.
-    repositoryUri: Optional[str] = Field(frozen=True, default=None)
+    repositoryUri: str = Field(frozen=True, default=None)
     #: The date and time, in JavaScript date format, when the repository was created.
-    createdAt: Optional[datetime] = Field(frozen=True, default=None)
+    createdAt: datetime = Field(frozen=True, default=None)
     #: The tag mutability setting for the repository.
     imageTagMutability: Literal["MUTABLE", "IMMUTABLE"]
     #: The image scanning configuration for a repository.

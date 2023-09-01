@@ -1,6 +1,7 @@
 from copy import deepcopy
 from collections import OrderedDict
 from pathlib import Path
+import re
 from typing import Dict, Set, List, Optional, Type, cast
 
 import black
@@ -22,6 +23,7 @@ from .methods import (  # pylint: disable=import-error
     PartialUpdateMethodGenerator,
     DeleteMethodGenerator,
     ModelPropertyGenerator,
+    GeneralMethodGenerator,
 )
 from .models import (
     ServiceDefinition,
@@ -175,6 +177,7 @@ class ModelGenerator(AbstractGenerator):
                 )
             field = f'    {field_name}: {field_def.python_type}'
             if field_def.readonly:
+                field = re.sub(r'Optional\[(.*)\]', r'\1', field)
                 _default = f', default={field_def.default}' if field_def.default else ''
                 field += f' = Field(frozen=True{_default})'
             elif field_def.default:
@@ -335,7 +338,8 @@ class ModelGenerator(AbstractGenerator):
                 python_type = self.field_type(model_name, field_name, model_shape=shape, field_shape=field_shape)
                 default = None
                 if not required:
-                    python_type = f'Optional[{python_type}]'
+                    if not field_def.readonly:
+                        python_type = f'Optional[{python_type}]'
                     if field_def.default is None:
                         default = 'None'
                     else:
@@ -406,19 +410,26 @@ class ManagerGenerator(AbstractGenerator):
         for method_name, method_def in manager_def.methods.items():
             try:
                 method_generator_class = self.METHOD_GENERATORS[method_name]
-            except KeyError as exc:
-                raise NotImplementedError(
-                    f'{self.service_name}:{model_name}Manager: No method generator for method name "{method_name}"'
-                ) from exc
-
-            generator = method_generator_class(
-                self,
-                model_name,
-                method_def
-            )
+            except KeyError:
+                generator: ManagerMethodGenerator = GeneralMethodGenerator(
+                    self,
+                    model_name,
+                    method_def,
+                    method_name=method_name
+                )
+            else:
+                generator = method_generator_class(
+                    self,
+                    model_name,
+                    method_def
+                )
             methods[method_name] = generator.code
         method_code = '\n\n'.join(methods.values())
         base_class = 'Boto3ModelManager'
+        if manager_def.mixins:
+            for mixin in manager_def.mixins:
+                self.imports.add(f'from {mixin.import_path} import {mixin.name}')
+            base_class = ', '.join([mixin.name for mixin in manager_def.mixins] + [base_class])
         if manager_def.readonly:
             base_class = 'ReadonlyBoto3ModelManager'
         code = f"""
@@ -454,7 +465,7 @@ class ServiceGenerator:
         self.imports: Set[str] = set(
             [
                 'from datetime import datetime',
-                'from typing import ClassVar, Optional, Literal, Dict, List, cast',
+                'from typing import ClassVar, Optional, Literal, Dict, List, Any, cast',
                 'from pydantic import Field',
                 'from .abstract import Boto3Model, ReadonlyBoto3Model, PrimaryBoto3Model, '
                 'ReadonlyPrimaryBoto3Model, Boto3ModelManager, ReadonlyBoto3ModelManager',
@@ -548,7 +559,7 @@ class ServiceGenerator:
 
         self.write()
 
-        # Update the interface with the models we generated
+        # Update the interface with the manager models we generated
         for model_name in self.model_classes:
             self.interface.add_model(model_name, self.service_def.name)
         for model_name in self.response_classes:

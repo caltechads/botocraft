@@ -3,11 +3,11 @@
 # mypy: disable-error-code="index, override"
 from collections import OrderedDict
 from datetime import datetime
-from typing import ClassVar, Dict, List, Literal, Optional, cast
+from typing import Any, ClassVar, Dict, List, Literal, Optional, cast
 
 from pydantic import Field
 
-from botocraft.services.tagging import Tag
+from botocraft.services.common import Tag
 
 from .abstract import (Boto3Model, Boto3ModelManager, PrimaryBoto3Model,
                        ReadonlyBoto3Model, ReadonlyBoto3ModelManager,
@@ -42,7 +42,7 @@ class ServiceManager(Boto3ModelManager):
                 services within a namespace.
         """
         data = model.model_dump()
-        _response = self.client.create_service(
+        args = dict(
             serviceName=data["serviceName"],
             cluster=data["clusterArn"],
             taskDefinition=data["taskDefinition"],
@@ -67,6 +67,9 @@ class ServiceManager(Boto3ModelManager):
             enableExecuteCommand=data["enableExecuteCommand"],
             serviceConnectConfiguration=self.serialize(serviceConnectConfiguration),
         )
+        _response = self.client.create_service(
+            **{k: v for k, v in args.items() if v is not None}
+        )
         response = CreateServiceResponse.model_construct(**_response)
         return cast("Service", response.service)
 
@@ -87,10 +90,13 @@ class ServiceManager(Boto3ModelManager):
                 down to zero tasks. It's only necessary to use this if the service uses the
                 ``REPLICA`` scheduling strategy.
         """
-        _response = self.client.delete_service(
+        args = dict(
             service=self.serialize(service),
             cluster=self.serialize(cluster),
             force=self.serialize(force),
+        )
+        _response = self.client.delete_service(
+            **{k: v for k, v in args.items() if v is not None}
         )
         response = DeleteServiceResponse.model_construct(**_response)
         return cast(Service, response.service)
@@ -119,10 +125,13 @@ class ServiceManager(Boto3ModelManager):
                 service. If ``TAGS`` is specified, the tags are included in the response.
                 If this field is omitted, tags aren't included in the response.
         """
-        _response = self.client.describe_services(
+        args = dict(
             services=self.serialize([service]),
             cluster=self.serialize(cluster),
             include=self.serialize(include),
+        )
+        _response = self.client.describe_services(
+            **{k: v for k, v in args.items() if v is not None}
         )
         response = DescribeServicesResponse.model_construct(**_response)
 
@@ -155,9 +164,7 @@ class ServiceManager(Boto3ModelManager):
                 If this field is omitted, tags aren't included in the response.
         """
         _response = self.client.describe_services(
-            services=self.serialize(services),
-            cluster=self.serialize(cluster),
-            include=self.serialize(include),
+            **{k: v for k, v in args.items() if v is not None}
         )
         response = DescribeServicesResponse.model_construct(**_response)
         if response.services is not None:
@@ -185,10 +192,13 @@ class ServiceManager(Boto3ModelManager):
                 ``ListServices`` results.
         """
         paginator = self.client.get_paginator("list_services")
-        response_iterator = paginator.paginate(
+        args = dict(
             cluster=self.serialize(cluster),
             launchType=self.serialize(launchType),
             schedulingStrategy=self.serialize(schedulingStrategy),
+        )
+        response_iterator = paginator.paginate(
+            **{k: v for k, v in args.items() if v is not None}
         )
         results: List[str] = []
         for _response in response_iterator:
@@ -223,7 +233,7 @@ class ServiceManager(Boto3ModelManager):
                 services within a namespace.
         """
         data = model.model_dump()
-        _response = self.client.update_service(
+        args = dict(
             service=data["service"],
             cluster=data["cluster"],
             desiredCount=data["desiredCount"],
@@ -242,6 +252,9 @@ class ServiceManager(Boto3ModelManager):
             propagateTags=data["propagateTags"],
             serviceRegistries=data["serviceRegistries"],
             serviceConnectConfiguration=self.serialize(serviceConnectConfiguration),
+        )
+        _response = self.client.update_service(
+            **{k: v for k, v in args.items() if v is not None}
         )
         response = UpdateServiceResponse.model_construct(**_response)
         return cast("Service", response.service)
@@ -350,26 +363,10 @@ class ServiceManager(Boto3ModelManager):
                 services within a namespace.
         """
         _response = self.client.update_service(
-            service=self.serialize(service),
-            cluster=self.serialize(cluster),
-            desiredCount=self.serialize(desiredCount),
-            taskDefinition=self.serialize(taskDefinition),
-            capacityProviderStrategy=self.serialize(capacityProviderStrategy),
-            deploymentConfiguration=self.serialize(deploymentConfiguration),
-            networkConfiguration=self.serialize(networkConfiguration),
-            placementConstraints=self.serialize(placementConstraints),
-            placementStrategy=self.serialize(placementStrategy),
-            platformVersion=self.serialize(platformVersion),
-            forceNewDeployment=self.serialize(forceNewDeployment),
-            healthCheckGracePeriodSeconds=self.serialize(healthCheckGracePeriodSeconds),
-            enableExecuteCommand=self.serialize(enableExecuteCommand),
-            enableECSManagedTags=self.serialize(enableECSManagedTags),
-            loadBalancers=self.serialize(loadBalancers),
-            propagateTags=self.serialize(propagateTags),
-            serviceRegistries=self.serialize(serviceRegistries),
-            serviceConnectConfiguration=self.serialize(serviceConnectConfiguration),
+            **{k: v for k, v in args.items() if v is not None}
         )
         response = UpdateServiceResponse.model_construct(**_response)
+
         return cast("Service", response.service)
 
 
@@ -384,7 +381,7 @@ class ClusterManager(Boto3ModelManager):
             model: The :py:class:`Cluster` to create.
         """
         data = model.model_dump()
-        _response = self.client.create_cluster(
+        args = dict(
             clusterName=data["clusterName"],
             tags=data["tags"],
             settings=data["settings"],
@@ -392,6 +389,9 @@ class ClusterManager(Boto3ModelManager):
             capacityProviders=data["capacityProviders"],
             defaultCapacityProviderStrategy=data["defaultCapacityProviderStrategy"],
             serviceConnectDefaults=data["serviceConnectDefaults"],
+        )
+        _response = self.client.create_cluster(
+            **{k: v for k, v in args.items() if v is not None}
         )
         response = CreateClusterResponse.model_construct(**_response)
         return cast("Cluster", response.cluster)
@@ -404,7 +404,10 @@ class ClusterManager(Boto3ModelManager):
             cluster: The short name or full Amazon Resource Name (ARN) of the cluster
                 to delete.
         """
-        _response = self.client.delete_cluster(cluster=self.serialize(cluster))
+        args = dict(cluster=self.serialize(cluster))
+        _response = self.client.delete_cluster(
+            **{k: v for k, v in args.items() if v is not None}
+        )
         response = DeleteClusterResponse.model_construct(**_response)
         return cast(Cluster, response.cluster)
 
@@ -431,8 +434,9 @@ class ClusterManager(Boto3ModelManager):
                 clusters in the response. If this field is omitted, this information isn't
                 included.
         """
+        args = dict(clusters=self.serialize(clusters), include=self.serialize(include))
         _response = self.client.describe_clusters(
-            clusters=self.serialize(clusters), include=self.serialize(include)
+            **{k: v for k, v in args.items() if v is not None}
         )
         response = DescribeClustersResponse.model_construct(**_response)
 
@@ -447,7 +451,10 @@ class ClusterManager(Boto3ModelManager):
         Returns a list of existing clusters.
         """
         paginator = self.client.get_paginator("list_clusters")
-        response_iterator = paginator.paginate()
+        args = dict()
+        response_iterator = paginator.paginate(
+            **{k: v for k, v in args.items() if v is not None}
+        )
         results: List[str] = []
         for _response in response_iterator:
             response = ListClustersResponse(**_response)
@@ -465,11 +472,14 @@ class ClusterManager(Boto3ModelManager):
             model: The :py:class:`Cluster` to update.
         """
         data = model.model_dump()
-        _response = self.client.update_cluster(
+        args = dict(
             cluster=data["cluster"],
             settings=data["settings"],
             configuration=data["configuration"],
             serviceConnectDefaults=data["serviceConnectDefaults"],
+        )
+        _response = self.client.update_cluster(
+            **{k: v for k, v in args.items() if v is not None}
         )
         response = UpdateClusterResponse.model_construct(**_response)
         return cast("Cluster", response.cluster)
@@ -501,12 +511,10 @@ class ClusterManager(Boto3ModelManager):
                 default parameter.
         """
         _response = self.client.update_cluster(
-            cluster=self.serialize(cluster),
-            settings=self.serialize(settings),
-            configuration=self.serialize(configuration),
-            serviceConnectDefaults=self.serialize(serviceConnectDefaults),
+            **{k: v for k, v in args.items() if v is not None}
         )
         response = UpdateClusterResponse.model_construct(**_response)
+
         return cast("Cluster", response.cluster)
 
 
@@ -534,7 +542,7 @@ class TaskDefinitionManager(Boto3ModelManager):
 
         """
         data = model.model_dump()
-        _response = self.client.register_task_definition(
+        args = dict(
             family=data["family"],
             containerDefinitions=data["containerDefinitions"],
             taskRoleArn=data["taskRoleArn"],
@@ -552,6 +560,9 @@ class TaskDefinitionManager(Boto3ModelManager):
             inferenceAccelerators=data["inferenceAccelerators"],
             ephemeralStorage=data["ephemeralStorage"],
             runtimePlatform=data["runtimePlatform"],
+        )
+        _response = self.client.register_task_definition(
+            **{k: v for k, v in args.items() if v is not None}
         )
         response = RegisterTaskDefinitionResponse.model_construct(**_response)
         return cast("TaskDefinition", response.taskDefinition)
@@ -571,8 +582,9 @@ class TaskDefinitionManager(Boto3ModelManager):
                 full Amazon Resource Name (ARN) of the task definition to deregister. You
                 must specify a ``revision``.
         """
+        args = dict(taskDefinition=self.serialize(taskDefinition))
         _response = self.client.deregister_task_definition(
-            taskDefinition=self.serialize(taskDefinition)
+            **{k: v for k, v in args.items() if v is not None}
         )
         response = DeregisterTaskDefinitionResponse.model_construct(**_response)
         return cast(TaskDefinition, response.taskDefinition)
@@ -597,9 +609,12 @@ class TaskDefinitionManager(Boto3ModelManager):
                 definition. If ``TAGS`` is specified, the tags are included in the
                 response. If this field is omitted, tags aren't included in the response.
         """
-        _response = self.client.describe_task_definition(
+        args = dict(
             taskDefinition=self.serialize(taskDefinition),
             include=self.serialize(include),
+        )
+        _response = self.client.describe_task_definition(
+            **{k: v for k, v in args.items() if v is not None}
         )
         response = DescribeTaskDefinitionResponse.model_construct(**_response)
 
@@ -636,10 +651,13 @@ class TaskDefinitionManager(Boto3ModelManager):
                 listed first.
         """
         paginator = self.client.get_paginator("list_task_definitions")
-        response_iterator = paginator.paginate(
+        args = dict(
             familyPrefix=self.serialize(familyPrefix),
             status=self.serialize(status),
             sort=self.serialize(sort),
+        )
+        response_iterator = paginator.paginate(
+            **{k: v for k, v in args.items() if v is not None}
         )
         results: List[str] = []
         for _response in response_iterator:
@@ -671,7 +689,7 @@ class TaskDefinitionManager(Boto3ModelManager):
 
         """
         data = model.model_dump()
-        _response = self.client.register_task_definition(
+        args = dict(
             family=data["family"],
             containerDefinitions=data["containerDefinitions"],
             taskRoleArn=data["taskRoleArn"],
@@ -689,6 +707,9 @@ class TaskDefinitionManager(Boto3ModelManager):
             inferenceAccelerators=data["inferenceAccelerators"],
             ephemeralStorage=data["ephemeralStorage"],
             runtimePlatform=data["runtimePlatform"],
+        )
+        _response = self.client.register_task_definition(
+            **{k: v for k, v in args.items() if v is not None}
         )
         response = RegisterTaskDefinitionResponse.model_construct(**_response)
         return cast("TaskDefinition", response.taskDefinition)
@@ -724,10 +745,13 @@ class ContainerInstanceManager(ReadonlyBoto3ModelManager):
                 instance health is included in the response. If this field is omitted, tags
                 and container instance health status aren't included in the response.
         """
-        _response = self.client.describe_container_instances(
+        args = dict(
             containerInstances=self.serialize(containerInstances),
             cluster=self.serialize(cluster),
             include=self.serialize(include),
+        )
+        _response = self.client.describe_container_instances(
+            **{k: v for k, v in args.items() if v is not None}
         )
         response = DescribeContainerInstancesResponse.model_construct(**_response)
 
@@ -777,10 +801,13 @@ class ContainerInstanceManager(ReadonlyBoto3ModelManager):
 
         """
         paginator = self.client.get_paginator("list_container_instances")
-        response_iterator = paginator.paginate(
+        args = dict(
             cluster=self.serialize(cluster),
             filter=self.serialize(filter),
             status=self.serialize(status),
+        )
+        response_iterator = paginator.paginate(
+            **{k: v for k, v in args.items() if v is not None}
         )
         results: List[str] = []
         for _response in response_iterator:
@@ -1469,7 +1496,7 @@ class Service(PrimaryBoto3Model):
     #: see `Amazon Resource Name (ARN)
     #: <https://docs.aws.amazon.com/AmazonECS/latest/developerguide/ecs-account-
     #: settings.html#ecs-resource-ids>`_ in the *Amazon ECS Developer Guide*.
-    serviceArn: Optional[str] = Field(frozen=True, default=None)
+    serviceArn: str = Field(frozen=True, default=None)
     #: The name of your service. Up to 255 letters (uppercase and lowercase), numbers,
     #: underscores, and hyphens are allowed. Service names must be unique within a
     #: cluster. However, you can have similarly named services in multiple clusters
@@ -1488,15 +1515,15 @@ class Service(PrimaryBoto3Model):
     serviceRegistries: Optional[List["ServiceRegistry"]] = None
     #: The status of the service. The valid values are ``ACTIVE``, ``DRAINING``, or
     #: ``INACTIVE``.
-    status: Optional[str] = Field(frozen=True, default=None)
+    status: str = Field(frozen=True, default=None)
     #: The desired number of instantiations of the task definition to keep running on
     #: the service. This value is specified when the service is created with
     #: CreateService, and it can be modified with UpdateService.
     desiredCount: int
     #: The number of tasks in the cluster that are in the ``RUNNING`` state.
-    runningCount: Optional[int] = Field(frozen=True, default=None)
+    runningCount: int = Field(frozen=True, default=None)
     #: The number of tasks in the cluster that are in the ``PENDING`` state.
-    pendingCount: Optional[int] = Field(frozen=True, default=None)
+    pendingCount: int = Field(frozen=True, default=None)
     #: The launch type the service is using. When using the DescribeServices API, this
     #: field is omitted if the service was created using a capacity provider strategy.
     launchType: Literal["EC2", "FARGATE", "EXTERNAL"]
@@ -1527,14 +1554,14 @@ class Service(PrimaryBoto3Model):
     #: serves production traffic.
     taskSets: Optional[List["TaskSet"]] = None
     #: The current state of deployments for the service.
-    deployments: Optional[List["Deployment"]] = Field(frozen=True, default=None)
+    deployments: List["Deployment"] = Field(frozen=True, default=None)
     #: The ARN of the IAM role that's associated with the service. It allows the
     #: Amazon ECS container agent to register container instances with an Elastic Load
     #: Balancing load balancer.
     roleArn: str
     #: The event stream for your service. A maximum of 100 of the latest events are
     #: displayed.
-    events: Optional[List["ServiceEvent"]] = Field(frozen=True, default=None)
+    events: List["ServiceEvent"] = Field(frozen=True, default=None)
     #: The Unix timestamp for the time when the service was created.
     createdAt: Optional[datetime] = None
     #: The placement constraints for the tasks in the service.
@@ -1559,7 +1586,7 @@ class Service(PrimaryBoto3Model):
     #: and value.
     tags: Optional[List[Tag]] = None
     #: The principal that created the service.
-    createdBy: Optional[str] = Field(frozen=True, default=None)
+    createdBy: str = Field(frozen=True, default=None)
     #: Determines whether to use Amazon ECS managed tags for the tasks in the service.
     #: For more information, see `Tagging Your Amazon ECS Resources
     #: <https://docs.aws.amazon.com/AmazonECS/latest/developerguide/ecs- using-
@@ -1750,27 +1777,27 @@ class Cluster(PrimaryBoto3Model):
     #: information about the ARN format, see `Amazon Resource Name (ARN)
     #: <https://docs.aws.amazon.com/AmazonECS/latest/developerguide/ecs-account-
     #: settings.html#ecs-resource-ids>`_ in the *Amazon ECS Developer Guide*.
-    clusterArn: Optional[str] = Field(frozen=True, default=None)
+    clusterArn: str = Field(frozen=True, default=None)
     #: A user-generated string that you use to identify your cluster.
     clusterName: str
     #: The execute command configuration for the cluster.
     configuration: Optional[ClusterConfiguration] = None
     #: The status of the cluster. The following are the possible states that are
     #: returned.
-    status: Optional[str] = Field(frozen=True, default=None)
+    status: str = Field(frozen=True, default=None)
     #: The number of container instances registered into the cluster. This includes
     #: container instances in both ``ACTIVE`` and ``DRAINING`` status.
-    registeredContainerInstancesCount: Optional[int] = Field(frozen=True, default=None)
+    registeredContainerInstancesCount: int = Field(frozen=True, default=None)
     #: The number of tasks in the cluster that are in the ``RUNNING`` state.
-    runningTasksCount: Optional[int] = Field(frozen=True, default=None)
+    runningTasksCount: int = Field(frozen=True, default=None)
     #: The number of tasks in the cluster that are in the ``PENDING`` state.
-    pendingTasksCount: Optional[int] = Field(frozen=True, default=None)
+    pendingTasksCount: int = Field(frozen=True, default=None)
     #: The number of services that are running on the cluster in an ``ACTIVE`` state.
     #: You can view these services with ListServices.
-    activeServicesCount: Optional[int] = Field(frozen=True, default=None)
+    activeServicesCount: int = Field(frozen=True, default=None)
     #: Additional information about your clusters that are separated by launch type.
     #: They include the following:
-    statistics: Optional[List["KeyValuePair"]] = Field(frozen=True, default=None)
+    statistics: List["KeyValuePair"] = Field(frozen=True, default=None)
     #: The metadata that you apply to the cluster to help you categorize and organize
     #: them. Each tag consists of a key and an optional value. You define both.
     tags: Optional[List[Tag]] = None
@@ -1791,7 +1818,7 @@ class Cluster(PrimaryBoto3Model):
     attachments: Optional[List["Attachment"]] = None
     #: The status of the capacity providers associated with the cluster. The following
     #: are the states that are returned.
-    attachmentsStatus: Optional[str] = Field(frozen=True, default=None)
+    attachmentsStatus: str = Field(frozen=True, default=None)
     #: Use this parameter to set a default Service Connect namespace. After you set a
     #: default Service Connect namespace, any new services with Service Connect turned
     #: on that are created in the cluster are added as client services in the
@@ -2873,7 +2900,7 @@ class TaskDefinition(PrimaryBoto3Model):
     objects: ClassVar[Boto3ModelManager] = TaskDefinitionManager()
 
     #: The full Amazon Resource Name (ARN) of the task definition.
-    taskDefinitionArn: Optional[str] = Field(frozen=True, default=None)
+    taskDefinitionArn: str = Field(frozen=True, default=None)
     #: A list of container definitions in JSON format that describe the different
     #: containers that make up your task. For more information about container
     #: definition parameters and defaults, see `Amazon ECS Task Definitions <https://d
@@ -2908,14 +2935,14 @@ class TaskDefinition(PrimaryBoto3Model):
     #: revision of a task definition in the same family, the revision value always
     #: increases by one. This is even if you deregistered previous revisions in this
     #: family.
-    revision: Optional[int] = Field(frozen=True, default=None)
+    revision: int = Field(frozen=True, default=None)
     #: The list of data volume definitions for the task. For more information, see
     #: `Using data volumes in tasks <https://docs.aws.amazon.com/AmazonECS/latest/deve
     #: loperguide/using_data_volumes.html>`_ in the *Amazon Elastic Container Service
     #: Developer Guide*.
     volumes: Optional[List["Volume"]] = None
     #: The status of the task definition.
-    status: Optional[Literal["ACTIVE", "INACTIVE", "DELETE_IN_PROGRESS"]] = Field(
+    status: Literal["ACTIVE", "INACTIVE", "DELETE_IN_PROGRESS"] = Field(
         frozen=True, default=None
     )
     #: The container instance attributes required by your task. When an Amazon EC2
@@ -2986,7 +3013,7 @@ class TaskDefinition(PrimaryBoto3Model):
     #: The Unix timestamp for the time when the task definition was deregistered.
     deregisteredAt: Optional[datetime] = None
     #: The principal that registered the task definition.
-    registeredBy: Optional[str] = Field(frozen=True, default=None)
+    registeredBy: str = Field(frozen=True, default=None)
     #: The ephemeral storage settings to use for tasks run with the task definition.
     ephemeralStorage: Optional[EphemeralStorage] = None
 

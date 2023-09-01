@@ -4,7 +4,7 @@ included it here because so many services use this ``Tag`` model, and we don't
 want to keep redefining it.
 """
 # pylint: disable=anomalous-backslash-in-string
-from typing import Optional
+from typing import Optional, List
 
 from .abstract import Boto3Model
 
@@ -39,3 +39,28 @@ class Tag(Boto3Model):
     #: The optional part of a key-value pair that make up a tag. A ``value`` acts as a
     #: descriptor within a tag category (key).
     value: Optional[str] = None
+
+
+class Filter(Boto3Model):
+    """
+    A filter name and value pair that is used to return a more specific list of
+    results from a describe operation. Filters can be used to match a set of
+    resources by specific criteria, such as IDs. The filters supported by a
+    describe operation are documented with the describe operation.
+
+    Currently, wildcards are not supported in filters.
+
+    The following actions can be filtered:
+
+    * ``DescribeDBClusterBacktracks``
+    * ``DescribeDBClusterEndpoints``
+    * ``DescribeDBClusters``
+    * ``DescribeDBInstances``
+    * ``DescribePendingMaintenanceActions``
+    """
+
+    #: The name of the filter. Filter names are case-sensitive.
+    Name: str
+    #: One or more filter values. Filter values are case-sensitive.
+    Values: List[str]
+

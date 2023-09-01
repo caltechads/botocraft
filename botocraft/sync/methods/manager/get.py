@@ -57,6 +57,7 @@ class GetMethodGenerator(ManagerMethodGenerator):
             The code for the get method.
         """
         code = f"""
+        {self.operation_args}
         {self.operation_call}
 """
         # Assume the response attribute is a string and not None in this case,

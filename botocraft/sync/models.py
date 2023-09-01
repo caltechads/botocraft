@@ -19,16 +19,6 @@ from botocraft.sync.docstring import DocumentationFormatter
 DATA_DIR = Path(__file__).parent.parent / 'data'
 SERVICES_DIR = Path(__file__).parent.parent / 'services'
 
-MethodNames = Literal[
-    'create',
-    'update',
-    'partial_update',
-    'delete',
-    'get',
-    'get_many',
-    'list'
-]
-
 
 # ------
 # Models
@@ -225,6 +215,10 @@ class MethodArgumentDefinition(BaseModel):
     #: If specified, in the boto3 call invocation, set the value
     #: of this argument to the value of this method argument
     source_arg: Optional[str] = None
+    #: If specified, in the boto3 call invocation, set the value
+    #: of this argument to this specifically.  If this is set, we hide
+    #: the argument from the method signature.
+    value: Optional[Any] = None
     #: If ``True``, force the argument to be in in the method
     #: signature.  This is only useful for methods that take a model
     #: instance as an argument.
@@ -328,6 +322,14 @@ class ManagerMethodDefinition(BaseModel):
         return positional_args
 
 
+class MixinClass(BaseModel):
+
+    #: The name of the mixin class
+    name: str
+    #: The botocraft import path
+    import_path: str
+
+
 class ManagerDefinition(BaseModel):
     """
     The definition of a single manager on a :py:class:`ServiceDefinition`.
@@ -355,9 +357,11 @@ class ManagerDefinition(BaseModel):
     #: The name of the model this manager is for
     name: str
     #: The methods to generate on this manager
-    methods: Dict[MethodNames, ManagerMethodDefinition] = {}
+    methods: Dict[str, ManagerMethodDefinition] = {}
     #: If ``True``, make this manager use the :py:class:`ReadonlyBoto3ModelManager` superclass
     readonly: bool = False
+    #: Mixin classes to add to the manager
+    mixins: List[MixinClass] = []
 
 
 # --------
@@ -432,7 +436,8 @@ class BotocraftInterface(BaseModel):
         # Tag is defined in so many services that we manually
         # defined it in the botocraft.models.tagging module and
         # define it here so it doesn't get generated.
-        'Tag': 'botocraft.services.tagging',
+        'Tag': 'botocraft.services.common',
+        'Filter': 'botocraft.services.common',
     }
 
     def load(self) -> None:
@@ -456,7 +461,7 @@ class BotocraftInterface(BaseModel):
             service: the AWS service name
         """
         if name in self.models:
-            raise ValueError(f'Model {name} already defined by service "{service}"')
+            raise ValueError(f'Model {name} already defined in "{self.models[name]}"')
         self.models[name] = f'botocraft.services.{service}'
 
     def populate_init_py(self):

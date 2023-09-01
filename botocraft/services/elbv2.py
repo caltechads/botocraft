@@ -2,11 +2,11 @@
 # pylint: disable=anomalous-backslash-in-string,unsubscriptable-object,line-too-long,arguments-differ,arguments-renamed
 # mypy: disable-error-code="index, override"
 from datetime import datetime
-from typing import ClassVar, Dict, List, Literal, Optional, cast
+from typing import Any, ClassVar, Dict, List, Literal, Optional, cast
 
 from pydantic import Field
 
-from botocraft.services.tagging import Tag
+from botocraft.services.common import Tag
 
 from .abstract import (Boto3Model, Boto3ModelManager, PrimaryBoto3Model,
                        ReadonlyBoto3Model, ReadonlyBoto3ModelManager,
@@ -40,7 +40,7 @@ class LoadBalancerManager(Boto3ModelManager):
             Tags: The tags to assign to the load balancer.
         """
         data = model.model_dump()
-        _response = self.client.create_load_balancer(
+        args = dict(
             Name=data["LoadBalancerName"],
             Subnets=data["Subnets"],
             SubnetMappings=self.serialize(SubnetMappings),
@@ -50,6 +50,9 @@ class LoadBalancerManager(Boto3ModelManager):
             Type=data["Type"],
             IpAddressType=data["IpAddressType"],
             CustomerOwnedIpv4Pool=data["CustomerOwnedIpv4Pool"],
+        )
+        _response = self.client.create_load_balancer(
+            **{k: v for k, v in args.items() if v is not None}
         )
         response = CreateLoadBalancerOutput.model_construct(**_response)
         return cast("LoadBalancer", response.LoadBalancers[0])
@@ -63,8 +66,9 @@ class LoadBalancerManager(Boto3ModelManager):
         Args:
             LoadBalancerArn: The Amazon Resource Name (ARN) of the load balancer.
         """
+        args = dict(LoadBalancerArn=self.serialize(LoadBalancerArn))
         self.client.delete_load_balancer(
-            LoadBalancerArn=self.serialize(LoadBalancerArn)
+            **{k: v for k, v in args.items() if v is not None}
         )
 
     def get(
@@ -77,9 +81,12 @@ class LoadBalancerManager(Boto3ModelManager):
             LoadBalancerArn: The Amazon Resource Names (ARN) of the load balancer.
             Name: The names of the load balancer.
         """
-        _response = self.client.describe_load_balancers(
+        args = dict(
             LoadBalancerArns=self.serialize([LoadBalancerArn]),
             Names=self.serialize([Name]),
+        )
+        _response = self.client.describe_load_balancers(
+            **{k: v for k, v in args.items() if v is not None}
         )
         response = DescribeLoadBalancersOutput.model_construct(**_response)
 
@@ -102,9 +109,12 @@ class LoadBalancerManager(Boto3ModelManager):
             Names: The names of the load balancers.
         """
         paginator = self.client.get_paginator("describe_load_balancers")
-        response_iterator = paginator.paginate(
+        args = dict(
             LoadBalancerArns=self.serialize(LoadBalancerArns),
             Names=self.serialize(Names),
+        )
+        response_iterator = paginator.paginate(
+            **{k: v for k, v in args.items() if v is not None}
         )
         results: List["LoadBalancer"] = []
         for _response in response_iterator:
@@ -131,7 +141,7 @@ class ListenerManager(Boto3ModelManager):
             Tags: The tags to assign to the listener.
         """
         data = model.model_dump()
-        _response = self.client.create_listener(
+        args = dict(
             LoadBalancerArn=data["LoadBalancerArn"],
             DefaultActions=data["DefaultActions"],
             Protocol=data["Protocol"],
@@ -140,6 +150,9 @@ class ListenerManager(Boto3ModelManager):
             Certificates=data["Certificates"],
             AlpnPolicy=data["AlpnPolicy"],
             Tags=self.serialize(Tags),
+        )
+        _response = self.client.create_listener(
+            **{k: v for k, v in args.items() if v is not None}
         )
         response = CreateListenerOutput.model_construct(**_response)
         return cast("Listener", response.Listeners[0])
@@ -153,7 +166,7 @@ class ListenerManager(Boto3ModelManager):
             model: The :py:class:`Listener` to update.
         """
         data = model.model_dump()
-        _response = self.client.modify_listener(
+        args = dict(
             ListenerArn=data["ListenerArn"],
             Port=data["Port"],
             Protocol=data["Protocol"],
@@ -161,6 +174,9 @@ class ListenerManager(Boto3ModelManager):
             Certificates=data["Certificates"],
             DefaultActions=data["DefaultActions"],
             AlpnPolicy=data["AlpnPolicy"],
+        )
+        _response = self.client.modify_listener(
+            **{k: v for k, v in args.items() if v is not None}
         )
         response = ModifyListenerOutput.model_construct(**_response)
         return cast("Listener", response.Listeners[0])
@@ -172,7 +188,8 @@ class ListenerManager(Boto3ModelManager):
         Args:
             ListenerArn: The Amazon Resource Name (ARN) of the listener.
         """
-        self.client.delete_listener(ListenerArn=self.serialize(ListenerArn))
+        args = dict(ListenerArn=self.serialize(ListenerArn))
+        self.client.delete_listener(**{k: v for k, v in args.items() if v is not None})
 
     def get(self, ListenerArn: str) -> Optional["Listener"]:
         """
@@ -184,8 +201,9 @@ class ListenerManager(Boto3ModelManager):
         Args:
             ListenerArn: The Amazon Resource Names (ARN) of the listener.
         """
+        args = dict(ListenerArns=self.serialize([ListenerArn]))
         _response = self.client.describe_listeners(
-            ListenerArns=self.serialize([ListenerArn])
+            **{k: v for k, v in args.items() if v is not None}
         )
         response = DescribeListenersOutput.model_construct(**_response)
 
@@ -210,9 +228,12 @@ class ListenerManager(Boto3ModelManager):
             ListenerArns: The Amazon Resource Names (ARN) of the listeners.
         """
         paginator = self.client.get_paginator("describe_listeners")
-        response_iterator = paginator.paginate(
+        args = dict(
             LoadBalancerArn=self.serialize(LoadBalancerArn),
             ListenerArns=self.serialize(ListenerArns),
+        )
+        response_iterator = paginator.paginate(
+            **{k: v for k, v in args.items() if v is not None}
         )
         results: List["Listener"] = []
         for _response in response_iterator:
@@ -239,12 +260,15 @@ class RuleManager(Boto3ModelManager):
             Tags: The tags to assign to the rule.
         """
         data = model.model_dump()
-        _response = self.client.create_rule(
+        args = dict(
             ListenerArn=data["ListenerArn"],
             Conditions=data["Conditions"],
             Priority=data["Priority"],
             Actions=data["Actions"],
             Tags=self.serialize(Tags),
+        )
+        _response = self.client.create_rule(
+            **{k: v for k, v in args.items() if v is not None}
         )
         response = CreateRuleOutput.model_construct(**_response)
         return cast("Rule", response.Rules[0])
@@ -258,10 +282,13 @@ class RuleManager(Boto3ModelManager):
             model: The :py:class:`Rule` to update.
         """
         data = model.model_dump()
-        _response = self.client.modify_rule(
+        args = dict(
             RuleArn=data["RuleArn"],
             Conditions=data["Conditions"],
             Actions=data["Actions"],
+        )
+        _response = self.client.modify_rule(
+            **{k: v for k, v in args.items() if v is not None}
         )
         response = ModifyRuleOutput.model_construct(**_response)
         return cast("Rule", response.Rules[0])
@@ -273,7 +300,8 @@ class RuleManager(Boto3ModelManager):
         Args:
             RuleArn: The Amazon Resource Name (ARN) of the rule.
         """
-        self.client.delete_rule(RuleArn=self.serialize(RuleArn))
+        args = dict(RuleArn=self.serialize(RuleArn))
+        self.client.delete_rule(**{k: v for k, v in args.items() if v is not None})
 
     def get(self, RuleArn: str) -> Optional["Rule"]:
         """
@@ -283,7 +311,10 @@ class RuleManager(Boto3ModelManager):
         Args:
             RuleArn: The Amazon Resource Names (ARN) of the rule.
         """
-        _response = self.client.describe_rules(RuleArns=self.serialize([RuleArn]))
+        args = dict(RuleArns=self.serialize([RuleArn]))
+        _response = self.client.describe_rules(
+            **{k: v for k, v in args.items() if v is not None}
+        )
         response = DescribeRulesOutput.model_construct(**_response)
 
         if response.Rules:
@@ -302,8 +333,11 @@ class RuleManager(Boto3ModelManager):
             RuleArns: The Amazon Resource Names (ARN) of the rules.
         """
         paginator = self.client.get_paginator("describe_rules")
-        response_iterator = paginator.paginate(
+        args = dict(
             ListenerArn=self.serialize(ListenerArn), RuleArns=self.serialize(RuleArns)
+        )
+        response_iterator = paginator.paginate(
+            **{k: v for k, v in args.items() if v is not None}
         )
         results: List["Rule"] = []
         for _response in response_iterator:
@@ -332,7 +366,7 @@ class TargetGroupManager(Boto3ModelManager):
             Tags: The tags to assign to the target group.
         """
         data = model.model_dump()
-        _response = self.client.create_target_group(
+        args = dict(
             Name=self.serialize(Name),
             Protocol=data["Protocol"],
             ProtocolVersion=data["ProtocolVersion"],
@@ -351,6 +385,9 @@ class TargetGroupManager(Boto3ModelManager):
             Tags=self.serialize(Tags),
             IpAddressType=data["IpAddressType"],
         )
+        _response = self.client.create_target_group(
+            **{k: v for k, v in args.items() if v is not None}
+        )
         response = CreateTargetGroupOutput.model_construct(**_response)
         return cast("TargetGroup", response.TargetGroups[0])
 
@@ -363,7 +400,7 @@ class TargetGroupManager(Boto3ModelManager):
             model: The :py:class:`TargetGroup` to update.
         """
         data = model.model_dump()
-        _response = self.client.modify_target_group(
+        args = dict(
             TargetGroupArn=data["TargetGroupArn"],
             HealthCheckProtocol=data["HealthCheckProtocol"],
             HealthCheckPort=data["HealthCheckPort"],
@@ -375,6 +412,9 @@ class TargetGroupManager(Boto3ModelManager):
             UnhealthyThresholdCount=data["UnhealthyThresholdCount"],
             Matcher=data["Matcher"],
         )
+        _response = self.client.modify_target_group(
+            **{k: v for k, v in args.items() if v is not None}
+        )
         response = ModifyTargetGroupOutput.model_construct(**_response)
         return cast("TargetGroup", response.TargetGroups[0])
 
@@ -385,7 +425,10 @@ class TargetGroupManager(Boto3ModelManager):
         Args:
             TargetGroupArn: The Amazon Resource Name (ARN) of the target group.
         """
-        self.client.delete_target_group(TargetGroupArn=self.serialize(TargetGroupArn))
+        args = dict(TargetGroupArn=self.serialize(TargetGroupArn))
+        self.client.delete_target_group(
+            **{k: v for k, v in args.items() if v is not None}
+        )
 
     def get(
         self, *, TargetGroupArn: Optional[str] = None, Name: Optional[str] = None
@@ -401,9 +444,12 @@ class TargetGroupManager(Boto3ModelManager):
             Name: The name of the target group.
 
         """
-        _response = self.client.describe_target_groups(
+        args = dict(
             TargetGroupArns=self.serialize([TargetGroupArn]),
             Names=self.serialize([Name]),
+        )
+        _response = self.client.describe_target_groups(
+            **{k: v for k, v in args.items() if v is not None}
         )
         response = DescribeTargetGroupsOutput.model_construct(**_response)
 
@@ -431,10 +477,13 @@ class TargetGroupManager(Boto3ModelManager):
 
         """
         paginator = self.client.get_paginator("describe_target_groups")
-        response_iterator = paginator.paginate(
+        args = dict(
             LoadBalancerArn=self.serialize(LoadBalancerArn),
             TargetGroupArns=self.serialize(TargetGroupArns),
             Names=self.serialize(Names),
+        )
+        response_iterator = paginator.paginate(
+            **{k: v for k, v in args.items() if v is not None}
         )
         results: List["TargetGroup"] = []
         for _response in response_iterator:
@@ -511,13 +560,13 @@ class LoadBalancer(PrimaryBoto3Model):
     objects: ClassVar[Boto3ModelManager] = LoadBalancerManager()
 
     #: The Amazon Resource Name (ARN) of the load balancer.
-    LoadBalancerArn: Optional[str] = Field(frozen=True, default=None)
+    LoadBalancerArn: str = Field(frozen=True, default=None)
     #: The public DNS name of the load balancer.
-    DNSName: Optional[str] = Field(frozen=True, default=None)
+    DNSName: str = Field(frozen=True, default=None)
     #: The ID of the Amazon Route 53 hosted zone associated with the load balancer.
-    CanonicalHostedZoneId: Optional[str] = Field(frozen=True, default=None)
+    CanonicalHostedZoneId: str = Field(frozen=True, default=None)
     #: The date and time the load balancer was created.
-    CreatedTime: Optional[datetime] = Field(frozen=True, default=None)
+    CreatedTime: datetime = Field(frozen=True, default=None)
     #: The name of the load balancer.
     LoadBalancerName: str
     #: The nodes of an Internet-facing load balancer have public IP addresses. The DNS
@@ -526,15 +575,13 @@ class LoadBalancer(PrimaryBoto3Model):
     #: requests from clients over the internet.
     Scheme: Literal["internet-facing", "internal"]
     #: The ID of the VPC for the load balancer.
-    VpcId: Optional[str] = Field(frozen=True, default=None)
+    VpcId: str = Field(frozen=True, default=None)
     #: The state of the load balancer.
-    State: Optional[LoadBalancerState] = Field(frozen=True, default=None)
+    State: LoadBalancerState = Field(frozen=True, default=None)
     #: The type of load balancer.
     Type: Literal["application", "network", "gateway"]
     #: The subnets for the load balancer.
-    AvailabilityZones: Optional[List["AvailabilityZone"]] = Field(
-        frozen=True, default=None
-    )
+    AvailabilityZones: List["AvailabilityZone"] = Field(frozen=True, default=None)
     #: The IDs of the security groups for the load balancer.
     SecurityGroups: Optional[List[str]] = None
     #: The type of IP addresses used by the subnets for your load balancer. The
@@ -546,7 +593,7 @@ class LoadBalancer(PrimaryBoto3Model):
     CustomerOwnedIpv4Pool: Optional[str] = None
     #: Indicates whether to evaluate inbound security group rules for traffic sent to
     #: a Network Load Balancer through Amazon Web Services PrivateLink.
-    EnforceSecurityGroupInboundRulesOnPrivateLinkTraffic: Optional[str] = Field(
+    EnforceSecurityGroupInboundRulesOnPrivateLinkTraffic: str = Field(
         frozen=True, default=None
     )
 
@@ -815,7 +862,7 @@ class Listener(PrimaryBoto3Model):
     objects: ClassVar[Boto3ModelManager] = ListenerManager()
 
     #: The Amazon Resource Name (ARN) of the listener.
-    ListenerArn: Optional[str] = Field(frozen=True, default=None)
+    ListenerArn: str = Field(frozen=True, default=None)
     #: The Amazon Resource Name (ARN) of the load balancer.
     LoadBalancerArn: str
     #: The port on which the load balancer is listening.
@@ -1071,7 +1118,7 @@ class TargetGroup(PrimaryBoto3Model):
     objects: ClassVar[Boto3ModelManager] = TargetGroupManager()
 
     #: The Amazon Resource Name (ARN) of the target group.
-    TargetGroupArn: Optional[str] = Field(frozen=True, default=None)
+    TargetGroupArn: str = Field(frozen=True, default=None)
     #: The name of the target group.
     TargetGroupName: str
     #: The protocol to use for routing traffic to the targets.

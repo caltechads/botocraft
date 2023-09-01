@@ -162,7 +162,7 @@ class ReadonlyPrimaryBoto3Model(  # pylint: disable=abstract-method
 ):
 
     #: The manager for this model
-    objects: Boto3ModelManager
+    objects: ClassVar[Boto3ModelManager]
 
     def save(self, **kwargs):
         """
@@ -193,9 +193,10 @@ class PrimaryBoto3Model(  # pylint: disable=abstract-method
         """
         Save the model.
         """
-        if self.pk:
-            return self.manager.update(self, **kwargs)
-        return self.manager.create(self, **kwargs)
+        if self.model_has_changed:
+            if self.pk:
+                return self.objects.update(self, **kwargs)
+            return self.objects.create(self, **kwargs)
 
     def delete(self):
         """

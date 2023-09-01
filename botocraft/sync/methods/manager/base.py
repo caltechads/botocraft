@@ -62,8 +62,11 @@ class ManagerMethodGenerator:
         self,
         generator: "ManagerGenerator",
         model_name: str,
-        method_def: ManagerMethodDefinition
+        method_def: ManagerMethodDefinition,
+        method_name: Optional[str] = None,
     ):
+        if method_name is not None:
+            self.method_name = method_name
         self.inflect = inflect.engine()
         #: The generator that is creating the entire manager file.  It
         #: has the information about the service and the models, and
@@ -162,8 +165,7 @@ class ManagerMethodGenerator:
 
     def serialize(self, arg: str) -> str:
         """
-        Wrap the boto3 operation argument assignment with `self.serialize()`
-        if necessary.
+        Figure out how to serialize the given argument.
 
         Args:
             arg: the name of the method argument
@@ -175,6 +177,8 @@ class ManagerMethodGenerator:
         mapping = self.method_def.args
         arg_def = mapping.get(arg, MethodArgumentDefinition())
         _arg = arg
+        if arg_def.value:
+            return arg_def.value
         if arg_def.source_arg:
             _arg = arg_def.source_arg
         if arg_def.exclude_none:
@@ -217,6 +221,10 @@ class ManagerMethodGenerator:
             if arg_def.hidden:
                 # This is a hidden argument, so we don't want to expose it
                 # in the method signature or the boto3 call.
+                continue
+            if location == 'method' and arg_def.value:
+                # This argument has a specific value, so we don't want to
+                # expose it in the method signature
                 continue
             if arg_def.python_type:
                 python_type = cast(str, arg_def.python_type)
@@ -351,7 +359,7 @@ class ManagerMethodGenerator:
         if args and kwargs:
             arg_str += ", "
         arg_str += ", ".join([f"{arg}={self.serialize(arg)}" for arg in kwargs])
-        return arg_str
+        return f'args = dict({arg_str})'
 
     @property
     def operation_call(self) -> str:
@@ -370,7 +378,8 @@ class ManagerMethodGenerator:
         Returns:
             The code for the boto3 call.
         """
-        call = f"self.client.{self.boto3_name}({self.operation_args})"
+        call = self.operation_args
+        call = f"self.client.{self.boto3_name}(**{{k: v for k, v in args.items() if v is not None}})"
         if self.return_type == 'None':
             return call
         call = "_response = " + call

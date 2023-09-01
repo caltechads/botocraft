@@ -2,11 +2,11 @@
 # pylint: disable=anomalous-backslash-in-string,unsubscriptable-object,line-too-long,arguments-differ,arguments-renamed
 # mypy: disable-error-code="index, override"
 from datetime import datetime
-from typing import ClassVar, Dict, List, Literal, Optional, cast
+from typing import Any, ClassVar, Dict, List, Literal, Optional, cast
 
 from pydantic import Field
 
-from botocraft.services.tagging import Tag
+from botocraft.services.common import Filter, Tag
 
 from .abstract import (Boto3Model, Boto3ModelManager, PrimaryBoto3Model,
                        ReadonlyBoto3Model, ReadonlyBoto3ModelManager,
@@ -75,7 +75,7 @@ class DBInstanceManager(Boto3ModelManager):
                 Services Secrets Manager.
         """
         data = model.model_dump()
-        _response = self.client.create_db_instance(
+        args = dict(
             DBInstanceIdentifier=data["DBInstanceIdentifier"],
             DBInstanceClass=data["DBInstanceClass"],
             Engine=data["Engine"],
@@ -137,6 +137,9 @@ class DBInstanceManager(Boto3ModelManager):
             MasterUserSecretKmsKeyId=self.serialize(MasterUserSecretKmsKeyId),
             CACertificateIdentifier=data["CACertificateIdentifier"],
             DBSystemId=data["DBSystemId"],
+        )
+        _response = self.client.create_db_instance(
+            **{k: v for k, v in args.items() if v is not None}
         )
         response = CreateDBInstanceResult.model_construct(**_response)
         return cast("DBInstance", response.DBInstance)
@@ -245,7 +248,7 @@ class DBInstanceManager(Boto3ModelManager):
                 Services Secrets Manager.
         """
         data = model.model_dump()
-        _response = self.client.modify_db_instance(
+        args = dict(
             DBInstanceIdentifier=data["DBInstanceIdentifier"],
             AllocatedStorage=data["AllocatedStorage"],
             DBInstanceClass=data["DBInstanceClass"],
@@ -310,6 +313,9 @@ class DBInstanceManager(Boto3ModelManager):
             MasterUserSecretKmsKeyId=self.serialize(MasterUserSecretKmsKeyId),
             Engine=data["Engine"],
         )
+        _response = self.client.modify_db_instance(
+            **{k: v for k, v in args.items() if v is not None}
+        )
         response = ModifyDBInstanceResult.model_construct(**_response)
         return cast("DBInstance", response.DBInstance)
 
@@ -345,11 +351,14 @@ class DBInstanceManager(Boto3ModelManager):
                 case-sensitive. The default is to remove automated backups immediately
                 after the DB instance is deleted.
         """
-        _response = self.client.delete_db_instance(
+        args = dict(
             DBInstanceIdentifier=self.serialize(DBInstanceIdentifier),
             SkipFinalSnapshot=self.serialize(SkipFinalSnapshot),
             FinalDBSnapshotIdentifier=self.serialize(FinalDBSnapshotIdentifier),
             DeleteAutomatedBackups=self.serialize(DeleteAutomatedBackups),
+        )
+        _response = self.client.delete_db_instance(
+            **{k: v for k, v in args.items() if v is not None}
         )
         response = DeleteDBInstanceResult.model_construct(**_response)
         return cast(DBInstance, response.DBInstance)
@@ -364,8 +373,9 @@ class DBInstanceManager(Boto3ModelManager):
                 information from only the specific DB instance is returned. This parameter
                 isn't case-sensitive.
         """
+        args = dict(DBInstanceIdentifier=self.serialize(DBInstanceIdentifier))
         _response = self.client.describe_db_instances(
-            DBInstanceIdentifier=self.serialize(DBInstanceIdentifier)
+            **{k: v for k, v in args.items() if v is not None}
         )
         response = DBInstanceMessage.model_construct(**_response)
 
@@ -377,7 +387,7 @@ class DBInstanceManager(Boto3ModelManager):
         self,
         *,
         DBInstanceIdentifier: Optional[str] = None,
-        Filters: Optional[List["Filter"]] = None
+        Filters: Optional[List[Filter]] = None
     ) -> List["DBInstance"]:
         """
         Describes provisioned RDS instances. This API supports pagination.
@@ -390,9 +400,12 @@ class DBInstanceManager(Boto3ModelManager):
             Filters: A filter that specifies one or more DB instances to describe.
         """
         paginator = self.client.get_paginator("describe_db_instances")
-        response_iterator = paginator.paginate(
+        args = dict(
             DBInstanceIdentifier=self.serialize(DBInstanceIdentifier),
             Filters=self.serialize(Filters),
+        )
+        response_iterator = paginator.paginate(
+            **{k: v for k, v in args.items() if v is not None}
         )
         results: List["DBInstance"] = []
         for _response in response_iterator:
@@ -496,7 +509,7 @@ class Outpost(Boto3Model):
     Arn: Optional[str] = None
 
 
-class Subnet(Boto3Model):
+class RDSSubnet(Boto3Model):
     """
     This data type is used as a response element for the
     ``DescribeDBSubnetGroups`` operation.
@@ -527,7 +540,7 @@ class DBSubnetGroup(Boto3Model):
     #: Provides the status of the DB subnet group.
     SubnetGroupStatus: Optional[str] = None
     #: Contains a list of ``Subnet`` elements.
-    Subnets: Optional[List["Subnet"]] = None
+    Subnets: Optional[List["RDSSubnet"]] = None
     #: The Amazon Resource Name (ARN) for the DB subnet group.
     DBSubnetGroupArn: Optional[str] = None
     #: The network type of the DB subnet group.
@@ -598,7 +611,7 @@ class ProcessorFeature(Boto3Model):
     Value: Optional[str] = None
 
 
-class PendingModifiedValues(Boto3Model):
+class RDSPendingModifiedValues(Boto3Model):
     """
     Information about pending changes to the DB instance.
 
@@ -746,7 +759,7 @@ class DBInstanceAutomatedBackupsReplication(Boto3Model):
     DBInstanceAutomatedBackupsArn: Optional[str] = None
 
 
-class MasterUserSecret(Boto3Model):
+class RDSMasterUserSecret(Boto3Model):
     """
     The secret managed by RDS in Amazon Web Services Secrets Manager for the
     master user password.
@@ -764,7 +777,7 @@ class MasterUserSecret(Boto3Model):
     KmsKeyId: Optional[str] = None
 
 
-class CertificateDetails(Boto3Model):
+class RDSCertificateDetails(Boto3Model):
     """
     The details of the DB instance's server certificate.
     """
@@ -800,7 +813,7 @@ class DBInstance(PrimaryBoto3Model):
     #: The current state of this database.
     DBInstanceStatus: Optional[str] = None
     #: The time when a stopped DB instance is restarted automatically.
-    AutomaticRestartTime: Optional[datetime] = Field(frozen=True, default=None)
+    AutomaticRestartTime: datetime = Field(frozen=True, default=None)
     #: The master username for the DB instance.
     MasterUsername: Optional[str] = None
     #: Contains the initial database name that you provided (if required) when you
@@ -809,11 +822,11 @@ class DBInstance(PrimaryBoto3Model):
     #: rather than the CDB.
     DBName: Optional[str] = None
     #: The connection endpoint for the DB instance.
-    Endpoint: Optional[RDSEndpoint] = Field(frozen=True, default=None)
+    Endpoint: RDSEndpoint = Field(frozen=True, default=None)
     #: The amount of storage in gibibytes (GiB) allocated for the DB instance.
     AllocatedStorage: Optional[int] = None
     #: The date and time when the DB instance was created.
-    InstanceCreateTime: Optional[datetime] = Field(frozen=True, default=None)
+    InstanceCreateTime: datetime = Field(frozen=True, default=None)
     #: The daily time range during which automated backups are created if automated
     #: backups are enabled, as determined by the ``BackupRetentionPeriod``.
     PreferredBackupWindow: Optional[str] = None
@@ -837,12 +850,10 @@ class DBInstance(PrimaryBoto3Model):
     #: Information about pending changes to the DB instance. This information is
     #: returned only when there are pending changes. Specific changes are identified
     #: by subelements.
-    PendingModifiedValues: Optional[PendingModifiedValues] = Field(
-        frozen=True, default=None
-    )
+    PendingModifiedValues: RDSPendingModifiedValues = Field(frozen=True, default=None)
     #: The latest time to which a database in this DB instance can be restored with
     #: point-in-time restore.
-    LatestRestorableTime: Optional[datetime] = Field(frozen=True, default=None)
+    LatestRestorableTime: datetime = Field(frozen=True, default=None)
     #: Indicates whether the DB instance is a Multi-AZ deployment. This setting
     #: doesn't apply to RDS Custom DB instances.
     MultiAZ: Optional[bool]
@@ -851,35 +862,27 @@ class DBInstance(PrimaryBoto3Model):
     #: Indicates whether minor version patches are applied automatically.
     AutoMinorVersionUpgrade: Optional[bool] = True
     #: The identifier of the source DB instance if this DB instance is a read replica.
-    ReadReplicaSourceDBInstanceIdentifier: Optional[str] = Field(
-        frozen=True, default=None
-    )
+    ReadReplicaSourceDBInstanceIdentifier: str = Field(frozen=True, default=None)
     #: The identifiers of the read replicas associated with this DB instance.
-    ReadReplicaDBInstanceIdentifiers: Optional[List[str]] = Field(
-        frozen=True, default=None
-    )
+    ReadReplicaDBInstanceIdentifiers: List[str] = Field(frozen=True, default=None)
     #: The identifiers of Aurora DB clusters to which the RDS DB instance is
     #: replicated as a read replica. For example, when you create an Aurora read
     #: replica of an RDS for MySQL DB instance, the Aurora MySQL DB cluster for the
     #: Aurora read replica is shown. This output doesn't contain information about
     #: cross-Region Aurora read replicas.
-    ReadReplicaDBClusterIdentifiers: Optional[List[str]] = Field(
-        frozen=True, default=None
-    )
+    ReadReplicaDBClusterIdentifiers: List[str] = Field(frozen=True, default=None)
     #: The open mode of an Oracle read replica. The default is ``open-read-only``. For
     #: more information, see `Working with Oracle Read Replicas for Amazon RDS
     #: <https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/oracle-read-
     #: replicas.html>`_ in the *Amazon RDS User Guide*.
-    ReplicaMode: Optional[Literal["open-read-only", "mounted"]] = Field(
-        frozen=True, default=None
-    )
+    ReplicaMode: Literal["open-read-only", "mounted"] = Field(frozen=True, default=None)
     #: The license model information for this DB instance. This setting doesn't apply
     #: to RDS Custom DB instances.
     LicenseModel: Optional[str] = None
     #: The Provisioned IOPS (I/O operations per second) value for the DB instance.
     Iops: Optional[int] = None
     #: The list of option group memberships for this DB instance.
-    OptionGroupMemberships: Optional[List["OptionGroupMembership"]] = Field(
+    OptionGroupMemberships: List["OptionGroupMembership"] = Field(
         frozen=True, default=None
     )
     #: If present, specifies the name of the character set that this instance is
@@ -891,14 +894,12 @@ class DBInstance(PrimaryBoto3Model):
     NcharCharacterSetName: Optional[str] = None
     #: If present, specifies the name of the secondary Availability Zone for a DB
     #: instance with multi-AZ support.
-    SecondaryAvailabilityZone: Optional[str] = Field(frozen=True, default=None)
+    SecondaryAvailabilityZone: str = Field(frozen=True, default=None)
     #: Indicates whether the DB instance is publicly accessible.
     PubliclyAccessible: Optional[bool]
     #: The status of a read replica. If the DB instance isn't a read replica, the
     #: value is blank.
-    StatusInfos: Optional[List["DBInstanceStatusInfo"]] = Field(
-        frozen=True, default=None
-    )
+    StatusInfos: List["DBInstanceStatusInfo"] = Field(frozen=True, default=None)
     #: The storage type associated with the DB instance.
     StorageType: Optional[str] = None
     #: The ARN from the key store with which the instance is associated for TDE
@@ -919,13 +920,11 @@ class DBInstance(PrimaryBoto3Model):
     #: instance. This identifier is found in Amazon Web Services CloudTrail log
     #: entries whenever the Amazon Web Services KMS key for the DB instance is
     #: accessed.
-    DbiResourceId: Optional[str] = Field(frozen=True, default=None)
+    DbiResourceId: str = Field(frozen=True, default=None)
     #: The identifier of the CA certificate for this DB instance.
     CACertificateIdentifier: Optional[str] = None
     #: The Active Directory Domain membership records associated with the DB instance.
-    DomainMemberships: Optional[List["DomainMembership"]] = Field(
-        frozen=True, default=None
-    )
+    DomainMemberships: List["DomainMembership"] = Field(frozen=True, default=None)
     #: Indicates whether tags are copied from the DB instance to snapshots of the DB
     #: instance.
     CopyTagsToSnapshot: Optional[bool] = None
@@ -945,7 +944,7 @@ class DBInstance(PrimaryBoto3Model):
     #: #Aurora.Managing.FaultTolerance>`_ in the *Amazon Aurora User Guide*.
     PromotionTier: Optional[int] = None
     #: The Amazon Resource Name (ARN) for the DB instance.
-    DBInstanceArn: Optional[str] = Field(frozen=True, default=None)
+    DBInstanceArn: str = Field(frozen=True, default=None)
     #: The time zone of the DB instance. In most cases, the ``Timezone`` element is
     #: empty. ``Timezone`` content appears only for Microsoft SQL Server DB instances
     #: that were created with a time zone specified.
@@ -973,9 +972,9 @@ class DBInstance(PrimaryBoto3Model):
     DeletionProtection: Optional[bool] = None
     #: The Amazon Web Services Identity and Access Management (IAM) roles associated
     #: with the DB instance.
-    AssociatedRoles: Optional[List["DBInstanceRole"]] = Field(frozen=True, default=None)
+    AssociatedRoles: List["DBInstanceRole"] = Field(frozen=True, default=None)
     #: The listener connection endpoint for SQL Server Always On.
-    ListenerEndpoint: Optional[RDSEndpoint] = Field(frozen=True, default=None)
+    ListenerEndpoint: RDSEndpoint = Field(frozen=True, default=None)
     #: The upper limit in gibibytes (GiB) to which Amazon RDS can automatically scale
     #: the storage of the DB instance.
     MaxAllocatedStorage: Optional[int] = None
@@ -994,22 +993,20 @@ class DBInstance(PrimaryBoto3Model):
     #: Backup.
     AwsBackupRecoveryPointArn: Optional[str] = None
     #: The status of the database activity stream.
-    ActivityStreamStatus: Optional[
-        Literal["stopped", "starting", "started", "stopping"]
-    ] = Field(frozen=True, default=None)
+    ActivityStreamStatus: Literal["stopped", "starting", "started", "stopping"] = Field(
+        frozen=True, default=None
+    )
     #: The Amazon Web Services KMS key identifier used for encrypting messages in the
     #: database activity stream. The Amazon Web Services KMS key identifier is the key
     #: ARN, key ID, alias ARN, or alias name for the KMS key.
-    ActivityStreamKmsKeyId: Optional[str] = Field(frozen=True, default=None)
+    ActivityStreamKmsKeyId: str = Field(frozen=True, default=None)
     #: The name of the Amazon Kinesis data stream used for the database activity
     #: stream.
-    ActivityStreamKinesisStreamName: Optional[str] = Field(frozen=True, default=None)
+    ActivityStreamKinesisStreamName: str = Field(frozen=True, default=None)
     #: The mode of the database activity stream. Database events such as a change or
     #: access generate an activity stream event. RDS for Oracle always handles these
     #: events asynchronously.
-    ActivityStreamMode: Optional[Literal["sync", "async"]] = Field(
-        frozen=True, default=None
-    )
+    ActivityStreamMode: Literal["sync", "async"] = Field(frozen=True, default=None)
     #: Indicates whether engine-native audit fields are included in the database
     #: activity stream.
     ActivityStreamEngineNativeAuditFieldsIncluded: Optional[bool] = None
@@ -1021,7 +1018,7 @@ class DBInstance(PrimaryBoto3Model):
     #: The number of minutes to pause the automation. When the time period ends, RDS
     #: Custom resumes full automation. The minimum value is 60 (default). The maximum
     #: value is 1,440.
-    ResumeFullAutomationModeTime: Optional[datetime] = Field(frozen=True, default=None)
+    ResumeFullAutomationModeTime: datetime = Field(frozen=True, default=None)
     #: The instance profile associated with the underlying Amazon EC2 instance of an
     #: RDS Custom DB instance. The instance profile must meet the following
     #: requirements:
@@ -1043,13 +1040,13 @@ class DBInstance(PrimaryBoto3Model):
     DBSystemId: Optional[str] = None
     #: The secret managed by RDS in Amazon Web Services Secrets Manager for the master
     #: user password.
-    MasterUserSecret: Optional[MasterUserSecret] = Field(frozen=True, default=None)
+    MasterUserSecret: RDSMasterUserSecret = Field(frozen=True, default=None)
     #: The details of the DB instance's server certificate.
-    CertificateDetails: Optional[CertificateDetails] = None
+    CertificateDetails: Optional[RDSCertificateDetails] = None
     #: The identifier of the source DB cluster if this DB instance is a read replica.
     ReadReplicaSourceDBClusterIdentifier: Optional[str] = None
     #: The progress of the storage optimization operation as a percentage.
-    PercentProgress: Optional[str] = Field(frozen=True, default=None)
+    PercentProgress: str = Field(frozen=True, default=None)
 
     @property
     def pk(self) -> Optional[str]:
@@ -1135,27 +1132,3 @@ class DBInstanceMessage(Boto3Model):
     Marker: Optional[str] = None
     #: A list of ``DBInstance`` instances.
     DBInstances: Optional[List["DBInstance"]] = None
-
-
-class Filter(Boto3Model):
-    """
-    A filter name and value pair that is used to return a more specific list of
-    results from a describe operation. Filters can be used to match a set of
-    resources by specific criteria, such as IDs. The filters supported by a
-    describe operation are documented with the describe operation.
-
-    Currently, wildcards are not supported in filters.
-
-    The following actions can be filtered:
-
-    * ``DescribeDBClusterBacktracks``
-    * ``DescribeDBClusterEndpoints``
-    * ``DescribeDBClusters``
-    * ``DescribeDBInstances``
-    * ``DescribePendingMaintenanceActions``
-    """
-
-    #: The name of the filter. Filter names are case-sensitive.
-    Name: str
-    #: One or more filter values. Filter values are case-sensitive.
-    Values: List[str]

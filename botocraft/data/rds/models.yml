@@ -91,11 +91,16 @@ primary:
         readonly: true
 secondary:
   AvailabilityZone:
-    base_class: Boto3Model
     alternate_name: RDSAvailabilityZone
   Endpoint:
-    base_class: Boto3Model
     alternate_name: RDSEndpoint
   CloudwatchLogsExportConfiguration:
-    base_class: Boto3Model
     alternate_name: RDSCloudwatchLogsExportConfiguration
+  Subnet:
+    alternate_name: RDSSubnet
+  MasterUserSecret:
+    alternate_name: RDSMasterUserSecret
+  CertificateDetails:
+    alternate_name: RDSCertificateDetails
+  PendingModifiedValues:
+    alternate_name: RDSPendingModifiedValues

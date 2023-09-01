@@ -66,18 +66,19 @@ class CreateMethodGenerator(ManagerMethodGenerator):
         mapping = self.method_def.args
         _args: OrderedDict[str, str] = OrderedDict()
         for arg in self.args(location='operation'):
+            arg_def = mapping.get(arg, MethodArgumentDefinition())
             if arg in self.explicit_args:
                 _arg = self.serialize(arg)
             else:
-                if arg in mapping:
-                    if mapping[arg].hidden:
-                        continue
+                if arg_def.hidden:
+                    continue
                 _arg = f"data['{arg}']"
-                if arg in mapping:
-                    if mapping[arg].source_arg:
-                        _arg = self.serialize(cast(str, mapping[arg].source_arg))
-                    elif mapping[arg].attribute:
-                        _arg = f"data['{mapping[arg].attribute}']"
+                if arg_def.value:
+                    _arg = self.serialize(cast(str, arg_def.value))
+                elif arg_def.source_arg:
+                    _arg = self.serialize(cast(str, arg_def.source_arg))
+                elif arg_def.attribute:
+                    _arg = f"data['{arg_def.attribute}']"
             _args[arg] = _arg
         return ", ".join(
             [f"{arg}={_arg}" for arg, _arg in _args.items()]
@@ -107,18 +108,19 @@ class CreateMethodGenerator(ManagerMethodGenerator):
         mapping = self.method_def.args
         _args = OrderedDict()
         for arg in self.kwargs(location='operation'):
+            arg_def = mapping.get(arg, MethodArgumentDefinition())
             if arg in self.explicit_kwargs:
                 _arg = self.serialize(arg)
             else:
-                if arg in mapping:
-                    if mapping[arg].hidden:
-                        continue
+                if arg_def.hidden:
+                    continue
                 _arg = f"data['{arg}']"
-                if arg in mapping:
-                    if mapping[arg].source_arg:
-                        _arg = self.serialize(cast(str, mapping[arg].source_arg))
-                    elif mapping[arg].attribute:
-                        _arg = f"data['{mapping[arg].attribute}']"
+                if arg_def.value:
+                    _arg = self.serialize(cast(str, arg_def.value))
+                elif arg_def.source_arg:
+                    _arg = self.serialize(cast(str, arg_def.source_arg))
+                elif arg_def.attribute:
+                    _arg = f"data['{arg_def.attribute}']"
             _args[arg] = _arg
         return ", ".join(
             [f"{arg}={_arg}" for arg, _arg in _args.items()]
@@ -145,9 +147,10 @@ class CreateMethodGenerator(ManagerMethodGenerator):
             The code for the boto3 call.
         """
         call = "data = model.model_dump()"
-        call += f"\n        _response = self.client.{self.boto3_name}("
         args = self.operation_args
         kwargs = self.operation_kwargs
+        if args or kwargs:
+            call += "\n        args = dict("
         if args:
             call += args
         if args and kwargs:
@@ -155,6 +158,7 @@ class CreateMethodGenerator(ManagerMethodGenerator):
         if kwargs:
             call += kwargs
         call += ")"
+        call += f"\n        _response = self.client.{self.boto3_name}(**{{k: v for k, v in args.items() if v is not None}})"
         call += f"\n        response = {self.response_class}.model_construct(**_response)"
         return call
 

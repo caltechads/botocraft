@@ -2,11 +2,11 @@
 # pylint: disable=anomalous-backslash-in-string,unsubscriptable-object,line-too-long,arguments-differ,arguments-renamed
 # mypy: disable-error-code="index, override"
 from datetime import datetime
-from typing import ClassVar, Dict, List, Literal, Optional, cast
+from typing import Any, ClassVar, Dict, List, Literal, Optional, cast
 
 from pydantic import Field
 
-from botocraft.services.tagging import Tag
+from botocraft.services.common import Tag
 
 from .abstract import (Boto3Model, Boto3ModelManager, PrimaryBoto3Model,
                        ReadonlyBoto3Model, ReadonlyBoto3ModelManager,
@@ -57,7 +57,7 @@ class ParameterManager(Boto3ModelManager):
                 Systems Manager supports the following policy types:
         """
         data = model.model_dump()
-        _response = self.client.put_parameter(
+        args = dict(
             Name=data["Name"],
             Value=data["Value"],
             Description=self.serialize(Description),
@@ -69,6 +69,9 @@ class ParameterManager(Boto3ModelManager):
             Tier=self.serialize(Tier),
             Policies=self.serialize(Policies),
             DataType=data["DataType"],
+        )
+        _response = self.client.put_parameter(
+            **{k: v for k, v in args.items() if v is not None}
         )
         response = PutParameterResult.model_construct(**_response)
         return cast(int, response.Version)
@@ -110,7 +113,7 @@ class ParameterManager(Boto3ModelManager):
                 Systems Manager supports the following policy types:
         """
         data = model.model_dump()
-        _response = self.client.put_parameter(
+        args = dict(
             Name=data["Name"],
             Value=data["Value"],
             Description=self.serialize(Description),
@@ -122,6 +125,9 @@ class ParameterManager(Boto3ModelManager):
             Tier=self.serialize(Tier),
             Policies=self.serialize(Policies),
             DataType=data["DataType"],
+        )
+        _response = self.client.put_parameter(
+            **{k: v for k, v in args.items() if v is not None}
         )
         response = PutParameterResult.model_construct(**_response)
         return cast(int, response.Version)
@@ -139,8 +145,11 @@ class ParameterManager(Boto3ModelManager):
                 values for secure string parameters. This flag is ignored for ``String``
                 and ``StringList`` parameter types.
         """
-        _response = self.client.get_parameters(
+        args = dict(
             Names=self.serialize([Name]), WithDecryption=self.serialize(WithDecryption)
+        )
+        _response = self.client.get_parameters(
+            **{k: v for k, v in args.items() if v is not None}
         )
         response = GetParametersResult.model_construct(**_response)
 
@@ -162,9 +171,12 @@ class ParameterManager(Boto3ModelManager):
             ParameterFilters: Filters to limit the request results.
         """
         paginator = self.client.get_paginator("describe_parameters")
-        response_iterator = paginator.paginate(
+        args = dict(
             Filters=self.serialize(Filters),
             ParameterFilters=self.serialize(ParameterFilters),
+        )
+        response_iterator = paginator.paginate(
+            **{k: v for k, v in args.items() if v is not None}
         )
         results: List["ParameterMetadata"] = []
         for _response in response_iterator:
@@ -183,7 +195,8 @@ class ParameterManager(Boto3ModelManager):
         Args:
             Name: The name of the parameter to delete.
         """
-        self.client.delete_parameter(Name=self.serialize(Name))
+        args = dict(Name=self.serialize(Name))
+        self.client.delete_parameter(**{k: v for k, v in args.items() if v is not None})
 
 
 # ==============
@@ -206,7 +219,7 @@ class Parameter(PrimaryBoto3Model):
     #: The parameter value.
     Value: Optional[str] = None
     #: The parameter version.
-    Version: Optional[int] = Field(frozen=True, default=None)
+    Version: int = Field(frozen=True, default=None)
     #: Either the version number or the label used to retrieve the parameter value.
     #: Specify selectors by using one of the following formats:
     Selector: Optional[str] = None
@@ -215,9 +228,9 @@ class Parameter(PrimaryBoto3Model):
     SourceResult: Optional[str] = None
     #: Date the parameter was last changed or updated and the parameter version was
     #: created.
-    LastModifiedDate: Optional[datetime] = Field(frozen=True, default=None)
+    LastModifiedDate: datetime = Field(frozen=True, default=None)
     #: The Amazon Resource Name (ARN) of the parameter.
-    ARN: Optional[str] = Field(frozen=True, default=None)
+    ARN: str = Field(frozen=True, default=None)
     #: The data type of the parameter, such as ``text`` or ``aws:ec2:image``. The
     #: default is ``text``.
     DataType: Optional[str] = None

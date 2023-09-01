@@ -54,8 +54,9 @@ class DeleteMethodGenerator(ManagerMethodGenerator):
         Generate the method body code for the delete method.
         """
         code = f"""
+        {self.operation_args}
         {self.operation_call}
 """
-        if not self.return_type == 'None':
+        if self.return_type != 'None':
             code += f"        return cast({self.model_name}, response.{self.response_attr})"
         return code

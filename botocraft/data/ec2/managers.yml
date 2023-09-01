@@ -1,0 +1,227 @@
+---
+Vpc:
+  readonly: true
+  methods:
+    get:
+      boto3_name: describe_vpcs
+      args:
+        Filters:
+          hidden: true
+        DryRun:
+          default: "False"
+        VpcIds:
+          required: true
+          rename: VpcId
+          python_type: str
+          source_arg: "[VpcId]"
+          docstring: >-
+            The name of the VPC to describe.
+    list:
+      boto3_name: describe_vpcs
+    dns_hostnames:
+      boto3_name: describe_vpc_attribute
+      return_type: bool
+      response_attr: EnableDnsHostnames['Value']
+      args:
+        VpcId:
+          required: true
+        Attribute:
+          value: >-
+            "enableDnsHostnames"
+        DryRun:
+          value: "False"
+    dns_support:
+      boto3_name: describe_vpc_attribute
+      return_type: bool
+      response_attr: EnableDnsSupport['Value']
+      args:
+        VpcId:
+          required: true
+        Attribute:
+          value: >-
+            "enableDnsSupport"
+        DryRun:
+          value: "False"
+    network_address_usage_metrics:
+      boto3_name: describe_vpc_attribute
+      return_type: bool
+      response_attr: EnableNetworkAddressUsageMetrics['Value']
+      args:
+        VpcId:
+          required: true
+        Attribute:
+          value: >-
+            "enableNetworkAddressUsageMetrics"
+        DryRun:
+          value: "False"
+Subnet:
+  readonly: true
+  methods:
+    get:
+      boto3_name: describe_subnets
+      args:
+        Filters:
+          hidden: true
+        DryRun:
+          default: "False"
+        SubnetIds:
+          required: true
+          rename: SubnetId
+          python_type: str
+          source_arg: "[SubnetId]"
+          docstring: >-
+            The ID of the VPC subnet to describe.
+    list:
+      boto3_name: describe_subnets
+SecurityGroup:
+  mixins:
+    - name: SecurityGroupMixin
+      import_path: botocraft.mixins.ec2
+  methods:
+    create:
+      boto3_name: create_security_group
+      response_attr: GroupId
+      args:
+        DryRun:
+          explicit: true
+          default: "False"
+        TagSpecifications:
+          value: >-
+            [{'ResourceType': 'security-group', 'Tags': model.Tags}]
+    delete:
+      boto3_name: delete_security_group
+      args:
+        GroupName:
+          hidden: true
+        GroupId:
+          required: true
+        DryRun:
+          default: "False"
+    get:
+      boto3_name: describe_security_groups
+      args:
+        GroupNames:
+          hidden: true
+        Filters:
+          hidden: true
+        GroupIds:
+          rename: GroupId
+          python_type: str
+          source_arg: "[GroupId]"
+          docstring: >-
+            The ID of the security group.
+        DryRun:
+          default: "False"
+    list:
+      boto3_name: describe_security_groups
+      args:
+        Filters:
+          hidden: true
+        DryRun:
+          default: "False"
+    revoke_ingress:
+      boto3_name: revoke_security_group_ingress
+      return_type: Optional[bool]
+      response_attr: Return
+      args:
+        GroupName:
+          hidden: true
+        GroupId:
+          required: true
+        DryRun:
+          default: "False"
+        FromPort:
+          hidden: true
+        ToPort:
+          hidden: true
+        CidrIp:
+          hidden: true
+        IpProtocol:
+          hidden: true
+        SourceSecurityGroupName:
+          hidden: true
+        SourceSecurityGroupOwnerId:
+          hidden: true
+        SecurityGroupRuleIds:
+          hidden: true
+        IpPermissions:
+          required: true
+    authorize_ingress:
+      boto3_name: authorize_security_group_ingress
+      return_type: Optional[bool]
+      response_attr: Return
+      args:
+        GroupName:
+          hidden: true
+        GroupId:
+          required: true
+        DryRun:
+          default: "False"
+        FromPort:
+          hidden: true
+        ToPort:
+          hidden: true
+        CidrIp:
+          hidden: true
+        IpProtocol:
+          hidden: true
+        SourceSecurityGroupName:
+          hidden: true
+        SourceSecurityGroupOwnerId:
+          hidden: true
+        IpPermissions:
+          required: true
+        TagSpecifications:
+          rename: Tags
+          python_type: Optional[List["Tag"]]
+          source_arg: >-
+            [{'ResourceType': 'security-group', 'Tags': self.serialize(Tags)}]
+Instance:
+  readonly: true
+  methods:
+    create:
+      boto3_name: run_instances
+      response_attr: Instances
+      args:
+        DryRun:
+          default: "False"
+        SecurityGroups:
+          hidden: true
+        AdditionalInfo:
+          hidden: true
+        DisableApiTermination:
+          explicit: true
+          default: "False"
+        DisableApiStop:
+          explicit: true
+          default: "False"
+        InstanceInitiatedShutdownBehavior:
+          explicit: true
+          default: >-
+            "terminate"
+        TagSpecifications:
+          value: >-
+            [{'ResourceType': 'instance', 'Tags': model.Tags}]
+    get:
+      boto3_name: describe_instances
+      response_attr: Reservations
+      return_type: Optional["Reservation"]
+      args:
+        Filters:
+          hidden: true
+        DryRun:
+          default: "False"
+        InstanceIds:
+          required: true
+          rename: InstanceId
+          python_type: str
+          source_arg: "[InstanceId]"
+          docstring: >-
+            The IDs of the instance.
+    list:
+      boto3_name: describe_instances
+      response_attr: Reservations
+      return_type: List["Reservation"]
+      args:
+        DryRun:
+          default: "False"

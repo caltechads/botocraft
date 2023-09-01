@@ -1,0 +1,113 @@
+---
+primary:
+  Vpc:
+    primary_key: VpcId
+    name_key: VpcId
+    fields:
+      CidrBlock:
+        required: true
+      State:
+        readonly: true
+      DhcpOptionsId:
+        readonly: true
+      OwnerId:
+        readonly: true
+      Ipv6CidrBlockAssociationSet:
+        readonly: true
+      CidrBlockAssociationSet:
+        readonly: true
+      IsDefault:
+        readonly: true
+  Subnet:
+    primary_key: SubnetId
+    arn_key: SubnetArn
+    name_key: SubnetId
+    fields:
+      VpcId:
+        required: true
+      AvailabilityZone:
+        required: true
+      AvailableIpAddressCount:
+        readonly: true
+      CidrBlock:
+        required: true
+      DefaultForAz:
+        readonly: true
+      MapPublicIpOnLaunch:
+        readonly: true
+      MapCustomerOwnedIpOnLaunch:
+        readonly: true
+      CustomerOwnedIpv4Pool:
+        readonly: true
+      State:
+        readonly: true
+      OwnerId:
+        readonly: true
+      AssignIpv6AddressOnCreation:
+        readonly: true
+      Ipv6CidrBlockAssociationSet:
+        readonly: true
+      SubnetArn:
+        readonly: true
+      OutpostArn:
+        readonly: true
+      EnableDns64:
+        readonly: true
+      Ipv6Native:
+        default: "False"
+      PrivateDnsNameOptionsOnLaunch:
+        readonly: true
+  SecurityGroup:
+    primary_key: GroupId
+    name_key: GroupName
+    fields:
+      VpcId:
+        required: true
+      OwnerId:
+        readonly: true
+      Description:
+        required: true
+      GroupName:
+        required: true
+      Tags:
+        readonly: true
+  Instance:
+    primary_key: InstanceId
+    fields:
+      InstanceId:
+        readonly: true
+      MaxCount:
+        required: true
+        default: "1"
+      MinCount:
+        required: true
+        default: "1"
+      VpcId:
+        readonly: true
+      SpotInstanceRequestId:
+        readonly: true
+      CapacityReservationId:
+        readonly: true
+      Licenses:
+        readonly: true
+      BootMode:
+        readonly: true
+      TpmSupport:
+        readonly: true
+      State:
+        readonly: true
+      Platform:
+        readonly: true
+secondary:
+  Monitoring:
+    alternate_name: EC2DetailedMonitoring
+  Placement:
+    alternate_name: EC2InstancePlacement
+  IamInstanceProfile:
+    alternate_name: EC2IamInstanceProfile
+  EnclaveOptions:
+    alternate_name: EC2EnclaveOptions
+  CapacityReservationTarget:
+    alternate_name: EC2CapacityReservationTarget
+  PrivateDnsNameOptionsOnLaunch:
+    alternate_name: EC2PrivateDnsNameOptionsOnLaunch

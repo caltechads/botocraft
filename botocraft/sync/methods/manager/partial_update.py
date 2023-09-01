@@ -18,11 +18,16 @@ class PartialUpdateMethodGenerator(ManagerMethodGenerator):
 
     @property
     def body(self) -> str:
-        response_attr = cast(str, self.response_attr)
-        if self.response_attr_multiplicity == 'many':
-            response_attr = f"{response_attr}[0]"
+        response_attr = None
+        if self.response_attr is not None:
+            response_attr = cast(str, self.response_attr)
+            if self.response_attr_multiplicity == 'many':
+                response_attr = f"{response_attr}[0]"
         code = f"""
         {self.operation_call}
+"""
+        if response_attr is not None:
+            code += f"""
         return cast({self.return_type}, response.{response_attr})
 """
         return code
