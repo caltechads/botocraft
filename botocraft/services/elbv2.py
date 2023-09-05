@@ -248,20 +248,23 @@ class ListenerManager(Boto3ModelManager):
 class RuleManager(Boto3ModelManager):
     service_name: str = "elbv2"
 
-    def create(self, model: "Rule", Tags: Optional[List[Tag]] = None) -> "Rule":
+    def create(
+        self, model: "Rule", ListenerArn: str, Tags: Optional[List[Tag]] = None
+    ) -> "Rule":
         """
         Creates a rule for the specified listener. The listener must be
         associated with an Application Load Balancer.
 
         Args:
             model: The :py:class:`Rule` to create.
+            ListenerArn: The Amazon Resource Name (ARN) of the listener.
 
         Keyword Args:
             Tags: The tags to assign to the rule.
         """
         data = model.model_dump(exclude_none=True)
         args = dict(
-            ListenerArn=data["ListenerArn"],
+            ListenerArn=self.serialize(ListenerArn),
             Conditions=data["Conditions"],
             Priority=data["Priority"],
             Actions=data["Actions"],
@@ -559,6 +562,19 @@ class LoadBalancer(PrimaryBoto3Model):
 
     objects: ClassVar[Boto3ModelManager] = LoadBalancerManager()
 
+    #: The name of the load balancer.
+    LoadBalancerName: str
+    #: The nodes of an Internet-facing load balancer have public IP addresses. The DNS
+    #: name of an Internet-facing load balancer is publicly resolvable to the public
+    #: IP addresses of the nodes. Therefore, Internet-facing load balancers can route
+    #: requests from clients over the internet.
+    Scheme: Optional[Literal["internet-facing", "internal"]] = "internet-facing"
+    #: The type of load balancer.
+    Type: Optional[Literal["application", "network", "gateway"]] = "application"
+    #: The type of IP addresses used by the subnets for your load balancer. The
+    #: possible values are ``ipv4`` (for IPv4 addresses) and ``dualstack`` (for IPv4
+    #: and IPv6 addresses).
+    IpAddressType: Optional[Literal["ipv4", "dualstack"]] = "ipv4"
     #: The Amazon Resource Name (ARN) of the load balancer.
     LoadBalancerArn: str = Field(frozen=True, default=None)
     #: The public DNS name of the load balancer.
@@ -567,27 +583,14 @@ class LoadBalancer(PrimaryBoto3Model):
     CanonicalHostedZoneId: str = Field(frozen=True, default=None)
     #: The date and time the load balancer was created.
     CreatedTime: datetime = Field(frozen=True, default=None)
-    #: The name of the load balancer.
-    LoadBalancerName: str
-    #: The nodes of an Internet-facing load balancer have public IP addresses. The DNS
-    #: name of an Internet-facing load balancer is publicly resolvable to the public
-    #: IP addresses of the nodes. Therefore, Internet-facing load balancers can route
-    #: requests from clients over the internet.
-    Scheme: Literal["internet-facing", "internal"]
     #: The ID of the VPC for the load balancer.
     VpcId: str = Field(frozen=True, default=None)
     #: The state of the load balancer.
     State: LoadBalancerState = Field(frozen=True, default=None)
-    #: The type of load balancer.
-    Type: Literal["application", "network", "gateway"]
     #: The subnets for the load balancer.
     AvailabilityZones: List["AvailabilityZone"] = Field(frozen=True, default=None)
     #: The IDs of the security groups for the load balancer.
     SecurityGroups: Optional[List[str]] = None
-    #: The type of IP addresses used by the subnets for your load balancer. The
-    #: possible values are ``ipv4`` (for IPv4 addresses) and ``dualstack`` (for IPv4
-    #: and IPv6 addresses).
-    IpAddressType: Literal["ipv4", "dualstack"]
     #: [Application Load Balancers on Outposts] The ID of the customer-owned address
     #: pool.
     CustomerOwnedIpv4Pool: Optional[str] = None
@@ -861,14 +864,16 @@ class Listener(PrimaryBoto3Model):
 
     objects: ClassVar[Boto3ModelManager] = ListenerManager()
 
-    #: The Amazon Resource Name (ARN) of the listener.
-    ListenerArn: str = Field(frozen=True, default=None)
     #: The Amazon Resource Name (ARN) of the load balancer.
     LoadBalancerArn: str
     #: The port on which the load balancer is listening.
     Port: int
     #: The protocol for connections from clients to the load balancer.
-    Protocol: Literal["HTTP", "HTTPS", "TCP", "TLS", "UDP", "TCP_UDP", "GENEVE"]
+    Protocol: Optional[
+        Literal["HTTP", "HTTPS", "TCP", "TLS", "UDP", "TCP_UDP", "GENEVE"]
+    ] = "HTTPS"
+    #: The Amazon Resource Name (ARN) of the listener.
+    ListenerArn: Optional[str] = None
     #: [HTTPS or TLS listener] The default certificate for the listener.
     Certificates: Optional[List["Certificate"]] = None
     #: [HTTPS or TLS listener] The security policy that defines which protocols and
@@ -1055,10 +1060,8 @@ class Rule(PrimaryBoto3Model):
 
     objects: ClassVar[Boto3ModelManager] = RuleManager()
 
-    #: The Amazon Resource Name (ARN) of the rule.
-    RuleArn: Optional[str] = None
     #: The priority.
-    Priority: str
+    Priority: Optional[str] = "1"
     #: The conditions. Each rule can include zero or one of the following conditions:
     #: ``http-request-method``, ``host-header``, ``path-pattern``, and ``source-ip``,
     #: and zero or more of the following conditions: ``http-header`` and ``query-
@@ -1069,7 +1072,9 @@ class Rule(PrimaryBoto3Model):
     #: last action to be performed.
     Actions: List["Action"]
     #: Indicates whether this is the default rule.
-    IsDefault: bool
+    IsDefault: Optional[bool] = False
+    #: The Amazon Resource Name (ARN) of the rule.
+    RuleArn: Optional[str] = None
 
     @property
     def pk(self) -> Optional[str]:
@@ -1117,17 +1122,29 @@ class TargetGroup(PrimaryBoto3Model):
 
     objects: ClassVar[Boto3ModelManager] = TargetGroupManager()
 
-    #: The Amazon Resource Name (ARN) of the target group.
-    TargetGroupArn: str = Field(frozen=True, default=None)
     #: The name of the target group.
     TargetGroupName: str
     #: The protocol to use for routing traffic to the targets.
-    Protocol: Literal["HTTP", "HTTPS", "TCP", "TLS", "UDP", "TCP_UDP", "GENEVE"]
+    Protocol: Optional[
+        Literal["HTTP", "HTTPS", "TCP", "TLS", "UDP", "TCP_UDP", "GENEVE"]
+    ] = "HTTPS"
     #: The port on which the targets are listening. This parameter is not used if the
     #: target is a Lambda function.
     Port: int
     #: The ID of the VPC for the targets.
     VpcId: str
+    #: The type of target that you must specify when registering targets with this
+    #: target group. The possible values are ``instance`` (register targets by
+    #: instance ID), ``ip`` (register targets by IP address), ``lambda`` (register a
+    #: single Lambda function as a target), or ``alb`` (register a single Application
+    #: Load Balancer as a target).
+    TargetType: Optional[Literal["instance", "ip", "lambda", "alb"]] = "ip"
+    #: The type of IP address used for this target group. The possible values are
+    #: ``ipv4`` and ``ipv6``. This is an optional parameter. If not specified, the IP
+    #: address type defaults to ``ipv4``.
+    IpAddressType: Optional[Literal["ipv4", "ipv6"]] = "ipv4"
+    #: The Amazon Resource Name (ARN) of the target group.
+    TargetGroupArn: Optional[str] = None
     #: The protocol to use to connect with the target. The GENEVE, TLS, UDP, and
     #: TCP\_UDP protocols are not supported for health checks.
     HealthCheckProtocol: Optional[
@@ -1157,19 +1174,9 @@ class TargetGroup(PrimaryBoto3Model):
     #: The Amazon Resource Name (ARN) of the load balancer that routes traffic to this
     #: target group. You can use each target group with only one load balancer.
     LoadBalancerArns: Optional[List[str]] = None
-    #: The type of target that you must specify when registering targets with this
-    #: target group. The possible values are ``instance`` (register targets by
-    #: instance ID), ``ip`` (register targets by IP address), ``lambda`` (register a
-    #: single Lambda function as a target), or ``alb`` (register a single Application
-    #: Load Balancer as a target).
-    TargetType: Literal["instance", "ip", "lambda", "alb"]
     #: [HTTP/HTTPS protocol] The protocol version. The possible values are ``GRPC``,
     #: ``HTTP1``, and ``HTTP2``.
     ProtocolVersion: Optional[str] = None
-    #: The type of IP address used for this target group. The possible values are
-    #: ``ipv4`` and ``ipv6``. This is an optional parameter. If not specified, the IP
-    #: address type defaults to ``ipv4``.
-    IpAddressType: Literal["ipv4", "ipv6"]
 
     @property
     def pk(self) -> Optional[str]:

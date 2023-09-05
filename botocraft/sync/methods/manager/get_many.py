@@ -39,6 +39,7 @@ class GetManyMethodGenerator(ManagerMethodGenerator):
         # it's camelCase, sometimes it's snake_case.  We'll just assume it's a
         # lowercase plural of the model name.
         code = f"""
+        {self.operation_args}
         {self.operation_call}
         if response.{self.response_attr} is not None:
             return response.{self.response_attr}

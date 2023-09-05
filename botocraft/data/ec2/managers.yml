@@ -176,7 +176,9 @@ SecurityGroup:
           source_arg: >-
             self.serialize(self.convert_tags(Tags, 'security-group-rule'))
 Instance:
-  readonly: true
+  mixins:
+    - name: EC2TagsManagerMixin
+      import_path: botocraft.mixins.ec2
   methods:
     create:
       boto3_name: run_instances
@@ -199,8 +201,10 @@ Instance:
           default: >-
             "terminate"
         TagSpecifications:
-          value: >-
-            [{'ResourceType': 'instance', 'Tags': model.Tags}]
+          rename: Tags
+          python_type: Optional[List["Tag"]]
+          source_arg: >-
+            self.serialize(self.convert_tags(Tags, 'instance'))
     get:
       boto3_name: describe_instances
       response_attr: Reservations

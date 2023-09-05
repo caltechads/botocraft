@@ -90,7 +90,7 @@ class DBInstanceManager(Boto3ModelManager):
             DBParameterGroupName=self.serialize(DBParameterGroupName),
             BackupRetentionPeriod=data["BackupRetentionPeriod"],
             PreferredBackupWindow=data["PreferredBackupWindow"],
-            Port=data["DBInstancePort"],
+            Port=data["DbInstancePort"],
             MultiAZ=data["MultiAZ"],
             EngineVersion=data["EngineVersion"],
             AutoMinorVersionUpgrade=data["AutoMinorVersionUpgrade"],
@@ -808,10 +808,41 @@ class DBInstance(PrimaryBoto3Model):
     DBInstanceIdentifier: str
     #: The name of the compute and memory capacity class of the DB instance.
     DBInstanceClass: str
+    #: Indicates whether the DB instance is a Multi-AZ deployment. This setting
+    #: doesn't apply to RDS Custom DB instances.
+    MultiAZ: Optional[bool]
     #: The database engine used for this DB instance.
     Engine: str
+    #: The version of the database engine.
+    EngineVersion: str
+    #: Indicates whether minor version patches are applied automatically.
+    AutoMinorVersionUpgrade: Optional[bool] = True
+    #: Indicates whether the DB instance is publicly accessible.
+    PubliclyAccessible: Optional[bool]
+    #: Indicates whether the DB instance is encrypted.
+    StorageEncrypted: Optional[bool] = True
+    #: The number of days for which automatic DB snapshots are retained.
+    BackupRetentionPeriod: Optional[int] = 1
+    #: The port that the DB instance listens on. If the DB instance is part of a DB
+    #: cluster, this can be a different port than the DB cluster port.
+    DbInstancePort: Optional[int] = None
+    #: Indicates whether mapping of Amazon Web Services Identity and Access Management
+    #: (IAM) accounts to database accounts is enabled for the DB instance.
+    IAMDatabaseAuthenticationEnabled: Optional[bool] = None
+    #: A list of log types that this DB instance is configured to export to CloudWatch
+    #: Logs.
+    EnabledCloudwatchLogsExports: Optional[List[str]] = None
+    #: A list of tags. For more information, see `Tagging Amazon RDS Resources <https:
+    #: //docs.aws.amazon.com/AmazonRDS/latest/UserGuide/USER_Tagging.html>`_ in the
+    #: *Amazon RDS User Guide.*
+    TagList: Optional[List[Tag]] = None
+    #: Indicates whether a customer-owned IP address (CoIP) is enabled for an RDS on
+    #: Outposts DB instance.
+    CustomerOwnedIpEnabled: Optional[bool] = None
+    #: Indicates whether Performance Insights is enabled for the DB instance.
+    PerformanceInsightsEnabled: Optional[bool] = None
     #: The current state of this database.
-    DBInstanceStatus: Optional[str] = None
+    DBInstanceStatus: str = Field(frozen=True, default=None)
     #: The time when a stopped DB instance is restarted automatically.
     AutomaticRestartTime: datetime = Field(frozen=True, default=None)
     #: The master username for the DB instance.
@@ -830,20 +861,20 @@ class DBInstance(PrimaryBoto3Model):
     #: The daily time range during which automated backups are created if automated
     #: backups are enabled, as determined by the ``BackupRetentionPeriod``.
     PreferredBackupWindow: Optional[str] = None
-    #: The number of days for which automatic DB snapshots are retained.
-    BackupRetentionPeriod: Optional[int] = 1
     #: A list of DB security group elements containing ``DBSecurityGroup.Name`` and
     #: ``DBSecurityGroup.Status`` subelements.
     DBSecurityGroups: Optional[List["DBSecurityGroupMembership"]] = None
     #: The list of Amazon EC2 VPC security groups that the DB instance belongs to.
-    VpcSecurityGroups: Optional[List["VpcSecurityGroupMembership"]] = None
+    VpcSecurityGroups: List["VpcSecurityGroupMembership"] = Field(
+        frozen=True, default=None
+    )
     #: The list of DB parameter groups applied to this DB instance.
-    DBParameterGroups: Optional[List["DBParameterGroupStatus"]] = None
+    DBParameterGroups: List["DBParameterGroupStatus"] = Field(frozen=True, default=None)
     #: The name of the Availability Zone where the DB instance is located.
     AvailabilityZone: Optional[str] = None
     #: Information about the subnet group associated with the DB instance, including
     #: the name, description, and subnets in the subnet group.
-    DBSubnetGroup: Optional[DBSubnetGroup] = None
+    DBSubnetGroup: DBSubnetGroup = Field(frozen=True, default=None)
     #: The weekly time range during which system maintenance can occur, in Universal
     #: Coordinated Time (UTC).
     PreferredMaintenanceWindow: Optional[str] = None
@@ -854,13 +885,6 @@ class DBInstance(PrimaryBoto3Model):
     #: The latest time to which a database in this DB instance can be restored with
     #: point-in-time restore.
     LatestRestorableTime: datetime = Field(frozen=True, default=None)
-    #: Indicates whether the DB instance is a Multi-AZ deployment. This setting
-    #: doesn't apply to RDS Custom DB instances.
-    MultiAZ: Optional[bool]
-    #: The version of the database engine.
-    EngineVersion: str
-    #: Indicates whether minor version patches are applied automatically.
-    AutoMinorVersionUpgrade: Optional[bool] = True
     #: The identifier of the source DB instance if this DB instance is a read replica.
     ReadReplicaSourceDBInstanceIdentifier: str = Field(frozen=True, default=None)
     #: The identifiers of the read replicas associated with this DB instance.
@@ -875,7 +899,7 @@ class DBInstance(PrimaryBoto3Model):
     #: more information, see `Working with Oracle Read Replicas for Amazon RDS
     #: <https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/oracle-read-
     #: replicas.html>`_ in the *Amazon RDS User Guide*.
-    ReplicaMode: Literal["open-read-only", "mounted"] = Field(frozen=True, default=None)
+    ReplicaMode: Optional[Literal["open-read-only", "mounted"]] = None
     #: The license model information for this DB instance. This setting doesn't apply
     #: to RDS Custom DB instances.
     LicenseModel: Optional[str] = None
@@ -895,8 +919,6 @@ class DBInstance(PrimaryBoto3Model):
     #: If present, specifies the name of the secondary Availability Zone for a DB
     #: instance with multi-AZ support.
     SecondaryAvailabilityZone: str = Field(frozen=True, default=None)
-    #: Indicates whether the DB instance is publicly accessible.
-    PubliclyAccessible: Optional[bool]
     #: The status of a read replica. If the DB instance isn't a read replica, the
     #: value is blank.
     StatusInfos: List["DBInstanceStatusInfo"] = Field(frozen=True, default=None)
@@ -905,14 +927,9 @@ class DBInstance(PrimaryBoto3Model):
     #: The ARN from the key store with which the instance is associated for TDE
     #: encryption.
     TdeCredentialArn: Optional[str] = None
-    #: The port that the DB instance listens on. If the DB instance is part of a DB
-    #: cluster, this can be a different port than the DB cluster port.
-    DbInstancePort: Optional[int] = None
     #: If the DB instance is a member of a DB cluster, indicates the name of the DB
     #: cluster that the DB instance is a member of.
     DBClusterIdentifier: Optional[str] = None
-    #: Indicates whether the DB instance is encrypted.
-    StorageEncrypted: Optional[bool] = True
     #: If ``StorageEncrypted`` is enabled, the Amazon Web Services KMS key identifier
     #: for the encrypted DB instance.
     KmsKeyId: Optional[str] = None
@@ -933,7 +950,7 @@ class DBInstance(PrimaryBoto3Model):
     MonitoringInterval: Optional[int] = None
     #: The Amazon Resource Name (ARN) of the Amazon CloudWatch Logs log stream that
     #: receives the Enhanced Monitoring metrics data for the DB instance.
-    EnhancedMonitoringResourceArn: Optional[str] = None
+    EnhancedMonitoringResourceArn: str = Field(frozen=True, default=None)
     #: The ARN for the IAM role that permits RDS to send Enhanced Monitoring metrics
     #: to Amazon CloudWatch Logs.
     MonitoringRoleArn: Optional[str] = None
@@ -949,19 +966,11 @@ class DBInstance(PrimaryBoto3Model):
     #: empty. ``Timezone`` content appears only for Microsoft SQL Server DB instances
     #: that were created with a time zone specified.
     Timezone: Optional[str] = None
-    #: Indicates whether mapping of Amazon Web Services Identity and Access Management
-    #: (IAM) accounts to database accounts is enabled for the DB instance.
-    IAMDatabaseAuthenticationEnabled: Optional[bool] = None
-    #: Indicates whether Performance Insights is enabled for the DB instance.
-    PerformanceInsightsEnabled: Optional[bool] = None
     #: The Amazon Web Services KMS key identifier for encryption of Performance
     #: Insights data.
     PerformanceInsightsKMSKeyId: Optional[str] = None
     #: The number of days to retain Performance Insights data.
     PerformanceInsightsRetentionPeriod: Optional[int] = None
-    #: A list of log types that this DB instance is configured to export to CloudWatch
-    #: Logs.
-    EnabledCloudwatchLogsExports: Optional[List[str]] = None
     #: The number of CPU cores and the number of threads per core for the DB instance
     #: class of the DB instance.
     ProcessorFeatures: Optional[List["ProcessorFeature"]] = None
@@ -978,17 +987,10 @@ class DBInstance(PrimaryBoto3Model):
     #: The upper limit in gibibytes (GiB) to which Amazon RDS can automatically scale
     #: the storage of the DB instance.
     MaxAllocatedStorage: Optional[int] = None
-    #: A list of tags. For more information, see `Tagging Amazon RDS Resources <https:
-    #: //docs.aws.amazon.com/AmazonRDS/latest/UserGuide/USER_Tagging.html>`_ in the
-    #: *Amazon RDS User Guide.*
-    TagList: Optional[List[Tag]] = None
     #: The list of replicated automated backups associated with the DB instance.
-    DBInstanceAutomatedBackupsReplications: Optional[
-        List["DBInstanceAutomatedBackupsReplication"]
-    ] = None
-    #: Indicates whether a customer-owned IP address (CoIP) is enabled for an RDS on
-    #: Outposts DB instance.
-    CustomerOwnedIpEnabled: Optional[bool] = None
+    DBInstanceAutomatedBackupsReplications: List[
+        "DBInstanceAutomatedBackupsReplication"
+    ] = Field(frozen=True, default=None)
     #: The Amazon Resource Name (ARN) of the recovery point in Amazon Web Services
     #: Backup.
     AwsBackupRecoveryPointArn: Optional[str] = None
@@ -1009,7 +1011,9 @@ class DBInstance(PrimaryBoto3Model):
     ActivityStreamMode: Literal["sync", "async"] = Field(frozen=True, default=None)
     #: Indicates whether engine-native audit fields are included in the database
     #: activity stream.
-    ActivityStreamEngineNativeAuditFieldsIncluded: Optional[bool] = None
+    ActivityStreamEngineNativeAuditFieldsIncluded: bool = Field(
+        frozen=True, default=None
+    )
     #: The automation mode of the RDS Custom DB instance: ``full`` or ``all paused``.
     #: If ``full``, the DB instance automates monitoring and instance recovery. If
     #: ``all paused``, the instance pauses automation for the duration set by
@@ -1029,9 +1033,9 @@ class DBInstance(PrimaryBoto3Model):
     #: The network type of the DB instance.
     NetworkType: Optional[str] = None
     #: The status of the policy state of the activity stream.
-    ActivityStreamPolicyStatus: Optional[
-        Literal["locked", "unlocked", "locking-policy", "unlocking-policy"]
-    ] = None
+    ActivityStreamPolicyStatus: Literal[
+        "locked", "unlocked", "locking-policy", "unlocking-policy"
+    ] = Field(frozen=True, default=None)
     #: The storage throughput for the DB instance.
     StorageThroughput: Optional[int] = None
     #: The Oracle system ID (Oracle SID) for a container database (CDB). The Oracle
@@ -1042,9 +1046,9 @@ class DBInstance(PrimaryBoto3Model):
     #: user password.
     MasterUserSecret: RDSMasterUserSecret = Field(frozen=True, default=None)
     #: The details of the DB instance's server certificate.
-    CertificateDetails: Optional[RDSCertificateDetails] = None
+    CertificateDetails: RDSCertificateDetails = Field(frozen=True, default=None)
     #: The identifier of the source DB cluster if this DB instance is a read replica.
-    ReadReplicaSourceDBClusterIdentifier: Optional[str] = None
+    ReadReplicaSourceDBClusterIdentifier: str = Field(frozen=True, default=None)
     #: The progress of the storage optimization operation as a percentage.
     PercentProgress: str = Field(frozen=True, default=None)
 

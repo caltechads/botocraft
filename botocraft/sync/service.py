@@ -37,6 +37,7 @@ from .shapes import PythonTypeShapeConverter
 class AbstractGenerator:
 
     def __init__(self, service_generator: "ServiceGenerator") -> None:
+        session = botocore.session.get_session()
         #: The :py:class:`ServiceGenerator` we're generating models for.
         self.service_generator = service_generator
         #: The name of the AWS service we're generating models for.
@@ -46,7 +47,6 @@ class AbstractGenerator:
         #: The botocraft interface definition.  We collect things we need to
         #: know globally here.
         self.interface = service_generator.interface
-        session = botocore.session.get_session()
         #: The botocore service model for our service.
         self.service_model = session.get_service_model(self.service_name)
         #: The documentation formatter we will use to format docstrings.
@@ -82,7 +82,11 @@ class AbstractGenerator:
         Returns:
             The shape object.
         """
-        return self.service_model.shape_for(name)
+        try:
+            return self.service_model.shape_for(name)
+        except botocore.model.NoShapeFoundError:
+            model_name = self.service_def.resolve_model_name(name)
+            return self.service_model.shape_for(model_name)
 
     def generate(self) -> None:
         raise NotImplementedError
@@ -90,7 +94,7 @@ class AbstractGenerator:
 
 class ModelGenerator(AbstractGenerator):
     """
-    Generate pydantic model definitions for a service.
+    Generate pydantic model definitions from botocore shapes.
     """
 
     def __init__(self, service_generator: "ServiceGenerator") -> None:
@@ -117,30 +121,106 @@ class ModelGenerator(AbstractGenerator):
             return defn
         return ModelDefinition(base_class='Boto3Model', name=model_name)
 
+    def add_extra_fields(
+        self,
+        model_name: str,
+        model_fields: Dict[str, ModelAttributeDefinition]
+    ) -> Dict[str, ModelAttributeDefinition]:
+        """
+        Extract extra fields from the output shape of a get or list method.
+        These are fields that are in the output of the get/list methods but not
+        in the service models.  We add them to the models as readonly fields so
+        that we can load them from the API responses.
+
+        Args:
+            model_fields: the botocraft model field definitions for the model
+            output_shape_name: the name of the botocore shape of the output of the
+                get/list method
+        """
+        model_def = self.get_model_def(model_name)
+        if not model_def.output_shape:
+            return model_fields
+        output_shape = self.get_shape(model_def.output_shape)
+        if not hasattr(output_shape, 'members'):
+            return model_fields
+        for field_name, field_shape in output_shape.members.items():
+            if field_name not in model_fields:
+                model_fields[field_name] = ModelAttributeDefinition(
+                    readonly=True,
+                    botocore_shape=field_shape
+                )
+        return model_fields
+
+    def mark_readonly_fields(
+        self,
+        model_name: str,
+        model_fields: Dict[str, ModelAttributeDefinition]
+    ) -> Dict[str, ModelAttributeDefinition]:
+        """
+        Mark model fields as readonly if they are not in any of the input shapes
+        defined for the model.
+
+        Args:
+            model_name: The name of the model to mark fields for.
+            model_fields: The botocraft model field definitions for the model.
+
+        Returns:
+            The updated model fields.
+        """
+        model_def = self.get_model_def(model_name)
+        if not model_def.input_shapes:
+            return model_fields
+        # First include any fields that were manually set to writable
+        # in the botocraft model definition
+        writable_fields: Set[str] = set(
+            [
+                field_name
+                for field_name in model_def.fields
+                if model_def.fields[field_name].readonly is False
+            ]
+        )
+        # Now add any fields that are in the input shapes
+        for input_shape_name in model_def.input_shapes:
+            input_shape = self.get_shape(input_shape_name)
+            if hasattr(input_shape, 'members'):
+                writable_fields.update(input_shape.members.keys())
+        # Mark any fields that are not in writable_fields as readonly
+        for field_name, field_def in model_fields.items():
+            if field_name not in writable_fields:
+                field_def.readonly = True
+        return model_fields
+
     def fields(self, model_name: str) -> Dict[str, ModelAttributeDefinition]:
         """
         Return the fields for a botocore shape as a dictionary of field names to
-        field definitions.  This incorporates settings from the
+        botocraft field definitions.  This incorporates settings from the
         :py:class:`ModelAttributeDefinitions` from the  ``fields`` attribute of
         the associated model definition, if it exists.
 
         .. note::
-            This really only makes sense on `botocore.model.StructureShape`
-            objects, since they are the only ones that have fields.
+            This really only makes sense on :py:class:`botocore.model.StructureShape`
+            objects, since they are the only ones that have fields (aka "members").
+
+        Side Effects:
+            We set :py:attr:`ModelAttributeDefinition.botocore_shape` on each
+            field definition, and we set :py:attr:`ModelAttributeDefinition.readonly`
+            if the field is not in any of the input shapes for the model.
 
         Returns:
             A dictionary of field names to field definitions.
         """
-        fields: Dict[str, ModelAttributeDefinition] = deepcopy(
-            self.get_model_def(model_name).fields
-        )
+        model_def = self.get_model_def(model_name)
+        fields: Dict[str, ModelAttributeDefinition] = deepcopy(model_def.fields)
         model_shape = self.get_shape(model_name)
         if hasattr(model_shape, 'members'):
-            for field in model_shape.members:
+            for field, field_shape in model_shape.members.items():
                 if field not in fields:
                     fields[field] = ModelAttributeDefinition()
                     if field in model_shape.required_members:
                         fields[field].required = True
+                fields[field].botocore_shape = field_shape
+        fields = self.mark_readonly_fields(model_name, fields)
+        fields = self.add_extra_fields(model_name, fields)
         return fields
 
     def generate(self) -> None:
@@ -152,11 +232,7 @@ class ModelGenerator(AbstractGenerator):
 
     def extra_fields(self, model_def: ModelDefinition) -> List[str]:
         """
-        Build out the extra fields for a model.
-
-        Extra fields are fields that are in the output of the
-        create/get/list/update methods but not in actual models.  We add them to
-        the models so that we can load them from the API responses.
+        Build out the manually defined extra fields for a model.
 
         Extra fields are exclusively defined in the botocore model definition.
         We add them manually to the model definition by inspecting the response
@@ -208,6 +284,9 @@ class ModelGenerator(AbstractGenerator):
                 f'Primary service model "{model_def.name}" has no primary key defined'
 
             if 'pk' not in model_def.properties and model_def.primary_key:
+                # There is no ``pk`` property, in the ``properties:`` section,
+                # but there is a ``primary_key:`` attribute.  We need to add a
+                # ``pk`` property that is an alias for the primary key.
                 properties = f'''
     @property
     def pk(self) -> Optional[str]:
@@ -319,8 +398,6 @@ class ModelGenerator(AbstractGenerator):
         """
         fields: List[str] = []
 
-        if model_name == 'CloudwatchLogsExportConfiguration':
-            pass
         model_def = self.get_model_def(model_name)
         base_class = cast(str, model_def.base_class)
         if not shape:
@@ -329,13 +406,29 @@ class ModelGenerator(AbstractGenerator):
             model_name = model_def.alternate_name
 
         if hasattr(shape, 'members'):
-            for field_name, field_shape in shape.members.items():
-                #: The botocraft definition for this field
-                field_def = model_def.fields.get(field_name, ModelAttributeDefinition())
+            # Get the list of all the fields for this model, along with their
+            # botocode definitions.  This includes fields from the botocore model,
+            # and any extra fields we have defined in the botocraft model
+            # definition.
+            model_fields = self.fields(model_name)
+            for field_name, field_def in model_fields.items():
+                field_shape = field_def.botocore_shape
                 # Whether this field is required
                 required: bool = (field_name in shape.required_members) or field_def.required
                 # Our guess as to the python type for this field
-                python_type = self.field_type(model_name, field_name, model_shape=shape, field_shape=field_shape)
+                if not field_shape:
+                    assert field_def.python_type, \
+                        f'Field {field_name} in model {model_name} has no botocore shape or python type'
+                    python_type = field_def.python_type
+                    docstring = field_def.docstring
+                else:
+                    python_type = self.field_type(
+                        model_name,
+                        field_name,
+                        model_shape=shape,
+                        field_shape=field_shape
+                    )
+                    docstring = cast(str, field_shape.documentation)
                 default = None
                 if not required:
                     if not field_def.readonly:
@@ -345,9 +438,8 @@ class ModelGenerator(AbstractGenerator):
                     else:
                         default = field_def.default
                 # Add the docstring for this field
-                fields.append(
-                    self.docformatter.format_attribute(field_shape.documentation)
-                )
+                if docstring:
+                    fields.append(self.docformatter.format_attribute(docstring))
                 field_line = f'    {field_name}: {python_type}'
                 if field_def.readonly:
                     _default = f', default={default}' if default else ''
@@ -457,6 +549,12 @@ class {model_name}Manager({base_class}):
 class ServiceGenerator:
     """
     Generate the code for a single AWS service.
+
+    This means:
+
+        * Managers
+        * Service Models
+        * Request/Response Models
     """
 
     service_path: Path = Path(__file__).parent.parent / 'services'
@@ -575,7 +673,7 @@ class ServiceGenerator:
     def write(self) -> None:
         """
         Write the generated code to the output file, and format it with black,
-        and with docformatter.
+        isort, and docformatter.
 
         Args:
             code: the code to write to the output file.

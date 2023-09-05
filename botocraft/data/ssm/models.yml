@@ -4,6 +4,8 @@ primary:
     primary_key: Name
     arn_key: ARN
     name_key: Name
+    input_shapes:
+      - PutParameterRequest
     fields:
       Name:
         required: true
@@ -11,15 +13,9 @@ primary:
         default: None
       Type:
         required: true
-      Overwrite:
+      DataType:
         default: >-
-          "False"
-      LastModifiedDate:
-        readonly: true
-      Version:
-        readonly: true
-      ARN:
-        readonly: true
+          "text"
 secondary:
   ParametersFilter:
     fields:

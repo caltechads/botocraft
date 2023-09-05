@@ -7,7 +7,7 @@ DBInstance:
         DBSecurityGroups:
           hidden: true
         Port:
-          attribute: DBInstancePort
+          attribute: DbInstancePort
         EnableIAMDatabaseAuthentication:
           attribute: IAMDatabaseAuthenticationEnabled
         EnableCloudwatchLogsExports:
@@ -24,7 +24,7 @@ DBInstance:
         DBSecurityGroups:
           hidden: true
         Port:
-          attribute: DBInstancePort
+          attribute: DbInstancePort
         EnableIAMDatabaseAuthentication:
           attribute: IAMDatabaseAuthenticationEnabled
         Tags:

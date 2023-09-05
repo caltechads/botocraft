@@ -4,15 +4,11 @@ primary:
     plural: Repositories
     arn_key: repositoryArn
     name_key: repositoryName
+    input_shapes:
+      - CreateRepositoryRequest
     fields:
-      repositoryArn:
-        readonly: true
       repositoryName:
         required: true
-      repositoryUri:
-        readonly: true
-      createdAt:
-        readonly: true
       imageTagMutability:
         required: true
         default: >-

@@ -3,23 +3,12 @@ primary:
   Service:
     arn_key: serviceArn
     name_key: serviceName
+    input_shapes:
+      - CreateServiceRequest
+      - UpdateServiceRequest
     fields:
-      serviceArn:
-        readonly: true
-      status:
-        readonly: true
-      runningCount:
-        readonly: true
-      pendingCount:
-        readonly: true
       serviceName:
         required: true
-      deployments:
-        readonly: true
-      events:
-        readonly: true
-      createdBy:
-        readonly: true
       taskDefinition:
         required: true
       roleArn:
@@ -48,29 +37,13 @@ primary:
           mapping:
             service: serviceName
             cluster: clusterArn
-
-
   Cluster:
     primary_key: clusterArn
     arn_key: clusterArn
     name_key: clusterName
+    input_shapes:
+      - CreateClusterRequest
     fields:
-      clusterArn:
-        readonly: true
-      status:
-        readonly: true
-      registeredContainerInstancesCount:
-        readonly: true
-      runningTasksCount:
-        readonly: true
-      pendingTasksCount:
-        readonly: true
-      activeServicesCount:
-        readonly: true
-      statistics:
-        readonly: true
-      attachmentsStatus:
-        readonly: true
       clusterName:
         required: true
         default: >-
@@ -78,15 +51,9 @@ primary:
   TaskDefinition:
     primary_key: taskDefinitionArn
     arn_key: taskDefinitionArn
+    input_shapes:
+      - RegisterTaskDefinitionRequest
     fields:
-      taskDefinitionArn:
-        readonly: true
-      revision:
-        readonly: true
-      status:
-        readonly: true
-      registeredBy:
-        readonly: true
       family:
         required: true
       taskRoleArn:
@@ -94,7 +61,6 @@ primary:
       containerDefinitions:
         required: true
       networkMode:
-        required: true
         default: >-
           "awsvpc"
   ContainerInstance:

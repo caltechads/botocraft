@@ -81,6 +81,7 @@ class ParameterManager(Boto3ModelManager):
         model: "Parameter",
         Description: Optional[str] = None,
         KeyId: Optional[str] = None,
+        Overwrite: Optional[bool] = None,
         AllowedPattern: Optional[str] = None,
         Tags: Optional[List[Tag]] = None,
         Tier: Optional[Literal["Standard", "Advanced", "Intelligent-Tiering"]] = None,
@@ -98,6 +99,7 @@ class ParameterManager(Boto3ModelManager):
             KeyId: The Key Management Service (KMS) ID that you want to use to encrypt
                 a parameter. Use a custom key for better security. Required for parameters
                 that use the ``SecureString`` data type.
+            Overwrite: Overwrite an existing parameter. The default value is ``false``.
             AllowedPattern: A regular expression used to validate the parameter value.
                 For example, for String types with values restricted to numbers, you can
                 specify the following: AllowedPattern=^\d+$
@@ -119,7 +121,7 @@ class ParameterManager(Boto3ModelManager):
             Description=self.serialize(Description),
             Type=data["Type"],
             KeyId=self.serialize(KeyId),
-            Overwrite=data["Overwrite"],
+            Overwrite=self.serialize(Overwrite),
             AllowedPattern=self.serialize(AllowedPattern),
             Tags=self.serialize(Tags),
             Tier=self.serialize(Tier),
@@ -213,27 +215,27 @@ class Parameter(PrimaryBoto3Model):
 
     #: The name of the parameter.
     Name: str
+    #: The parameter value.
+    Value: Optional[str] = None
     #: The type of parameter. Valid values include the following: ``String``,
     #: ``StringList``, and ``SecureString``.
     Type: Literal["String", "StringList", "SecureString"]
-    #: The parameter value.
-    Value: Optional[str] = None
+    #: The data type of the parameter, such as ``text`` or ``aws:ec2:image``. The
+    #: default is ``text``.
+    DataType: Optional[str] = "text"
     #: The parameter version.
     Version: int = Field(frozen=True, default=None)
     #: Either the version number or the label used to retrieve the parameter value.
     #: Specify selectors by using one of the following formats:
-    Selector: Optional[str] = None
+    Selector: str = Field(frozen=True, default=None)
     #: Applies to parameters that reference information in other Amazon Web Services
     #: services. ``SourceResult`` is the raw result or response from the source.
-    SourceResult: Optional[str] = None
+    SourceResult: str = Field(frozen=True, default=None)
     #: Date the parameter was last changed or updated and the parameter version was
     #: created.
     LastModifiedDate: datetime = Field(frozen=True, default=None)
     #: The Amazon Resource Name (ARN) of the parameter.
     ARN: str = Field(frozen=True, default=None)
-    #: The data type of the parameter, such as ``text`` or ``aws:ec2:image``. The
-    #: default is ``text``.
-    DataType: Optional[str] = None
 
     @property
     def pk(self) -> Optional[str]:

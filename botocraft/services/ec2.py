@@ -385,12 +385,14 @@ class SecurityGroupManager(EC2TagsManagerMixin, Boto3ModelManager):
         return response.Return
 
 
-class InstanceManager(ReadonlyBoto3ModelManager):
+class InstanceManager(EC2TagsManagerMixin, Boto3ModelManager):
     service_name: str = "ec2"
 
     def create(
         self,
         model: "Instance",
+        MaxCount: int,
+        MinCount: int,
         DisableApiTermination: bool = False,
         DisableApiStop: bool = False,
         InstanceInitiatedShutdownBehavior: Literal["stop", "terminate"] = "terminate",
@@ -414,6 +416,13 @@ class InstanceManager(ReadonlyBoto3ModelManager):
 
         Args:
             model: The :py:class:`Instance` to create.
+            MaxCount: The maximum number of instances to launch. If you specify more
+                instances than Amazon EC2 can launch in the target Availability Zone,
+                Amazon EC2 launches the largest possible number of instances above
+                ``MinCount``.
+            MinCount: The minimum number of instances to launch. If you specify a
+                minimum that is more instances than Amazon EC2 can launch in the target
+                Availability Zone, Amazon EC2 launches no instances.
 
         Keyword Args:
             DisableApiTermination: If you set this parameter to ``true``, you can't
@@ -494,8 +503,8 @@ class InstanceManager(ReadonlyBoto3ModelManager):
         """
         data = model.model_dump(exclude_none=True)
         args = dict(
-            MaxCount=data["MaxCount"],
-            MinCount=data["MinCount"],
+            MaxCount=self.serialize(MaxCount),
+            MinCount=self.serialize(MinCount),
             BlockDeviceMappings=data["BlockDeviceMappings"],
             ImageId=data["ImageId"],
             InstanceType=data["InstanceType"],
@@ -522,7 +531,7 @@ class InstanceManager(ReadonlyBoto3ModelManager):
             ElasticGpuSpecification=self.serialize(ElasticGpuSpecification),
             ElasticInferenceAccelerators=self.serialize(ElasticInferenceAccelerators),
             TagSpecifications=self.serialize(
-                [{"ResourceType": "instance", "Tags": model.Tags}]
+                self.serialize(self.convert_tags(Tags, "instance"))
             ),
             LaunchTemplate=self.serialize(LaunchTemplate),
             InstanceMarketOptions=self.serialize(InstanceMarketOptions),
@@ -672,12 +681,14 @@ class Vpc(PrimaryBoto3Model):
 
     #: The primary IPv4 CIDR block for the VPC.
     CidrBlock: str
+    #: Any tags assigned to the VPC.
+    Tags: Optional[List[Tag]] = None
     #: The ID of the set of DHCP options you've associated with the VPC.
     DhcpOptionsId: str = Field(frozen=True, default=None)
     #: The current state of the VPC.
     State: Literal["pending", "available"] = Field(frozen=True, default=None)
     #: The ID of the VPC.
-    VpcId: Optional[str] = None
+    VpcId: str = Field(frozen=True, default=None)
     #: The ID of the Amazon Web Services account that owns the VPC.
     OwnerId: str = Field(frozen=True, default=None)
     #: The allowed tenancy of instances launched into the VPC.
@@ -692,8 +703,6 @@ class Vpc(PrimaryBoto3Model):
     )
     #: Indicates whether the VPC is the default VPC.
     IsDefault: bool = Field(frozen=True, default=None)
-    #: Any tags assigned to the VPC.
-    Tags: Optional[List[Tag]] = None
 
     @property
     def pk(self) -> Optional[str]:
@@ -778,21 +787,27 @@ class Subnet(PrimaryBoto3Model):
 
     objects: ClassVar[Boto3ModelManager] = SubnetManager()
 
+    #: The ID of the VPC the subnet is in.
+    VpcId: str
     #: The Availability Zone of the subnet.
     AvailabilityZone: str
+    #: The IPv4 CIDR block assigned to the subnet.
+    CidrBlock: str
+    #: Indicates whether this is an IPv6 only subnet.
+    Ipv6Native: Optional[bool] = False
+    #: Any tags assigned to the subnet.
+    Tags: Optional[List[Tag]] = None
     #: The AZ ID of the subnet.
     AvailabilityZoneId: Optional[str] = None
     #: The number of unused private IPv4 addresses in the subnet. The IPv4 addresses
     #: for any stopped instances are considered unavailable.
     AvailableIpAddressCount: int = Field(frozen=True, default=None)
-    #: The IPv4 CIDR block assigned to the subnet.
-    CidrBlock: str
     #: Indicates whether this is the default subnet for the Availability Zone.
     DefaultForAz: bool = Field(frozen=True, default=None)
     #: Indicates the device position for local network interfaces in this subnet. For
     #: example, ``1`` indicates local network interfaces in this subnet are the
     #: secondary network interface (eth1).
-    EnableLniAtDeviceIndex: Optional[int] = None
+    EnableLniAtDeviceIndex: int = Field(frozen=True, default=None)
     #: Indicates whether instances launched in this subnet receive a public IPv4
     #: address.
     MapPublicIpOnLaunch: bool = Field(frozen=True, default=None)
@@ -805,9 +820,7 @@ class Subnet(PrimaryBoto3Model):
     #: The current state of the subnet.
     State: Literal["pending", "available"] = Field(frozen=True, default=None)
     #: The ID of the subnet.
-    SubnetId: Optional[str] = None
-    #: The ID of the VPC the subnet is in.
-    VpcId: str
+    SubnetId: str = Field(frozen=True, default=None)
     #: The ID of the Amazon Web Services account that owns the subnet.
     OwnerId: str = Field(frozen=True, default=None)
     #: Indicates whether a network interface created in this subnet (including a
@@ -817,17 +830,13 @@ class Subnet(PrimaryBoto3Model):
     Ipv6CidrBlockAssociationSet: List["SubnetIpv6CidrBlockAssociation"] = Field(
         frozen=True, default=None
     )
-    #: Any tags assigned to the subnet.
-    Tags: Optional[List[Tag]] = None
     #: The Amazon Resource Name (ARN) of the subnet.
     SubnetArn: str = Field(frozen=True, default=None)
     #: The Amazon Resource Name (ARN) of the Outpost.
-    OutpostArn: str = Field(frozen=True, default=None)
+    OutpostArn: Optional[str] = None
     #: Indicates whether DNS queries made to the Amazon-provided DNS Resolver in this
     #: subnet should return synthetic IPv6 addresses for IPv4-only destinations.
     EnableDns64: bool = Field(frozen=True, default=None)
-    #: Indicates whether this is an IPv6 only subnet.
-    Ipv6Native: Optional[bool] = False
     #: The type of hostnames to assign to instances in the subnet at launch. An
     #: instance hostname is based on the IPv4 address or ID of the instance.
     PrivateDnsNameOptionsOnLaunch: EC2PrivateDnsNameOptionsOnLaunch = Field(
@@ -964,22 +973,22 @@ class SecurityGroup(SecurityGroupModelMixin, PrimaryBoto3Model):
 
     objects: ClassVar[Boto3ModelManager] = SecurityGroupManager()
 
-    #: A description of the security group.
-    Description: str
+    #: The ID of the VPC for the security group.
+    VpcId: str
     #: The name of the security group.
     GroupName: str
+    #: A description of the security group.
+    Description: str
     #: The inbound rules associated with the security group.
     IpPermissions: Optional[List["IpPermission"]] = None
-    #: The Amazon Web Services account ID of the owner of the security group.
-    OwnerId: str = Field(frozen=True, default=None)
-    #: The ID of the security group.
-    GroupId: str = Field(frozen=True, default=None)
     #: The outbound rules associated with the security group.
     IpPermissionsEgress: Optional[List["IpPermission"]] = None
     #: Any tags assigned to the security group.
     Tags: Optional[List[Tag]] = None
-    #: The ID of the VPC for the security group.
-    VpcId: str
+    #: The Amazon Web Services account ID of the owner of the security group.
+    OwnerId: str = Field(frozen=True, default=None)
+    #: The ID of the security group.
+    GroupId: str = Field(frozen=True, default=None)
 
     @property
     def pk(self) -> Optional[str]:
@@ -1431,9 +1440,11 @@ class Instance(PrimaryBoto3Model):
 
     objects: ClassVar[Boto3ModelManager] = InstanceManager()
 
+    #: Any tags assigned to the instance.
+    Tags: Optional[List[Tag]] = None
     #: The AMI launch index, which can be used to find this instance in the launch
     #: group.
-    AmiLaunchIndex: Optional[int] = None
+    AmiLaunchIndex: int = Field(frozen=True, default=None)
     #: The ID of the AMI used to launch the instance.
     ImageId: Optional[str] = None
     #: The ID of the instance.
@@ -2145,7 +2156,7 @@ class Instance(PrimaryBoto3Model):
     #: pair.
     KeyName: Optional[str] = None
     #: The time the instance was launched.
-    LaunchTime: Optional[datetime] = None
+    LaunchTime: datetime = Field(frozen=True, default=None)
     #: The monitoring for the instance.
     Monitoring: Optional[EC2DetailedMonitoring] = None
     #: The location where the instance launched, if applicable.
@@ -2155,32 +2166,32 @@ class Instance(PrimaryBoto3Model):
     #: [IPv4 only] The private DNS hostname name assigned to the instance. This DNS
     #: hostname can only be used inside the Amazon EC2 network. This name is not
     #: available until the instance enters the ``running`` state.
-    PrivateDnsName: Optional[str] = None
+    PrivateDnsName: str = Field(frozen=True, default=None)
     #: The private IPv4 address assigned to the instance.
     PrivateIpAddress: Optional[str] = None
     #: The product codes attached to this instance, if applicable.
-    ProductCodes: Optional[List["ProductCode"]] = None
+    ProductCodes: List["ProductCode"] = Field(frozen=True, default=None)
     #: [IPv4 only] The public DNS name assigned to the instance. This name is not
     #: available until the instance enters the ``running`` state. This name is only
     #: available if you've enabled DNS hostnames for your VPC.
-    PublicDnsName: Optional[str] = None
+    PublicDnsName: str = Field(frozen=True, default=None)
     #: The public IPv4 address, or the Carrier IP address assigned to the instance, if
     #: applicable.
-    PublicIpAddress: Optional[str] = None
+    PublicIpAddress: str = Field(frozen=True, default=None)
     #: The RAM disk associated with this instance, if applicable.
     RamdiskId: Optional[str] = None
     #: The current state of the instance.
     State: InstanceState = Field(frozen=True, default=None)
     #: The reason for the most recent state transition. This might be an empty string.
-    StateTransitionReason: Optional[str] = None
+    StateTransitionReason: str = Field(frozen=True, default=None)
     #: The ID of the subnet in which the instance is running.
     SubnetId: Optional[str] = None
     #: The ID of the VPC in which the instance is running.
     VpcId: str = Field(frozen=True, default=None)
     #: The architecture of the image.
-    Architecture: Optional[
-        Literal["i386", "x86_64", "arm64", "x86_64_mac", "arm64_mac"]
-    ] = None
+    Architecture: Literal["i386", "x86_64", "arm64", "x86_64_mac", "arm64_mac"] = Field(
+        frozen=True, default=None
+    )
     #: Any block device mapping entries for the instance.
     BlockDeviceMappings: Optional[List["InstanceBlockDeviceMapping"]] = None
     #: The idempotency token you provided when you launched the instance, if
@@ -2193,44 +2204,44 @@ class Instance(PrimaryBoto3Model):
     #: EBS Optimized instance.
     EbsOptimized: Optional[bool] = None
     #: Specifies whether enhanced networking with ENA is enabled.
-    EnaSupport: Optional[bool] = None
+    EnaSupport: bool = Field(frozen=True, default=None)
     #: The hypervisor type of the instance. The value ``xen`` is used for both Xen and
     #: Nitro hypervisors.
-    Hypervisor: Optional[Literal["ovm", "xen"]] = None
+    Hypervisor: Literal["ovm", "xen"] = Field(frozen=True, default=None)
     #: The IAM instance profile associated with the instance, if applicable.
     IamInstanceProfile: Optional[EC2IamInstanceProfile] = None
     #: Indicates whether this is a Spot Instance or a Scheduled Instance.
-    InstanceLifecycle: Optional[Literal["spot", "scheduled"]] = None
+    InstanceLifecycle: Literal["spot", "scheduled"] = Field(frozen=True, default=None)
     #: The Elastic GPU associated with the instance.
-    ElasticGpuAssociations: Optional[List["ElasticGpuAssociation"]] = None
+    ElasticGpuAssociations: List["ElasticGpuAssociation"] = Field(
+        frozen=True, default=None
+    )
     #: The elastic inference accelerator associated with the instance.
-    ElasticInferenceAcceleratorAssociations: Optional[
-        List["ElasticInferenceAcceleratorAssociation"]
-    ] = None
+    ElasticInferenceAcceleratorAssociations: List[
+        "ElasticInferenceAcceleratorAssociation"
+    ] = Field(frozen=True, default=None)
     #: The network interfaces for the instance.
     NetworkInterfaces: Optional[List["InstanceNetworkInterface"]] = None
     #: The Amazon Resource Name (ARN) of the Outpost.
-    OutpostArn: Optional[str] = None
+    OutpostArn: str = Field(frozen=True, default=None)
     #: The device name of the root device volume (for example, ``/dev/sda1``).
-    RootDeviceName: Optional[str] = None
+    RootDeviceName: str = Field(frozen=True, default=None)
     #: The root device type used by the AMI. The AMI can use an EBS volume or an
     #: instance store volume.
-    RootDeviceType: Optional[Literal["ebs", "instance-store"]] = None
+    RootDeviceType: Literal["ebs", "instance-store"] = Field(frozen=True, default=None)
     #: The security groups for the instance.
     SecurityGroups: Optional[List["GroupIdentifier"]] = None
     #: Indicates whether source/destination checking is enabled.
-    SourceDestCheck: Optional[bool] = None
+    SourceDestCheck: bool = Field(frozen=True, default=None)
     #: If the request is a Spot Instance request, the ID of the request.
     SpotInstanceRequestId: str = Field(frozen=True, default=None)
     #: Specifies whether enhanced networking with the Intel 82599 Virtual Function
     #: interface is enabled.
-    SriovNetSupport: Optional[str] = None
+    SriovNetSupport: str = Field(frozen=True, default=None)
     #: The reason for the most recent state transition.
-    StateReason: Optional[StateReason] = None
-    #: Any tags assigned to the instance.
-    Tags: Optional[List[Tag]] = None
+    StateReason: StateReason = Field(frozen=True, default=None)
     #: The virtualization type of the instance.
-    VirtualizationType: Optional[Literal["hvm", "paravirtual"]] = None
+    VirtualizationType: Literal["hvm", "paravirtual"] = Field(frozen=True, default=None)
     #: The CPU options for the instance.
     CpuOptions: Optional[CpuOptions] = None
     #: The ID of the Capacity Reservation.
@@ -2259,18 +2270,18 @@ class Instance(PrimaryBoto3Model):
     #: billing information fields
     #: <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/billing-info-
     #: fields.html>`_ in the *Amazon EC2 User Guide*.
-    PlatformDetails: Optional[str] = None
+    PlatformDetails: str = Field(frozen=True, default=None)
     #: The usage operation value for the instance. For more information, see `AMI
     #: billing information fields
     #: <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/billing-info-
     #: fields.html>`_ in the *Amazon EC2 User Guide*.
-    UsageOperation: Optional[str] = None
+    UsageOperation: str = Field(frozen=True, default=None)
     #: The time that the usage operation was last updated.
-    UsageOperationUpdateTime: Optional[datetime] = None
+    UsageOperationUpdateTime: datetime = Field(frozen=True, default=None)
     #: The options for the instance hostname.
     PrivateDnsNameOptions: Optional[PrivateDnsNameOptionsResponse] = None
     #: The IPv6 address assigned to the instance.
-    Ipv6Address: Optional[str] = None
+    Ipv6Address: str = Field(frozen=True, default=None)
     #: If the instance is configured for NitroTPM support, the value is ``v2.0``. For
     #: more information, see `NitroTPM
     #: <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/nitrotpm.html>`_ in the
@@ -2282,7 +2293,9 @@ class Instance(PrimaryBoto3Model):
     #: information, see `Boot modes
     #: <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ami-boot.html>`_ in the
     #: *Amazon EC2 User Guide*.
-    CurrentInstanceBootMode: Optional[Literal["legacy-bios", "uefi"]] = None
+    CurrentInstanceBootMode: Literal["legacy-bios", "uefi"] = Field(
+        frozen=True, default=None
+    )
 
     @property
     def pk(self) -> Optional[str]:

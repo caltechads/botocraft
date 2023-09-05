@@ -3,104 +3,58 @@ primary:
   Vpc:
     primary_key: VpcId
     name_key: VpcId
+    input_shapes:
+      - CreateVpcRequest
     fields:
       CidrBlock:
         required: true
-      State:
-        readonly: true
-      DhcpOptionsId:
-        readonly: true
-      OwnerId:
-        readonly: true
-      Ipv6CidrBlockAssociationSet:
-        readonly: true
-      CidrBlockAssociationSet:
-        readonly: true
-      IsDefault:
-        readonly: true
+      Tags:
+        readonly: false
   Subnet:
     primary_key: SubnetId
     arn_key: SubnetArn
     name_key: SubnetId
+    input_shapes:
+      - CreateSubnetRequest
     fields:
       VpcId:
         required: true
       AvailabilityZone:
         required: true
-      AvailableIpAddressCount:
-        readonly: true
       CidrBlock:
         required: true
-      DefaultForAz:
-        readonly: true
-      MapPublicIpOnLaunch:
-        readonly: true
-      MapCustomerOwnedIpOnLaunch:
-        readonly: true
-      CustomerOwnedIpv4Pool:
-        readonly: true
-      State:
-        readonly: true
-      OwnerId:
-        readonly: true
-      AssignIpv6AddressOnCreation:
-        readonly: true
-      Ipv6CidrBlockAssociationSet:
-        readonly: true
-      SubnetArn:
-        readonly: true
-      OutpostArn:
-        readonly: true
-      EnableDns64:
-        readonly: true
       Ipv6Native:
         default: "False"
-      PrivateDnsNameOptionsOnLaunch:
-        readonly: true
+      Tags:
+        readonly: false
   SecurityGroup:
     primary_key: GroupId
     name_key: GroupName
     mixins:
       - name: SecurityGroupModelMixin
         import_path: botocraft.mixins.ec2
+    input_shapes:
+      - CreateSecurityGroupRequest
     fields:
       VpcId:
-        required: true
-      OwnerId:
-        readonly: true
-      Description:
         required: true
       GroupName:
         required: true
-      GroupId:
-        readonly: true
+      Description:
+        required: true
+      IpPermissions:
+        readonly: false
+      IpPermissionsEgress:
+        readonly: false
+      Tags:
+        readonly: false
   Instance:
     primary_key: InstanceId
+    input_shapes:
+      - RunInstancesRequest
     fields:
-      InstanceId:
-        readonly: true
-      MaxCount:
-        required: true
-        default: "1"
-      MinCount:
-        required: true
-        default: "1"
-      VpcId:
-        readonly: true
-      SpotInstanceRequestId:
-        readonly: true
-      CapacityReservationId:
-        readonly: true
-      Licenses:
-        readonly: true
-      BootMode:
-        readonly: true
-      TpmSupport:
-        readonly: true
-      State:
-        readonly: true
-      Platform:
-        readonly: true
+      Tags:
+        readonly: false
 secondary:
   Monitoring:
     alternate_name: EC2DetailedMonitoring

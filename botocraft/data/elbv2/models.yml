@@ -4,59 +4,39 @@ primary:
     primary_key: LoadBalancerArn
     arn_key: LoadBalancerArn
     name_key: LoadBalancerName
+    input_shapes:
+      - CreateLoadBalancerInput
     fields:
-      LoadBalancerArn:
-        readonly: true
-      DNSName:
-        readonly: true
-      VpcId:
-        readonly: true
-      State:
-        readonly: true
-      AvailabilityZones:
-        readonly: true
       LoadBalancerName:
         required: true
       Scheme:
-        required: true
         default: >-
           "internet-facing"
       Type:
-        required: true
         default: >-
           "application"
       IpAddressType:
-        required: true
         default: >-
           "ipv4"
-      CreatedTime:
-        readonly: true
-      CanonicalHostedZoneId:
-        readonly: true
-      EnforceSecurityGroupInboundRulesOnPrivateLinkTraffic:
-        readonly: true
   Listener:
     primary_key: ListenerArn
     arn_key: ListenerArn
     fields:
-      ListenerArn:
-        readonly: true
       LoadBalancerArn:
         required: true
       Port:
         required: true
       Protocol:
-        required: true
         default: >-
           "HTTPS"
   Rule:
     primary_key: RuleArn
     arn_key: RuleArn
+    input_shapes:
+      - CreateRuleInput
+      - ModifyRuleInput
     fields:
-      ListenerArn:
-        required: true
       Priority:
-        required: true
         default: >-
           "1"
       Conditions:
@@ -64,7 +44,6 @@ primary:
       Actions:
         required: true
       IsDefault:
-        required: true
         default: >-
           False
   TargetGroup:
@@ -72,12 +51,9 @@ primary:
     arn_key: TargetGroupArn
     name_key: TargetGroupName
     fields:
-      TargetGroupArn:
-        readonly: true
       TargetGroupName:
         required: true
       Protocol:
-        required: true
         default: >-
           "HTTPS"
       Port:
@@ -85,11 +61,9 @@ primary:
       VpcId:
         required: true
       TargetType:
-        required: true
         default: >-
           "ip"
       IpAddressType:
-        required: true
         default: >-
           "ipv4"
 secondary:

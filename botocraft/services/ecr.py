@@ -184,6 +184,12 @@ class Repository(PrimaryBoto3Model):
 
     objects: ClassVar[Boto3ModelManager] = RepositoryManager()
 
+    #: The name of the repository.
+    repositoryName: str
+    #: The tag mutability setting for the repository.
+    imageTagMutability: Literal["MUTABLE", "IMMUTABLE"]
+    #: The image scanning configuration for a repository.
+    imageScanningConfiguration: ImageScanningConfiguration
     #: The Amazon Resource Name (ARN) that identifies the repository. The ARN contains
     #: the ``arn:aws:ecr`` namespace, followed by the region of the repository, Amazon
     #: Web Services account ID of the repository owner, repository namespace, and
@@ -193,17 +199,11 @@ class Repository(PrimaryBoto3Model):
     #: The Amazon Web Services account ID associated with the registry that contains
     #: the repository.
     registryId: Optional[str] = None
-    #: The name of the repository.
-    repositoryName: str
     #: The URI for the repository. You can use this URI for container image ``push``
     #: and ``pull`` operations.
     repositoryUri: str = Field(frozen=True, default=None)
     #: The date and time, in JavaScript date format, when the repository was created.
     createdAt: datetime = Field(frozen=True, default=None)
-    #: The tag mutability setting for the repository.
-    imageTagMutability: Literal["MUTABLE", "IMMUTABLE"]
-    #: The image scanning configuration for a repository.
-    imageScanningConfiguration: ImageScanningConfiguration
     #: The encryption configuration for the repository. This determines how the
     #: contents of your repository are encrypted at rest.
     encryptionConfiguration: Optional[EncryptionConfiguration] = None
