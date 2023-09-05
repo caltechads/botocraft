@@ -50,7 +50,8 @@ class GeneralMethodGenerator(ManagerMethodGenerator):
         if self.client.can_paginate(self.boto3_name):
             code = f"""
         paginator = self.client.get_paginator('{self.boto3_name}')
-        response_iterator = paginator.paginate({self.operation_args})
+        {self.operation_args}
+        response_iterator = paginator.paginate({{k: v for k, v in args.items() if v is not None}})
         results: {self.return_type} = []
         for _response in response_iterator:
             response = {self.response_class}(**_response)
@@ -62,6 +63,7 @@ class GeneralMethodGenerator(ManagerMethodGenerator):
 """
         else:
             code = f"""
+        {self.operation_args}
         {self.operation_call}
 """
             if self.return_type == 'None':

@@ -75,7 +75,7 @@ Subnet:
       boto3_name: describe_subnets
 SecurityGroup:
   mixins:
-    - name: SecurityGroupMixin
+    - name: EC2TagsManagerMixin
       import_path: botocraft.mixins.ec2
   methods:
     create:
@@ -87,7 +87,7 @@ SecurityGroup:
           default: "False"
         TagSpecifications:
           value: >-
-            [{'ResourceType': 'security-group', 'Tags': model.Tags}]
+            self.serialize(self.convert_tags(model.Tags, 'security-group'))
     delete:
       boto3_name: delete_security_group
       args:
@@ -106,6 +106,7 @@ SecurityGroup:
           hidden: true
         GroupIds:
           rename: GroupId
+          required: true
           python_type: str
           source_arg: "[GroupId]"
           docstring: >-
@@ -115,8 +116,6 @@ SecurityGroup:
     list:
       boto3_name: describe_security_groups
       args:
-        Filters:
-          hidden: true
         DryRun:
           default: "False"
     revoke_ingress:
@@ -175,7 +174,7 @@ SecurityGroup:
           rename: Tags
           python_type: Optional[List["Tag"]]
           source_arg: >-
-            [{'ResourceType': 'security-group', 'Tags': self.serialize(Tags)}]
+            self.serialize(self.convert_tags(Tags, 'security-group-rule'))
 Instance:
   readonly: true
   methods:

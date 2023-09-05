@@ -31,15 +31,15 @@ class Boto3ModelManager:
         #: The boto3 client for the AWS service
         self.client = boto3.client(self.service_name)  # type: ignore
 
-    def serialize(
-        self, arg: Any,
-        exclude_none: bool = False,
-    ) -> Any:
+    def serialize(self, arg: Any) -> Any:
         """
-        Some of our methods use :py:class:`Boto3Model` objects as arguments, but
-        boto3 expects simple Python types.  This method will serialize the model
-        into a set of types that boto3 will understand if it is a
-        :py:class:`Boto3Model` object.
+        Some of our botocraft methods use :py:class:`Boto3Model` objects as
+        arguments (e.g. ``create``, ``update``), but boto3 methods expect simple
+        Python types.  This method will serialize the model into a set of types
+        that boto3 will understand if it is a :py:class:`Boto3Model` object.
+
+        While serializing, we always exclude ``None`` values, because boto3
+        doesn't like them.
 
         If ``arg`` is not a :py:class:`Boto3Model` object, it will be returned
         verbatim.
@@ -47,15 +47,16 @@ class Boto3ModelManager:
         Args:
             arg: the botocraft method argument to serialize.
 
-        Keyword Args:
-            exclude_none: If ``True``, exclude any arguments that are ``None``.
-                from the serialized output.
-
         Returns:
             A properly serialized argument.
         """
+        if arg is None:
+            return None
         if isinstance(arg, Boto3Model):
-            return arg.model_dump(exclude_none=exclude_none)
+            return arg.model_dump(exclude_none=True)
+        elif isinstance(arg, list):
+            # Oop, this is a list.  We need to serialize each item in the list.
+            return [self.serialize(a) for a in arg]
         return arg
 
     def create(self, model, **kwargs):
@@ -193,10 +194,9 @@ class PrimaryBoto3Model(  # pylint: disable=abstract-method
         """
         Save the model.
         """
-        if self.model_has_changed:
-            if self.pk:
-                return self.objects.update(self, **kwargs)
-            return self.objects.create(self, **kwargs)
+        if self.pk:
+            return self.objects.update(self, **kwargs)
+        return self.objects.create(self, **kwargs)
 
     def delete(self):
         """

@@ -3,7 +3,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 import re
 from textwrap import indent
-from typing import Optional, Dict, Literal, List, Any
+from typing import Optional, Dict, List, Any
 
 import yaml
 
@@ -24,7 +24,23 @@ SERVICES_DIR = Path(__file__).parent.parent / 'services'
 # Models
 # ------
 
+class MixinClass(BaseModel):
+    """
+    A configuration object for a mixin class to add to a model.
+    """
+
+    #: The name of the mixin class
+    name: str
+    #: The botocraft import path
+    import_path: str
+
+
 class AliasTransformer(BaseModel):
+    """
+    This transformer is used when generating a property on a model that is
+    an alias for another property on the model, or an alias for a property
+    on a related model.
+    """
 
     #: The name of the attribute on our model to use as
     #: the input to the regular expression.
@@ -32,6 +48,10 @@ class AliasTransformer(BaseModel):
 
 
 class MappingTransformer(BaseModel):
+    """
+    This transformer is used when generating a property on a model that is
+    a mapping of attribute values to output keys.
+    """
 
     #: If defined, use this mapping of attribute values to
     #: output keys
@@ -39,6 +59,14 @@ class MappingTransformer(BaseModel):
 
 
 class RegexTransformer(BaseModel):
+    """
+    This transformer is used when generating a property on a model that is
+    a regular expression transformation of an attribute on the model.
+
+    If the regular expression has named groups, we'll return a dictionary
+    of the named groups.  Otherwise, we'll return the value of the first
+    group.
+    """
 
     #: The name of the attribute on our model to use as
     #: the input to the regular expression.
@@ -76,6 +104,14 @@ class RegexTransformer(BaseModel):
 
 
 class ModelPropertyDefinition(BaseModel):
+    """
+    The definition of a single property on a :py:class:`ModelDefinition`.
+
+    One of ``regex``, ``mapping`` or ``alias`` must be specified.
+
+    If :py:attr:`cached` is ``True``, we'll cache the value of this property
+    using :py:func:`functools.cached_property`.
+    """
 
     #: The docstring for this property
     docstring: Optional[str] = None
@@ -119,7 +155,10 @@ class ModelPropertyDefinition(BaseModel):
 
 class ModelAttributeDefinition(BaseModel):
     """
-    The definition of a single field on a :py:class:`ModelDefinition`.
+    The definition of a single attribute on a :py:class:`ModelDefinition`.
+
+    We use this to override the default configuration of a model attribute
+    that we generate from the botocore model.
     """
 
     #: If ``True``, make this field immutable.
@@ -139,21 +178,29 @@ class ModelAttributeDefinition(BaseModel):
 
 
 class ModelDefinition(BaseModel):
+    """
+    The definition of a single model for a :py:class:`ServiceDefinition`.
+    """
 
     #: The botocore model name
     name: str
+    #: A list of mixin classes to add to the model
+    mixins: List[MixinClass] = []
+    #: If ``True``, make this model immutable.
+    readonly: bool = False
     #: The plural form of our model name, if different from
     #: what the inflect library would generate.
     plural: Optional[str] = None
     #: The name of the base class for this model.  If not specified, we'll
     #: use the default base class for the use case.
     base_class: Optional[str] = None
-    #: Our replacement model name.  We use this if some submodels have the
-    #: same name as a model in another service.
+    #: Our replacement model name.  We use this if some submodels have a
+    #: name conflict with a model in another service or an attribute on
+    #: a model in this service.
     alternate_name: Optional[str] = None
     #: The primary key for this model.  This is the field that will be used
     #: to determine whether we need to create a new model instance or update
-    #: an existing one.
+    #: an existing one.  This can be the name of a property.
     primary_key: Optional[str] = None
     #: The ``ARN`` key for this model attribute if any.  Some AWS models
     #: have an ARN, a name, and an ID.  Some have no ARN.
@@ -163,20 +210,20 @@ class ModelDefinition(BaseModel):
     name_key: Optional[str] = None
     #: A list of field overrides for this model.  If a field name is not
     #: specified in this list, it will be generated verbatim from the
-    #: botocore model.
+    #: botocore model attribute definition.
     fields: Dict[str, ModelAttributeDefinition] = {}
     #: A list of extra fields for this model.  These are fields that are
     #: not in the botocore model, but are either:
     #:
     #: * returned by boto3 create/update/get/list methods as part of the
     #:   response payload.
-    #: * or are needed at create time because they turn into something
-    #:   else in the response.  Or We need to add them to the model so that we can load the model
-    #: successfully from the API response.  Typically these are fields that
-    #: will be readonly because they are
+    #: * are needed at create time because they turn into something else
+    #:   in the response.
+    ## * we need to add them to the model so that we can load
+    #:   the model successfully from the API response.  Typically these are fields
+    #:   that will be readonly because they are they are generated by AWS at
+    #:   create time.  E.g. ARNs, creation dates, etc.
     extra_fields: Dict[str, ModelAttributeDefinition] = {}
-    #: If ``True``, make this model immutable.
-    readonly: bool = False
     #: Computed properties
     properties: Dict[str, ModelPropertyDefinition] = {}
 
@@ -233,9 +280,6 @@ class MethodArgumentDefinition(BaseModel):
     #: If specified, use this as the docstring for the argument.  Otherwise,
     #: we'll use the docstring from the botocore operation.
     docstring: Optional[str] = None
-    #: If this argument is a model instance, exclude any attributes that
-    #: are ``None`` from the serialized output we send to boto3.
-    exclude_none: bool = False
     #: If supplied, use this as the python type for the argument.
     python_type: Optional[str] = None
 
@@ -322,14 +366,6 @@ class ManagerMethodDefinition(BaseModel):
         return positional_args
 
 
-class MixinClass(BaseModel):
-
-    #: The name of the mixin class
-    name: str
-    #: The botocraft import path
-    import_path: str
-
-
 class ManagerDefinition(BaseModel):
     """
     The definition of a single manager on a :py:class:`ServiceDefinition`.
@@ -381,7 +417,9 @@ class ServiceDefinition(BaseModel):
     #: that have managers.
     primary_models: Dict[str, ModelDefinition] = {}
     #: These are models that are used as attributes on other models, or as
-    #response : or request classes.
+    #: response or request classes.  These models don't have managers, but
+    #: we sometimes define them to override the default botocore model
+    #: configuration, making them readonly or to rename them, for instance.
     secondary_models: Dict[str, ModelDefinition] = {}
     #: The managers to generate for this service
     managers: Dict[str, ManagerDefinition] = {}

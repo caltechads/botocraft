@@ -181,8 +181,6 @@ class ManagerMethodGenerator:
             return arg_def.value
         if arg_def.source_arg:
             _arg = arg_def.source_arg
-        if arg_def.exclude_none:
-            return f'self.serialize({_arg}, exclude_none=True)'
         return f'self.serialize({_arg})'
 
     def _args(
@@ -373,7 +371,7 @@ class ManagerMethodGenerator:
             ..code-block:: python
 
                 _response = self.client.create(name=name, description=description)
-                response = ResponseModel.model_construct(**_response)
+                response = ResponseModel(**_response)
 
         Returns:
             The code for the boto3 call.
@@ -383,7 +381,7 @@ class ManagerMethodGenerator:
         if self.return_type == 'None':
             return call
         call = "_response = " + call
-        call += f"\n        response = {self.response_class}.model_construct(**_response)"
+        call += f"\n        response = {self.response_class}(**_response)"
         return call
 
     @property

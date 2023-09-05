@@ -146,7 +146,7 @@ class CreateMethodGenerator(ManagerMethodGenerator):
         Returns:
             The code for the boto3 call.
         """
-        call = "data = model.model_dump()"
+        call = "data = model.model_dump(exclude_none=True)"
         args = self.operation_args
         kwargs = self.operation_kwargs
         if args or kwargs:
@@ -159,7 +159,7 @@ class CreateMethodGenerator(ManagerMethodGenerator):
             call += kwargs
         call += ")"
         call += f"\n        _response = self.client.{self.boto3_name}(**{{k: v for k, v in args.items() if v is not None}})"
-        call += f"\n        response = {self.response_class}.model_construct(**_response)"
+        call += f"\n        response = {self.response_class}(**_response)"
         return call
 
     @property

@@ -60,6 +60,9 @@ primary:
   SecurityGroup:
     primary_key: GroupId
     name_key: GroupName
+    mixins:
+      - name: SecurityGroupModelMixin
+        import_path: botocraft.mixins.ec2
     fields:
       VpcId:
         required: true
@@ -69,7 +72,7 @@ primary:
         required: true
       GroupName:
         required: true
-      Tags:
+      GroupId:
         readonly: true
   Instance:
     primary_key: InstanceId
