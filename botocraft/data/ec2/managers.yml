@@ -175,6 +175,44 @@ SecurityGroup:
           python_type: Optional[List["Tag"]]
           source_arg: >-
             self.serialize(self.convert_tags(Tags, 'security-group-rule'))
+NetworkAcl:
+  methods:
+    create:
+      boto3_name: create_network_acl
+      args:
+        DryRun:
+          default: "False"
+        TagSpecifications:
+          rename: Tags
+          python_type: Optional[List["Tag"]]
+          source_arg: >-
+            self.serialize(self.convert_tags(model.Tags, 'network-acl'))
+    delete:
+      boto3_name: delete_network_acl
+      args:
+        NetworkAclId:
+          required: true
+        DryRun:
+          default: "False"
+    get:
+      boto3_name: describe_network_acls
+      args:
+        Filters:
+          hidden: true
+        DryRun:
+          default: "False"
+        NetworkAclIds:
+          rename: NetworkAclId
+          required: true
+          python_type: str
+          source_arg: "[NetworkAclId]"
+          docstring: >-
+            The ID of the network ACL.
+    list:
+      boto3_name: describe_network_acls
+      args:
+        DryRun:
+          default: "False"
 Instance:
   mixins:
     - name: EC2TagsManagerMixin
@@ -204,7 +242,7 @@ Instance:
           rename: Tags
           python_type: Optional[List["Tag"]]
           source_arg: >-
-            self.serialize(self.convert_tags(Tags, 'instance'))
+            self.serialize(self.convert_tags(model.Tags, 'instance'))
     get:
       boto3_name: describe_instances
       response_attr: Reservations
@@ -228,3 +266,90 @@ Instance:
       args:
         DryRun:
           default: "False"
+LaunchTemplate:
+  methods:
+    create:
+      boto3_name: create_launch_template
+      args:
+        DryRun:
+          default: "False"
+        TagSpecifications:
+          rename: Tags
+          python_type: Optional[List["Tag"]]
+          source_arg: >-
+            self.serialize(self.convert_tags(model.Tags, 'launch-template'))
+    delete:
+      boto3_name: delete_launch_template
+      args:
+        LaunchTemplateId:
+          required: true
+        DryRun:
+          default: "False"
+    get:
+      boto3_name: describe_launch_templates
+      args:
+        Filters:
+          hidden: true
+        DryRun:
+          default: "False"
+        LaunchTemplateNames:
+          hidden: true
+        LaunchTemplateIds:
+          required: true
+          rename: LaunchTemplateId
+          python_type: str
+          source_arg: "[LaunchTemplateId]"
+          docstring: >-
+            The ID of the launch template.
+    list:
+      boto3_name: describe_launch_templates
+      args:
+        DryRun:
+          default: "False"
+LaunchTemplateVersion:
+  methods:
+    create:
+      boto3_name: create_launch_template_version
+      args:
+        DryRun:
+          default: "False"
+    delete:
+      boto3_name: delete_launch_template_versions
+      return_type: None
+      args:
+        LaunchTemplateId:
+          required: true
+        LaunchTemplateName:
+          hidden: true
+        Versions:
+          rename: Version
+          required: true
+          python_type: str
+          source_arg: "[Version]"
+          docstring: >-
+            The version number of the launch template version to delete.
+        DryRun:
+          default: "False"
+    get:
+      boto3_name: describe_launch_template_versions
+      args:
+        LaunchTemplateId:
+          required: true
+        LaunchTemplateName:
+          hidden: true
+        Versions:
+          rename: Version
+          required: true
+          python_type: str
+          source_arg: "[Version]"
+          docstring: >-
+            The version number of the launch template version.
+        DryRun:
+          default: "False"
+    list:
+      boto3_name: describe_launch_template_versions
+      args:
+        DryRun:
+          default: "False"
+
+

@@ -3,6 +3,7 @@
 # mypy: disable-error-code="index, override, assignment"
 from collections import OrderedDict
 from datetime import datetime
+from functools import cached_property
 from typing import Any, ClassVar, Dict, List, Literal, Optional, cast
 
 from pydantic import Field
@@ -71,6 +72,7 @@ class ServiceManager(Boto3ModelManager):
             **{k: v for k, v in args.items() if v is not None}
         )
         response = CreateServiceResponse(**_response)
+
         return cast("Service", response.service)
 
     def delete(
@@ -90,7 +92,7 @@ class ServiceManager(Boto3ModelManager):
                 down to zero tasks. It's only necessary to use this if the service uses the
                 ``REPLICA`` scheduling strategy.
         """
-        args = dict(
+        args: Dict[str, Any] = dict(
             service=self.serialize(service),
             cluster=self.serialize(cluster),
             force=self.serialize(force),
@@ -125,7 +127,7 @@ class ServiceManager(Boto3ModelManager):
                 service. If ``TAGS`` is specified, the tags are included in the response.
                 If this field is omitted, tags aren't included in the response.
         """
-        args = dict(
+        args: Dict[str, Any] = dict(
             services=self.serialize([service]),
             cluster=self.serialize(cluster),
             include=self.serialize(include),
@@ -163,7 +165,7 @@ class ServiceManager(Boto3ModelManager):
                 service. If ``TAGS`` is specified, the tags are included in the response.
                 If this field is omitted, tags aren't included in the response.
         """
-        args = dict(
+        args: Dict[str, Any] = dict(
             services=self.serialize(services),
             cluster=self.serialize(cluster),
             include=self.serialize(include),
@@ -197,7 +199,7 @@ class ServiceManager(Boto3ModelManager):
                 ``ListServices`` results.
         """
         paginator = self.client.get_paginator("list_services")
-        args = dict(
+        args: Dict[str, Any] = dict(
             cluster=self.serialize(cluster),
             launchType=self.serialize(launchType),
             schedulingStrategy=self.serialize(schedulingStrategy),
@@ -262,6 +264,7 @@ class ServiceManager(Boto3ModelManager):
             **{k: v for k, v in args.items() if v is not None}
         )
         response = UpdateServiceResponse(**_response)
+
         return cast("Service", response.service)
 
     def partial_update(
@@ -367,6 +370,26 @@ class ServiceManager(Boto3ModelManager):
                 and connect to services, and be discovered by, and connected from, other
                 services within a namespace.
         """
+        args: Dict[str, Any] = dict(
+            service=self.serialize(service),
+            cluster=self.serialize(cluster),
+            desiredCount=self.serialize(desiredCount),
+            taskDefinition=self.serialize(taskDefinition),
+            capacityProviderStrategy=self.serialize(capacityProviderStrategy),
+            deploymentConfiguration=self.serialize(deploymentConfiguration),
+            networkConfiguration=self.serialize(networkConfiguration),
+            placementConstraints=self.serialize(placementConstraints),
+            placementStrategy=self.serialize(placementStrategy),
+            platformVersion=self.serialize(platformVersion),
+            forceNewDeployment=self.serialize(forceNewDeployment),
+            healthCheckGracePeriodSeconds=self.serialize(healthCheckGracePeriodSeconds),
+            enableExecuteCommand=self.serialize(enableExecuteCommand),
+            enableECSManagedTags=self.serialize(enableECSManagedTags),
+            loadBalancers=self.serialize(loadBalancers),
+            propagateTags=self.serialize(propagateTags),
+            serviceRegistries=self.serialize(serviceRegistries),
+            serviceConnectConfiguration=self.serialize(serviceConnectConfiguration),
+        )
         _response = self.client.update_service(
             **{k: v for k, v in args.items() if v is not None}
         )
@@ -399,6 +422,7 @@ class ClusterManager(Boto3ModelManager):
             **{k: v for k, v in args.items() if v is not None}
         )
         response = CreateClusterResponse(**_response)
+
         return cast("Cluster", response.cluster)
 
     def delete(self, cluster: str) -> "Cluster":
@@ -409,7 +433,7 @@ class ClusterManager(Boto3ModelManager):
             cluster: The short name or full Amazon Resource Name (ARN) of the cluster
                 to delete.
         """
-        args = dict(cluster=self.serialize(cluster))
+        args: Dict[str, Any] = dict(cluster=self.serialize(cluster))
         _response = self.client.delete_cluster(
             **{k: v for k, v in args.items() if v is not None}
         )
@@ -418,28 +442,27 @@ class ClusterManager(Boto3ModelManager):
 
     def get(
         self,
+        cluster: str,
         *,
-        clusters: Optional[List[str]] = None,
-        include: Optional[
-            List[
-                Literal[
-                    "ATTACHMENTS", "CONFIGURATIONS", "SETTINGS", "STATISTICS", "TAGS"
-                ]
-            ]
-        ] = None
+        include: List[
+            Literal["ATTACHMENTS", "CONFIGURATIONS", "SETTINGS", "STATISTICS", "TAGS"]
+        ] = ["ATTACHMENTS", "CONFIGURATIONS", "SETTINGS", "STATISTICS", "TAGS"]
     ) -> Optional["Cluster"]:
         """
         Describes one or more of your clusters.
 
+        Args:
+            cluster: The name or full Amazon Resource Name (ARN) of the cluster to
+                describe.
+
         Keyword Args:
-            clusters: A list of up to 100 cluster names or full cluster Amazon Resource
-                Name (ARN) entries. If you do not specify a cluster, the default cluster is
-                assumed.
             include: Determines whether to include additional information about the
                 clusters in the response. If this field is omitted, this information isn't
                 included.
         """
-        args = dict(clusters=self.serialize(clusters), include=self.serialize(include))
+        args: Dict[str, Any] = dict(
+            clusters=self.serialize([cluster]), include=self.serialize(include)
+        )
         _response = self.client.describe_clusters(
             **{k: v for k, v in args.items() if v is not None}
         )
@@ -456,7 +479,7 @@ class ClusterManager(Boto3ModelManager):
         Returns a list of existing clusters.
         """
         paginator = self.client.get_paginator("list_clusters")
-        args = dict()
+        args: Dict[str, Any] = dict()
         response_iterator = paginator.paginate(
             **{k: v for k, v in args.items() if v is not None}
         )
@@ -487,6 +510,7 @@ class ClusterManager(Boto3ModelManager):
             **{k: v for k, v in args.items() if v is not None}
         )
         response = UpdateClusterResponse(**_response)
+
         return cast("Cluster", response.cluster)
 
     def partial_update(
@@ -515,6 +539,12 @@ class ClusterManager(Boto3ModelManager):
                 individually in the ``ServiceConnectConfiguration`` to override this
                 default parameter.
         """
+        args: Dict[str, Any] = dict(
+            cluster=self.serialize(cluster),
+            settings=self.serialize(settings),
+            configuration=self.serialize(configuration),
+            serviceConnectDefaults=self.serialize(serviceConnectDefaults),
+        )
         _response = self.client.update_cluster(
             **{k: v for k, v in args.items() if v is not None}
         )
@@ -570,6 +600,7 @@ class TaskDefinitionManager(Boto3ModelManager):
             **{k: v for k, v in args.items() if v is not None}
         )
         response = RegisterTaskDefinitionResponse(**_response)
+
         return cast("TaskDefinition", response.taskDefinition)
 
     def delete(self, taskDefinition: str) -> "TaskDefinition":
@@ -587,7 +618,7 @@ class TaskDefinitionManager(Boto3ModelManager):
                 full Amazon Resource Name (ARN) of the task definition to deregister. You
                 must specify a ``revision``.
         """
-        args = dict(taskDefinition=self.serialize(taskDefinition))
+        args: Dict[str, Any] = dict(taskDefinition=self.serialize(taskDefinition))
         _response = self.client.deregister_task_definition(
             **{k: v for k, v in args.items() if v is not None}
         )
@@ -614,7 +645,7 @@ class TaskDefinitionManager(Boto3ModelManager):
                 definition. If ``TAGS`` is specified, the tags are included in the
                 response. If this field is omitted, tags aren't included in the response.
         """
-        args = dict(
+        args: Dict[str, Any] = dict(
             taskDefinition=self.serialize(taskDefinition),
             include=self.serialize(include),
         )
@@ -656,7 +687,7 @@ class TaskDefinitionManager(Boto3ModelManager):
                 listed first.
         """
         paginator = self.client.get_paginator("list_task_definitions")
-        args = dict(
+        args: Dict[str, Any] = dict(
             familyPrefix=self.serialize(familyPrefix),
             status=self.serialize(status),
             sort=self.serialize(sort),
@@ -717,6 +748,7 @@ class TaskDefinitionManager(Boto3ModelManager):
             **{k: v for k, v in args.items() if v is not None}
         )
         response = RegisterTaskDefinitionResponse(**_response)
+
         return cast("TaskDefinition", response.taskDefinition)
 
 
@@ -750,7 +782,7 @@ class ContainerInstanceManager(ReadonlyBoto3ModelManager):
                 instance health is included in the response. If this field is omitted, tags
                 and container instance health status aren't included in the response.
         """
-        args = dict(
+        args: Dict[str, Any] = dict(
             containerInstances=self.serialize(containerInstances),
             cluster=self.serialize(cluster),
             include=self.serialize(include),
@@ -806,7 +838,7 @@ class ContainerInstanceManager(ReadonlyBoto3ModelManager):
 
         """
         paginator = self.client.get_paginator("list_container_instances")
-        args = dict(
+        args: Dict[str, Any] = dict(
             cluster=self.serialize(cluster),
             filter=self.serialize(filter),
             status=self.serialize(status),
@@ -1642,6 +1674,40 @@ class Service(PrimaryBoto3Model):
             }
         )
 
+    @cached_property
+    def cluster(self) -> Optional["Cluster"]:
+        """
+        Return the :py:class:`Cluster` object that this service belongs to, if
+        any.
+        """
+
+        try:
+            pk = OrderedDict(
+                {
+                    "cluster": self.clusterArn,
+                }
+            )
+        except AttributeError:
+            return None
+        return Cluster.objects.get(**pk)
+
+    @cached_property
+    def task_definition(self) -> Optional["TaskDefinition"]:
+        """
+        Return the :py:class:`TaskDefinition` object that this service uses, if
+        any.
+        """
+
+        try:
+            pk = OrderedDict(
+                {
+                    "taskDefinition": self.taskDefinition,
+                }
+            )
+        except AttributeError:
+            return None
+        return TaskDefinition.objects.get(**pk)
+
 
 class ExecuteCommandLogConfiguration(Boto3Model):
     """
@@ -1865,6 +1931,23 @@ class Cluster(PrimaryBoto3Model):
             The name of the model instance.
         """
         return self.clusterName
+
+    @cached_property
+    def services(self) -> Optional[List["Service"]]:
+        """
+        Return the ARNs of :py:class:`Service` objects that run in this
+        cluster, if any.
+        """
+
+        try:
+            pk = OrderedDict(
+                {
+                    "cluster": self.clusterArn,
+                }
+            )
+        except AttributeError:
+            return []
+        return Service.objects.list(**pk)
 
 
 class RepositoryCredentials(Boto3Model):

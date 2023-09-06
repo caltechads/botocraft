@@ -59,6 +59,12 @@ class Boto3ModelManager:
             return [self.serialize(a) for a in arg]
         return arg
 
+    def get(self, *args, **kwargs):
+        raise NotImplementedError
+
+    def list(self, *args, **kwargs):
+        raise NotImplementedError
+
     def create(self, model, **kwargs):
         raise NotImplementedError
 
@@ -76,17 +82,21 @@ class Boto3ModelManager:
         transformer: Optional[str],
     ) -> Any:
         """
-        Transform an attribute into something else before it is returned.
+        Transform an attribute using a regular expression into something else
+        before it is returned.
 
         .. important::
             This only makes sense for attributes that are strings.
 
-        ``transformer`` is a regular expression that will be used to transform the value of the attribute.
+        ``transformer`` is a regular expression that will be used to transform
+        the value of the attribute.
 
         * If the attribute is ``None``, it will be returned verbatim.
         * If ``transformer`` is ``None``, the attribute will be returned verbatim.
-        * If ``transformer`` has no named groups, the attribute will be replaced with the value of the first group.
-        * If ``transformer`` has named groups, the attribute will be replaced with a dictionary of the named groups.
+        * If ``transformer`` has no named groups, the attribute will be replaced
+          with the value of the first group.
+        * If ``transformer`` has named groups, the attribute will be replaced
+          with a dictionary of the named groups.
 
         Raises:
             ValueError: If the attribute does not exist on the model.

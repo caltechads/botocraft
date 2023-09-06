@@ -55,6 +55,7 @@ class LoadBalancerManager(Boto3ModelManager):
             **{k: v for k, v in args.items() if v is not None}
         )
         response = CreateLoadBalancerOutput(**_response)
+
         return cast("LoadBalancer", response.LoadBalancers[0])
 
     def delete(self, LoadBalancerArn: str) -> None:
@@ -66,7 +67,7 @@ class LoadBalancerManager(Boto3ModelManager):
         Args:
             LoadBalancerArn: The Amazon Resource Name (ARN) of the load balancer.
         """
-        args = dict(LoadBalancerArn=self.serialize(LoadBalancerArn))
+        args: Dict[str, Any] = dict(LoadBalancerArn=self.serialize(LoadBalancerArn))
         self.client.delete_load_balancer(
             **{k: v for k, v in args.items() if v is not None}
         )
@@ -81,7 +82,7 @@ class LoadBalancerManager(Boto3ModelManager):
             LoadBalancerArn: The Amazon Resource Names (ARN) of the load balancer.
             Name: The names of the load balancer.
         """
-        args = dict(
+        args: Dict[str, Any] = dict(
             LoadBalancerArns=self.serialize([LoadBalancerArn]),
             Names=self.serialize([Name]),
         )
@@ -109,7 +110,7 @@ class LoadBalancerManager(Boto3ModelManager):
             Names: The names of the load balancers.
         """
         paginator = self.client.get_paginator("describe_load_balancers")
-        args = dict(
+        args: Dict[str, Any] = dict(
             LoadBalancerArns=self.serialize(LoadBalancerArns),
             Names=self.serialize(Names),
         )
@@ -155,6 +156,7 @@ class ListenerManager(Boto3ModelManager):
             **{k: v for k, v in args.items() if v is not None}
         )
         response = CreateListenerOutput(**_response)
+
         return cast("Listener", response.Listeners[0])
 
     def update(self, model: "Listener") -> "Listener":
@@ -179,6 +181,7 @@ class ListenerManager(Boto3ModelManager):
             **{k: v for k, v in args.items() if v is not None}
         )
         response = ModifyListenerOutput(**_response)
+
         return cast("Listener", response.Listeners[0])
 
     def delete(self, ListenerArn: str) -> None:
@@ -188,7 +191,7 @@ class ListenerManager(Boto3ModelManager):
         Args:
             ListenerArn: The Amazon Resource Name (ARN) of the listener.
         """
-        args = dict(ListenerArn=self.serialize(ListenerArn))
+        args: Dict[str, Any] = dict(ListenerArn=self.serialize(ListenerArn))
         self.client.delete_listener(**{k: v for k, v in args.items() if v is not None})
 
     def get(self, ListenerArn: str) -> Optional["Listener"]:
@@ -201,7 +204,7 @@ class ListenerManager(Boto3ModelManager):
         Args:
             ListenerArn: The Amazon Resource Names (ARN) of the listener.
         """
-        args = dict(ListenerArns=self.serialize([ListenerArn]))
+        args: Dict[str, Any] = dict(ListenerArns=self.serialize([ListenerArn]))
         _response = self.client.describe_listeners(
             **{k: v for k, v in args.items() if v is not None}
         )
@@ -228,7 +231,7 @@ class ListenerManager(Boto3ModelManager):
             ListenerArns: The Amazon Resource Names (ARN) of the listeners.
         """
         paginator = self.client.get_paginator("describe_listeners")
-        args = dict(
+        args: Dict[str, Any] = dict(
             LoadBalancerArn=self.serialize(LoadBalancerArn),
             ListenerArns=self.serialize(ListenerArns),
         )
@@ -274,6 +277,7 @@ class RuleManager(Boto3ModelManager):
             **{k: v for k, v in args.items() if v is not None}
         )
         response = CreateRuleOutput(**_response)
+
         return cast("Rule", response.Rules[0])
 
     def update(self, model: "Rule") -> "Rule":
@@ -294,6 +298,7 @@ class RuleManager(Boto3ModelManager):
             **{k: v for k, v in args.items() if v is not None}
         )
         response = ModifyRuleOutput(**_response)
+
         return cast("Rule", response.Rules[0])
 
     def delete(self, RuleArn: str) -> None:
@@ -303,7 +308,7 @@ class RuleManager(Boto3ModelManager):
         Args:
             RuleArn: The Amazon Resource Name (ARN) of the rule.
         """
-        args = dict(RuleArn=self.serialize(RuleArn))
+        args: Dict[str, Any] = dict(RuleArn=self.serialize(RuleArn))
         self.client.delete_rule(**{k: v for k, v in args.items() if v is not None})
 
     def get(self, RuleArn: str) -> Optional["Rule"]:
@@ -314,7 +319,7 @@ class RuleManager(Boto3ModelManager):
         Args:
             RuleArn: The Amazon Resource Names (ARN) of the rule.
         """
-        args = dict(RuleArns=self.serialize([RuleArn]))
+        args: Dict[str, Any] = dict(RuleArns=self.serialize([RuleArn]))
         _response = self.client.describe_rules(
             **{k: v for k, v in args.items() if v is not None}
         )
@@ -336,7 +341,7 @@ class RuleManager(Boto3ModelManager):
             RuleArns: The Amazon Resource Names (ARN) of the rules.
         """
         paginator = self.client.get_paginator("describe_rules")
-        args = dict(
+        args: Dict[str, Any] = dict(
             ListenerArn=self.serialize(ListenerArn), RuleArns=self.serialize(RuleArns)
         )
         response_iterator = paginator.paginate(
@@ -392,6 +397,7 @@ class TargetGroupManager(Boto3ModelManager):
             **{k: v for k, v in args.items() if v is not None}
         )
         response = CreateTargetGroupOutput(**_response)
+
         return cast("TargetGroup", response.TargetGroups[0])
 
     def update(self, model: "TargetGroup") -> "TargetGroup":
@@ -419,6 +425,7 @@ class TargetGroupManager(Boto3ModelManager):
             **{k: v for k, v in args.items() if v is not None}
         )
         response = ModifyTargetGroupOutput(**_response)
+
         return cast("TargetGroup", response.TargetGroups[0])
 
     def delete(self, TargetGroupArn: str) -> None:
@@ -428,7 +435,7 @@ class TargetGroupManager(Boto3ModelManager):
         Args:
             TargetGroupArn: The Amazon Resource Name (ARN) of the target group.
         """
-        args = dict(TargetGroupArn=self.serialize(TargetGroupArn))
+        args: Dict[str, Any] = dict(TargetGroupArn=self.serialize(TargetGroupArn))
         self.client.delete_target_group(
             **{k: v for k, v in args.items() if v is not None}
         )
@@ -447,7 +454,7 @@ class TargetGroupManager(Boto3ModelManager):
             Name: The name of the target group.
 
         """
-        args = dict(
+        args: Dict[str, Any] = dict(
             TargetGroupArns=self.serialize([TargetGroupArn]),
             Names=self.serialize([Name]),
         )
@@ -480,7 +487,7 @@ class TargetGroupManager(Boto3ModelManager):
 
         """
         paginator = self.client.get_paginator("describe_target_groups")
-        args = dict(
+        args: Dict[str, Any] = dict(
             LoadBalancerArn=self.serialize(LoadBalancerArn),
             TargetGroupArns=self.serialize(TargetGroupArns),
             Names=self.serialize(Names),
@@ -809,7 +816,7 @@ class ForwardActionConfig(Boto3Model):
     #: group.
     TargetGroups: Optional[List["TargetGroupTuple"]] = None
     #: The target group stickiness for the rule.
-    TargetGroupStickinessConfig: Optional[TargetGroupStickinessConfig] = None
+    TargetGroupStickinessConfig: Optional["TargetGroupStickinessConfig"] = None
 
 
 class Action(Boto3Model):
@@ -1170,7 +1177,7 @@ class TargetGroup(PrimaryBoto3Model):
     HealthCheckPath: Optional[str] = None
     #: The HTTP or gRPC codes to use when checking for a successful response from a
     #: target.
-    Matcher: Optional[Matcher] = None
+    Matcher: Optional["Matcher"] = None
     #: The Amazon Resource Name (ARN) of the load balancer that routes traffic to this
     #: target group. You can use each target group with only one load balancer.
     LoadBalancerArns: Optional[List[str]] = None

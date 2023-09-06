@@ -19,7 +19,7 @@ primary:
           "scanOnPush"
     properties:
       pk:
-        mapping:
+        transformer:
           mapping:
             repositoryName: repositoryName
             registryId: registryId

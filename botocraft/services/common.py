@@ -63,4 +63,3 @@ class Filter(Boto3Model):
     Name: str
     #: One or more filter values. Filter values are case-sensitive.
     Values: List[str]
-

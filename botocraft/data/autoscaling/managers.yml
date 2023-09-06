@@ -1,0 +1,52 @@
+---
+AutoScalingGroup:
+  methods:
+    create:
+      boto3_name: create_auto_scaling_group
+    update:
+      boto3_name: update_auto_scaling_group
+    delete:
+      boto3_name: delete_auto_scaling_group
+    get:
+      boto3_name: describe_auto_scaling_groups
+      args:
+        AutoScalingGroupNames:
+          rename: AutoScalingGroupName
+          required: true
+          python_type: str
+          source_arg: "[AutoScalingGroupName]"
+          docstring: >-
+            The name of the Auto Scaling group. The name can be a maximum of
+            1600 characters.
+        Filters:
+          hidden: true
+    list:
+      boto3_name: describe_auto_scaling_groups
+LaunchConfiguration:
+  methods:
+    create:
+      boto3_name: create_launch_configuration
+    delete:
+      boto3_name: delete_launch_configuration
+    get:
+      boto3_name: describe_launch_configurations
+      args:
+        LaunchConfigurationNames:
+          rename: LaunchConfigurationName
+          required: true
+          python_type: str
+          source_arg: "[LaunchConfigurationName]"
+          docstring: >-
+            The name of the launch configuration. This name must be unique per
+            Region per account.
+    list:
+      boto3_name: describe_launch_configurations
+
+
+
+
+
+
+
+
+

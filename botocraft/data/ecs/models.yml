@@ -33,10 +33,27 @@ primary:
           with the :py:meth:`botocraft.services.ecs.ServiceManager.get` method,
           or to do
           :py:meth:`botocraft.services.ecs.ServiceManager.partial_update`.
-        mapping:
+        transformer:
           mapping:
             service: serviceName
             cluster: clusterArn
+    relations:
+      cluster:
+        primary_model_name: Cluster
+        docstring: >-
+          Return the :py:class:`Cluster` object that this service belongs to, if
+          any.
+        transformer:
+          mapping:
+            cluster: clusterArn
+      task_definition:
+        primary_model_name: TaskDefinition
+        docstring: >-
+          Return the :py:class:`TaskDefinition` object that this service uses, if
+          any.
+        transformer:
+          mapping:
+            taskDefinition: taskDefinition
   Cluster:
     primary_key: clusterArn
     arn_key: clusterArn
@@ -48,6 +65,16 @@ primary:
         required: true
         default: >-
           "default"
+    relations:
+      services:
+        primary_model_name: Service
+        many: true
+        docstring: >-
+          Return the ARNs of :py:class:`Service` objects that run in this cluster, if
+          any.
+        transformer:
+          mapping:
+            cluster: clusterArn
   TaskDefinition:
     primary_key: taskDefinitionArn
     arn_key: taskDefinitionArn

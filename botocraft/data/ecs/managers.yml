@@ -72,6 +72,18 @@ Cluster:
         Delete an ECS cluster.
     get:
       boto3_name: describe_clusters
+      args:
+        clusters:
+          rename: cluster
+          required: true
+          python_type: str
+          source_arg: "[cluster]"
+          docstring: >-
+            The name or full Amazon Resource Name (ARN) of the cluster to
+            describe.
+        include:
+          default: >-
+            ["ATTACHMENTS", "CONFIGURATIONS", "SETTINGS", "STATISTICS", "TAGS"]
     list:
       boto3_name: list_clusters
       response_attr: clusterArns

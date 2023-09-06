@@ -43,10 +43,10 @@ secondary:
     alternate_name: RDSAvailabilityZone
   Endpoint:
     alternate_name: RDSEndpoint
-  CloudwatchLogsExportConfiguration:
-    alternate_name: RDSCloudwatchLogsExportConfiguration
   Subnet:
     alternate_name: RDSSubnet
+  DBSubnetGroup:
+    alternate_name: RDSDBSubnetGroup
   MasterUserSecret:
     alternate_name: RDSMasterUserSecret
   CertificateDetails:

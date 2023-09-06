@@ -48,6 +48,11 @@ primary:
         readonly: false
       Tags:
         readonly: false
+  NetworkAcl:
+    primary_key: NetworkAclId
+    name_key: NetworkAclId
+    input_shapes:
+      - CreateNetworkAclRequest
   Instance:
     primary_key: InstanceId
     input_shapes:
@@ -55,16 +60,65 @@ primary:
     fields:
       Tags:
         readonly: false
+  LaunchTemplate:
+    primary_key: LaunchTemplateId
+    name_key: LaunchTemplateName
+    input_shapes:
+      - CreateLaunchTemplateRequest
+    fields:
+      LaunchTemplateName:
+        required: true
+    relations:
+      versions:
+        primary_model_name: LaunchTemplateVersion
+        many: true
+        docstring: >-
+          Return the :py:class:`LaunchTemplateVersion` objects that belong to
+          this template, if any.
+        transformer:
+          mapping:
+            LaunchTemplateId: LaunchTemplateId
+      default_version:
+        primary_model_name: LaunchTemplateVersion
+        docstring: >-
+          Return the :py:class:`LaunchTemplateVersion` object that is the default
+          version of this template, if any.
+        transformer:
+          mapping:
+            LaunchTemplateId: LaunchTemplateId
+            Version: DefaultVersionNumber
+      latest_version:
+        primary_model_name: LaunchTemplateVersion
+        docstring: >-
+          Return the :py:class:`LaunchTemplateVersion` object that is the latest
+          version of this template, if any.
+        transformer:
+          mapping:
+            LaunchTemplateId: LaunchTemplateId
+            Version: LatestVersionNumber
+  LaunchTemplateVersion:
+    name_key: LaunchTemplateName
+    input_shapes:
+      - CreateLaunchTemplateVersionRequest
+    properties:
+      pk:
+        transformer:
+          mapping:
+            LaunchTemplateId: LaunchTemplateId
+            Version: VersionNumber
+    relations:
+      launch_template:
+        primary_model_name: LaunchTemplate
+        docstring: >-
+          Return the :py:class:`LaunchTemplate` object that this version belongs to, if
+          any.
+        transformer:
+          mapping:
+            LaunchTemplateId: LaunchTemplateId
 secondary:
   Monitoring:
     alternate_name: EC2DetailedMonitoring
-  Placement:
-    alternate_name: EC2InstancePlacement
-  IamInstanceProfile:
-    alternate_name: EC2IamInstanceProfile
-  EnclaveOptions:
-    alternate_name: EC2EnclaveOptions
-  CapacityReservationTarget:
-    alternate_name: EC2CapacityReservationTarget
   PrivateDnsNameOptionsOnLaunch:
     alternate_name: EC2PrivateDnsNameOptionsOnLaunch
+  StateReason:
+    alternate_name: EC2StateReason

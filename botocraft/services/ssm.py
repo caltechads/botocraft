@@ -74,6 +74,7 @@ class ParameterManager(Boto3ModelManager):
             **{k: v for k, v in args.items() if v is not None}
         )
         response = PutParameterResult(**_response)
+
         return cast(int, response.Version)
 
     def update(
@@ -132,6 +133,7 @@ class ParameterManager(Boto3ModelManager):
             **{k: v for k, v in args.items() if v is not None}
         )
         response = PutParameterResult(**_response)
+
         return cast(int, response.Version)
 
     def get(self, Name: str, *, WithDecryption: bool = True) -> Optional["Parameter"]:
@@ -147,7 +149,7 @@ class ParameterManager(Boto3ModelManager):
                 values for secure string parameters. This flag is ignored for ``String``
                 and ``StringList`` parameter types.
         """
-        args = dict(
+        args: Dict[str, Any] = dict(
             Names=self.serialize([Name]), WithDecryption=self.serialize(WithDecryption)
         )
         _response = self.client.get_parameters(
@@ -173,7 +175,7 @@ class ParameterManager(Boto3ModelManager):
             ParameterFilters: Filters to limit the request results.
         """
         paginator = self.client.get_paginator("describe_parameters")
-        args = dict(
+        args: Dict[str, Any] = dict(
             Filters=self.serialize(Filters),
             ParameterFilters=self.serialize(ParameterFilters),
         )
@@ -197,7 +199,7 @@ class ParameterManager(Boto3ModelManager):
         Args:
             Name: The name of the parameter to delete.
         """
-        args = dict(Name=self.serialize(Name))
+        args: Dict[str, Any] = dict(Name=self.serialize(Name))
         self.client.delete_parameter(**{k: v for k, v in args.items() if v is not None})
 
 

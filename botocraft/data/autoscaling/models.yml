@@ -1,0 +1,40 @@
+---
+primary:
+  AutoScalingGroup:
+    primary_key: AutoScalingGroupName
+    arn_key: AutoScalingGroupARN
+    name_key: AutoScalingGroupName
+    input_shapes:
+      - CreateAutoScalingGroupType
+      - UpdateAutoScalingGroupType
+    fields:
+      DefaultCooldown:
+        default: 300
+    relations:
+      launch_configuration:
+        primary_model_name: LaunchConfiguration
+        docstring: >-
+          Return the :py:class:`LaunchConfiguration` object that this group uses, if
+          any.
+        transformer:
+          mapping:
+            launchConfigurationName: LaunchConfigurationName
+      launch_template:
+        primary_model_name: LaunchTemplate
+        docstring: >-
+          Return the :py:class:`LaunchTemplate` object that this group uses, if
+          any.
+        transformer:
+          mapping:
+            LaunchTemplateId: LaunchTemplate.LaunchTemplateId
+            Version: LaunchTemplate.Version
+
+  LaunchConfiguration:
+    primary_key: LaunchConfigurationName
+    arn_key: LaunchConfigurationARN
+    name_key: LaunchConfigurationName
+    input_shapes:
+      - CreateLaunchConfigurationType
+secondary:
+  WarmPoolConfiguration:
+    alternate_name: AutoScalingWarmPoolConfiguration

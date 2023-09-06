@@ -49,6 +49,7 @@ class RepositoryManager(Boto3ModelManager):
             **{k: v for k, v in args.items() if v is not None}
         )
         response = CreateRepositoryResponse(**_response)
+
         return cast("Repository", response.repository)
 
     def delete(
@@ -70,7 +71,7 @@ class RepositoryManager(Boto3ModelManager):
                 the default registry is assumed.
             force:  If a repository contains images, forces the deletion.
         """
-        args = dict(
+        args: Dict[str, Any] = dict(
             repositoryName=self.serialize(repositoryName),
             registryId=self.serialize(registryId),
             force=self.serialize(force),
@@ -95,7 +96,7 @@ class RepositoryManager(Boto3ModelManager):
                 that contains the repositories to be described. If you do not specify a
                 registry, the default registry is assumed.
         """
-        args = dict(
+        args: Dict[str, Any] = dict(
             registryId=self.serialize(registryId),
             repositoryNames=self.serialize([repositoryName]),
         )
@@ -125,7 +126,7 @@ class RepositoryManager(Boto3ModelManager):
                 omitted, then all repositories in a registry are described.
         """
         paginator = self.client.get_paginator("describe_repositories")
-        args = dict(
+        args: Dict[str, Any] = dict(
             registryId=self.serialize(registryId),
             repositoryNames=self.serialize(repositoryNames),
         )

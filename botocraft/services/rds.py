@@ -142,6 +142,7 @@ class DBInstanceManager(Boto3ModelManager):
             **{k: v for k, v in args.items() if v is not None}
         )
         response = CreateDBInstanceResult(**_response)
+
         return cast("DBInstance", response.DBInstance)
 
     def update(
@@ -165,7 +166,7 @@ class DBInstanceManager(Boto3ModelManager):
         DomainIAMRoleName: Optional[str] = None,
         DisableDomain: Optional[bool] = None,
         CloudwatchLogsExportConfiguration: Optional[
-            "RDSCloudwatchLogsExportConfiguration"
+            "CloudwatchLogsExportConfiguration"
         ] = None,
         UseDefaultProcessorFeatures: Optional[bool] = None,
         CertificateRotationRestart: Optional[bool] = None,
@@ -317,6 +318,7 @@ class DBInstanceManager(Boto3ModelManager):
             **{k: v for k, v in args.items() if v is not None}
         )
         response = ModifyDBInstanceResult(**_response)
+
         return cast("DBInstance", response.DBInstance)
 
     def delete(
@@ -351,7 +353,7 @@ class DBInstanceManager(Boto3ModelManager):
                 case-sensitive. The default is to remove automated backups immediately
                 after the DB instance is deleted.
         """
-        args = dict(
+        args: Dict[str, Any] = dict(
             DBInstanceIdentifier=self.serialize(DBInstanceIdentifier),
             SkipFinalSnapshot=self.serialize(SkipFinalSnapshot),
             FinalDBSnapshotIdentifier=self.serialize(FinalDBSnapshotIdentifier),
@@ -373,7 +375,9 @@ class DBInstanceManager(Boto3ModelManager):
                 information from only the specific DB instance is returned. This parameter
                 isn't case-sensitive.
         """
-        args = dict(DBInstanceIdentifier=self.serialize(DBInstanceIdentifier))
+        args: Dict[str, Any] = dict(
+            DBInstanceIdentifier=self.serialize(DBInstanceIdentifier)
+        )
         _response = self.client.describe_db_instances(
             **{k: v for k, v in args.items() if v is not None}
         )
@@ -400,7 +404,7 @@ class DBInstanceManager(Boto3ModelManager):
             Filters: A filter that specifies one or more DB instances to describe.
         """
         paginator = self.client.get_paginator("describe_db_instances")
-        args = dict(
+        args: Dict[str, Any] = dict(
             DBInstanceIdentifier=self.serialize(DBInstanceIdentifier),
             Filters=self.serialize(Filters),
         )
@@ -525,7 +529,7 @@ class RDSSubnet(Boto3Model):
     SubnetStatus: Optional[str] = None
 
 
-class DBSubnetGroup(Boto3Model):
+class RDSDBSubnetGroup(Boto3Model):
     """
     Information about the subnet group associated with the DB instance,
     including the name, description, and subnets in the subnet group.
@@ -648,7 +652,7 @@ class RDSPendingModifiedValues(Boto3Model):
     DBSubnetGroupName: Optional[str] = None
     #: A list of the log types whose configuration is still pending. In other words,
     #: these log types are in the process of being activated or deactivated.
-    PendingCloudwatchLogsExports: Optional[PendingCloudwatchLogsExports] = None
+    PendingCloudwatchLogsExports: Optional["PendingCloudwatchLogsExports"] = None
     #: The number of CPU cores and the number of threads per core for the DB instance
     #: class of the DB instance.
     ProcessorFeatures: Optional[List["ProcessorFeature"]] = None
@@ -874,7 +878,7 @@ class DBInstance(PrimaryBoto3Model):
     AvailabilityZone: Optional[str] = None
     #: Information about the subnet group associated with the DB instance, including
     #: the name, description, and subnets in the subnet group.
-    DBSubnetGroup: DBSubnetGroup = Field(frozen=True, default=None)
+    DBSubnetGroup: RDSDBSubnetGroup = Field(frozen=True, default=None)
     #: The weekly time range during which system maintenance can occur, in Universal
     #: Coordinated Time (UTC).
     PreferredMaintenanceWindow: Optional[str] = None
@@ -1093,10 +1097,10 @@ class DBInstance(PrimaryBoto3Model):
 
 class CreateDBInstanceResult(Boto3Model):
     #: Contains the details of an Amazon RDS DB instance.
-    DBInstance: Optional[DBInstance] = None
+    DBInstance: Optional["DBInstance"] = None
 
 
-class RDSCloudwatchLogsExportConfiguration(Boto3Model):
+class CloudwatchLogsExportConfiguration(Boto3Model):
     """
     The log types to be enabled for export to CloudWatch Logs for a specific DB
     instance.
@@ -1116,12 +1120,12 @@ class RDSCloudwatchLogsExportConfiguration(Boto3Model):
 
 class ModifyDBInstanceResult(Boto3Model):
     #: Contains the details of an Amazon RDS DB instance.
-    DBInstance: Optional[DBInstance] = None
+    DBInstance: Optional["DBInstance"] = None
 
 
 class DeleteDBInstanceResult(Boto3Model):
     #: Contains the details of an Amazon RDS DB instance.
-    DBInstance: Optional[DBInstance] = None
+    DBInstance: Optional["DBInstance"] = None
 
 
 class DBInstanceMessage(Boto3Model):
