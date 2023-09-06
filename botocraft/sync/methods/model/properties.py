@@ -61,15 +61,24 @@ class ModelPropertyGenerator:
         """
         Return the return type annotation for the method.
         """
-        if self.property_def.regex:
+        if self.property_def.transformer.regex:
             return_type = 'Optional[str]'
-            num_groups = re.compile(self.property_def.regex.regex).groups
+            num_groups = re.compile(self.property_def.transformer.regex.regex).groups
             if num_groups > 1:
                 return_type = 'Optional[Dict[str, str]]'
-        elif self.property_def.mapping:
+        elif self.property_def.transformer.mapping:
             # FIXME: it'd be nice to do something like a typed dict here
             return_type = 'OrderedDict[str, Any]'
             self.generator.imports.add('from collections import OrderedDict')
+        elif self.property_def.transformer.alias:
+            fields = self.generator.fields(self.model_name)
+            assert self.property_def.transformer.alias in fields, \
+                f"Alias: attribute {self.property_def.transformer.alias} not found in model {self.model_name}"
+            return_type = self.generator.field_type(
+                self.model_name,
+                self.property_def.transformer.alias,
+                field_shape=fields[self.property_def.transformer.alias].botocore_shape,
+            )
         return return_type
 
     @property
@@ -103,24 +112,27 @@ class ModelPropertyGenerator:
         Returns:
             The method body.
         """
-        if self.property_def.regex:
+        if self.property_def.transformer.regex:
             code = f"""
-        return self.transform("{self.property_def.regex.attribute}", r"{self.property_def.regex.regex}")
+        return self.transform(
+            "{self.property_def.transformer.regex.attribute}",
+            r"{self.property_def.transformer.regex.regex}"
+        )
 """
-        elif self.property_def.mapping:
+        elif self.property_def.transformer.mapping:
             code = """
         return OrderedDict({
 """
-            for key, value in self.property_def.mapping.mapping.items():
+            for key, value in self.property_def.transformer.mapping.items():
                 code += f"""
             "{key}": self.{value},
 """
             code += """
         })
 """
-        elif self.property_def.alias:
+        elif self.property_def.transformer.alias:
             code = f"""
-        return self.{self.property_def.alias.attribute}
+        return self.{self.property_def.transformer.alias}
 """
         return code
 

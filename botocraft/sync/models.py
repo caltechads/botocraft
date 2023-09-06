@@ -35,29 +35,6 @@ class MixinClass(BaseModel):
     import_path: str
 
 
-class AliasTransformer(BaseModel):
-    """
-    This transformer is used when generating a property on a model that is
-    an alias for another property on the model, or an alias for a property
-    on a related model.
-    """
-
-    #: The name of the attribute on our model to use as
-    #: the input to the regular expression.
-    attribute: str
-
-
-class MappingTransformer(BaseModel):
-    """
-    This transformer is used when generating a property on a model that is
-    a mapping of attribute values to output keys.
-    """
-
-    #: If defined, use this mapping of attribute values to
-    #: output keys
-    mapping: Dict[str, str] = {}
-
-
 class RegexTransformer(BaseModel):
     """
     This transformer is used when generating a property on a model that is
@@ -103,31 +80,18 @@ class RegexTransformer(BaseModel):
         return v
 
 
-class ModelPropertyDefinition(BaseModel):
-    """
-    The definition of a single property on a :py:class:`ModelDefinition`.
+class AttributeTransformerDefinition(BaseModel):
 
-    One of ``regex``, ``mapping`` or ``alias`` must be specified.
-
-    If :py:attr:`cached` is ``True``, we'll cache the value of this property
-    using :py:func:`functools.cached_property`.
-    """
-
-    #: The docstring for this property
-    docstring: Optional[str] = None
-    #: If ``True``, make this property be cached
-    cached: bool = False
     #: If specified, use this regular expression to build the
-    #: primary key for the ``get`` method on the other botocraft
-    #: model
+    #: property output
     regex: Optional[RegexTransformer] = None
     #: If specified, use this mapping of attribute values to
     #: output keys to generate the output
-    mapping: Optional[MappingTransformer] = None
+    mapping: Optional[Dict[str, str]] = None
     #: If specified, use this property as an alias for this
     #: attribute.  This may be an alias on another related
     #: model
-    alias: Optional[AliasTransformer] = None
+    alias: Optional[str] = None
 
     @model_validator(mode='before')
     @classmethod
@@ -150,6 +114,105 @@ class ModelPropertyDefinition(BaseModel):
             raise ValueError('Only one of regex, mapping or alias can be specified')
         if transformers.count(None) == 3:
             raise ValueError('One of regex, mapping, or alias must be specified')
+        return data
+
+
+class ModelPropertyDefinition(BaseModel):
+    """
+    The definition of a single property on a :py:class:`ModelDefinition`.
+
+    One of ``regex``, ``mapping`` or ``alias`` must be specified.
+
+    If :py:attr:`cached` is ``True``, we'll cache the value of this property
+    using :py:func:`functools.cached_property`.
+    """
+
+    #: The docstring for this property
+    docstring: Optional[str] = None
+    #: If ``True``, make this property be cached
+    cached: bool = False
+    #: If specified, use this definition to build the property
+    #: output from the model fields
+    transformer: AttributeTransformerDefinition
+
+
+class ModelRelationshipDefinition(BaseModel):
+    """
+    This defines a property on a model that is a relationship to another
+    model.
+    """
+    #: The docstring for this property
+    docstring: Optional[str] = None
+    #: If ``True``, make this property be cached
+    cached: bool = True
+    #: If specified, use this definition to build the primary key
+    #: for the related model from data from this model
+    #:
+    #: .. important::
+    #:
+    #:     If you are using a regex transformer, you must use named groups.
+    transformer: AttributeTransformerDefinition
+    #: The name of the botocraft primary model to use for this relationship
+    #:
+    #: .. important::
+    #:
+    #:     This needs to be the name of a primary model, not a secondary model.
+    #:     Only primary models have managers.
+    primary_model_name: str
+    #: If ``True``, force this to be a many-to-many relationship.  Otherwise,
+    #: try to figure it out from our transformer.
+    many: Optional[bool] = None
+
+    @model_validator(mode='before')
+    @classmethod
+    def check_regex_transformer(cls, data: Any) -> Any:
+        """
+        If we have a regex transformer, make sure that it only uses
+        named groups.
+
+        Args:
+            data: the input data for this model
+
+        Raises:
+            ValueError: if the regex transformer has no named groups
+                or has unnamed groups
+
+        Returns:
+            The input data for this model
+        """
+        transformer = data['transformer']
+        regex_transformer = transformer.get('regex')
+        if regex_transformer is not None:
+            pattern = regex_transformer['regex']
+            regex = re.compile(fr'{pattern}')
+            if not regex.groupindex:
+                raise ValueError('Regex transformer must have named groups')
+            if len(regex.groupindex.keys()) != regex.groups:
+                raise ValueError('Regex transformer must have no unnamed groups')
+        return data
+
+    @model_validator(mode='before')
+    @classmethod
+    def check_alias_transformer(cls, data: Any) -> Any:
+        """
+        Don't allow alias transformers for relations -- we need to know
+        the argument name for the related model, and alias types don't
+        support that.
+
+        Args:
+            data: the input data for this model
+
+        Raises:
+            ValueError: an alias transformer is specified
+
+        Returns:
+            The input data for this model
+        """
+        if data['transformer'].get('alias') is not None:
+            raise ValueError(
+                'Alias transformers are not supported for relations. Use a regex '
+                'or mapping transformer instead.'
+            )
         return data
 
 
@@ -229,6 +292,8 @@ class ModelDefinition(BaseModel):
     input_shapes: Optional[List[str]] = None
     #: Computed properties
     properties: Dict[str, ModelPropertyDefinition] = {}
+    #: Relationships to other models
+    relations: Dict[str, ModelRelationshipDefinition] = {}
 
 
 # --------
@@ -369,6 +434,83 @@ class ManagerMethodDefinition(BaseModel):
         return positional_args
 
 
+@dataclass
+class MethodDocstringDefinition:
+    """
+    A class to hold the different parts of the docstring for a method, and
+    render them into a single sphinx-napoleon style docstring.
+    """
+
+    # The main method docstring.  This is the description of the method.
+    method: Optional[str] = None
+    #: The docstrings for our positional arguments
+    args: OrderedDict[str, Optional[str]] = field(default_factory=OrderedDict)
+    #: The docstrings for our keyword arguments
+    kwargs: OrderedDict[str, Optional[str]] = field(default_factory=OrderedDict)
+    #: The docstring for our return value
+    return_value: Optional[str] = None
+
+    @property
+    def is_empty(self) -> bool:
+        """
+        Return ``True`` if the docstring is empty, ``False`` otherwise.
+        """
+        return (
+            self.method is None and
+            not self.args and
+            not self.kwargs and
+            self.return_value is None
+        )
+
+    def Args(self, formatter: DocumentationFormatter) -> str:
+        """
+        Return the docstring for the positional arguments.
+        """
+        assert self.args, "No kwargs"
+        docstring = '''
+        Args:
+'''
+        for arg_name, arg_docstring in self.args.items():
+            docstring += formatter.format_argument(arg_name, arg_docstring)
+            docstring += '\n'
+
+        return docstring
+
+    def Keyword_Args(self, formatter: DocumentationFormatter) -> str:
+        """
+        Return the docstring for the keyword arguments.
+        """
+        assert self.kwargs, "No args"
+        docstring = '''
+        Keyword Args:
+'''
+        for arg_name, arg_docstring in self.kwargs.items():
+            docstring += formatter.format_argument(arg_name, arg_docstring)
+            docstring += '\n'
+        return docstring
+
+    def render(self, formatter: DocumentationFormatter) -> Optional[str]:
+        """
+        Return the entire method docstring.
+        """
+        if self.is_empty:
+            return None
+
+        docstring = '''
+        """
+'''
+        if self.method:
+            method_str = formatter.clean(self.method, max_lines=1).strip()
+            docstring += indent(method_str, '        ')
+            docstring += '\n'
+        if self.args:
+            docstring += self.Args(formatter)
+        if self.kwargs:
+            docstring += self.Keyword_Args(formatter)
+        docstring += '\n        """'
+        return docstring
+
+
 class ManagerDefinition(BaseModel):
     """
     The definition of a single manager on a :py:class:`ServiceDefinition`.
@@ -426,6 +568,20 @@ class ServiceDefinition(BaseModel):
     secondary_models: Dict[str, ModelDefinition] = {}
     #: The managers to generate for this service
     managers: Dict[str, ManagerDefinition] = {}
+
+    @property
+    def models(self) -> Dict[str, ModelDefinition]:
+        """
+        Return all of the models we've specifically named in the definition for
+        this service, both primary and secondary.
+
+        .. important::
+
+            This does not include models that we generate on the fly, like
+            dependent models for primary models, or models for the request and
+            response classes for methods on managers.
+        """
+        return {**self.primary_models, **self.secondary_models}
 
     @classmethod
     def load(cls, name: str, interface: 'BotocraftInterface') -> 'ServiceDefinition':
@@ -515,6 +671,16 @@ class BotocraftInterface(BaseModel):
             service = path.name
             if path.is_dir():
                 self.services[service] = ServiceDefinition.load(service, interface=self)
+                for model in self.services[service].primary_models:
+                    # Register the model name to import path mapping so that we can
+                    # have them available when we're building our inter-model
+                    # relationships.
+                    self.models[model] = f'botocraft.services.{service}'
+                for manager in self.services[service].managers:
+                    # Register the manager name to import path mapping so that we can
+                    # have them available when we're building our inter-model
+                    # relationships.
+                    self.models[manager] = f'botocraft.services.{service}'
 
     def add_model(self, name: str, service: str) -> None:
         """
@@ -525,6 +691,12 @@ class BotocraftInterface(BaseModel):
             service: the AWS service name
         """
         if name in self.models:
+            if (
+                name in self.services[service].primary_models and
+                self.models[name] == f'botocraft.services.{service}'
+            ):
+                # We already registered this model during :py:meth:`load`
+                return
             raise ValueError(f'Model {name} already defined in "{self.models[name]}"')
         self.models[name] = f'botocraft.services.{service}'
 
@@ -576,80 +748,3 @@ class BotocraftInterface(BaseModel):
                 generator = ServiceGenerator(_service)
                 generator.generate()
             self.populate_init_py()
-
-
-@dataclass
-class MethodDocstringDefinition:
-    """
-    A class to hold the different parts of the docstring for a method, and
-    render them into a single sphinx-napoleon style docstring.
-    """
-
-    # The main method docstring.  This is the description of the method.
-    method: Optional[str] = None
-    #: The docstrings for our positional arguments
-    args: OrderedDict[str, Optional[str]] = field(default_factory=OrderedDict)
-    #: The docstrings for our keyword arguments
-    kwargs: OrderedDict[str, Optional[str]] = field(default_factory=OrderedDict)
-    #: The docstring for our return value
-    return_value: Optional[str] = None
-
-    @property
-    def is_empty(self) -> bool:
-        """
-        Return ``True`` if the docstring is empty, ``False`` otherwise.
-        """
-        return (
-            self.method is None and
-            not self.args and
-            not self.kwargs and
-            self.return_value is None
-        )
-
-    def Args(self, formatter: DocumentationFormatter) -> str:
-        """
-        Return the docstring for the positional arguments.
-        """
-        assert self.args, "No kwargs"
-        docstring = '''
-        Args:
-'''
-        for arg_name, arg_docstring in self.args.items():
-            docstring += formatter.format_argument(arg_name, arg_docstring)
-            docstring += '\n'
-
-        return docstring
-
-    def Keyword_Args(self, formatter: DocumentationFormatter) -> str:
-        """
-        Return the docstring for the keyword arguments.
-        """
-        assert self.kwargs, "No args"
-        docstring = '''
-        Keyword Args:
-'''
-        for arg_name, arg_docstring in self.kwargs.items():
-            docstring += formatter.format_argument(arg_name, arg_docstring)
-            docstring += '\n'
-        return docstring
-
-    def render(self, formatter: DocumentationFormatter) -> Optional[str]:
-        """
-        Return the entire method docstring.
-        """
-        if self.is_empty:
-            return None
-
-        docstring = '''
-        """
-'''
-        if self.method:
-            method_str = formatter.clean(self.method, max_lines=1).strip()
-            docstring += indent(method_str, '        ')
-            docstring += '\n'
-        if self.args:
-            docstring += self.Args(formatter)
-        if self.kwargs:
-            docstring += self.Keyword_Args(formatter)
-        docstring += '\n        """'
-        return docstring

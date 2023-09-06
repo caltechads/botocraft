@@ -357,7 +357,7 @@ class ManagerMethodGenerator:
         if args and kwargs:
             arg_str += ", "
         arg_str += ", ".join([f"{arg}={self.serialize(arg)}" for arg in kwargs])
-        return f'args = dict({arg_str})'
+        return f'args: Dict[str, Any] = dict({arg_str})'
 
     @property
     def operation_call(self) -> str:

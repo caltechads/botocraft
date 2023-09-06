@@ -23,6 +23,7 @@ from .methods import (  # pylint: disable=import-error
     PartialUpdateMethodGenerator,
     DeleteMethodGenerator,
     ModelPropertyGenerator,
+    ModelRelationGenerator,
     GeneralMethodGenerator,
 )
 from .models import (
@@ -339,6 +340,7 @@ class ModelGenerator(AbstractGenerator):
         self,
         model_name: str,
         field_name: str,
+        field_def: Optional[ModelAttributeDefinition] = None,
         model_shape: Optional[botocore.model.Shape] = None,
         field_shape: Optional[botocore.model.Shape] = None
     ) -> str:
@@ -350,6 +352,8 @@ class ModelGenerator(AbstractGenerator):
             field_name: The name of the field.
 
         Keyword Args:
+            field_def: The botocraft field definition for the field.  If not
+                provided, we will look it up in the model definition.
             model_shape: The shape of the model.  If not provided, we will look
                 it up in the service model.
             field_shape: The shape of the field.  If not provided, we will look
@@ -366,13 +370,41 @@ class ModelGenerator(AbstractGenerator):
             field_shape = cast(botocore.model.StructureShape, model_shape).members.get(field_name)
         if not field_shape:
             raise ValueError(f'Model {model_name} has no field {field_name}.')
-        model_def = self.get_model_def(model_name)
-        field_def = model_def.fields.get(field_name, ModelAttributeDefinition())
+        if not field_def:
+            model_def = self.get_model_def(model_name)
+            field_def = model_def.fields.get(field_name, ModelAttributeDefinition())
         python_type = field_def.python_type
         if not python_type:
             python_type = self.shape_converter.convert(field_shape)
         if python_type is None:
             raise ValueError(f'Could not determine type for field {field_name}.')
+        if (
+            python_type == field_name or
+            f'[{field_name}]' in python_type
+        ):
+            # If our type annotation is for a model with the same name as the
+            # we'll get recursion errors when trying to import the file.  Quoting
+            # the type annotation fixes this.
+            python_type = f'"{python_type}"'
+        if (
+            field_def.readonly and
+            (
+                python_type == f'"{field_name}"' or
+                f'["{field_name}"]' in python_type
+            )
+        ):
+            # If the field is readonly, and the type is equal to the field name,
+            # even if it is quoted, we will get a "forward references must evaluate
+            # to types" TypeError.  This happens because when the field is readonly,
+            # we set it equal to ``Field(frozen=True, default=None)``.  This causes python
+            # typing a lot of consternation, and it throws the TypeError.
+            raise ValueError(
+                f'Field {model_name}.{field_name} has type equal to its name, '
+                'but is marked as readonly.  This will cause a "forward references '
+                'must evaluate to types" TypeError.  Fix this by giving an alternate_name '
+                f'for the model named {field_name} in the botocraft secondary models listing '
+                'for this service.'
+            )
         return python_type
 
     def generate_model(
@@ -426,6 +458,7 @@ class ModelGenerator(AbstractGenerator):
                         model_name,
                         field_name,
                         model_shape=shape,
+                        field_def=field_def,
                         field_shape=field_shape
                     )
                     docstring = cast(str, field_shape.documentation)
@@ -450,6 +483,10 @@ class ModelGenerator(AbstractGenerator):
             fields.extend(self.extra_fields(model_def))
 
             properties = self.get_properties(model_def, base_class)
+            for property_name in model_def.relations:
+                if not properties:
+                    properties = ''
+                properties += ModelRelationGenerator(self, model_def.name, property_name).code
             if model_def.mixins:
                 for mixin in model_def.mixins:
                     self.imports.add(f'from {mixin.import_path} import {mixin.name}')

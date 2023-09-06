@@ -24,6 +24,7 @@ class PartialUpdateMethodGenerator(ManagerMethodGenerator):
             if self.response_attr_multiplicity == 'many':
                 response_attr = f"{response_attr}[0]"
         code = f"""
+        {self.operation_args}
         {self.operation_call}
 """
         if response_attr is not None:

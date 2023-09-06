@@ -158,8 +158,11 @@ class CreateMethodGenerator(ManagerMethodGenerator):
         if kwargs:
             call += kwargs
         call += ")"
-        call += f"\n        _response = self.client.{self.boto3_name}(**{{k: v for k, v in args.items() if v is not None}})"
-        call += f"\n        response = {self.response_class}(**_response)"
+        if self.return_type == 'None':
+            call += f"\n        self.client.{self.boto3_name}(**{{k: v for k, v in args.items() if v is not None}})"
+        else:
+            call += f"\n        _response = self.client.{self.boto3_name}(**{{k: v for k, v in args.items() if v is not None}})"
+            call += f"\n        response = {self.response_class}(**_response)"
         return call
 
     @property
@@ -187,6 +190,9 @@ class CreateMethodGenerator(ManagerMethodGenerator):
             response_attr = f"{response_attr}[0]"
         code = f"""
         {self.operation_call}
+"""
+        if self.return_type != 'None':
+            code += f"""
         return cast({self.return_type}, response.{response_attr})
 """
         return code

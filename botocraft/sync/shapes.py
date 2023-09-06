@@ -15,7 +15,7 @@ class AbstractShapeConverter:
         self,
         shape_converter: "PythonTypeShapeConverter"
     ) -> None:
-        self.servce_generator = shape_converter.service_generator
+        self.service_generator = shape_converter.service_generator
         self.model_generator = shape_converter.model_generator
         self.shape_converter = shape_converter
 
@@ -30,14 +30,22 @@ class AbstractShapeConverter:
         model_def = self.model_generator.get_model_def(model_name)
         if model_def.alternate_name:
             model_name = model_def.alternate_name
-        if model_name == 'Tag':
-            pass
         if model_name in self.model_generator.classes:
+            # We generated this model earlier in this phase of service
+            # generation
             return True
-        if model_name in self.servce_generator.classes:
+        if model_name in self.service_generator.classes:
+            # We generated generated this model in a previous phase of service
+            # generation
             return True
-        if model_name in self.servce_generator.interface.models:
+        if model_name in self.service_generator.service_def.models:
+            # This model is belongs to this service, but we haven't generated it
+            # yet.  Do so now.
+            return False
+        if model_name in self.service_generator.interface.models:
+            # models we've generated so far in other services
             return True
+        # This is some dependent model for this service. We'll generate it now.
         return False
 
     def import_line(self, model_name: str) -> Optional[str]:
@@ -45,8 +53,13 @@ class AbstractShapeConverter:
         Given ``model_name``, determine whether we've already
         generated this model somewhere else in the service, and
         """
-        if model_name in self.servce_generator.interface.models:
-            import_path = self.servce_generator.interface.models[model_name]
+        if model_name in self.service_generator.service_def.models:
+            # This model is belongs to this service, but we haven't generated it
+            # yet.  We don't need an import line, because the model lives
+            # in this service.
+            return None
+        if model_name in self.service_generator.interface.models:
+            import_path = self.service_generator.interface.models[model_name]
             return f"from {import_path} import {model_name}"
         return None
 
