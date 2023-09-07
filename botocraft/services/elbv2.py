@@ -2,10 +2,11 @@
 # pylint: disable=anomalous-backslash-in-string,unsubscriptable-object,line-too-long,arguments-differ,arguments-renamed
 # mypy: disable-error-code="index, override, assignment"
 from datetime import datetime
-from typing import Any, ClassVar, Dict, List, Literal, Optional, cast
+from typing import Any, ClassVar, Dict, List, Literal, Optional, Type, cast
 
 from pydantic import Field
 
+from botocraft.mixins.tags import TagsDictMixin
 from botocraft.services.common import Tag
 
 from .abstract import (Boto3Model, Boto3ModelManager, PrimaryBoto3Model,
@@ -42,14 +43,14 @@ class LoadBalancerManager(Boto3ModelManager):
         data = model.model_dump(exclude_none=True, by_alias=True)
         args = dict(
             Name=data["LoadBalancerName"],
-            Subnets=data["Subnets"],
+            Subnets=data.get("Subnets"),
             SubnetMappings=self.serialize(SubnetMappings),
-            SecurityGroups=data["SecurityGroups"],
-            Scheme=data["Scheme"],
+            SecurityGroups=data.get("SecurityGroups"),
+            Scheme=data.get("Scheme"),
             Tags=self.serialize(Tags),
-            Type=data["Type"],
-            IpAddressType=data["IpAddressType"],
-            CustomerOwnedIpv4Pool=data["CustomerOwnedIpv4Pool"],
+            Type=data.get("Type"),
+            IpAddressType=data.get("IpAddressType"),
+            CustomerOwnedIpv4Pool=data.get("CustomerOwnedIpv4Pool"),
         )
         _response = self.client.create_load_balancer(
             **{k: v for k, v in args.items() if v is not None}
@@ -143,13 +144,13 @@ class ListenerManager(Boto3ModelManager):
         """
         data = model.model_dump(exclude_none=True, by_alias=True)
         args = dict(
-            LoadBalancerArn=data["LoadBalancerArn"],
-            DefaultActions=data["DefaultActions"],
-            Protocol=data["Protocol"],
-            Port=data["Port"],
-            SslPolicy=data["SslPolicy"],
-            Certificates=data["Certificates"],
-            AlpnPolicy=data["AlpnPolicy"],
+            LoadBalancerArn=data.get("LoadBalancerArn"),
+            DefaultActions=data.get("DefaultActions"),
+            Protocol=data.get("Protocol"),
+            Port=data.get("Port"),
+            SslPolicy=data.get("SslPolicy"),
+            Certificates=data.get("Certificates"),
+            AlpnPolicy=data.get("AlpnPolicy"),
             Tags=self.serialize(Tags),
         )
         _response = self.client.create_listener(
@@ -169,13 +170,13 @@ class ListenerManager(Boto3ModelManager):
         """
         data = model.model_dump(exclude_none=True, by_alias=True)
         args = dict(
-            ListenerArn=data["ListenerArn"],
-            Port=data["Port"],
-            Protocol=data["Protocol"],
-            SslPolicy=data["SslPolicy"],
-            Certificates=data["Certificates"],
-            DefaultActions=data["DefaultActions"],
-            AlpnPolicy=data["AlpnPolicy"],
+            ListenerArn=data.get("ListenerArn"),
+            Port=data.get("Port"),
+            Protocol=data.get("Protocol"),
+            SslPolicy=data.get("SslPolicy"),
+            Certificates=data.get("Certificates"),
+            DefaultActions=data.get("DefaultActions"),
+            AlpnPolicy=data.get("AlpnPolicy"),
         )
         _response = self.client.modify_listener(
             **{k: v for k, v in args.items() if v is not None}
@@ -268,9 +269,9 @@ class RuleManager(Boto3ModelManager):
         data = model.model_dump(exclude_none=True, by_alias=True)
         args = dict(
             ListenerArn=self.serialize(ListenerArn),
-            Conditions=data["Conditions"],
-            Priority=data["Priority"],
-            Actions=data["Actions"],
+            Conditions=data.get("Conditions"),
+            Priority=data.get("Priority"),
+            Actions=data.get("Actions"),
             Tags=self.serialize(Tags),
         )
         _response = self.client.create_rule(
@@ -290,9 +291,9 @@ class RuleManager(Boto3ModelManager):
         """
         data = model.model_dump(exclude_none=True, by_alias=True)
         args = dict(
-            RuleArn=data["RuleArn"],
-            Conditions=data["Conditions"],
-            Actions=data["Actions"],
+            RuleArn=data.get("RuleArn"),
+            Conditions=data.get("Conditions"),
+            Actions=data.get("Actions"),
         )
         _response = self.client.modify_rule(
             **{k: v for k, v in args.items() if v is not None}
@@ -376,22 +377,22 @@ class TargetGroupManager(Boto3ModelManager):
         data = model.model_dump(exclude_none=True, by_alias=True)
         args = dict(
             Name=self.serialize(Name),
-            Protocol=data["Protocol"],
-            ProtocolVersion=data["ProtocolVersion"],
-            Port=data["Port"],
-            VpcId=data["VpcId"],
-            HealthCheckProtocol=data["HealthCheckProtocol"],
-            HealthCheckPort=data["HealthCheckPort"],
-            HealthCheckEnabled=data["HealthCheckEnabled"],
-            HealthCheckPath=data["HealthCheckPath"],
-            HealthCheckIntervalSeconds=data["HealthCheckIntervalSeconds"],
-            HealthCheckTimeoutSeconds=data["HealthCheckTimeoutSeconds"],
-            HealthyThresholdCount=data["HealthyThresholdCount"],
-            UnhealthyThresholdCount=data["UnhealthyThresholdCount"],
-            Matcher=data["Matcher"],
-            TargetType=data["TargetType"],
+            Protocol=data.get("Protocol"),
+            ProtocolVersion=data.get("ProtocolVersion"),
+            Port=data.get("Port"),
+            VpcId=data.get("VpcId"),
+            HealthCheckProtocol=data.get("HealthCheckProtocol"),
+            HealthCheckPort=data.get("HealthCheckPort"),
+            HealthCheckEnabled=data.get("HealthCheckEnabled"),
+            HealthCheckPath=data.get("HealthCheckPath"),
+            HealthCheckIntervalSeconds=data.get("HealthCheckIntervalSeconds"),
+            HealthCheckTimeoutSeconds=data.get("HealthCheckTimeoutSeconds"),
+            HealthyThresholdCount=data.get("HealthyThresholdCount"),
+            UnhealthyThresholdCount=data.get("UnhealthyThresholdCount"),
+            Matcher=data.get("Matcher"),
+            TargetType=data.get("TargetType"),
             Tags=self.serialize(Tags),
-            IpAddressType=data["IpAddressType"],
+            IpAddressType=data.get("IpAddressType"),
         )
         _response = self.client.create_target_group(
             **{k: v for k, v in args.items() if v is not None}
@@ -410,16 +411,16 @@ class TargetGroupManager(Boto3ModelManager):
         """
         data = model.model_dump(exclude_none=True, by_alias=True)
         args = dict(
-            TargetGroupArn=data["TargetGroupArn"],
-            HealthCheckProtocol=data["HealthCheckProtocol"],
-            HealthCheckPort=data["HealthCheckPort"],
-            HealthCheckPath=data["HealthCheckPath"],
-            HealthCheckEnabled=data["HealthCheckEnabled"],
-            HealthCheckIntervalSeconds=data["HealthCheckIntervalSeconds"],
-            HealthCheckTimeoutSeconds=data["HealthCheckTimeoutSeconds"],
-            HealthyThresholdCount=data["HealthyThresholdCount"],
-            UnhealthyThresholdCount=data["UnhealthyThresholdCount"],
-            Matcher=data["Matcher"],
+            TargetGroupArn=data.get("TargetGroupArn"),
+            HealthCheckProtocol=data.get("HealthCheckProtocol"),
+            HealthCheckPort=data.get("HealthCheckPort"),
+            HealthCheckPath=data.get("HealthCheckPath"),
+            HealthCheckEnabled=data.get("HealthCheckEnabled"),
+            HealthCheckIntervalSeconds=data.get("HealthCheckIntervalSeconds"),
+            HealthCheckTimeoutSeconds=data.get("HealthCheckTimeoutSeconds"),
+            HealthyThresholdCount=data.get("HealthyThresholdCount"),
+            UnhealthyThresholdCount=data.get("UnhealthyThresholdCount"),
+            Matcher=data.get("Matcher"),
         )
         _response = self.client.modify_target_group(
             **{k: v for k, v in args.items() if v is not None}

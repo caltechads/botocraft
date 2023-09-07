@@ -4,14 +4,14 @@
 from collections import OrderedDict
 from datetime import datetime
 from functools import cached_property
-from typing import Any, ClassVar, Dict, List, Literal, Optional, cast
+from typing import Any, ClassVar, Dict, List, Literal, Optional, Type, cast
 
 from pydantic import Field
 
 from botocraft.mixins.ecs import (ecs_clusters_only,
                                   ecs_container_instances_only,
                                   ecs_services_only, ecs_task_definitions_only)
-from botocraft.services.common import Tag
+from botocraft.mixins.tags import TagsDictMixin
 from botocraft.services.ec2 import Instance, InstanceManager
 
 from .abstract import (Boto3Model, Boto3ModelManager, PrimaryBoto3Model,
@@ -48,28 +48,28 @@ class ServiceManager(Boto3ModelManager):
         """
         data = model.model_dump(exclude_none=True, by_alias=True)
         args = dict(
-            serviceName=data["serviceName"],
+            serviceName=data.get("serviceName"),
             cluster=data["clusterArn"],
-            taskDefinition=data["taskDefinition"],
-            loadBalancers=data["loadBalancers"],
-            serviceRegistries=data["serviceRegistries"],
-            desiredCount=data["desiredCount"],
+            taskDefinition=data.get("taskDefinition"),
+            loadBalancers=data.get("loadBalancers"),
+            serviceRegistries=data.get("serviceRegistries"),
+            desiredCount=data.get("desiredCount"),
             clientToken=self.serialize(clientToken),
-            launchType=data["launchType"],
-            capacityProviderStrategy=data["capacityProviderStrategy"],
-            platformVersion=data["platformVersion"],
+            launchType=data.get("launchType"),
+            capacityProviderStrategy=data.get("capacityProviderStrategy"),
+            platformVersion=data.get("platformVersion"),
             role=data["roleArn"],
-            deploymentConfiguration=data["deploymentConfiguration"],
-            placementConstraints=data["placementConstraints"],
-            placementStrategy=data["placementStrategy"],
-            networkConfiguration=data["networkConfiguration"],
-            healthCheckGracePeriodSeconds=data["healthCheckGracePeriodSeconds"],
-            schedulingStrategy=data["schedulingStrategy"],
-            deploymentController=data["deploymentController"],
-            tags=data["tags"],
-            enableECSManagedTags=data["enableECSManagedTags"],
-            propagateTags=data["propagateTags"],
-            enableExecuteCommand=data["enableExecuteCommand"],
+            deploymentConfiguration=data.get("deploymentConfiguration"),
+            placementConstraints=data.get("placementConstraints"),
+            placementStrategy=data.get("placementStrategy"),
+            networkConfiguration=data.get("networkConfiguration"),
+            healthCheckGracePeriodSeconds=data.get("healthCheckGracePeriodSeconds"),
+            schedulingStrategy=data.get("schedulingStrategy"),
+            deploymentController=data.get("deploymentController"),
+            tags=data.get("tags"),
+            enableECSManagedTags=data.get("enableECSManagedTags"),
+            propagateTags=data.get("propagateTags"),
+            enableExecuteCommand=data.get("enableExecuteCommand"),
             serviceConnectConfiguration=self.serialize(serviceConnectConfiguration),
         )
         _response = self.client.create_service(
@@ -246,23 +246,23 @@ class ServiceManager(Boto3ModelManager):
         """
         data = model.model_dump(exclude_none=True, by_alias=True)
         args = dict(
-            service=data["service"],
-            cluster=data["cluster"],
-            desiredCount=data["desiredCount"],
-            taskDefinition=data["taskDefinition"],
-            capacityProviderStrategy=data["capacityProviderStrategy"],
-            deploymentConfiguration=data["deploymentConfiguration"],
-            networkConfiguration=data["networkConfiguration"],
-            placementConstraints=data["placementConstraints"],
-            placementStrategy=data["placementStrategy"],
-            platformVersion=data["platformVersion"],
+            service=data["serviceName"],
+            cluster=data["clusterArn"],
+            desiredCount=data.get("desiredCount"),
+            taskDefinition=data.get("taskDefinition"),
+            capacityProviderStrategy=data.get("capacityProviderStrategy"),
+            deploymentConfiguration=data.get("deploymentConfiguration"),
+            networkConfiguration=data.get("networkConfiguration"),
+            placementConstraints=data.get("placementConstraints"),
+            placementStrategy=data.get("placementStrategy"),
+            platformVersion=data.get("platformVersion"),
             forceNewDeployment=self.serialize(forceNewDeployment),
-            healthCheckGracePeriodSeconds=data["healthCheckGracePeriodSeconds"],
-            enableExecuteCommand=data["enableExecuteCommand"],
-            enableECSManagedTags=data["enableECSManagedTags"],
-            loadBalancers=data["loadBalancers"],
-            propagateTags=data["propagateTags"],
-            serviceRegistries=data["serviceRegistries"],
+            healthCheckGracePeriodSeconds=data.get("healthCheckGracePeriodSeconds"),
+            enableExecuteCommand=data.get("enableExecuteCommand"),
+            enableECSManagedTags=data.get("enableECSManagedTags"),
+            loadBalancers=data.get("loadBalancers"),
+            propagateTags=data.get("propagateTags"),
+            serviceRegistries=data.get("serviceRegistries"),
             serviceConnectConfiguration=self.serialize(serviceConnectConfiguration),
         )
         _response = self.client.update_service(
@@ -415,13 +415,13 @@ class ClusterManager(Boto3ModelManager):
         """
         data = model.model_dump(exclude_none=True, by_alias=True)
         args = dict(
-            clusterName=data["clusterName"],
-            tags=data["tags"],
-            settings=data["settings"],
-            configuration=data["configuration"],
-            capacityProviders=data["capacityProviders"],
-            defaultCapacityProviderStrategy=data["defaultCapacityProviderStrategy"],
-            serviceConnectDefaults=data["serviceConnectDefaults"],
+            clusterName=data.get("clusterName"),
+            tags=data.get("tags"),
+            settings=data.get("settings"),
+            configuration=data.get("configuration"),
+            capacityProviders=data.get("capacityProviders"),
+            defaultCapacityProviderStrategy=data.get("defaultCapacityProviderStrategy"),
+            serviceConnectDefaults=data.get("serviceConnectDefaults"),
         )
         _response = self.client.create_cluster(
             **{k: v for k, v in args.items() if v is not None}
@@ -537,10 +537,10 @@ class ClusterManager(Boto3ModelManager):
         """
         data = model.model_dump(exclude_none=True, by_alias=True)
         args = dict(
-            cluster=data["cluster"],
-            settings=data["settings"],
-            configuration=data["configuration"],
-            serviceConnectDefaults=data["serviceConnectDefaults"],
+            cluster=data["clusterName"],
+            settings=data.get("settings"),
+            configuration=data.get("configuration"),
+            serviceConnectDefaults=data.get("serviceConnectDefaults"),
         )
         _response = self.client.update_cluster(
             **{k: v for k, v in args.items() if v is not None}
@@ -593,7 +593,7 @@ class TaskDefinitionManager(Boto3ModelManager):
     service_name: str = "ecs"
 
     def create(
-        self, model: "TaskDefinition", tags: Optional[List[Tag]] = None
+        self, model: "TaskDefinition", tags: Optional[List["ECSTag"]] = None
     ) -> "TaskDefinition":
         """
         Registers a new task definition from the supplied ``family`` and
@@ -614,23 +614,23 @@ class TaskDefinitionManager(Boto3ModelManager):
         """
         data = model.model_dump(exclude_none=True, by_alias=True)
         args = dict(
-            family=data["family"],
-            containerDefinitions=data["containerDefinitions"],
-            taskRoleArn=data["taskRoleArn"],
-            executionRoleArn=data["executionRoleArn"],
-            networkMode=data["networkMode"],
-            volumes=data["volumes"],
-            placementConstraints=data["placementConstraints"],
-            requiresCompatibilities=data["requiresCompatibilities"],
-            cpu=data["cpu"],
-            memory=data["memory"],
+            family=data.get("family"),
+            containerDefinitions=data.get("containerDefinitions"),
+            taskRoleArn=data.get("taskRoleArn"),
+            executionRoleArn=data.get("executionRoleArn"),
+            networkMode=data.get("networkMode"),
+            volumes=data.get("volumes"),
+            placementConstraints=data.get("placementConstraints"),
+            requiresCompatibilities=data.get("requiresCompatibilities"),
+            cpu=data.get("cpu"),
+            memory=data.get("memory"),
             tags=self.serialize(tags),
-            pidMode=data["pidMode"],
-            ipcMode=data["ipcMode"],
-            proxyConfiguration=data["proxyConfiguration"],
-            inferenceAccelerators=data["inferenceAccelerators"],
-            ephemeralStorage=data["ephemeralStorage"],
-            runtimePlatform=data["runtimePlatform"],
+            pidMode=data.get("pidMode"),
+            ipcMode=data.get("ipcMode"),
+            proxyConfiguration=data.get("proxyConfiguration"),
+            inferenceAccelerators=data.get("inferenceAccelerators"),
+            ephemeralStorage=data.get("ephemeralStorage"),
+            runtimePlatform=data.get("runtimePlatform"),
         )
         _response = self.client.register_task_definition(
             **{k: v for k, v in args.items() if v is not None}
@@ -742,7 +742,7 @@ class TaskDefinitionManager(Boto3ModelManager):
         return results
 
     def update(
-        self, model: "TaskDefinition", tags: Optional[List[Tag]] = None
+        self, model: "TaskDefinition", tags: Optional[List["ECSTag"]] = None
     ) -> "TaskDefinition":
         """
         Registers a new task definition from the supplied ``family`` and
@@ -763,23 +763,23 @@ class TaskDefinitionManager(Boto3ModelManager):
         """
         data = model.model_dump(exclude_none=True, by_alias=True)
         args = dict(
-            family=data["family"],
-            containerDefinitions=data["containerDefinitions"],
-            taskRoleArn=data["taskRoleArn"],
-            executionRoleArn=data["executionRoleArn"],
-            networkMode=data["networkMode"],
-            volumes=data["volumes"],
-            placementConstraints=data["placementConstraints"],
-            requiresCompatibilities=data["requiresCompatibilities"],
-            cpu=data["cpu"],
-            memory=data["memory"],
+            family=data.get("family"),
+            containerDefinitions=data.get("containerDefinitions"),
+            taskRoleArn=data.get("taskRoleArn"),
+            executionRoleArn=data.get("executionRoleArn"),
+            networkMode=data.get("networkMode"),
+            volumes=data.get("volumes"),
+            placementConstraints=data.get("placementConstraints"),
+            requiresCompatibilities=data.get("requiresCompatibilities"),
+            cpu=data.get("cpu"),
+            memory=data.get("memory"),
             tags=self.serialize(tags),
-            pidMode=data["pidMode"],
-            ipcMode=data["ipcMode"],
-            proxyConfiguration=data["proxyConfiguration"],
-            inferenceAccelerators=data["inferenceAccelerators"],
-            ephemeralStorage=data["ephemeralStorage"],
-            runtimePlatform=data["runtimePlatform"],
+            pidMode=data.get("pidMode"),
+            ipcMode=data.get("ipcMode"),
+            proxyConfiguration=data.get("proxyConfiguration"),
+            inferenceAccelerators=data.get("inferenceAccelerators"),
+            ephemeralStorage=data.get("ephemeralStorage"),
+            runtimePlatform=data.get("runtimePlatform"),
         )
         _response = self.client.register_task_definition(
             **{k: v for k, v in args.items() if v is not None}
@@ -943,6 +943,38 @@ class ContainerInstanceManager(ReadonlyBoto3ModelManager):
 # ==============
 # Service Models
 # ==============
+
+
+class ECSTag(Boto3Model):
+    """
+    The metadata that you apply to a resource to help you categorize and
+    organize them. Each tag consists of a key and an optional value. You define
+    them.
+
+    The following basic restrictions apply to tags:
+
+    * Maximum number of tags per resource - 50
+    * For each resource, each tag key must be unique, and each tag key can have
+      only one value.
+    * Maximum key length - 128 Unicode characters in UTF-8
+    * Maximum value length - 256 Unicode characters in UTF-8
+    * If your tagging schema is used across multiple services and resources,
+      remember that other services may have restrictions on allowed characters.
+      Generally allowed characters are: letters, numbers, and spaces representable in
+      UTF-8, and the following characters: + - = . \_ : / @.
+    * Tag keys and values are case-sensitive.
+    * Do not use ``aws:``, ``AWS:``, or any upper or lowercase combination of such
+      as a prefix for either keys or values as it is reserved for Amazon Web Services
+      use. You cannot edit or delete tag keys or values with this prefix. Tags with
+      this prefix do not count against your tags per resource limit.
+    """
+
+    #: One part of a key-value pair that make up a tag. A ``key`` is a general label
+    #: that acts like a category for more specific tag values.
+    key: Optional[str] = None
+    #: The optional part of a key-value pair that make up a tag. A ``value`` acts as a
+    #: descriptor within a tag category (key).
+    value: Optional[str] = None
 
 
 class LoadBalancerConfiguration(Boto3Model):
@@ -1172,7 +1204,7 @@ class Scale(Boto3Model):
     unit: Optional[Literal["PERCENT"]] = None
 
 
-class TaskSet(Boto3Model):
+class TaskSet(TagsDictMixin, Boto3Model):
     """
     Information about a set of Amazon ECS tasks in either an CodeDeploy or an
     ``EXTERNAL`` deployment.
@@ -1182,6 +1214,10 @@ class TaskSet(Boto3Model):
     production traffic.
     """
 
+    tag_class: ClassVar[Type] = ECSTag
+    #: The metadata that you apply to the task set to help you categorize and organize
+    #: them. Each tag consists of a key and an optional value. You define both.
+    Tags: List["ECSTag"] = Field(default=None, serialization_alias="tags")
     #: The ID of the task set.
     id: Optional[str] = None
     #: The Amazon Resource Name (ARN) of the task set.
@@ -1253,9 +1289,6 @@ class TaskSet(Boto3Model):
     #: The Unix timestamp for the time when the task set stability status was
     #: retrieved.
     stabilityStatusAt: Optional[datetime] = None
-    #: The metadata that you apply to the task set to help you categorize and organize
-    #: them. Each tag consists of a key and an optional value. You define both.
-    tags: Optional[List[Tag]] = None
 
 
 class ServiceConnectClientAlias(Boto3Model):
@@ -1606,11 +1639,12 @@ class DeploymentController(Boto3Model):
     type: Literal["ECS", "CODE_DEPLOY", "EXTERNAL"]
 
 
-class Service(PrimaryBoto3Model):
+class Service(TagsDictMixin, PrimaryBoto3Model):
     """
     Details on a service within a cluster.
     """
 
+    tag_class: ClassVar[Type] = ECSTag
     objects: ClassVar[Boto3ModelManager] = ServiceManager()
 
     #: The name of your service. Up to 255 letters (uppercase and lowercase), numbers,
@@ -1639,6 +1673,10 @@ class Service(PrimaryBoto3Model):
     #: ices <https://docs.aws.amazon.com/AmazonECS/latest/developerguide/ecs_services.
     #: html>`_.
     schedulingStrategy: Literal["REPLICA", "DAEMON"]
+    #: The metadata that you apply to the service to help you categorize and organize
+    #: them. Each tag consists of a key and an optional value. You define bot the key
+    #: and value.
+    Tags: List["ECSTag"] = Field(default=None, serialization_alias="tags")
     #: The ARN that identifies the service. For more information about the ARN format,
     #: see `Amazon Resource Name (ARN)
     #: <https://docs.aws.amazon.com/AmazonECS/latest/developerguide/ecs-account-
@@ -1702,10 +1740,6 @@ class Service(PrimaryBoto3Model):
     healthCheckGracePeriodSeconds: Optional[int] = None
     #: The deployment controller type the service is using.
     deploymentController: Optional[DeploymentController] = None
-    #: The metadata that you apply to the service to help you categorize and organize
-    #: them. Each tag consists of a key and an optional value. You define bot the key
-    #: and value.
-    tags: Optional[List[Tag]] = None
     #: The principal that created the service.
     createdBy: str = Field(default=None, frozen=True)
     #: Determines whether to use Amazon ECS managed tags for the tasks in the service.
@@ -1916,7 +1950,7 @@ class ClusterServiceConnectDefaults(Boto3Model):
     namespace: Optional[str] = None
 
 
-class Cluster(PrimaryBoto3Model):
+class Cluster(TagsDictMixin, PrimaryBoto3Model):
     """
     A regional grouping of one or more container instances where you can run
     task requests.
@@ -1926,10 +1960,14 @@ class Cluster(PrimaryBoto3Model):
     more than one instance type simultaneously.
     """
 
+    tag_class: ClassVar[Type] = ECSTag
     objects: ClassVar[Boto3ModelManager] = ClusterManager()
 
     #: A user-generated string that you use to identify your cluster.
     clusterName: str
+    #: The metadata that you apply to the cluster to help you categorize and organize
+    #: them. Each tag consists of a key and an optional value. You define both.
+    Tags: List["ECSTag"] = Field(default=None, serialization_alias="tags")
     #: The Amazon Resource Name (ARN) that identifies the cluster. For more
     #: information about the ARN format, see `Amazon Resource Name (ARN)
     #: <https://docs.aws.amazon.com/AmazonECS/latest/developerguide/ecs-account-
@@ -1953,9 +1991,6 @@ class Cluster(PrimaryBoto3Model):
     #: Additional information about your clusters that are separated by launch type.
     #: They include the following:
     statistics: List["KeyValuePair"] = Field(default=None, frozen=True)
-    #: The metadata that you apply to the cluster to help you categorize and organize
-    #: them. Each tag consists of a key and an optional value. You define both.
-    tags: Optional[List[Tag]] = None
     #: The settings for the cluster. This parameter indicates whether CloudWatch
     #: Container Insights is on or off for a cluster.
     settings: Optional[List["ClusterSetting"]] = None
@@ -3076,7 +3111,7 @@ class EphemeralStorage(Boto3Model):
     sizeInGiB: int
 
 
-class TaskDefinition(PrimaryBoto3Model):
+class TaskDefinition(TagsDictMixin, PrimaryBoto3Model):
     """
     The details of a task definition which describes the container and volume
     definitions of an Amazon Elastic Container Service task.
@@ -3086,6 +3121,7 @@ class TaskDefinition(PrimaryBoto3Model):
     Amazon ECS service or task.
     """
 
+    tag_class: ClassVar[Type] = ECSTag
     objects: ClassVar[Boto3ModelManager] = TaskDefinitionManager()
 
     #: The name of a family that this task definition is registered to. Up to 255
@@ -3207,6 +3243,8 @@ class TaskDefinition(PrimaryBoto3Model):
     registeredBy: str = Field(default=None, frozen=True)
     #: The ephemeral storage settings to use for tasks run with the task definition.
     ephemeralStorage: Optional[EphemeralStorage] = None
+    #: The tags for the task definition.
+    Tags: Optional[List["ECSTag"]] = None
 
     @property
     def pk(self) -> Optional[str]:
@@ -3306,14 +3344,19 @@ class ContainerInstanceHealthStatus(Boto3Model):
     details: Optional[List["InstanceHealthCheckResult"]] = None
 
 
-class ContainerInstance(ReadonlyPrimaryBoto3Model):
+class ContainerInstance(TagsDictMixin, ReadonlyPrimaryBoto3Model):
     """
     An Amazon EC2 or External instance that's running the Amazon ECS agent and
     has been registered with a cluster.
     """
 
+    tag_class: ClassVar[Type] = ECSTag
     objects: ClassVar[Boto3ModelManager] = ContainerInstanceManager()
 
+    #: The metadata that you apply to the container instance to help you categorize
+    #: and organize them. Each tag consists of a key and an optional value. You define
+    #: both.
+    Tags: List["ECSTag"] = Field(default=None, serialization_alias="tags")
     #: The Amazon Resource Name (ARN) of the container instance. For more information
     #: about the ARN format, see `Amazon Resource Name (ARN)
     #: <https://docs.aws.amazon.com/AmazonECS/latest/developerguide/ecs-account-
@@ -3382,10 +3425,6 @@ class ContainerInstance(ReadonlyPrimaryBoto3Model):
     #: The resources attached to a container instance, such as an elastic network
     #: interface.
     attachments: Optional[List["Attachment"]] = None
-    #: The metadata that you apply to the container instance to help you categorize
-    #: and organize them. Each tag consists of a key and an optional value. You define
-    #: both.
-    tags: Optional[List[Tag]] = None
     #: An object representing the health status of the container instance.
     healthStatus: Optional[ContainerInstanceHealthStatus] = None
 
@@ -3546,11 +3585,12 @@ class UpdateClusterResponse(Boto3Model):
     cluster: Optional[Cluster] = None
 
 
-class RegisterTaskDefinitionResponse(Boto3Model):
+class RegisterTaskDefinitionResponse(TagsDictMixin, Boto3Model):
+    tag_class: ClassVar[Type] = ECSTag
+    #: The list of tags associated with the task definition.
+    Tags: List["ECSTag"] = Field(default=None, serialization_alias="tags")
     #: The full description of the registered task definition.
     taskDefinition: Optional[TaskDefinition] = None
-    #: The list of tags associated with the task definition.
-    tags: Optional[List[Tag]] = None
 
 
 class DeregisterTaskDefinitionResponse(Boto3Model):
@@ -3558,13 +3598,14 @@ class DeregisterTaskDefinitionResponse(Boto3Model):
     taskDefinition: Optional[TaskDefinition] = None
 
 
-class DescribeTaskDefinitionResponse(Boto3Model):
-    #: The full task definition description.
-    taskDefinition: Optional[TaskDefinition] = None
+class DescribeTaskDefinitionResponse(TagsDictMixin, Boto3Model):
+    tag_class: ClassVar[Type] = ECSTag
     #: The metadata that's applied to the task definition to help you categorize and
     #: organize them. Each tag consists of a key and an optional value. You define
     #: both.
-    tags: Optional[List[Tag]] = None
+    Tags: List["ECSTag"] = Field(default=None, serialization_alias="tags")
+    #: The full task definition description.
+    taskDefinition: Optional[TaskDefinition] = None
 
 
 class ListTaskDefinitionsResponse(Boto3Model):

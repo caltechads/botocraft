@@ -3,10 +3,11 @@
 # mypy: disable-error-code="index, override, assignment"
 from collections import OrderedDict
 from datetime import datetime
-from typing import Any, ClassVar, Dict, List, Literal, Optional, cast
+from typing import Any, ClassVar, Dict, List, Literal, Optional, Type, cast
 
 from pydantic import Field
 
+from botocraft.mixins.tags import TagsDictMixin
 from botocraft.services.common import Tag
 
 from .abstract import (Boto3Model, Boto3ModelManager, PrimaryBoto3Model,
@@ -38,12 +39,12 @@ class RepositoryManager(Boto3ModelManager):
         """
         data = model.model_dump(exclude_none=True, by_alias=True)
         args = dict(
-            repositoryName=data["repositoryName"],
-            registryId=data["registryId"],
+            repositoryName=data.get("repositoryName"),
+            registryId=data.get("registryId"),
             tags=self.serialize(tags),
-            imageTagMutability=data["imageTagMutability"],
-            imageScanningConfiguration=data["imageScanningConfiguration"],
-            encryptionConfiguration=data["encryptionConfiguration"],
+            imageTagMutability=data.get("imageTagMutability"),
+            imageScanningConfiguration=data.get("imageScanningConfiguration"),
+            encryptionConfiguration=data.get("encryptionConfiguration"),
         )
         _response = self.client.create_repository(
             **{k: v for k, v in args.items() if v is not None}

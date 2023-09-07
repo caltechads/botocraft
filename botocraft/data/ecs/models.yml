@@ -26,6 +26,8 @@ primary:
         required: true
         default: >-
           "REPLICA"
+      tags:
+        rename: Tags
     properties:
       pk:
         docstring: >-
@@ -65,6 +67,8 @@ primary:
         required: true
         default: >-
           "default"
+      tags:
+        rename: Tags
     relations:
       services:
         primary_model_name: Service
@@ -99,10 +103,19 @@ primary:
       networkMode:
         default: >-
           "awsvpc"
+    extra_fields:
+      Tags:
+        python_type: List["ECSTag"]
+        required: false
+        docstring: >-
+          The tags for the task definition.
   ContainerInstance:
     primary_key: containerInstanceArn
     arn_key: containerInstanceArn
     readonly: true
+    fields:
+      tags:
+        rename: Tags
     relations:
       instance:
         primary_model_name: Instance
@@ -127,3 +140,17 @@ secondary:
           True
   LoadBalancer:
     alternate_name: LoadBalancerConfiguration
+  Tag:
+    alternate_name: ECSTag
+  TaskSet:
+    fields:
+      tags:
+        rename: Tags
+  RegisterTaskDefinitionResponse:
+    fields:
+      tags:
+        rename: Tags
+  DescribeTaskDefinitionResponse:
+    fields:
+      tags:
+        rename: Tags

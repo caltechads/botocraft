@@ -3,6 +3,7 @@ from collections import OrderedDict
 from pathlib import Path
 import re
 from typing import Dict, Set, List, Optional, Type, cast
+import warnings
 
 import black
 import black.parsing
@@ -221,6 +222,11 @@ class ModelGenerator(AbstractGenerator):
                         fields[field].required = True
                 fields[field].botocore_shape = field_shape
         fields = self.mark_readonly_fields(model_name, fields)
+        # These are our manually defined extra fields
+        if model_def.extra_fields:
+            fields.update(model_def.extra_fields)
+        # These are the fields that are in the output shape of the get/list
+        # methods but not in the service model shape
         fields = self.add_extra_fields(model_name, fields)
         return fields
 
@@ -375,14 +381,19 @@ class ModelGenerator(AbstractGenerator):
             raise ValueError(f'Model {model_name} has no fields.')
         if not field_shape:
             field_shape = cast(botocore.model.StructureShape, model_shape).members.get(field_name)
-        if not field_shape:
-            raise ValueError(f'Model {model_name} has no field {field_name}.')
         if not field_def:
             model_def = self.get_model_def(model_name)
             field_def = model_def.fields.get(field_name, ModelAttributeDefinition())
         python_type = field_def.python_type
+        if not field_shape and not python_type:
+            raise TypeError(
+                f'{model_name}.{field_name} has neither a botocore shape nor a manually '
+                'defined python_type.'
+            )
         if not python_type:
-            python_type = self.shape_converter.convert(field_shape)
+            python_type = self.shape_converter.convert(
+                cast(botocore.model.StructureShape, field_shape)
+            )
         return self.validate_type(model_name, field_name, field_def, python_type)
 
     def validate_type(
@@ -547,19 +558,41 @@ class ModelGenerator(AbstractGenerator):
                 elif default:
                     field_line += f' = {field_def.default}'
                 fields.append(field_line)
-            fields.extend(self.extra_fields(model_def))
 
+            # Add any botocraft defined properties.  This includes relations.
             properties = self.get_properties(model_def, base_class)
 
+            # Add any botocraft defined mixins
             if model_def.mixins:
                 for mixin in model_def.mixins:
                     self.imports.add(f'from {mixin.import_path} import {mixin.name}')
                 base_class = ', '.join([mixin.name for mixin in model_def.mixins] + [base_class])
 
+            # See if we need to add the TagsDictMixin
+            tag_class: Optional[str] = None
+            has_tags: bool = False
+            field_names = {name.lower(): name for name in model_fields}
+            if 'tags' in field_names:
+                has_tags = True
+                tag_attr = field_names['tags']
+                if tag_attr == 'tags':
+                    if not model_fields[tag_attr].rename == 'Tags':
+                        warnings.warn(
+                            f'Model {model_name} has a field named "tags".  Rename it to "Tags" '
+                            'in the model definition.'
+                        )
+                tag_class = self.field_type(model_name, tag_attr, model_fields[tag_attr])
+                tag_class = re.sub(r'List\[(.*)\]', r'\1', tag_class)
+                tag_class = re.sub(r'"(.*)"', r'\1', tag_class)
+            if has_tags:
+                base_class = ', '.join(["TagsDictMixin", base_class])
+
             code: str = f'class {model_name}({base_class}):\n'
             docstring = self.docformatter.format_docstring(model_shape)
             if docstring:
                 code += f'    """{docstring}"""\n'
+            if has_tags:
+                code += f'    tag_class: ClassVar[Type] = {tag_class}\n'
             if 'PrimaryBoto3Model' in base_class:
                 code += f'    objects: ClassVar[Boto3ModelManager] = {model_name}Manager()\n\n'
             if fields:
@@ -669,10 +702,11 @@ class ServiceGenerator:
         self.imports: Set[str] = set(
             [
                 'from datetime import datetime',
-                'from typing import ClassVar, Optional, Literal, Dict, List, Any, cast',
+                'from typing import ClassVar, Type, Optional, Literal, Dict, List, Any, cast',
                 'from pydantic import Field',
                 'from .abstract import Boto3Model, ReadonlyBoto3Model, PrimaryBoto3Model, '
                 'ReadonlyPrimaryBoto3Model, Boto3ModelManager, ReadonlyBoto3ModelManager',
+                'from botocraft.mixins.tags import TagsDictMixin'
             ]
         )
         #: A dictionary of model names to class code.  This is populated by

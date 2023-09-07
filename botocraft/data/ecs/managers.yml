@@ -44,9 +44,9 @@ Service:
       boto3_name: update_service
       args:
         cluster:
-          source: clusterArn
+          attribute: clusterArn
         service:
-          source: serviceName
+          attribute: serviceName
         forceNewDeployment:
           explicit: true
           default: "False"
@@ -101,7 +101,7 @@ Cluster:
         Update an ECS cluster.
       args:
         cluster:
-          source: clusterName
+          attribute: clusterName
     partial_update:
       boto3_name: update_cluster
       docstring: >-

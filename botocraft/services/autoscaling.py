@@ -4,10 +4,11 @@
 from collections import OrderedDict
 from datetime import datetime
 from functools import cached_property
-from typing import Any, ClassVar, Dict, List, Literal, Optional, cast
+from typing import Any, ClassVar, Dict, List, Literal, Optional, Type, cast
 
 from pydantic import Field
 
+from botocraft.mixins.tags import TagsDictMixin
 from botocraft.services.common import Filter, Tag
 from botocraft.services.ec2 import (Instance, InstanceManager,
                                     LaunchTemplateVersion,
@@ -56,35 +57,37 @@ class AutoScalingGroupManager(Boto3ModelManager):
         """
         data = model.model_dump(exclude_none=True, by_alias=True)
         args = dict(
-            AutoScalingGroupName=data["AutoScalingGroupName"],
-            MinSize=data["MinSize"],
-            MaxSize=data["MaxSize"],
-            LaunchConfigurationName=data["LaunchConfigurationName"],
-            LaunchTemplate=data["LaunchTemplate"],
-            MixedInstancesPolicy=data["MixedInstancesPolicy"],
+            AutoScalingGroupName=data.get("AutoScalingGroupName"),
+            MinSize=data.get("MinSize"),
+            MaxSize=data.get("MaxSize"),
+            LaunchConfigurationName=data.get("LaunchConfigurationName"),
+            LaunchTemplate=data.get("LaunchTemplate"),
+            MixedInstancesPolicy=data.get("MixedInstancesPolicy"),
             InstanceId=self.serialize(InstanceId),
-            DesiredCapacity=data["DesiredCapacity"],
-            DefaultCooldown=data["DefaultCooldown"],
-            AvailabilityZones=data["AvailabilityZones"],
-            LoadBalancerNames=data["LoadBalancerNames"],
-            TargetGroupARNs=data["TargetGroupARNs"],
-            HealthCheckType=data["HealthCheckType"],
-            HealthCheckGracePeriod=data["HealthCheckGracePeriod"],
-            PlacementGroup=data["PlacementGroup"],
-            VPCZoneIdentifier=data["VPCZoneIdentifier"],
-            TerminationPolicies=data["TerminationPolicies"],
-            NewInstancesProtectedFromScaleIn=data["NewInstancesProtectedFromScaleIn"],
-            CapacityRebalance=data["CapacityRebalance"],
+            DesiredCapacity=data.get("DesiredCapacity"),
+            DefaultCooldown=data.get("DefaultCooldown"),
+            AvailabilityZones=data.get("AvailabilityZones"),
+            LoadBalancerNames=data.get("LoadBalancerNames"),
+            TargetGroupARNs=data.get("TargetGroupARNs"),
+            HealthCheckType=data.get("HealthCheckType"),
+            HealthCheckGracePeriod=data.get("HealthCheckGracePeriod"),
+            PlacementGroup=data.get("PlacementGroup"),
+            VPCZoneIdentifier=data.get("VPCZoneIdentifier"),
+            TerminationPolicies=data.get("TerminationPolicies"),
+            NewInstancesProtectedFromScaleIn=data.get(
+                "NewInstancesProtectedFromScaleIn"
+            ),
+            CapacityRebalance=data.get("CapacityRebalance"),
             LifecycleHookSpecificationList=self.serialize(
                 LifecycleHookSpecificationList
             ),
-            Tags=data["Tags"],
-            ServiceLinkedRoleARN=data["ServiceLinkedRoleARN"],
-            MaxInstanceLifetime=data["MaxInstanceLifetime"],
-            Context=data["Context"],
-            DesiredCapacityType=data["DesiredCapacityType"],
-            DefaultInstanceWarmup=data["DefaultInstanceWarmup"],
-            TrafficSources=data["TrafficSources"],
+            Tags=data.get("Tags"),
+            ServiceLinkedRoleARN=data.get("ServiceLinkedRoleARN"),
+            MaxInstanceLifetime=data.get("MaxInstanceLifetime"),
+            Context=data.get("Context"),
+            DesiredCapacityType=data.get("DesiredCapacityType"),
+            DefaultInstanceWarmup=data.get("DefaultInstanceWarmup"),
+            TrafficSources=data.get("TrafficSources"),
         )
         self.client.create_auto_scaling_group(
             **{k: v for k, v in args.items() if v is not None}
@@ -101,27 +104,29 @@ class AutoScalingGroupManager(Boto3ModelManager):
         """
         data = model.model_dump(exclude_none=True, by_alias=True)
         args = dict(
-            AutoScalingGroupName=data["AutoScalingGroupName"],
-            LaunchConfigurationName=data["LaunchConfigurationName"],
-            LaunchTemplate=data["LaunchTemplate"],
-            MixedInstancesPolicy=data["MixedInstancesPolicy"],
-            MinSize=data["MinSize"],
-            MaxSize=data["MaxSize"],
-            DesiredCapacity=data["DesiredCapacity"],
-            DefaultCooldown=data["DefaultCooldown"],
-            AvailabilityZones=data["AvailabilityZones"],
-            HealthCheckType=data["HealthCheckType"],
-            HealthCheckGracePeriod=data["HealthCheckGracePeriod"],
-            PlacementGroup=data["PlacementGroup"],
-            VPCZoneIdentifier=data["VPCZoneIdentifier"],
-            TerminationPolicies=data["TerminationPolicies"],
-            NewInstancesProtectedFromScaleIn=data["NewInstancesProtectedFromScaleIn"],
-            ServiceLinkedRoleARN=data["ServiceLinkedRoleARN"],
-            MaxInstanceLifetime=data["MaxInstanceLifetime"],
-            CapacityRebalance=data["CapacityRebalance"],
-            Context=data["Context"],
-            DesiredCapacityType=data["DesiredCapacityType"],
-            DefaultInstanceWarmup=data["DefaultInstanceWarmup"],
+            AutoScalingGroupName=data.get("AutoScalingGroupName"),
+            LaunchConfigurationName=data.get("LaunchConfigurationName"),
+            LaunchTemplate=data.get("LaunchTemplate"),
+            MixedInstancesPolicy=data.get("MixedInstancesPolicy"),
+            MinSize=data.get("MinSize"),
+            MaxSize=data.get("MaxSize"),
+            DesiredCapacity=data.get("DesiredCapacity"),
+            DefaultCooldown=data.get("DefaultCooldown"),
+            AvailabilityZones=data.get("AvailabilityZones"),
+            HealthCheckType=data.get("HealthCheckType"),
+            HealthCheckGracePeriod=data.get("HealthCheckGracePeriod"),
+            PlacementGroup=data.get("PlacementGroup"),
+            VPCZoneIdentifier=data.get("VPCZoneIdentifier"),
+            TerminationPolicies=data.get("TerminationPolicies"),
+            NewInstancesProtectedFromScaleIn=data.get(
+                "NewInstancesProtectedFromScaleIn"
+            ),
+            ServiceLinkedRoleARN=data.get("ServiceLinkedRoleARN"),
+            MaxInstanceLifetime=data.get("MaxInstanceLifetime"),
+            CapacityRebalance=data.get("CapacityRebalance"),
+            Context=data.get("Context"),
+            DesiredCapacityType=data.get("DesiredCapacityType"),
+            DefaultInstanceWarmup=data.get("DefaultInstanceWarmup"),
         )
         self.client.update_auto_scaling_group(
             **{k: v for k, v in args.items() if v is not None}
@@ -224,25 +229,25 @@ class LaunchConfigurationManager(Boto3ModelManager):
         """
         data = model.model_dump(exclude_none=True, by_alias=True)
         args = dict(
-            LaunchConfigurationName=data["LaunchConfigurationName"],
-            ImageId=data["ImageId"],
-            KeyName=data["KeyName"],
-            SecurityGroups=data["SecurityGroups"],
-            ClassicLinkVPCId=data["ClassicLinkVPCId"],
-            ClassicLinkVPCSecurityGroups=data["ClassicLinkVPCSecurityGroups"],
-            UserData=data["UserData"],
+            LaunchConfigurationName=data.get("LaunchConfigurationName"),
+            ImageId=data.get("ImageId"),
+            KeyName=data.get("KeyName"),
+            SecurityGroups=data.get("SecurityGroups"),
+            ClassicLinkVPCId=data.get("ClassicLinkVPCId"),
+            ClassicLinkVPCSecurityGroups=data.get("ClassicLinkVPCSecurityGroups"),
+            UserData=data.get("UserData"),
             InstanceId=self.serialize(InstanceId),
-            InstanceType=data["InstanceType"],
-            KernelId=data["KernelId"],
-            RamdiskId=data["RamdiskId"],
-            BlockDeviceMappings=data["BlockDeviceMappings"],
-            InstanceMonitoring=data["InstanceMonitoring"],
-            SpotPrice=data["SpotPrice"],
-            IamInstanceProfile=data["IamInstanceProfile"],
-            EbsOptimized=data["EbsOptimized"],
-            AssociatePublicIpAddress=data["AssociatePublicIpAddress"],
-            PlacementTenancy=data["PlacementTenancy"],
-            MetadataOptions=data["MetadataOptions"],
+            InstanceType=data.get("InstanceType"),
+            KernelId=data.get("KernelId"),
+            RamdiskId=data.get("RamdiskId"),
+            BlockDeviceMappings=data.get("BlockDeviceMappings"),
+            InstanceMonitoring=data.get("InstanceMonitoring"),
+            SpotPrice=data.get("SpotPrice"),
+            IamInstanceProfile=data.get("IamInstanceProfile"),
+            EbsOptimized=data.get("EbsOptimized"),
+            AssociatePublicIpAddress=data.get("AssociatePublicIpAddress"),
+            PlacementTenancy=data.get("PlacementTenancy"),
+            MetadataOptions=data.get("MetadataOptions"),
         )
         self.client.create_launch_configuration(
             **{k: v for k, v in args.items() if v is not None}
@@ -830,11 +835,12 @@ class TrafficSourceIdentifier(Boto3Model):
     Type: Optional[str] = None
 
 
-class AutoScalingGroup(PrimaryBoto3Model):
+class AutoScalingGroup(TagsDictMixin, PrimaryBoto3Model):
     """
     Describes an Auto Scaling group.
     """
 
+    tag_class: ClassVar[Type] = TagDescription
     objects: ClassVar[Boto3ModelManager] = AutoScalingGroupManager()
 
     #: The duration of the default cooldown period, in seconds.

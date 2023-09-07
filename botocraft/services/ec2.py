@@ -4,12 +4,13 @@
 from collections import OrderedDict
 from datetime import datetime
 from functools import cached_property
-from typing import Any, ClassVar, Dict, List, Literal, Optional, cast
+from typing import Any, ClassVar, Dict, List, Literal, Optional, Type, cast
 
 from pydantic import Field
 
 from botocraft.mixins.ec2 import (EC2TagsManagerMixin, SecurityGroupModelMixin,
                                   ec2_instance_only, ec2_instances_only)
+from botocraft.mixins.tags import TagsDictMixin
 from botocraft.services.common import Filter, Tag
 
 from .abstract import (Boto3Model, Boto3ModelManager, PrimaryBoto3Model,
@@ -225,9 +226,9 @@ class SecurityGroupManager(EC2TagsManagerMixin, Boto3ModelManager):
         """
         data = model.model_dump(exclude_none=True, by_alias=True)
         args = dict(
-            Description=data["Description"],
-            GroupName=data["GroupName"],
-            VpcId=data["VpcId"],
+            Description=data.get("Description"),
+            GroupName=data.get("GroupName"),
+            VpcId=data.get("VpcId"),
             TagSpecifications=self.serialize(
                 self.serialize(self.convert_tags(model.Tags, "security-group"))
             ),
@@ -411,8 +412,8 @@ class NetworkAclManager(Boto3ModelManager):
         """
         data = model.model_dump(exclude_none=True, by_alias=True)
         args = dict(
-            VpcId=data["VpcId"],
-            DryRun=data["DryRun"],
+            VpcId=data.get("VpcId"),
+            DryRun=data.get("DryRun"),
             TagSpecifications=self.serialize(
                 self.serialize(self.convert_tags(model.Tags, "network-acl"))
             ),
@@ -627,29 +628,29 @@ class InstanceManager(EC2TagsManagerMixin, Boto3ModelManager):
         args = dict(
             MaxCount=self.serialize(MaxCount),
             MinCount=self.serialize(MinCount),
-            BlockDeviceMappings=data["BlockDeviceMappings"],
-            ImageId=data["ImageId"],
-            InstanceType=data["InstanceType"],
+            BlockDeviceMappings=data.get("BlockDeviceMappings"),
+            ImageId=data.get("ImageId"),
+            InstanceType=data.get("InstanceType"),
             Ipv6AddressCount=self.serialize(Ipv6AddressCount),
             Ipv6Addresses=self.serialize(Ipv6Addresses),
-            KernelId=data["KernelId"],
-            KeyName=data["KeyName"],
-            Monitoring=data["Monitoring"],
-            Placement=data["Placement"],
-            RamdiskId=data["RamdiskId"],
+            KernelId=data.get("KernelId"),
+            KeyName=data.get("KeyName"),
+            Monitoring=data.get("Monitoring"),
+            Placement=data.get("Placement"),
+            RamdiskId=data.get("RamdiskId"),
             SecurityGroupIds=self.serialize(SecurityGroupIds),
-            SubnetId=data["SubnetId"],
+            SubnetId=data.get("SubnetId"),
             UserData=self.serialize(UserData),
-            ClientToken=data["ClientToken"],
+            ClientToken=data.get("ClientToken"),
             DisableApiTermination=self.serialize(DisableApiTermination),
-            DryRun=data["DryRun"],
-            EbsOptimized=data["EbsOptimized"],
-            IamInstanceProfile=data["IamInstanceProfile"],
+            DryRun=data.get("DryRun"),
+            EbsOptimized=data.get("EbsOptimized"),
+            IamInstanceProfile=data.get("IamInstanceProfile"),
             InstanceInitiatedShutdownBehavior=self.serialize(
                 InstanceInitiatedShutdownBehavior
             ),
-            NetworkInterfaces=data["NetworkInterfaces"],
-            PrivateIpAddress=data["PrivateIpAddress"],
+            NetworkInterfaces=data.get("NetworkInterfaces"),
+            PrivateIpAddress=data.get("PrivateIpAddress"),
             ElasticGpuSpecification=self.serialize(ElasticGpuSpecification),
             ElasticInferenceAccelerators=self.serialize(ElasticInferenceAccelerators),
             TagSpecifications=self.serialize(
@@ -658,14 +659,16 @@ class InstanceManager(EC2TagsManagerMixin, Boto3ModelManager):
             LaunchTemplate=self.serialize(LaunchTemplate),
             InstanceMarketOptions=self.serialize(InstanceMarketOptions),
             CreditSpecification=self.serialize(CreditSpecification),
-            CpuOptions=data["CpuOptions"],
-            CapacityReservationSpecification=data["CapacityReservationSpecification"],
-            HibernationOptions=data["HibernationOptions"],
+            CpuOptions=data.get("CpuOptions"),
+            CapacityReservationSpecification=data.get(
+                "CapacityReservationSpecification"
+            ),
+            HibernationOptions=data.get("HibernationOptions"),
             LicenseSpecifications=self.serialize(LicenseSpecifications),
-            MetadataOptions=data["MetadataOptions"],
-            EnclaveOptions=data["EnclaveOptions"],
-            PrivateDnsNameOptions=data["PrivateDnsNameOptions"],
-            MaintenanceOptions=data["MaintenanceOptions"],
+            MetadataOptions=data.get("MetadataOptions"),
+            EnclaveOptions=data.get("EnclaveOptions"),
+            PrivateDnsNameOptions=data.get("PrivateDnsNameOptions"),
+            MaintenanceOptions=data.get("MaintenanceOptions"),
             DisableApiStop=self.serialize(DisableApiStop),
             EnablePrimaryIpv6=self.serialize(EnablePrimaryIpv6),
         )
@@ -767,9 +770,9 @@ class LaunchTemplateManager(Boto3ModelManager):
         """
         data = model.model_dump(exclude_none=True, by_alias=True)
         args = dict(
-            LaunchTemplateName=data["LaunchTemplateName"],
+            LaunchTemplateName=data.get("LaunchTemplateName"),
             LaunchTemplateData=self.serialize(LaunchTemplateData),
-            DryRun=data["DryRun"],
+            DryRun=data.get("DryRun"),
             ClientToken=self.serialize(ClientToken),
             VersionDescription=self.serialize(VersionDescription),
             TagSpecifications=self.serialize(
@@ -919,13 +922,13 @@ class LaunchTemplateVersionManager(Boto3ModelManager):
         """
         data = model.model_dump(exclude_none=True, by_alias=True)
         args = dict(
-            LaunchTemplateData=data["LaunchTemplateData"],
-            DryRun=data["DryRun"],
+            LaunchTemplateData=data.get("LaunchTemplateData"),
+            DryRun=data.get("DryRun"),
             ClientToken=self.serialize(ClientToken),
-            LaunchTemplateId=data["LaunchTemplateId"],
-            LaunchTemplateName=data["LaunchTemplateName"],
+            LaunchTemplateId=data.get("LaunchTemplateId"),
+            LaunchTemplateName=data.get("LaunchTemplateName"),
             SourceVersion=self.serialize(SourceVersion),
-            VersionDescription=data["VersionDescription"],
+            VersionDescription=data.get("VersionDescription"),
             ResolveAlias=self.serialize(ResolveAlias),
         )
         _response = self.client.create_launch_template_version(
@@ -1129,11 +1132,12 @@ class VpcCidrBlockAssociation(Boto3Model):
     CidrBlockState: Optional[VpcCidrBlockState] = None
 
 
-class Vpc(PrimaryBoto3Model):
+class Vpc(TagsDictMixin, PrimaryBoto3Model):
     """
     Describes a VPC.
     """
 
+    tag_class: ClassVar[Type] = Tag
     objects: ClassVar[Boto3ModelManager] = VpcManager()
 
     #: The primary IPv4 CIDR block for the VPC.
@@ -1237,11 +1241,12 @@ class EC2PrivateDnsNameOptionsOnLaunch(Boto3Model):
     EnableResourceNameDnsAAAARecord: Optional[bool] = None
 
 
-class Subnet(PrimaryBoto3Model):
+class Subnet(TagsDictMixin, PrimaryBoto3Model):
     """
     Describes a subnet.
     """
 
+    tag_class: ClassVar[Type] = Tag
     objects: ClassVar[Boto3ModelManager] = SubnetManager()
 
     #: The ID of the VPC the subnet is in.
@@ -1423,11 +1428,12 @@ class IpPermission(Boto3Model):
     UserIdGroupPairs: Optional[List["UserIdGroupPair"]] = None
 
 
-class SecurityGroup(SecurityGroupModelMixin, PrimaryBoto3Model):
+class SecurityGroup(TagsDictMixin, SecurityGroupModelMixin, PrimaryBoto3Model):
     """
     Describes a security group.
     """
 
+    tag_class: ClassVar[Type] = Tag
     objects: ClassVar[Boto3ModelManager] = SecurityGroupManager()
 
     #: The ID of the VPC for the security group.
@@ -1526,11 +1532,12 @@ class NetworkAclEntry(Boto3Model):
     RuleNumber: Optional[int] = None
 
 
-class NetworkAcl(PrimaryBoto3Model):
+class NetworkAcl(TagsDictMixin, PrimaryBoto3Model):
     """
     Describes a network ACL.
     """
 
+    tag_class: ClassVar[Type] = Tag
     objects: ClassVar[Boto3ModelManager] = NetworkAclManager()
 
     #: Any associations between the network ACL and one or more subnets
@@ -1991,11 +1998,12 @@ class InstanceMaintenanceOptions(Boto3Model):
     AutoRecovery: Optional[Literal["disabled", "default"]] = None
 
 
-class Instance(PrimaryBoto3Model):
+class Instance(TagsDictMixin, PrimaryBoto3Model):
     """
     Describes an instance.
     """
 
+    tag_class: ClassVar[Type] = Tag
     objects: ClassVar[Boto3ModelManager] = InstanceManager()
 
     #: Any tags assigned to the instance.
@@ -2867,11 +2875,12 @@ class Instance(PrimaryBoto3Model):
         return self.InstanceId
 
 
-class LaunchTemplate(PrimaryBoto3Model):
+class LaunchTemplate(TagsDictMixin, PrimaryBoto3Model):
     """
     Describes a launch template.
     """
 
+    tag_class: ClassVar[Type] = Tag
     objects: ClassVar[Boto3ModelManager] = LaunchTemplateManager()
 
     #: The name of the launch template.
@@ -3142,11 +3151,12 @@ class LaunchTemplatePlacement(Boto3Model):
     GroupId: Optional[str] = None
 
 
-class LaunchTemplateTagSpecification(Boto3Model):
+class LaunchTemplateTagSpecification(TagsDictMixin, Boto3Model):
     """
     The tags specification for the launch template.
     """
 
+    tag_class: ClassVar[Type] = Tag
     #: The type of resource to tag.
     ResourceType: Optional[
         Literal[
@@ -4572,7 +4582,7 @@ class DescribeSubnetsResult(Boto3Model):
     NextToken: Optional[str] = None
 
 
-class TagSpecification(Boto3Model):
+class TagSpecification(TagsDictMixin, Boto3Model):
     """
     The tags to apply to a resource when the resource is being created. When
     you specify a tag, you must specify the resource type to tag, otherwise the
@@ -4584,6 +4594,7 @@ class TagSpecification(Boto3Model):
     using, you'll get an error.
     """
 
+    tag_class: ClassVar[Type] = Tag
     #: The type of resource to tag on creation.
     ResourceType: Optional[
         Literal[
@@ -4679,7 +4690,8 @@ class TagSpecification(Boto3Model):
     Tags: Optional[List[Tag]] = None
 
 
-class CreateSecurityGroupResult(Boto3Model):
+class CreateSecurityGroupResult(TagsDictMixin, Boto3Model):
+    tag_class: ClassVar[Type] = Tag
     #: The ID of the security group.
     GroupId: Optional[str] = None
     #: The tags assigned to the security group.
@@ -4720,11 +4732,12 @@ class ReferencedSecurityGroup(Boto3Model):
     VpcPeeringConnectionId: Optional[str] = None
 
 
-class SecurityGroupRule(Boto3Model):
+class SecurityGroupRule(TagsDictMixin, Boto3Model):
     """
     Describes a security group rule.
     """
 
+    tag_class: ClassVar[Type] = Tag
     #: The ID of the security group rule.
     SecurityGroupRuleId: Optional[str] = None
     #: The ID of the security group.
@@ -5448,12 +5461,13 @@ class LaunchTemplatePlacementRequest(Boto3Model):
     GroupId: Optional[str] = None
 
 
-class LaunchTemplateTagSpecificationRequest(Boto3Model):
+class LaunchTemplateTagSpecificationRequest(TagsDictMixin, Boto3Model):
     """
     The tags specification for the resources that are created during instance
     launch.
     """
 
+    tag_class: ClassVar[Type] = Tag
     #: The type of resource to tag.
     ResourceType: Optional[
         Literal[

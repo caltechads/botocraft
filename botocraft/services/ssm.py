@@ -2,10 +2,11 @@
 # pylint: disable=anomalous-backslash-in-string,unsubscriptable-object,line-too-long,arguments-differ,arguments-renamed
 # mypy: disable-error-code="index, override, assignment"
 from datetime import datetime
-from typing import Any, ClassVar, Dict, List, Literal, Optional, cast
+from typing import Any, ClassVar, Dict, List, Literal, Optional, Type, cast
 
 from pydantic import Field
 
+from botocraft.mixins.tags import TagsDictMixin
 from botocraft.services.common import Tag
 
 from .abstract import (Boto3Model, Boto3ModelManager, PrimaryBoto3Model,
@@ -58,17 +59,17 @@ class ParameterManager(Boto3ModelManager):
         """
         data = model.model_dump(exclude_none=True, by_alias=True)
         args = dict(
-            Name=data["Name"],
-            Value=data["Value"],
+            Name=data.get("Name"),
+            Value=data.get("Value"),
             Description=self.serialize(Description),
-            Type=data["Type"],
+            Type=data.get("Type"),
             KeyId=self.serialize(KeyId),
-            Overwrite=data["Overwrite"],
+            Overwrite=data.get("Overwrite"),
             AllowedPattern=self.serialize(AllowedPattern),
             Tags=self.serialize(Tags),
             Tier=self.serialize(Tier),
             Policies=self.serialize(Policies),
-            DataType=data["DataType"],
+            DataType=data.get("DataType"),
         )
         _response = self.client.put_parameter(
             **{k: v for k, v in args.items() if v is not None}
@@ -117,17 +118,17 @@ class ParameterManager(Boto3ModelManager):
         """
         data = model.model_dump(exclude_none=True, by_alias=True)
         args = dict(
-            Name=data["Name"],
-            Value=data["Value"],
+            Name=data.get("Name"),
+            Value=data.get("Value"),
             Description=self.serialize(Description),
-            Type=data["Type"],
+            Type=data.get("Type"),
             KeyId=self.serialize(KeyId),
             Overwrite=self.serialize(Overwrite),
             AllowedPattern=self.serialize(AllowedPattern),
             Tags=self.serialize(Tags),
             Tier=self.serialize(Tier),
             Policies=self.serialize(Policies),
-            DataType=data["DataType"],
+            DataType=data.get("DataType"),
         )
         _response = self.client.put_parameter(
             **{k: v for k, v in args.items() if v is not None}

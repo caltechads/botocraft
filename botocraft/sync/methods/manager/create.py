@@ -72,7 +72,7 @@ class CreateMethodGenerator(ManagerMethodGenerator):
             else:
                 if arg_def.hidden:
                     continue
-                _arg = f"data['{arg}']"
+                _arg = f"data.get('{arg}')"
                 if arg_def.value:
                     _arg = self.serialize(cast(str, arg_def.value))
                 elif arg_def.source_arg:
@@ -114,7 +114,7 @@ class CreateMethodGenerator(ManagerMethodGenerator):
             else:
                 if arg_def.hidden:
                     continue
-                _arg = f"data['{arg}']"
+                _arg = f"data.get('{arg}')"
                 if arg_def.value:
                     _arg = self.serialize(cast(str, arg_def.value))
                 elif arg_def.source_arg:
