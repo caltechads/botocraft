@@ -24,7 +24,7 @@ SERVICES_DIR = Path(__file__).parent.parent / 'services'
 # Models
 # ------
 
-class MixinClass(BaseModel):
+class Importable(BaseModel):
     """
     A configuration object for a mixin class to add to a model.
     """
@@ -224,6 +224,9 @@ class ModelAttributeDefinition(BaseModel):
     that we generate from the botocore model.
     """
 
+    #: If specified, use this as the name of the field in the model.
+    #: Set the original name of the field as a pydantic field alias.
+    rename: Optional[str] = None
     #: If ``True``, make this field immutable.
     readonly: bool = False
     #: If ``True``, force the field to be required, even if the underlying
@@ -251,7 +254,7 @@ class ModelDefinition(BaseModel):
     #: The botocore model name
     name: str
     #: A list of mixin classes to add to the model
-    mixins: List[MixinClass] = []
+    mixins: List[Importable] = []
     #: If ``True``, make this model immutable.
     readonly: bool = False
     #: The plural form of our model name, if different from
@@ -294,6 +297,26 @@ class ModelDefinition(BaseModel):
     properties: Dict[str, ModelPropertyDefinition] = {}
     #: Relationships to other models
     relations: Dict[str, ModelRelationshipDefinition] = {}
+
+    def unalias_field_name(self, field_name: str) -> str:
+        """
+        Get the botocore field name for a field name that may be an alias.
+
+        Args:
+            field_name: the field name or alias to look up
+
+        Raises:
+            KeyError: no such field name or alias
+
+        Returns:
+            The botocore field name
+        """
+        if field_name in self.fields:
+            return field_name
+        for botocore_name, field_def in self.fields.items():
+            if field_def.rename == field_name:
+                return botocore_name
+        raise KeyError(f'{self.name}: No field or alias named "{field_name}"')
 
 
 # --------
@@ -380,6 +403,11 @@ class ManagerMethodDefinition(BaseModel):
     #: The attribute name the response class to use in building our
     #: method return object(s).  If not specified, we'll use the lowercased
     #: model name, pluralizing if necessary.
+    #:
+    #: .. important::
+    #:     If you've renamed the model attribute you want to use on the response class
+    #:     using :py:attr:`ModelAttributeDefinition.rename`, put the name of the botocore
+    #:     attribute here, not the value of the ``rename`` attribute.
     response_attr: Optional[str] = None
     #: If specified, use this as the docstring for the method itself (not
     #: the args, kwargs or return type).  If not specified, we'll use the
@@ -390,6 +418,8 @@ class ManagerMethodDefinition(BaseModel):
     return_type: Optional[str] = None
     #: Extra arguments for the method call
     extra_args: Dict[str, MethodArgumentDefinition] = {}
+    #: Decorators to wrap the method in
+    decorators: List[Importable] = []
 
     @property
     def explicit_args(self) -> List[str]:
@@ -542,7 +572,7 @@ class ManagerDefinition(BaseModel):
     #: If ``True``, make this manager use the :py:class:`ReadonlyBoto3ModelManager` superclass
     readonly: bool = False
     #: Mixin classes to add to the manager
-    mixins: List[MixinClass] = []
+    mixins: List[Importable] = []
 
 
 # --------

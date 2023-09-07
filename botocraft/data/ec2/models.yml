@@ -122,3 +122,66 @@ secondary:
     alternate_name: EC2PrivateDnsNameOptionsOnLaunch
   StateReason:
     alternate_name: EC2StateReason
+  BlockDeviceMapping:
+    alternate_name: EC2BlockDeviceMapping
+  LaunchTemplateSpecification:
+    alternate_name: EC2LaunchTemplateSpecification
+  HibernationOptions:
+    alternate_name: EC2HibernationOptions
+  CpuOptions:
+    alternate_name: EC2CpuOptions
+  Placement:
+    alternate_name: EC2Placement
+  EnclaveOptions:
+    alternate_name: EC2EnclaveOptions
+  IamInstanceProfile:
+    alternate_name: EC2IamInstanceProfile
+  IcmpTypeCode:
+    alternate_name: EC2IcmpTypeCode
+  PortRange:
+    alternate_name: NetworkAclPortRange
+  CreditSpecification:
+    alternate_name: InstanceCreditSpecification
+  MemoryMiB:
+    alternate_name: InstanceMemoryMiB
+  MemoryGiBPerVCpu:
+    alternate_name: InstanceMemoryGiBPerVCpu
+  NetworkInterfaceCount:
+    alternate_name: InstanceNetworkInterfaceCount
+  TotalLocalStorageGB:
+    alternate_name: InstanceTotalLocalStorageGB
+  BaselineEbsBandwidthMbps:
+    alternate_name: InstanceBaselineEbsBandwidthMbps
+  AcceleratorCount:
+    alternate_name: InstanceAcceleratorCount
+  AcceleratorTotalMemoryMiB:
+    alternate_name: InstanceAcceleratorTotalMemoryMiB
+  NetworkBandwidthGbps:
+    alternate_name: InstanceNetworkBandwidthGbps
+  InstanceRequirements:
+    alternate_name: LaunchTemplateInstanceRequirements
+  CreateNetworkAclResult:
+    fields:
+      NetworkAcl:
+        rename: NetworkAclInstance
+  CapacityReservationTarget:
+    alternate_name: EC2CapacityReservationTarget
+  CreateLaunchTemplateResult:
+    fields:
+      LaunchTemplate:
+        rename: LaunchTemplateInstance
+  DeleteLaunchTemplateResult:
+    fields:
+      LaunchTemplate:
+        rename: LaunchTemplateInstance
+  CreateLaunchTemplateVersionResult:
+    fields:
+      LaunchTemplateVersion:
+        rename: LaunchTemplateVersionInstance
+  ResponseError:
+    alternate_name: EC2ResponseError
+  MemoryGiBPerVCpuRequest:
+    alternate_name: EC2MemoryGiBPerVCpuRequest
+  NetworkBandwidthGbpsRequest:
+    alternate_name: EC2NetworkBandwidthGbpsRequest
+

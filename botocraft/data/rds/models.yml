@@ -26,6 +26,9 @@ primary:
         default: true
       BackupRetentionPeriod:
         default: 1
+      # We are setting the following fields to writable so we can reuse them for
+      # parameters in the create_db_instance and modify_db_instance boto3
+      # methods.  Normally these are readonly.
       DbInstancePort:
         readonly: false
       IAMDatabaseAuthenticationEnabled:
@@ -39,6 +42,18 @@ primary:
       PerformanceInsightsEnabled:
         readonly: false
 secondary:
+  CreateDBInstanceResult:
+    fields:
+      DBInstance:
+        rename: RDSDBInstance
+  ModifyDBInstanceResult:
+    fields:
+      DBInstance:
+        rename: RDSDBInstance
+  DeleteDBInstanceResult:
+    fields:
+      DBInstance:
+        rename: RDSDBInstance
   AvailabilityZone:
     alternate_name: RDSAvailabilityZone
   Endpoint:
@@ -53,3 +68,5 @@ secondary:
     alternate_name: RDSCertificateDetails
   PendingModifiedValues:
     alternate_name: RDSPendingModifiedValues
+  PendingCloudwatchLogsExports:
+    alternate_name: RDSPendingCloudwatchLogsExports

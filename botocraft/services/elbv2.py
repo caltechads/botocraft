@@ -39,7 +39,7 @@ class LoadBalancerManager(Boto3ModelManager):
                 mappings, but not both.
             Tags: The tags to assign to the load balancer.
         """
-        data = model.model_dump(exclude_none=True)
+        data = model.model_dump(exclude_none=True, by_alias=True)
         args = dict(
             Name=data["LoadBalancerName"],
             Subnets=data["Subnets"],
@@ -141,7 +141,7 @@ class ListenerManager(Boto3ModelManager):
         Keyword Args:
             Tags: The tags to assign to the listener.
         """
-        data = model.model_dump(exclude_none=True)
+        data = model.model_dump(exclude_none=True, by_alias=True)
         args = dict(
             LoadBalancerArn=data["LoadBalancerArn"],
             DefaultActions=data["DefaultActions"],
@@ -167,7 +167,7 @@ class ListenerManager(Boto3ModelManager):
         Args:
             model: The :py:class:`Listener` to update.
         """
-        data = model.model_dump(exclude_none=True)
+        data = model.model_dump(exclude_none=True, by_alias=True)
         args = dict(
             ListenerArn=data["ListenerArn"],
             Port=data["Port"],
@@ -265,7 +265,7 @@ class RuleManager(Boto3ModelManager):
         Keyword Args:
             Tags: The tags to assign to the rule.
         """
-        data = model.model_dump(exclude_none=True)
+        data = model.model_dump(exclude_none=True, by_alias=True)
         args = dict(
             ListenerArn=self.serialize(ListenerArn),
             Conditions=data["Conditions"],
@@ -288,7 +288,7 @@ class RuleManager(Boto3ModelManager):
         Args:
             model: The :py:class:`Rule` to update.
         """
-        data = model.model_dump(exclude_none=True)
+        data = model.model_dump(exclude_none=True, by_alias=True)
         args = dict(
             RuleArn=data["RuleArn"],
             Conditions=data["Conditions"],
@@ -373,7 +373,7 @@ class TargetGroupManager(Boto3ModelManager):
         Keyword Args:
             Tags: The tags to assign to the target group.
         """
-        data = model.model_dump(exclude_none=True)
+        data = model.model_dump(exclude_none=True, by_alias=True)
         args = dict(
             Name=self.serialize(Name),
             Protocol=data["Protocol"],
@@ -408,7 +408,7 @@ class TargetGroupManager(Boto3ModelManager):
         Args:
             model: The :py:class:`TargetGroup` to update.
         """
-        data = model.model_dump(exclude_none=True)
+        data = model.model_dump(exclude_none=True, by_alias=True)
         args = dict(
             TargetGroupArn=data["TargetGroupArn"],
             HealthCheckProtocol=data["HealthCheckProtocol"],
@@ -583,19 +583,19 @@ class LoadBalancer(PrimaryBoto3Model):
     #: and IPv6 addresses).
     IpAddressType: Optional[Literal["ipv4", "dualstack"]] = "ipv4"
     #: The Amazon Resource Name (ARN) of the load balancer.
-    LoadBalancerArn: str = Field(frozen=True, default=None)
+    LoadBalancerArn: str = Field(default=None, frozen=True)
     #: The public DNS name of the load balancer.
-    DNSName: str = Field(frozen=True, default=None)
+    DNSName: str = Field(default=None, frozen=True)
     #: The ID of the Amazon Route 53 hosted zone associated with the load balancer.
-    CanonicalHostedZoneId: str = Field(frozen=True, default=None)
+    CanonicalHostedZoneId: str = Field(default=None, frozen=True)
     #: The date and time the load balancer was created.
-    CreatedTime: datetime = Field(frozen=True, default=None)
+    CreatedTime: datetime = Field(default=None, frozen=True)
     #: The ID of the VPC for the load balancer.
-    VpcId: str = Field(frozen=True, default=None)
+    VpcId: str = Field(default=None, frozen=True)
     #: The state of the load balancer.
-    State: LoadBalancerState = Field(frozen=True, default=None)
+    State: LoadBalancerState = Field(default=None, frozen=True)
     #: The subnets for the load balancer.
-    AvailabilityZones: List["AvailabilityZone"] = Field(frozen=True, default=None)
+    AvailabilityZones: List["AvailabilityZone"] = Field(default=None, frozen=True)
     #: The IDs of the security groups for the load balancer.
     SecurityGroups: Optional[List[str]] = None
     #: [Application Load Balancers on Outposts] The ID of the customer-owned address
@@ -604,7 +604,7 @@ class LoadBalancer(PrimaryBoto3Model):
     #: Indicates whether to evaluate inbound security group rules for traffic sent to
     #: a Network Load Balancer through Amazon Web Services PrivateLink.
     EnforceSecurityGroupInboundRulesOnPrivateLinkTraffic: str = Field(
-        frozen=True, default=None
+        default=None, frozen=True
     )
 
     @property
@@ -788,7 +788,7 @@ class TargetGroupTuple(Boto3Model):
     Weight: Optional[int] = None
 
 
-class TargetGroupStickinessConfig(Boto3Model):
+class ElbV2TargetGroupStickinessConfig(Boto3Model):
     """
     The target group stickiness for the rule.
     """
@@ -816,7 +816,7 @@ class ForwardActionConfig(Boto3Model):
     #: group.
     TargetGroups: Optional[List["TargetGroupTuple"]] = None
     #: The target group stickiness for the rule.
-    TargetGroupStickinessConfig: Optional["TargetGroupStickinessConfig"] = None
+    TargetGroupStickinessConfig: Optional[ElbV2TargetGroupStickinessConfig] = None
 
 
 class Action(Boto3Model):
@@ -1106,7 +1106,7 @@ class Rule(PrimaryBoto3Model):
         return self.RuleArn
 
 
-class Matcher(Boto3Model):
+class ResponseCodeMatcher(Boto3Model):
     """
     The HTTP or gRPC codes to use when checking for a successful response from
     a target.
@@ -1177,7 +1177,7 @@ class TargetGroup(PrimaryBoto3Model):
     HealthCheckPath: Optional[str] = None
     #: The HTTP or gRPC codes to use when checking for a successful response from a
     #: target.
-    Matcher: Optional["Matcher"] = None
+    Matcher: Optional[ResponseCodeMatcher] = None
     #: The Amazon Resource Name (ARN) of the load balancer that routes traffic to this
     #: target group. You can use each target group with only one load balancer.
     LoadBalancerArns: Optional[List[str]] = None

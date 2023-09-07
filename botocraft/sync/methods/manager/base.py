@@ -1,4 +1,5 @@
 from collections import OrderedDict
+import re
 from typing import (
     Optional,
     Literal,
@@ -243,7 +244,9 @@ class ManagerMethodGenerator:
     @property
     def explicit_args(self) -> OrderedDict[str, str]:
         """
-        Return the positional arguments for the given method.
+        Return the explicit positional arguments for the given method.   These
+        are arguments that are not part of the model, but are required in the
+        boto3 operation call.
 
         Returns:
             A dictionary of argument names to types.
@@ -262,7 +265,9 @@ class ManagerMethodGenerator:
     @property
     def explicit_kwargs(self) -> OrderedDict[str, str]:
         """
-        Return the positional arguments for the given method.
+        Return the explicit positional arguments for the given method.   These
+        are arguments that are not part of the model, but can be supplied in the
+        boto3 operation call.
 
         Returns:
             A dictionary of argument names to types.
@@ -402,7 +407,7 @@ class ManagerMethodGenerator:
         model_name = self.output_shape.name
         self.model_generator.generate_model(
             model_name,
-            shape=self.operation_model.output_shape
+            model_shape=self.operation_model.output_shape
         )
         return model_name
 
@@ -417,12 +422,13 @@ class ManagerMethodGenerator:
         Returns:
             _type_: _description_
         """
+        response_attr: Optional[str] = None
         if self.output_shape is None:
             return None
         if not hasattr(self.output_shape, 'members'):
             return None
         if self.method_def.response_attr:
-            return self.method_def.response_attr
+            response_attr = self.method_def.response_attr
         potential_names = [
             self.model_name.lower(),
             self.model_name_plural.lower(),
@@ -430,10 +436,17 @@ class ManagerMethodGenerator:
         response_attrs = {attr.lower(): attr for attr in self.output_shape.members}
         for attr in response_attrs:
             if attr in potential_names:
-                return response_attrs[attr]
-        attrs = ", ".join([f'"{attr}"' for attr in response_attrs])
-        if not attrs:
-            attrs = "No attributes"
+                response_attr = response_attrs[attr]
+                break
+        attrs = ", ".join([f'"{attr}"' for attr in self.output_shape.members])
+        if response_attr:
+            test_attr = re.split(r'\[|\.', response_attr)[0]
+            if test_attr not in self.output_shape.members:
+                raise KeyError(
+                    f"{self.model_name}Manager.{self.method_name}: {test_attr} "
+                    f"is not a field on the response class {self.output_shape.name}: {attrs}"
+                )
+            return response_attr
         raise ValueError(
             f"Can't deduce response attribute for response class {self.output_shape.name}: {attrs}"
         )
@@ -482,6 +495,23 @@ class ManagerMethodGenerator:
         if self.output_shape is not None:
             response_attr_shape = self.output_shape.members[cast(str, self.response_attr)]
         return self.shape_converter.convert(response_attr_shape, quote=True)
+
+    @property
+    def decorators(self) -> Optional[str]:
+        """
+        Return the decorators for the method, if any.
+
+        Returns:
+            Decorators for the method, or ``None`` if there are none.
+        """
+        if not self.method_def.decorators:
+            return None
+        code = ""
+        for decorator in self.method_def.decorators:
+            code += f"    @{decorator.name}\n"
+            if decorator.import_path:
+                self.imports.add(f'from {decorator.import_path} import {decorator.name}')
+        return code + "\n"
 
     @property
     def signature(self) -> str:
@@ -584,9 +614,11 @@ class ManagerMethodGenerator:
             The full code for the method, ready to be inserted into the
             generated manager class.
         """
-        code = self.signature
-        docstring = self.docstring
-        if docstring:
+        code = ""
+        if decorators := self.decorators:
+            code += decorators
+        code += self.signature
+        if docstring := self.docstring:
             code += docstring
         code += self.body
         return code

@@ -1,9 +1,13 @@
-from typing import List, Literal, Optional, TYPE_CHECKING
+from typing import List, Literal, Optional, TYPE_CHECKING, Callable, cast
 
 from botocraft.services import Tag
 
 if TYPE_CHECKING:
-    from botocraft.services import TagSpecification
+    from botocraft.services import (
+        TagSpecification,
+        Instance,
+        Reservation,
+    )
 
 
 ResourceType = Literal[
@@ -137,3 +141,30 @@ class SecurityGroupModelMixin:
                     self.objects.authorize_ingress(
                         self.pk, self.IpPermissions, **kwargs
                     )
+
+
+def ec2_instances_only(func: Callable[..., List["Reservation"]]) -> Callable[..., List["Instance"]]:
+    """
+    Wraps a boto3 method that returns a list of :py:class:`Reservation` objects
+    and returns a list of :py:class:`Instance` objects instead.
+    """
+    def wrapper(*args, **kwargs) -> List["Instance"]:
+        reservations = func(*args, **kwargs)
+        instances: List["Instance"] = []
+        for reservation in reservations:
+            instances.extend(cast(List["Instance"], reservation.Instances))
+        return instances
+    return wrapper
+
+
+def ec2_instance_only(func: Callable[..., Optional["Reservation"]]) -> Callable[..., Optional["Instance"]]:
+    """
+    Wraps a boto3 method that returns a list of :py:class:`Reservation` objects
+    and returns a list of :py:class:`Instance` objects instead.
+    """
+    def wrapper(*args, **kwargs) -> Optional["Instance"]:
+        reservation = func(*args, **kwargs)
+        if not reservation:
+            return None
+        return cast(List["Instance"], reservation.Instances)[0]
+    return wrapper

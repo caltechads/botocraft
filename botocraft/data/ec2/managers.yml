@@ -259,6 +259,9 @@ Instance:
           source_arg: "[InstanceId]"
           docstring: >-
             The IDs of the instance.
+      decorators:
+        - name: ec2_instance_only
+          import_path: botocraft.mixins.ec2
     list:
       boto3_name: describe_instances
       response_attr: Reservations
@@ -266,6 +269,9 @@ Instance:
       args:
         DryRun:
           default: "False"
+      decorators:
+        - name: ec2_instances_only
+          import_path: botocraft.mixins.ec2
 LaunchTemplate:
   methods:
     create:

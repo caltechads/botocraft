@@ -42,7 +42,7 @@ class ServiceManager(Boto3ModelManager):
                 and connect to services, and be discovered by, and connected from, other
                 services within a namespace.
         """
-        data = model.model_dump(exclude_none=True)
+        data = model.model_dump(exclude_none=True, by_alias=True)
         args = dict(
             serviceName=data["serviceName"],
             cluster=data["clusterArn"],
@@ -239,7 +239,7 @@ class ServiceManager(Boto3ModelManager):
                 and connect to services, and be discovered by, and connected from, other
                 services within a namespace.
         """
-        data = model.model_dump(exclude_none=True)
+        data = model.model_dump(exclude_none=True, by_alias=True)
         args = dict(
             service=data["service"],
             cluster=data["cluster"],
@@ -408,7 +408,7 @@ class ClusterManager(Boto3ModelManager):
         Args:
             model: The :py:class:`Cluster` to create.
         """
-        data = model.model_dump(exclude_none=True)
+        data = model.model_dump(exclude_none=True, by_alias=True)
         args = dict(
             clusterName=data["clusterName"],
             tags=data["tags"],
@@ -499,7 +499,7 @@ class ClusterManager(Boto3ModelManager):
         Args:
             model: The :py:class:`Cluster` to update.
         """
-        data = model.model_dump(exclude_none=True)
+        data = model.model_dump(exclude_none=True, by_alias=True)
         args = dict(
             cluster=data["cluster"],
             settings=data["settings"],
@@ -576,7 +576,7 @@ class TaskDefinitionManager(Boto3ModelManager):
                 value. You define both of them.
 
         """
-        data = model.model_dump(exclude_none=True)
+        data = model.model_dump(exclude_none=True, by_alias=True)
         args = dict(
             family=data["family"],
             containerDefinitions=data["containerDefinitions"],
@@ -724,7 +724,7 @@ class TaskDefinitionManager(Boto3ModelManager):
                 value. You define both of them.
 
         """
-        data = model.model_dump(exclude_none=True)
+        data = model.model_dump(exclude_none=True, by_alias=True)
         args = dict(
             family=data["family"],
             containerDefinitions=data["containerDefinitions"],
@@ -1559,7 +1559,7 @@ class Service(PrimaryBoto3Model):
     #: see `Amazon Resource Name (ARN)
     #: <https://docs.aws.amazon.com/AmazonECS/latest/developerguide/ecs-account-
     #: settings.html#ecs-resource-ids>`_ in the *Amazon ECS Developer Guide*.
-    serviceArn: str = Field(frozen=True, default=None)
+    serviceArn: str = Field(default=None, frozen=True)
     #: A list of Elastic Load Balancing load balancer objects. It contains the load
     #: balancer name, the container name, and the container port to access from the
     #: load balancer. The container name is as it appears in a container definition.
@@ -1571,11 +1571,11 @@ class Service(PrimaryBoto3Model):
     serviceRegistries: Optional[List["ServiceRegistry"]] = None
     #: The status of the service. The valid values are ``ACTIVE``, ``DRAINING``, or
     #: ``INACTIVE``.
-    status: str = Field(frozen=True, default=None)
+    status: str = Field(default=None, frozen=True)
     #: The number of tasks in the cluster that are in the ``RUNNING`` state.
-    runningCount: int = Field(frozen=True, default=None)
+    runningCount: int = Field(default=None, frozen=True)
     #: The number of tasks in the cluster that are in the ``PENDING`` state.
-    pendingCount: int = Field(frozen=True, default=None)
+    pendingCount: int = Field(default=None, frozen=True)
     #: The capacity provider strategy the service uses. When using the
     #: DescribeServices API, this field is omitted if the service was created using a
     #: launch type.
@@ -1589,7 +1589,7 @@ class Service(PrimaryBoto3Model):
     platformVersion: Optional[str] = None
     #: The operating system that your tasks in the service run on. A platform family
     #: is specified only for tasks using the Fargate launch type.
-    platformFamily: str = Field(frozen=True, default=None)
+    platformFamily: str = Field(default=None, frozen=True)
     #: Optional deployment parameters that control how many tasks run during the
     #: deployment and the ordering of stopping and starting tasks.
     deploymentConfiguration: Optional[DeploymentConfiguration] = None
@@ -1597,14 +1597,14 @@ class Service(PrimaryBoto3Model):
     #: ``EXTERNAL`` deployment. An Amazon ECS task set includes details such as the
     #: desired number of tasks, how many tasks are running, and whether the task set
     #: serves production traffic.
-    taskSets: List["TaskSet"] = Field(frozen=True, default=None)
+    taskSets: List["TaskSet"] = Field(default=None, frozen=True)
     #: The current state of deployments for the service.
-    deployments: List["Deployment"] = Field(frozen=True, default=None)
+    deployments: List["Deployment"] = Field(default=None, frozen=True)
     #: The event stream for your service. A maximum of 100 of the latest events are
     #: displayed.
-    events: List["ServiceEvent"] = Field(frozen=True, default=None)
+    events: List["ServiceEvent"] = Field(default=None, frozen=True)
     #: The Unix timestamp for the time when the service was created.
-    createdAt: datetime = Field(frozen=True, default=None)
+    createdAt: datetime = Field(default=None, frozen=True)
     #: The placement constraints for the tasks in the service.
     placementConstraints: Optional[List["PlacementConstraint"]] = None
     #: The placement strategy that determines how tasks for the service are placed.
@@ -1623,7 +1623,7 @@ class Service(PrimaryBoto3Model):
     #: and value.
     tags: Optional[List[Tag]] = None
     #: The principal that created the service.
-    createdBy: str = Field(frozen=True, default=None)
+    createdBy: str = Field(default=None, frozen=True)
     #: Determines whether to use Amazon ECS managed tags for the tasks in the service.
     #: For more information, see `Tagging Your Amazon ECS Resources
     #: <https://docs.aws.amazon.com/AmazonECS/latest/developerguide/ecs- using-
@@ -1850,25 +1850,25 @@ class Cluster(PrimaryBoto3Model):
     #: information about the ARN format, see `Amazon Resource Name (ARN)
     #: <https://docs.aws.amazon.com/AmazonECS/latest/developerguide/ecs-account-
     #: settings.html#ecs-resource-ids>`_ in the *Amazon ECS Developer Guide*.
-    clusterArn: str = Field(frozen=True, default=None)
+    clusterArn: str = Field(default=None, frozen=True)
     #: The execute command configuration for the cluster.
     configuration: Optional[ClusterConfiguration] = None
     #: The status of the cluster. The following are the possible states that are
     #: returned.
-    status: str = Field(frozen=True, default=None)
+    status: str = Field(default=None, frozen=True)
     #: The number of container instances registered into the cluster. This includes
     #: container instances in both ``ACTIVE`` and ``DRAINING`` status.
-    registeredContainerInstancesCount: int = Field(frozen=True, default=None)
+    registeredContainerInstancesCount: int = Field(default=None, frozen=True)
     #: The number of tasks in the cluster that are in the ``RUNNING`` state.
-    runningTasksCount: int = Field(frozen=True, default=None)
+    runningTasksCount: int = Field(default=None, frozen=True)
     #: The number of tasks in the cluster that are in the ``PENDING`` state.
-    pendingTasksCount: int = Field(frozen=True, default=None)
+    pendingTasksCount: int = Field(default=None, frozen=True)
     #: The number of services that are running on the cluster in an ``ACTIVE`` state.
     #: You can view these services with ListServices.
-    activeServicesCount: int = Field(frozen=True, default=None)
+    activeServicesCount: int = Field(default=None, frozen=True)
     #: Additional information about your clusters that are separated by launch type.
     #: They include the following:
-    statistics: List["KeyValuePair"] = Field(frozen=True, default=None)
+    statistics: List["KeyValuePair"] = Field(default=None, frozen=True)
     #: The metadata that you apply to the cluster to help you categorize and organize
     #: them. Each tag consists of a key and an optional value. You define both.
     tags: Optional[List[Tag]] = None
@@ -1886,10 +1886,10 @@ class Cluster(PrimaryBoto3Model):
     #: The resources attached to a cluster. When using a capacity provider with a
     #: cluster, the capacity provider and associated resources are returned as cluster
     #: attachments.
-    attachments: List["Attachment"] = Field(frozen=True, default=None)
+    attachments: List["Attachment"] = Field(default=None, frozen=True)
     #: The status of the capacity providers associated with the cluster. The following
     #: are the states that are returned.
-    attachmentsStatus: str = Field(frozen=True, default=None)
+    attachmentsStatus: str = Field(default=None, frozen=True)
     #: Use this parameter to set a default Service Connect namespace. After you set a
     #: default Service Connect namespace, any new services with Service Connect turned
     #: on that are created in the cluster are added as client services in the
@@ -3008,7 +3008,7 @@ class TaskDefinition(PrimaryBoto3Model):
     #: is specified, the default is ``bridge``.
     networkMode: Optional[Literal["bridge", "host", "awsvpc", "none"]] = "awsvpc"
     #: The full Amazon Resource Name (ARN) of the task definition.
-    taskDefinitionArn: str = Field(frozen=True, default=None)
+    taskDefinitionArn: str = Field(default=None, frozen=True)
     #: The Amazon Resource Name (ARN) of the task execution role that grants the
     #: Amazon ECS container agent permission to make Amazon Web Services API calls on
     #: your behalf. The task execution IAM role is required depending on the
@@ -3023,7 +3023,7 @@ class TaskDefinition(PrimaryBoto3Model):
     #: revision of a task definition in the same family, the revision value always
     #: increases by one. This is even if you deregistered previous revisions in this
     #: family.
-    revision: int = Field(frozen=True, default=None)
+    revision: int = Field(default=None, frozen=True)
     #: The list of data volume definitions for the task. For more information, see
     #: `Using data volumes in tasks <https://docs.aws.amazon.com/AmazonECS/latest/deve
     #: loperguide/using_data_volumes.html>`_ in the *Amazon Elastic Container Service
@@ -3031,7 +3031,7 @@ class TaskDefinition(PrimaryBoto3Model):
     volumes: Optional[List["Volume"]] = None
     #: The status of the task definition.
     status: Literal["ACTIVE", "INACTIVE", "DELETE_IN_PROGRESS"] = Field(
-        frozen=True, default=None
+        default=None, frozen=True
     )
     #: The container instance attributes required by your task. When an Amazon EC2
     #: instance is registered to your cluster, the Amazon ECS container agent assigns
@@ -3042,7 +3042,7 @@ class TaskDefinition(PrimaryBoto3Model):
     #: <https://docs.aws.amazon.com/AmazonECS/latest/developerguide/task- placement-
     #: constraints.html#attributes>`_ in the *Amazon Elastic Container Service
     #: Developer Guide*.
-    requiresAttributes: List["Attribute"] = Field(frozen=True, default=None)
+    requiresAttributes: List["Attribute"] = Field(default=None, frozen=True)
     #: An array of placement constraint objects to use for tasks.
     placementConstraints: Optional[List["TaskDefinitionPlacementConstraint"]] = None
     #: The task launch types the task definition validated against during task
@@ -3050,7 +3050,7 @@ class TaskDefinition(PrimaryBoto3Model):
     #: tps://docs.aws.amazon.com/AmazonECS/latest/developerguide/launch_types.html>`_
     #: in the *Amazon Elastic Container Service Developer Guide*.
     compatibilities: List[Literal["EC2", "FARGATE", "EXTERNAL"]] = Field(
-        frozen=True, default=None
+        default=None, frozen=True
     )
     #: The operating system that your task definitions are running on. A platform
     #: family is specified only for tasks using the Fargate launch type.
@@ -3099,11 +3099,11 @@ class TaskDefinition(PrimaryBoto3Model):
     #: The configuration details for the App Mesh proxy.
     proxyConfiguration: Optional[ProxyConfiguration] = None
     #: The Unix timestamp for the time when the task definition was registered.
-    registeredAt: datetime = Field(frozen=True, default=None)
+    registeredAt: datetime = Field(default=None, frozen=True)
     #: The Unix timestamp for the time when the task definition was deregistered.
-    deregisteredAt: datetime = Field(frozen=True, default=None)
+    deregisteredAt: datetime = Field(default=None, frozen=True)
     #: The principal that registered the task definition.
-    registeredBy: str = Field(frozen=True, default=None)
+    registeredBy: str = Field(default=None, frozen=True)
     #: The ephemeral storage settings to use for tasks run with the task definition.
     ephemeralStorage: Optional[EphemeralStorage] = None
 

@@ -329,10 +329,17 @@ class ModelGenerator(AbstractGenerator):
         """
         return self.{model_def.name_key}
 '''
+        # Build any regular properties that were defined in the model definition
         for property_name in model_def.properties:
             if not properties:
                 properties = ''
             properties += ModelPropertyGenerator(self, model_def.name, property_name).code
+
+        # Now build the relations to other models
+        for property_name in model_def.relations:
+            if not properties:
+                properties = ''
+            properties += ModelRelationGenerator(self, model_def.name, property_name).code
 
         return properties
 
@@ -376,41 +383,91 @@ class ModelGenerator(AbstractGenerator):
         python_type = field_def.python_type
         if not python_type:
             python_type = self.shape_converter.convert(field_shape)
+        return self.validate_type(model_name, field_name, field_def, python_type)
+
+    def validate_type(
+        self,
+        model_name: str,
+        field_name: str,
+        field_def: ModelAttributeDefinition,
+        python_type: str
+    ) -> str:
+        """
+        After we have guessed the python type for a field, we need to validate
+        it to make sure it's not going to cause problems for us later.
+
+        Args:
+            model_name: the name of the model
+            field_name: the name of the field
+            field_def: the botocraft field definition for the field
+            python_type: the python type we have guessed for the field
+
+        Raises:
+            ValueError: we could not determine the type for the field
+            TypeError: we have determined that the type for the field is invalid
+
+        Returns:
+            The python type annotation for the field.
+        """
         if python_type is None:
             raise ValueError(f'Could not determine type for field {field_name}.')
+        name = field_def.rename if field_def.rename else field_name
         if (
-            python_type == field_name or
-            f'[{field_name}]' in python_type
+            python_type == name or
+            f'[{name}]' in python_type
         ):
-            # If our type annotation is for a model with the same name as the
+            # If our type annotation is for a model with the same name as the field
             # we'll get recursion errors when trying to import the file.  Quoting
-            # the type annotation fixes this.
+            # the type annotation fixes this sometimes.
             python_type = f'"{python_type}"'
         if (
             field_def.readonly and
             (
-                python_type == f'"{field_name}"' or
-                f'["{field_name}"]' in python_type
+                python_type == f'"{name}"' or
+                f'["{name}"]' in python_type
             )
         ):
             # If the field is readonly, and the type is equal to the field name,
-            # even if it is quoted, we will get a "forward references must evaluate
-            # to types" TypeError.  This happens because when the field is readonly,
-            # we set it equal to ``Field(frozen=True, default=None)``.  This causes python
-            # typing a lot of consternation, and it throws the TypeError.
-            raise ValueError(
-                f'Field {model_name}.{field_name} has type equal to its name, '
-                'but is marked as readonly.  This will cause a "forward references '
-                'must evaluate to types" TypeError.  Fix this by giving an alternate_name '
-                f'for the model named {field_name} in the botocraft secondary models listing '
-                'for this service.'
+            # even if it is quoted, we will get a "TypeError: forward references
+            # must evaluate to types".  This happens because when the field is
+            # readonly, we set it equal to ``Field(frozen=True, default=None)``.
+            # This causes python typing a lot of consternation, and it throws
+            # the TypeError.
+            raise TypeError(
+                f'Field {model_name}.{name} has type equal to its name, '
+                'but is marked as readonly.  This will cause a "TypeError: forward references '
+                'must evaluate to types". Fix this in '
+                f'botocraft/data/{self.service_generator.aws_service_name}/models.yml .'
+                'by either giving an alternate_name for the model named {name} or '
+                f'by renaming the field {model_name}.{name} with the rename attribute.'
             )
+        if (
+            not field_def.required and
+            (
+                python_type == f'"{name}"' or
+                f'["{name}"]' in python_type
+            )
+        ):
+            # If the field is optional with a None default value, and the type
+            # is equal to the field name, pydantic will throw an exception when trying
+            # to load data into that field: "ValidationError: Input should be None".
+            # This happens even the type is quoted.
+            raise TypeError(
+                f'Field {model_name}.{name} has type equal to its name, '
+                'but is marked as optional.  This will cause a "ValidationError: Input should '
+                'be None" exception from pydantic when trying to load data into this field.  '
+                'Fix this in '
+                f'botocraft/data/{self.service_generator.aws_service_name}/models.yml .'
+                'by either giving an alternate_name for the model named {name} or '
+                f'by renaming the field {model_name}.{name} with the rename attribute.'
+            )
+
         return python_type
 
     def generate_model(
         self,
         model_name: str,
-        shape: Optional[botocore.model.Shape] = None
+        model_shape: Optional[botocore.model.Shape] = None
     ) -> str:
         """
         Generate the code for a single model and its dependent models and save
@@ -432,68 +489,75 @@ class ModelGenerator(AbstractGenerator):
 
         model_def = self.get_model_def(model_name)
         base_class = cast(str, model_def.base_class)
-        if not shape:
-            shape = self.get_shape(model_name)
+        if not model_shape:
+            model_shape = self.get_shape(model_name)
         if model_def.alternate_name:
             model_name = model_def.alternate_name
 
-        if hasattr(shape, 'members'):
+        if hasattr(model_shape, 'members'):
             # Get the list of all the fields for this model, along with their
             # botocode definitions.  This includes fields from the botocore model,
             # and any extra fields we have defined in the botocraft model
             # definition.
             model_fields = self.fields(model_name)
             for field_name, field_def in model_fields.items():
+                # The botocore shape for this field.  We determined this in
+                # :py:meth:`fields`.
                 field_shape = field_def.botocore_shape
                 # Whether this field is required
-                required: bool = (field_name in shape.required_members) or field_def.required
-                # Our guess as to the python type for this field
-                if not field_shape:
-                    assert field_def.python_type, \
-                        f'Field {field_name} in model {model_name} has no botocore shape or python type'
-                    python_type = field_def.python_type
-                    docstring = field_def.docstring
-                else:
+                required: bool = (field_name in model_shape.required_members) or field_def.required
+                docstring = field_def.docstring
+                # Deterimine the python type for this field
+                if field_shape:
                     python_type = self.field_type(
                         model_name,
                         field_name,
-                        model_shape=shape,
+                        model_shape=model_shape,
                         field_def=field_def,
                         field_shape=field_shape
                     )
-                    docstring = cast(str, field_shape.documentation)
+                    if not docstring:
+                        docstring = cast(str, field_shape.documentation)
+                else:
+                    assert field_def.python_type, \
+                        f'Field {field_name} in model {model_name} has no botocore shape or python type'
+                    python_type = field_def.python_type
                 default = None
                 if not required:
-                    if not field_def.readonly:
+                    if not field_def.readonly and not field_def.rename:
                         python_type = f'Optional[{python_type}]'
-                    if field_def.default is None:
-                        default = 'None'
-                    else:
-                        default = field_def.default
+                    default = 'None' if field_def.default is None else field_def.default
                 # Add the docstring for this field
                 if docstring:
                     fields.append(self.docformatter.format_attribute(docstring))
+                needs_field_class: bool = False
+                field_class_args: List[str] = []
+                if default:
+                    field_class_args.append(f'default={default}' if default else '')
                 field_line = f'    {field_name}: {python_type}'
+                if field_def.rename:
+                    needs_field_class = True
+                    field_line = f'    {field_def.rename}: {python_type}'
+                    field_class_args.append(f'serialization_alias="{field_name}"')
                 if field_def.readonly:
-                    _default = f', default={default}' if default else ''
-                    field_line += f' = Field(frozen=True{_default})'
+                    needs_field_class = True
+                    field_class_args.append('frozen=True')
+                if needs_field_class:
+                    field_line += f' = Field({", ".join(field_class_args)})'
                 elif default:
                     field_line += f' = {field_def.default}'
                 fields.append(field_line)
             fields.extend(self.extra_fields(model_def))
 
             properties = self.get_properties(model_def, base_class)
-            for property_name in model_def.relations:
-                if not properties:
-                    properties = ''
-                properties += ModelRelationGenerator(self, model_def.name, property_name).code
+
             if model_def.mixins:
                 for mixin in model_def.mixins:
                     self.imports.add(f'from {mixin.import_path} import {mixin.name}')
                 base_class = ', '.join([mixin.name for mixin in model_def.mixins] + [base_class])
 
             code: str = f'class {model_name}({base_class}):\n'
-            docstring = self.docformatter.format_docstring(shape)
+            docstring = self.docformatter.format_docstring(model_shape)
             if docstring:
                 code += f'    """{docstring}"""\n'
             if 'PrimaryBoto3Model' in base_class:

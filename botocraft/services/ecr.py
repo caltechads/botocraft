@@ -36,7 +36,7 @@ class RepositoryManager(Boto3ModelManager):
                 of which you define. Tag keys can have a maximum character length of 128
                 characters, and tag values can have a maximum length of 256 characters.
         """
-        data = model.model_dump(exclude_none=True)
+        data = model.model_dump(exclude_none=True, by_alias=True)
         args = dict(
             repositoryName=data["repositoryName"],
             registryId=data["registryId"],
@@ -196,15 +196,15 @@ class Repository(PrimaryBoto3Model):
     #: Web Services account ID of the repository owner, repository namespace, and
     #: repository name. For example,
     #: ``arn:aws:ecr:region:012345678910:repository/test``.
-    repositoryArn: str = Field(frozen=True, default=None)
+    repositoryArn: str = Field(default=None, frozen=True)
     #: The Amazon Web Services account ID associated with the registry that contains
     #: the repository.
     registryId: Optional[str] = None
     #: The URI for the repository. You can use this URI for container image ``push``
     #: and ``pull`` operations.
-    repositoryUri: str = Field(frozen=True, default=None)
+    repositoryUri: str = Field(default=None, frozen=True)
     #: The date and time, in JavaScript date format, when the repository was created.
-    createdAt: datetime = Field(frozen=True, default=None)
+    createdAt: datetime = Field(default=None, frozen=True)
     #: The encryption configuration for the repository. This determines how the
     #: contents of your repository are encrypted at rest.
     encryptionConfiguration: Optional[EncryptionConfiguration] = None

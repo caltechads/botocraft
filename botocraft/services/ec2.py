@@ -8,9 +8,8 @@ from typing import Any, ClassVar, Dict, List, Literal, Optional, cast
 
 from pydantic import Field
 
-from botocraft.mixins.ec2 import EC2TagsManagerMixin, SecurityGroupModelMixin
-from botocraft.services.autoscaling import (BlockDeviceMapping,
-                                            LaunchTemplateSpecification)
+from botocraft.mixins.ec2 import (EC2TagsManagerMixin, SecurityGroupModelMixin,
+                                  ec2_instance_only, ec2_instances_only)
 from botocraft.services.common import Filter, Tag
 
 from .abstract import (Boto3Model, Boto3ModelManager, PrimaryBoto3Model,
@@ -224,7 +223,7 @@ class SecurityGroupManager(EC2TagsManagerMixin, Boto3ModelManager):
                 have the required permissions, the error response is ``DryRunOperation``.
                 Otherwise, it is ``UnauthorizedOperation``.
         """
-        data = model.model_dump(exclude_none=True)
+        data = model.model_dump(exclude_none=True, by_alias=True)
         args = dict(
             Description=data["Description"],
             GroupName=data["GroupName"],
@@ -410,7 +409,7 @@ class NetworkAclManager(Boto3ModelManager):
         Args:
             model: The :py:class:`NetworkAcl` to create.
         """
-        data = model.model_dump(exclude_none=True)
+        data = model.model_dump(exclude_none=True, by_alias=True)
         args = dict(
             VpcId=data["VpcId"],
             DryRun=data["DryRun"],
@@ -527,7 +526,7 @@ class InstanceManager(EC2TagsManagerMixin, Boto3ModelManager):
         ElasticInferenceAccelerators: Optional[
             List["ElasticInferenceAccelerator"]
         ] = None,
-        LaunchTemplate: Optional[LaunchTemplateSpecification] = None,
+        LaunchTemplate: Optional["EC2LaunchTemplateSpecification"] = None,
         InstanceMarketOptions: Optional["InstanceMarketOptionsRequest"] = None,
         CreditSpecification: Optional["CreditSpecificationRequest"] = None,
         LicenseSpecifications: Optional[List["LicenseConfigurationRequest"]] = None,
@@ -624,7 +623,7 @@ class InstanceManager(EC2TagsManagerMixin, Boto3ModelManager):
                 IPv6 address, the first IPv6 GUA address associated with the ENI becomes
                 the primary IPv6 address.
         """
-        data = model.model_dump(exclude_none=True)
+        data = model.model_dump(exclude_none=True, by_alias=True)
         args = dict(
             MaxCount=self.serialize(MaxCount),
             MinCount=self.serialize(MinCount),
@@ -677,6 +676,7 @@ class InstanceManager(EC2TagsManagerMixin, Boto3ModelManager):
 
         return cast("Instance", response.Instances[0])
 
+    @ec2_instance_only
     def get(self, InstanceId: str, *, DryRun: bool = False) -> Optional["Reservation"]:
         """
         Describes the specified instances or all instances.
@@ -702,6 +702,7 @@ class InstanceManager(EC2TagsManagerMixin, Boto3ModelManager):
             return response.Reservations[0]
         return None
 
+    @ec2_instances_only
     def list(
         self,
         *,
@@ -764,7 +765,7 @@ class LaunchTemplateManager(Boto3ModelManager):
             VersionDescription: A description for the first version of the launch
                 template.
         """
-        data = model.model_dump(exclude_none=True)
+        data = model.model_dump(exclude_none=True, by_alias=True)
         args = dict(
             LaunchTemplateName=data["LaunchTemplateName"],
             LaunchTemplateData=self.serialize(LaunchTemplateData),
@@ -916,7 +917,7 @@ class LaunchTemplateVersionManager(Boto3ModelManager):
                 templates.html#use-an-ssm-parameter-instead-of-an-ami-id>`_ in the *Amazon
                 Elastic Compute Cloud User Guide*.
         """
-        data = model.model_dump(exclude_none=True)
+        data = model.model_dump(exclude_none=True, by_alias=True)
         args = dict(
             LaunchTemplateData=data["LaunchTemplateData"],
             DryRun=data["DryRun"],
@@ -1140,25 +1141,25 @@ class Vpc(PrimaryBoto3Model):
     #: Any tags assigned to the VPC.
     Tags: Optional[List[Tag]] = None
     #: The ID of the set of DHCP options you've associated with the VPC.
-    DhcpOptionsId: str = Field(frozen=True, default=None)
+    DhcpOptionsId: str = Field(default=None, frozen=True)
     #: The current state of the VPC.
-    State: Literal["pending", "available"] = Field(frozen=True, default=None)
+    State: Literal["pending", "available"] = Field(default=None, frozen=True)
     #: The ID of the VPC.
-    VpcId: str = Field(frozen=True, default=None)
+    VpcId: str = Field(default=None, frozen=True)
     #: The ID of the Amazon Web Services account that owns the VPC.
-    OwnerId: str = Field(frozen=True, default=None)
+    OwnerId: str = Field(default=None, frozen=True)
     #: The allowed tenancy of instances launched into the VPC.
     InstanceTenancy: Optional[Literal["default", "dedicated", "host"]] = None
     #: Information about the IPv6 CIDR blocks associated with the VPC.
     Ipv6CidrBlockAssociationSet: List["VpcIpv6CidrBlockAssociation"] = Field(
-        frozen=True, default=None
+        default=None, frozen=True
     )
     #: Information about the IPv4 CIDR blocks associated with the VPC.
     CidrBlockAssociationSet: List["VpcCidrBlockAssociation"] = Field(
-        frozen=True, default=None
+        default=None, frozen=True
     )
     #: Indicates whether the VPC is the default VPC.
-    IsDefault: bool = Field(frozen=True, default=None)
+    IsDefault: bool = Field(default=None, frozen=True)
 
     @property
     def pk(self) -> Optional[str]:
@@ -1257,46 +1258,46 @@ class Subnet(PrimaryBoto3Model):
     AvailabilityZoneId: Optional[str] = None
     #: The number of unused private IPv4 addresses in the subnet. The IPv4 addresses
     #: for any stopped instances are considered unavailable.
-    AvailableIpAddressCount: int = Field(frozen=True, default=None)
+    AvailableIpAddressCount: int = Field(default=None, frozen=True)
     #: Indicates whether this is the default subnet for the Availability Zone.
-    DefaultForAz: bool = Field(frozen=True, default=None)
+    DefaultForAz: bool = Field(default=None, frozen=True)
     #: Indicates the device position for local network interfaces in this subnet. For
     #: example, ``1`` indicates local network interfaces in this subnet are the
     #: secondary network interface (eth1).
-    EnableLniAtDeviceIndex: int = Field(frozen=True, default=None)
+    EnableLniAtDeviceIndex: int = Field(default=None, frozen=True)
     #: Indicates whether instances launched in this subnet receive a public IPv4
     #: address.
-    MapPublicIpOnLaunch: bool = Field(frozen=True, default=None)
+    MapPublicIpOnLaunch: bool = Field(default=None, frozen=True)
     #: Indicates whether a network interface created in this subnet (including a
     #: network interface created by RunInstances) receives a customer-owned IPv4
     #: address.
-    MapCustomerOwnedIpOnLaunch: bool = Field(frozen=True, default=None)
+    MapCustomerOwnedIpOnLaunch: bool = Field(default=None, frozen=True)
     #: The customer-owned IPv4 address pool associated with the subnet.
-    CustomerOwnedIpv4Pool: str = Field(frozen=True, default=None)
+    CustomerOwnedIpv4Pool: str = Field(default=None, frozen=True)
     #: The current state of the subnet.
-    State: Literal["pending", "available"] = Field(frozen=True, default=None)
+    State: Literal["pending", "available"] = Field(default=None, frozen=True)
     #: The ID of the subnet.
-    SubnetId: str = Field(frozen=True, default=None)
+    SubnetId: str = Field(default=None, frozen=True)
     #: The ID of the Amazon Web Services account that owns the subnet.
-    OwnerId: str = Field(frozen=True, default=None)
+    OwnerId: str = Field(default=None, frozen=True)
     #: Indicates whether a network interface created in this subnet (including a
     #: network interface created by RunInstances) receives an IPv6 address.
-    AssignIpv6AddressOnCreation: bool = Field(frozen=True, default=None)
+    AssignIpv6AddressOnCreation: bool = Field(default=None, frozen=True)
     #: Information about the IPv6 CIDR blocks associated with the subnet.
     Ipv6CidrBlockAssociationSet: List["SubnetIpv6CidrBlockAssociation"] = Field(
-        frozen=True, default=None
+        default=None, frozen=True
     )
     #: The Amazon Resource Name (ARN) of the subnet.
-    SubnetArn: str = Field(frozen=True, default=None)
+    SubnetArn: str = Field(default=None, frozen=True)
     #: The Amazon Resource Name (ARN) of the Outpost.
     OutpostArn: Optional[str] = None
     #: Indicates whether DNS queries made to the Amazon-provided DNS Resolver in this
     #: subnet should return synthetic IPv6 addresses for IPv4-only destinations.
-    EnableDns64: bool = Field(frozen=True, default=None)
+    EnableDns64: bool = Field(default=None, frozen=True)
     #: The type of hostnames to assign to instances in the subnet at launch. An
     #: instance hostname is based on the IPv4 address or ID of the instance.
     PrivateDnsNameOptionsOnLaunch: EC2PrivateDnsNameOptionsOnLaunch = Field(
-        frozen=True, default=None
+        default=None, frozen=True
     )
 
     @property
@@ -1442,9 +1443,9 @@ class SecurityGroup(SecurityGroupModelMixin, PrimaryBoto3Model):
     #: Any tags assigned to the security group.
     Tags: Optional[List[Tag]] = None
     #: The Amazon Web Services account ID of the owner of the security group.
-    OwnerId: str = Field(frozen=True, default=None)
+    OwnerId: str = Field(default=None, frozen=True)
     #: The ID of the security group.
-    GroupId: str = Field(frozen=True, default=None)
+    GroupId: str = Field(default=None, frozen=True)
 
     @property
     def pk(self) -> Optional[str]:
@@ -1482,7 +1483,7 @@ class NetworkAclAssociation(Boto3Model):
     SubnetId: Optional[str] = None
 
 
-class IcmpTypeCode(Boto3Model):
+class EC2IcmpTypeCode(Boto3Model):
     """ICMP protocol: The ICMP type and code."""
 
     #: The ICMP code. A value of -1 means all codes for the specified ICMP type.
@@ -1491,7 +1492,7 @@ class IcmpTypeCode(Boto3Model):
     Type: Optional[int] = None
 
 
-class PortRange(Boto3Model):
+class NetworkAclPortRange(Boto3Model):
     """TCP or UDP protocols: The range of ports the rule applies to."""
 
     #: The first port in the range.
@@ -1511,11 +1512,11 @@ class NetworkAclEntry(Boto3Model):
     #: subnet).
     Egress: Optional[bool] = None
     #: ICMP protocol: The ICMP type and code.
-    IcmpTypeCode: Optional["IcmpTypeCode"] = None
+    IcmpTypeCode: Optional[EC2IcmpTypeCode] = None
     #: The IPv6 network range to allow or deny, in CIDR notation.
     Ipv6CidrBlock: Optional[str] = None
     #: TCP or UDP protocols: The range of ports the rule applies to.
-    PortRange: Optional["PortRange"] = None
+    PortRange: Optional[NetworkAclPortRange] = None
     #: The protocol number. A value of "-1" means all protocols.
     Protocol: Optional[str] = None
     #: Indicates whether to allow or deny the traffic that matches the rule.
@@ -1533,19 +1534,19 @@ class NetworkAcl(PrimaryBoto3Model):
     objects: ClassVar[Boto3ModelManager] = NetworkAclManager()
 
     #: Any associations between the network ACL and one or more subnets
-    Associations: List["NetworkAclAssociation"] = Field(frozen=True, default=None)
+    Associations: List["NetworkAclAssociation"] = Field(default=None, frozen=True)
     #: The entries (rules) in the network ACL.
-    Entries: List["NetworkAclEntry"] = Field(frozen=True, default=None)
+    Entries: List["NetworkAclEntry"] = Field(default=None, frozen=True)
     #: Indicates whether this is the default network ACL for the VPC.
-    IsDefault: bool = Field(frozen=True, default=None)
+    IsDefault: bool = Field(default=None, frozen=True)
     #: The ID of the network ACL.
-    NetworkAclId: str = Field(frozen=True, default=None)
+    NetworkAclId: str = Field(default=None, frozen=True)
     #: Any tags assigned to the network ACL.
-    Tags: List[Tag] = Field(frozen=True, default=None)
+    Tags: List[Tag] = Field(default=None, frozen=True)
     #: The ID of the VPC for the network ACL.
     VpcId: Optional[str] = None
     #: The ID of the Amazon Web Services account that owns the network ACL.
-    OwnerId: str = Field(frozen=True, default=None)
+    OwnerId: str = Field(default=None, frozen=True)
 
     @property
     def pk(self) -> Optional[str]:
@@ -1580,7 +1581,7 @@ class EC2DetailedMonitoring(Boto3Model):
     State: Optional[Literal["disabled", "disabling", "enabled", "pending"]] = None
 
 
-class Placement(Boto3Model):
+class EC2Placement(Boto3Model):
     """
     The location where the instance launched, if applicable.
     """
@@ -1663,7 +1664,7 @@ class InstanceBlockDeviceMapping(Boto3Model):
     Ebs: Optional[EbsInstanceBlockDevice] = None
 
 
-class IamInstanceProfile(Boto3Model):
+class EC2IamInstanceProfile(Boto3Model):
     """
     The IAM instance profile associated with the instance, if applicable.
     """
@@ -1865,7 +1866,7 @@ class EC2StateReason(Boto3Model):
     Message: Optional[str] = None
 
 
-class CpuOptions(Boto3Model):
+class EC2CpuOptions(Boto3Model):
     """
     The CPU options for the instance.
     """
@@ -1905,7 +1906,7 @@ class CapacityReservationSpecificationResponse(Boto3Model):
     CapacityReservationTarget: Optional[CapacityReservationTargetResponse] = None
 
 
-class HibernationOptions(Boto3Model):
+class EC2HibernationOptions(Boto3Model):
     """
     Indicates whether the instance is enabled for hibernation.
     """
@@ -1952,7 +1953,7 @@ class InstanceMetadataOptionsResponse(Boto3Model):
     InstanceMetadataTags: Optional[Literal["disabled", "enabled"]] = None
 
 
-class EnclaveOptions(Boto3Model):
+class EC2EnclaveOptions(Boto3Model):
     """
     Indicates whether the instance is enabled for Amazon Web Services Nitro
     Enclaves.
@@ -2001,11 +2002,11 @@ class Instance(PrimaryBoto3Model):
     Tags: Optional[List[Tag]] = None
     #: The AMI launch index, which can be used to find this instance in the launch
     #: group.
-    AmiLaunchIndex: int = Field(frozen=True, default=None)
+    AmiLaunchIndex: int = Field(default=None, frozen=True)
     #: The ID of the AMI used to launch the instance.
     ImageId: Optional[str] = None
     #: The ID of the instance.
-    InstanceId: str = Field(frozen=True, default=None)
+    InstanceId: str = Field(default=None, frozen=True)
     #: The instance type.
     InstanceType: Optional[
         Literal[
@@ -2713,41 +2714,41 @@ class Instance(PrimaryBoto3Model):
     #: pair.
     KeyName: Optional[str] = None
     #: The time the instance was launched.
-    LaunchTime: datetime = Field(frozen=True, default=None)
+    LaunchTime: datetime = Field(default=None, frozen=True)
     #: The monitoring for the instance.
     Monitoring: Optional[EC2DetailedMonitoring] = None
     #: The location where the instance launched, if applicable.
-    Placement: Optional["Placement"] = None
+    Placement: Optional[EC2Placement] = None
     #: The value is ``Windows`` for Windows instances; otherwise blank.
-    Platform: Literal["Windows"] = Field(frozen=True, default=None)
+    Platform: Literal["Windows"] = Field(default=None, frozen=True)
     #: [IPv4 only] The private DNS hostname name assigned to the instance. This DNS
     #: hostname can only be used inside the Amazon EC2 network. This name is not
     #: available until the instance enters the ``running`` state.
-    PrivateDnsName: str = Field(frozen=True, default=None)
+    PrivateDnsName: str = Field(default=None, frozen=True)
     #: The private IPv4 address assigned to the instance.
     PrivateIpAddress: Optional[str] = None
     #: The product codes attached to this instance, if applicable.
-    ProductCodes: List["ProductCode"] = Field(frozen=True, default=None)
+    ProductCodes: List["ProductCode"] = Field(default=None, frozen=True)
     #: [IPv4 only] The public DNS name assigned to the instance. This name is not
     #: available until the instance enters the ``running`` state. This name is only
     #: available if you've enabled DNS hostnames for your VPC.
-    PublicDnsName: str = Field(frozen=True, default=None)
+    PublicDnsName: str = Field(default=None, frozen=True)
     #: The public IPv4 address, or the Carrier IP address assigned to the instance, if
     #: applicable.
-    PublicIpAddress: str = Field(frozen=True, default=None)
+    PublicIpAddress: str = Field(default=None, frozen=True)
     #: The RAM disk associated with this instance, if applicable.
     RamdiskId: Optional[str] = None
     #: The current state of the instance.
-    State: InstanceState = Field(frozen=True, default=None)
+    State: InstanceState = Field(default=None, frozen=True)
     #: The reason for the most recent state transition. This might be an empty string.
-    StateTransitionReason: str = Field(frozen=True, default=None)
+    StateTransitionReason: str = Field(default=None, frozen=True)
     #: The ID of the subnet in which the instance is running.
     SubnetId: Optional[str] = None
     #: The ID of the VPC in which the instance is running.
-    VpcId: str = Field(frozen=True, default=None)
+    VpcId: str = Field(default=None, frozen=True)
     #: The architecture of the image.
     Architecture: Literal["i386", "x86_64", "arm64", "x86_64_mac", "arm64_mac"] = Field(
-        frozen=True, default=None
+        default=None, frozen=True
     )
     #: Any block device mapping entries for the instance.
     BlockDeviceMappings: Optional[List["InstanceBlockDeviceMapping"]] = None
@@ -2761,89 +2762,89 @@ class Instance(PrimaryBoto3Model):
     #: EBS Optimized instance.
     EbsOptimized: Optional[bool] = None
     #: Specifies whether enhanced networking with ENA is enabled.
-    EnaSupport: bool = Field(frozen=True, default=None)
+    EnaSupport: bool = Field(default=None, frozen=True)
     #: The hypervisor type of the instance. The value ``xen`` is used for both Xen and
     #: Nitro hypervisors.
-    Hypervisor: Literal["ovm", "xen"] = Field(frozen=True, default=None)
+    Hypervisor: Literal["ovm", "xen"] = Field(default=None, frozen=True)
     #: The IAM instance profile associated with the instance, if applicable.
-    IamInstanceProfile: Optional["IamInstanceProfile"] = None
+    IamInstanceProfile: Optional[EC2IamInstanceProfile] = None
     #: Indicates whether this is a Spot Instance or a Scheduled Instance.
-    InstanceLifecycle: Literal["spot", "scheduled"] = Field(frozen=True, default=None)
+    InstanceLifecycle: Literal["spot", "scheduled"] = Field(default=None, frozen=True)
     #: The Elastic GPU associated with the instance.
     ElasticGpuAssociations: List["ElasticGpuAssociation"] = Field(
-        frozen=True, default=None
+        default=None, frozen=True
     )
     #: The elastic inference accelerator associated with the instance.
     ElasticInferenceAcceleratorAssociations: List[
         "ElasticInferenceAcceleratorAssociation"
-    ] = Field(frozen=True, default=None)
+    ] = Field(default=None, frozen=True)
     #: The network interfaces for the instance.
     NetworkInterfaces: Optional[List["InstanceNetworkInterface"]] = None
     #: The Amazon Resource Name (ARN) of the Outpost.
-    OutpostArn: str = Field(frozen=True, default=None)
+    OutpostArn: str = Field(default=None, frozen=True)
     #: The device name of the root device volume (for example, ``/dev/sda1``).
-    RootDeviceName: str = Field(frozen=True, default=None)
+    RootDeviceName: str = Field(default=None, frozen=True)
     #: The root device type used by the AMI. The AMI can use an EBS volume or an
     #: instance store volume.
-    RootDeviceType: Literal["ebs", "instance-store"] = Field(frozen=True, default=None)
+    RootDeviceType: Literal["ebs", "instance-store"] = Field(default=None, frozen=True)
     #: The security groups for the instance.
     SecurityGroups: Optional[List["GroupIdentifier"]] = None
     #: Indicates whether source/destination checking is enabled.
-    SourceDestCheck: bool = Field(frozen=True, default=None)
+    SourceDestCheck: bool = Field(default=None, frozen=True)
     #: If the request is a Spot Instance request, the ID of the request.
-    SpotInstanceRequestId: str = Field(frozen=True, default=None)
+    SpotInstanceRequestId: str = Field(default=None, frozen=True)
     #: Specifies whether enhanced networking with the Intel 82599 Virtual Function
     #: interface is enabled.
-    SriovNetSupport: str = Field(frozen=True, default=None)
+    SriovNetSupport: str = Field(default=None, frozen=True)
     #: The reason for the most recent state transition.
-    StateReason: EC2StateReason = Field(frozen=True, default=None)
+    StateReason: EC2StateReason = Field(default=None, frozen=True)
     #: The virtualization type of the instance.
-    VirtualizationType: Literal["hvm", "paravirtual"] = Field(frozen=True, default=None)
+    VirtualizationType: Literal["hvm", "paravirtual"] = Field(default=None, frozen=True)
     #: The CPU options for the instance.
-    CpuOptions: Optional["CpuOptions"] = None
+    CpuOptions: Optional[EC2CpuOptions] = None
     #: The ID of the Capacity Reservation.
-    CapacityReservationId: str = Field(frozen=True, default=None)
+    CapacityReservationId: str = Field(default=None, frozen=True)
     #: Information about the Capacity Reservation targeting option.
     CapacityReservationSpecification: Optional[
         CapacityReservationSpecificationResponse
     ] = None
     #: Indicates whether the instance is enabled for hibernation.
-    HibernationOptions: Optional["HibernationOptions"] = None
+    HibernationOptions: Optional[EC2HibernationOptions] = None
     #: The license configurations for the instance.
-    Licenses: List["LicenseConfiguration"] = Field(frozen=True, default=None)
+    Licenses: List["LicenseConfiguration"] = Field(default=None, frozen=True)
     #: The metadata options for the instance.
     MetadataOptions: Optional[InstanceMetadataOptionsResponse] = None
     #: Indicates whether the instance is enabled for Amazon Web Services Nitro
     #: Enclaves.
-    EnclaveOptions: Optional["EnclaveOptions"] = None
+    EnclaveOptions: Optional[EC2EnclaveOptions] = None
     #: The boot mode that was specified by the AMI. If the value is ``uefi-
     #: preferred``, the AMI supports both UEFI and Legacy BIOS. The
     #: ``currentInstanceBootMode`` parameter is the boot mode that is used to boot the
     #: instance at launch or start.
     BootMode: Literal["legacy-bios", "uefi", "uefi-preferred"] = Field(
-        frozen=True, default=None
+        default=None, frozen=True
     )
     #: The platform details value for the instance. For more information, see `AMI
     #: billing information fields
     #: <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/billing-info-
     #: fields.html>`_ in the *Amazon EC2 User Guide*.
-    PlatformDetails: str = Field(frozen=True, default=None)
+    PlatformDetails: str = Field(default=None, frozen=True)
     #: The usage operation value for the instance. For more information, see `AMI
     #: billing information fields
     #: <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/billing-info-
     #: fields.html>`_ in the *Amazon EC2 User Guide*.
-    UsageOperation: str = Field(frozen=True, default=None)
+    UsageOperation: str = Field(default=None, frozen=True)
     #: The time that the usage operation was last updated.
-    UsageOperationUpdateTime: datetime = Field(frozen=True, default=None)
+    UsageOperationUpdateTime: datetime = Field(default=None, frozen=True)
     #: The options for the instance hostname.
     PrivateDnsNameOptions: Optional[PrivateDnsNameOptionsResponse] = None
     #: The IPv6 address assigned to the instance.
-    Ipv6Address: str = Field(frozen=True, default=None)
+    Ipv6Address: str = Field(default=None, frozen=True)
     #: If the instance is configured for NitroTPM support, the value is ``v2.0``. For
     #: more information, see `NitroTPM
     #: <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/nitrotpm.html>`_ in the
     #: *Amazon EC2 User Guide*.
-    TpmSupport: str = Field(frozen=True, default=None)
+    TpmSupport: str = Field(default=None, frozen=True)
     #: Provides information on the recovery and maintenance options of your instance.
     MaintenanceOptions: Optional[InstanceMaintenanceOptions] = None
     #: The boot mode that is used to boot the instance at launch or start. For more
@@ -2851,7 +2852,7 @@ class Instance(PrimaryBoto3Model):
     #: <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ami-boot.html>`_ in the
     #: *Amazon EC2 User Guide*.
     CurrentInstanceBootMode: Literal["legacy-bios", "uefi"] = Field(
-        frozen=True, default=None
+        default=None, frozen=True
     )
 
     @property
@@ -2876,17 +2877,17 @@ class LaunchTemplate(PrimaryBoto3Model):
     #: The name of the launch template.
     LaunchTemplateName: str
     #: The ID of the launch template.
-    LaunchTemplateId: str = Field(frozen=True, default=None)
+    LaunchTemplateId: str = Field(default=None, frozen=True)
     #: The time launch template was created.
-    CreateTime: datetime = Field(frozen=True, default=None)
+    CreateTime: datetime = Field(default=None, frozen=True)
     #: The principal that created the launch template.
-    CreatedBy: str = Field(frozen=True, default=None)
+    CreatedBy: str = Field(default=None, frozen=True)
     #: The version number of the default version of the launch template.
-    DefaultVersionNumber: int = Field(frozen=True, default=None)
+    DefaultVersionNumber: int = Field(default=None, frozen=True)
     #: The version number of the latest version of the launch template.
-    LatestVersionNumber: int = Field(frozen=True, default=None)
+    LatestVersionNumber: int = Field(default=None, frozen=True)
     #: The tags for the launch template.
-    Tags: List[Tag] = Field(frozen=True, default=None)
+    Tags: List[Tag] = Field(default=None, frozen=True)
 
     @property
     def pk(self) -> Optional[str]:
@@ -3299,12 +3300,14 @@ class LaunchTemplateInstanceMarketOptions(Boto3Model):
     SpotOptions: Optional[LaunchTemplateSpotMarketOptions] = None
 
 
-class CreditSpecification(Boto3Model):
+class InstanceCreditSpecification(Boto3Model):
     """
     The credit option for CPU usage of the instance.
     """
 
-    #: The credit option for CPU usage of a T instance.
+    #: The ID of the instance.
+    InstanceId: Optional[str] = None
+    #: The credit option for CPU usage of the instance.
     CpuCredits: Optional[str] = None
 
 
@@ -3416,7 +3419,7 @@ class VCpuCountRange(Boto3Model):
     Max: Optional[int] = None
 
 
-class MemoryMiB(Boto3Model):
+class InstanceMemoryMiB(Boto3Model):
     """
     The minimum and maximum amount of memory, in MiB.
     """
@@ -3429,7 +3432,7 @@ class MemoryMiB(Boto3Model):
     Max: Optional[int] = None
 
 
-class MemoryGiBPerVCpu(Boto3Model):
+class InstanceMemoryGiBPerVCpu(Boto3Model):
     """
     The minimum and maximum amount of memory per vCPU, in GiB.
 
@@ -3444,7 +3447,7 @@ class MemoryGiBPerVCpu(Boto3Model):
     Max: Optional[float] = None
 
 
-class NetworkInterfaceCount(Boto3Model):
+class InstanceNetworkInterfaceCount(Boto3Model):
     """
     The minimum and maximum number of network interfaces.
 
@@ -3459,7 +3462,7 @@ class NetworkInterfaceCount(Boto3Model):
     Max: Optional[int] = None
 
 
-class TotalLocalStorageGB(Boto3Model):
+class InstanceTotalLocalStorageGB(Boto3Model):
     """
     The minimum and maximum amount of total local storage, in GB.
 
@@ -3474,7 +3477,7 @@ class TotalLocalStorageGB(Boto3Model):
     Max: Optional[float] = None
 
 
-class BaselineEbsBandwidthMbps(Boto3Model):
+class InstanceBaselineEbsBandwidthMbps(Boto3Model):
     """The minimum and maximum baseline bandwidth to Amazon EBS, in Mbps. For more
     information, see `Amazon EBS–optimized
     instances <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ebs-
@@ -3491,7 +3494,7 @@ class BaselineEbsBandwidthMbps(Boto3Model):
     Max: Optional[int] = None
 
 
-class AcceleratorCount(Boto3Model):
+class InstanceAcceleratorCount(Boto3Model):
     """
     The minimum and maximum number of accelerators (GPUs, FPGAs, or Amazon Web
     Services Inferentia chips) on an instance.
@@ -3509,7 +3512,7 @@ class AcceleratorCount(Boto3Model):
     Max: Optional[int] = None
 
 
-class AcceleratorTotalMemoryMiB(Boto3Model):
+class InstanceAcceleratorTotalMemoryMiB(Boto3Model):
     """
     The minimum and maximum amount of total accelerator memory, in MiB.
 
@@ -3524,7 +3527,7 @@ class AcceleratorTotalMemoryMiB(Boto3Model):
     Max: Optional[int] = None
 
 
-class NetworkBandwidthGbps(Boto3Model):
+class InstanceNetworkBandwidthGbps(Boto3Model):
     """
     The minimum and maximum amount of network bandwidth, in gigabits per second
     (Gbps).
@@ -3540,7 +3543,7 @@ class NetworkBandwidthGbps(Boto3Model):
     Max: Optional[float] = None
 
 
-class InstanceRequirements(Boto3Model):
+class LaunchTemplateInstanceRequirements(Boto3Model):
     """
     The attributes for the instance types. When you specify instance
     attributes, Amazon EC2 will identify instance types with these attributes.
@@ -3551,13 +3554,13 @@ class InstanceRequirements(Boto3Model):
     #: The minimum and maximum number of vCPUs.
     VCpuCount: Optional[VCpuCountRange] = None
     #: The minimum and maximum amount of memory, in MiB.
-    MemoryMiB: Optional["MemoryMiB"] = None
+    MemoryMiB: Optional[InstanceMemoryMiB] = None
     #: The CPU manufacturers to include.
     CpuManufacturers: Optional[
         List[Literal["intel", "amd", "amazon-web-services"]]
     ] = None
     #: The minimum and maximum amount of memory per vCPU, in GiB.
-    MemoryGiBPerVCpu: Optional["MemoryGiBPerVCpu"] = None
+    MemoryGiBPerVCpu: Optional[InstanceMemoryGiBPerVCpu] = None
     #: The instance types to exclude.
     ExcludedInstanceTypes: Optional[List[str]] = None
     #: Indicates whether current or previous generation instance types are included.
@@ -3591,7 +3594,7 @@ class InstanceRequirements(Boto3Model):
     #: Instances.
     RequireHibernateSupport: Optional[bool] = None
     #: The minimum and maximum number of network interfaces.
-    NetworkInterfaceCount: Optional["NetworkInterfaceCount"] = None
+    NetworkInterfaceCount: Optional[InstanceNetworkInterfaceCount] = None
     #: Indicates whether instance types with instance store volumes are included,
     #: excluded, or required. For more information, `Amazon EC2 instance store <https:
     #: //docs.aws.amazon.com/AWSEC2/latest/UserGuide/InstanceStorage.html>`_ in the
@@ -3600,17 +3603,17 @@ class InstanceRequirements(Boto3Model):
     #: The type of local storage that is required.
     LocalStorageTypes: Optional[List[Literal["hdd", "ssd"]]] = None
     #: The minimum and maximum amount of total local storage, in GB.
-    TotalLocalStorageGB: Optional["TotalLocalStorageGB"] = None
+    TotalLocalStorageGB: Optional[InstanceTotalLocalStorageGB] = None
     #: The minimum and maximum baseline bandwidth to Amazon EBS, in Mbps. For more
     #: information, see `Amazon EBS–optimized instances
     #: <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ebs- optimized.html>`_ in
     #: the *Amazon EC2 User Guide*.
-    BaselineEbsBandwidthMbps: Optional["BaselineEbsBandwidthMbps"] = None
+    BaselineEbsBandwidthMbps: Optional[InstanceBaselineEbsBandwidthMbps] = None
     #: The accelerator types that must be on the instance type.
     AcceleratorTypes: Optional[List[Literal["gpu", "fpga", "inference"]]] = None
     #: The minimum and maximum number of accelerators (GPUs, FPGAs, or Amazon Web
     #: Services Inferentia chips) on an instance.
-    AcceleratorCount: Optional["AcceleratorCount"] = None
+    AcceleratorCount: Optional[InstanceAcceleratorCount] = None
     #: Indicates whether instance types must have accelerators by specific
     #: manufacturers.
     AcceleratorManufacturers: Optional[
@@ -3633,10 +3636,10 @@ class InstanceRequirements(Boto3Model):
         ]
     ] = None
     #: The minimum and maximum amount of total accelerator memory, in MiB.
-    AcceleratorTotalMemoryMiB: Optional["AcceleratorTotalMemoryMiB"] = None
+    AcceleratorTotalMemoryMiB: Optional[InstanceAcceleratorTotalMemoryMiB] = None
     #: The minimum and maximum amount of network bandwidth, in gigabits per second
     #: (Gbps).
-    NetworkBandwidthGbps: Optional["NetworkBandwidthGbps"] = None
+    NetworkBandwidthGbps: Optional[InstanceNetworkBandwidthGbps] = None
     #: The instance types to apply your specified attributes against. All other
     #: instance types are ignored, even if they match your specified attributes.
     AllowedInstanceTypes: Optional[List[str]] = None
@@ -4420,7 +4423,7 @@ class ResponseLaunchTemplateData(Boto3Model):
     #: The market (purchasing) option for the instances.
     InstanceMarketOptions: Optional[LaunchTemplateInstanceMarketOptions] = None
     #: The credit option for CPU usage of the instance.
-    CreditSpecification: Optional["CreditSpecification"] = None
+    CreditSpecification: Optional[InstanceCreditSpecification] = None
     #: The CPU options for the instance. For more information, see `Optimizing CPU
     #: options <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/instance-optimize-
     #: cpu.html>`_ in the *Amazon Elastic Compute Cloud User Guide*.
@@ -4446,7 +4449,7 @@ class ResponseLaunchTemplateData(Boto3Model):
     EnclaveOptions: Optional[LaunchTemplateEnclaveOptions] = None
     #: The attributes for the instance types. When you specify instance attributes,
     #: Amazon EC2 will identify instance types with these attributes.
-    InstanceRequirements: Optional["InstanceRequirements"] = None
+    InstanceRequirements: Optional[LaunchTemplateInstanceRequirements] = None
     #: The options for the instance hostname.
     PrivateDnsNameOptions: Optional[LaunchTemplatePrivateDnsNameOptions] = None
     #: The maintenance options for your instance.
@@ -4470,15 +4473,15 @@ class LaunchTemplateVersion(PrimaryBoto3Model):
     #: The name of the launch template.
     LaunchTemplateName: Optional[str] = None
     #: The version number.
-    VersionNumber: int = Field(frozen=True, default=None)
+    VersionNumber: int = Field(default=None, frozen=True)
     #: The description for the version.
     VersionDescription: Optional[str] = None
     #: The time the version was created.
-    CreateTime: datetime = Field(frozen=True, default=None)
+    CreateTime: datetime = Field(default=None, frozen=True)
     #: The principal that created the version.
-    CreatedBy: str = Field(frozen=True, default=None)
+    CreatedBy: str = Field(default=None, frozen=True)
     #: Indicates whether the version is the default version.
-    DefaultVersion: bool = Field(frozen=True, default=None)
+    DefaultVersion: bool = Field(default=None, frozen=True)
     #: Information about the launch template.
     LaunchTemplateData: Optional[ResponseLaunchTemplateData] = None
 
@@ -4767,7 +4770,9 @@ class AuthorizeSecurityGroupIngressResult(Boto3Model):
 
 class CreateNetworkAclResult(Boto3Model):
     #: Information about the network ACL.
-    NetworkAcl: Optional["NetworkAcl"] = None
+    NetworkAclInstance: NetworkAcl = Field(
+        default=None, serialization_alias="NetworkAcl"
+    )
 
 
 class DescribeNetworkAclsResult(Boto3Model):
@@ -4803,6 +4808,23 @@ class ElasticInferenceAccelerator(Boto3Model):
     Type: str
     #: The number of elastic inference accelerators to attach to the instance.
     Count: Optional[int] = None
+
+
+class EC2LaunchTemplateSpecification(Boto3Model):
+    """
+    The launch template to use to launch the instances.
+
+    Any parameters that you specify in RunInstances override the same
+    parameters in the launch template. You can specify either the name or ID of
+    a launch template, but not both.
+    """
+
+    #: The ID of the launch template.
+    LaunchTemplateId: Optional[str] = None
+    #: The name of the launch template.
+    LaunchTemplateName: Optional[str] = None
+    #: The launch template version number, ``$Latest``, or ``$Default``.
+    Version: Optional[str] = None
 
 
 class SpotMarketOptions(Boto3Model):
@@ -4870,6 +4892,77 @@ class LicenseConfigurationRequest(Boto3Model):
 
     #: The Amazon Resource Name (ARN) of the license configuration.
     LicenseConfigurationArn: Optional[str] = None
+
+
+class EbsBlockDevice(Boto3Model):
+    """
+    Parameters used to automatically set up EBS volumes when the instance is
+    launched.
+    """
+
+    #: Indicates whether the EBS volume is deleted on instance termination. For more
+    #: information, see `Preserving Amazon EBS volumes on instance termination
+    #: <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/terminating-
+    #: instances.html#preserving-volumes-on-termination>`_ in the *Amazon EC2 User
+    #: Guide*.
+    DeleteOnTermination: Optional[bool] = None
+    #: The number of I/O operations per second (IOPS). For ``gp3``, ``io1``, and
+    #: ``io2`` volumes, this represents the number of IOPS that are provisioned for
+    #: the volume. For ``gp2`` volumes, this represents the baseline performance of
+    #: the volume and the rate at which the volume accumulates I/O credits for
+    #: bursting.
+    Iops: Optional[int] = None
+    #: The ID of the snapshot.
+    SnapshotId: Optional[str] = None
+    #: The size of the volume, in GiBs. You must specify either a snapshot ID or a
+    #: volume size. If you specify a snapshot, the default is the snapshot size. You
+    #: can specify a volume size that is equal to or larger than the snapshot size.
+    VolumeSize: Optional[int] = None
+    #: The volume type. For more information, see `Amazon EBS volume types
+    #: <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/EBSVolumeTypes.html>`_ in
+    #: the *Amazon EC2 User Guide*. If the volume type is ``io1`` or ``io2``, you must
+    #: specify the IOPS that the volume supports.
+    VolumeType: Optional[
+        Literal["standard", "io1", "io2", "gp2", "sc1", "st1", "gp3"]
+    ] = None
+    #: Identifier (key ID, key alias, ID ARN, or alias ARN) for a customer managed CMK
+    #: under which the EBS volume is encrypted.
+    KmsKeyId: Optional[str] = None
+    #: The throughput that the volume supports, in MiB/s.
+    Throughput: Optional[int] = None
+    #: The ARN of the Outpost on which the snapshot is stored.
+    OutpostArn: Optional[str] = None
+    #: Indicates whether the encryption state of an EBS volume is changed while being
+    #: restored from a backing snapshot. The effect of setting the encryption state to
+    #: ``true`` depends on the volume origin (new or from a snapshot), starting
+    #: encryption state, ownership, and whether encryption by default is enabled. For
+    #: more information, see `Amazon EBS encryption <https://docs.aws.amazon.com/AWSEC
+    #: 2/latest/UserGuide/EBSEncryption.html#encryption-parameters>`_ in the *Amazon
+    #: EC2 User Guide*.
+    Encrypted: Optional[bool] = None
+
+
+class EC2BlockDeviceMapping(Boto3Model):
+    """
+    Describes a block device mapping, which defines the EBS volumes and
+    instance store volumes to attach to an instance at launch.
+    """
+
+    #: The device name (for example, ``/dev/sdh`` or ``xvdh``).
+    DeviceName: Optional[str] = None
+    #: The virtual device name (``ephemeral``N). Instance store volumes are numbered
+    #: starting from 0. An instance type with 2 available instance store volumes can
+    #: specify mappings for ``ephemeral0`` and ``ephemeral1``. The number of available
+    #: instance store volumes depends on the instance type. After you connect to the
+    #: instance, you must mount the volume.
+    VirtualName: Optional[str] = None
+    #: Parameters used to automatically set up EBS volumes when the instance is
+    #: launched.
+    Ebs: Optional[EbsBlockDevice] = None
+    #: To omit the device from the block device mapping, specify an empty string. When
+    #: this property is specified, the device is removed from the block device mapping
+    #: regardless of the assigned value.
+    NoDevice: Optional[str] = None
 
 
 class RunInstancesMonitoringEnabled(Boto3Model):
@@ -5021,7 +5114,7 @@ class CpuOptionsRequest(Boto3Model):
     AmdSevSnp: Optional[Literal["enabled", "disabled"]] = None
 
 
-class CapacityReservationTarget(Boto3Model):
+class EC2CapacityReservationTarget(Boto3Model):
     """
     Information about the target Capacity Reservation or Capacity Reservation
     group.
@@ -5049,7 +5142,7 @@ class CapacityReservationSpecification(Boto3Model):
     CapacityReservationPreference: Optional[Literal["open", "none"]] = None
     #: Information about the target Capacity Reservation or Capacity Reservation
     #: group.
-    CapacityReservationTarget: Optional["CapacityReservationTarget"] = None
+    CapacityReservationTarget: Optional[EC2CapacityReservationTarget] = None
 
 
 class HibernationOptionsRequest(Boto3Model):
@@ -5538,7 +5631,7 @@ class LaunchTemplateCapacityReservationSpecificationRequest(Boto3Model):
     CapacityReservationPreference: Optional[Literal["open", "none"]] = None
     #: Information about the target Capacity Reservation or Capacity Reservation
     #: group.
-    CapacityReservationTarget: Optional["CapacityReservationTarget"] = None
+    CapacityReservationTarget: Optional[EC2CapacityReservationTarget] = None
 
 
 class LaunchTemplateLicenseConfigurationRequest(Boto3Model):
@@ -5633,7 +5726,7 @@ class MemoryMiBRequest(Boto3Model):
     Max: Optional[int] = None
 
 
-class MemoryGiBPerVCpuRequest(Boto3Model):
+class EC2MemoryGiBPerVCpuRequest(Boto3Model):
     """
     The minimum and maximum amount of memory per vCPU, in GiB.
 
@@ -5728,7 +5821,7 @@ class AcceleratorTotalMemoryMiBRequest(Boto3Model):
     Max: Optional[int] = None
 
 
-class NetworkBandwidthGbpsRequest(Boto3Model):
+class EC2NetworkBandwidthGbpsRequest(Boto3Model):
     """The minimum and maximum amount of baseline network bandwidth, in gigabits per
     second (Gbps). For more information, see `Amazon EC2 instance network
     bandwidth <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-instance-
@@ -5796,7 +5889,7 @@ class InstanceRequirementsRequest(Boto3Model):
         List[Literal["intel", "amd", "amazon-web-services"]]
     ] = None
     #: The minimum and maximum amount of memory per vCPU, in GiB.
-    MemoryGiBPerVCpu: Optional[MemoryGiBPerVCpuRequest] = None
+    MemoryGiBPerVCpu: Optional[EC2MemoryGiBPerVCpuRequest] = None
     #: The instance types to exclude.
     ExcludedInstanceTypes: Optional[List[str]] = None
     #: Indicates whether current or previous generation instance types are included.
@@ -5877,7 +5970,7 @@ class InstanceRequirementsRequest(Boto3Model):
     #: second (Gbps). For more information, see `Amazon EC2 instance network bandwidth
     #: <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-instance- network-
     #: bandwidth.html>`_ in the *Amazon EC2 User Guide*.
-    NetworkBandwidthGbps: Optional[NetworkBandwidthGbpsRequest] = None
+    NetworkBandwidthGbps: Optional[EC2NetworkBandwidthGbpsRequest] = None
     #: The instance types to apply your specified attributes against. All other
     #: instance types are ignored, even if they match your specified attributes.
     AllowedInstanceTypes: Optional[List[str]] = None
@@ -6779,7 +6872,9 @@ class ValidationWarning(Boto3Model):
 
 class CreateLaunchTemplateResult(Boto3Model):
     #: Information about the launch template.
-    LaunchTemplate: Optional["LaunchTemplate"] = None
+    LaunchTemplateInstance: LaunchTemplate = Field(
+        default=None, serialization_alias="LaunchTemplate"
+    )
     #: If the launch template contains parameters or parameter combinations that are
     #: not valid, an error code and an error message are returned for each issue
     #: that's found.
@@ -6788,7 +6883,9 @@ class CreateLaunchTemplateResult(Boto3Model):
 
 class DeleteLaunchTemplateResult(Boto3Model):
     #: Information about the launch template.
-    LaunchTemplate: Optional["LaunchTemplate"] = None
+    LaunchTemplateInstance: LaunchTemplate = Field(
+        default=None, serialization_alias="LaunchTemplate"
+    )
 
 
 class DescribeLaunchTemplatesResult(Boto3Model):
@@ -6801,7 +6898,9 @@ class DescribeLaunchTemplatesResult(Boto3Model):
 
 class CreateLaunchTemplateVersionResult(Boto3Model):
     #: Information about the launch template version.
-    LaunchTemplateVersion: Optional["LaunchTemplateVersion"] = None
+    LaunchTemplateVersionInstance: LaunchTemplateVersion = Field(
+        default=None, serialization_alias="LaunchTemplateVersion"
+    )
     #: If the new version of the launch template contains parameters or parameter
     #: combinations that are not valid, an error code and an error message are
     #: returned for each issue that's found.
@@ -6821,7 +6920,7 @@ class DeleteLaunchTemplateVersionsResponseSuccessItem(Boto3Model):
     VersionNumber: Optional[int] = None
 
 
-class ResponseError(Boto3Model):
+class EC2ResponseError(Boto3Model):
     """
     Information about the error.
     """
@@ -6853,7 +6952,7 @@ class DeleteLaunchTemplateVersionsResponseErrorItem(Boto3Model):
     #: The version number of the launch template.
     VersionNumber: Optional[int] = None
     #: Information about the error.
-    ResponseError: Optional["ResponseError"] = None
+    ResponseError: Optional[EC2ResponseError] = None
 
 
 class DeleteLaunchTemplateVersionsResult(Boto3Model):

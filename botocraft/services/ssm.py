@@ -56,7 +56,7 @@ class ParameterManager(Boto3ModelManager):
                 takes a JSON array. Parameter Store, a capability of Amazon Web Services
                 Systems Manager supports the following policy types:
         """
-        data = model.model_dump(exclude_none=True)
+        data = model.model_dump(exclude_none=True, by_alias=True)
         args = dict(
             Name=data["Name"],
             Value=data["Value"],
@@ -115,7 +115,7 @@ class ParameterManager(Boto3ModelManager):
                 takes a JSON array. Parameter Store, a capability of Amazon Web Services
                 Systems Manager supports the following policy types:
         """
-        data = model.model_dump(exclude_none=True)
+        data = model.model_dump(exclude_none=True, by_alias=True)
         args = dict(
             Name=data["Name"],
             Value=data["Value"],
@@ -226,18 +226,18 @@ class Parameter(PrimaryBoto3Model):
     #: default is ``text``.
     DataType: Optional[str] = "text"
     #: The parameter version.
-    Version: int = Field(frozen=True, default=None)
+    Version: int = Field(default=None, frozen=True)
     #: Either the version number or the label used to retrieve the parameter value.
     #: Specify selectors by using one of the following formats:
-    Selector: str = Field(frozen=True, default=None)
+    Selector: str = Field(default=None, frozen=True)
     #: Applies to parameters that reference information in other Amazon Web Services
     #: services. ``SourceResult`` is the raw result or response from the source.
-    SourceResult: str = Field(frozen=True, default=None)
+    SourceResult: str = Field(default=None, frozen=True)
     #: Date the parameter was last changed or updated and the parameter version was
     #: created.
-    LastModifiedDate: datetime = Field(frozen=True, default=None)
+    LastModifiedDate: datetime = Field(default=None, frozen=True)
     #: The Amazon Resource Name (ARN) of the parameter.
-    ARN: str = Field(frozen=True, default=None)
+    ARN: str = Field(default=None, frozen=True)
 
     @property
     def pk(self) -> Optional[str]:

@@ -253,7 +253,7 @@ class StructureShapeConverter(AbstractShapeConverter):
             model_name = model_def.alternate_name
         if not self.model_exists(model_name):
             # We have not yet generated this model as a pydantic class
-            model_name = self.model_generator.generate_model(shape.name, shape=shape)
+            model_name = self.model_generator.generate_model(shape.name, model_shape=shape)
         else:
             # We've already generated the model, so we just need to import it
             # if it's in another service, otherwise we can just use it

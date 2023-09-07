@@ -73,3 +73,7 @@ secondary:
         required: true
   Certificate:
     readonly: true
+  TargetGroupStickinessConfig:
+    alternate_name: ElbV2TargetGroupStickinessConfig
+  Matcher:
+    alternate_name: ResponseCodeMatcher

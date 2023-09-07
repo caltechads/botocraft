@@ -20,7 +20,7 @@ primary:
           mapping:
             launchConfigurationName: LaunchConfigurationName
       launch_template:
-        primary_model_name: LaunchTemplate
+        primary_model_name: LaunchTemplateVersion
         docstring: >-
           Return the :py:class:`LaunchTemplate` object that this group uses, if
           any.
@@ -28,7 +28,14 @@ primary:
           mapping:
             LaunchTemplateId: LaunchTemplate.LaunchTemplateId
             Version: LaunchTemplate.Version
-
+      instances:
+        primary_model_name: Instance
+        many: true
+        docstring: >-
+          Return the :py:class:`Instance` objects that belong to this group, if any.
+        transformer:
+          mapping:
+            AutoScalingGroupName: AutoScalingGroupName
   LaunchConfiguration:
     primary_key: LaunchConfigurationName
     arn_key: LaunchConfigurationARN
@@ -38,3 +45,41 @@ primary:
 secondary:
   WarmPoolConfiguration:
     alternate_name: AutoScalingWarmPoolConfiguration
+  BlockDeviceMapping:
+    alternate_name: AutoScalingBlockDeviceMapping
+  LaunchTemplateSpecification:
+    alternate_name: AutoScalingLaunchTemplateSpecification
+  LaunchTemplate:
+    alternate_name: AutoScalingLaunchTemplate
+  InstanceRequirements:
+    alternate_name: AutoScalingInstanceRequirements
+  InstancesDistribution:
+    alternate_name: AutoScalingInstancesDistribution
+  MixedInstancesPolicy:
+    alternate_name: AutoScalingMixedInstancesPolicy
+  InstanceReusePolicy:
+    alternate_name: AutoScalingInstanceReusePolicy
+  Ebs:
+    alternate_name: EbsMapping
+  InstanceMonitoring:
+    alternate_name: AutoScalingInstanceMonitoring
+  AcceleratorCountRequest:
+    alternate_name: AutoScalingAcceleratorCountRequest
+  AcceleratorTotalMemoryMiBRequest:
+    alternate_name: AutoScalingAcceleratorTotalMemoryMiBRequest
+  BaselineEbsBandwidthMbpsRequest:
+    alternate_name: AutoScalingBaselineEbsBandwidthMbsRequest
+  MemoryMiBRequest:
+    alternate_name: AutoScalingMemoryMiBRequest
+  MemoryGiBRequest:
+    alternate_name: AutoScalingMemoryGiBRequest
+  NetworkBandwidthMbpsRequest:
+    alternate_name: AutoScalingNetworkBandwidthMbpsRequest
+  NetworkInterfaceCountRequest:
+    alternate_name: AutoScalingNetworkInterfaceCountRequest
+  TotalLocalStorageGBRequest:
+    alternate_name: AutoScalingTotalLocalStorageGBRequest
+  MemoryGiBPerVcpuRequest:
+    alternate_name: AutoScalingMemoryGiBPerVcpuRequest
+  NetworkBandwithGbpsRequest:
+    alternate_name: AutoScalingNetworkBandwithGbpsRequest

@@ -146,7 +146,7 @@ class CreateMethodGenerator(ManagerMethodGenerator):
         Returns:
             The code for the boto3 call.
         """
-        call = "data = model.model_dump(exclude_none=True)"
+        call = "data = model.model_dump(exclude_none=True, by_alias=True)"
         args = self.operation_args
         kwargs = self.operation_kwargs
         if args or kwargs:
