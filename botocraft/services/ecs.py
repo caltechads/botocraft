@@ -8,9 +8,11 @@ from typing import Any, ClassVar, Dict, List, Literal, Optional, cast
 
 from pydantic import Field
 
-from botocraft.mixins.ecs import (ecs_clusters_only, ecs_services_only,
-                                  ecs_task_definitions_only)
+from botocraft.mixins.ecs import (ecs_clusters_only,
+                                  ecs_container_instances_only,
+                                  ecs_services_only, ecs_task_definitions_only)
 from botocraft.services.common import Tag
+from botocraft.services.ec2 import Instance, InstanceManager
 
 from .abstract import (Boto3Model, Boto3ModelManager, PrimaryBoto3Model,
                        ReadonlyBoto3Model, ReadonlyBoto3ModelManager,
@@ -794,8 +796,11 @@ class ContainerInstanceManager(ReadonlyBoto3ModelManager):
         self,
         containerInstances: List[str],
         *,
-        cluster: Optional[str] = None,
-        include: Optional[List[Literal["TAGS", "CONTAINER_INSTANCE_HEALTH"]]] = None
+        cluster: str = "default",
+        include: List[Literal["TAGS", "CONTAINER_INSTANCE_HEALTH"]] = [
+            "TAGS",
+            "CONTAINER_INSTANCE_HEALTH",
+        ]
     ) -> Optional["ContainerInstance"]:
         """
         Describes one or more container instances. Returns metadata about each
@@ -831,10 +836,54 @@ class ContainerInstanceManager(ReadonlyBoto3ModelManager):
             return response.containerInstances[0]
         return None
 
+    def get_many(
+        self,
+        containerInstances: List[str],
+        *,
+        cluster: str = "default",
+        include: List[Literal["TAGS", "CONTAINER_INSTANCE_HEALTH"]] = [
+            "TAGS",
+            "CONTAINER_INSTANCE_HEALTH",
+        ]
+    ) -> List["ContainerInstance"]:
+        """
+        Describes one or more container instances. Returns metadata about each
+        container instance requested.
+
+        Args:
+            containerInstances: A list of up to 100 container instance IDs or full
+                Amazon Resource Name (ARN) entries.
+
+        Keyword Args:
+            cluster: The short name or full Amazon Resource Name (ARN) of the cluster
+                that hosts the container instances to describe. If you do not specify a
+                cluster, the default cluster is assumed. This parameter is required if the
+                container instance or container instances you are describing were launched
+                in any cluster other than the default cluster.
+            include: Specifies whether you want to see the resource tags for the
+                container instance. If ``TAGS`` is specified, the tags are included in the
+                response. If ``CONTAINER_INSTANCE_HEALTH`` is specified, the container
+                instance health is included in the response. If this field is omitted, tags
+                and container instance health status aren't included in the response.
+        """
+        args: Dict[str, Any] = dict(
+            containerInstances=self.serialize(containerInstances),
+            cluster=self.serialize(cluster),
+            include=self.serialize(include),
+        )
+        _response = self.client.describe_container_instances(
+            **{k: v for k, v in args.items() if v is not None}
+        )
+        response = DescribeContainerInstancesResponse(**_response)
+        if response.containerInstances is not None:
+            return response.containerInstances
+        return []
+
+    @ecs_container_instances_only
     def list(
         self,
         *,
-        cluster: Optional[str] = None,
+        cluster: str = "default",
         filter: Optional[str] = None,
         status: Optional[
             Literal[
@@ -1983,6 +2032,23 @@ class Cluster(PrimaryBoto3Model):
         except AttributeError:
             return []
         return Service.objects.list(**pk)
+
+    @cached_property
+    def container_instances(self) -> Optional[List["ContainerInstance"]]:
+        """
+        Return the ARNs of :py:class:`ContainerInstance` objects that run in
+        this cluster, if any.
+        """
+
+        try:
+            pk = OrderedDict(
+                {
+                    "cluster": self.clusterArn,
+                }
+            )
+        except AttributeError:
+            return []
+        return ContainerInstance.objects.list(**pk)
 
 
 class RepositoryCredentials(Boto3Model):
@@ -3344,6 +3410,23 @@ class ContainerInstance(ReadonlyPrimaryBoto3Model):
             The ARN of the model instance.
         """
         return self.containerInstanceArn
+
+    @cached_property
+    def instance(self) -> Optional["Instance"]:
+        """
+        Return the :py:class:`Instance` object that this container instance
+        represents, if any.
+        """
+
+        try:
+            pk = OrderedDict(
+                {
+                    "InstanceId": self.ec2InstanceId,
+                }
+            )
+        except AttributeError:
+            return None
+        return Instance.objects.get(**pk)
 
 
 # =======================

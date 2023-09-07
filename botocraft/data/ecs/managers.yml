@@ -135,6 +135,37 @@ ContainerInstance:
   methods:
     get:
       boto3_name: describe_container_instances
+      args:
+        cluster:
+          default: >-
+            "default"
+        container_instances:
+          rename: containerInstance
+          required: true
+          python_type: str
+          source_arg: "[containerInstance]"
+          docstring: >-
+            The container instance ID or full Amazon Resource Name (ARN) entry
+            for the container instance you want to describe.
+        include:
+          default: >-
+            ["TAGS", "CONTAINER_INSTANCE_HEALTH"]
+    get_many:
+      boto3_name: describe_container_instances
+      args:
+        cluster:
+          default: >-
+            "default"
+        include:
+          default: >-
+            ["TAGS", "CONTAINER_INSTANCE_HEALTH"]
     list:
       boto3_name: list_container_instances
       response_attr: containerInstanceArns
+      decorators:
+        - name: ecs_container_instances_only
+          import_path: botocraft.mixins.ecs
+      args:
+        cluster:
+          default: >-
+            "default"

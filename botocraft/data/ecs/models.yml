@@ -75,6 +75,15 @@ primary:
         transformer:
           mapping:
             cluster: clusterArn
+      container_instances:
+        primary_model_name: ContainerInstance
+        many: true
+        docstring: >-
+          Return the ARNs of :py:class:`ContainerInstance` objects that run in this
+          cluster, if any.
+        transformer:
+          mapping:
+            cluster: clusterArn
   TaskDefinition:
     primary_key: taskDefinitionArn
     arn_key: taskDefinitionArn
@@ -94,6 +103,15 @@ primary:
     primary_key: containerInstanceArn
     arn_key: containerInstanceArn
     readonly: true
+    relations:
+      instance:
+        primary_model_name: Instance
+        docstring: >-
+          Return the :py:class:`Instance` object that this container instance
+          represents, if any.
+        transformer:
+          mapping:
+            InstanceId: ec2InstanceId
 secondary:
   Deployment:
     readonly: true
