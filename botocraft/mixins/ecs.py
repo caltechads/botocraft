@@ -1,8 +1,7 @@
 from typing import Callable, List, TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from botocraft.services import Service, Cluster
-
+    from botocraft.services import Service, Cluster, TaskDefinition
 
 def ecs_services_only(func: Callable[..., List[str]]) -> Callable[..., List["Service"]]:
     """
@@ -37,4 +36,22 @@ def ecs_clusters_only(func: Callable[..., List[str]]) -> Callable[..., List["Clu
                 self.get_many(clusters=arns[i:i + 100])
             )
         return clusters
+    return wrapper
+
+
+def ecs_task_definitions_only(
+    func: Callable[..., List[str]]
+) -> Callable[..., List["TaskDefinition"]]:
+    """
+    Decorator to convert a list of ECS task definition identifiers to a list of
+    :py:class:`botocraft.services.ecs.TaskDefinition` objects.
+    """
+    def wrapper(self, *args, **kwargs) -> List["TaskDefinition"]:
+        identifiers = func(self, *args, **kwargs)
+        task_definitions = []
+        for identifier in identifiers:
+            task_definitions.append(
+                self.get(identifier, include=['TAGS'])
+            )
+        return task_definitions
     return wrapper

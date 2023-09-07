@@ -125,6 +125,9 @@ TaskDefinition:
     list:
       boto3_name: list_task_definitions
       response_attr: taskDefinitionArns
+      decorators:
+        - name: ecs_task_definitions_only
+          import_path: botocraft.mixins.ecs
     update:
       boto3_name: register_task_definition
 ContainerInstance:

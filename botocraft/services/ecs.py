@@ -8,7 +8,8 @@ from typing import Any, ClassVar, Dict, List, Literal, Optional, cast
 
 from pydantic import Field
 
-from botocraft.mixins.ecs import ecs_clusters_only, ecs_services_only
+from botocraft.mixins.ecs import (ecs_clusters_only, ecs_services_only,
+                                  ecs_task_definitions_only)
 from botocraft.services.common import Tag
 
 from .abstract import (Boto3Model, Boto3ModelManager, PrimaryBoto3Model,
@@ -689,6 +690,7 @@ class TaskDefinitionManager(Boto3ModelManager):
 
         return response.taskDefinition
 
+    @ecs_task_definitions_only
     def list(
         self,
         *,
