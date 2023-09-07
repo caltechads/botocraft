@@ -1,6 +1,7 @@
 from typing import TYPE_CHECKING
 import re
 
+
 if TYPE_CHECKING:
     from botocraft.sync.service import ModelGenerator
 
@@ -105,6 +106,59 @@ class ModelPropertyGenerator:
         return f'    def {self.property_name}(self) -> {self.return_type}:'
 
     @property
+    def _regex_body(self) -> str:
+        """
+        Render the body of the method for use with the regex transformer.
+
+        Returns:
+            The method body.
+        """
+        assert self.property_def.transformer.regex, \
+            f"Property {self.property_name} does not have a regex transformer"
+        return f"""
+        return self.transform(
+            "{self.property_def.transformer.regex.attribute}",
+            r"{self.property_def.transformer.regex.regex}"
+        )
+"""
+
+    @property
+    def _mapping_body(self) -> str:
+        """
+        Render the body of the method for use with the mapping transformer.
+
+        Returns:
+            The method body.
+        """
+        assert self.property_def.transformer.mapping, \
+            f"Property {self.property_name} does not have a mapping transformer"
+        code = """
+        return OrderedDict({
+"""
+        for key, value in self.property_def.transformer.mapping.items():
+            code += f"""
+            "{key}": self.{value},
+"""
+        code += """
+        })
+"""
+        return code
+
+    @property
+    def _alias_body(self) -> str:
+        """
+        Render the body of the method for use with the alias transformer.
+
+        Returns:
+            The method body.
+        """
+        assert self.property_def.transformer.alias, \
+            f"Property {self.property_name} does not have an alias transformer"
+        return f"""
+        return self.{self.property_def.transformer.alias}
+"""
+
+    @property
     def body(self) -> str:
         """
         Return the method body.
@@ -113,28 +167,12 @@ class ModelPropertyGenerator:
             The method body.
         """
         if self.property_def.transformer.regex:
-            code = f"""
-        return self.transform(
-            "{self.property_def.transformer.regex.attribute}",
-            r"{self.property_def.transformer.regex.regex}"
-        )
-"""
+            return self._regex_body
         elif self.property_def.transformer.mapping:
-            code = """
-        return OrderedDict({
-"""
-            for key, value in self.property_def.transformer.mapping.items():
-                code += f"""
-            "{key}": self.{value},
-"""
-            code += """
-        })
-"""
+            return self._mapping_body
         elif self.property_def.transformer.alias:
-            code = f"""
-        return self.{self.property_def.transformer.alias}
-"""
-        return code
+            return self._alias_body
+        raise RuntimeError(f"Property {self.property_name} does not have a transformer")
 
     @property
     def code(self) -> str:
