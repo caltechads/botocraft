@@ -689,6 +689,63 @@ class AutoScalingMixedInstancesPolicy(Boto3Model):
     InstancesDistribution: Optional[AutoScalingInstancesDistribution] = None
 
 
+class AutoScalingInstanceReference(Boto3Model):
+    """
+    Describes an EC2 instance.
+    """
+
+    #: The ID of the instance.
+    InstanceId: str
+    #: The instance type of the EC2 instance.
+    InstanceType: Optional[str] = None
+    #: The Availability Zone in which the instance is running.
+    AvailabilityZone: str
+    #: A description of the current lifecycle state. The ``Quarantined`` state is not
+    #: used. For information about lifecycle states, see `Instance lifecycle <https://
+    #: docs.aws.amazon.com/autoscaling/ec2/userguide/AutoScalingGroupLifecycle.html>`_
+    #: in the *Amazon EC2 Auto Scaling User Guide*.
+    LifecycleState: Literal[
+        "Pending",
+        "Pending:Wait",
+        "Pending:Proceed",
+        "Quarantined",
+        "InService",
+        "Terminating",
+        "Terminating:Wait",
+        "Terminating:Proceed",
+        "Terminated",
+        "Detaching",
+        "Detached",
+        "EnteringStandby",
+        "Standby",
+        "Warmed:Pending",
+        "Warmed:Pending:Wait",
+        "Warmed:Pending:Proceed",
+        "Warmed:Terminating",
+        "Warmed:Terminating:Wait",
+        "Warmed:Terminating:Proceed",
+        "Warmed:Terminated",
+        "Warmed:Stopped",
+        "Warmed:Running",
+        "Warmed:Hibernated",
+    ]
+    #: The last reported health status of the instance. ``Healthy`` means that the
+    #: instance is healthy and should remain in service. ``Unhealthy`` means that the
+    #: instance is unhealthy and that Amazon EC2 Auto Scaling should terminate and
+    #: replace it.
+    HealthStatus: str
+    #: The launch configuration associated with the instance.
+    LaunchConfigurationName: Optional[str] = None
+    #: The launch template for the instance.
+    LaunchTemplate: Optional[AutoScalingLaunchTemplateSpecification] = None
+    #: Indicates whether the instance is protected from termination by Amazon EC2 Auto
+    #: Scaling when scaling in.
+    ProtectedFromScaleIn: bool
+    #: The number of capacity units contributed by the instance based on its instance
+    #: type.
+    WeightedCapacity: Optional[str] = None
+
+
 class SuspendedProcess(Boto3Model):
     """
     Describes an auto scaling process that has been suspended.
@@ -811,7 +868,7 @@ class AutoScalingGroup(PrimaryBoto3Model):
     #: The duration of the health check grace period, in seconds.
     HealthCheckGracePeriod: Optional[int] = None
     #: The EC2 instances associated with the group.
-    Instances: List[Instance] = Field(default=None, frozen=True)
+    Instances: List["AutoScalingInstanceReference"] = Field(default=None, frozen=True)
     #: The date and time the group was created.
     CreatedTime: datetime = Field(frozen=True)
     #: The suspended processes associated with the group.

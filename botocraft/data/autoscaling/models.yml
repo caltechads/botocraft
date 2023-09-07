@@ -43,6 +43,8 @@ primary:
     input_shapes:
       - CreateLaunchConfigurationType
 secondary:
+  Instance:
+    alternate_name: AutoScalingInstanceReference
   WarmPoolConfiguration:
     alternate_name: AutoScalingWarmPoolConfiguration
   BlockDeviceMapping:
