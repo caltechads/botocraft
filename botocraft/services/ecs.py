@@ -8,6 +8,7 @@ from typing import Any, ClassVar, Dict, List, Literal, Optional, cast
 
 from pydantic import Field
 
+from botocraft.mixins.ecs import ecs_services_only
 from botocraft.services.common import Tag
 
 from .abstract import (Boto3Model, Boto3ModelManager, PrimaryBoto3Model,
@@ -178,10 +179,11 @@ class ServiceManager(Boto3ModelManager):
             return response.services
         return []
 
+    @ecs_services_only
     def list(
         self,
         *,
-        cluster: str = "default",
+        cluster: Optional[str] = None,
         launchType: Optional[Literal["EC2", "FARGATE", "EXTERNAL"]] = None,
         schedulingStrategy: Optional[Literal["REPLICA", "DAEMON"]] = None
     ) -> List[str]:

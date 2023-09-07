@@ -37,10 +37,9 @@ Service:
     list:
       boto3_name: list_services
       response_attr: serviceArns
-      args:
-        cluster:
-          default: >-
-            "default"
+      decorators:
+        - name: ecs_services_only
+          import_path: botocraft.mixins.ecs
     update:
       boto3_name: update_service
       args:
