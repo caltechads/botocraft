@@ -1,7 +1,7 @@
 from typing import Callable, List, TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from botocraft.services import Service
+    from botocraft.services import Service, Cluster
 
 
 def ecs_services_only(func: Callable[..., List[str]]) -> Callable[..., List["Service"]]:
@@ -21,4 +21,20 @@ def ecs_services_only(func: Callable[..., List[str]]) -> Callable[..., List["Ser
                 )
             )
         return services
+    return wrapper
+
+
+def ecs_clusters_only(func: Callable[..., List[str]]) -> Callable[..., List["Cluster"]]:
+    """
+    Decorator to convert a list of ECS cluster ARNs to a list of
+    :py:class:`botocraft.services.ecs.Cluster` objects.
+    """
+    def wrapper(self, *args, **kwargs) -> List["Cluster"]:
+        arns = func(self, *args, **kwargs)
+        clusters = []
+        for i in range(0, len(arns), 100):
+            clusters.extend(
+                self.get_many(clusters=arns[i:i + 100])
+            )
+        return clusters
     return wrapper

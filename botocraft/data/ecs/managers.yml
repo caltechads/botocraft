@@ -83,9 +83,18 @@ Cluster:
         include:
           default: >-
             ["ATTACHMENTS", "CONFIGURATIONS", "SETTINGS", "STATISTICS", "TAGS"]
+    get_many:
+      boto3_name: describe_clusters
+      args:
+        include:
+          default: >-
+            ["ATTACHMENTS", "CONFIGURATIONS", "SETTINGS", "STATISTICS", "TAGS"]
     list:
       boto3_name: list_clusters
       response_attr: clusterArns
+      decorators:
+        - name: ecs_clusters_only
+          import_path: botocraft.mixins.ecs
     update:
       boto3_name: update_cluster
       docstring: >-

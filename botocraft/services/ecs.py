@@ -8,7 +8,7 @@ from typing import Any, ClassVar, Dict, List, Literal, Optional, cast
 
 from pydantic import Field
 
-from botocraft.mixins.ecs import ecs_services_only
+from botocraft.mixins.ecs import ecs_clusters_only, ecs_services_only
 from botocraft.services.common import Tag
 
 from .abstract import (Boto3Model, Boto3ModelManager, PrimaryBoto3Model,
@@ -474,6 +474,37 @@ class ClusterManager(Boto3ModelManager):
             return response.clusters[0]
         return None
 
+    def get_many(
+        self,
+        *,
+        clusters: Optional[List[str]] = None,
+        include: List[
+            Literal["ATTACHMENTS", "CONFIGURATIONS", "SETTINGS", "STATISTICS", "TAGS"]
+        ] = ["ATTACHMENTS", "CONFIGURATIONS", "SETTINGS", "STATISTICS", "TAGS"]
+    ) -> List["Cluster"]:
+        """
+        Describes one or more of your clusters.
+
+        Keyword Args:
+            clusters: A list of up to 100 cluster names or full cluster Amazon Resource
+                Name (ARN) entries. If you do not specify a cluster, the default cluster is
+                assumed.
+            include: Determines whether to include additional information about the
+                clusters in the response. If this field is omitted, this information isn't
+                included.
+        """
+        args: Dict[str, Any] = dict(
+            clusters=self.serialize(clusters), include=self.serialize(include)
+        )
+        _response = self.client.describe_clusters(
+            **{k: v for k, v in args.items() if v is not None}
+        )
+        response = DescribeClustersResponse(**_response)
+        if response.clusters is not None:
+            return response.clusters
+        return []
+
+    @ecs_clusters_only
     def list(
         self,
     ) -> List[str]:
