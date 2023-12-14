@@ -139,7 +139,7 @@ ContainerInstance:
         cluster:
           default: >-
             "default"
-        container_instances:
+        containerInstances:
           rename: containerInstance
           required: true
           python_type: str
@@ -169,3 +169,55 @@ ContainerInstance:
         cluster:
           default: >-
             "default"
+Task:
+  methods:
+    get:
+      boto3_name: describe_tasks
+      decorators:
+        - name: ecs_task_populate_taskDefinition
+          import_path: botocraft.mixins.ecs
+      args:
+        cluster:
+          default: >-
+            "default"
+        tasks:
+          rename: task
+          required: true
+          python_type: str
+          source_arg: "[task]"
+          docstring: >-
+            The task ID or full Amazon Resource Name (ARN) entry of the task
+            that you want to describe.
+        include:
+          default: >-
+            ["TAGS"]
+    get_many:
+      boto3_name: describe_tasks
+      decorators:
+        - name: ecs_task_populate_taskDefinitions
+          import_path: botocraft.mixins.ecs
+      args:
+        cluster:
+          default: >-
+            "default"
+        include:
+          default: >-
+            ["TAGS"]
+    list:
+      boto3_name: list_tasks
+      response_attr: taskArns
+      decorators:
+        - name: ecs_tasks_only
+          import_path: botocraft.mixins.ecs
+      args:
+        cluster:
+          default: >-
+            "default"
+    create:
+      boto3_name: run_task
+      response_attr: tasks
+      args:
+        cluster:
+          attribute: clusterArn
+    delete:
+      boto3_name: stop_task

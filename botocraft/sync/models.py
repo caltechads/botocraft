@@ -151,6 +151,9 @@ class ModelRelationshipDefinition(BaseModel):
     #: .. important::
     #:
     #:     If you are using a regex transformer, you must use named groups.
+    #:
+    #:     Example::
+    #:         r'arn:aws:ecs:(?P<region>[^:]+):(?P<account_id>[^:]+):(?P<resource_type>[^:]+)/(?P<resource_id>[^:]+)'
     transformer: AttributeTransformerDefinition
     #: The name of the botocraft primary model to use for this relationship
     #:
@@ -263,9 +266,9 @@ class ModelDefinition(BaseModel):
     #: The name of the base class for this model.  If not specified, we'll
     #: use the default base class for the use case.
     base_class: Optional[str] = None
-    #: Our replacement model name.  We use this if some submodels have a
-    #: name conflict with a model in another service or an attribute on
-    #: a model in this service.
+    #: If defined, use this as the model name instead of what botocore supplies.
+    #: We use this if some submodels have a ame conflict with a model in
+    #: another service or an attribute on a model in this service.
     alternate_name: Optional[str] = None
     #: The primary key for this model.  This is the field that will be used
     #: to determine whether we need to create a new model instance or update
@@ -275,7 +278,7 @@ class ModelDefinition(BaseModel):
     #: have an ARN, a name, and an ID.  Some have no ARN.
     arn_key: Optional[str] = None
     #: The ``name`` key for this model attribute if any.  Some AWS models
-    #: have an ARN, a name, and an ID.
+    #: have an ARN, a name, and an ID.  Some have no name.
     name_key: Optional[str] = None
     #: A list of field overrides for this model.  If a field name is not
     #: specified in this list, it will be generated verbatim from the
@@ -283,19 +286,21 @@ class ModelDefinition(BaseModel):
     fields: Dict[str, ModelAttributeDefinition] = {}
     #: A list of extra fields for this model.  These are fields that are
     #: not in the botocore model, but are either are needed at create time
-    #: because they turn into something else in the response.  This is
+    #: or because they turn into something else in the response.  This is
     #: pretty rarely used.
     extra_fields: Dict[str, ModelAttributeDefinition] = {}
     #: The name of the output shape for the get method for this model.  We use
-    #: to add to the model any fields that appear in the get method
-    #: response, but not in the : create method response.
+    #: this to add to the model any fields that appear in the get method
+    #: response, but which are not present in the create method response.
     output_shape: Optional[str] = None
-    #: The names of the request shapes for the writable methods for this model.  We use
-    #: these to determine which fields on the model are writable.
+    #: The names of the request shapes for the writable methods for this model.
+    #: We use these to determine which fields on the model are writable.
     input_shapes: Optional[List[str]] = None
-    #: Computed properties
+    #: Computed properties.  These are all defined by us in the botocraft
+    #: config.
     properties: Dict[str, ModelPropertyDefinition] = {}
-    #: Relationships to other models
+    #: Relationships to other models.  These are all defined by us in the
+    #: botocraft config.
     relations: Dict[str, ModelRelationshipDefinition] = {}
 
     def unalias_field_name(self, field_name: str) -> str:
@@ -342,7 +347,7 @@ class MethodArgumentDefinition(BaseModel):
 
     """
 
-    #: If specified, in the boto3 call invocation, set the value
+    #: If specified, when constructing the boto3 call invocation, set the value
     #: of this argument to the value of the model attribute specified
     #: here.  This is only useful for methods that take a model instance
     #: as an argument.
@@ -350,7 +355,7 @@ class MethodArgumentDefinition(BaseModel):
     #: If specified, in the method signature, use this as the argument
     #: name.  Otherwise, we'll use the name of the boto3 argument.
     rename: Optional[str] = None
-    #: If specified, in the boto3 call invocation, set the value
+    #: If specified, when constructing the boto3 call invocation, set the value
     #: of this argument to the value of this method argument
     source_arg: Optional[str] = None
     #: If specified, in the boto3 call invocation, set the value
@@ -445,13 +450,13 @@ class ManagerMethodDefinition(BaseModel):
     @property
     def explicit_kwargs(self) -> List[str]:
         """
-        Return a list of positional arguments that should be explicitly
+        Return a list of keyword arguments that should be explicitly
         included in the method signature.  This is useful for methods
         that take a model instance as an argument, but some of the
         arguments are not model attributes.
 
         Returns:
-            A list of explicit positional arguments
+            A list of explicit keyword arguments
         """
         if not self.args:
             return []
@@ -584,7 +589,7 @@ class ServiceDefinition(BaseModel):
     Our definition of a single AWS service, e.g. ``ecs``, ``ec2``, etc.
     """
 
-    #: The global botocraft inteface model
+    #: The global botocraft interface model
     interface: 'BotocraftInterface'
     #: The name of the botocore service
     name: str

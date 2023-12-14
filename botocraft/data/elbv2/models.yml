@@ -18,6 +18,34 @@ primary:
       IpAddressType:
         default: >-
           "ipv4"
+    relations:
+      listeners:
+        primary_model_name: Listener
+        many: true
+        docstring: >-
+          Return the ARNs of :py:class:`Listener` objects that belong to this load
+          balancer, if any.
+        transformer:
+          mapping:
+            load_balancer: LoadBalancerArn
+      vpc:
+        primary_model_name: Vpc
+        docstring: >-
+          Return the :py:class:`Vpc` object that this load balancer belongs to, if
+          any.
+        transformer:
+          mapping:
+            VpcId: VpcId
+      security_groups:
+        primary_model_name: SecurityGroup
+        many: true
+        docstring: >-
+          Return the ARNs of :py:class:`SecurityGroup` objects that belong to this
+          load balancer, if any.
+        transformer:
+          mapping:
+            GroupIds: SecurityGroups
+
   Listener:
     primary_key: ListenerArn
     arn_key: ListenerArn
@@ -29,6 +57,24 @@ primary:
       Protocol:
         default: >-
           "HTTPS"
+    relations:
+      load_balancer:
+        primary_model_name: LoadBalancer
+        docstring: >-
+          Return the :py:class:`LoadBalancer` object that this listener belongs to,
+          if any.
+        transformer:
+          mapping:
+            LoadBalancerArn: LoadBalancerArn
+      rules:
+        primary_model_name: Rule
+        many: true
+        docstring: >-
+          Return the ARNs of :py:class:`Rule` objects that belong to this listener,
+          if any.
+        transformer:
+          mapping:
+            ListenerArn: ListenerArn
   Rule:
     primary_key: RuleArn
     arn_key: RuleArn
@@ -66,6 +112,24 @@ primary:
       IpAddressType:
         default: >-
           "ipv4"
+    relations:
+      load_balancers:
+        primary_model_name: LoadBalancer
+        many: true
+        docstring: >-
+          Return the ARNs of :py:class:`LoadBalancer` objects that this target group
+          belongs to, if any.
+        transformer:
+          mapping:
+            LoadBalancerArns: LoadBalancerArns
+      vpc:
+        primary_model_name: Vpc
+        docstring: >-
+          Return the :py:class:`Vpc` object that this target group belongs to, if
+          any.
+        transformer:
+          mapping:
+            VpcId: VpcId
 secondary:
   SubnetMapping:
     fields:

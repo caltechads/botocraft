@@ -9,7 +9,8 @@ class TagsDict(dict):
     """
     A dict subclass that allows python dictionary style access to the
     ``Tags`` attribute for a model instance.   Normally ``Tags`` is a list of
-    dictionaries, but this class allows you to treat it like a dictionary.
+    dictionaries, but this class allows you to treat tags like a dictionary
+    where the keys are the tag names and the values are the tag values.
 
     This subclass does the following additional things:
 
@@ -35,7 +36,15 @@ class TagsDict(dict):
 
     def check(self) -> None:
         """
-        Check if we have been configured.
+        Check if we have been configured properly.
+
+        This means:
+
+        * the ``instance`` attribute must be set.
+        * ``self.instance`` must have an attribute named ``Tags``.
+        * the ``tag_class`` attribute must be set.
+        * the ``tag_Key`` attribute must be set.
+        * the ``tag_Value`` attribute must be set.
 
         Returns:
             True if we have been configured, False otherwise.
@@ -113,7 +122,7 @@ class TagsDict(dict):
 class TagsDictMixin:
     """
     A mixin that adds a ``tags`` property to a model instance.  This
-    is intended to be used with the :py:class:`Boto3Model` class that have
+    is intended to be used with :py:class:`Boto3Model` classes that have
     a ``Tags`` attribute.
 
     The attribute that has the AWS tags list **must** be named ``Tags``.  If

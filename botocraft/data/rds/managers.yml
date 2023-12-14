@@ -40,12 +40,6 @@ DBInstance:
       args:
         DBInstanceIdentifier:
           required: true
-        Filters:
-          hidden: true
-        MaxRecords:
-          hidden: true
-        Marker:
-          hidden: true
     list:
       boto3_name: describe_db_instances
 

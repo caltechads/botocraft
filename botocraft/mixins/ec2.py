@@ -10,6 +10,8 @@ if TYPE_CHECKING:
     )
 
 
+#: The EC2 resource types.  We need this for specifying the proper tag for
+#: resources in EC2.
 ResourceType = Literal[
     "capacity-reservation",
     "client-vpn-endpoint",
@@ -100,6 +102,10 @@ ResourceType = Literal[
 ]
 
 
+# -------------
+# Mixin classes
+# -------------
+
 class EC2TagsManagerMixin:
     def convert_tags(
         self, tags: Optional[List[Tag]], resource_type: ResourceType
@@ -116,7 +122,7 @@ class EC2TagsManagerMixin:
             A :py:class:`TagSpecification` object, or ``None`` if ``tags`` is
             ``None``.
         """
-        from botocraft.services import TagSpecification
+        from botocraft.services import TagSpecification  # pylint: disable=import-outside-toplevel
         if tags is None:
             return None
         return TagSpecification(ResourceType=resource_type, Tags=tags)
@@ -125,7 +131,10 @@ class EC2TagsManagerMixin:
 class SecurityGroupModelMixin:
     def save(self, **kwargs):
         """
-        Save the model.
+        Save the model.  For security groups, ingress rules are managed via
+        separate boto3 calls than the security group itself.  This override of
+        the ``save`` method will allow the user to create a security group and
+        add ingress rules in one step.
         """
         if not self.pk:
             group_id = self.objects.create(self, **kwargs)
@@ -143,10 +152,14 @@ class SecurityGroupModelMixin:
                     )
 
 
+# ----------
+# Decorators
+# ----------
+
 def ec2_instances_only(func: Callable[..., List["Reservation"]]) -> Callable[..., List["Instance"]]:
     """
     Wraps a boto3 method that returns a list of :py:class:`Reservation` objects
-    and returns a list of :py:class:`Instance` objects instead.
+    to return a list of :py:class:`Instance` objects instead.
     """
     def wrapper(*args, **kwargs) -> List["Instance"]:
         reservations = func(*args, **kwargs)
@@ -160,7 +173,7 @@ def ec2_instances_only(func: Callable[..., List["Reservation"]]) -> Callable[...
 def ec2_instance_only(func: Callable[..., Optional["Reservation"]]) -> Callable[..., Optional["Instance"]]:
     """
     Wraps a boto3 method that returns a list of :py:class:`Reservation` objects
-    and returns a list of :py:class:`Instance` objects instead.
+    to return a single :py:class:`Instance` object instead.
     """
     def wrapper(*args, **kwargs) -> Optional["Instance"]:
         reservation = func(*args, **kwargs)

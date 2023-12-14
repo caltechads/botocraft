@@ -398,7 +398,7 @@ class SecurityGroupManager(EC2TagsManagerMixin, Boto3ModelManager):
         return response.Return
 
 
-class NetworkAclManager(Boto3ModelManager):
+class NetworkAclManager(EC2TagsManagerMixin, Boto3ModelManager):
     service_name: str = "ec2"
 
     def create(self, model: "NetworkAcl") -> "NetworkAcl":
@@ -743,7 +743,7 @@ class InstanceManager(EC2TagsManagerMixin, Boto3ModelManager):
         return results
 
 
-class LaunchTemplateManager(Boto3ModelManager):
+class LaunchTemplateManager(EC2TagsManagerMixin, Boto3ModelManager):
     service_name: str = "ec2"
 
     def create(

@@ -10,7 +10,10 @@ from pydantic import Field
 
 from botocraft.mixins.ecs import (ecs_clusters_only,
                                   ecs_container_instances_only,
-                                  ecs_services_only, ecs_task_definitions_only)
+                                  ecs_services_only, ecs_task_definitions_only,
+                                  ecs_task_populate_taskDefinition,
+                                  ecs_task_populate_taskDefinitions,
+                                  ecs_tasks_only)
 from botocraft.mixins.tags import TagsDictMixin
 from botocraft.services.ec2 import Instance, InstanceManager
 
@@ -794,7 +797,7 @@ class ContainerInstanceManager(ReadonlyBoto3ModelManager):
 
     def get(
         self,
-        containerInstances: List[str],
+        containerInstance: str,
         *,
         cluster: str = "default",
         include: List[Literal["TAGS", "CONTAINER_INSTANCE_HEALTH"]] = [
@@ -807,8 +810,8 @@ class ContainerInstanceManager(ReadonlyBoto3ModelManager):
         container instance requested.
 
         Args:
-            containerInstances: A list of up to 100 container instance IDs or full
-                Amazon Resource Name (ARN) entries.
+            containerInstance: The container instance ID or full Amazon Resource Name
+                (ARN) entry for the container instance you want to describe.
 
         Keyword Args:
             cluster: The short name or full Amazon Resource Name (ARN) of the cluster
@@ -823,7 +826,7 @@ class ContainerInstanceManager(ReadonlyBoto3ModelManager):
                 and container instance health status aren't included in the response.
         """
         args: Dict[str, Any] = dict(
-            containerInstances=self.serialize(containerInstances),
+            containerInstances=self.serialize([containerInstance]),
             cluster=self.serialize(cluster),
             include=self.serialize(include),
         )
@@ -938,6 +941,256 @@ class ContainerInstanceManager(ReadonlyBoto3ModelManager):
             else:
                 break
         return results
+
+
+class TaskManager(Boto3ModelManager):
+    service_name: str = "ecs"
+
+    @ecs_task_populate_taskDefinition
+    def get(
+        self,
+        task: str,
+        *,
+        cluster: str = "default",
+        include: List[Literal["TAGS"]] = ["TAGS"]
+    ) -> Optional["Task"]:
+        """
+        Describes a specified task or tasks.
+
+        Args:
+            task: The task ID or full Amazon Resource Name (ARN) entry of the task that
+                you want to describe.
+
+        Keyword Args:
+            cluster: The short name or full Amazon Resource Name (ARN) of the cluster
+                that hosts the task or tasks to describe. If you do not specify a cluster,
+                the default cluster is assumed. This parameter is required if the task or
+                tasks you are describing were launched in any cluster other than the
+                default cluster.
+            include: Specifies whether you want to see the resource tags for the task.
+                If ``TAGS`` is specified, the tags are included in the response. If this
+                field is omitted, tags aren't included in the response.
+        """
+        args: Dict[str, Any] = dict(
+            tasks=self.serialize([task]),
+            cluster=self.serialize(cluster),
+            include=self.serialize(include),
+        )
+        _response = self.client.describe_tasks(
+            **{k: v for k, v in args.items() if v is not None}
+        )
+        response = DescribeTasksResponse(**_response)
+
+        if response.tasks:
+            return response.tasks[0]
+        return None
+
+    @ecs_task_populate_taskDefinitions
+    def get_many(
+        self,
+        tasks: List[str],
+        *,
+        cluster: str = "default",
+        include: List[Literal["TAGS"]] = ["TAGS"]
+    ) -> List["Task"]:
+        """
+        Describes a specified task or tasks.
+
+        Args:
+            tasks: A list of up to 100 task IDs or full ARN entries.
+
+        Keyword Args:
+            cluster: The short name or full Amazon Resource Name (ARN) of the cluster
+                that hosts the task or tasks to describe. If you do not specify a cluster,
+                the default cluster is assumed. This parameter is required if the task or
+                tasks you are describing were launched in any cluster other than the
+                default cluster.
+            include: Specifies whether you want to see the resource tags for the task.
+                If ``TAGS`` is specified, the tags are included in the response. If this
+                field is omitted, tags aren't included in the response.
+        """
+        args: Dict[str, Any] = dict(
+            tasks=self.serialize(tasks),
+            cluster=self.serialize(cluster),
+            include=self.serialize(include),
+        )
+        _response = self.client.describe_tasks(
+            **{k: v for k, v in args.items() if v is not None}
+        )
+        response = DescribeTasksResponse(**_response)
+        if response.tasks is not None:
+            return response.tasks
+        return []
+
+    @ecs_tasks_only
+    def list(
+        self,
+        *,
+        cluster: str = "default",
+        containerInstance: Optional[str] = None,
+        family: Optional[str] = None,
+        startedBy: Optional[str] = None,
+        serviceName: Optional[str] = None,
+        desiredStatus: Optional[Literal["RUNNING", "PENDING", "STOPPED"]] = None,
+        launchType: Optional[Literal["EC2", "FARGATE", "EXTERNAL"]] = None
+    ) -> List[str]:
+        """
+        Returns a list of tasks. You can filter the results by cluster, task
+        definition family, container instance, launch type, what IAM principal
+        started the task, or by the desired status of the task.
+
+        Keyword Args:
+            cluster: The short name or full Amazon Resource Name (ARN) of the cluster
+                to use when filtering the ``ListTasks`` results. If you do not specify a
+                cluster, the default cluster is assumed.
+            containerInstance: The container instance ID or full ARN of the container
+                instance to use when filtering the ``ListTasks`` results. Specifying a
+                ``containerInstance`` limits the results to tasks that belong to that
+                container instance.
+            family: The name of the task definition family to use when filtering the
+                ``ListTasks`` results. Specifying a ``family`` limits the results to tasks
+                that belong to that family.
+            startedBy: The ``startedBy`` value to filter the task results with.
+                Specifying a ``startedBy`` value limits the results to tasks that were
+                started with that value.
+            serviceName: The name of the service to use when filtering the
+                ``ListTasks`` results. Specifying a ``serviceName`` limits the results to
+                tasks that belong to that service.
+            desiredStatus: The task desired status to use when filtering the
+                ``ListTasks`` results. Specifying a ``desiredStatus`` of ``STOPPED`` limits
+                the results to tasks that Amazon ECS has set the desired status to
+                ``STOPPED``. This can be useful for debugging tasks that aren't starting
+                properly or have died or finished. The default status filter is
+                ``RUNNING``, which shows tasks that Amazon ECS has set the desired status
+                to ``RUNNING``.
+            launchType: The launch type to use when filtering the ``ListTasks``
+                results.
+        """
+        paginator = self.client.get_paginator("list_tasks")
+        args: Dict[str, Any] = dict(
+            cluster=self.serialize(cluster),
+            containerInstance=self.serialize(containerInstance),
+            family=self.serialize(family),
+            startedBy=self.serialize(startedBy),
+            serviceName=self.serialize(serviceName),
+            desiredStatus=self.serialize(desiredStatus),
+            launchType=self.serialize(launchType),
+        )
+        response_iterator = paginator.paginate(
+            **{k: v for k, v in args.items() if v is not None}
+        )
+        results: List[str] = []
+        for _response in response_iterator:
+            response = ListTasksResponse(**_response)
+            if response.taskArns:
+                results.extend(response.taskArns)
+            else:
+                break
+        return results
+
+    def create(
+        self,
+        model: "Task",
+        capacityProviderStrategy: Optional[List["CapacityProviderStrategyItem"]] = None,
+        count: Optional[int] = None,
+        enableECSManagedTags: Optional[bool] = None,
+        networkConfiguration: Optional["NetworkConfiguration"] = None,
+        placementConstraints: Optional[List["PlacementConstraint"]] = None,
+        placementStrategy: Optional[List["PlacementStrategy"]] = None,
+        propagateTags: Optional[Literal["TASK_DEFINITION", "SERVICE", "NONE"]] = None,
+        referenceId: Optional[str] = None,
+    ) -> "Task":
+        """
+        Starts a new task using the specified task definition.
+
+        Args:
+            model: The :py:class:`Task` to create.
+
+        Keyword Args:
+            capacityProviderStrategy: The capacity provider strategy to use for the
+                task.
+            count: The number of instantiations of the specified task to place on your
+                cluster. You can specify up to 10 tasks for each call.
+            enableECSManagedTags: Specifies whether to use Amazon ECS managed tags for
+                the task. For more information, see `Tagging Your Amazon ECS Resources
+                <https://docs.aws.amazon.com/AmazonECS/latest/developerguide/ecs- using-
+                tags.html>`_ in the *Amazon Elastic Container Service Developer Guide*.
+            networkConfiguration: The network configuration for the task. This
+                parameter is required for task definitions that use the ``awsvpc`` network
+                mode to receive their own elastic network interface, and it isn't supported
+                for other network modes. For more information, see `Task networking
+                <https://docs.aws.amazon.com/AmazonECS/latest/developerguide/task-
+                networking.html>`_ in the *Amazon Elastic Container Service Developer
+                Guide*.
+            placementConstraints: An array of placement constraint objects to use for
+                the task. You can specify up to 10 constraints for each task (including
+                constraints in the task definition and those specified at runtime).
+            placementStrategy: The placement strategy objects to use for the task. You
+                can specify a maximum of 5 strategy rules for each task.
+            propagateTags: Specifies whether to propagate the tags from the task
+                definition to the task. If no value is specified, the tags aren't
+                propagated. Tags can only be propagated to the task during task creation.
+                To add tags to a task after task creation, use the TagResource API action.
+            referenceId: The reference ID to use for the task. The reference ID can
+                have a maximum length of 1024 characters.
+        """
+        data = model.model_dump(exclude_none=True, by_alias=True)
+        args = dict(
+            taskDefinition=data.get("taskDefinition"),
+            capacityProviderStrategy=self.serialize(capacityProviderStrategy),
+            cluster=data["clusterArn"],
+            count=self.serialize(count),
+            enableECSManagedTags=self.serialize(enableECSManagedTags),
+            enableExecuteCommand=data.get("enableExecuteCommand"),
+            group=data.get("group"),
+            launchType=data.get("launchType"),
+            networkConfiguration=self.serialize(networkConfiguration),
+            overrides=data.get("overrides"),
+            placementConstraints=self.serialize(placementConstraints),
+            placementStrategy=self.serialize(placementStrategy),
+            platformVersion=data.get("platformVersion"),
+            propagateTags=self.serialize(propagateTags),
+            referenceId=self.serialize(referenceId),
+            startedBy=data.get("startedBy"),
+            tags=data.get("tags"),
+        )
+        _response = self.client.run_task(
+            **{k: v for k, v in args.items() if v is not None}
+        )
+        response = RunTaskResponse(**_response)
+
+        return cast("Task", response.tasks[0])
+
+    def delete(
+        self, task: str, *, cluster: Optional[str] = None, reason: Optional[str] = None
+    ) -> "Task":
+        """
+        Stops a running task. Any tags associated with the task will be
+        deleted.
+
+        Args:
+            task: The task ID of the task to stop.
+
+        Keyword Args:
+            cluster: The short name or full Amazon Resource Name (ARN) of the cluster
+                that hosts the task to stop. If you do not specify a cluster, the default
+                cluster is assumed.
+            reason: An optional message specified when a task is stopped. For example,
+                if you're using a custom scheduler, you can use this parameter to specify
+                the reason for stopping the task here, and the message appears in
+                subsequent DescribeTasks API operations on this task. Up to 255 characters
+                are allowed in this message.
+        """
+        args: Dict[str, Any] = dict(
+            task=self.serialize(task),
+            cluster=self.serialize(cluster),
+            reason=self.serialize(reason),
+        )
+        _response = self.client.stop_task(
+            **{k: v for k, v in args.items() if v is not None}
+        )
+        response = StopTaskResponse(**_response)
+        return cast(Task, response.task)
 
 
 # ==============
@@ -1825,6 +2078,24 @@ class Service(TagsDictMixin, PrimaryBoto3Model):
         except AttributeError:
             return None
         return TaskDefinition.objects.get(**pk)
+
+    @cached_property
+    def tasks(self) -> Optional[List["Task"]]:
+        """
+        Return the ARNs of :py:class:`Task` objects that run in this service,
+        if any.
+        """
+
+        try:
+            pk = OrderedDict(
+                {
+                    "serviceName": self.serviceName,
+                    "cluster": self.clusterArn,
+                }
+            )
+        except AttributeError:
+            return []
+        return Task.objects.list(**pk)
 
 
 class ExecuteCommandLogConfiguration(Boto3Model):
@@ -3269,6 +3540,440 @@ class TaskDefinition(TagsDictMixin, PrimaryBoto3Model):
         return self.taskDefinitionArn
 
 
+class NetworkBinding(Boto3Model):
+    """
+    Details on the network bindings between a container and its host container
+    instance.
+
+    After a task reaches the ``RUNNING`` status, manual and automatic
+    host and container port assignments are visible in the ``networkBindings``
+    section of DescribeTasks API responses.
+    """
+
+    #: The IP address that the container is bound to on the container instance.
+    bindIP: Optional[str] = None
+    #: The port number on the container that's used with the network binding.
+    containerPort: Optional[int] = None
+    #: The port number on the host that's used with the network binding.
+    hostPort: Optional[int] = None
+    #: The protocol used for the network binding.
+    protocol: Optional[Literal["tcp", "udp"]] = None
+    #: The port number range on the container that's bound to the dynamically mapped
+    #: host port range.
+    containerPortRange: Optional[str] = None
+    #: The port number range on the host that's used with the network binding. This is
+    #: assigned is assigned by Docker and delivered by the Amazon ECS agent.
+    hostPortRange: Optional[str] = None
+
+
+class NetworkInterface(Boto3Model):
+    """
+    An object representing the elastic network interface for tasks that use the
+    ``awsvpc`` network mode.
+    """
+
+    #: The attachment ID for the network interface.
+    attachmentId: Optional[str] = None
+    #: The private IPv4 address for the network interface.
+    privateIpv4Address: Optional[str] = None
+    #: The private IPv6 address for the network interface.
+    ipv6Address: Optional[str] = None
+
+
+class ManagedAgent(Boto3Model):
+    """
+    Details about the managed agent status for the container.
+    """
+
+    #: The Unix timestamp for the time when the managed agent was last started.
+    lastStartedAt: Optional[datetime] = None
+    #: The name of the managed agent. When the execute command feature is turned on,
+    #: the managed agent name is ``ExecuteCommandAgent``.
+    name: Optional[Literal["ExecuteCommandAgent"]] = None
+    #: The reason for why the managed agent is in the state it is in.
+    reason: Optional[str] = None
+    #: The last known status of the managed agent.
+    lastStatus: Optional[str] = None
+
+
+class Container(Boto3Model):
+    """
+    A Docker container that's part of a task.
+    """
+
+    #: The Amazon Resource Name (ARN) of the container.
+    containerArn: Optional[str] = None
+    #: The ARN of the task.
+    taskArn: Optional[str] = None
+    #: The name of the container.
+    name: Optional[str] = None
+    #: The image used for the container.
+    image: Optional[str] = None
+    #: The container image manifest digest.
+    imageDigest: Optional[str] = None
+    #: The ID of the Docker container.
+    runtimeId: Optional[str] = None
+    #: The last known status of the container.
+    lastStatus: Optional[str] = None
+    #: The exit code returned from the container.
+    exitCode: Optional[int] = None
+    #: A short (255 max characters) human-readable string to provide additional
+    #: details about a running or stopped container.
+    reason: Optional[str] = None
+    #: The network bindings associated with the container.
+    networkBindings: Optional[List["NetworkBinding"]] = None
+    #: The network interfaces associated with the container.
+    networkInterfaces: Optional[List["NetworkInterface"]] = None
+    #: The health status of the container. If health checks aren't configured for this
+    #: container in its task definition, then it reports the health status as
+    #: ``UNKNOWN``.
+    healthStatus: Optional[Literal["HEALTHY", "UNHEALTHY", "UNKNOWN"]] = None
+    #: The details of any Amazon ECS managed agents associated with the container.
+    managedAgents: Optional[List["ManagedAgent"]] = None
+    #: The number of CPU units set for the container. The value is ``0`` if no value
+    #: was specified in the container definition when the task definition was
+    #: registered.
+    cpu: Optional[str] = None
+    #: The hard limit (in MiB) of memory set for the container.
+    memory: Optional[str] = None
+    #: The soft limit (in MiB) of memory set for the container.
+    memoryReservation: Optional[str] = None
+    #: The IDs of each GPU assigned to the container.
+    gpuIds: Optional[List[str]] = None
+
+
+class ContainerOverride(Boto3Model):
+    """
+    The overrides that are sent to a container. An empty container override can
+    be passed in. An example of an empty container override is
+    ``{"containerOverrides": ` ] }``. If a non-empty container override is
+    specified, the ``name`` parameter must be included.
+
+    You can use Secrets Manager or Amazon Web Services Systems Manager Parameter
+    Store to store the sensitive data. For more information, see [Retrieve secrets
+    through environment
+    variables <https://docs.aws.amazon.com/AmazonECS/latest/developerguide/secrets-
+    envvar.html>`_ in the Amazon ECS Developer Guide.
+    """
+
+    #: The name of the container that receives the override. This parameter is
+    #: required if any override is specified.
+    name: Optional[str] = None
+    #: The command to send to the container that overrides the default command from
+    #: the Docker image or the task definition. You must also specify a container
+    #: name.
+    command: Optional[List[str]] = None
+    #: The environment variables to send to the container. You can add new environment
+    #: variables, which are added to the container at launch, or you can override the
+    #: existing environment variables from the Docker image or the task definition.
+    #: You must also specify a container name.
+    environment: Optional[List["KeyValuePair"]] = None
+    #: A list of files containing the environment variables to pass to a container,
+    #: instead of the value from the container definition.
+    environmentFiles: Optional[List["EnvironmentFile"]] = None
+    #: The number of ``cpu`` units reserved for the container, instead of the default
+    #: value from the task definition. You must also specify a container name.
+    cpu: Optional[int] = None
+    #: The hard limit (in MiB) of memory to present to the container, instead of the
+    #: default value from the task definition. If your container attempts to exceed
+    #: the memory specified here, the container is killed. You must also specify a
+    #: container name.
+    memory: Optional[int] = None
+    #: The soft limit (in MiB) of memory to reserve for the container, instead of the
+    #: default value from the task definition. You must also specify a container name.
+    memoryReservation: Optional[int] = None
+    #: The type and amount of a resource to assign to a container, instead of the
+    #: default value from the task definition. The only supported resource is a GPU.
+    resourceRequirements: Optional[List["ResourceRequirement"]] = None
+
+
+class InferenceAcceleratorOverride(Boto3Model):
+    """
+    Details on an Elastic Inference accelerator task override.
+
+    This parameter is used to override the Elastic Inference accelerator
+    specified in the task definition. For more information, see
+    `Working with Amazon Elastic Inference on Amazon ECS <https://docs.aws.amazon.com/AmazonECS/latest/developerguide/ecs-
+    inference.html>`_ in the *Amazon Elastic Container Service Developer Guide*.
+    """
+
+    #: The Elastic Inference accelerator device name to override for the task. This
+    #: parameter must match a ``deviceName`` specified in the task definition.
+    deviceName: Optional[str] = None
+    #: The Elastic Inference accelerator type to use.
+    deviceType: Optional[str] = None
+
+
+class TaskOverride(Boto3Model):
+    """
+    One or more container overrides.
+    """
+
+    #: One or more container overrides that are sent to a task.
+    containerOverrides: Optional[List["ContainerOverride"]] = None
+    #: The CPU override for the task.
+    cpu: Optional[str] = None
+    #: The Elastic Inference accelerator override for the task.
+    inferenceAcceleratorOverrides: Optional[List["InferenceAcceleratorOverride"]] = None
+    #: The Amazon Resource Name (ARN) of the task execution role override for the
+    #: task. For more information, see `Amazon ECS task execution IAM role <https://do
+    #: cs.aws.amazon.com/AmazonECS/latest/developerguide/task_execution_IAM_role.html>
+    #: `_ in the *Amazon Elastic Container Service Developer Guide*.
+    executionRoleArn: Optional[str] = None
+    #: The memory override for the task.
+    memory: Optional[str] = None
+    #: The Amazon Resource Name (ARN) of the role that containers in this task can
+    #: assume. All containers in this task are granted the permissions that are
+    #: specified in this role. For more information, see `IAM Role for Tasks
+    #: <https://docs.aws.amazon.com/AmazonECS/latest/developerguide/task-iam-
+    #: roles.html>`_ in the *Amazon Elastic Container Service Developer Guide*.
+    taskRoleArn: Optional[str] = None
+    #: The ephemeral storage setting override for the task.
+    ephemeralStorage: Optional[EphemeralStorage] = None
+
+
+class Task(TagsDictMixin, PrimaryBoto3Model):
+    """
+    Details on a task in a cluster.
+    """
+
+    tag_class: ClassVar[Type] = ECSTag
+    objects: ClassVar[Boto3ModelManager] = TaskManager()
+
+    #: The metadata that you apply to the task to help you categorize and organize the
+    #: task. Each tag consists of a key and an optional value. You define both the key
+    #: and value.
+    Tags: List["ECSTag"] = Field(default=None, serialization_alias="tags")
+    #: The ARN of the cluster that hosts the task.
+    clusterArn: str
+    #: The platform version where your task runs on. A platform version is only
+    #: specified for tasks that use the Fargate launch type. If you didn't specify
+    #: one, the ``LATEST`` platform version is used. For more information, see
+    #: `Fargate Platform Versions <https://docs.aws.amazon.com/AmazonECS/latest/develo
+    #: perguide/platform_versions.html>`_ in the *Amazon Elastic Container Service
+    #: Developer Guide*.
+    platformVersion: Optional[str] = "LATEST"
+    #: The infrastructure where your task runs on. For more information, see `Amazon
+    #: ECS launch types <https://docs.aws.amazon.com/AmazonECS/latest/developerguide/l
+    #: aunch_types.html>`_ in the *Amazon Elastic Container Service Developer Guide*.
+    launchType: Optional[Literal["EC2", "FARGATE", "EXTERNAL"]] = "FARGATE"
+    #: The Elastic Network Adapter that's associated with the task if the task uses
+    #: the ``awsvpc`` network mode.
+    attachments: List["Attachment"] = Field(default=None, frozen=True)
+    #: The attributes of the task
+    attributes: List["Attribute"] = Field(default=None, frozen=True)
+    #: The Availability Zone for the task.
+    availabilityZone: str = Field(default=None, frozen=True)
+    #: The capacity provider that's associated with the task.
+    capacityProviderName: str = Field(default=None, frozen=True)
+    #: The connectivity status of a task.
+    connectivity: Literal["CONNECTED", "DISCONNECTED"] = Field(
+        default=None, frozen=True
+    )
+    #: The Unix timestamp for the time when the task last went into ``CONNECTED``
+    #: status.
+    connectivityAt: datetime = Field(default=None, frozen=True)
+    #: The ARN of the container instances that host the task.
+    containerInstanceArn: str = Field(default=None, frozen=True)
+    #: The containers that's associated with the task.
+    containers: List["Container"] = Field(default=None, frozen=True)
+    #: The number of CPU units used by the task as expressed in a task definition. It
+    #: can be expressed as an integer using CPU units (for example, ``1024``). It can
+    #: also be expressed as a string using vCPUs (for example, ``1 vCPU`` or ``1
+    #: vcpu``). String values are converted to an integer that indicates the CPU units
+    #: when the task definition is registered.
+    cpu: str = Field(default=None, frozen=True)
+    #: The Unix timestamp for the time when the task was created. More specifically,
+    #: it's for the time when the task entered the ``PENDING`` state.
+    createdAt: datetime = Field(default=None, frozen=True)
+    #: The desired status of the task. For more information, see `Task Lifecycle
+    #: <https://docs.aws.amazon.com/AmazonECS/latest/developerguide/task-
+    #: lifecycle.html>`_.
+    desiredStatus: str = Field(default=None, frozen=True)
+    #: Determines whether execute command functionality is turned on for this task. If
+    #: ``true``, execute command functionality is turned on all the containers in the
+    #: task.
+    enableExecuteCommand: Optional[bool] = None
+    #: The Unix timestamp for the time when the task execution stopped.
+    executionStoppedAt: datetime = Field(default=None, frozen=True)
+    #: The name of the task group that's associated with the task.
+    group: Optional[str] = None
+    #: The health status for the task. It's determined by the health of the essential
+    #: containers in the task. If all essential containers in the task are reporting
+    #: as ``HEALTHY``, the task status also reports as ``HEALTHY``. If any essential
+    #: containers in the task are reporting as ``UNHEALTHY`` or ``UNKNOWN``, the task
+    #: status also reports as ``UNHEALTHY`` or ``UNKNOWN``.
+    healthStatus: Literal["HEALTHY", "UNHEALTHY", "UNKNOWN"] = Field(
+        default=None, frozen=True
+    )
+    #: The Elastic Inference accelerator that's associated with the task.
+    inferenceAccelerators: List["InferenceAccelerator"] = Field(
+        default=None, frozen=True
+    )
+    #: The last known status for the task. For more information, see `Task Lifecycle
+    #: <https://docs.aws.amazon.com/AmazonECS/latest/developerguide/task-
+    #: lifecycle.html>`_.
+    lastStatus: str = Field(default=None, frozen=True)
+    #: The amount of memory (in MiB) that the task uses as expressed in a task
+    #: definition. It can be expressed as an integer using MiB (for example,
+    #: ``1024``). If it's expressed as a string using GB (for example, ``1GB`` or ``1
+    #: GB``), it's converted to an integer indicating the MiB when the task definition
+    #: is registered.
+    memory: str = Field(default=None, frozen=True)
+    #: One or more container overrides.
+    overrides: Optional[TaskOverride] = None
+    #: The operating system that your tasks are running on. A platform family is
+    #: specified only for tasks that use the Fargate launch type.
+    platformFamily: str = Field(default=None, frozen=True)
+    #: The Unix timestamp for the time when the container image pull began.
+    pullStartedAt: datetime = Field(default=None, frozen=True)
+    #: The Unix timestamp for the time when the container image pull completed.
+    pullStoppedAt: datetime = Field(default=None, frozen=True)
+    #: The Unix timestamp for the time when the task started. More specifically, it's
+    #: for the time when the task transitioned from the ``PENDING`` state to the
+    #: ``RUNNING`` state.
+    startedAt: datetime = Field(default=None, frozen=True)
+    #: The tag specified when a task is started. If an Amazon ECS service started the
+    #: task, the ``startedBy`` parameter contains the deployment ID of that service.
+    startedBy: Optional[str] = None
+    #: The stop code indicating why a task was stopped. The ``stoppedReason`` might
+    #: contain additional details.
+    stopCode: Literal[
+        "TaskFailedToStart",
+        "EssentialContainerExited",
+        "UserInitiated",
+        "ServiceSchedulerInitiated",
+        "SpotInterruption",
+        "TerminationNotice",
+    ] = Field(default=None, frozen=True)
+    #: The Unix timestamp for the time when the task was stopped. More specifically,
+    #: it's for the time when the task transitioned from the ``RUNNING`` state to the
+    #: ``STOPPED`` state.
+    stoppedAt: datetime = Field(default=None, frozen=True)
+    #: The reason that the task was stopped.
+    stoppedReason: str = Field(default=None, frozen=True)
+    #: The Unix timestamp for the time when the task stops. More specifically, it's
+    #: for the time when the task transitions from the ``RUNNING`` state to
+    #: ``STOPPING``.
+    stoppingAt: datetime = Field(default=None, frozen=True)
+    #: The Amazon Resource Name (ARN) of the task.
+    taskArn: str = Field(default=None, frozen=True)
+    #: The ARN of the task definition that creates the task.
+    taskDefinitionArn: str = Field(default=None, frozen=True)
+    #: The version counter for the task. Every time a task experiences a change that
+    #: starts a CloudWatch event, the version counter is incremented. If you replicate
+    #: your Amazon ECS task state with CloudWatch Events, you can compare the version
+    #: of a task reported by the Amazon ECS API actions with the version reported in
+    #: CloudWatch Events for the task (inside the ``detail`` object) to verify that
+    #: the version in your event stream is current.
+    version: int = Field(default=None, frozen=True)
+    #: The ephemeral storage settings for the task.
+    ephemeralStorage: EphemeralStorage = Field(default=None, frozen=True)
+    #: The ``family`` and ``revision`` (``family:revision``) or full ARN of the task
+    #: definition to run. If a ``revision`` isn't specified, the latest ``ACTIVE``
+    #: revision is used.
+    taskDefinition: Optional[str] = None
+
+    @property
+    def pk(self) -> Optional[str]:
+        """
+        Return the primary key of the model.   This is the value of the
+        :py:attr:`taskArn` attribute.
+
+        Returns:
+            The primary key of the model instance.
+        """
+        return self.taskArn
+
+    @property
+    def arn(self) -> Optional[str]:
+        """
+        Return the ARN of the model.   This is the value of the
+        :py:attr:`taskArn` attribute.
+
+        Returns:
+            The ARN of the model instance.
+        """
+        return self.taskArn
+
+    @property
+    def serviceName(self) -> Optional[str]:
+        """
+        The name of the service that ran this task, if any.
+        """
+
+        return self.transform("group", r"^service:(.+)$")
+
+    @cached_property
+    def cluster(self) -> Optional["Cluster"]:
+        """
+        Return the :py:class:`Cluster` object that this task belongs to, if
+        any.
+        """
+
+        try:
+            pk = OrderedDict(
+                {
+                    "cluster": self.clusterArn,
+                }
+            )
+        except AttributeError:
+            return None
+        return Cluster.objects.get(**pk)
+
+    @cached_property
+    def task_definition(self) -> Optional["TaskDefinition"]:
+        """
+        Return the :py:class:`TaskDefinition` object that this task uses, if
+        any.
+        """
+
+        try:
+            pk = OrderedDict(
+                {
+                    "taskDefinition": self.taskDefinition,
+                }
+            )
+        except AttributeError:
+            return None
+        return TaskDefinition.objects.get(**pk)
+
+    @cached_property
+    def container_instance(self) -> Optional["ContainerInstance"]:
+        """
+        Return the :py:class:`ContainerInstance` object that runs this task, if
+        any.
+        """
+
+        try:
+            pk = OrderedDict(
+                {
+                    "containerInstance": self.containerInstanceArn,
+                    "cluster": self.clusterArn,
+                }
+            )
+        except AttributeError:
+            return None
+        return ContainerInstance.objects.get(**pk)
+
+    @cached_property
+    def service(self) -> Optional["Service"]:
+        """
+        Return the :py:class:`Service` object that runs this task, if any.
+        """
+
+        try:
+            pk = OrderedDict(
+                {
+                    "service": self.serviceName,
+                    "cluster": self.clusterArn,
+                }
+            )
+        except AttributeError:
+            return None
+        return Service.objects.get(**pk)
+
+
 class VersionInfo(Boto3Model):
     """
     The version information for the Amazon ECS container agent and Docker
@@ -3635,3 +4340,33 @@ class ListContainerInstancesResponse(Boto3Model):
     #: ``maxResults``, this value can be used to retrieve the next page of results.
     #: This value is ``null`` when there are no more results to return.
     nextToken: Optional[str] = None
+
+
+class DescribeTasksResponse(Boto3Model):
+    #: The list of tasks.
+    tasks: Optional[List["Task"]] = None
+    #: Any failures associated with the call.
+    failures: Optional[List["Failure"]] = None
+
+
+class ListTasksResponse(Boto3Model):
+    #: The list of task ARN entries for the ``ListTasks`` request.
+    taskArns: Optional[List[str]] = None
+    #: The ``nextToken`` value to include in a future ``ListTasks`` request. When the
+    #: results of a ``ListTasks`` request exceed ``maxResults``, this value can be
+    #: used to retrieve the next page of results. This value is ``null`` when there
+    #: are no more results to return.
+    nextToken: Optional[str] = None
+
+
+class RunTaskResponse(Boto3Model):
+    #: A full description of the tasks that were run. The tasks that were successfully
+    #: placed on your cluster are described here.
+    tasks: Optional[List["Task"]] = None
+    #: Any failures associated with the call.
+    failures: Optional[List["Failure"]] = None
+
+
+class StopTaskResponse(Boto3Model):
+    #: The task that was stopped.
+    task: Optional[Task] = None

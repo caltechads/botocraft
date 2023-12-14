@@ -56,6 +56,16 @@ primary:
         transformer:
           mapping:
             taskDefinition: taskDefinition
+      tasks:
+        primary_model_name: Task
+        many: true
+        docstring: >-
+          Return the ARNs of :py:class:`Task` objects that run in this service, if
+          any.
+        transformer:
+          mapping:
+            serviceName: serviceName
+            cluster: clusterArn
   Cluster:
     primary_key: clusterArn
     arn_key: clusterArn
@@ -109,6 +119,70 @@ primary:
         required: false
         docstring: >-
           The tags for the task definition.
+  Task:
+    primary_key: taskArn
+    arn_key: taskArn
+    input_shapes:
+      - RunTaskRequest
+    fields:
+      tags:
+        rename: Tags
+      clusterArn:
+        required: true
+        readonly: false
+      platformVersion:
+        default: >-
+          "LATEST"
+      launchType:
+        default: >-
+          "FARGATE"
+    extra_fields:
+      taskDefinition:
+        python_type: str
+        docstring: >-
+          The `family` and `revision` (`family:revision`) or full ARN of the
+          task definition to run. If a `revision` isn't specified, the latest
+          `ACTIVE` revision is used.
+    properties:
+      serviceName:
+        docstring: >-
+          The name of the service that ran this task, if any.
+        transformer:
+          regex:
+            attribute: group
+            regex: >-
+              ^service:(.+)$
+    relations:
+      cluster:
+        primary_model_name: Cluster
+        docstring: >-
+          Return the :py:class:`Cluster` object that this task belongs to, if any.
+        transformer:
+          mapping:
+            cluster: clusterArn
+      task_definition:
+        primary_model_name: TaskDefinition
+        docstring: >-
+          Return the :py:class:`TaskDefinition` object that this task uses, if any.
+        transformer:
+          mapping:
+            taskDefinition: taskDefinition
+      container_instance:
+        primary_model_name: ContainerInstance
+        docstring: >-
+          Return the :py:class:`ContainerInstance` object that runs this task, if any.
+        transformer:
+          mapping:
+            containerInstance: containerInstanceArn
+            cluster: clusterArn
+      service:
+        primary_model_name: Service
+        docstring: >-
+          Return the :py:class:`Service` object that runs this task, if any.
+        transformer:
+          mapping:
+            service: serviceName
+            cluster: clusterArn
   ContainerInstance:
     primary_key: containerInstanceArn
     arn_key: containerInstanceArn

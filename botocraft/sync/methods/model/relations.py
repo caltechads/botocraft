@@ -19,7 +19,7 @@ class ModelRelationGenerator:
     * :py:meth:`return_type`: The return type annotation.
 
     Args:
-        generator: The generator that is creating the model class
+        generator: The model generator that is creating the model class
         model_name: The name of the model we're generating the property for.
     """
 

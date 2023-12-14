@@ -366,7 +366,9 @@ class DBInstanceManager(Boto3ModelManager):
         response = DeleteDBInstanceResult(**_response)
         return cast(DBInstance, response.DBInstance)
 
-    def get(self, DBInstanceIdentifier: str) -> Optional["DBInstance"]:
+    def get(
+        self, DBInstanceIdentifier: str, *, Filters: Optional[List[Filter]] = None
+    ) -> Optional["DBInstance"]:
         """
         Describes provisioned RDS instances. This API supports pagination.
 
@@ -375,9 +377,13 @@ class DBInstanceManager(Boto3ModelManager):
                 Resource Name (ARN) of the DB instance. If this parameter is specified,
                 information from only the specific DB instance is returned. This parameter
                 isn't case-sensitive.
+
+        Keyword Args:
+            Filters: A filter that specifies one or more DB instances to describe.
         """
         args: Dict[str, Any] = dict(
-            DBInstanceIdentifier=self.serialize(DBInstanceIdentifier)
+            DBInstanceIdentifier=self.serialize(DBInstanceIdentifier),
+            Filters=self.serialize(Filters),
         )
         _response = self.client.describe_db_instances(
             **{k: v for k, v in args.items() if v is not None}

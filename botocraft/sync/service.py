@@ -460,9 +460,9 @@ class ModelGenerator(AbstractGenerator):
             )
         ):
             # If the field is optional with a None default value, and the type
-            # is equal to the field name, pydantic will throw an exception when trying
-            # to load data into that field: "ValidationError: Input should be None".
-            # This happens even the type is quoted.
+            # is equal to the field name, pydantic will throw an exception when
+            # trying to load data into that field: "ValidationError: Input
+            # should be None".  This happens even the type is quoted.
             raise TypeError(
                 f'Field {model_name}.{name} has type equal to its name, '
                 'but is marked as optional.  This will cause a "ValidationError: Input should '
@@ -538,19 +538,27 @@ class ModelGenerator(AbstractGenerator):
                     if not field_def.readonly and not field_def.rename:
                         python_type = f'Optional[{python_type}]'
                     default = 'None' if field_def.default is None else field_def.default
+
                 # Add the docstring for this field
                 if docstring:
                     fields.append(self.docformatter.format_attribute(docstring))
+
+                # Determine whether we need to add a pydantic.Field class instance as the
+                # value for this field.
                 needs_field_class: bool = False
                 field_class_args: List[str] = []
                 if default:
                     field_class_args.append(f'default={default}' if default else '')
                 field_line = f'    {field_name}: {python_type}'
                 if field_def.rename:
+                    # We need it to be a pydantic Field class instance so that we can
+                    # set the serialization_alias attribute.
                     needs_field_class = True
                     field_line = f'    {field_def.rename}: {python_type}'
                     field_class_args.append(f'serialization_alias="{field_name}"')
                 if field_def.readonly:
+                    # We need it to be a pydantic Field class instance so that we can
+                    # set the frozen attribute.
                     needs_field_class = True
                     field_class_args.append('frozen=True')
                 if needs_field_class:
@@ -562,7 +570,7 @@ class ModelGenerator(AbstractGenerator):
             # Add any botocraft defined properties.  This includes relations.
             properties = self.get_properties(model_def, base_class)
 
-            # Add any botocraft defined mixins
+            # Add any botocraft defined mixins to the class inheritance
             if model_def.mixins:
                 for mixin in model_def.mixins:
                     self.imports.add(f'from {mixin.import_path} import {mixin.name}')
@@ -573,6 +581,7 @@ class ModelGenerator(AbstractGenerator):
             has_tags: bool = False
             field_names = {name.lower(): name for name in model_fields}
             if 'tags' in field_names:
+                # We do have tags defined in the model definition
                 has_tags = True
                 tag_attr = field_names['tags']
                 if tag_attr == 'tags':
@@ -581,12 +590,15 @@ class ModelGenerator(AbstractGenerator):
                             f'Model {model_name} has a field named "tags".  Rename it to "Tags" '
                             'in the model definition.'
                         )
+                # Extract the name of the tag class from the python type annotation.
+                # Different services use different types for tags.
                 tag_class = self.field_type(model_name, tag_attr, model_fields[tag_attr])
                 tag_class = re.sub(r'List\[(.*)\]', r'\1', tag_class)
                 tag_class = re.sub(r'"(.*)"', r'\1', tag_class)
             if has_tags:
                 base_class = ', '.join(["TagsDictMixin", base_class])
 
+            # Actually build the class code
             code: str = f'class {model_name}({base_class}):\n'
             docstring = self.docformatter.format_docstring(model_shape)
             if docstring:
@@ -606,6 +618,13 @@ class ModelGenerator(AbstractGenerator):
 
 
 class ManagerGenerator(AbstractGenerator):
+    """
+    This class generates the code for the manager class for a service.
+
+    Args:
+        service_generator: The :py:class:`ServiceGenerator` we're generating
+            models for.
+    """
 
     #: A mapping of botocore operation names to the method generator class that
     #: will generate the code for that method.
@@ -642,6 +661,8 @@ class ManagerGenerator(AbstractGenerator):
             try:
                 method_generator_class = self.METHOD_GENERATORS[method_name]
             except KeyError:
+                # We have no specific method generator for this method, so we
+                # will use the general method generator.
                 generator: ManagerMethodGenerator = GeneralMethodGenerator(
                     self,
                     model_name,
@@ -649,6 +670,8 @@ class ManagerGenerator(AbstractGenerator):
                     method_name=method_name
                 )
             else:
+                # We have a specific method generator for this method, so we
+                # will use that.
                 generator = method_generator_class(
                     self,
                     model_name,
@@ -657,10 +680,15 @@ class ManagerGenerator(AbstractGenerator):
             methods[method_name] = generator.code
         method_code = '\n\n'.join(methods.values())
         base_class = 'Boto3ModelManager'
+
+        # Add any botocraft defined mixins to the class inheritance
         if manager_def.mixins:
             for mixin in manager_def.mixins:
                 self.imports.add(f'from {mixin.import_path} import {mixin.name}')
             base_class = ', '.join([mixin.name for mixin in manager_def.mixins] + [base_class])
+
+        # If this is a readonly manager, we need to use the readonly manager
+        # base class
         if manager_def.readonly:
             base_class = 'ReadonlyBoto3ModelManager'
         code = f"""
@@ -689,6 +717,10 @@ class ServiceGenerator:
         * Managers
         * Service Models
         * Request/Response Models
+
+    Args:
+        service_def: The :py:class:`ServiceDefinition` for the service we are
+            generating code for.
     """
 
     service_path: Path = Path(__file__).parent.parent / 'services'
@@ -814,12 +846,16 @@ class ServiceGenerator:
             code: the code to write to the output file.
         """
         code = self.code
+        # First format the code with black so we fix most of the formatting
+        # issues.
         try:
             formatted_code = black.format_str(code, mode=black.FileMode())
         except (KeyError, black.parsing.InvalidInput):  # pylint: disable=c-extension-no-member
             print(code)
             raise
+        # Now sort the imports with isort
         formatted_code = isort.code(formatted_code)
+        # Finally format the docstrings with docformatter
         formatted_code = Formatter(FormatterArgs(), None, None, None)._format_code(formatted_code)
         output_file = self.service_path / f'{self.service_def.name}.py'
         with open(output_file, 'w', encoding='utf-8') as fd:

@@ -176,6 +176,9 @@ SecurityGroup:
           source_arg: >-
             self.serialize(self.convert_tags(Tags, 'security-group-rule'))
 NetworkAcl:
+  mixins:
+    - name: EC2TagsManagerMixin
+      import_path: botocraft.mixins.ec2
   methods:
     create:
       boto3_name: create_network_acl
@@ -273,6 +276,9 @@ Instance:
         - name: ec2_instances_only
           import_path: botocraft.mixins.ec2
 LaunchTemplate:
+  mixins:
+    - name: EC2TagsManagerMixin
+      import_path: botocraft.mixins.ec2
   methods:
     create:
       boto3_name: create_launch_template

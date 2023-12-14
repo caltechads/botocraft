@@ -1,3 +1,4 @@
+import re
 from typing import Callable, List, TYPE_CHECKING
 
 if TYPE_CHECKING:
@@ -5,13 +6,41 @@ if TYPE_CHECKING:
         Service,
         Cluster,
         ContainerInstance,
+        Task,
         TaskDefinition
     )
 
 
+# ---------
+# Functions
+# ---------
+
+def extract_task_family_and_revision(task_definition_arn: str) -> str:
+    """
+    Extract the task family and revision from a task definition ARN.
+
+    Args:
+        task_definition_arn: The ARN of the task definition.
+
+    Returns:
+        The task family and revision in the format ``<family>:<revision>``.
+    """
+    task_definition_arn_re = r"arn:aws:ecs:[^:]+:[^:]+:task-definition/(?P<family>[^:]+):(?P<revision>[0-9]+)"
+    match = re.match(task_definition_arn_re, task_definition_arn)
+    assert match, f'Could not extract task family and revision from {task_definition_arn}'
+    return f'{match.group("family")}:{match.group("revision")}'
+
+
+# ----------
+# Decorators
+# ----------
+
+
+# Service
+
 def ecs_services_only(func: Callable[..., List[str]]) -> Callable[..., List["Service"]]:
     """
-    Decorator to convert a list of ECS service ARNs to a list of
+    Convert a list of ECS service ARNs to a list of
     :py:class:`botocraft.services.ecs.Service` objects.
     """
     def wrapper(self, *args, **kwargs) -> List["Service"]:
@@ -29,9 +58,11 @@ def ecs_services_only(func: Callable[..., List[str]]) -> Callable[..., List["Ser
     return wrapper
 
 
+# Cluster
+
 def ecs_clusters_only(func: Callable[..., List[str]]) -> Callable[..., List["Cluster"]]:
     """
-    Decorator to convert a list of ECS cluster ARNs to a list of
+    Convert a list of ECS cluster ARNs to a list of
     :py:class:`botocraft.services.ecs.Cluster` objects.
     """
     def wrapper(self, *args, **kwargs) -> List["Cluster"]:
@@ -44,6 +75,8 @@ def ecs_clusters_only(func: Callable[..., List[str]]) -> Callable[..., List["Clu
         return clusters
     return wrapper
 
+
+# TaskDefinition
 
 def ecs_task_definitions_only(
     func: Callable[..., List[str]]
@@ -63,6 +96,8 @@ def ecs_task_definitions_only(
     return wrapper
 
 
+# ContainerInstance
+
 def ecs_container_instances_only(
     func: Callable[..., List[str]]
 ) -> Callable[..., List["ContainerInstance"]]:
@@ -81,4 +116,57 @@ def ecs_container_instances_only(
                 )
             )
         return container_instances
+    return wrapper
+
+
+# Task
+
+def ecs_task_populate_taskDefinition(
+    func: Callable[..., "Task"]
+) -> Callable[..., "Task"]:
+    """
+    When getting a single task, populate the
+    :py:attr:`botocraft.services.ecs.Task.taskDefinition` attribute.
+    """
+    def wrapper(self, *args, **kwargs) -> "Task":
+        task = func(self, *args, **kwargs)
+        if task:
+            task.taskDefinition = extract_task_family_and_revision(task.taskDefinitionArn)
+        return task
+    return wrapper
+
+
+def ecs_task_populate_taskDefinitions(
+    func: Callable[..., List["Task"]]
+) -> Callable[..., List["Task"]]:
+    """
+    When getting a list of tasks, populate the
+    :py:attr:`botocraft.services.ecs.Task.taskDefinition` attribute on each task.
+    """
+    def wrapper(self, *args, **kwargs) -> List["Task"]:
+        tasks = func(self, *args, **kwargs)
+        for task in tasks:
+            task.taskDefinition = extract_task_family_and_revision(task.taskDefinitionArn)
+        return tasks
+    return wrapper
+
+
+def ecs_tasks_only(
+    func: Callable[..., List[str]]
+) -> Callable[..., List["Task"]]:
+    """
+    Decorator to convert a list of ECS task arns to a list of
+    :py:class:`botocraft.services.ecs.Task` objects.
+    """
+    def wrapper(self, *args, **kwargs) -> List["Task"]:
+        arns = func(self, *args, **kwargs)
+        tasks = []
+        for i in range(0, len(arns), 100):
+            tasks.extend(
+                self.get_many(
+                    cluster=kwargs['cluster'],
+                    tasks=arns[i:i + 100]
+                )
+            )
+        return tasks
     return wrapper
