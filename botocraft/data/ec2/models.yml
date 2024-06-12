@@ -184,4 +184,6 @@ secondary:
     alternate_name: EC2MemoryGiBPerVCpuRequest
   NetworkBandwidthGbpsRequest:
     alternate_name: EC2NetworkBandwidthGbpsRequest
+  ConnectionTrackingSpecification:
+    alternate_name: EC2ConnectionTrackingSpecification
 

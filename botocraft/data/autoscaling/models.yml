@@ -4,6 +4,9 @@ primary:
     primary_key: AutoScalingGroupName
     arn_key: AutoScalingGroupARN
     name_key: AutoScalingGroupName
+    mixins:
+      - name: AutoScalingGroupInstancesMixin
+        import_path: botocraft.mixins.autoscaling
     input_shapes:
       - CreateAutoScalingGroupType
       - UpdateAutoScalingGroupType
@@ -28,14 +31,6 @@ primary:
           mapping:
             LaunchTemplateId: LaunchTemplate.LaunchTemplateId
             Version: LaunchTemplate.Version
-      instances:
-        primary_model_name: Instance
-        many: true
-        docstring: >-
-          Return the :py:class:`Instance` objects that belong to this group, if any.
-        transformer:
-          mapping:
-            AutoScalingGroupName: AutoScalingGroupName
   LaunchConfiguration:
     primary_key: LaunchConfigurationName
     arn_key: LaunchConfigurationARN
@@ -85,3 +80,5 @@ secondary:
     alternate_name: AutoScalingMemoryGiBPerVcpuRequest
   NetworkBandwithGbpsRequest:
     alternate_name: AutoScalingNetworkBandwithGbpsRequest
+  InstanceMaintenancePolicy:
+    alternate_name: AutoScalingInstanceMaintenancePolicy

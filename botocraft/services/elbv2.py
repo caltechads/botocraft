@@ -156,6 +156,7 @@ class ListenerManager(Boto3ModelManager):
             Certificates=data.get("Certificates"),
             AlpnPolicy=data.get("AlpnPolicy"),
             Tags=self.serialize(Tags),
+            MutualAuthentication=data.get("MutualAuthentication"),
         )
         _response = self.client.create_listener(
             **{k: v for k, v in args.items() if v is not None}
@@ -181,6 +182,7 @@ class ListenerManager(Boto3ModelManager):
             Certificates=data.get("Certificates"),
             DefaultActions=data.get("DefaultActions"),
             AlpnPolicy=data.get("AlpnPolicy"),
+            MutualAuthentication=data.get("MutualAuthentication"),
         )
         _response = self.client.modify_listener(
             **{k: v for k, v in args.items() if v is not None}
@@ -508,6 +510,35 @@ class TargetGroupManager(Boto3ModelManager):
             else:
                 break
         return results
+
+    def targets(
+        self,
+        TargetGroupArn: str,
+        *,
+        Targets: Optional[List["TargetDescription"]] = None,
+        Include: Optional[List[Literal["AnomalyDetection", "All"]]] = None
+    ) -> List["TargetHealthDescription"]:
+        """
+        Describes the health of the specified targets or all of your targets.
+
+        Args:
+            TargetGroupArn: The Amazon Resource Name (ARN) of the target group.
+
+        Keyword Args:
+            Targets: The targets.
+            Include: Used to inclue anomaly detection information.
+        """
+        args: Dict[str, Any] = dict(
+            TargetGroupArn=self.serialize(TargetGroupArn),
+            Targets=self.serialize(Targets),
+            Include=self.serialize(Include),
+        )
+        _response = self.client.describe_target_health(
+            **{k: v for k, v in args.items() if v is not None}
+        )
+        response = DescribeTargetHealthOutput(**_response)
+
+        return response.TargetHealthDescriptions
 
 
 # ==============
@@ -920,6 +951,20 @@ class Action(Boto3Model):
     ForwardConfig: Optional[ForwardActionConfig] = None
 
 
+class MutualAuthenticationAttributes(Boto3Model):
+    """
+    The mutual authentication configuration information.
+    """
+
+    #: The client certificate handling method. Options are ``off``, ``passthrough`` or
+    #: ``verify``. The default value is ``off``.
+    Mode: Optional[str] = None
+    #: The Amazon Resource Name (ARN) of the trust store.
+    TrustStoreArn: Optional[str] = None
+    #: Indicates whether expired client certificates are ignored.
+    IgnoreClientCertificateExpiry: Optional[bool] = None
+
+
 class Listener(PrimaryBoto3Model):
     """
     Information about a listener.
@@ -947,6 +992,8 @@ class Listener(PrimaryBoto3Model):
     #: [TLS listener] The name of the Application-Layer Protocol Negotiation (ALPN)
     #: policy.
     AlpnPolicy: Optional[List[str]] = None
+    #: The mutual authentication configuration information.
+    MutualAuthentication: Optional[MutualAuthenticationAttributes] = None
 
     @property
     def pk(self) -> Optional[str]:
@@ -1446,3 +1493,92 @@ class DescribeTargetGroupsOutput(Boto3Model):
     #: If there are additional results, this is the marker for the next set of
     #: results. Otherwise, this is null.
     NextMarker: Optional[str] = None
+
+
+class TargetDescription(Boto3Model):
+    """
+    Information about a target.
+    """
+
+    #: The ID of the target. If the target type of the target group is ``instance``,
+    #: specify an instance ID. If the target type is ``ip``, specify an IP address. If
+    #: the target type is ``lambda``, specify the ARN of the Lambda function. If the
+    #: target type is ``alb``, specify the ARN of the Application Load Balancer
+    #: target.
+    Id: str
+    #: The port on which the target is listening. If the target group protocol is
+    #: GENEVE, the supported port is 6081. If the target type is ``alb``, the targeted
+    #: Application Load Balancer must have at least one listener whose port matches
+    #: the target group port. This parameter is not used if the target is a Lambda
+    #: function.
+    Port: Optional[int] = None
+    #: An Availability Zone or ``all``. This determines whether the target receives
+    #: traffic from the load balancer nodes in the specified Availability Zone or from
+    #: all enabled Availability Zones for the load balancer.
+    AvailabilityZone: Optional[str] = None
+
+
+class TargetHealthInfo(Boto3Model):
+    """
+    The health information for the target.
+    """
+
+    #: The state of the target.
+    State: Optional[
+        Literal["initial", "healthy", "unhealthy", "unused", "draining", "unavailable"]
+    ] = None
+    #: The reason code.
+    Reason: Optional[
+        Literal[
+            "Elb.RegistrationInProgress",
+            "Elb.InitialHealthChecking",
+            "Target.ResponseCodeMismatch",
+            "Target.Timeout",
+            "Target.FailedHealthChecks",
+            "Target.NotRegistered",
+            "Target.NotInUse",
+            "Target.DeregistrationInProgress",
+            "Target.InvalidState",
+            "Target.IpUnusable",
+            "Target.HealthCheckDisabled",
+            "Elb.InternalError",
+        ]
+    ] = None
+    #: A description of the target health that provides additional details. If the
+    #: state is ``healthy``, a description is not provided.
+    Description: Optional[str] = None
+
+
+class AnomalyDetectionInfo(Boto3Model):
+    """
+    The anomaly detection result for the target.
+
+    If no anomalies were detected, the result is ``normal``.
+
+    If anomalies were detected, the result is ``anomalous``.
+    """
+
+    #: The latest anomaly detection result.
+    Result: Optional[Literal["anomalous", "normal"]] = None
+    #: Indicates whether anomaly mitigation is in progress.
+    MitigationInEffect: Optional[Literal["yes", "no"]] = None
+
+
+class TargetHealthDescription(Boto3Model):
+    """
+    Information about the health of a target.
+    """
+
+    #: The description of the target.
+    Target: Optional[TargetDescription] = None
+    #: The port to use to connect with the target.
+    HealthCheckPort: Optional[str] = None
+    #: The health information for the target.
+    TargetHealth: Optional[TargetHealthInfo] = None
+    #: The anomaly detection result for the target.
+    AnomalyDetection: Optional[AnomalyDetectionInfo] = None
+
+
+class DescribeTargetHealthOutput(Boto3Model):
+    #: Information about the health of the targets.
+    TargetHealthDescriptions: Optional[List["TargetHealthDescription"]] = None

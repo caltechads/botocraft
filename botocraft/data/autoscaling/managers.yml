@@ -22,6 +22,19 @@ AutoScalingGroup:
           hidden: true
     list:
       boto3_name: describe_auto_scaling_groups
+    scale:
+      boto3_name: set_desired_capacity
+      return_type: None
+      args:
+        AutoScalingGroupName:
+          required: true
+          python_type: str
+        DesiredCapacity:
+          required: true
+          python_type: int
+        HonorCooldown:
+          value: "False"
+          python_type: bool
 LaunchConfiguration:
   methods:
     create:

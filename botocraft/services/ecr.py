@@ -70,7 +70,9 @@ class RepositoryManager(Boto3ModelManager):
             registryId: The Amazon Web Services account ID associated with the registry
                 that contains the repository to delete. If you do not specify a registry,
                 the default registry is assumed.
-            force:  If a repository contains images, forces the deletion.
+            force: If true, deleting the repository force deletes the contents of the
+                repository. If false, the repository must be empty before attempting to
+                delete it.
         """
         args: Dict[str, Any] = dict(
             repositoryName=self.serialize(repositoryName),
@@ -195,8 +197,8 @@ class Repository(PrimaryBoto3Model):
     #: The Amazon Resource Name (ARN) that identifies the repository. The ARN contains
     #: the ``arn:aws:ecr`` namespace, followed by the region of the repository, Amazon
     #: Web Services account ID of the repository owner, repository namespace, and
-    #: repository name. For example,
-    #: ``arn:aws:ecr:region:012345678910:repository/test``.
+    #: repository name. For example, ``arn:aws:ecr:region:012345678910:repository-
+    #: namespace/repository-name``.
     repositoryArn: str = Field(default=None, frozen=True)
     #: The Amazon Web Services account ID associated with the registry that contains
     #: the repository.

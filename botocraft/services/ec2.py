@@ -1734,6 +1734,28 @@ class InstanceNetworkInterfaceAssociation(Boto3Model):
     PublicIp: Optional[str] = None
 
 
+class InstanceAttachmentEnaSrdUdpSpecification(Boto3Model):
+    """
+    Configures ENA Express for UDP network traffic.
+    """
+
+    #: Indicates whether UDP traffic to and from the instance uses ENA Express. To
+    #: specify this setting, you must first enable ENA Express.
+    EnaSrdUdpEnabled: Optional[bool] = None
+
+
+class InstanceAttachmentEnaSrdSpecification(Boto3Model):
+    """
+    Contains the ENA Express settings for the network interface that's attached
+    to the instance.
+    """
+
+    #: Indicates whether ENA Express is enabled for the network interface.
+    EnaSrdEnabled: Optional[bool] = None
+    #: Configures ENA Express for UDP network traffic.
+    EnaSrdUdpSpecification: Optional[InstanceAttachmentEnaSrdUdpSpecification] = None
+
+
 class InstanceNetworkInterfaceAttachment(Boto3Model):
     """
     The network interface attachment.
@@ -1752,6 +1774,9 @@ class InstanceNetworkInterfaceAttachment(Boto3Model):
     Status: Optional[Literal["attaching", "attached", "detaching", "detached"]] = None
     #: The index of the network card.
     NetworkCardIndex: Optional[int] = None
+    #: Contains the ENA Express settings for the network interface that's attached to
+    #: the instance.
+    EnaSrdSpecification: Optional[InstanceAttachmentEnaSrdSpecification] = None
 
 
 class GroupIdentifier(Boto3Model):
@@ -1816,6 +1841,32 @@ class InstanceIpv6Prefix(Boto3Model):
     Ipv6Prefix: Optional[str] = None
 
 
+class ConnectionTrackingSpecificationResponse(Boto3Model):
+    """
+    A security group connection tracking configuration that enables you to set
+    the timeout for connection tracking on an Elastic network interface.
+
+    For more
+    information, see `Connection tracking
+    timeouts <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/security-group-
+    connection-tracking.html#connection-tracking-timeouts>`_ in the *Amazon Elastic
+    Compute Cloud User Guide*.
+    """
+
+    #: Timeout (in seconds) for idle TCP connections in an established state. Min: 60
+    #: seconds. Max: 432000 seconds (5 days). Default: 432000 seconds. Recommended:
+    #: Less than 432000 seconds.
+    TcpEstablishedTimeout: Optional[int] = None
+    #: Timeout (in seconds) for idle UDP flows classified as streams which have seen
+    #: more than one request-response transaction. Min: 60 seconds. Max: 180 seconds
+    #: (3 minutes). Default: 180 seconds.
+    UdpStreamTimeout: Optional[int] = None
+    #: Timeout (in seconds) for idle UDP flows that have seen traffic only in a single
+    #: direction or a single request-response transaction. Min: 30 seconds. Max: 60
+    #: seconds. Default: 30 seconds.
+    UdpTimeout: Optional[int] = None
+
+
 class InstanceNetworkInterface(Boto3Model):
     """
     Describes a network interface.
@@ -1860,6 +1911,15 @@ class InstanceNetworkInterface(Boto3Model):
     Ipv4Prefixes: Optional[List["InstanceIpv4Prefix"]] = None
     #: The IPv6 delegated prefixes that are assigned to the network interface.
     Ipv6Prefixes: Optional[List["InstanceIpv6Prefix"]] = None
+    #: A security group connection tracking configuration that enables you to set the
+    #: timeout for connection tracking on an Elastic network interface. For more
+    #: information, see `Connection tracking timeouts
+    #: <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/security-group-
+    #: connection-tracking.html#connection-tracking-timeouts>`_ in the *Amazon Elastic
+    #: Compute Cloud User Guide*.
+    ConnectionTrackingConfiguration: Optional[
+        ConnectionTrackingSpecificationResponse
+    ] = None
 
 
 class EC2StateReason(Boto3Model):
@@ -2714,6 +2774,91 @@ class Instance(TagsDictMixin, PrimaryBoto3Model):
             "hpc7a.24xlarge",
             "hpc7a.48xlarge",
             "hpc7a.96xlarge",
+            "c7gd.medium",
+            "c7gd.large",
+            "c7gd.xlarge",
+            "c7gd.2xlarge",
+            "c7gd.4xlarge",
+            "c7gd.8xlarge",
+            "c7gd.12xlarge",
+            "c7gd.16xlarge",
+            "m7gd.medium",
+            "m7gd.large",
+            "m7gd.xlarge",
+            "m7gd.2xlarge",
+            "m7gd.4xlarge",
+            "m7gd.8xlarge",
+            "m7gd.12xlarge",
+            "m7gd.16xlarge",
+            "r7gd.medium",
+            "r7gd.large",
+            "r7gd.xlarge",
+            "r7gd.2xlarge",
+            "r7gd.4xlarge",
+            "r7gd.8xlarge",
+            "r7gd.12xlarge",
+            "r7gd.16xlarge",
+            "r7a.medium",
+            "r7a.large",
+            "r7a.xlarge",
+            "r7a.2xlarge",
+            "r7a.4xlarge",
+            "r7a.8xlarge",
+            "r7a.12xlarge",
+            "r7a.16xlarge",
+            "r7a.24xlarge",
+            "r7a.32xlarge",
+            "r7a.48xlarge",
+            "c7i.large",
+            "c7i.xlarge",
+            "c7i.2xlarge",
+            "c7i.4xlarge",
+            "c7i.8xlarge",
+            "c7i.12xlarge",
+            "c7i.16xlarge",
+            "c7i.24xlarge",
+            "c7i.48xlarge",
+            "mac2-m2pro.metal",
+            "r7iz.large",
+            "r7iz.xlarge",
+            "r7iz.2xlarge",
+            "r7iz.4xlarge",
+            "r7iz.8xlarge",
+            "r7iz.12xlarge",
+            "r7iz.16xlarge",
+            "r7iz.32xlarge",
+            "c7a.medium",
+            "c7a.large",
+            "c7a.xlarge",
+            "c7a.2xlarge",
+            "c7a.4xlarge",
+            "c7a.8xlarge",
+            "c7a.12xlarge",
+            "c7a.16xlarge",
+            "c7a.24xlarge",
+            "c7a.32xlarge",
+            "c7a.48xlarge",
+            "c7a.metal-48xl",
+            "r7a.metal-48xl",
+            "r7i.large",
+            "r7i.xlarge",
+            "r7i.2xlarge",
+            "r7i.4xlarge",
+            "r7i.8xlarge",
+            "r7i.12xlarge",
+            "r7i.16xlarge",
+            "r7i.24xlarge",
+            "r7i.48xlarge",
+            "dl2q.24xlarge",
+            "mac2-m2.metal",
+            "i4i.12xlarge",
+            "i4i.24xlarge",
+            "c7i.metal-24xl",
+            "c7i.metal-48xl",
+            "m7i.metal-24xl",
+            "m7i.metal-48xl",
+            "r7i.metal-24xl",
+            "r7i.metal-48xl",
         ]
     ] = None
     #: The kernel associated with this instance, if applicable.
@@ -2727,7 +2872,8 @@ class Instance(TagsDictMixin, PrimaryBoto3Model):
     Monitoring: Optional[EC2DetailedMonitoring] = None
     #: The location where the instance launched, if applicable.
     Placement: Optional[EC2Placement] = None
-    #: The value is ``Windows`` for Windows instances; otherwise blank.
+    #: The platform. This value is ``windows`` for Windows instances; otherwise, it is
+    #: empty.
     Platform: Literal["Windows"] = Field(default=None, frozen=True)
     #: [IPv4 only] The private DNS hostname name assigned to the instance. This DNS
     #: hostname can only be used inside the Amazon EC2 network. This name is not
@@ -2777,7 +2923,9 @@ class Instance(TagsDictMixin, PrimaryBoto3Model):
     #: The IAM instance profile associated with the instance, if applicable.
     IamInstanceProfile: Optional[EC2IamInstanceProfile] = None
     #: Indicates whether this is a Spot Instance or a Scheduled Instance.
-    InstanceLifecycle: Literal["spot", "scheduled"] = Field(default=None, frozen=True)
+    InstanceLifecycle: Literal["spot", "scheduled", "capacity-block"] = Field(
+        default=None, frozen=True
+    )
     #: The Elastic GPU associated with the instance.
     ElasticGpuAssociations: List["ElasticGpuAssociation"] = Field(
         default=None, frozen=True
@@ -3057,6 +3205,54 @@ class Ipv6PrefixSpecificationResponse(Boto3Model):
     Ipv6Prefix: Optional[str] = None
 
 
+class LaunchTemplateEnaSrdUdpSpecification(Boto3Model):
+    """
+    Configures ENA Express for UDP network traffic.
+    """
+
+    #: Indicates whether UDP traffic to and from the instance uses ENA Express. To
+    #: specify this setting, you must first enable ENA Express.
+    EnaSrdUdpEnabled: Optional[bool] = None
+
+
+class LaunchTemplateEnaSrdSpecification(Boto3Model):
+    """
+    Contains the ENA Express settings for instances launched from your launch
+    template.
+    """
+
+    #: Indicates whether ENA Express is enabled for the network interface.
+    EnaSrdEnabled: Optional[bool] = None
+    #: Configures ENA Express for UDP network traffic.
+    EnaSrdUdpSpecification: Optional[LaunchTemplateEnaSrdUdpSpecification] = None
+
+
+class EC2ConnectionTrackingSpecification(Boto3Model):
+    """
+    A security group connection tracking specification that enables you to set
+    the timeout for connection tracking on an Elastic network interface.
+
+    For more
+    information, see `Connection tracking
+    timeouts <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/security-group-
+    connection-tracking.html#connection-tracking-timeouts>`_ in the *Amazon Elastic
+    Compute Cloud User Guide*.
+    """
+
+    #: Timeout (in seconds) for idle TCP connections in an established state. Min: 60
+    #: seconds. Max: 432000 seconds (5 days). Default: 432000 seconds. Recommended:
+    #: Less than 432000 seconds.
+    TcpEstablishedTimeout: Optional[int] = None
+    #: Timeout (in seconds) for idle UDP flows that have seen traffic only in a single
+    #: direction or a single request-response transaction. Min: 30 seconds. Max: 60
+    #: seconds. Default: 30 seconds.
+    UdpTimeout: Optional[int] = None
+    #: Timeout (in seconds) for idle UDP flows classified as streams which have seen
+    #: more than one request-response transaction. Min: 60 seconds. Max: 180 seconds
+    #: (3 minutes). Default: 180 seconds.
+    UdpStreamTimeout: Optional[int] = None
+
+
 class LaunchTemplateInstanceNetworkInterfaceSpecification(Boto3Model):
     """
     Describes a network interface.
@@ -3111,6 +3307,16 @@ class LaunchTemplateInstanceNetworkInterfaceSpecification(Boto3Model):
     #: For more information about primary IPv6 addresses, see `RunInstances <https://d
     #: ocs.aws.amazon.com/AWSEC2/latest/APIReference/API_RunInstances.html>`_.
     PrimaryIpv6: Optional[bool] = None
+    #: Contains the ENA Express settings for instances launched from your launch
+    #: template.
+    EnaSrdSpecification: Optional[LaunchTemplateEnaSrdSpecification] = None
+    #: A security group connection tracking specification that enables you to set the
+    #: timeout for connection tracking on an Elastic network interface. For more
+    #: information, see `Connection tracking timeouts
+    #: <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/security-group-
+    #: connection-tracking.html#connection-tracking-timeouts>`_ in the *Amazon Elastic
+    #: Compute Cloud User Guide*.
+    ConnectionTrackingSpecification: Optional[EC2ConnectionTrackingSpecification] = None
 
 
 class LaunchTemplatesMonitoring(Boto3Model):
@@ -3305,7 +3511,7 @@ class LaunchTemplateInstanceMarketOptions(Boto3Model):
     """
 
     #: The market type.
-    MarketType: Optional[Literal["spot"]] = None
+    MarketType: Optional[Literal["spot", "capacity-block"]] = None
     #: The options for Spot Instances.
     SpotOptions: Optional[LaunchTemplateSpotMarketOptions] = None
 
@@ -3387,7 +3593,7 @@ class LaunchTemplateInstanceMetadataOptions(Boto3Model):
 
     #: The state of the metadata option changes.
     State: Optional[Literal["pending", "applied"]] = None
-    #: Indicates whether IMDSv2 is ``optional`` or ``required``.
+    #: Indicates whether IMDSv2 is required.
     HttpTokens: Optional[Literal["optional", "required"]] = None
     #: The desired HTTP PUT response hop limit for instance metadata requests. The
     #: larger the number, the further instance metadata requests can travel.
@@ -3627,21 +3833,24 @@ class LaunchTemplateInstanceRequirements(Boto3Model):
     #: Indicates whether instance types must have accelerators by specific
     #: manufacturers.
     AcceleratorManufacturers: Optional[
-        List[Literal["nvidia", "amd", "amazon-web-services", "xilinx"]]
+        List[Literal["amazon-web-services", "amd", "nvidia", "xilinx", "habana"]]
     ] = None
     #: The accelerators that must be on the instance type.
     AcceleratorNames: Optional[
         List[
             Literal[
                 "a100",
-                "v100",
-                "k80",
-                "t4",
-                "m60",
-                "radeon-pro-v520",
-                "vu9p",
                 "inferentia",
                 "k520",
+                "k80",
+                "m60",
+                "radeon-pro-v520",
+                "t4",
+                "vu9p",
+                "v100",
+                "a10g",
+                "h100",
+                "t4g",
             ]
         ]
     ] = None
@@ -4399,6 +4608,91 @@ class ResponseLaunchTemplateData(Boto3Model):
             "hpc7a.24xlarge",
             "hpc7a.48xlarge",
             "hpc7a.96xlarge",
+            "c7gd.medium",
+            "c7gd.large",
+            "c7gd.xlarge",
+            "c7gd.2xlarge",
+            "c7gd.4xlarge",
+            "c7gd.8xlarge",
+            "c7gd.12xlarge",
+            "c7gd.16xlarge",
+            "m7gd.medium",
+            "m7gd.large",
+            "m7gd.xlarge",
+            "m7gd.2xlarge",
+            "m7gd.4xlarge",
+            "m7gd.8xlarge",
+            "m7gd.12xlarge",
+            "m7gd.16xlarge",
+            "r7gd.medium",
+            "r7gd.large",
+            "r7gd.xlarge",
+            "r7gd.2xlarge",
+            "r7gd.4xlarge",
+            "r7gd.8xlarge",
+            "r7gd.12xlarge",
+            "r7gd.16xlarge",
+            "r7a.medium",
+            "r7a.large",
+            "r7a.xlarge",
+            "r7a.2xlarge",
+            "r7a.4xlarge",
+            "r7a.8xlarge",
+            "r7a.12xlarge",
+            "r7a.16xlarge",
+            "r7a.24xlarge",
+            "r7a.32xlarge",
+            "r7a.48xlarge",
+            "c7i.large",
+            "c7i.xlarge",
+            "c7i.2xlarge",
+            "c7i.4xlarge",
+            "c7i.8xlarge",
+            "c7i.12xlarge",
+            "c7i.16xlarge",
+            "c7i.24xlarge",
+            "c7i.48xlarge",
+            "mac2-m2pro.metal",
+            "r7iz.large",
+            "r7iz.xlarge",
+            "r7iz.2xlarge",
+            "r7iz.4xlarge",
+            "r7iz.8xlarge",
+            "r7iz.12xlarge",
+            "r7iz.16xlarge",
+            "r7iz.32xlarge",
+            "c7a.medium",
+            "c7a.large",
+            "c7a.xlarge",
+            "c7a.2xlarge",
+            "c7a.4xlarge",
+            "c7a.8xlarge",
+            "c7a.12xlarge",
+            "c7a.16xlarge",
+            "c7a.24xlarge",
+            "c7a.32xlarge",
+            "c7a.48xlarge",
+            "c7a.metal-48xl",
+            "r7a.metal-48xl",
+            "r7i.large",
+            "r7i.xlarge",
+            "r7i.2xlarge",
+            "r7i.4xlarge",
+            "r7i.8xlarge",
+            "r7i.12xlarge",
+            "r7i.16xlarge",
+            "r7i.24xlarge",
+            "r7i.48xlarge",
+            "dl2q.24xlarge",
+            "mac2-m2.metal",
+            "i4i.12xlarge",
+            "i4i.24xlarge",
+            "c7i.metal-24xl",
+            "c7i.metal-48xl",
+            "m7i.metal-24xl",
+            "m7i.metal-48xl",
+            "r7i.metal-24xl",
+            "r7i.metal-48xl",
         ]
     ] = None
     #: The name of the key pair.
@@ -4422,7 +4716,9 @@ class ResponseLaunchTemplateData(Boto3Model):
     TagSpecifications: Optional[List["LaunchTemplateTagSpecification"]] = None
     #: The elastic GPU specification.
     ElasticGpuSpecifications: Optional[List["ElasticGpuSpecificationResponse"]] = None
-    #: The elastic inference accelerator for the instance.
+    #: An elastic inference accelerator to associate with the instance. Elastic
+    #: inference accelerators are a resource you can attach to your Amazon EC2
+    #: instances to accelerate your Deep Learning (DL) inference workloads.
     ElasticInferenceAccelerators: Optional[
         List["LaunchTemplateElasticInferenceAcceleratorResponse"]
     ] = None
@@ -4728,7 +5024,7 @@ class ReferencedSecurityGroup(Boto3Model):
     UserId: Optional[str] = None
     #: The ID of the VPC.
     VpcId: Optional[str] = None
-    #: The ID of the VPC peering connection.
+    #: The ID of the VPC peering connection (if applicable).
     VpcPeeringConnectionId: Optional[str] = None
 
 
@@ -4860,7 +5156,7 @@ class SpotMarketOptions(Boto3Model):
     #: The end date of the request, in UTC format (*YYYY*-*MM*-*DD*T*HH*:*MM*:*SS*Z).
     #: Supported only for persistent requests.
     ValidUntil: Optional[datetime] = None
-    #: The behavior when a Spot Instance is interrupted. The default is ``terminate``.
+    #: The behavior when a Spot Instance is interrupted.
     InstanceInterruptionBehavior: Optional[
         Literal["hibernate", "stop", "terminate"]
     ] = None
@@ -4875,7 +5171,7 @@ class InstanceMarketOptionsRequest(Boto3Model):
     """
 
     #: The market type.
-    MarketType: Optional[Literal["spot"]] = None
+    MarketType: Optional[Literal["spot", "capacity-block"]] = None
     #: The options for Spot Instances.
     SpotOptions: Optional[SpotMarketOptions] = None
 
@@ -4933,8 +5229,7 @@ class EbsBlockDevice(Boto3Model):
     VolumeSize: Optional[int] = None
     #: The volume type. For more information, see `Amazon EBS volume types
     #: <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/EBSVolumeTypes.html>`_ in
-    #: the *Amazon EC2 User Guide*. If the volume type is ``io1`` or ``io2``, you must
-    #: specify the IOPS that the volume supports.
+    #: the *Amazon EC2 User Guide*.
     VolumeType: Optional[
         Literal["standard", "io1", "io2", "gp2", "sc1", "st1", "gp3"]
     ] = None
@@ -5018,6 +5313,58 @@ class Ipv6PrefixSpecificationRequest(Boto3Model):
 
     #: The IPv6 prefix.
     Ipv6Prefix: Optional[str] = None
+
+
+class EnaSrdUdpSpecificationRequest(Boto3Model):
+    """
+    Contains ENA Express settings for UDP network traffic in your launch
+    template.
+    """
+
+    #: Indicates whether UDP traffic uses ENA Express for your instance. To ensure
+    #: that UDP traffic can use ENA Express when you launch an instance, you must also
+    #: set **EnaSrdEnabled** in the **EnaSrdSpecificationRequest** to ``true`` in your
+    #: launch template.
+    EnaSrdUdpEnabled: Optional[bool] = None
+
+
+class EnaSrdSpecificationRequest(Boto3Model):
+    """
+    Specifies the ENA Express settings for the network interface that's
+    attached to the instance.
+    """
+
+    #: Specifies whether ENA Express is enabled for the network interface when you
+    #: launch an instance from your launch template.
+    EnaSrdEnabled: Optional[bool] = None
+    #: Contains ENA Express settings for UDP network traffic in your launch template.
+    EnaSrdUdpSpecification: Optional[EnaSrdUdpSpecificationRequest] = None
+
+
+class ConnectionTrackingSpecificationRequest(Boto3Model):
+    """
+    A security group connection tracking specification that enables you to set
+    the timeout for connection tracking on an Elastic network interface.
+
+    For more
+    information, see `Connection tracking
+    timeouts <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/security-group-
+    connection-tracking.html#connection-tracking-timeouts>`_ in the *Amazon Elastic
+    Compute Cloud User Guide*.
+    """
+
+    #: Timeout (in seconds) for idle TCP connections in an established state. Min: 60
+    #: seconds. Max: 432000 seconds (5 days). Default: 432000 seconds. Recommended:
+    #: Less than 432000 seconds.
+    TcpEstablishedTimeout: Optional[int] = None
+    #: Timeout (in seconds) for idle UDP flows classified as streams which have seen
+    #: more than one request-response transaction. Min: 60 seconds. Max: 180 seconds
+    #: (3 minutes). Default: 180 seconds.
+    UdpStreamTimeout: Optional[int] = None
+    #: Timeout (in seconds) for idle UDP flows that have seen traffic only in a single
+    #: direction or a single request-response transaction. Min: 30 seconds. Max: 60
+    #: seconds. Default: 30 seconds.
+    UdpTimeout: Optional[int] = None
 
 
 class InstanceNetworkInterfaceSpecification(Boto3Model):
@@ -5104,6 +5451,18 @@ class InstanceNetworkInterfaceSpecification(Boto3Model):
     #: For more information about primary IPv6 addresses, see `RunInstances <https://d
     #: ocs.aws.amazon.com/AWSEC2/latest/APIReference/API_RunInstances.html>`_.
     PrimaryIpv6: Optional[bool] = None
+    #: Specifies the ENA Express settings for the network interface that's attached to
+    #: the instance.
+    EnaSrdSpecification: Optional[EnaSrdSpecificationRequest] = None
+    #: A security group connection tracking specification that enables you to set the
+    #: timeout for connection tracking on an Elastic network interface. For more
+    #: information, see `Connection tracking timeouts
+    #: <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/security-group-
+    #: connection-tracking.html#connection-tracking-timeouts>`_ in the *Amazon Elastic
+    #: Compute Cloud User Guide*.
+    ConnectionTrackingSpecification: Optional[
+        ConnectionTrackingSpecificationRequest
+    ] = None
 
 
 class CpuOptionsRequest(Boto3Model):
@@ -5419,6 +5778,17 @@ class LaunchTemplateInstanceNetworkInterfaceSpecificationRequest(Boto3Model):
     #: For more information about primary IPv6 addresses, see `RunInstances <https://d
     #: ocs.aws.amazon.com/AWSEC2/latest/APIReference/API_RunInstances.html>`_.
     PrimaryIpv6: Optional[bool] = None
+    #: Configure ENA Express settings for your launch template.
+    EnaSrdSpecification: Optional[EnaSrdSpecificationRequest] = None
+    #: A security group connection tracking specification that enables you to set the
+    #: timeout for connection tracking on an Elastic network interface. For more
+    #: information, see `Connection tracking timeouts
+    #: <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/security-group-
+    #: connection-tracking.html#connection-tracking-timeouts>`_ in the *Amazon Elastic
+    #: Compute Cloud User Guide*.
+    ConnectionTrackingSpecification: Optional[
+        ConnectionTrackingSpecificationRequest
+    ] = None
 
 
 class LaunchTemplatesMonitoringRequest(Boto3Model):
@@ -5604,7 +5974,7 @@ class LaunchTemplateInstanceMarketOptionsRequest(Boto3Model):
     """
 
     #: The market type.
-    MarketType: Optional[Literal["spot"]] = None
+    MarketType: Optional[Literal["spot", "capacity-block"]] = None
     #: The options for Spot Instances.
     SpotOptions: Optional[LaunchTemplateSpotMarketOptionsRequest] = None
 
@@ -5681,9 +6051,7 @@ class LaunchTemplateInstanceMetadataOptionsRequest(Boto3Model):
     metadata.html>`_ in the *Amazon Elastic Compute Cloud User Guide*.
     """
 
-    #: IMDSv2 uses token-backed sessions. Set the use of HTTP tokens to ``optional``
-    #: (in other words, set the use of IMDSv2 to ``optional``) or ``required`` (in
-    #: other words, set the use of IMDSv2 to ``required``).
+    #: Indicates whether IMDSv2 is required.
     HttpTokens: Optional[Literal["optional", "required"]] = None
     #: The desired HTTP PUT response hop limit for instance metadata requests. The
     #: larger the number, the further instance metadata requests can travel.
@@ -5960,21 +6328,24 @@ class InstanceRequirementsRequest(Boto3Model):
     #: Indicates whether instance types must have accelerators by specific
     #: manufacturers.
     AcceleratorManufacturers: Optional[
-        List[Literal["nvidia", "amd", "amazon-web-services", "xilinx"]]
+        List[Literal["amazon-web-services", "amd", "nvidia", "xilinx", "habana"]]
     ] = None
     #: The accelerators that must be on the instance type.
     AcceleratorNames: Optional[
         List[
             Literal[
                 "a100",
-                "v100",
-                "k80",
-                "t4",
-                "m60",
-                "radeon-pro-v520",
-                "vu9p",
                 "inferentia",
                 "k520",
+                "k80",
+                "m60",
+                "radeon-pro-v520",
+                "t4",
+                "vu9p",
+                "v100",
+                "a10g",
+                "h100",
+                "t4g",
             ]
         ]
     ] = None
@@ -6753,6 +7124,91 @@ class RequestLaunchTemplateData(Boto3Model):
             "hpc7a.24xlarge",
             "hpc7a.48xlarge",
             "hpc7a.96xlarge",
+            "c7gd.medium",
+            "c7gd.large",
+            "c7gd.xlarge",
+            "c7gd.2xlarge",
+            "c7gd.4xlarge",
+            "c7gd.8xlarge",
+            "c7gd.12xlarge",
+            "c7gd.16xlarge",
+            "m7gd.medium",
+            "m7gd.large",
+            "m7gd.xlarge",
+            "m7gd.2xlarge",
+            "m7gd.4xlarge",
+            "m7gd.8xlarge",
+            "m7gd.12xlarge",
+            "m7gd.16xlarge",
+            "r7gd.medium",
+            "r7gd.large",
+            "r7gd.xlarge",
+            "r7gd.2xlarge",
+            "r7gd.4xlarge",
+            "r7gd.8xlarge",
+            "r7gd.12xlarge",
+            "r7gd.16xlarge",
+            "r7a.medium",
+            "r7a.large",
+            "r7a.xlarge",
+            "r7a.2xlarge",
+            "r7a.4xlarge",
+            "r7a.8xlarge",
+            "r7a.12xlarge",
+            "r7a.16xlarge",
+            "r7a.24xlarge",
+            "r7a.32xlarge",
+            "r7a.48xlarge",
+            "c7i.large",
+            "c7i.xlarge",
+            "c7i.2xlarge",
+            "c7i.4xlarge",
+            "c7i.8xlarge",
+            "c7i.12xlarge",
+            "c7i.16xlarge",
+            "c7i.24xlarge",
+            "c7i.48xlarge",
+            "mac2-m2pro.metal",
+            "r7iz.large",
+            "r7iz.xlarge",
+            "r7iz.2xlarge",
+            "r7iz.4xlarge",
+            "r7iz.8xlarge",
+            "r7iz.12xlarge",
+            "r7iz.16xlarge",
+            "r7iz.32xlarge",
+            "c7a.medium",
+            "c7a.large",
+            "c7a.xlarge",
+            "c7a.2xlarge",
+            "c7a.4xlarge",
+            "c7a.8xlarge",
+            "c7a.12xlarge",
+            "c7a.16xlarge",
+            "c7a.24xlarge",
+            "c7a.32xlarge",
+            "c7a.48xlarge",
+            "c7a.metal-48xl",
+            "r7a.metal-48xl",
+            "r7i.large",
+            "r7i.xlarge",
+            "r7i.2xlarge",
+            "r7i.4xlarge",
+            "r7i.8xlarge",
+            "r7i.12xlarge",
+            "r7i.16xlarge",
+            "r7i.24xlarge",
+            "r7i.48xlarge",
+            "dl2q.24xlarge",
+            "mac2-m2.metal",
+            "i4i.12xlarge",
+            "i4i.24xlarge",
+            "c7i.metal-24xl",
+            "c7i.metal-48xl",
+            "m7i.metal-24xl",
+            "m7i.metal-48xl",
+            "r7i.metal-24xl",
+            "r7i.metal-48xl",
         ]
     ] = None
     #: The name of the key pair. You can create a key pair using `CreateKeyPair <https
@@ -6787,21 +7243,22 @@ class RequestLaunchTemplateData(Boto3Model):
     #: data.html>`_ (Windows) in the *Amazon Elastic Compute Cloud User Guide*.
     UserData: Optional[str] = None
     #: The tags to apply to the resources that are created during instance launch.
+    #: These tags are not applied to the launch template.
     TagSpecifications: Optional[List["LaunchTemplateTagSpecificationRequest"]] = None
     #: An elastic GPU to associate with the instance.
     ElasticGpuSpecifications: Optional[List["ElasticGpuSpecification"]] = None
-    #: The elastic inference accelerator for the instance.
+    #: An elastic inference accelerator to associate with the instance. Elastic
+    #: inference accelerators are a resource you can attach to your Amazon EC2
+    #: instances to accelerate your Deep Learning (DL) inference workloads.
     ElasticInferenceAccelerators: Optional[
         List["LaunchTemplateElasticInferenceAccelerator"]
     ] = None
     #: One or more security group IDs. You can create a security group using `CreateSe
     #: curityGroup <https://docs.aws.amazon.com/AWSEC2/latest/APIReference/API_CreateS
-    #: ecurityGroup.html>`_. You cannot specify both a security group ID and security
-    #: name in the same request.
+    #: ecurityGroup.html>`_.
     SecurityGroupIds: Optional[List[str]] = None
     #: One or more security group names. For a nondefault VPC, you must use security
-    #: group IDs instead. You cannot specify both a security group ID and security
-    #: name in the same request.
+    #: group IDs instead.
     SecurityGroups: Optional[List[str]] = None
     #: The market (purchasing) option for the instances.
     InstanceMarketOptions: Optional[LaunchTemplateInstanceMarketOptionsRequest] = None

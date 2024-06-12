@@ -45,7 +45,6 @@ primary:
         transformer:
           mapping:
             GroupIds: SecurityGroups
-
   Listener:
     primary_key: ListenerArn
     arn_key: ListenerArn
@@ -141,3 +140,7 @@ secondary:
     alternate_name: ElbV2TargetGroupStickinessConfig
   Matcher:
     alternate_name: ResponseCodeMatcher
+  TargetHealth:
+    alternate_name: TargetHealthInfo
+  AnomalyDetection:
+    alternate_name: AnomalyDetectionInfo

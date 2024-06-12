@@ -43,8 +43,8 @@ class ServiceManager(Boto3ModelManager):
 
         Keyword Args:
             clientToken: An identifier that you provide to ensure the idempotency of
-                the request. It must be unique and is case sensitive. Up to 32 ASCII
-                characters are allowed.
+                the request. It must be unique and is case sensitive. Up to 36 ASCII
+                characters in the range of 33-126 (inclusive) are allowed.
             serviceConnectConfiguration: The configuration for this service to discover
                 and connect to services, and be discovered by, and connected from, other
                 services within a namespace.
@@ -1099,6 +1099,7 @@ class TaskManager(Boto3ModelManager):
         placementStrategy: Optional[List["PlacementStrategy"]] = None,
         propagateTags: Optional[Literal["TASK_DEFINITION", "SERVICE", "NONE"]] = None,
         referenceId: Optional[str] = None,
+        clientToken: Optional[str] = None,
     ) -> "Task":
         """
         Starts a new task using the specified task definition.
@@ -1133,6 +1134,12 @@ class TaskManager(Boto3ModelManager):
                 To add tags to a task after task creation, use the TagResource API action.
             referenceId: The reference ID to use for the task. The reference ID can
                 have a maximum length of 1024 characters.
+            clientToken: An identifier that you provide to ensure the idempotency of
+                the request. It must be unique and is case sensitive. Up to 64 characters
+                are allowed. The valid characters are characters in the range of 33-126,
+                inclusive. For more information, see `Ensuring idempotency
+                <https://docs.aws.amazon.com/AmazonECS/l
+                atest/APIReference/ECS_Idempotency.html>`_.
         """
         data = model.model_dump(exclude_none=True, by_alias=True)
         args = dict(
@@ -1153,6 +1160,7 @@ class TaskManager(Boto3ModelManager):
             referenceId=self.serialize(referenceId),
             startedBy=data.get("startedBy"),
             tags=data.get("tags"),
+            clientToken=self.serialize(clientToken),
         )
         _response = self.client.run_task(
             **{k: v for k, v in args.items() if v is not None}
@@ -2400,7 +2408,8 @@ class PortMapping(Boto3Model):
     #: The port number on the container instance to reserve for your container.
     hostPort: Optional[int] = None
     #: The protocol used for the port mapping. Valid values are ``tcp`` and ``udp``.
-    #: The default is ``tcp``.
+    #: The default is ``tcp``. ``protocol`` is immutable in a Service Connect service.
+    #: Updating this field requires a service deletion and redeployment.
     protocol: Optional[Literal["tcp", "udp"]] = None
     #: The name that's used for the port mapping. This parameter only applies to
     #: Service Connect. This parameter is the name that you use in the
@@ -2421,13 +2430,12 @@ class PortMapping(Boto3Model):
 
 
 class EnvironmentFile(Boto3Model):
-    """A list of files containing the environment variables to pass to a container.
-    You can specify up to ten environment files. The file must have a ``.env`` file
-    extension. Each line in an environment file should contain an environment
-    variable in ``VARIABLE=VALUE`` format. Lines beginning with ``#`` are treated
-    as comments and are ignored. For more information about the environment
-    variable file syntax, see `Declare default environment variables in
-    file <https://docs.docker.com/compose/env-file/>`_.
+    """
+    A list of files containing the environment variables to pass to a
+    container. You can specify up to ten environment files. The file must have
+    a ``.env`` file extension. Each line in an environment file should contain
+    an environment variable in ``VARIABLE=VALUE`` format. Lines beginning with
+    ``#`` are treated as comments and are ignored.
 
     If there are environment variables specified using the ``environment``
     parameter in a container definition, they take precedence over the variables
@@ -2441,7 +2449,14 @@ class EnvironmentFile(Boto3Model):
     You must use the following platforms for the Fargate launch type:
 
     * Linux platform version ``1.4.0`` or later.
-    * Windows platform version ``1.0.0`` or later."""
+    * Windows platform version ``1.0.0`` or later.
+
+    Consider the following when using the Fargate launch type:
+
+    * The file is handled like a native Docker env-file.
+    * There is no support for shell escape handling.
+    * The container entry point interperts the ``VARIABLE`` values.
+    """
 
     #: The Amazon Resource Name (ARN) of the Amazon S3 object containing the
     #: environment variable file.
@@ -2728,8 +2743,7 @@ class SystemControl(Boto3Model):
 
     #: The namespaced kernel parameter to set a ``value`` for.
     namespace: Optional[str] = None
-    #: The value for the namespaced kernel parameter that's specified in
-    #: ``namespace``.
+    #: The namespaced kernel parameter to set a ``value`` for.
     value: Optional[str] = None
 
 
@@ -3038,7 +3052,9 @@ class ContainerDefinition(Boto3Model):
     #: <https://docs.docker.com/engine/api/v1.35/#operation/ContainerCreate>`_ section
     #: of the `Docker Remote API <https://docs.docker.com/engine/api/v1.35/>`_ and the
     #: ``--sysctl`` option to `docker run
-    #: <https://docs.docker.com/engine/reference/run/#security-configuration>`_.
+    #: <https://docs.docker.com/engine/reference/run/#security-configuration>`_. For
+    #: example, you can configure ``net.ipv4.tcp_keepalive_time`` setting to maintain
+    #: longer lived connections.
     systemControls: Optional[List["SystemControl"]] = None
     #: The type and amount of a resource to assign to a container. The only supported
     #: resource is a GPU.
@@ -3482,14 +3498,9 @@ class TaskDefinition(TagsDictMixin, PrimaryBoto3Model):
     #: The Elastic Inference accelerator that's associated with the task.
     inferenceAccelerators: Optional[List["InferenceAccelerator"]] = None
     #: The process namespace to use for the containers in the task. The valid values
-    #: are ``host`` or ``task``. If ``host`` is specified, then all containers within
-    #: the tasks that specified the ``host`` PID mode on the same container instance
-    #: share the same process namespace with the host Amazon EC2 instance. If ``task``
-    #: is specified, all containers within the specified task share the same process
-    #: namespace. If no value is specified, the default is a private namespace. For
-    #: more information, see `PID settings
-    #: <https://docs.docker.com/engine/reference/run/#pid-settings---pid>`_ in the
-    #: *Docker run reference*.
+    #: are ``host`` or ``task``. On Fargate for Linux containers, the only valid value
+    #: is ``task``. For example, monitoring sidecars might need ``pidMode`` to access
+    #: information about other containers running in the same task.
     pidMode: Optional[Literal["host", "task"]] = None
     #: The IPC resource namespace to use for the containers in the task. The valid
     #: values are ``host``, ``task``, or ``none``. If ``host`` is specified, then all
@@ -4110,8 +4121,8 @@ class ContainerInstance(TagsDictMixin, ReadonlyPrimaryBoto3Model):
     #: instance with an agent that may be unhealthy or stopped return ``false``. Only
     #: instances connected to an agent can accept task placement requests.
     agentConnected: Optional[bool] = None
-    #: The number of tasks on the container instance that are in the ``RUNNING``
-    #: status.
+    #: The number of tasks on the container instance that have a desired status
+    #: (``desiredStatus``) of ``RUNNING``.
     runningTasksCount: Optional[int] = None
     #: The number of tasks on the container instance that are in the ``PENDING``
     #: status.

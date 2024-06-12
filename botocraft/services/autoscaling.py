@@ -8,10 +8,10 @@ from typing import Any, ClassVar, Dict, List, Literal, Optional, Type, cast
 
 from pydantic import Field
 
+from botocraft.mixins.autoscaling import AutoScalingGroupInstancesMixin
 from botocraft.mixins.tags import TagsDictMixin
 from botocraft.services.common import Filter, Tag
-from botocraft.services.ec2 import (Instance, InstanceManager,
-                                    LaunchTemplateVersion,
+from botocraft.services.ec2 import (LaunchTemplateVersion,
                                     LaunchTemplateVersionManager)
 
 from .abstract import (Boto3Model, Boto3ModelManager, PrimaryBoto3Model,
@@ -88,6 +88,7 @@ class AutoScalingGroupManager(Boto3ModelManager):
             DesiredCapacityType=data.get("DesiredCapacityType"),
             DefaultInstanceWarmup=data.get("DefaultInstanceWarmup"),
             TrafficSources=data.get("TrafficSources"),
+            InstanceMaintenancePolicy=data.get("InstanceMaintenancePolicy"),
         )
         self.client.create_auto_scaling_group(
             **{k: v for k, v in args.items() if v is not None}
@@ -127,6 +128,7 @@ class AutoScalingGroupManager(Boto3ModelManager):
             Context=data.get("Context"),
             DesiredCapacityType=data.get("DesiredCapacityType"),
             DefaultInstanceWarmup=data.get("DefaultInstanceWarmup"),
+            InstanceMaintenancePolicy=data.get("InstanceMaintenancePolicy"),
         )
         self.client.update_auto_scaling_group(
             **{k: v for k, v in args.items() if v is not None}
@@ -208,6 +210,25 @@ class AutoScalingGroupManager(Boto3ModelManager):
             else:
                 break
         return results
+
+    def scale(self, AutoScalingGroupName: str, DesiredCapacity: int) -> None:
+        """
+        Sets the size of the specified Auto Scaling group.
+
+        Args:
+            AutoScalingGroupName: The name of the Auto Scaling group.
+            DesiredCapacity: The desired capacity is the initial capacity of the Auto
+                Scaling group after this operation completes and the capacity it attempts
+                to maintain.
+        """
+        args: Dict[str, Any] = dict(
+            AutoScalingGroupName=self.serialize(AutoScalingGroupName),
+            DesiredCapacity=self.serialize(DesiredCapacity),
+            HonorCooldown=False,
+        )
+        self.client.set_desired_capacity(
+            **{k: v for k, v in args.items() if v is not None}
+        )
 
 
 class LaunchConfigurationManager(Boto3ModelManager):
@@ -835,7 +856,28 @@ class TrafficSourceIdentifier(Boto3Model):
     Type: Optional[str] = None
 
 
-class AutoScalingGroup(TagsDictMixin, PrimaryBoto3Model):
+class AutoScalingInstanceMaintenancePolicy(Boto3Model):
+    """
+    An instance maintenance policy.
+    """
+
+    #: Specifies the lower threshold as a percentage of the desired capacity of the
+    #: Auto Scaling group. It represents the minimum percentage of the group to keep
+    #: in service, healthy, and ready to use to support your workload when replacing
+    #: instances. Value range is 0 to 100. After it's set, a value of ``-1`` will
+    #: clear the previously set value.
+    MinHealthyPercentage: Optional[int] = None
+    #: Specifies the upper threshold as a percentage of the desired capacity of the
+    #: Auto Scaling group. It represents the maximum percentage of the group that can
+    #: be in service and healthy, or pending, to support your workload when replacing
+    #: instances. Value range is 100 to 200. After it's set, a value of ``-1`` will
+    #: clear the previously set value.
+    MaxHealthyPercentage: Optional[int] = None
+
+
+class AutoScalingGroup(
+    TagsDictMixin, AutoScalingGroupInstancesMixin, PrimaryBoto3Model
+):
     """
     Describes an Auto Scaling group.
     """
@@ -918,6 +960,8 @@ class AutoScalingGroup(TagsDictMixin, PrimaryBoto3Model):
     DefaultInstanceWarmup: Optional[int] = None
     #: The traffic sources associated with this Auto Scaling group.
     TrafficSources: Optional[List["TrafficSourceIdentifier"]] = None
+    #: An instance maintenance policy.
+    InstanceMaintenancePolicy: Optional[AutoScalingInstanceMaintenancePolicy] = None
 
     @property
     def pk(self) -> Optional[str]:
@@ -986,23 +1030,6 @@ class AutoScalingGroup(TagsDictMixin, PrimaryBoto3Model):
         except AttributeError:
             return None
         return LaunchTemplateVersion.objects.get(**pk)
-
-    @cached_property
-    def instances(self) -> Optional[List["Instance"]]:
-        """
-        Return the :py:class:`Instance` objects that belong to this group, if
-        any.
-        """
-
-        try:
-            pk = OrderedDict(
-                {
-                    "AutoScalingGroupName": self.AutoScalingGroupName,
-                }
-            )
-        except AttributeError:
-            return []
-        return Instance.objects.list(**pk)
 
 
 class EbsMapping(Boto3Model):

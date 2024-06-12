@@ -57,8 +57,8 @@ class DBInstanceManager(Boto3ModelManager):
             TdeCredentialPassword: The password for the given ARN from the key store in
                 order to access the device.
             Domain: The Active Directory directory ID to create the DB instance in.
-                Currently, only Microsoft SQL Server, MySQL, Oracle, and PostgreSQL DB
-                instances can be created in an Active Directory Domain.
+                Currently, you can create only Db2, MySQL, Microsoft SQL Server, Oracle,
+                and PostgreSQL DB instances in an Active Directory Domain.
             DomainFqdn: The fully qualified domain name (FQDN) of an Active Directory
                 domain.
             DomainOu: The Active Directory organizational unit for your DB instance to
@@ -138,6 +138,8 @@ class DBInstanceManager(Boto3ModelManager):
             MasterUserSecretKmsKeyId=self.serialize(MasterUserSecretKmsKeyId),
             CACertificateIdentifier=data.get("CACertificateIdentifier"),
             DBSystemId=data.get("DBSystemId"),
+            DedicatedLogVolume=data.get("DedicatedLogVolume"),
+            MultiTenant=data.get("MultiTenant"),
         )
         _response = self.client.create_db_instance(
             **{k: v for k, v in args.items() if v is not None}
@@ -218,7 +220,7 @@ class DBInstanceManager(Boto3ModelManager):
             Domain: The Active Directory directory ID to move the DB instance to.
                 Specify ``none`` to remove the instance from its current domain. You must
                 create the domain before this operation. Currently, you can create only
-                MySQL, Microsoft SQL Server, Oracle, and PostgreSQL DB instances in an
+                Db2, MySQL, Microsoft SQL Server, Oracle, and PostgreSQL DB instances in an
                 Active Directory Domain.
             DomainFqdn: The fully qualified domain name (FQDN) of an Active Directory
                 domain.
@@ -314,6 +316,8 @@ class DBInstanceManager(Boto3ModelManager):
             RotateMasterUserPassword=self.serialize(RotateMasterUserPassword),
             MasterUserSecretKmsKeyId=self.serialize(MasterUserSecretKmsKeyId),
             Engine=data.get("Engine"),
+            DedicatedLogVolume=data.get("DedicatedLogVolume"),
+            MultiTenant=data.get("MultiTenant"),
         )
         _response = self.client.modify_db_instance(
             **{k: v for k, v in args.items() if v is not None}
@@ -331,28 +335,28 @@ class DBInstanceManager(Boto3ModelManager):
         DeleteAutomatedBackups: Optional[bool] = None
     ) -> "DBInstance":
         """
-        The DeleteDBInstance action deletes a previously provisioned DB
-        instance. When you delete a DB instance, all automated backups for that
-        instance are deleted and can't be recovered. Manual DB snapshots of the
-        DB instance to be deleted by ``DeleteDBInstance`` are not deleted.
+        Deletes a previously provisioned DB instance. When you delete a DB
+        instance, all automated backups for that instance are deleted and can't
+        be recovered. However, manual DB snapshots of the DB instance aren't
+        deleted.
 
         Args:
             DBInstanceIdentifier: The DB instance identifier for the DB instance to be
                 deleted. This parameter isn't case-sensitive.
 
         Keyword Args:
-            SkipFinalSnapshot: A value that indicates whether to skip the creation of a
-                final DB snapshot before deleting the instance. If you enable this
-                parameter, RDS doesn't create a DB snapshot. If you don't enable this
-                parameter, RDS creates a DB snapshot before the DB instance is deleted. By
-                default, skip isn't enabled, and the DB snapshot is created.
+            SkipFinalSnapshot: Specifies whether to skip the creation of a final DB
+                snapshot before deleting the instance. If you enable this parameter, RDS
+                doesn't create a DB snapshot. If you don't enable this parameter, RDS
+                creates a DB snapshot before the DB instance is deleted. By default, skip
+                isn't enabled, and the DB snapshot is created.
             FinalDBSnapshotIdentifier: The ``DBSnapshotIdentifier`` of the new
                 ``DBSnapshot`` created when the ``SkipFinalSnapshot`` parameter is
                 disabled.
-            DeleteAutomatedBackups: A value that indicates whether to remove automated
-                backups immediately after the DB instance is deleted. This parameter isn't
-                case-sensitive. The default is to remove automated backups immediately
-                after the DB instance is deleted.
+            DeleteAutomatedBackups: Specifies whether to remove automated backups
+                immediately after the DB instance is deleted. This parameter isn't case-
+                sensitive. The default is to remove automated backups immediately after the
+                DB instance is deleted.
         """
         args: Dict[str, Any] = dict(
             DBInstanceIdentifier=self.serialize(DBInstanceIdentifier),
@@ -640,7 +644,7 @@ class RDSPendingModifiedValues(Boto3Model):
     Port: Optional[int] = None
     #: The number of days for which automated backups are retained.
     BackupRetentionPeriod: Optional[int] = None
-    #: A value that indicates that the Single-AZ DB instance will change to a Multi-AZ
+    #: Indicates whether the Single-AZ DB instance will change to a Multi-AZ
     #: deployment.
     MultiAZ: Optional[bool] = None
     #: The database engine version.
@@ -663,8 +667,8 @@ class RDSPendingModifiedValues(Boto3Model):
     #: The number of CPU cores and the number of threads per core for the DB instance
     #: class of the DB instance.
     ProcessorFeatures: Optional[List["ProcessorFeature"]] = None
-    #: Whether mapping of Amazon Web Services Identity and Access Management (IAM)
-    #: accounts to database accounts is enabled.
+    #: Indicates whether mapping of Amazon Web Services Identity and Access Management
+    #: (IAM) accounts to database accounts is enabled.
     IAMDatabaseAuthenticationEnabled: Optional[bool] = None
     #: The automation mode of the RDS Custom DB instance: ``full`` or ``all-paused``.
     #: If ``full``, the DB instance automates monitoring and instance recovery. If
@@ -679,6 +683,11 @@ class RDSPendingModifiedValues(Boto3Model):
     StorageThroughput: Optional[int] = None
     #: The database engine of the DB instance.
     Engine: Optional[str] = None
+    #: Indicates whether the DB instance has a dedicated log volume (DLV) enabled.>
+    DedicatedLogVolume: Optional[bool] = None
+    #: Indicates whether the DB instance will change to the multi-tenant configuration
+    #: (TRUE) or the single-tenant configuration (FALSE).
+    MultiTenant: Optional[bool] = None
 
 
 class OptionGroupMembership(Boto3Model):
@@ -702,12 +711,12 @@ class DBInstanceStatusInfo(Boto3Model):
 
     #: This value is currently "read replication."
     StatusType: Optional[str] = None
-    #: Boolean value that is true if the instance is operating normally, or false if
-    #: the instance is in an error state.
+    #: Indicates whether the instance is operating normally (TRUE) or is in an error
+    #: state (FALSE).
     Normal: Optional[bool] = None
-    #: Status of the DB instance. For a StatusType of read replica, the values can be
-    #: replicating, replication stop point set, replication stop point reached, error,
-    #: stopped, or terminated.
+    #: The status of the DB instance. For a StatusType of read replica, the values can
+    #: be replicating, replication stop point set, replication stop point reached,
+    #: error, stopped, or terminated.
     Status: Optional[str] = None
     #: Details of the error if there is an error for the instance. If the instance
     #: isn't in an error state, this value is blank.
@@ -741,8 +750,8 @@ class DomainMembership(Boto3Model):
 
 class DBInstanceRole(Boto3Model):
     """
-    Describes an Amazon Web Services Identity and Access Management (IAM) role
-    that is associated with a DB instance.
+    Information about an Amazon Web Services Identity and Access Management
+    (IAM) role that is associated with a DB instance.
     """
 
     #: The Amazon Resource Name (ARN) of the IAM role that is associated with the DB
@@ -752,8 +761,8 @@ class DBInstanceRole(Boto3Model):
     #: Access Management (IAM) role. For information about supported feature names,
     #: see ``DBEngineVersion``.
     FeatureName: Optional[str] = None
-    #: Describes the state of association between the IAM role and the DB instance.
-    #: The Status property returns one of the following values:
+    #: Information about the state of association between the IAM role and the DB
+    #: instance. The Status property returns one of the following values:
     Status: Optional[str] = None
 
 
@@ -858,10 +867,9 @@ class DBInstance(PrimaryBoto3Model):
     AutomaticRestartTime: datetime = Field(default=None, frozen=True)
     #: The master username for the DB instance.
     MasterUsername: Optional[str] = None
-    #: Contains the initial database name that you provided (if required) when you
-    #: created the DB instance. This name is returned for the life of your DB
-    #: instance. For an RDS for Oracle CDB instance, the name identifies the PDB
-    #: rather than the CDB.
+    #: The initial database name that you provided (if required) when you created the
+    #: DB instance. This name is returned for the life of your DB instance. For an RDS
+    #: for Oracle CDB instance, the name identifies the PDB rather than the CDB.
     DBName: Optional[str] = None
     #: The connection endpoint for the DB instance.
     Endpoint: RDSEndpoint = Field(default=None, frozen=True)
@@ -1062,6 +1070,18 @@ class DBInstance(PrimaryBoto3Model):
     ReadReplicaSourceDBClusterIdentifier: str = Field(default=None, frozen=True)
     #: The progress of the storage optimization operation as a percentage.
     PercentProgress: str = Field(default=None, frozen=True)
+    #: Indicates whether the DB instance has a dedicated log volume (DLV) enabled.
+    DedicatedLogVolume: Optional[bool] = None
+    #: Indicates whether an upgrade is recommended for the storage file system
+    #: configuration on the DB instance. To migrate to the preferred configuration,
+    #: you can either create a blue/green deployment, or create a read replica from
+    #: the DB instance. For more information, see `Upgrading the storage file system
+    #: for a DB instance <https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/USER_
+    #: PIOPS.StorageTypes.html#USER_PIOPS.UpgradeFileSystem>`_.
+    IsStorageConfigUpgradeAvailable: bool = Field(default=None, frozen=True)
+    #: Specifies whether the DB instance is in the multi-tenant configuration (TRUE)
+    #: or the single-tenant configuration (FALSE).
+    MultiTenant: Optional[bool] = None
 
     @property
     def pk(self) -> Optional[str]:
