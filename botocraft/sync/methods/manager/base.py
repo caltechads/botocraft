@@ -420,7 +420,8 @@ class ManagerMethodGenerator:
         specifies.
 
         Returns:
-            _type_: _description_
+            The name of the attribute in the boto3 response that we want to
+            return from the method.
         """
         response_attr: Optional[str] = None
         if self.output_shape is None:
@@ -428,12 +429,21 @@ class ManagerMethodGenerator:
         if not hasattr(self.output_shape, 'members'):
             return None
         if self.method_def.response_attr:
-            response_attr = self.method_def.response_attr
+            return self.method_def.response_attr
         potential_names = [
             self.model_name.lower(),
             self.model_name_plural.lower(),
         ]
+        # We need to take into account when we rename an attribute on a response
+        # shape, e.g. ``CreateLaunchTemplateResult`` has an attribute
+        # ``LaunchTemplate`` that we rename to ``LaunchTemplateInstance``.
+        # Searching through the shape.members dictionary doesn't work in this
+        # case, because the attribute name is different
         response_attrs = {attr.lower(): attr for attr in self.output_shape.members}
+        response_model_def = self.model_generator.get_model_def(self.output_shape.name)
+        for field_data in response_model_def.fields.values():
+            if field_data.rename:
+                response_attrs[field_data.rename.lower()] = field_data.rename
         for attr in response_attrs:
             if attr in potential_names:
                 response_attr = response_attrs[attr]
@@ -466,7 +476,17 @@ class ManagerMethodGenerator:
             return 'one'
         if self.response_attr is None:
             return 'one'
-        shape = self.output_shape.members[self.response_attr]
+        try:
+            shape = self.output_shape.members[self.response_attr]
+        except KeyError:
+            response_model_def = self.model_generator.get_model_def(self.output_shape.name)
+            for field, field_data in response_model_def.fields.items():
+                if field_data.rename == self.response_attr:
+                    shape = self.output_shape.members[field]
+                    break
+            else:
+                raise
+            # Maybe we're dealing with a renamed field
         if hasattr(shape, 'type') and shape.type == 'list':
             return 'many'
         elif hasattr(shape, 'type_name') and shape.type_name == 'list':
@@ -493,7 +513,16 @@ class ManagerMethodGenerator:
         ):
             return 'None'
         if self.output_shape is not None:
-            response_attr_shape = self.output_shape.members[cast(str, self.response_attr)]
+            try:
+                response_attr_shape = self.output_shape.members[cast(str, self.response_attr)]
+            except KeyError:
+                response_model_def = self.model_generator.get_model_def(self.output_shape.name)
+                for field, field_data in response_model_def.fields.items():
+                    if field_data.rename == self.response_attr:
+                        response_attr_shape = self.output_shape.members[cast(str, field)]
+                        break
+                else:
+                    raise
         return self.shape_converter.convert(response_attr_shape, quote=True)
 
     @property
