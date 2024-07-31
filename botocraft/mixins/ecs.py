@@ -1,5 +1,5 @@
 import re
-from typing import Callable, List, TYPE_CHECKING
+from typing import Callable, List, TYPE_CHECKING, Optional
 
 if TYPE_CHECKING:
     from botocraft.services import (
@@ -120,15 +120,14 @@ def ecs_container_instances_only(
 
 
 # Task
-
 def ecs_task_populate_taskDefinition(
-    func: Callable[..., "Task"]
-) -> Callable[..., "Task"]:
+    func: Callable[..., Optional["Task"]]
+) -> Callable[..., Optional["Task"]]:
     """
     When getting a single task, populate the
     :py:attr:`botocraft.services.ecs.Task.taskDefinition` attribute.
     """
-    def wrapper(self, *args, **kwargs) -> "Task":
+    def wrapper(self, *args, **kwargs) -> Optional["Task"]:
         task = func(self, *args, **kwargs)
         if task:
             task.taskDefinition = extract_task_family_and_revision(task.taskDefinitionArn)
