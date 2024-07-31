@@ -275,6 +275,29 @@ Instance:
       decorators:
         - name: ec2_instances_only
           import_path: botocraft.mixins.ec2
+    start:
+      boto3_name: start_instances
+      response_attr: StartingInstances
+      return_type: Optional[List["InstanceStateChange"]]
+      args:
+        InstanceIds:
+          required: true
+        Hibernate:
+          default: "False"
+        DryRun:
+          default: "False"
+        Force:
+          default: "False"
+    stop:
+      boto3_name: stop_instances
+      response_attr: StoppingInstances
+      return_type: Optional[List["InstanceStateChange"]]
+      args:
+        InstanceIds:
+          required: true
+        DryRun:
+          default: "False"
+
 LaunchTemplate:
   mixins:
     - name: EC2TagsManagerMixin
@@ -282,6 +305,7 @@ LaunchTemplate:
   methods:
     create:
       boto3_name: create_launch_template
+      response_attr: LaunchTemplateInstance
       args:
         DryRun:
           default: "False"
@@ -292,6 +316,7 @@ LaunchTemplate:
             self.serialize(self.convert_tags(model.Tags, 'launch-template'))
     delete:
       boto3_name: delete_launch_template
+      response_attr: LaunchTemplateInstance
       args:
         LaunchTemplateId:
           required: true
