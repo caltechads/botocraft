@@ -3,6 +3,7 @@ DBInstance:
   methods:
     create:
       boto3_name: create_db_instance
+      response_attr: RDSDBInstance
       args:
         DBSecurityGroups:
           hidden: true
@@ -20,6 +21,7 @@ DBInstance:
           attribute: PerformanceInsightsEnabled
     update:
       boto3_name: modify_db_instance
+      response_attr: RDSDBInstance
       args:
         DBSecurityGroups:
           hidden: true
@@ -35,6 +37,7 @@ DBInstance:
           attribute: PerformanceInsightsEnabled
     delete:
       boto3_name: delete_db_instance
+      response_attr: RDSDBInstance
     get:
       boto3_name: describe_db_instances
       args:

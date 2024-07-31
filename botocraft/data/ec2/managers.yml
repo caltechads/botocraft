@@ -182,6 +182,7 @@ NetworkAcl:
   methods:
     create:
       boto3_name: create_network_acl
+      response_attr: NetworkAclInstance
       args:
         DryRun:
           default: "False"
@@ -347,6 +348,7 @@ LaunchTemplateVersion:
   methods:
     create:
       boto3_name: create_launch_template_version
+      response_attr: LaunchTemplateVersionInstance
       args:
         DryRun:
           default: "False"

@@ -228,3 +228,7 @@ secondary:
     fields:
       tags:
         rename: Tags
+  EBSTagSpecification:
+    fields:
+      tags:
+        rename: Tags
