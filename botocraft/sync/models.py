@@ -405,7 +405,7 @@ class ManagerMethodDefinition(BaseModel):
     #: is not specified as a key in this dict, it will be generated as is
     #: appropriate for the operation type
     args: Dict[str, MethodArgumentDefinition] = {}
-    #: The attribute name the response class to use in building our
+    #: The attribute name on the response class to use in building our
     #: method return object(s).  If not specified, we'll use the lowercased
     #: model name, pluralizing if necessary.
     #:
