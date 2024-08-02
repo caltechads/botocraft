@@ -79,8 +79,33 @@ class Boto3ModelManager(TransformMixin):
     service_name: str
 
     def __init__(self) -> None:
+        #: The boto3 session to use for the service
+        self._session = boto3.session.Session()
         #: The boto3 client for the AWS service
-        self.client = boto3.client(self.service_name)  # type: ignore
+        self._client = boto3.client(self.service_name)  # type: ignore
+
+    @property
+    def boto3_session(self) -> boto3.session.Session:
+        """
+        Get the boto3 client for the service.
+
+        Returns:
+            The boto3 client for the service.
+        """
+        return self._client
+
+    @boto3_session.setter
+    def boto3_session(self, session: boto3.session.Session) -> None:
+        """
+        Set the boto3 session for the service.  We're providing this setter
+        so that we can have the same codebase work in several accounts
+        simultaneously.
+
+        Args:
+            session: The boto3 session for the service.
+        """
+        self._session = session
+        self._client = session.client(self.service_name)   # type: ignore
 
     def serialize(self, arg: Any) -> Any:
         """
@@ -128,7 +153,7 @@ class Boto3ModelManager(TransformMixin):
         raise NotImplementedError
 
 
-class ReadonlyBoto3ModelManager(Boto3ModelManager):
+class ReadonlyBoto3ModelManager(Boto3ModelManager):   # pylint: disable=abstract-method
 
     def create(self, model, **kwargs):
         raise RuntimeError("This model cannot be created.")
