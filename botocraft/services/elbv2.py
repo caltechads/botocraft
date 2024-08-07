@@ -522,7 +522,7 @@ class TargetGroupManager(Boto3ModelManager):
         *,
         Targets: Optional[List["TargetDescription"]] = None,
         Include: Optional[List[Literal["AnomalyDetection", "All"]]] = None
-    ) -> List["TargetHealthDescription"]:
+    ) -> Optional[List["TargetHealthDescription"]]:
         """
         Describes the health of the specified targets or all of your targets.
 

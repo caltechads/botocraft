@@ -106,7 +106,7 @@ TargetGroup:
       boto3_name: describe_target_groups
     targets:
       boto3_name: describe_target_health
-      return_type: List["TargetHealthDescription"]
+      return_type: Optional[List["TargetHealthDescription"]]
       response_attr: TargetHealthDescriptions
       args:
         TargetGroupArn:
