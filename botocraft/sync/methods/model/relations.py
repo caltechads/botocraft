@@ -139,14 +139,14 @@ class ModelRelationGenerator:
             self.transform(value, r"{self.property_def.transformer.regex.regex}")
             for value in self.{self.property_def.transformer.regex.attribute}
         ]
-        return {self.property_def.primary_model_name}.objects.list(**pks)
+        return {self.property_def.primary_model_name}.objects.using(self.objects.session).list(**pks)
 """
         else:
             code = f"""
         if self.{self.property_def.transformer.regex.attribute} is None:
             return None
         pk = self.transform(value, r"{self.property_def.transformer.regex.regex}")
-        return {self.property_def.primary_model_name}.objects.get(**pk)
+        return {self.property_def.primary_model_name}.objects.using(self.objects.session).get(**pk)
 """
         return code
 
@@ -171,14 +171,14 @@ class ModelRelationGenerator:
             }})
         except AttributeError:
             return []
-        return {self.property_def.primary_model_name}.objects.list(**pk)
+        return {self.property_def.primary_model_name}.objects.using(self.objects.session).list(**pk)
 """
         else:
             code += f"""
         }})
         except AttributeError:
             return None
-        return {self.property_def.primary_model_name}.objects.get(**pk)
+        return {self.property_def.primary_model_name}.objects.using(self.objects.session).get(**pk)
 """
         return code
 

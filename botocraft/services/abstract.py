@@ -79,33 +79,21 @@ class Boto3ModelManager(TransformMixin):
     service_name: str
 
     def __init__(self) -> None:
-        #: The boto3 session to use for the service
-        self._session = boto3.session.Session()
         #: The boto3 client for the AWS service
-        self._client = boto3.client(self.service_name)  # type: ignore
+        self.client = boto3.client(self.service_name)  # type: ignore
+        #: The boto3 session to use for this manager.
+        self.session = boto3.session.Session()
 
-    @property
-    def boto3_session(self) -> boto3.session.Session:
+    def using(self, session: boto3.session.Session) -> "Boto3ModelManager":
         """
-        Get the boto3 client for the service.
-
-        Returns:
-            The boto3 client for the service.
-        """
-        return self._client
-
-    @boto3_session.setter
-    def boto3_session(self, session: boto3.session.Session) -> None:
-        """
-        Set the boto3 session for the service.  We're providing this setter
-        so that we can have the same codebase work in several accounts
-        simultaneously.
+        Use a different boto3 session for this manager.
 
         Args:
-            session: The boto3 session for the service.
+            session: The boto3 session to use.
         """
-        self._session = session
-        self._client = session.client(self.service_name)   # type: ignore
+        self.session = session
+        self.client = session.client(self.service_name)  # type: ignore
+        return self
 
     def serialize(self, arg: Any) -> Any:
         """

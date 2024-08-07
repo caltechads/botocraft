@@ -24,6 +24,7 @@ from .abstract import (Boto3Model, Boto3ModelManager, PrimaryBoto3Model,
 
 
 class LoadBalancerManager(Boto3ModelManager):
+
     service_name: str = "elbv2"
 
     def create(
@@ -134,6 +135,7 @@ class LoadBalancerManager(Boto3ModelManager):
 
 
 class ListenerManager(Boto3ModelManager):
+
     service_name: str = "elbv2"
 
     def create(self, model: "Listener", Tags: Optional[List[Tag]] = None) -> "Listener":
@@ -257,6 +259,7 @@ class ListenerManager(Boto3ModelManager):
 
 
 class RuleManager(Boto3ModelManager):
+
     service_name: str = "elbv2"
 
     def create(
@@ -366,6 +369,7 @@ class RuleManager(Boto3ModelManager):
 
 
 class TargetGroupManager(Boto3ModelManager):
+
     service_name: str = "elbv2"
 
     def create(
@@ -557,9 +561,9 @@ class LoadBalancerState(Boto3Model):
     #: is ``active``. If load balancer is routing traffic but does not have the
     #: resources it needs to scale, its state is``active_impaired``. If the load
     #: balancer could not be set up, its state is ``failed``.
-    Code: Optional[
-        Literal["active", "provisioning", "active_impaired", "failed"]
-    ] = None
+    Code: Optional[Literal["active", "provisioning", "active_impaired", "failed"]] = (
+        None
+    )
     #: A description of the state.
     Reason: Optional[str] = None
 
@@ -696,7 +700,7 @@ class LoadBalancer(PrimaryBoto3Model):
             )
         except AttributeError:
             return []
-        return Listener.objects.list(**pk)
+        return Listener.objects.using(self.objects.session).list(**pk)
 
     @cached_property
     def vpc(self) -> Optional["Vpc"]:
@@ -713,7 +717,7 @@ class LoadBalancer(PrimaryBoto3Model):
             )
         except AttributeError:
             return None
-        return Vpc.objects.get(**pk)
+        return Vpc.objects.using(self.objects.session).get(**pk)
 
     @cached_property
     def security_groups(self) -> Optional[List["SecurityGroup"]]:
@@ -730,7 +734,7 @@ class LoadBalancer(PrimaryBoto3Model):
             )
         except AttributeError:
             return []
-        return SecurityGroup.objects.list(**pk)
+        return SecurityGroup.objects.using(self.objects.session).list(**pk)
 
 
 class Certificate(ReadonlyBoto3Model):
@@ -1039,7 +1043,7 @@ class Listener(PrimaryBoto3Model):
             )
         except AttributeError:
             return None
-        return LoadBalancer.objects.get(**pk)
+        return LoadBalancer.objects.using(self.objects.session).get(**pk)
 
     @cached_property
     def rules(self) -> Optional[List["Rule"]]:
@@ -1056,7 +1060,7 @@ class Listener(PrimaryBoto3Model):
             )
         except AttributeError:
             return []
-        return Rule.objects.list(**pk)
+        return Rule.objects.using(self.objects.session).list(**pk)
 
 
 class HostHeaderConditionConfig(Boto3Model):
@@ -1377,7 +1381,7 @@ class TargetGroup(PrimaryBoto3Model):
             )
         except AttributeError:
             return []
-        return LoadBalancer.objects.list(**pk)
+        return LoadBalancer.objects.using(self.objects.session).list(**pk)
 
     @cached_property
     def vpc(self) -> Optional["Vpc"]:
@@ -1394,7 +1398,7 @@ class TargetGroup(PrimaryBoto3Model):
             )
         except AttributeError:
             return None
-        return Vpc.objects.get(**pk)
+        return Vpc.objects.using(self.objects.session).get(**pk)
 
 
 # =======================

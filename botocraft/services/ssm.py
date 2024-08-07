@@ -20,6 +20,7 @@ from .abstract import (Boto3Model, Boto3ModelManager, PrimaryBoto3Model,
 
 
 class ParameterManager(Boto3ModelManager):
+
     service_name: str = "ssm"
 
     def create(

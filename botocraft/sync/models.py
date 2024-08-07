@@ -10,7 +10,7 @@ import yaml
 from pydantic import (
     BaseModel,
     field_validator,
-    FieldValidationInfo,
+    ValidationInfo,
     model_validator
 )
 
@@ -56,7 +56,7 @@ class RegexTransformer(BaseModel):
     def check_valid_regexp(
         cls,
         v: Optional[str],
-        info: FieldValidationInfo
+        info: ValidationInfo
     ) -> Optional[str]:
         """
         Validate that the transformer is a valid regular expression.

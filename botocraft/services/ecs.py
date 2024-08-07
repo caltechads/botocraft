@@ -28,6 +28,7 @@ from .abstract import (Boto3Model, Boto3ModelManager, PrimaryBoto3Model,
 
 
 class ServiceManager(Boto3ModelManager):
+
     service_name: str = "ecs"
 
     def create(
@@ -435,6 +436,7 @@ class ServiceManager(Boto3ModelManager):
 
 
 class ClusterManager(Boto3ModelManager):
+
     service_name: str = "ecs"
 
     def create(self, model: "Cluster") -> "Cluster":
@@ -621,6 +623,7 @@ class ClusterManager(Boto3ModelManager):
 
 
 class TaskDefinitionManager(Boto3ModelManager):
+
     service_name: str = "ecs"
 
     def create(
@@ -821,6 +824,7 @@ class TaskDefinitionManager(Boto3ModelManager):
 
 
 class ContainerInstanceManager(ReadonlyBoto3ModelManager):
+
     service_name: str = "ecs"
 
     def get(
@@ -972,6 +976,7 @@ class ContainerInstanceManager(ReadonlyBoto3ModelManager):
 
 
 class TaskManager(Boto3ModelManager):
+
     service_name: str = "ecs"
 
     @ecs_task_populate_taskDefinition
@@ -1718,6 +1723,7 @@ class Secret(Boto3Model):
     For more information, see `Specifying sensitive
     data <https://docs.aws.amazon.com/AmazonECS/latest/developerguide/specifying-
     sensitive-data.html>`_ in the *Amazon Elastic Container Service Developer Guide*.
+
     """
 
     #: The name of the secret.
@@ -1770,7 +1776,8 @@ class LogConfiguration(Boto3Model):
     * For tasks that are on Fargate, because you don't have access to the
       underlying infrastructure your tasks are hosted on, any additional software
       needed must be installed outside of the task. For example, the Fluentd output
-      aggregators or a remote host running Logstash to send Gelf logs to."""
+      aggregators or a remote host running Logstash to send Gelf logs to.
+    """
 
     #: The log driver to use for the container.
     logDriver: Literal[
@@ -2066,6 +2073,7 @@ class PlacementConstraint(Boto3Model):
 
     If you're using the Fargate launch type, task placement constraints aren't
     supported.
+
     """
 
     #: The type of constraint. Use ``distinctInstance`` to ensure that each task in a
@@ -2286,7 +2294,7 @@ class Service(TagsDictMixin, PrimaryBoto3Model):
             )
         except AttributeError:
             return None
-        return Cluster.objects.get(**pk)
+        return Cluster.objects.using(self.objects.session).get(**pk)
 
     @cached_property
     def task_definition(self) -> Optional["TaskDefinition"]:
@@ -2303,7 +2311,7 @@ class Service(TagsDictMixin, PrimaryBoto3Model):
             )
         except AttributeError:
             return None
-        return TaskDefinition.objects.get(**pk)
+        return TaskDefinition.objects.using(self.objects.session).get(**pk)
 
     @cached_property
     def tasks(self) -> Optional[List["Task"]]:
@@ -2321,7 +2329,7 @@ class Service(TagsDictMixin, PrimaryBoto3Model):
             )
         except AttributeError:
             return []
-        return Task.objects.list(**pk)
+        return Task.objects.using(self.objects.session).list(**pk)
 
 
 class ExecuteCommandLogConfiguration(Boto3Model):
@@ -2508,9 +2516,9 @@ class Cluster(TagsDictMixin, PrimaryBoto3Model):
     #: The default capacity provider strategy for the cluster. When services or tasks
     #: are run in the cluster with no launch type or capacity provider strategy
     #: specified, the default capacity provider strategy is used.
-    defaultCapacityProviderStrategy: Optional[
-        List["CapacityProviderStrategyItem"]
-    ] = None
+    defaultCapacityProviderStrategy: Optional[List["CapacityProviderStrategyItem"]] = (
+        None
+    )
     #: The resources attached to a cluster. When using a capacity provider with a
     #: cluster, the capacity provider and associated resources are returned as cluster
     #: attachments.
@@ -2575,7 +2583,7 @@ class Cluster(TagsDictMixin, PrimaryBoto3Model):
             )
         except AttributeError:
             return []
-        return Service.objects.list(**pk)
+        return Service.objects.using(self.objects.session).list(**pk)
 
     @cached_property
     def container_instances(self) -> Optional[List["ContainerInstance"]]:
@@ -2592,7 +2600,7 @@ class Cluster(TagsDictMixin, PrimaryBoto3Model):
             )
         except AttributeError:
             return []
-        return ContainerInstance.objects.list(**pk)
+        return ContainerInstance.objects.using(self.objects.session).list(**pk)
 
 
 class RepositoryCredentials(Boto3Model):
@@ -2999,6 +3007,7 @@ class SystemControl(Boto3Model):
     This parameter is only supported for tasks that are hosted on Fargate if the
     tasks are using platform version ``1.4.0`` or later (Linux). This isn't
     supported for Windows containers on Fargate.
+
     """
 
     #: The namespaced kernel parameter to set a ``value`` for.
@@ -3574,6 +3583,7 @@ class TaskDefinitionPlacementConstraint(Boto3Model):
     Guide*.
 
     Task placement constraints aren't supported for tasks run on Fargate.
+
     """
 
     #: The type of constraint. The ``MemberOf`` constraint restricts selection to be
@@ -3749,9 +3759,9 @@ class TaskDefinition(TagsDictMixin, PrimaryBoto3Model):
     #: `Amazon ECS launch types <https://docs.aws.amazon.com/AmazonECS/latest/develope
     #: rguide/launch_types.html>`_ in the *Amazon Elastic Container Service Developer
     #: Guide*.
-    requiresCompatibilities: Optional[
-        List[Literal["EC2", "FARGATE", "EXTERNAL"]]
-    ] = None
+    requiresCompatibilities: Optional[List[Literal["EC2", "FARGATE", "EXTERNAL"]]] = (
+        None
+    )
     #: The number of ``cpu`` units used by the task. If you use the EC2 launch type,
     #: this field is optional. Any value can be used. If you use the Fargate launch
     #: type, this field is required. You must use one of the following values. The
@@ -4211,7 +4221,7 @@ class Task(TagsDictMixin, PrimaryBoto3Model):
             )
         except AttributeError:
             return None
-        return Cluster.objects.get(**pk)
+        return Cluster.objects.using(self.objects.session).get(**pk)
 
     @cached_property
     def task_definition(self) -> Optional["TaskDefinition"]:
@@ -4228,7 +4238,7 @@ class Task(TagsDictMixin, PrimaryBoto3Model):
             )
         except AttributeError:
             return None
-        return TaskDefinition.objects.get(**pk)
+        return TaskDefinition.objects.using(self.objects.session).get(**pk)
 
     @cached_property
     def container_instance(self) -> Optional["ContainerInstance"]:
@@ -4246,7 +4256,7 @@ class Task(TagsDictMixin, PrimaryBoto3Model):
             )
         except AttributeError:
             return None
-        return ContainerInstance.objects.get(**pk)
+        return ContainerInstance.objects.using(self.objects.session).get(**pk)
 
     @cached_property
     def service(self) -> Optional["Service"]:
@@ -4263,7 +4273,7 @@ class Task(TagsDictMixin, PrimaryBoto3Model):
             )
         except AttributeError:
             return None
-        return Service.objects.get(**pk)
+        return Service.objects.using(self.objects.session).get(**pk)
 
 
 class VersionInfo(Boto3Model):
@@ -4316,9 +4326,9 @@ class InstanceHealthCheckResult(Boto3Model):
     #: The type of container instance health status that was verified.
     type: Optional[Literal["CONTAINER_RUNTIME"]] = None
     #: The container instance health status.
-    status: Optional[
-        Literal["OK", "IMPAIRED", "INSUFFICIENT_DATA", "INITIALIZING"]
-    ] = None
+    status: Optional[Literal["OK", "IMPAIRED", "INSUFFICIENT_DATA", "INITIALIZING"]] = (
+        None
+    )
     #: The Unix timestamp for when the container instance health status was last
     #: updated.
     lastUpdated: Optional[datetime] = None
@@ -4462,7 +4472,7 @@ class ContainerInstance(TagsDictMixin, ReadonlyPrimaryBoto3Model):
             )
         except AttributeError:
             return None
-        return Instance.objects.get(**pk)
+        return Instance.objects.using(self.objects.session).get(**pk)
 
 
 # =======================

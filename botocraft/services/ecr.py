@@ -21,6 +21,7 @@ from .abstract import (Boto3Model, Boto3ModelManager, PrimaryBoto3Model,
 
 
 class RepositoryManager(Boto3ModelManager):
+
     service_name: str = "ecr"
 
     def create(
@@ -237,6 +238,7 @@ class Repository(PrimaryBoto3Model):
 
     @property
     def pk(self) -> OrderedDict[str, Any]:
+
         return OrderedDict(
             {
                 "repositoryName": self.repositoryName,

@@ -20,6 +20,7 @@ from .abstract import (Boto3Model, Boto3ModelManager, PrimaryBoto3Model,
 
 
 class DBInstanceManager(Boto3ModelManager):
+
     service_name: str = "rds"
 
     def create(
@@ -460,7 +461,8 @@ class DBSecurityGroupMembership(Boto3Model):
     * ``ModifyDBInstance``
     * ``RebootDBInstance``
     * ``RestoreDBInstanceFromDBSnapshot``
-    * ``RestoreDBInstanceToPointInTime``"""
+    * ``RestoreDBInstanceToPointInTime``
+    """
 
     #: The name of the DB security group.
     DBSecurityGroupName: Optional[str] = None
