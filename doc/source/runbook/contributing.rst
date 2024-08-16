@@ -40,7 +40,7 @@ in our virtualenv.
 
 .. code-block:: shell
 
-    $ pyenv virtualenv 3.10.12 botocraft
+    $ pyenv virtualenv 3.11.9 botocraft
     $ pyenv local botocraft
     $ pip install --upgrade pip wheel
     $ pip install -r requirements.txt

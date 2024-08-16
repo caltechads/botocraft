@@ -13,7 +13,7 @@ mean things in AWS that you manage via the AWS API.  For example,
 There are two types of models in botocraft:
 
 * **Primary models** are models that you can perform operations on directly.
-* **Secondary models** are models that are used as sub structure of primary models.
+* **Secondary models** are models that are used to build out the sub-structure of primary models.
 
 Primary models
 --------------
@@ -21,7 +21,8 @@ Primary models
 A primary model is a model that you can perform boto3 operations on directly.  They
 map to a single AWS resource type.  Primary models have managers that implement
 operations that can be performed on a primary model.  The manager is available
-as the ``.objects`` attribute of a primary model class object.
+as the ``.objects`` attribute of a primary model class object, vaguely similar to
+how Django ORM works.
 
 For example, in ``ecs`` one primary model is ``Service``.  You can create, read,
 update, and delete a ``Service``, like so:
@@ -142,9 +143,10 @@ Example:
     )
     service.objects.create(service)
 
-Some primary models are quite complicated and have many secondary models, or they may
-have none.
+Some primary models are quite complicated and have many secondary models, or
+they may have none.
 
 Secondary models themselves can have other secondary models as types for their
-attributes.  For example, ``Container`` secondary model of ``TaskDefinition`` itself
-uses ``NetworkBinding``, ``NetworkInterface`` and ``ManagedAgent`` secondary models.
+attributes.  For example, ``Container``, a secondary model of ``TaskDefinition``
+itself, uses ``NetworkBinding``, ``NetworkInterface`` and ``ManagedAgent``
+secondary models.
