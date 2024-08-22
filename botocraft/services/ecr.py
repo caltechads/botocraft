@@ -8,6 +8,9 @@ from typing import Any, ClassVar, Dict, List, Literal, Optional, Type, cast
 
 from pydantic import Field
 
+from botocraft.mixins.ecr import (ECRImageMixin, RepositoryMixin,
+                                  image_list_images_ecr_images_only,
+                                  repo_list_images_ecr_images_only)
 from botocraft.mixins.tags import TagsDictMixin
 from botocraft.services.common import Tag
 
@@ -21,7 +24,6 @@ from .abstract import (Boto3Model, Boto3ModelManager, PrimaryBoto3Model,
 
 
 class RepositoryManager(Boto3ModelManager):
-
     service_name: str = "ecr"
 
     def create(
@@ -60,7 +62,7 @@ class RepositoryManager(Boto3ModelManager):
         repositoryName: str,
         *,
         registryId: Optional[str] = None,
-        force: bool = False
+        force: Optional[bool] = None
     ) -> "Repository":
         """
         Delete an ECR repository.
@@ -147,6 +149,294 @@ class RepositoryManager(Boto3ModelManager):
                 break
         return results
 
+    @repo_list_images_ecr_images_only
+    def list_images(
+        self,
+        repositoryName: str,
+        *,
+        registryId: Optional[str] = None,
+        filter: Optional["ListImagesFilter"] = None
+    ) -> List["ImageIdentifier"]:
+        """
+        Lists all the image IDs for the specified repository.
+
+        Args:
+            repositoryName: The repository with image IDs to be listed.
+
+        Keyword Args:
+            registryId: The Amazon Web Services account ID associated with the registry
+                that contains the repository in which to list images. If you do not specify
+                a registry, the default registry is assumed.
+            filter: The filter key and value with which to filter your ``ListImages``
+                results.
+        """
+        paginator = self.client.get_paginator("list_images")
+        args: Dict[str, Any] = dict(
+            repositoryName=self.serialize(repositoryName),
+            registryId=self.serialize(registryId),
+            filter=self.serialize(filter),
+        )
+        response_iterator = paginator.paginate(
+            **{k: v for k, v in args.items() if v is not None}
+        )
+        results: List["ImageIdentifier"] = []
+        for _response in response_iterator:
+            response = ListImagesResponse(**_response)
+
+            if response.imageIds:
+                results.extend(response.imageIds)
+
+            else:
+                break
+        return results
+
+    def get_images(
+        self,
+        repositoryName: str,
+        imageIds: List["ImageIdentifier"],
+        *,
+        acceptedMediaTypes: List[str] = [
+            "application/vnd.docker.distribution.manifest.v2+json"
+        ]
+    ) -> List["Image"]:
+        """
+        Use this method when you want to get just a few images from the
+        repository. If you want to get all images, use the ````list\_images````
+        method.
+
+        Args:
+            repositoryName: The repository that contains the images to describe.
+            imageIds: A list of image ID references that correspond to images to
+                describe. The format of the ``imageIds`` reference is ``imageTag=tag`` or
+                ``imageDigest=digest``.
+
+        Keyword Args:
+            acceptedMediaTypes: The accepted media types for the request.
+        """
+        args: Dict[str, Any] = dict(
+            repositoryName=self.serialize(repositoryName),
+            imageIds=self.serialize(imageIds),
+            acceptedMediaTypes=self.serialize(acceptedMediaTypes),
+        )
+        _response = self.client.batch_get_image(
+            **{k: v for k, v in args.items() if v is not None}
+        )
+        response = BatchGetImageResponse(**_response)
+
+        return response.images
+
+    def get_image(
+        self,
+        repositoryName: str,
+        imageId: "ImageIdentifier",
+        *,
+        acceptedMediaTypes: List[str] = [
+            "application/vnd.docker.distribution.manifest.v2+json"
+        ]
+    ) -> "Image":
+        """
+        Gets detailed information for an image. Images are specified with
+        either an ``imageTag`` or ``imageDigest``.
+
+        Args:
+            repositoryName: The repository that contains the images to describe.
+            imageId: The image ID or tag to describe. The format of the imageId
+                reference is ````imageTag=tag```` or ````imageDigest=digest````
+
+        Keyword Args:
+            acceptedMediaTypes: The accepted media types for the request.
+        """
+        args: Dict[str, Any] = dict(
+            repositoryName=self.serialize(repositoryName),
+            imageIds=self.serialize([imageId]),
+            acceptedMediaTypes=self.serialize(acceptedMediaTypes),
+        )
+        _response = self.client.batch_get_image(
+            **{k: v for k, v in args.items() if v is not None}
+        )
+        response = BatchGetImageResponse(**_response)
+
+        return response.images[0]
+
+
+class ImageManager(Boto3ModelManager):
+    service_name: str = "ecr"
+
+    def get(
+        self,
+        repositoryName: str,
+        imageId: "ImageIdentifier",
+        *,
+        acceptedMediaTypes: List[str] = [
+            "application/vnd.docker.distribution.manifest.v2+json"
+        ]
+    ) -> "Image":
+        """
+        Gets detailed information for an image. Images are specified with
+        either an ``imageTag`` or ``imageDigest``.
+
+        Args:
+            repositoryName: The repository that contains the images to describe.
+            imageId: The image ID or tag to describe. The format of the imageId
+                reference is ````imageTag=tag```` or ````imageDigest=digest````
+
+        Keyword Args:
+            acceptedMediaTypes: The accepted media types for the request.
+        """
+        args: Dict[str, Any] = dict(
+            repositoryName=self.serialize(repositoryName),
+            imageIds=self.serialize([imageId]),
+            acceptedMediaTypes=self.serialize(acceptedMediaTypes),
+        )
+        _response = self.client.batch_get_image(
+            **{k: v for k, v in args.items() if v is not None}
+        )
+        response = BatchGetImageResponse(**_response)
+
+        if response.images[0]:
+            return response.images[0][0]
+        return None
+
+    def get_many(
+        self,
+        repositoryName: str,
+        imageIds: List["ImageIdentifier"],
+        *,
+        acceptedMediaTypes: List[str] = [
+            "application/vnd.docker.distribution.manifest.v2+json"
+        ]
+    ) -> List["Image"]:
+        """
+        Gets detailed information for an image. Images are specified with
+        either an ``imageTag`` or ``imageDigest``.
+
+        Args:
+            repositoryName: The repository that contains the images to describe.
+            imageIds: A list of image ID references that correspond to images to
+                describe. The format of the ``imageIds`` reference is ``imageTag=tag`` or
+                ``imageDigest=digest``.
+
+        Keyword Args:
+            acceptedMediaTypes: The accepted media types for the request.
+        """
+        args: Dict[str, Any] = dict(
+            repositoryName=self.serialize(repositoryName),
+            imageIds=self.serialize(imageIds),
+            acceptedMediaTypes=self.serialize(acceptedMediaTypes),
+        )
+        _response = self.client.batch_get_image(
+            **{k: v for k, v in args.items() if v is not None}
+        )
+        response = BatchGetImageResponse(**_response)
+
+        if response is not None:
+            return response
+
+        return []
+
+    @image_list_images_ecr_images_only
+    def list(
+        self, repositoryName: str, *, filter: Optional["ListImagesFilter"] = None
+    ) -> List["ImageIdentifier"]:
+        """
+        Lists all the image IDs for the specified repository.
+
+        Args:
+            repositoryName: The repository with image IDs to be listed.
+
+        Keyword Args:
+            filter: The filter key and value with which to filter your ``ListImages``
+                results.
+        """
+        paginator = self.client.get_paginator("list_images")
+        args: Dict[str, Any] = dict(
+            repositoryName=self.serialize(repositoryName), filter=self.serialize(filter)
+        )
+        response_iterator = paginator.paginate(
+            **{k: v for k, v in args.items() if v is not None}
+        )
+        results: List["ImageIdentifier"] = []
+        for _response in response_iterator:
+            response = ListImagesResponse(**_response)
+            if response.imageIds:
+                results.extend(response.imageIds)
+            else:
+                break
+        return results
+
+    def delete(self, repositoryName: str, imageId: "ImageIdentifier") -> "Image":
+        """
+        Deletes a list of specified images within a repository. Images are
+        specified with either an ``imageTag`` or ``imageDigest``.
+
+        Args:
+            repositoryName: The repository that contains the image to delete.
+            imageId: The image ID or tag to delete. The format of the imageId reference
+                is ````imageTag=tag```` or ````imageDigest=digest````
+        """
+        args: Dict[str, Any] = dict(
+            repositoryName=self.serialize(repositoryName),
+            imageIds=self.serialize([imageId]),
+        )
+        _response = self.client.batch_delete_image(
+            **{k: v for k, v in args.items() if v is not None}
+        )
+        response = BatchDeleteImageResponse(**_response)
+        return response
+
+    def replication_status(
+        self, repositoryName: str, imageId: "ImageIdentifier"
+    ) -> "DescribeImageReplicationStatusResponse":
+        """
+        Returns the replication status for a specified image.
+
+        Args:
+            repositoryName: The name of the repository that the image is in.
+            imageId: An object with identifying information for an image in an Amazon
+                ECR repository.
+        """
+        args: Dict[str, Any] = dict(
+            repositoryName=self.serialize(repositoryName),
+            imageId=self.serialize(imageId),
+        )
+        _response = self.client.describe_image_replication_status(
+            **{k: v for k, v in args.items() if v is not None}
+        )
+        response = DescribeImageReplicationStatusResponse(**_response)
+
+        return response
+
+    def scan_findings(
+        self, repositoryName: str, imageId: "ImageIdentifier"
+    ) -> "DescribeImageScanFindingsResponse":
+        """
+        Returns the scan findings for the specified image.
+
+        Args:
+            repositoryName: The repository for the image for which to describe the scan
+                findings.
+            imageId: An object with identifying information for an image in an Amazon
+                ECR repository.
+        """
+        paginator = self.client.get_paginator("describe_image_scan_findings")
+        args: Dict[str, Any] = dict(
+            repositoryName=self.serialize(repositoryName),
+            imageId=self.serialize(imageId),
+        )
+        response_iterator = paginator.paginate(
+            **{k: v for k, v in args.items() if v is not None}
+        )
+        results: "DescribeImageScanFindingsResponse" = []
+        for _response in response_iterator:
+            response = DescribeImageScanFindingsResponse(**_response)
+
+            if response is not None:
+                results.extend(response)
+
+            else:
+                break
+        return results
+
 
 # ==============
 # Service Models
@@ -183,7 +473,7 @@ class EncryptionConfiguration(Boto3Model):
     kmsKey: Optional[str] = None
 
 
-class Repository(PrimaryBoto3Model):
+class Repository(RepositoryMixin, PrimaryBoto3Model):
     """
     An object representing a repository.
     """
@@ -215,6 +505,17 @@ class Repository(PrimaryBoto3Model):
     encryptionConfiguration: Optional[EncryptionConfiguration] = None
 
     @property
+    def pk(self) -> Optional[str]:
+        """
+        Return the primary key of the model.   This is the value of the
+        :py:attr:`repositoryName` attribute.
+
+        Returns:
+            The primary key of the model instance.
+        """
+        return self.repositoryName
+
+    @property
     def arn(self) -> Optional[str]:
         """
         Return the ARN of the model.   This is the value of the
@@ -236,13 +537,44 @@ class Repository(PrimaryBoto3Model):
         """
         return self.repositoryName
 
+
+class ImageIdentifier(Boto3Model):
+    """
+    An object containing the image tag and image digest associated with an
+    image.
+    """
+
+    #: The ``sha256`` digest of the image manifest.
+    imageDigest: Optional[str] = None
+    #: The tag used for the image.
+    imageTag: Optional[str] = None
+
+
+class Image(ECRImageMixin, ReadonlyPrimaryBoto3Model):
+    """
+    An object representing an Amazon ECR image.
+    """
+
+    objects: ClassVar[Boto3ModelManager] = ImageManager()
+
+    #: The Amazon Web Services account ID associated with the registry containing the
+    #: image.
+    registryId: Optional[str] = None
+    #: The name of the repository associated with the image.
+    repositoryName: Optional[str] = None
+    #: An object containing the image tag and image digest associated with an image.
+    imageId: ImageIdentifier = Field(default=None, frozen=True)
+    #: The image manifest associated with the image.
+    imageManifest: str = Field(default=None, frozen=True)
+    #: The manifest media type of the image.
+    imageManifestMediaType: str = Field(default=None, frozen=True)
+
     @property
     def pk(self) -> OrderedDict[str, Any]:
-
         return OrderedDict(
             {
                 "repositoryName": self.repositoryName,
-                "registryId": self.registryId,
+                "imageId": self.imageId,
             }
         )
 
@@ -269,4 +601,400 @@ class DescribeRepositoriesResponse(Boto3Model):
     #: request. When the results of a ``DescribeRepositories`` request exceed
     #: ``maxResults``, this value can be used to retrieve the next page of results.
     #: This value is ``null`` when there are no more results to return.
+    nextToken: Optional[str] = None
+
+
+class ListImagesFilter(Boto3Model):
+    """
+    The filter key and value with which to filter your ``ListImages`` results.
+    """
+
+    #: The tag status with which to filter your ListImages results. You can filter
+    #: results based on whether they are ``TAGGED`` or ``UNTAGGED``.
+    tagStatus: Optional[Literal["TAGGED", "UNTAGGED", "ANY"]] = None
+
+
+class ListImagesResponse(Boto3Model):
+    #: The list of image IDs for the requested repository.
+    imageIds: Optional[List["ImageIdentifier"]] = None
+    #: The ``nextToken`` value to include in a future ``ListImages`` request. When the
+    #: results of a ``ListImages`` request exceed ``maxResults``, this value can be
+    #: used to retrieve the next page of results. This value is ``null`` when there
+    #: are no more results to return.
+    nextToken: Optional[str] = None
+
+
+class ImageFailure(Boto3Model):
+    """
+    An object representing an Amazon ECR image failure.
+    """
+
+    #: The image ID associated with the failure.
+    imageId: Optional[ImageIdentifier] = None
+    #: The code associated with the failure.
+    failureCode: Optional[
+        Literal[
+            "InvalidImageDigest",
+            "InvalidImageTag",
+            "ImageTagDoesNotMatchDigest",
+            "ImageNotFound",
+            "MissingDigestAndTag",
+            "ImageReferencedByManifestList",
+            "KmsError",
+            "UpstreamAccessDenied",
+            "UpstreamTooManyRequests",
+            "UpstreamUnavailable",
+        ]
+    ] = None
+    #: The reason for the failure.
+    failureReason: Optional[str] = None
+
+
+class BatchGetImageResponse(Boto3Model):
+    #: A list of image objects corresponding to the image references in the request.
+    images: Optional[List["Image"]] = None
+    #: Any failures associated with the call.
+    failures: Optional[List["ImageFailure"]] = None
+
+
+class BatchDeleteImageResponse(Boto3Model):
+    #: The image IDs of the deleted images.
+    imageIds: Optional[List["ImageIdentifier"]] = None
+    #: Any failures associated with the call.
+    failures: Optional[List["ImageFailure"]] = None
+
+
+class ImageReplicationStatus(Boto3Model):
+    """
+    The status of the replication process for an image.
+    """
+
+    #: The destination Region for the image replication.
+    region: Optional[str] = None
+    #: The Amazon Web Services account ID associated with the registry to which the
+    #: image belongs.
+    registryId: Optional[str] = None
+    #: The image replication status.
+    status: Optional[Literal["IN_PROGRESS", "COMPLETE", "FAILED"]] = None
+    #: The failure code for a replication that has failed.
+    failureCode: Optional[str] = None
+
+
+class DescribeImageReplicationStatusResponse(Boto3Model):
+    #: The repository name associated with the request.
+    repositoryName: Optional[str] = None
+    #: An object with identifying information for an image in an Amazon ECR
+    #: repository.
+    imageId: Optional[ImageIdentifier] = None
+    #: The replication status details for the images in the specified repository.
+    replicationStatuses: Optional[List["ImageReplicationStatus"]] = None
+
+
+class ImageScanStatus(Boto3Model):
+    """
+    The current state of the scan.
+    """
+
+    #: The current state of an image scan.
+    status: Optional[
+        Literal[
+            "IN_PROGRESS",
+            "COMPLETE",
+            "FAILED",
+            "UNSUPPORTED_IMAGE",
+            "ACTIVE",
+            "PENDING",
+            "SCAN_ELIGIBILITY_EXPIRED",
+            "FINDINGS_UNAVAILABLE",
+        ]
+    ] = None
+    #: The description of the image scan status.
+    description: Optional[str] = None
+
+
+class Attribute(Boto3Model):
+    """
+    This data type is used in the ImageScanFinding data type.
+    """
+
+    #: The attribute key.
+    key: str
+    #: The value assigned to the attribute key.
+    value: Optional[str] = None
+
+
+class ImageScanFinding(Boto3Model):
+    """
+    Contains information about an image scan finding.
+    """
+
+    #: The name associated with the finding, usually a CVE number.
+    name: Optional[str] = None
+    #: The description of the finding.
+    description: Optional[str] = None
+    #: A link containing additional details about the security vulnerability.
+    uri: Optional[str] = None
+    #: The finding severity.
+    severity: Optional[
+        Literal["INFORMATIONAL", "LOW", "MEDIUM", "HIGH", "CRITICAL", "UNDEFINED"]
+    ] = None
+    #: A collection of attributes of the host from which the finding is generated.
+    attributes: Optional[List["Attribute"]] = None
+
+
+class CvssScore(Boto3Model):
+    """
+    The CVSS score for a finding.
+    """
+
+    #: The base CVSS score used for the finding.
+    baseScore: Optional[float] = None
+    #: The vector string of the CVSS score.
+    scoringVector: Optional[str] = None
+    #: The source of the CVSS score.
+    source: Optional[str] = None
+    #: The version of CVSS used for the score.
+    version: Optional[str] = None
+
+
+class VulnerablePackage(Boto3Model):
+    """
+    Information on the vulnerable package identified by a finding.
+    """
+
+    #: The architecture of the vulnerable package.
+    arch: Optional[str] = None
+    #: The epoch of the vulnerable package.
+    epoch: Optional[int] = None
+    #: The file path of the vulnerable package.
+    filePath: Optional[str] = None
+    #: The name of the vulnerable package.
+    name: Optional[str] = None
+    #: The package manager of the vulnerable package.
+    packageManager: Optional[str] = None
+    #: The release of the vulnerable package.
+    release: Optional[str] = None
+    #: The source layer hash of the vulnerable package.
+    sourceLayerHash: Optional[str] = None
+    #: The version of the vulnerable package.
+    version: Optional[str] = None
+
+
+class PackageVulnerabilityDetails(Boto3Model):
+    """
+    An object that contains the details of a package vulnerability finding.
+    """
+
+    #: An object that contains details about the CVSS score of a finding.
+    cvss: Optional[List["CvssScore"]] = None
+    #: One or more URLs that contain details about this vulnerability type.
+    referenceUrls: Optional[List[str]] = None
+    #: One or more vulnerabilities related to the one identified in this finding.
+    relatedVulnerabilities: Optional[List[str]] = None
+    #: The source of the vulnerability information.
+    source: Optional[str] = None
+    #: A URL to the source of the vulnerability information.
+    sourceUrl: Optional[str] = None
+    #: The date and time that this vulnerability was first added to the vendor's
+    #: database.
+    vendorCreatedAt: Optional[datetime] = None
+    #: The severity the vendor has given to this vulnerability type.
+    vendorSeverity: Optional[str] = None
+    #: The date and time the vendor last updated this vulnerability in their database.
+    vendorUpdatedAt: Optional[datetime] = None
+    #: The ID given to this vulnerability.
+    vulnerabilityId: Optional[str] = None
+    #: The packages impacted by this vulnerability.
+    vulnerablePackages: Optional[List["VulnerablePackage"]] = None
+
+
+class Recommendation(Boto3Model):
+    """
+    An object that contains information about the recommended course of action
+    to remediate the finding.
+    """
+
+    #: The URL address to the CVE remediation recommendations.
+    url: Optional[str] = None
+    #: The recommended course of action to remediate the finding.
+    text: Optional[str] = None
+
+
+class Remediation(Boto3Model):
+    """
+    An object that contains the details about how to remediate a finding.
+    """
+
+    #: An object that contains information about the recommended course of action to
+    #: remediate the finding.
+    recommendation: Optional[Recommendation] = None
+
+
+class AwsEcrContainerImageDetails(Boto3Model):
+    """
+    An object that contains details about the Amazon ECR container image
+    involved in the finding.
+    """
+
+    #: The architecture of the Amazon ECR container image.
+    architecture: Optional[str] = None
+    #: The image author of the Amazon ECR container image.
+    author: Optional[str] = None
+    #: The image hash of the Amazon ECR container image.
+    imageHash: Optional[str] = None
+    #: The image tags attached to the Amazon ECR container image.
+    imageTags: Optional[List[str]] = None
+    #: The platform of the Amazon ECR container image.
+    platform: Optional[str] = None
+    #: The date and time the Amazon ECR container image was pushed.
+    pushedAt: Optional[datetime] = None
+    #: The registry the Amazon ECR container image belongs to.
+    registry: Optional[str] = None
+    #: The name of the repository the Amazon ECR container image resides in.
+    repositoryName: Optional[str] = None
+
+
+class ResourceDetails(Boto3Model):
+    """
+    An object that contains details about the resource involved in a finding.
+    """
+
+    #: An object that contains details about the Amazon ECR container image involved
+    #: in the finding.
+    awsEcrContainerImage: Optional[AwsEcrContainerImageDetails] = None
+
+
+class Resource(TagsDictMixin, Boto3Model):
+    """
+    Details about the resource involved in a finding.
+    """
+
+    tag_class: ClassVar[Type] = Dict[str, str]
+    #: The tags attached to the resource.
+    Tags: Dict[str, str] = Field(default=None, serialization_alias="tags")
+    #: An object that contains details about the resource involved in a finding.
+    details: Optional[ResourceDetails] = None
+    #: The ID of the resource.
+    id: Optional[str] = None
+    #: The type of resource.
+    type: Optional[str] = None
+
+
+class CvssScoreAdjustment(Boto3Model):
+    """
+    Details on adjustments Amazon Inspector made to the CVSS score for a
+    finding.
+    """
+
+    #: The metric used to adjust the CVSS score.
+    metric: Optional[str] = None
+    #: The reason the CVSS score has been adjustment.
+    reason: Optional[str] = None
+
+
+class CvssScoreDetails(Boto3Model):
+    """
+    An object that contains details about the CVSS score given to a finding.
+    """
+
+    #: An object that contains details about adjustment Amazon Inspector made to the
+    #: CVSS score.
+    adjustments: Optional[List["CvssScoreAdjustment"]] = None
+    #: The CVSS score.
+    score: Optional[float] = None
+    #: The source for the CVSS score.
+    scoreSource: Optional[str] = None
+    #: The vector for the CVSS score.
+    scoringVector: Optional[str] = None
+    #: The CVSS version used in scoring.
+    version: Optional[str] = None
+
+
+class ScoreDetails(Boto3Model):
+    """
+    An object that contains details of the Amazon Inspector score.
+    """
+
+    #: An object that contains details about the CVSS score given to a finding.
+    cvss: Optional[CvssScoreDetails] = None
+
+
+class EnhancedImageScanFinding(Boto3Model):
+    """
+    The details of an enhanced image scan.
+
+    This is returned when enhanced scanning is enabled for your private
+    registry.
+    """
+
+    #: The Amazon Web Services account ID associated with the image.
+    awsAccountId: Optional[str] = None
+    #: The description of the finding.
+    description: Optional[str] = None
+    #: The Amazon Resource Number (ARN) of the finding.
+    findingArn: Optional[str] = None
+    #: The date and time that the finding was first observed.
+    firstObservedAt: Optional[datetime] = None
+    #: The date and time that the finding was last observed.
+    lastObservedAt: Optional[datetime] = None
+    #: An object that contains the details of a package vulnerability finding.
+    packageVulnerabilityDetails: Optional[PackageVulnerabilityDetails] = None
+    #: An object that contains the details about how to remediate a finding.
+    remediation: Optional[Remediation] = None
+    #: Contains information on the resources involved in a finding.
+    resources: Optional[List["Resource"]] = None
+    #: The Amazon Inspector score given to the finding.
+    score: Optional[float] = None
+    #: An object that contains details of the Amazon Inspector score.
+    scoreDetails: Optional[ScoreDetails] = None
+    #: The severity of the finding.
+    severity: Optional[str] = None
+    #: The status of the finding.
+    status: Optional[str] = None
+    #: The title of the finding.
+    title: Optional[str] = None
+    #: The type of the finding.
+    type: Optional[str] = None
+    #: The date and time the finding was last updated at.
+    updatedAt: Optional[datetime] = None
+
+
+class ImageScanFindings(Boto3Model):
+    """
+    The information contained in the image scan findings.
+    """
+
+    #: The time of the last completed image scan.
+    imageScanCompletedAt: Optional[datetime] = None
+    #: The time when the vulnerability data was last scanned.
+    vulnerabilitySourceUpdatedAt: Optional[datetime] = None
+    #: The image vulnerability counts, sorted by severity.
+    findingSeverityCounts: Optional[
+        Dict[
+            int,
+            Literal["INFORMATIONAL", "LOW", "MEDIUM", "HIGH", "CRITICAL", "UNDEFINED"],
+        ]
+    ] = None
+    #: The findings from the image scan.
+    findings: Optional[List["ImageScanFinding"]] = None
+    #: Details about the enhanced scan findings from Amazon Inspector.
+    enhancedFindings: Optional[List["EnhancedImageScanFinding"]] = None
+
+
+class DescribeImageScanFindingsResponse(Boto3Model):
+    #: The registry ID associated with the request.
+    registryId: Optional[str] = None
+    #: The repository name associated with the request.
+    repositoryName: Optional[str] = None
+    #: An object with identifying information for an image in an Amazon ECR
+    #: repository.
+    imageId: Optional[ImageIdentifier] = None
+    #: The current state of the scan.
+    imageScanStatus: Optional[ImageScanStatus] = None
+    #: The information contained in the image scan findings.
+    imageScanFindings: Optional[ImageScanFindings] = None
+    #: The ``nextToken`` value to include in a future ``DescribeImageScanFindings``
+    #: request. When the results of a ``DescribeImageScanFindings`` request exceed
+    #: ``maxResults``, this value can be used to retrieve the next page of results.
+    #: This value is null when there are no more results to return.
     nextToken: Optional[str] = None

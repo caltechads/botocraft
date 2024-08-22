@@ -41,8 +41,18 @@ class GetManyMethodGenerator(ManagerMethodGenerator):
         code = f"""
         {self.operation_args}
         {self.operation_call}
+"""
+        if self.response_attr is not None:
+            code += f"""
         if response.{self.response_attr} is not None:
             return response.{self.response_attr}
+"""
+        else:
+            code += """
+        if response is not None:
+            return response
+"""
+        code += """
         return []
 """
         return code

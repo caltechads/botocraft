@@ -1,4 +1,3 @@
----
 Repository:
   methods:
     create:
@@ -6,20 +5,20 @@ Repository:
       docstring: >-
         Create an ECR repository.
       args:
-        cluster:
-          attribute: clusterArn
-        role:
-          attribute: roleArn
+        repositoryId:
+          hidden: true
     delete:
       boto3_name: delete_repository
       docstring: >-
         Delete an ECR repository.
       args:
-        force:
-          default: "False"
+        repositoryId:
+          hidden: true
     get:
       boto3_name: describe_repositories
       args:
+        repositoryId:
+          hidden: true
         repositoryNames:
           required: true
           rename: repositoryName
@@ -29,3 +28,138 @@ Repository:
             The name of the ECR repository to describe.
     list:
       boto3_name: describe_repositories
+    list_images:
+      boto3_name: list_images
+      response_attr: imageIds
+      args:
+        registryId:
+          default: >-
+            None
+        repositoryName:
+          required: true
+      decorators:
+        - name: repo_list_images_ecr_images_only
+          import_path: botocraft.mixins.ecr
+    get_images:
+      boto3_name: batch_get_image
+      response_attr: images
+      args:
+        registryId:
+          hidden: true
+        repositoryName:
+          required: true
+        acceptedMediaTypes:
+          default: >-
+            ["application/vnd.docker.distribution.manifest.v2+json"]
+      docstring: >-
+        Use this method when you want to get just a few images from the
+        repository.  If you want to get all images, use the ``list_images``
+        method.
+
+        Note:
+            This is used internally by the ``list_images`` method.
+    get_image:
+      boto3_name: batch_get_image
+      return_type: >-
+        "Image"
+      response_attr: images[0]
+      args:
+        registryId:
+          hidden: true
+        repositoryName:
+          required: true
+        imageIds:
+          required: true
+          rename: imageId
+          python_type: >-
+            "ImageIdentifier"
+          source_arg: "[imageId]"
+          docstring: >-
+            The image ID or tag to describe.  The format of the imageId reference is ``imageTag=tag`` or ``imageDigest=digest``
+        acceptedMediaTypes:
+          default: >-
+            ["application/vnd.docker.distribution.manifest.v2+json"]
+Image:
+  methods:
+    get:
+      boto3_name: batch_get_image
+      return_type: >-
+        "Image"
+      response_attr: images[0]
+      args:
+        registryId:
+          hidden: true
+        repositoryName:
+          required: true
+        imageIds:
+          required: true
+          rename: imageId
+          python_type: >-
+            "ImageIdentifier"
+          source_arg: "[imageId]"
+          docstring: >-
+            The image ID or tag to describe.  The format of the imageId reference is ``imageTag=tag`` or ``imageDigest=digest``
+        acceptedMediaTypes:
+          default: >-
+            ["application/vnd.docker.distribution.manifest.v2+json"]
+    get_many:
+      boto3_name: batch_get_image
+      response_attr: None
+      args:
+        registryId:
+          hidden: true
+        repositoryName:
+          required: true
+        imageIds:
+          required: true
+        acceptedMediaTypes:
+          default: >-
+            ["application/vnd.docker.distribution.manifest.v2+json"]
+    list:
+      boto3_name: list_images
+      response_attr: imageIds
+      args:
+        registryId:
+          hidden: true
+        repositoryName:
+          required: true
+      decorators:
+        - name: image_list_images_ecr_images_only
+          import_path: botocraft.mixins.ecr
+    delete:
+      boto3_name: batch_delete_image
+      response_attr: None
+      args:
+        registryId:
+          hidden: true
+        repositoryName:
+          required: true
+        imageIds:
+          required: true
+          rename: imageId
+          python_type: >-
+            "ImageIdentifier"
+          source_arg: "[imageId]"
+          docstring: >-
+            The image ID or tag to delete.  The format of the imageId reference is ``imageTag=tag`` or ``imageDigest=digest``
+    replication_status:
+      boto3_name: describe_image_replication_status
+      response_attr: None
+      args:
+        registryId:
+          hidden: true
+        repositoryName:
+          required: true
+        imageId:
+          required: true
+    scan_findings:
+      boto3_name: describe_image_scan_findings
+      response_attr: None
+      args:
+        registryId:
+          hidden: true
+        repositoryName:
+          required: true
+        imageId:
+          required: true
+

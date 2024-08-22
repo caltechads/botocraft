@@ -24,7 +24,6 @@ from .abstract import (Boto3Model, Boto3ModelManager, PrimaryBoto3Model,
 
 
 class LoadBalancerManager(Boto3ModelManager):
-
     service_name: str = "elbv2"
 
     def create(
@@ -135,7 +134,6 @@ class LoadBalancerManager(Boto3ModelManager):
 
 
 class ListenerManager(Boto3ModelManager):
-
     service_name: str = "elbv2"
 
     def create(self, model: "Listener", Tags: Optional[List[Tag]] = None) -> "Listener":
@@ -259,7 +257,6 @@ class ListenerManager(Boto3ModelManager):
 
 
 class RuleManager(Boto3ModelManager):
-
     service_name: str = "elbv2"
 
     def create(
@@ -369,7 +366,6 @@ class RuleManager(Boto3ModelManager):
 
 
 class TargetGroupManager(Boto3ModelManager):
-
     service_name: str = "elbv2"
 
     def create(
@@ -561,9 +557,9 @@ class LoadBalancerState(Boto3Model):
     #: is ``active``. If load balancer is routing traffic but does not have the
     #: resources it needs to scale, its state is``active_impaired``. If the load
     #: balancer could not be set up, its state is ``failed``.
-    Code: Optional[Literal["active", "provisioning", "active_impaired", "failed"]] = (
-        None
-    )
+    Code: Optional[
+        Literal["active", "provisioning", "active_impaired", "failed"]
+    ] = None
     #: A description of the state.
     Reason: Optional[str] = None
 

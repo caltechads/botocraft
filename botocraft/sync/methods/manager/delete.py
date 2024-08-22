@@ -58,5 +58,8 @@ class DeleteMethodGenerator(ManagerMethodGenerator):
         {self.operation_call}
 """
         if self.return_type != 'None':
-            code += f"        return cast({self.model_name}, response.{self.response_attr})"
+            if self.response_attr is None:
+                code += "        return response"
+            else:
+                code += f"        return cast({self.model_name}, response.{self.response_attr})"
         return code

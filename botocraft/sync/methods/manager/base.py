@@ -429,6 +429,8 @@ class ManagerMethodGenerator:
         if not hasattr(self.output_shape, 'members'):
             return None
         if self.method_def.response_attr:
+            if self.method_def.response_attr == "None":
+                return None
             return self.method_def.response_attr
         potential_names = [
             self.model_name.lower(),
@@ -450,6 +452,10 @@ class ManagerMethodGenerator:
                 break
         attrs = ", ".join([f'"{attr}"' for attr in self.output_shape.members])
         if response_attr:
+            # What we're doing here is trying to figure out if the response_attr is
+            # references a specific key or index in a list or dictionary.  If it does,
+            # strip that off so we can see if the attribute is actually a field on the
+            # response class.
             test_attr = re.split(r'\[|\.', response_attr)[0]
             if test_attr not in self.output_shape.members:
                 raise KeyError(
@@ -476,8 +482,13 @@ class ManagerMethodGenerator:
             return 'one'
         if self.response_attr is None:
             return 'one'
+        # What we're doing here is trying to figure out if the response_attr is
+        # references a specific key or index in a list or dictionary.  If it does,
+        # strip that off so we can see if the attribute is actually a field on the
+        # response class.
+        test_attr = re.split(r'\[|\.', self.response_attr)[0]
         try:
-            shape = self.output_shape.members[self.response_attr]
+            shape = self.output_shape.members[test_attr]
         except KeyError:
             response_model_def = self.model_generator.get_model_def(self.output_shape.name)
             for field, field_data in response_model_def.fields.items():
@@ -512,6 +523,10 @@ class ManagerMethodGenerator:
             hasattr(output_shape, 'members') and not output_shape.members
         ):
             return 'None'
+        if self.response_attr is None:
+            if self.output_shape is None:
+                return 'None'
+            return self.shape_converter.convert(self.output_shape, quote=True)
         if self.output_shape is not None:
             try:
                 response_attr_shape = self.output_shape.members[cast(str, self.response_attr)]

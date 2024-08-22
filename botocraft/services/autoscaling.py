@@ -25,7 +25,6 @@ from .abstract import (Boto3Model, Boto3ModelManager, PrimaryBoto3Model,
 
 
 class AutoScalingGroupManager(Boto3ModelManager):
-
     service_name: str = "autoscaling"
 
     def create(
@@ -234,7 +233,6 @@ class AutoScalingGroupManager(Boto3ModelManager):
 
 
 class LaunchConfigurationManager(Boto3ModelManager):
-
     service_name: str = "autoscaling"
 
     def create(
@@ -445,7 +443,6 @@ class AutoScalingBaselineEbsBandwidthMbsRequest(Boto3Model):
     optimized.html>`_ in the *Amazon EC2 User Guide for Linux Instances*.
 
     Default: No minimum or maximum limits
-
     """
 
     #: The minimum value in Mbps.
@@ -518,9 +515,9 @@ class AutoScalingInstanceRequirements(Boto3Model):
     #: The minimum and maximum instance memory size for an instance type, in MiB.
     MemoryMiB: AutoScalingMemoryMiBRequest
     #: Lists which specific CPU manufacturers to include.
-    CpuManufacturers: Optional[List[Literal["intel", "amd", "amazon-web-services"]]] = (
-        None
-    )
+    CpuManufacturers: Optional[
+        List[Literal["intel", "amd", "amazon-web-services"]]
+    ] = None
     #: The minimum and maximum amount of memory per vCPU for an instance type, in GiB.
     MemoryGiBPerVCpu: Optional[MemoryGiBPerVCpuRequest] = None
     #: The instance types to exclude. You can use strings with one or more wild cards,
@@ -603,9 +600,9 @@ class AutoScalingInstanceRequirements(Boto3Model):
     ] = None
     #: The minimum and maximum total memory size for the accelerators on an instance
     #: type, in MiB.
-    AcceleratorTotalMemoryMiB: Optional[AutoScalingAcceleratorTotalMemoryMiBRequest] = (
-        None
-    )
+    AcceleratorTotalMemoryMiB: Optional[
+        AutoScalingAcceleratorTotalMemoryMiBRequest
+    ] = None
     #: The minimum and maximum amount of network bandwidth, in gigabits per second
     #: (Gbps).
     NetworkBandwidthGbps: Optional[NetworkBandwidthGbpsRequest] = None
@@ -632,7 +629,6 @@ class LaunchTemplateOverrides(Boto3Model):
     these settings to get new EC2 instance types automatically. Amazon EC2 Auto
     Scaling uses the instance requirements of the Auto Scaling group to determine
     whether a new EC2 instance type can be used.
-
     """
 
     #: The instance type, such as ``m3.xlarge``. You must specify an instance type

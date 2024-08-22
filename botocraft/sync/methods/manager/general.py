@@ -47,16 +47,32 @@ class GeneralMethodGenerator(ManagerMethodGenerator):
 
     @property
     def body(self) -> str:
+        """
+        Generate the method body for a general method.
+
+        Returns:
+            The method body.
+        """
         if self.client.can_paginate(self.boto3_name):
             code = f"""
         paginator = self.client.get_paginator('{self.boto3_name}')
         {self.operation_args}
-        response_iterator = paginator.paginate({{k: v for k, v in args.items() if v is not None}})
+        response_iterator = paginator.paginate(**{{k: v for k, v in args.items() if v is not None}})
         results: {self.return_type} = []
         for _response in response_iterator:
             response = {self.response_class}(**_response)
+"""
+            if self.response_attr is not None:
+                code += f"""
             if response.{self.response_attr}:
                 results.extend(response.{self.response_attr})
+"""
+            else:
+                code += """
+            if response is not None:
+                results.extend(response)
+"""
+            code += """
             else:
                 break
         return results
@@ -73,6 +89,8 @@ class GeneralMethodGenerator(ManagerMethodGenerator):
         return response
 """
             else:
+                # FIXME: if response_attr references an index or a key, should we
+                # catch when that doesn't exist and return None?
                 code += f"""
         return response.{self.response_attr}
 """

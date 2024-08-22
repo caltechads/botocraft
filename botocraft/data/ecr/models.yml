@@ -2,8 +2,12 @@
 primary:
   Repository:
     plural: Repositories
+    primary_key: repositoryName
     arn_key: repositoryArn
     name_key: repositoryName
+    mixins:
+      - name: RepositoryMixin
+        import_path: botocraft.mixins.ecr
     input_shapes:
       - CreateRepositoryRequest
     fields:
@@ -17,9 +21,22 @@ primary:
         required: true
         default: >-
           "scanOnPush"
+  Image:
+    readonly: true
+    mixins:
+      - name: ECRImageMixin
+        import_path: botocraft.mixins.ecr
+    input_shapes:
+      - BatchGetImageRequest
     properties:
       pk:
         transformer:
           mapping:
             repositoryName: repositoryName
-            registryId: registryId
+            imageId: imageId
+
+secondary:
+  Resource:
+    fields:
+      tags:
+        rename: Tags

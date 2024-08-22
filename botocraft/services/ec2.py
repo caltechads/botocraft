@@ -24,7 +24,6 @@ from .abstract import (Boto3Model, Boto3ModelManager, PrimaryBoto3Model,
 
 
 class VpcManager(ReadonlyBoto3ModelManager):
-
     service_name: str = "ec2"
 
     def get(self, VpcId: str, *, DryRun: bool = False) -> Optional["Vpc"]:
@@ -150,7 +149,6 @@ class VpcManager(ReadonlyBoto3ModelManager):
 
 
 class SubnetManager(ReadonlyBoto3ModelManager):
-
     service_name: str = "ec2"
 
     def get(self, SubnetId: str, *, DryRun: bool = False) -> Optional["Subnet"]:
@@ -220,7 +218,6 @@ class SubnetManager(ReadonlyBoto3ModelManager):
 
 
 class SecurityGroupManager(EC2TagsManagerMixin, Boto3ModelManager):
-
     service_name: str = "ec2"
 
     def create(self, model: "SecurityGroup", DryRun: bool = False) -> str:
@@ -409,7 +406,6 @@ class SecurityGroupManager(EC2TagsManagerMixin, Boto3ModelManager):
 
 
 class NetworkAclManager(EC2TagsManagerMixin, Boto3ModelManager):
-
     service_name: str = "ec2"
 
     def create(
@@ -535,7 +531,6 @@ class NetworkAclManager(EC2TagsManagerMixin, Boto3ModelManager):
 
 
 class InstanceManager(EC2TagsManagerMixin, Boto3ModelManager):
-
     service_name: str = "ec2"
 
     def create(
@@ -839,7 +834,6 @@ class InstanceManager(EC2TagsManagerMixin, Boto3ModelManager):
 
 
 class LaunchTemplateManager(EC2TagsManagerMixin, Boto3ModelManager):
-
     service_name: str = "ec2"
 
     def create(
@@ -983,7 +977,6 @@ class LaunchTemplateManager(EC2TagsManagerMixin, Boto3ModelManager):
 
 
 class LaunchTemplateVersionManager(Boto3ModelManager):
-
     service_name: str = "ec2"
 
     def create(
@@ -3847,7 +3840,6 @@ class InstanceBaselineEbsBandwidthMbps(Boto3Model):
     optimized.html>`_ in the *Amazon EC2 User Guide*.
 
     Default: No minimum or maximum limits
-
     """
 
     #: The minimum baseline bandwidth, in Mbps. If this parameter is not specified,
@@ -3920,9 +3912,9 @@ class LaunchTemplateInstanceRequirements(Boto3Model):
     #: The minimum and maximum amount of memory, in MiB.
     MemoryMiB: Optional[InstanceMemoryMiB] = None
     #: The CPU manufacturers to include.
-    CpuManufacturers: Optional[List[Literal["intel", "amd", "amazon-web-services"]]] = (
-        None
-    )
+    CpuManufacturers: Optional[
+        List[Literal["intel", "amd", "amazon-web-services"]]
+    ] = None
     #: The minimum and maximum amount of memory per vCPU, in GiB.
     MemoryGiBPerVCpu: Optional[InstanceMemoryGiBPerVCpu] = None
     #: The instance types to exclude.
@@ -5006,7 +4998,6 @@ class LaunchTemplateVersion(PrimaryBoto3Model):
 
     @property
     def pk(self) -> OrderedDict[str, Any]:
-
         return OrderedDict(
             {
                 "LaunchTemplateId": self.LaunchTemplateId,
@@ -5391,7 +5382,6 @@ class CreditSpecificationRequest(Boto3Model):
     Default: ``standard`` (T2 instances) or ``unlimited`` (T3/T3a/T4g instances)
 
     For T3 instances with ``host`` tenancy, only ``standard`` is supported.
-
     """
 
     #: The credit option for CPU usage of a T instance.
@@ -5730,7 +5720,6 @@ class HibernationOptionsRequest(Boto3Model):
 
     You can't enable hibernation and Amazon Web Services Nitro Enclaves on the same
     instance.
-
     """
 
     #: Set to ``true`` to enable your instance for hibernation.
@@ -5770,7 +5759,6 @@ class EnclaveOptionsRequest(Boto3Model):
 
     You can't enable Amazon Web Services Nitro Enclaves and hibernation on the same
     instance.
-
     """
 
     #: To enable the instance for Amazon Web Services Nitro Enclaves, set this
@@ -6307,7 +6295,6 @@ class LaunchTemplateEnclaveOptionsRequest(Boto3Model):
 
     You can't enable Amazon Web Services Nitro Enclaves and hibernation on the same
     instance.
-
     """
 
     #: To enable the instance for Amazon Web Services Nitro Enclaves, set this
@@ -6391,7 +6378,6 @@ class BaselineEbsBandwidthMbpsRequest(Boto3Model):
     optimized.html>`_ in the *Amazon EC2 User Guide*.
 
     Default: No minimum or maximum limits
-
     """
 
     #: The minimum baseline bandwidth, in Mbps. To specify no minimum limit, omit this
@@ -6442,7 +6428,6 @@ class EC2NetworkBandwidthGbpsRequest(Boto3Model):
     network-bandwidth.html>`_ in the *Amazon EC2 User Guide*.
 
     Default: No minimum or maximum limits
-
     """
 
     #: The minimum amount of network bandwidth, in Gbps. To specify no minimum limit,
@@ -6500,9 +6485,9 @@ class InstanceRequirementsRequest(Boto3Model):
     #: The minimum and maximum amount of memory, in MiB.
     MemoryMiB: MemoryMiBRequest
     #: The CPU manufacturers to include.
-    CpuManufacturers: Optional[List[Literal["intel", "amd", "amazon-web-services"]]] = (
-        None
-    )
+    CpuManufacturers: Optional[
+        List[Literal["intel", "amd", "amazon-web-services"]]
+    ] = None
     #: The minimum and maximum amount of memory per vCPU, in GiB.
     MemoryGiBPerVCpu: Optional[EC2MemoryGiBPerVCpuRequest] = None
     #: The instance types to exclude.
@@ -6660,9 +6645,9 @@ class RequestLaunchTemplateData(Boto3Model):
         LaunchTemplateIamInstanceProfileSpecificationRequest
     ] = None
     #: The block device mapping.
-    BlockDeviceMappings: Optional[List["LaunchTemplateBlockDeviceMappingRequest"]] = (
-        None
-    )
+    BlockDeviceMappings: Optional[
+        List["LaunchTemplateBlockDeviceMappingRequest"]
+    ] = None
     #: The network interfaces for the instance.
     NetworkInterfaces: Optional[
         List["LaunchTemplateInstanceNetworkInterfaceSpecificationRequest"]

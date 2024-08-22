@@ -409,6 +409,9 @@ class ManagerMethodDefinition(BaseModel):
     #: method return object(s).  If not specified, we'll use the lowercased
     #: model name, pluralizing if necessary.
     #:
+    #: If you want to just return the whole response from the boto3 call,
+    #: set this to literal ``"None"``.
+    #:
     #: .. important::
     #:     If you've renamed the model attribute you want to use on the response class
     #:     using :py:attr:`ModelAttributeDefinition.rename`, put the name of the botocore

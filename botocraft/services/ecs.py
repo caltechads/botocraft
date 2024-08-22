@@ -17,6 +17,7 @@ from botocraft.mixins.ecs import (ecs_clusters_only,
                                   ecs_tasks_only)
 from botocraft.mixins.tags import TagsDictMixin
 from botocraft.services.ec2 import Instance, InstanceManager
+from botocraft.services.ecr import Attribute, Resource
 
 from .abstract import (Boto3Model, Boto3ModelManager, PrimaryBoto3Model,
                        ReadonlyBoto3Model, ReadonlyBoto3ModelManager,
@@ -28,7 +29,6 @@ from .abstract import (Boto3Model, Boto3ModelManager, PrimaryBoto3Model,
 
 
 class ServiceManager(Boto3ModelManager):
-
     service_name: str = "ecs"
 
     def create(
@@ -188,8 +188,10 @@ class ServiceManager(Boto3ModelManager):
             **{k: v for k, v in args.items() if v is not None}
         )
         response = DescribeServicesResponse(**_response)
+
         if response.services is not None:
             return response.services
+
         return []
 
     @ecs_services_only
@@ -436,7 +438,6 @@ class ServiceManager(Boto3ModelManager):
 
 
 class ClusterManager(Boto3ModelManager):
-
     service_name: str = "ecs"
 
     def create(self, model: "Cluster") -> "Cluster":
@@ -536,8 +537,10 @@ class ClusterManager(Boto3ModelManager):
             **{k: v for k, v in args.items() if v is not None}
         )
         response = DescribeClustersResponse(**_response)
+
         if response.clusters is not None:
             return response.clusters
+
         return []
 
     @ecs_clusters_only
@@ -623,7 +626,6 @@ class ClusterManager(Boto3ModelManager):
 
 
 class TaskDefinitionManager(Boto3ModelManager):
-
     service_name: str = "ecs"
 
     def create(
@@ -824,7 +826,6 @@ class TaskDefinitionManager(Boto3ModelManager):
 
 
 class ContainerInstanceManager(ReadonlyBoto3ModelManager):
-
     service_name: str = "ecs"
 
     def get(
@@ -910,8 +911,10 @@ class ContainerInstanceManager(ReadonlyBoto3ModelManager):
             **{k: v for k, v in args.items() if v is not None}
         )
         response = DescribeContainerInstancesResponse(**_response)
+
         if response.containerInstances is not None:
             return response.containerInstances
+
         return []
 
     @ecs_container_instances_only
@@ -976,7 +979,6 @@ class ContainerInstanceManager(ReadonlyBoto3ModelManager):
 
 
 class TaskManager(Boto3ModelManager):
-
     service_name: str = "ecs"
 
     @ecs_task_populate_taskDefinition
@@ -1051,8 +1053,10 @@ class TaskManager(Boto3ModelManager):
             **{k: v for k, v in args.items() if v is not None}
         )
         response = DescribeTasksResponse(**_response)
+
         if response.tasks is not None:
             return response.tasks
+
         return []
 
     @ecs_tasks_only
@@ -1723,7 +1727,6 @@ class Secret(Boto3Model):
     For more information, see `Specifying sensitive
     data <https://docs.aws.amazon.com/AmazonECS/latest/developerguide/specifying-
     sensitive-data.html>`_ in the *Amazon Elastic Container Service Developer Guide*.
-
     """
 
     #: The name of the secret.
@@ -1776,8 +1779,7 @@ class LogConfiguration(Boto3Model):
     * For tasks that are on Fargate, because you don't have access to the
       underlying infrastructure your tasks are hosted on, any additional software
       needed must be installed outside of the task. For example, the Fluentd output
-      aggregators or a remote host running Logstash to send Gelf logs to.
-    """
+      aggregators or a remote host running Logstash to send Gelf logs to."""
 
     #: The log driver to use for the container.
     logDriver: Literal[
@@ -2073,7 +2075,6 @@ class PlacementConstraint(Boto3Model):
 
     If you're using the Fargate launch type, task placement constraints aren't
     supported.
-
     """
 
     #: The type of constraint. Use ``distinctInstance`` to ensure that each task in a
@@ -2516,9 +2517,9 @@ class Cluster(TagsDictMixin, PrimaryBoto3Model):
     #: The default capacity provider strategy for the cluster. When services or tasks
     #: are run in the cluster with no launch type or capacity provider strategy
     #: specified, the default capacity provider strategy is used.
-    defaultCapacityProviderStrategy: Optional[List["CapacityProviderStrategyItem"]] = (
-        None
-    )
+    defaultCapacityProviderStrategy: Optional[
+        List["CapacityProviderStrategyItem"]
+    ] = None
     #: The resources attached to a cluster. When using a capacity provider with a
     #: cluster, the capacity provider and associated resources are returned as cluster
     #: attachments.
@@ -3007,7 +3008,6 @@ class SystemControl(Boto3Model):
     This parameter is only supported for tasks that are hosted on Fargate if the
     tasks are using platform version ``1.4.0`` or later (Linux). This isn't
     supported for Windows containers on Fargate.
-
     """
 
     #: The namespaced kernel parameter to set a ``value`` for.
@@ -3545,36 +3545,6 @@ class Volume(Boto3Model):
     configuredAtLaunch: Optional[bool] = None
 
 
-class Attribute(Boto3Model):
-    """
-    An attribute is a name-value pair that's associated with an Amazon ECS
-    object.
-
-    Use attributes to extend the Amazon ECS data model by adding custom
-    metadata to your resources. For more information, see
-    `Attributes <https://docs.aws.amazon.com/AmazonECS/latest/developerguide/task-
-    placement-constraints.html#attributes>`_ in the *Amazon Elastic Container Service
-    Developer Guide*.
-    """
-
-    #: The name of the attribute. The ``name`` must contain between 1 and 128
-    #: characters. The name may contain letters (uppercase and lowercase), numbers,
-    #: hyphens (-), underscores (\_), forward slashes (/), back slashes (\), or
-    #: periods (.).
-    name: str
-    #: The value of the attribute. The ``value`` must contain between 1 and 128
-    #: characters. It can contain letters (uppercase and lowercase), numbers, hyphens
-    #: (-), underscores (\_), periods (.), at signs (@), forward slashes (/), back
-    #: slashes (\), colons (:), or spaces. The value can't start or end with a space.
-    value: Optional[str] = None
-    #: The type of the target to attach the attribute with. This parameter is required
-    #: if you use the short form ID for a resource instead of the full ARN.
-    targetType: Optional[Literal["container-instance"]] = None
-    #: The ID of the target. You can specify the short form ID for a resource or the
-    #: full Amazon Resource Name (ARN).
-    targetId: Optional[str] = None
-
-
 class TaskDefinitionPlacementConstraint(Boto3Model):
     """The constraint on task placement in the task definition. For more information,
     see `Task placement
@@ -3583,7 +3553,6 @@ class TaskDefinitionPlacementConstraint(Boto3Model):
     Guide*.
 
     Task placement constraints aren't supported for tasks run on Fargate.
-
     """
 
     #: The type of constraint. The ``MemberOf`` constraint restricts selection to be
@@ -3741,7 +3710,7 @@ class TaskDefinition(TagsDictMixin, PrimaryBoto3Model):
     #: <https://docs.aws.amazon.com/AmazonECS/latest/developerguide/task- placement-
     #: constraints.html#attributes>`_ in the *Amazon Elastic Container Service
     #: Developer Guide*.
-    requiresAttributes: List["Attribute"] = Field(default=None, frozen=True)
+    requiresAttributes: List[Attribute] = Field(default=None, frozen=True)
     #: An array of placement constraint objects to use for tasks.
     placementConstraints: Optional[List["TaskDefinitionPlacementConstraint"]] = None
     #: The task launch types the task definition validated against during task
@@ -3759,9 +3728,9 @@ class TaskDefinition(TagsDictMixin, PrimaryBoto3Model):
     #: `Amazon ECS launch types <https://docs.aws.amazon.com/AmazonECS/latest/develope
     #: rguide/launch_types.html>`_ in the *Amazon Elastic Container Service Developer
     #: Guide*.
-    requiresCompatibilities: Optional[List[Literal["EC2", "FARGATE", "EXTERNAL"]]] = (
-        None
-    )
+    requiresCompatibilities: Optional[
+        List[Literal["EC2", "FARGATE", "EXTERNAL"]]
+    ] = None
     #: The number of ``cpu`` units used by the task. If you use the EC2 launch type,
     #: this field is optional. Any value can be used. If you use the Fargate launch
     #: type, this field is required. You must use one of the following values. The
@@ -4061,7 +4030,7 @@ class Task(TagsDictMixin, PrimaryBoto3Model):
     #: the ``awsvpc`` network mode.
     attachments: List["Attachment"] = Field(default=None, frozen=True)
     #: The attributes of the task
-    attributes: List["Attribute"] = Field(default=None, frozen=True)
+    attributes: List[Attribute] = Field(default=None, frozen=True)
     #: The Availability Zone for the task.
     availabilityZone: str = Field(default=None, frozen=True)
     #: The capacity provider that's associated with the task.
@@ -4292,31 +4261,6 @@ class VersionInfo(Boto3Model):
     dockerVersion: Optional[str] = None
 
 
-class Resource(Boto3Model):
-    """
-    Describes the resources available for a container instance.
-    """
-
-    #: The name of the resource, such as ``CPU``, ``MEMORY``, ``PORTS``,
-    #: ``PORTS_UDP``, or a user-defined resource.
-    name: Optional[str] = None
-    #: The type of the resource. Valid values: ``INTEGER``, ``DOUBLE``, ``LONG``, or
-    #: ``STRINGSET``.
-    type: Optional[str] = None
-    #: When the ``doubleValue`` type is set, the value of the resource must be a
-    #: double precision floating-point type.
-    doubleValue: Optional[float] = None
-    #: When the ``longValue`` type is set, the value of the resource must be an
-    #: extended precision floating-point type.
-    longValue: Optional[int] = None
-    #: When the ``integerValue`` type is set, the value of the resource must be an
-    #: integer.
-    integerValue: Optional[int] = None
-    #: When the ``stringSetValue`` type is set, the value of the resource must be a
-    #: string type.
-    stringSetValue: Optional[List[str]] = None
-
-
 class InstanceHealthCheckResult(Boto3Model):
     """
     An object representing the result of a container instance health status
@@ -4326,9 +4270,9 @@ class InstanceHealthCheckResult(Boto3Model):
     #: The type of container instance health status that was verified.
     type: Optional[Literal["CONTAINER_RUNTIME"]] = None
     #: The container instance health status.
-    status: Optional[Literal["OK", "IMPAIRED", "INSUFFICIENT_DATA", "INITIALIZING"]] = (
-        None
-    )
+    status: Optional[
+        Literal["OK", "IMPAIRED", "INSUFFICIENT_DATA", "INITIALIZING"]
+    ] = None
     #: The Unix timestamp for when the container instance health status was last
     #: updated.
     lastUpdated: Optional[datetime] = None
@@ -4393,7 +4337,7 @@ class ContainerInstance(TagsDictMixin, ReadonlyPrimaryBoto3Model):
     #: and any task containers that have reserved port mappings on the host (with the
     #: ``host`` or ``bridge`` network mode). Any port that's not specified here is
     #: available for new tasks.
-    remainingResources: Optional[List["Resource"]] = None
+    remainingResources: Optional[List[Resource]] = None
     #: For CPU and memory resource types, this parameter describes the amount of each
     #: resource that was available on the container instance when the container agent
     #: registered it with Amazon ECS. This value represents the total amount of CPU
@@ -4401,7 +4345,7 @@ class ContainerInstance(TagsDictMixin, ReadonlyPrimaryBoto3Model):
     #: resource types, this parameter describes the ports that were reserved by the
     #: Amazon ECS container agent when it registered the container instance with
     #: Amazon ECS.
-    registeredResources: Optional[List["Resource"]] = None
+    registeredResources: Optional[List[Resource]] = None
     #: The status of the container instance. The valid values are ``REGISTERING``,
     #: ``REGISTRATION_FAILED``, ``ACTIVE``, ``INACTIVE``, ``DEREGISTERING``, or
     #: ``DRAINING``.
@@ -4426,7 +4370,7 @@ class ContainerInstance(TagsDictMixin, ReadonlyPrimaryBoto3Model):
     #: The attributes set for the container instance, either by the Amazon ECS
     #: container agent at instance registration or manually with the PutAttributes
     #: operation.
-    attributes: Optional[List["Attribute"]] = None
+    attributes: Optional[List[Attribute]] = None
     #: The Unix timestamp for the time when the container instance was registered.
     registeredAt: Optional[datetime] = None
     #: The resources attached to a container instance, such as an elastic network

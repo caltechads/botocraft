@@ -852,7 +852,8 @@ class ServiceGenerator:
         try:
             formatted_code = black.format_str(code, mode=black.FileMode())
         except (KeyError, black.parsing.InvalidInput):  # pylint: disable=c-extension-no-member
-            print(code)
+            code = [f"{i:04} " + line for i, line in enumerate(code.split('\n'))]
+            print("\n".join(code))
             raise
         # Now sort the imports with isort
         formatted_code = isort.code(formatted_code)
