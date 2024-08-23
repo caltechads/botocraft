@@ -85,8 +85,8 @@ primary:
           version of this template, if any.
         transformer:
           mapping:
-            LaunchTemplateId: LaunchTemplateId
-            Version: DefaultVersionNumber
+            LaunchTemplateId: cast(str, LaunchTemplateId)
+            Version: cast(str, DefaultVersionNumber)
       latest_version:
         primary_model_name: LaunchTemplateVersion
         docstring: >-
