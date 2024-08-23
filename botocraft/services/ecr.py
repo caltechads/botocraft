@@ -198,7 +198,7 @@ class RepositoryManager(Boto3ModelManager):
         acceptedMediaTypes: List[str] = [
             "application/vnd.docker.distribution.manifest.v2+json"
         ]
-    ) -> List["Image"]:
+    ) -> Optional[List["Image"]]:
         """
         Use this method when you want to get just a few images from the
         repository. If you want to get all images, use the ````list\_images````
@@ -270,7 +270,7 @@ class ImageManager(Boto3ModelManager):
         acceptedMediaTypes: List[str] = [
             "application/vnd.docker.distribution.manifest.v2+json"
         ]
-    ) -> "Image":
+    ) -> Optional["Image"]:
         """
         Gets detailed information for an image. Images are specified with
         either an ``imageTag`` or ``imageDigest``.
@@ -305,7 +305,7 @@ class ImageManager(Boto3ModelManager):
         acceptedMediaTypes: List[str] = [
             "application/vnd.docker.distribution.manifest.v2+json"
         ]
-    ) -> List["Image"]:
+    ) -> "BatchGetImageResponse":
         """
         Gets detailed information for an image. Images are specified with
         either an ``imageTag`` or ``imageDigest``.
@@ -364,7 +364,9 @@ class ImageManager(Boto3ModelManager):
                 break
         return results
 
-    def delete(self, repositoryName: str, imageId: "ImageIdentifier") -> "Image":
+    def delete(
+        self, repositoryName: str, imageId: "ImageIdentifier"
+    ) -> "BatchDeleteImageResponse":
         """
         Deletes a list of specified images within a repository. Images are
         specified with either an ``imageTag`` or ``imageDigest``.
@@ -408,7 +410,7 @@ class ImageManager(Boto3ModelManager):
 
     def scan_findings(
         self, repositoryName: str, imageId: "ImageIdentifier"
-    ) -> "DescribeImageScanFindingsResponse":
+    ) -> List["DescribeImageScanFindingsResponse"]:
         """
         Returns the scan findings for the specified image.
 
@@ -426,7 +428,7 @@ class ImageManager(Boto3ModelManager):
         response_iterator = paginator.paginate(
             **{k: v for k, v in args.items() if v is not None}
         )
-        results: "DescribeImageScanFindingsResponse" = []
+        results: List["DescribeImageScanFindingsResponse"] = []
         for _response in response_iterator:
             response = DescribeImageScanFindingsResponse(**_response)
 
