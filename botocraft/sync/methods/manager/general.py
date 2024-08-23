@@ -70,7 +70,15 @@ class GeneralMethodGenerator(ManagerMethodGenerator):
             else:
                 code += """
             if response is not None:
-                results.extend(response)
+                try:
+                    # Test whether the response is iterable
+                    iter(response)
+                except TypeError:
+                    # If it not, append the response to the results list
+                    results.append(response)  # type: ignore[arg-type]
+                else:
+                    # If it is, extend the results list with the response
+                    results.extend(response)  # type: ignore[arg-type]
 """
             code += """
             else:

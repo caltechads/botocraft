@@ -18,7 +18,7 @@ from botocraft.sync.models import (
 )
 
 if TYPE_CHECKING:
-    from botocraft.sync.service import ManagerGenerator
+    from botocraft.sync.service import ManagerGenerator, ModelGenerator
 
 
 class ManagerMethodGenerator:
