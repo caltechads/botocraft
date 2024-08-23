@@ -17,7 +17,7 @@ from botocraft.mixins.ecs import (ecs_clusters_only,
                                   ecs_tasks_only)
 from botocraft.mixins.tags import TagsDictMixin
 from botocraft.services.ec2 import Instance, InstanceManager
-from botocraft.services.ecr import Attribute, Resource
+from botocraft.services.ecr import Resource
 
 from .abstract import (Boto3Model, Boto3ModelManager, PrimaryBoto3Model,
                        ReadonlyBoto3Model, ReadonlyBoto3ModelManager,
@@ -954,9 +954,10 @@ class ContainerInstanceManager(ReadonlyBoto3ModelManager):
             status: Filters the container instances by status. For example, if you
                 specify the ``DRAINING`` status, the results include only container
                 instances that have been set to ``DRAINING`` using
-                UpdateContainerInstancesState. If you don't specify this parameter, the
-                default is to include container instances set to all states other than
-                ``INACTIVE``.
+                `UpdateContainerInstancesState <https://docs.aws .amazon.com/AmazonECS/late
+                st/APIReference/API_UpdateContainerInstancesState.htm l>`_. If you don't
+                specify this parameter, the default is to include container instances set
+                to all states other than ``INACTIVE``.
 
         """
         paginator = self.client.get_paginator("list_container_instances")
@@ -1169,7 +1170,9 @@ class TaskManager(Boto3ModelManager):
             propagateTags: Specifies whether to propagate the tags from the task
                 definition to the task. If no value is specified, the tags aren't
                 propagated. Tags can only be propagated to the task during task creation.
-                To add tags to a task after task creation, use the TagResource API action.
+                To add tags to a task after task creation, use the`TagResource
+                <https://docs.aws.amazon.com/AmazonECS/latest/API
+                Reference/API_TagResource.html>`_ API action.
             referenceId: The reference ID to use for the task. The reference ID can
                 have a maximum length of 1024 characters.
             clientToken: An identifier that you provide to ensure the idempotency of
@@ -1232,7 +1235,8 @@ class TaskManager(Boto3ModelManager):
             reason: An optional message specified when a task is stopped. For example,
                 if you're using a custom scheduler, you can use this parameter to specify
                 the reason for stopping the task here, and the message appears in
-                subsequent DescribeTasks API operations on this task.
+                subsequent `DescribeTasks <h ttps://docs.aws.amazon.com/AmazonECS/latest/AP
+                IReference/API_DescribeTasks.html >`_> API operations on this task.
         """
         args: Dict[str, Any] = dict(
             task=self.serialize(task),
@@ -1359,19 +1363,23 @@ class ServiceRegistry(Boto3Model):
 
 
 class CapacityProviderStrategyItem(Boto3Model):
-    """
-    The details of a capacity provider strategy. A capacity provider strategy
-    can be set when using the RunTask or CreateCluster APIs or as the default
-    capacity provider strategy for a cluster with the CreateCluster API.
+    """The details of a capacity provider strategy. A capacity provider strategy can
+    be set when using the `RunTask <https://docs.aws.amazon.com/AmazonECS/latest/AP
+    IReference/API_RunTask.html>`_or `CreateCluster <https://docs.aws.amazon.com/Amaz
+    onECS/latest/APIReference/API_CreateCluster.html>`_ APIs or as the default
+    capacity provider strategy for a cluster with the ``CreateCluster`` API.
 
     Only capacity providers that are already associated with a cluster and have an
     ``ACTIVE`` or ``UPDATING`` status can be used in a capacity provider strategy.
-    The PutClusterCapacityProviders API is used to associate a capacity provider
-    with a cluster.
+    The `PutClusterCapacityProviders <https://docs.aws.amazon.com/AmazonECS/latest/
+    APIReference/API_PutClusterCapacityProviders.html>`_ API is used to associate a
+    capacity provider with a cluster.
 
     If specifying a capacity provider that uses an Auto Scaling group, the capacity
     provider must already be created. New Auto Scaling group capacity providers can
-    be created with the CreateCapacityProvider API operation.
+    be created with the `CreateClusterCapacityProvider <https://docs.aws.amazon.com
+    /AmazonECS/latest/APIReference/API_CreateClusterCapacityProvider.html>`_ API
+    operation.
 
     To use a Fargate capacity provider, specify either the ``FARGATE`` or
     ``FARGATE_SPOT`` capacity providers. The Fargate capacity providers are
@@ -1482,12 +1490,12 @@ class AwsVpcConfiguration(Boto3Model):
     """
 
     #: The IDs of the subnets associated with the task or service. There's a limit of
-    #: 16 subnets that can be specified per ``AwsVpcConfiguration``.
+    #: 16 subnets that can be specified per ``awsvpcConfiguration``.
     subnets: List[str]
     #: The IDs of the security groups associated with the task or service. If you
     #: don't specify a security group, the default security group for the VPC is used.
     #: There's a limit of 5 security groups that can be specified per
-    #: ``AwsVpcConfiguration``.
+    #: ``awsvpcConfiguration``.
     securityGroups: Optional[List[str]] = None
     #: Whether the task's elastic network interface receives a public IP address. The
     #: default value is ``DISABLED``.
@@ -1738,20 +1746,14 @@ class Secret(Boto3Model):
 
 
 class LogConfiguration(Boto3Model):
-    """The log configuration for the container. This parameter maps to ``LogConfig``
-    in the `Create a
-    container <https://docs.docker.com/engine/api/v1.35/#operation/ContainerCreate>`_
-    section of the `Docker Remote API <https://docs.docker.com/engine/api/v1.35/>`_
-    and the ``--log-driver`` option to  ```docker
-    run`` <https://docs.docker.com/engine/reference/commandline/run/>`_ .
+    """
+    The log configuration for the container. This parameter maps to
+    ``LogConfig`` in the docker conainer create command and the ``--log-
+    driver`` option to docker run.
 
     By default, containers use the same logging driver that the Docker daemon uses.
     However, the container might use a different logging driver than the Docker
     daemon by specifying a log driver configuration in the container definition.
-    For more information about the options for different supported log drivers, see
-    `Configure logging
-    drivers <https://docs.docker.com/engine/admin/logging/overview/>`_ in the Docker
-    documentation.
 
     Understand the following when specifying a log configuration for your
     containers.
@@ -1764,8 +1766,8 @@ class LogConfiguration(Boto3Model):
     and ``awsfirelens``.
 
     For tasks hosted on Amazon EC2 instances, the supported log drivers are
-    ``awslogs``, ``fluentd``, ``gelf``, ``json-file``, ``journald``,
-    ``logentries``,``syslog``, ``splunk``, and ``awsfirelens``.
+    ``awslogs``, ``fluentd``, ``gelf``, ``json-file``, ``journald``,``syslog``,
+    ``splunk``, and ``awsfirelens``.
 
     * This parameter requires version 1.18 of the Docker Remote API or greater on
       your container instance.
@@ -1779,7 +1781,8 @@ class LogConfiguration(Boto3Model):
     * For tasks that are on Fargate, because you don't have access to the
       underlying infrastructure your tasks are hosted on, any additional software
       needed must be installed outside of the task. For example, the Fluentd output
-      aggregators or a remote host running Logstash to send Gelf logs to."""
+      aggregators or a remote host running Logstash to send Gelf logs to.
+    """
 
     #: The log driver to use for the container.
     logDriver: Literal[
@@ -1839,11 +1842,8 @@ class ServiceConnectConfiguration(Boto3Model):
     #: this service.
     services: Optional[List["ServiceConnectService"]] = None
     #: The log configuration for the container. This parameter maps to ``LogConfig``
-    #: in the `Create a container
-    #: <https://docs.docker.com/engine/api/v1.35/#operation/ContainerCreate>`_ section
-    #: of the `Docker Remote API <https://docs.docker.com/engine/api/v1.35/>`_ and the
-    #: ``--log-driver`` option to  ```docker run``
-    #: <https://docs.docker.com/engine/reference/commandline/run/>`_ .
+    #: in the docker conainer create command and the ``--log-driver`` option to docker
+    #: run.
     logConfiguration: Optional[LogConfiguration] = None
 
 
@@ -1880,7 +1880,7 @@ class EBSTagSpecification(TagsDictMixin, Boto3Model):
     Tags: List["ECSTag"] = Field(default=None, serialization_alias="tags")
     #: The type of volume resource.
     resourceType: Literal["volume"]
-    #: Determines whether to propagate the tags from the task definition to  the
+    #: Determines whether to propagate the tags from the task definition to the
     #: Amazon EBS volume. Tags can only propagate to a ``SERVICE`` specified in
     #: ``ServiceVolumeConfiguration``. If no value is specified, the tags aren't
     #: propagated.
@@ -2141,8 +2141,10 @@ class Service(TagsDictMixin, PrimaryBoto3Model):
     #: within a Region or across multiple Regions.
     serviceName: str
     #: The task definition to use for tasks in the service. This value is specified
-    #: when the service is created with CreateService, and it can be modified with
-    #: UpdateService.
+    #: when the service is created with `CreateService <https://docs.aws.amazon.com/Am
+    #: azonECS/latest/APIReference/API_CreateService.html>`_, and it can be modified
+    #: with `UpdateService <https://docs.aws.amazon.com/AmazonECS/latest/APIReference/
+    #: API_UpdateService.html>`_.
     taskDefinition: str
     #: The ARN of the IAM role that's associated with the service. It allows the
     #: Amazon ECS container agent to register container instances with an Elastic Load
@@ -2151,8 +2153,11 @@ class Service(TagsDictMixin, PrimaryBoto3Model):
     #: The Amazon Resource Name (ARN) of the cluster that hosts the service.
     clusterArn: str
     #: The desired number of instantiations of the task definition to keep running on
-    #: the service. This value is specified when the service is created with
-    #: CreateService, and it can be modified with UpdateService.
+    #: the service. This value is specified when the service is created with `CreateSe
+    #: rvice <https://docs.aws.amazon.com/AmazonECS/latest/APIReference/API_CreateServ
+    #: ice.html>`_ , and it can be modified with `UpdateService
+    #: <https://docs.aws.amazon
+    #: .com/AmazonECS/latest/APIReference/API_UpdateService.html>`_.
     desiredCount: int
     #: The launch type the service is using. When using the DescribeServices API, this
     #: field is omitted if the service was created using a capacity provider strategy.
@@ -2504,7 +2509,8 @@ class Cluster(TagsDictMixin, PrimaryBoto3Model):
     #: The number of tasks in the cluster that are in the ``PENDING`` state.
     pendingTasksCount: int = Field(default=None, frozen=True)
     #: The number of services that are running on the cluster in an ``ACTIVE`` state.
-    #: You can view these services with ListServices.
+    #: You can view these services with `PListServices <https://docs.aws.amazon.com/Am
+    #: azonECS/latest/APIReference/API_ListServices.html>`_.
     activeServicesCount: int = Field(default=None, frozen=True)
     #: Additional information about your clusters that are separated by launch type.
     #: They include the following:
@@ -2625,20 +2631,18 @@ class PortMapping(Boto3Model):
     blank or it must be the same value as the ``containerPort``.
 
     Most fields of this parameter (``containerPort``, ``hostPort``, ``protocol``)
-    maps to ``PortBindings`` in the `Create a
-    container <https://docs.docker.com/engine/api/v1.35/#operation/ContainerCreate>`_
-    section of the `Docker Remote API <https://docs.docker.com/engine/api/v1.35/>`_
-    and the ``--publish`` option to  ```docker
-    run`` <https://docs.docker.com/engine/reference/commandline/run/>`_ . If the
-    network mode of a task definition is set to ``host``, host ports must either be
-    undefined or match the container port in the port mapping.
+    maps to ``PortBindings`` in the docker conainer create command and the
+    ``--publish`` option to ``docker run``. If the network mode of a task
+    definition is set to ``host``, host ports must either be undefined or match the
+    container port in the port mapping.
 
     You can't expose the same container port for multiple protocols. If you attempt
     this, an error is returned.
 
     After a task reaches the ``RUNNING`` status, manual and automatic host and
-    container port assignments are visible in the ``networkBindings`` section of
-    DescribeTasks API responses.
+    container port assignments are visible in the ``networkBindings`` section of `D
+    escribeTasks <https://docs.aws.amazon.com/AmazonECS/latest/APIReference/API_Des
+    cribeTasks.html>`_ API responses.
     """
 
     #: The port number on the container that's bound to the user-specified or
@@ -2666,6 +2670,33 @@ class PortMapping(Boto3Model):
     #: The port number range on the container that's bound to the dynamically mapped
     #: host port range.
     containerPortRange: Optional[str] = None
+
+
+class ContainerRestartPolicy(Boto3Model):
+    """
+    The restart policy for a container.
+
+    When you set up a restart policy, Amazon ECS can restart the container
+    without needing to replace the task. For more information, see
+    `Restart individual containers in Amazon ECS tasks with container restart policies <https://docs.aws.amazon.com/AmazonECS/latest/develo
+    perguide/container-restart-policy.html>`_ in the *Amazon Elastic Container
+    Service Developer Guide*.
+    """
+
+    #: Specifies whether a restart policy is enabled for the container.
+    enabled: bool
+    #: A list of exit codes that Amazon ECS will ignore and not attempt a restart on.
+    #: You can specify a maximum of 50 container exit codes. By default, Amazon ECS
+    #: does not ignore any exit codes.
+    ignoredExitCodes: Optional[List[int]] = None
+    #: A period of time (in seconds) that the container must run for before a restart
+    #: can be attempted. A container can be restarted only once every
+    #: ``restartAttemptPeriod`` seconds. If a container isn't able to run for this
+    #: time period and exits early, it will not be restarted. You can set a minimum
+    #: ``restartAttemptPeriod`` of 60 seconds and a maximum ``restartAttemptPeriod``
+    #: of 1800 seconds. By default, a container must run for 300 seconds before it can
+    #: be restarted.
+    restartAttemptPeriod: Optional[int] = None
 
 
 class EnvironmentFile(Boto3Model):
@@ -2752,19 +2783,11 @@ class KernelCapabilities(Boto3Model):
 
     #: The Linux capabilities for the container that have been added to the default
     #: configuration provided by Docker. This parameter maps to ``CapAdd`` in the
-    #: `Create a container
-    #: <https://docs.docker.com/engine/api/v1.35/#operation/ContainerCreate>`_ section
-    #: of the `Docker Remote API <https://docs.docker.com/engine/api/v1.35/>`_ and the
-    #: ``--cap-add`` option to `docker run
-    #: <https://docs.docker.com/engine/reference/run/#security-configuration>`_.
+    #: docker conainer create command and the ``--cap-add`` option to docker run.
     add: Optional[List[str]] = None
     #: The Linux capabilities for the container that have been removed from the
     #: default configuration provided by Docker. This parameter maps to ``CapDrop`` in
-    #: the `Create a container
-    #: <https://docs.docker.com/engine/api/v1.35/#operation/ContainerCreate>`_ section
-    #: of the `Docker Remote API <https://docs.docker.com/engine/api/v1.35/>`_ and the
-    #: ``--cap-drop`` option to `docker run
-    #: <https://docs.docker.com/engine/reference/run/#security-configuration>`_.
+    #: the docker conainer create command and the ``--cap-drop`` option to docker run.
     drop: Optional[List[str]] = None
 
 
@@ -2797,9 +2820,9 @@ class Tmpfs(Boto3Model):
 
 
 class LinuxParameters(Boto3Model):
-    """
-    Linux-specific modifications that are applied to the container, such as
-    Linux kernel capabilities. For more information see KernelCapabilities.
+    """Linux-specific modifications that are applied to the container, such as Linux
+    kernel capabilities. For more information see `KernelCapabilities <https://docs
+    .aws.amazon.com/AmazonECS/latest/APIReference/API_KernelCapabilities.html>`_.
 
     This parameter is not supported for Windows containers.
     """
@@ -2808,32 +2831,25 @@ class LinuxParameters(Boto3Model):
     #: default configuration provided by Docker.
     capabilities: Optional[KernelCapabilities] = None
     #: Any host devices to expose to the container. This parameter maps to ``Devices``
-    #: in the `Create a container
-    #: <https://docs.docker.com/engine/api/v1.35/#operation/ContainerCreate>`_ section
-    #: of the `Docker Remote API <https://docs.docker.com/engine/api/v1.35/>`_ and the
-    #: ``--device`` option to `docker run
-    #: <https://docs.docker.com/engine/reference/run/#security-configuration>`_.
+    #: in tthe docker conainer create command and the ``--device`` option to docker
+    #: run.
     devices: Optional[List["Device"]] = None
     #: Run an ``init`` process inside the container that forwards signals and reaps
-    #: processes. This parameter maps to the ``--init`` option to `docker run
-    #: <https://docs.docker.com/engine/reference/run/#security-configuration>`_. This
+    #: processes. This parameter maps to the ``--init`` option to docker run. This
     #: parameter requires version 1.25 of the Docker Remote API or greater on your
     #: container instance. To check the Docker Remote API version on your container
     #: instance, log in to your container instance and run the following command:
     #: ``sudo docker version --format '{{.Server.APIVersion}}'``
     initProcessEnabled: Optional[bool] = None
     #: The value for the size (in MiB) of the ``/dev/shm`` volume. This parameter maps
-    #: to the ``--shm-size`` option to `docker run
-    #: <https://docs.docker.com/engine/reference/run/#security-configuration>`_.
+    #: to the ``--shm-size`` option to docker run.
     sharedMemorySize: Optional[int] = None
     #: The container path, mount options, and size (in MiB) of the tmpfs mount. This
-    #: parameter maps to the ``--tmpfs`` option to `docker run
-    #: <https://docs.docker.com/engine/reference/run/#security-configuration>`_.
+    #: parameter maps to the ``--tmpfs`` option to docker run.
     tmpfs: Optional[List["Tmpfs"]] = None
     #: The total amount of swap memory (in MiB) a container can use. This parameter
-    #: will be translated to the ``--memory-swap`` option to `docker run
-    #: <https://docs.docker.com/engine/reference/run/#security-configuration>`_ where
-    #: the value would be the sum of the container memory plus the ``maxSwap`` value.
+    #: will be translated to the ``--memory-swap`` option to docker run where the
+    #: value would be the sum of the container memory plus the ``maxSwap`` value.
     maxSwap: Optional[int] = None
     #: This allows you to tune a container's memory swappiness behavior. A
     #: ``swappiness`` value of ``0`` will cause swapping to not happen unless
@@ -2841,9 +2857,8 @@ class LinuxParameters(Boto3Model):
     #: swapped very aggressively. Accepted values are whole numbers between ``0`` and
     #: ``100``. If the ``swappiness`` parameter is not specified, a default value of
     #: ``60`` is used. If a value is not specified for ``maxSwap`` then this parameter
-    #: is ignored. This parameter maps to the ``--memory-swappiness`` option to
-    #: `docker run <https://docs.docker.com/engine/reference/run/#security-
-    #: configuration>`_.
+    #: is ignored. This parameter maps to the ``--memory-swappiness`` option to docker
+    #: run.
     swappiness: Optional[int] = None
 
 
@@ -2888,9 +2903,10 @@ class ContainerDependency(Boto3Model):
 
 
 class HostEntry(Boto3Model):
-    """
-    Hostnames and IP address entries that are added to the ``/etc/hosts`` file
-    of a container via the ``extraHosts`` parameter of its ContainerDefinition.
+    """Hostnames and IP address entries that are added to the ``/etc/hosts`` file of a
+    container via the ``extraHosts`` parameter of its `ContainerDefinition <https:/
+    /docs.aws.amazon.com/AmazonECS/latest/APIReference/API_ContainerDefinition.html
+    >`_.
     """
 
     #: The hostname to use in the ``/etc/hosts`` entry.
@@ -2907,7 +2923,7 @@ class Ulimit(Boto3Model):
     the operating system with the exception of the ``nofile`` resource limit
     parameter which Fargate overrides. The ``nofile`` resource limit sets a
     restriction on the number of open files that a container can use. The default
-    ``nofile`` soft limit is ``1024`` and the default hard limit is ``65535``.
+    ``nofile`` soft limit is  ``65535`` and the default hard limit is ``65535``.
 
     You can specify the ``ulimit`` settings for a container in a task definition.
     """
@@ -2941,11 +2957,8 @@ class HealthCheck(Boto3Model):
     The container health check command and associated configuration parameters
     for the container.
 
-    This parameter maps to ``HealthCheck`` in the `Create a
-    container <https://docs.docker.com/engine/api/v1.35/#operation/ContainerCreate>`_
-    section of the `Docker Remote API <https://docs.docker.com/engine/api/v1.35/>`_
-    and the ``HEALTHCHECK`` parameter of `docker
-    run <https://docs.docker.com/engine/reference/run/#security-configuration>`_.
+    This parameter maps to ``HealthCheck`` in the docker conainer
+    create command and the ``HEALTHCHECK`` parameter of docker run.
     """
 
     #: A string array representing the command that the container runs to determine if
@@ -2971,14 +2984,12 @@ class HealthCheck(Boto3Model):
 
 
 class SystemControl(Boto3Model):
-    """A list of namespaced kernel parameters to set in the container. This parameter
-    maps to ``Sysctls`` in the `Create a
-    container <https://docs.docker.com/engine/api/v1.35/#operation/ContainerCreate>`_
-    section of the `Docker Remote API <https://docs.docker.com/engine/api/v1.35/>`_
-    and the ``--sysctl`` option to `docker
-    run <https://docs.docker.com/engine/reference/run/#security-configuration>`_. For
-    example, you can configure ``net.ipv4.tcp_keepalive_time`` setting to maintain
-    longer lived connections.
+    """
+    A list of namespaced kernel parameters to set in the container. This
+    parameter maps to ``Sysctls`` in tthe docker conainer create command and
+    the ``--sysctl`` option to docker run. For example, you can configure
+    ``net.ipv4.tcp_keepalive_time`` setting to maintain longer lived
+    connections.
 
     We don't recommend that you specify network-related ``systemControls``
     parameters for multiple containers in a single task that also uses either the
@@ -3069,11 +3080,8 @@ class ContainerDefinition(Boto3Model):
     #: task definition, the ``name`` of one container can be entered in the ``links``
     #: of another container to connect the containers. Up to 255 letters (uppercase
     #: and lowercase), numbers, underscores, and hyphens are allowed. This parameter
-    #: maps to ``name`` in the `Create a container
-    #: <https://docs.docker.com/engine/api/v1.35/#operation/ContainerCreate>`_ section
-    #: of the `Docker Remote API <https://docs.docker.com/engine/api/v1.35/>`_ and the
-    #: ``--name`` option to `docker run
-    #: <https://docs.docker.com/engine/reference/run/#security-configuration>`_.
+    #: maps to ``name`` in tthe docker conainer create command and the ``--name``
+    #: option to docker run.
     name: str
     #: The image used to start a container. This string is passed directly to the
     #: Docker daemon. By default, images in the Docker Hub registry are available.
@@ -3081,11 +3089,8 @@ class ContainerDefinition(Boto3Model):
     #: url*/*image*:*tag*``  or  ``*repository-url*/*image*@*digest*`` . Up to 255
     #: letters (uppercase and lowercase), numbers, hyphens, underscores, colons,
     #: periods, forward slashes, and number signs are allowed. This parameter maps to
-    #: ``Image`` in the `Create a container
-    #: <https://docs.docker.com/engine/api/v1.35/#operation/ContainerCreate>`_ section
-    #: of the `Docker Remote API <https://docs.docker.com/engine/api/v1.35/>`_ and the
-    #: ``IMAGE`` parameter of `docker run
-    #: <https://docs.docker.com/engine/reference/run/#security-configuration>`_.
+    #: ``Image`` in the docker conainer create command and the ``IMAGE`` parameter of
+    #: docker run.
     image: str
     #: If the ``essential`` parameter of a container is marked as ``true``, and that
     #: container fails or stops for any reason, all other containers that are part of
@@ -3096,87 +3101,69 @@ class ContainerDefinition(Boto3Model):
     #: The private repository authentication credentials to use.
     repositoryCredentials: Optional[RepositoryCredentials] = None
     #: The number of ``cpu`` units reserved for the container. This parameter maps to
-    #: ``CpuShares`` in the `Create a container
-    #: <https://docs.docker.com/engine/api/v1.35/#operation/ContainerCreate>`_ section
-    #: of the `Docker Remote API <https://docs.docker.com/engine/api/v1.35/>`_ and the
-    #: ``--cpu-shares`` option to `docker run
-    #: <https://docs.docker.com/engine/reference/run/#security-configuration>`_.
+    #: ``CpuShares`` in the docker conainer create commandand the ``--cpu-shares``
+    #: option to docker run.
     cpu: Optional[int] = None
     #: The amount (in MiB) of memory to present to the container. If your container
     #: attempts to exceed the memory specified here, the container is killed. The
     #: total amount of memory reserved for all containers within a task must be lower
     #: than the task ``memory`` value, if one is specified. This parameter maps to
-    #: ``Memory`` in the `Create a container
-    #: <https://docs.docker.com/engine/api/v1.35/#operation/ContainerCreate>`_ section
-    #: of the `Docker Remote API <https://docs.docker.com/engine/api/v1.35/>`_ and the
-    #: ``--memory`` option to `docker run
-    #: <https://docs.docker.com/engine/reference/run/#security-configuration>`_.
+    #: ``Memory`` in thethe docker conainer create command and the ``--memory`` option
+    #: to docker run.
     memory: Optional[int] = None
     #: The soft limit (in MiB) of memory to reserve for the container. When system
     #: memory is under heavy contention, Docker attempts to keep the container memory
     #: to this soft limit. However, your container can consume more memory when it
     #: needs to, up to either the hard limit specified with the ``memory`` parameter
     #: (if applicable), or all of the available memory on the container instance,
-    #: whichever comes first. This parameter maps to ``MemoryReservation`` in the
-    #: `Create a container
-    #: <https://docs.docker.com/engine/api/v1.35/#operation/ContainerCreate>`_ section
-    #: of the `Docker Remote API <https://docs.docker.com/engine/api/v1.35/>`_ and the
-    #: ``--memory-reservation`` option to `docker run
-    #: <https://docs.docker.com/engine/reference/run/#security-configuration>`_.
+    #: whichever comes first. This parameter maps to ``MemoryReservation`` in the the
+    #: docker conainer create command and the ``--memory-reservation`` option to
+    #: docker run.
     memoryReservation: Optional[int] = None
     #: The ``links`` parameter allows containers to communicate with each other
     #: without the need for port mappings. This parameter is only supported if the
     #: network mode of a task definition is ``bridge``. The ``name:internalName``
     #: construct is analogous to ``name:alias`` in Docker links. Up to 255 letters
-    #: (uppercase and lowercase), numbers, underscores, and hyphens are allowed. For
-    #: more information about linking Docker containers, go to `Legacy container links
-    #: <https://docs.docker.com/network/links/>`_ in the Docker documentation. This
-    #: parameter maps to ``Links`` in the `Create a container
-    #: <https://docs.docker.com/engine/api/v1.35/#operation/ContainerCreate>`_ section
-    #: of the `Docker Remote API <https://docs.docker.com/engine/api/v1.35/>`_ and the
-    #: ``--link`` option to `docker run
-    #: <https://docs.docker.com/engine/reference/run/#security-configuration>`_.
+    #: (uppercase and lowercase), numbers, underscores, and hyphens are allowed.. This
+    #: parameter maps to ``Links`` in the docker conainer create command and the
+    #: ``--link`` option to docker run.
     links: Optional[List[str]] = None
     #: The list of port mappings for the container. Port mappings allow containers to
     #: access ports on the host container instance to send or receive traffic.
     portMappings: Optional[List["PortMapping"]] = None
+    #: The restart policy for a container. When you set up a restart policy, Amazon
+    #: ECS can restart the container without needing to replace the task. For more
+    #: information, see `Restart individual containers in Amazon ECS tasks with
+    #: container restart policies <https://docs.aws.amazon.com/AmazonECS/latest/develo
+    #: perguide/container-restart-policy.html>`_ in the *Amazon Elastic Container
+    #: Service Developer Guide*.
+    restartPolicy: Optional[ContainerRestartPolicy] = None
     #: Early versions of the Amazon ECS container agent don't properly handle
     #: ``entryPoint`` parameters. If you have problems using ``entryPoint``, update
     #: your container agent or enter your commands and arguments as ``command`` array
     #: items instead.
     entryPoint: Optional[List[str]] = None
     #: The command that's passed to the container. This parameter maps to ``Cmd`` in
-    #: the `Create a container
-    #: <https://docs.docker.com/engine/api/v1.35/#operation/ContainerCreate>`_ section
-    #: of the `Docker Remote API <https://docs.docker.com/engine/api/v1.35/>`_ and the
-    #: ``COMMAND`` parameter to `docker run
-    #: <https://docs.docker.com/engine/reference/run/#security-configuration>`_. For
-    #: more information, see <https://docs.docker.com/engine/reference/builder/#cmd>.
+    #: the docker conainer create command and the ``COMMAND`` parameter to docker run.
     #: If there are multiple arguments, each argument is a separated string in the
     #: array.
     command: Optional[List[str]] = None
     #: The environment variables to pass to a container. This parameter maps to
-    #: ``Env`` in the `Create a container
-    #: <https://docs.docker.com/engine/api/v1.35/#operation/ContainerCreate>`_ section
-    #: of the `Docker Remote API <https://docs.docker.com/engine/api/v1.35/>`_ and the
-    #: ``--env`` option to `docker run
-    #: <https://docs.docker.com/engine/reference/run/#security-configuration>`_.
+    #: ``Env`` in the docker conainer create command and the ``--env`` option to
+    #: docker run.
     environment: Optional[List["KeyValuePair"]] = None
     #: A list of files containing the environment variables to pass to a container.
-    #: This parameter maps to the ``--env-file`` option to `docker run
-    #: <https://docs.docker.com/engine/reference/run/#security-configuration>`_.
+    #: This parameter maps to the ``--env-file`` option to docker run.
     environmentFiles: Optional[List["EnvironmentFile"]] = None
     #: The mount points for data volumes in your container.
     mountPoints: Optional[List["MountPoint"]] = None
     #: Data volumes to mount from another container. This parameter maps to
-    #: ``VolumesFrom`` in the `Create a container
-    #: <https://docs.docker.com/engine/api/v1.35/#operation/ContainerCreate>`_ section
-    #: of the `Docker Remote API <https://docs.docker.com/engine/api/v1.35/>`_ and the
-    #: ``--volumes-from`` option to `docker run
-    #: <https://docs.docker.com/engine/reference/run/#security-configuration>`_.
+    #: ``VolumesFrom`` in tthe docker conainer create command and the ``--volumes-
+    #: from`` option to docker run.
     volumesFrom: Optional[List["VolumeFrom"]] = None
     #: Linux-specific modifications that are applied to the container, such as Linux
-    #: kernel capabilities. For more information see KernelCapabilities.
+    #: kernel capabilities. For more information see `KernelCapabilities <https://docs
+    #: .aws.amazon.com/AmazonECS/latest/APIReference/API_KernelCapabilities.html>`_.
     linuxParameters: Optional[LinuxParameters] = None
     #: The secrets to pass to the container. For more information, see `Specifying
     #: Sensitive Data
@@ -3201,128 +3188,77 @@ class ContainerDefinition(Boto3Model):
     #: it doesn't exit normally on its own.
     stopTimeout: Optional[int] = None
     #: The hostname to use for your container. This parameter maps to ``Hostname`` in
-    #: the `Create a container
-    #: <https://docs.docker.com/engine/api/v1.35/#operation/ContainerCreate>`_ section
-    #: of the `Docker Remote API <https://docs.docker.com/engine/api/v1.35/>`_ and the
-    #: ``--hostname`` option to `docker run
-    #: <https://docs.docker.com/engine/reference/run/#security-configuration>`_.
+    #: thethe docker conainer create command and the ``--hostname`` option to docker
+    #: run.
     hostname: Optional[str] = None
     #: The user to use inside the container. This parameter maps to ``User`` in the
-    #: `Create a container
-    #: <https://docs.docker.com/engine/api/v1.35/#operation/ContainerCreate>`_ section
-    #: of the `Docker Remote API <https://docs.docker.com/engine/api/v1.35/>`_ and the
-    #: ``--user`` option to `docker run
-    #: <https://docs.docker.com/engine/reference/run/#security-configuration>`_.
+    #: docker conainer create command and the ``--user`` option to docker run.
     user: Optional[str] = None
     #: The working directory to run commands inside the container in. This parameter
-    #: maps to ``WorkingDir`` in the `Create a container
-    #: <https://docs.docker.com/engine/api/v1.35/#operation/ContainerCreate>`_ section
-    #: of the `Docker Remote API <https://docs.docker.com/engine/api/v1.35/>`_ and the
-    #: ``--workdir`` option to `docker run
-    #: <https://docs.docker.com/engine/reference/run/#security-configuration>`_.
+    #: maps to ``WorkingDir`` in the docker conainer create command and the
+    #: ``--workdir`` option to docker run.
     workingDirectory: Optional[str] = None
     #: When this parameter is true, networking is off within the container. This
-    #: parameter maps to ``NetworkDisabled`` in the `Create a container
-    #: <https://docs.docker.com/engine/api/v1.35/#operation/ContainerCreate>`_ section
-    #: of the `Docker Remote API <https://docs.docker.com/engine/api/v1.35/>`_.
+    #: parameter maps to ``NetworkDisabled`` in the docker conainer create command.
     disableNetworking: Optional[bool] = None
     #: When this parameter is true, the container is given elevated privileges on the
     #: host container instance (similar to the ``root`` user). This parameter maps to
-    #: ``Privileged`` in the `Create a container
-    #: <https://docs.docker.com/engine/api/v1.35/#operation/ContainerCreate>`_ section
-    #: of the `Docker Remote API <https://docs.docker.com/engine/api/v1.35/>`_ and the
-    #: ``--privileged`` option to `docker run
-    #: <https://docs.docker.com/engine/reference/run/#security-configuration>`_.
+    #: ``Privileged`` in the the docker conainer create command and the
+    #: ``--privileged`` option to docker run
     privileged: Optional[bool] = None
     #: When this parameter is true, the container is given read-only access to its
-    #: root file system. This parameter maps to ``ReadonlyRootfs`` in the `Create a
-    #: container
-    #: <https://docs.docker.com/engine/api/v1.35/#operation/ContainerCreate>`_ section
-    #: of the `Docker Remote API <https://docs.docker.com/engine/api/v1.35/>`_ and the
-    #: ``--read-only`` option to `docker run
-    #: <https://docs.docker.com/engine/reference/run/#security-configuration>`_.
+    #: root file system. This parameter maps to ``ReadonlyRootfs`` in the docker
+    #: conainer create command and the ``--read-only`` option to docker run.
     readonlyRootFilesystem: Optional[bool] = None
     #: A list of DNS servers that are presented to the container. This parameter maps
-    #: to ``Dns`` in the `Create a container
-    #: <https://docs.docker.com/engine/api/v1.35/#operation/ContainerCreate>`_ section
-    #: of the `Docker Remote API <https://docs.docker.com/engine/api/v1.35/>`_ and the
-    #: ``--dns`` option to `docker run
-    #: <https://docs.docker.com/engine/reference/run/#security-configuration>`_.
+    #: to ``Dns`` in the the docker conainer create command and the ``--dns`` option
+    #: to docker run.
     dnsServers: Optional[List[str]] = None
     #: A list of DNS search domains that are presented to the container. This
-    #: parameter maps to ``DnsSearch`` in the `Create a container
-    #: <https://docs.docker.com/engine/api/v1.35/#operation/ContainerCreate>`_ section
-    #: of the `Docker Remote API <https://docs.docker.com/engine/api/v1.35/>`_ and the
-    #: ``--dns-search`` option to `docker run
-    #: <https://docs.docker.com/engine/reference/run/#security-configuration>`_.
+    #: parameter maps to ``DnsSearch`` in the docker conainer create command and the
+    #: ``--dns-search`` option to docker run.
     dnsSearchDomains: Optional[List[str]] = None
     #: A list of hostnames and IP address mappings to append to the ``/etc/hosts``
-    #: file on the container. This parameter maps to ``ExtraHosts`` in the `Create a
-    #: container
-    #: <https://docs.docker.com/engine/api/v1.35/#operation/ContainerCreate>`_ section
-    #: of the `Docker Remote API <https://docs.docker.com/engine/api/v1.35/>`_ and the
-    #: ``--add-host`` option to `docker run
-    #: <https://docs.docker.com/engine/reference/run/#security-configuration>`_.
+    #: file on the container. This parameter maps to ``ExtraHosts`` in the docker
+    #: conainer create command and the ``--add-host`` option to docker run.
     extraHosts: Optional[List["HostEntry"]] = None
     #: A list of strings to provide custom configuration for multiple security
-    #: systems. For more information about valid values, see `Docker Run Security
-    #: Configuration <https://docs.docker.com/engine/reference/run/#security-
-    #: configuration>`_. This field isn't valid for containers in tasks using the
-    #: Fargate launch type.
+    #: systems. This field isn't valid for containers in tasks using the Fargate
+    #: launch type.
     dockerSecurityOptions: Optional[List[str]] = None
     #: When this parameter is ``true``, you can deploy containerized applications that
     #: require ``stdin`` or a ``tty`` to be allocated. This parameter maps to
-    #: ``OpenStdin`` in the `Create a container
-    #: <https://docs.docker.com/engine/api/v1.35/#operation/ContainerCreate>`_ section
-    #: of the `Docker Remote API <https://docs.docker.com/engine/api/v1.35/>`_ and the
-    #: ``--interactive`` option to `docker run
-    #: <https://docs.docker.com/engine/reference/run/#security-configuration>`_.
+    #: ``OpenStdin`` in the docker conainer create command and the ``--interactive``
+    #: option to docker run.
     interactive: Optional[bool] = None
     #: When this parameter is ``true``, a TTY is allocated. This parameter maps to
-    #: ``Tty`` in the `Create a container
-    #: <https://docs.docker.com/engine/api/v1.35/#operation/ContainerCreate>`_ section
-    #: of the `Docker Remote API <https://docs.docker.com/engine/api/v1.35/>`_ and the
-    #: ``--tty`` option to `docker run
-    #: <https://docs.docker.com/engine/reference/run/#security-configuration>`_.
+    #: ``Tty`` in tthe docker conainer create command and the ``--tty`` option to
+    #: docker run.
     pseudoTerminal: Optional[bool] = None
     #: A key/value map of labels to add to the container. This parameter maps to
-    #: ``Labels`` in the `Create a container
-    #: <https://docs.docker.com/engine/api/v1.35/#operation/ContainerCreate>`_ section
-    #: of the `Docker Remote API <https://docs.docker.com/engine/api/v1.35/>`_ and the
-    #: ``--label`` option to `docker run
-    #: <https://docs.docker.com/engine/reference/run/#security-configuration>`_. This
-    #: parameter requires version 1.18 of the Docker Remote API or greater on your
-    #: container instance. To check the Docker Remote API version on your container
-    #: instance, log in to your container instance and run the following command:
-    #: ``sudo docker version --format '{{.Server.APIVersion}}'``
+    #: ``Labels`` in the docker conainer create command and the ``--label`` option to
+    #: docker run. This parameter requires version 1.18 of the Docker Remote API or
+    #: greater on your container instance. To check the Docker Remote API version on
+    #: your container instance, log in to your container instance and run the
+    #: following command: ``sudo docker version --format '{{.Server.APIVersion}}'``
     dockerLabels: Optional[Dict[str, str]] = None
     #: A list of ``ulimits`` to set in the container. If a ``ulimit`` value is
     #: specified in a task definition, it overrides the default values set by Docker.
-    #: This parameter maps to ``Ulimits`` in the `Create a container
-    #: <https://docs.docker.com/engine/api/v1.35/#operation/ContainerCreate>`_ section
-    #: of the `Docker Remote API <https://docs.docker.com/engine/api/v1.35/>`_ and the
-    #: ``--ulimit`` option to `docker run
-    #: <https://docs.docker.com/engine/reference/run/#security-configuration>`_. Valid
-    #: naming values are displayed in the Ulimit data type.
+    #: This parameter maps to ``Ulimits`` in tthe docker conainer create command and
+    #: the ``--ulimit`` option to docker run. Valid naming values are displayed in the
+    #: `Ulimit <https://docs.aws.amazon.com/AmazonECS/latest/APIReference/API_Ulimit.h
+    #: tml>`_ data type.
     ulimits: Optional[List["Ulimit"]] = None
     #: The log configuration specification for the container.
     logConfiguration: Optional[LogConfiguration] = None
     #: The container health check command and associated configuration parameters for
-    #: the container. This parameter maps to ``HealthCheck`` in the `Create a
-    #: container
-    #: <https://docs.docker.com/engine/api/v1.35/#operation/ContainerCreate>`_ section
-    #: of the `Docker Remote API <https://docs.docker.com/engine/api/v1.35/>`_ and the
-    #: ``HEALTHCHECK`` parameter of `docker run
-    #: <https://docs.docker.com/engine/reference/run/#security-configuration>`_.
+    #: the container. This parameter maps to ``HealthCheck`` in the docker conainer
+    #: create command and the ``HEALTHCHECK`` parameter of docker run.
     healthCheck: Optional[HealthCheck] = None
     #: A list of namespaced kernel parameters to set in the container. This parameter
-    #: maps to ``Sysctls`` in the `Create a container
-    #: <https://docs.docker.com/engine/api/v1.35/#operation/ContainerCreate>`_ section
-    #: of the `Docker Remote API <https://docs.docker.com/engine/api/v1.35/>`_ and the
-    #: ``--sysctl`` option to `docker run
-    #: <https://docs.docker.com/engine/reference/run/#security-configuration>`_. For
-    #: example, you can configure ``net.ipv4.tcp_keepalive_time`` setting to maintain
-    #: longer lived connections.
+    #: maps to ``Sysctls`` in tthe docker conainer create command and the ``--sysctl``
+    #: option to docker run. For example, you can configure
+    #: ``net.ipv4.tcp_keepalive_time`` setting to maintain longer lived connections.
     systemControls: Optional[List["SystemControl"]] = None
     #: The type and amount of a resource to assign to a container. The only supported
     #: resource is a GPU.
@@ -3388,28 +3324,17 @@ class DockerVolumeConfiguration(Boto3Model):
     #: provided by Docker because it is used for task placement. If the driver was
     #: installed using the Docker plugin CLI, use ``docker plugin ls`` to retrieve the
     #: driver name from your container instance. If the driver was installed using
-    #: another method, use Docker plugin discovery to retrieve the driver name. For
-    #: more information, see `Docker plugin discovery
-    #: <https://docs.docker.com/engine/extend/plugin_api/#plugin-discovery>`_. This
-    #: parameter maps to ``Driver`` in the `Create a volume
-    #: <https://docs.docker.com/engine/api/v1.35/#operation/VolumeCreate>`_ section of
-    #: the `Docker Remote API <https://docs.docker.com/engine/api/v1.35/>`_ and the
-    #: ``xxdriver`` option to `docker volume create
-    #: <https://docs.docker.com/engine/reference/commandline/volume_create/>`_.
+    #: another method, use Docker plugin discovery to retrieve the driver name. This
+    #: parameter maps to ``Driver`` in the docker conainer create command and the
+    #: ``xxdriver`` option to docker volume create.
     driver: Optional[str] = None
     #: A map of Docker driver-specific options passed through. This parameter maps to
-    #: ``DriverOpts`` in the `Create a volume
-    #: <https://docs.docker.com/engine/api/v1.35/#operation/VolumeCreate>`_ section of
-    #: the `Docker Remote API <https://docs.docker.com/engine/api/v1.35/>`_ and the
-    #: ``xxopt`` option to `docker volume create
-    #: <https://docs.docker.com/engine/reference/commandline/volume_create/>`_.
+    #: ``DriverOpts`` in the docker create-volume command and the ``xxopt`` option to
+    #: docker volume create.
     driverOpts: Optional[Dict[str, str]] = None
     #: Custom metadata to add to your Docker volume. This parameter maps to ``Labels``
-    #: in the `Create a volume
-    #: <https://docs.docker.com/engine/api/v1.35/#operation/VolumeCreate>`_ section of
-    #: the `Docker Remote API <https://docs.docker.com/engine/api/v1.35/>`_ and the
-    #: ``xxlabel`` option to `docker volume create
-    #: <https://docs.docker.com/engine/reference/commandline/volume_create/>`_.
+    #: in the docker conainer create command and the ``xxlabel`` option to docker
+    #: volume create.
     labels: Optional[Dict[str, str]] = None
 
 
@@ -3545,6 +3470,36 @@ class Volume(Boto3Model):
     configuredAtLaunch: Optional[bool] = None
 
 
+class Attribute(Boto3Model):
+    """
+    An attribute is a name-value pair that's associated with an Amazon ECS
+    object.
+
+    Use attributes to extend the Amazon ECS data model by adding custom
+    metadata to your resources. For more information, see
+    `Attributes <https://docs.aws.amazon.com/AmazonECS/latest/developerguide/task-
+    placement-constraints.html#attributes>`_ in the *Amazon Elastic Container Service
+    Developer Guide*.
+    """
+
+    #: The name of the attribute. The ``name`` must contain between 1 and 128
+    #: characters. The name may contain letters (uppercase and lowercase), numbers,
+    #: hyphens (-), underscores (\_), forward slashes (/), back slashes (\), or
+    #: periods (.).
+    name: str
+    #: The value of the attribute. The ``value`` must contain between 1 and 128
+    #: characters. It can contain letters (uppercase and lowercase), numbers, hyphens
+    #: (-), underscores (\_), periods (.), at signs (@), forward slashes (/), back
+    #: slashes (\), colons (:), or spaces. The value can't start or end with a space.
+    value: Optional[str] = None
+    #: The type of the target to attach the attribute with. This parameter is required
+    #: if you use the short form ID for a resource instead of the full ARN.
+    targetType: Optional[Literal["container-instance"]] = None
+    #: The ID of the target. You can specify the short form ID for a resource or the
+    #: full Amazon Resource Name (ARN).
+    targetId: Optional[str] = None
+
+
 class TaskDefinitionPlacementConstraint(Boto3Model):
     """The constraint on task placement in the task definition. For more information,
     see `Task placement
@@ -3661,9 +3616,11 @@ class TaskDefinition(TagsDictMixin, PrimaryBoto3Model):
     family: str
     #: The short name or full Amazon Resource Name (ARN) of the Identity and Access
     #: Management role that grants containers in the task permission to call Amazon
-    #: Web Services APIs on your behalf. For more information, see `Amazon ECS Task
-    #: Role <https://docs.aws.amazon.com/AmazonECS/latest/developerguide/task-iam-
-    #: roles.html>`_ in the *Amazon Elastic Container Service Developer Guide*.
+    #: Web Services APIs on your behalf. For informationabout the required IAM roles
+    #: for Amazon ECS, see `IAM roles for Amazon ECS
+    #: <https://docs.aws.amazon.com/AmazonECS/latest/developerguide/security-ecs- iam-
+    #: role-overview.html>`_ in the *Amazon Elastic Container Service Developer
+    #: Guide*.
     taskRoleArn: str
     #: A list of container definitions in JSON format that describe the different
     #: containers that make up your task. For more information about container
@@ -3679,10 +3636,10 @@ class TaskDefinition(TagsDictMixin, PrimaryBoto3Model):
     taskDefinitionArn: str = Field(default=None, frozen=True)
     #: The Amazon Resource Name (ARN) of the task execution role that grants the
     #: Amazon ECS container agent permission to make Amazon Web Services API calls on
-    #: your behalf. The task execution IAM role is required depending on the
-    #: requirements of your task. For more information, see `Amazon ECS task execution
-    #: IAM role <https://docs.aws.amazon.com/AmazonECS/latest/developerguide/task_exec
-    #: ution_IAM_role.html>`_ in the *Amazon Elastic Container Service Developer
+    #: your behalf. For informationabout the required IAM roles for Amazon ECS, see
+    #: `IAM roles for Amazon ECS
+    #: <https://docs.aws.amazon.com/AmazonECS/latest/developerguide/security-ecs- iam-
+    #: role-overview.html>`_ in the *Amazon Elastic Container Service Developer
     #: Guide*.
     executionRoleArn: Optional[str] = None
     #: The revision of the task in a particular family. The revision is a version
@@ -3704,13 +3661,14 @@ class TaskDefinition(TagsDictMixin, PrimaryBoto3Model):
     #: The container instance attributes required by your task. When an Amazon EC2
     #: instance is registered to your cluster, the Amazon ECS container agent assigns
     #: some standard attributes to the instance. You can apply custom attributes.
-    #: These are specified as key-value pairs using the Amazon ECS console or the
-    #: PutAttributes API. These attributes are used when determining task placement
+    #: These are specified as key-value pairs using the Amazon ECS console or the `Put
+    #: Attributes <https://docs.aws.amazon.com/AmazonECS/latest/APIReference/API_PutAt
+    #: tributes.html>`_ API. These attributes are used when determining task placement
     #: for tasks hosted on Amazon EC2 instances. For more information, see `Attributes
     #: <https://docs.aws.amazon.com/AmazonECS/latest/developerguide/task- placement-
     #: constraints.html#attributes>`_ in the *Amazon Elastic Container Service
     #: Developer Guide*.
-    requiresAttributes: List[Attribute] = Field(default=None, frozen=True)
+    requiresAttributes: List["Attribute"] = Field(default=None, frozen=True)
     #: An array of placement constraint objects to use for tasks.
     placementConstraints: Optional[List["TaskDefinitionPlacementConstraint"]] = None
     #: The task launch types the task definition validated against during task
@@ -3755,9 +3713,7 @@ class TaskDefinition(TagsDictMixin, PrimaryBoto3Model):
     #: within the containers of a task are private and not shared with other
     #: containers in a task or on the container instance. If no value is specified,
     #: then the IPC resource namespace sharing depends on the Docker daemon setting on
-    #: the container instance. For more information, see `IPC settings
-    #: <https://docs.docker.com/engine/reference/run/#ipc-settings---ipc>`_ in the
-    #: *Docker run reference*.
+    #: the container instance.
     ipcMode: Optional[Literal["host", "task", "none"]] = None
     #: The configuration details for the App Mesh proxy.
     proxyConfiguration: Optional[ProxyConfiguration] = None
@@ -3802,7 +3758,8 @@ class NetworkBinding(Boto3Model):
 
     After a task reaches the ``RUNNING`` status, manual and automatic
     host and container port assignments are visible in the ``networkBindings``
-    section of DescribeTasks API responses.
+    section of `DescribeTasks <https://docs.aws.amazon.com/AmazonECS/latest/APIRefe
+    rence/API_DescribeTasks.html>`_ API responses.
     """
 
     #: The IP address that the container is bound to on the container instance.
@@ -4030,7 +3987,7 @@ class Task(TagsDictMixin, PrimaryBoto3Model):
     #: the ``awsvpc`` network mode.
     attachments: List["Attachment"] = Field(default=None, frozen=True)
     #: The attributes of the task
-    attributes: List[Attribute] = Field(default=None, frozen=True)
+    attributes: List["Attribute"] = Field(default=None, frozen=True)
     #: The Availability Zone for the task.
     availabilityZone: str = Field(default=None, frozen=True)
     #: The capacity provider that's associated with the task.
@@ -4368,9 +4325,10 @@ class ContainerInstance(TagsDictMixin, ReadonlyPrimaryBoto3Model):
         Literal["PENDING", "STAGING", "STAGED", "UPDATING", "UPDATED", "FAILED"]
     ] = None
     #: The attributes set for the container instance, either by the Amazon ECS
-    #: container agent at instance registration or manually with the PutAttributes
-    #: operation.
-    attributes: Optional[List[Attribute]] = None
+    #: container agent at instance registration or manually with the `PutAttributes <h
+    #: ttps://docs.aws.amazon.com/AmazonECS/latest/APIReference/API_PutAttributes.html
+    #: >`_ operation.
+    attributes: Optional[List["Attribute"]] = None
     #: The Unix timestamp for the time when the container instance was registered.
     registeredAt: Optional[datetime] = None
     #: The resources attached to a container instance, such as an elastic network
@@ -4614,10 +4572,10 @@ class TaskManagedEBSVolumeTerminationPolicy(Boto3Model):
     """
 
     #: Indicates whether the volume should be deleted on when the task stops. If a
-    #: value of ``true`` is specified,  Amazon ECS deletes the Amazon EBS volume on
+    #: value of ``true`` is specified, Amazon ECS deletes the Amazon EBS volume on
     #: your behalf when the task goes into the ``STOPPED`` state. If no value is
-    #: specified, the  default value is ``true`` is used. When set to ``false``,
-    #: Amazon ECS leaves the volume in your  account.
+    #: specified, the default value is ``true`` is used. When set to ``false``,
+    #: Amazon ECS leaves the volume in your account.
     deleteOnTermination: bool
 
 

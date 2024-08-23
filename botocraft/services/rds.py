@@ -855,9 +855,7 @@ class DBInstance(PrimaryBoto3Model):
     #: A list of log types that this DB instance is configured to export to CloudWatch
     #: Logs.
     EnabledCloudwatchLogsExports: Optional[List[str]] = None
-    #: A list of tags. For more information, see `Tagging Amazon RDS Resources <https:
-    #: //docs.aws.amazon.com/AmazonRDS/latest/UserGuide/USER_Tagging.html>`_ in the
-    #: *Amazon RDS User Guide.*
+    #: A list of tags.
     TagList: Optional[List[Tag]] = None
     #: Indicates whether a customer-owned IP address (CoIP) is enabled for an RDS on
     #: Outposts DB instance.

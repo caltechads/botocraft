@@ -1207,6 +1207,14 @@ class VpcIpv6CidrBlockAssociation(Boto3Model):
     NetworkBorderGroup: Optional[str] = None
     #: The ID of the IPv6 address pool from which the IPv6 CIDR block is allocated.
     Ipv6Pool: Optional[str] = None
+    #: Public IPv6 addresses are those advertised on the internet from Amazon Web
+    #: Services. Private IP addresses are not and cannot be advertised on the internet
+    #: from Amazon Web Services.
+    Ipv6AddressAttribute: Optional[Literal["public", "private"]] = None
+    #: The source that allocated the IP address space. ``byoip`` or ``amazon``
+    #: indicates public IP address space allocated by Amazon or space that you have
+    #: allocated with Bring your own IP (BYOIP). ``none`` indicates private space.
+    IpSource: Optional[Literal["amazon", "byoip", "none"]] = None
 
 
 class VpcCidrBlockAssociation(Boto3Model):
@@ -1309,6 +1317,14 @@ class SubnetIpv6CidrBlockAssociation(Boto3Model):
     Ipv6CidrBlock: Optional[str] = None
     #: The state of the CIDR block.
     Ipv6CidrBlockState: Optional[SubnetCidrBlockState] = None
+    #: Public IPv6 addresses are those advertised on the internet from Amazon Web
+    #: Services. Private IP addresses are not and cannot be advertised on the internet
+    #: from Amazon Web Services.
+    Ipv6AddressAttribute: Optional[Literal["public", "private"]] = None
+    #: The source that allocated the IP address space. ``byoip`` or ``amazon``
+    #: indicates public IP address space allocated by Amazon or space that you have
+    #: allocated with Bring your own IP (BYOIP). ``none`` indicates private space.
+    IpSource: Optional[Literal["amazon", "byoip", "none"]] = None
 
 
 class EC2PrivateDnsNameOptionsOnLaunch(Boto3Model):
@@ -6652,7 +6668,7 @@ class RequestLaunchTemplateData(Boto3Model):
     NetworkInterfaces: Optional[
         List["LaunchTemplateInstanceNetworkInterfaceSpecificationRequest"]
     ] = None
-    #: The ID of the AMI in the format ``ami-17characters00000``.
+    #: The ID of the AMI in the format ``ami-0ac394d6a3example``.
     ImageId: Optional[str] = None
     #: The instance type. For more information, see `Amazon EC2 instance types
     #: <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/instance-types.html>`_ in
