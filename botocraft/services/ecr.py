@@ -714,7 +714,7 @@ class ImageScanStatus(Boto3Model):
     description: Optional[str] = None
 
 
-class Attribute(Boto3Model):
+class ECRAttribute(Boto3Model):
     """
     This data type is used in the ImageScanFinding data type.
     """
@@ -741,7 +741,7 @@ class ImageScanFinding(Boto3Model):
         Literal["INFORMATIONAL", "LOW", "MEDIUM", "HIGH", "CRITICAL", "UNDEFINED"]
     ] = None
     #: A collection of attributes of the host from which the finding is generated.
-    attributes: Optional[List["Attribute"]] = None
+    attributes: Optional[List["ECRAttribute"]] = None
 
 
 class CvssScore(Boto3Model):

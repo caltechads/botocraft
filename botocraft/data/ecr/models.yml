@@ -40,3 +40,5 @@ secondary:
     fields:
       tags:
         rename: Tags
+  Attribute:
+    alternate_name: ECRAttribute
