@@ -293,8 +293,8 @@ class ImageManager(Boto3ModelManager):
         )
         response = BatchGetImageResponse(**_response)
 
-        if response.images[0]:
-            return response.images[0][0]
+        if response.images:
+            return response.images[0]
         return None
 
     def get_many(
