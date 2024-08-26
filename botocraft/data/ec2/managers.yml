@@ -298,7 +298,26 @@ Instance:
           required: true
         DryRun:
           default: "False"
-
+    reboot:
+      boto3_name: reboot_instances
+      args:
+        InstanceIds:
+          required: true
+        Hibernate:
+          default: "False"
+        DryRun:
+          default: "False"
+        Force:
+          default: "False"
+    terminate:
+      boto3_name: terminate_instances
+      return_type: Optional[List["InstanceStateChange"]]
+      response_attr: TerminatingInstances
+      args:
+        InstanceIds:
+          required: true
+        DryRun:
+          default: "False"
 LaunchTemplate:
   mixins:
     - name: EC2TagsManagerMixin
