@@ -61,6 +61,7 @@ primary:
             taskDefinition: taskDefinition
       tasks:
         primary_model_name: Task
+        cached: false
         many: true
         docstring: >-
           Return the ARNs of :py:class:`Task` objects that run in this service, if
