@@ -60,6 +60,84 @@ primary:
     fields:
       Tags:
         readonly: false
+    relations:
+      vpc:
+        primary_model_name: Vpc
+        docstring: >-
+          Return the :py:class:`Vpc` object that this instance belongs to, if any.
+        transformer:
+          mapping:
+            VpcId: VpcId
+      subnet:
+        primary_model_name: Subnet
+        docstring: >-
+          Return the :py:class:`Subnet` object that this instance belongs to, if any.
+        transformer:
+          mapping:
+            SubnetId: SubnetId
+      security_groups:
+        primary_model_name: SecurityGroup
+        many: true
+        docstring: >-
+          Return the :py:class:`SecurityGroup` objects that this instance belongs to,
+          if any.
+        transformer:
+          mapping:
+            GroupIds: >-
+              [identifier.GroupId for identifier in cast(List["GroupIdentifier"], self.SecurityGroups)]
+    manager_methods:
+      start:
+        docstring: >-
+          Start the instance.
+        manager_method: start
+        args:
+          0:
+            name: InstanceIds
+            value: >-
+              [self.InstanceId]
+        user_keyword_args:
+          - name: DryRun
+            value: "False"
+      stop:
+        docstring: >-
+          Stop the instance.
+        manager_method: stop
+        args:
+          0:
+            name: InstanceIds
+            value: >-
+              [self.InstanceId]
+        user_keyword_args:
+          - name: DryRun
+            value: "False"
+          - name: Hibernate
+            value: "False"
+          - name: Force
+            value: "False"
+      reboot:
+        docstring: >-
+          Reboot the instance.
+        manager_method: reboot
+        args:
+          0:
+            name: InstanceIds
+            value: >-
+              [self.InstanceId]
+        user_keyword_args:
+          - name: DryRun
+            value: "False"
+      terminate:
+        docstring: >-
+          Terminate the instance.
+        manager_method: terminate
+        args:
+          0:
+            name: InstanceIds
+            value: >-
+              [self.InstanceId]
+        user_keyword_args:
+          - name: DryRun
+            value: "False"
   LaunchTemplate:
     primary_key: LaunchTemplateId
     name_key: LaunchTemplateName
