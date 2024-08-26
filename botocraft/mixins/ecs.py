@@ -46,10 +46,10 @@ def ecs_services_only(func: Callable[..., List[str]]) -> Callable[..., List["Ser
     def wrapper(self, *args, **kwargs) -> List["Service"]:
         arns = func(self, *args, **kwargs)
         services = []
-        for i in range(0, len(arns), 100):
+        for i in range(0, len(arns), 10):
             services.extend(
                 self.get_many(
-                    arns[i:i + 100],
+                    arns[i:i + 10],
                     cluster=kwargs['cluster'],
                     include=['TAGS']
                 )
