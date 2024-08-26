@@ -9,7 +9,7 @@ from typing import Any, ClassVar, Dict, List, Literal, Optional, Type, cast
 
 from pydantic import Field
 
-from botocraft.mixins.autoscaling import AutoScalingGroupInstancesMixin
+from botocraft.mixins.autoscaling import AutoScalingGroupModelMixin
 from botocraft.mixins.tags import TagsDictMixin
 from botocraft.services.common import Filter, Tag
 from botocraft.services.ec2 import (LaunchTemplateVersion,
@@ -916,9 +916,7 @@ class AutoScalingInstanceMaintenancePolicy(Boto3Model):
     MaxHealthyPercentage: Optional[int] = None
 
 
-class AutoScalingGroup(
-    TagsDictMixin, AutoScalingGroupInstancesMixin, PrimaryBoto3Model
-):
+class AutoScalingGroup(TagsDictMixin, AutoScalingGroupModelMixin, PrimaryBoto3Model):
     """
     Describes an Auto Scaling group.
     """

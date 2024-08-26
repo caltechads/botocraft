@@ -5,7 +5,7 @@ primary:
     arn_key: AutoScalingGroupARN
     name_key: AutoScalingGroupName
     mixins:
-      - name: AutoScalingGroupInstancesMixin
+      - name: AutoScalingGroupModelMixin
         import_path: botocraft.mixins.autoscaling
     input_shapes:
       - CreateAutoScalingGroupType
