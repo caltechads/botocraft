@@ -594,7 +594,7 @@ class Image(ECRImageMixin, ReadonlyPrimaryBoto3Model):
         """
 
         return cast(ImageManager, self.objects).replication_status(
-            self.repositoryName, imageId=self.imageId
+            cast(str, self.repositoryName), imageId=self.imageId
         )
 
     def scan_findings(self) -> List["DescribeImageScanFindingsResponse"]:
@@ -603,7 +603,7 @@ class Image(ECRImageMixin, ReadonlyPrimaryBoto3Model):
         """
 
         return cast(ImageManager, self.objects).scan_findings(
-            self.repositoryName, imageId=self.imageId
+            cast(str, self.repositoryName), imageId=self.imageId
         )
 
 

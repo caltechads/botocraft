@@ -832,6 +832,53 @@ class InstanceManager(EC2TagsManagerMixin, Boto3ModelManager):
 
         return response.StoppingInstances
 
+    def reboot(self, InstanceIds: List[str], *, DryRun: bool = False) -> "None":
+        """
+        Requests a reboot of the specified instances. This operation is
+        asynchronous; it only queues a request to reboot the specified
+        instances. The operation succeeds if the instances are valid and belong
+        to you. Requests to reboot terminated instances are ignored.
+
+        Args:
+            InstanceIds: The instance IDs.
+
+        Keyword Args:
+            DryRun: Checks whether you have the required permissions for the action,
+                without actually making the request, and provides an error response. If you
+                have the required permissions, the error response is ``DryRunOperation``.
+                Otherwise, it is ``UnauthorizedOperation``.
+        """
+        args: Dict[str, Any] = dict(
+            InstanceIds=self.serialize(InstanceIds), DryRun=self.serialize(DryRun)
+        )
+        self.client.reboot_instances(**{k: v for k, v in args.items() if v is not None})
+
+    def terminate(
+        self, InstanceIds: List[str], *, DryRun: bool = False
+    ) -> Optional[List["InstanceStateChange"]]:
+        """
+        Shuts down the specified instances. This operation is idempotent; if
+        you terminate an instance more than once, each call succeeds.
+
+        Args:
+            InstanceIds: The IDs of the instances.
+
+        Keyword Args:
+            DryRun: Checks whether you have the required permissions for the action,
+                without actually making the request, and provides an error response. If you
+                have the required permissions, the error response is ``DryRunOperation``.
+                Otherwise, it is ``UnauthorizedOperation``.
+        """
+        args: Dict[str, Any] = dict(
+            InstanceIds=self.serialize(InstanceIds), DryRun=self.serialize(DryRun)
+        )
+        _response = self.client.terminate_instances(
+            **{k: v for k, v in args.items() if v is not None}
+        )
+        response = TerminateInstancesResult(**_response)
+
+        return response.TerminatingInstances
+
 
 class LaunchTemplateManager(EC2TagsManagerMixin, Boto3ModelManager):
     service_name: str = "ec2"
@@ -3172,6 +3219,136 @@ class Instance(TagsDictMixin, PrimaryBoto3Model):
             The primary key of the model instance.
         """
         return self.InstanceId
+
+    @cached_property
+    def vpc(self) -> Optional["Vpc"]:
+        """
+        Return the :py:class:`Vpc` object that this instance belongs to, if
+        any.
+        """
+
+        try:
+            pk = OrderedDict(
+                {
+                    "VpcId": self.VpcId,
+                }
+            )
+        except AttributeError:
+            return None
+        return Vpc.objects.using(self.objects.session).get(**pk)
+
+    @cached_property
+    def subnet(self) -> Optional["Subnet"]:
+        """
+        Return the :py:class:`Subnet` object that this instance belongs to, if
+        any.
+        """
+
+        try:
+            pk = OrderedDict(
+                {
+                    "SubnetId": self.SubnetId,
+                }
+            )
+        except AttributeError:
+            return None
+        return Subnet.objects.using(self.objects.session).get(**pk)
+
+    @cached_property
+    def security_groups(self) -> Optional[List["SecurityGroup"]]:
+        """
+        Return the :py:class:`SecurityGroup` objects that this instance belongs
+        to, if any.
+        """
+
+        try:
+            pk = OrderedDict(
+                {
+                    "GroupIds": [
+                        identifier.GroupId
+                        for identifier in cast(
+                            List["GroupIdentifier"], self.SecurityGroups
+                        )
+                    ],
+                }
+            )
+        except AttributeError:
+            return []
+        return SecurityGroup.objects.using(self.objects.session).list(**pk)
+
+    def start(self, DryRun: bool = False) -> Optional[List["InstanceStateChange"]]:
+        """
+        Start the instance.
+
+        Keyword Args:
+            DryRun: Checks whether you have the required permissions for the action,
+                without actually making the request, and provides an error response. If you
+                have the required permissions, the error response is ``DryRunOperation``.
+                Otherwise, it is ``UnauthorizedOperation``.
+        """
+
+        return cast(InstanceManager, self.objects).start(
+            [self.InstanceId], DryRun=DryRun
+        )
+
+    def stop(
+        self,
+        DryRun: bool = False,
+        Hibernate: Optional[bool] = None,
+        Force: Optional[bool] = None,
+    ) -> Optional[List["InstanceStateChange"]]:
+        """
+        Stop the instance.
+
+        Keyword Args:
+            DryRun: Checks whether you have the required permissions for the action,
+                without actually making the request, and provides an error response. If you
+                have the required permissions, the error response is ``DryRunOperation``.
+                Otherwise, it is ``UnauthorizedOperation``.
+            Hibernate: Hibernates the instance if the instance was enabled for
+                hibernation at launch. If the instance cannot hibernate successfully, a
+                normal shutdown occurs. For more information, see `Hibernate your instance
+                <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/Hibernate.html>`_ in
+                the *Amazon EC2 User Guide*.
+            Force: Forces the instances to stop. The instances do not have an
+                opportunity to flush file system caches or file system metadata. If you use
+                this option, you must perform file system check and repair procedures. This
+                option is not recommended for Windows instances.
+        """
+
+        return cast(InstanceManager, self.objects).stop(
+            [self.InstanceId], DryRun=DryRun, Hibernate=Hibernate, Force=Force
+        )
+
+    def reboot(self, DryRun: bool = False) -> "None":
+        """
+        Reboot the instance.
+
+        Keyword Args:
+            DryRun: Checks whether you have the required permissions for the action,
+                without actually making the request, and provides an error response. If you
+                have the required permissions, the error response is ``DryRunOperation``.
+                Otherwise, it is ``UnauthorizedOperation``.
+        """
+
+        return cast(InstanceManager, self.objects).reboot(
+            [self.InstanceId], DryRun=DryRun
+        )
+
+    def terminate(self, DryRun: bool = False) -> Optional[List["InstanceStateChange"]]:
+        """
+        Terminate the instance.
+
+        Keyword Args:
+            DryRun: Checks whether you have the required permissions for the action,
+                without actually making the request, and provides an error response. If you
+                have the required permissions, the error response is ``DryRunOperation``.
+                Otherwise, it is ``UnauthorizedOperation``.
+        """
+
+        return cast(InstanceManager, self.objects).terminate(
+            [self.InstanceId], DryRun=DryRun
+        )
 
 
 class LaunchTemplate(TagsDictMixin, PrimaryBoto3Model):
@@ -5864,6 +6041,11 @@ class StartInstancesResult(Boto3Model):
 class StopInstancesResult(Boto3Model):
     #: Information about the stopped instances.
     StoppingInstances: Optional[List["InstanceStateChange"]] = None
+
+
+class TerminateInstancesResult(Boto3Model):
+    #: Information about the terminated instances.
+    TerminatingInstances: Optional[List["InstanceStateChange"]] = None
 
 
 class LaunchTemplateIamInstanceProfileSpecificationRequest(Boto3Model):

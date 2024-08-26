@@ -2319,7 +2319,7 @@ class Service(TagsDictMixin, ECSServiceModelMixin, PrimaryBoto3Model):
             return None
         return TaskDefinition.objects.using(self.objects.session).get(**pk)
 
-    @cached_property
+    @property
     def tasks(self) -> Optional[List["Task"]]:
         """
         Return the ARNs of :py:class:`Task` objects that run in this service,
