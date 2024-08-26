@@ -588,6 +588,24 @@ class Image(ECRImageMixin, ReadonlyPrimaryBoto3Model):
             }
         )
 
+    def replication_status(self) -> "DescribeImageReplicationStatusResponse":
+        """
+        Return the replication status for the image.
+        """
+
+        return cast(ImageManager, self.objects).replication_status(
+            self.repositoryName, imageId=self.imageId
+        )
+
+    def scan_findings(self) -> List["DescribeImageScanFindingsResponse"]:
+        """
+        Return the scan results for the image.
+        """
+
+        return cast(ImageManager, self.objects).scan_findings(
+            self.repositoryName, imageId=self.imageId
+        )
+
 
 # =======================
 # Request/Response Models
@@ -969,22 +987,32 @@ class EnhancedImageScanFinding(Boto3Model):
     updatedAt: Optional[datetime] = None
 
 
-class ImageScanFindings(Boto3Model):
+class ImageScanFindings(ReadonlyBoto3Model):
     """
     The information contained in the image scan findings.
     """
 
+    #: The image vulnerability counts, sorted by severity.
+    findingSeverityCounts: Optional[
+        Optional[
+            Dict[
+                Literal[
+                    "INFORMATIONAL",
+                    "LOW",
+                    "MEDIUM",
+                    "HIGH",
+                    "CRITICAL",
+                    "UNDEFINED",
+                    "UNTRIAGED",
+                ],
+                int,
+            ]
+        ]
+    ] = None
     #: The time of the last completed image scan.
     imageScanCompletedAt: Optional[datetime] = None
     #: The time when the vulnerability data was last scanned.
     vulnerabilitySourceUpdatedAt: Optional[datetime] = None
-    #: The image vulnerability counts, sorted by severity.
-    findingSeverityCounts: Optional[
-        Dict[
-            int,
-            Literal["INFORMATIONAL", "LOW", "MEDIUM", "HIGH", "CRITICAL", "UNDEFINED"],
-        ]
-    ] = None
     #: The findings from the image scan.
     findings: Optional[List["ImageScanFinding"]] = None
     #: Details about the enhanced scan findings from Amazon Inspector.

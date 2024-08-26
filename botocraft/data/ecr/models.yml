@@ -34,6 +34,25 @@ primary:
           mapping:
             repositoryName: repositoryName
             imageId: imageId
+    manager_methods:
+      replication_status:
+        docstring: >-
+          Return the replication status for the image.
+        manager_method: replication_status
+        args:
+          0:
+            name: repositoryName
+        keyword_args:
+          - name: imageId
+      scan_findings:
+        docstring: >-
+          Return the scan results for the image.
+        manager_method: scan_findings
+        args:
+          0:
+            name: repositoryName
+        keyword_args:
+          - name: imageId
 
 secondary:
   Resource:
@@ -42,3 +61,17 @@ secondary:
         rename: Tags
   Attribute:
     alternate_name: ECRAttribute
+  ImageScanFindings:
+    readonly: true
+    fields:
+      findingSeverityCounts:
+        # For some reason the botocore shape doesn't have "UNTRIAGED" as a
+        # possible key so we have to override the type here
+        python_type: >-
+          Optional[
+            Dict[
+                Literal["INFORMATIONAL", "LOW", "MEDIUM", "HIGH", "CRITICAL", "UNDEFINED", "UNTRIAGED"],
+                int,
+            ]
+          ]
+
