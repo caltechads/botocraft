@@ -1,9 +1,10 @@
 import re
-from typing import Callable, List, TYPE_CHECKING, Optional
+from typing import ClassVar, Callable, List, TYPE_CHECKING, Optional
 
 if TYPE_CHECKING:
     from botocraft.services import (
         Service,
+        ServiceManager,
         Cluster,
         ContainerInstance,
         Task,
@@ -169,3 +170,34 @@ def ecs_tasks_only(
             )
         return tasks
     return wrapper
+
+
+# Mixins
+
+class ECSServiceModelMixin:
+
+    objects: ClassVar["ServiceManager"]
+    serviceName: str
+    cluster: str
+
+    def scale(self, desired_count: int, wait: bool = False) -> None:
+        """
+        Scale the service to the desired count.
+
+        Args:
+            desired_count: The number of tasks to run.
+
+        Keyword Args:
+            wait: If True, wait for the service to reach the desired count.
+        """
+        self.objects.partial_update(
+            self.serviceName,
+            cluster=self.cluster,
+            desiredCount=desired_count
+        )
+        if wait:
+            waiter = self.objects.client.get_waiter('services_stable')
+            waiter.wait(
+                cluster=self.cluster,
+                services=[self.serviceName]
+            )

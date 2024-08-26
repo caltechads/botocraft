@@ -9,7 +9,7 @@ from typing import Any, ClassVar, Dict, List, Literal, Optional, Type, cast
 
 from pydantic import Field
 
-from botocraft.mixins.ecs import (ecs_clusters_only,
+from botocraft.mixins.ecs import (ECSServiceModelMixin, ecs_clusters_only,
                                   ecs_container_instances_only,
                                   ecs_services_only, ecs_task_definitions_only,
                                   ecs_task_populate_taskDefinition,
@@ -2127,7 +2127,7 @@ class DeploymentController(Boto3Model):
     type: Literal["ECS", "CODE_DEPLOY", "EXTERNAL"]
 
 
-class Service(TagsDictMixin, PrimaryBoto3Model):
+class Service(TagsDictMixin, ECSServiceModelMixin, PrimaryBoto3Model):
     """
     Details on a service within a cluster.
     """

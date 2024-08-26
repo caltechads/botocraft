@@ -6,6 +6,9 @@ primary:
     input_shapes:
       - CreateServiceRequest
       - UpdateServiceRequest
+    mixins:
+      - name: ECSServiceModelMixin
+        import_path: botocraft.mixins.ecs
     fields:
       serviceName:
         required: true
