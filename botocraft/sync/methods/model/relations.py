@@ -163,8 +163,10 @@ class ModelRelationGenerator:
             pk = OrderedDict({
 """
         for key, value in self.property_def.transformer.mapping.items():
+            if 'self.' not in value:
+                value = f'self.{value}'
             code += f"""
-            "{key}": self.{value},
+            "{key}": {value},
 """
         if self.returns_many:
             code += f"""
@@ -211,5 +213,3 @@ class ModelRelationGenerator:
 {self.docstring}
 {self.body}
 """
-
-
