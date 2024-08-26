@@ -176,11 +176,11 @@ def ecs_tasks_only(
 
 class ECSServiceModelMixin:
 
-    objects: ClassVar["ServiceManager"]
-    serviceName: str
-    cluster: str
-
-    def scale(self, desired_count: int, wait: bool = False) -> None:
+    def scale(
+        self,
+        desired_count: int,
+        wait: bool = False,
+    ) -> None:
         """
         Scale the service to the desired count.
 
@@ -190,14 +190,14 @@ class ECSServiceModelMixin:
         Keyword Args:
             wait: If True, wait for the service to reach the desired count.
         """
-        self.objects.partial_update(
-            self.serviceName,
-            cluster=self.cluster,
+        self.objects.partial_update(  # type: ignore[attr-defined]
+            self.serviceName,  # type: ignore[attr-defined]
+            cluster=self.cluster,  # type: ignore[attr-defined]
             desiredCount=desired_count
         )
+        waiter = self.objects.get_waiter('services_stable')  # type: ignore[attr-defined]
         if wait:
-            waiter = self.objects.client.get_waiter('services_stable')
             waiter.wait(
-                cluster=self.cluster,
-                services=[self.serviceName]
+                cluster=self.cluster,  # type: ignore[attr-defined]
+                services=[self.serviceName]  # type: ignore[attr-defined]
             )

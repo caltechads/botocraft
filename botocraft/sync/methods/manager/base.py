@@ -18,7 +18,12 @@ from botocraft.sync.models import (
 )
 
 if TYPE_CHECKING:
-    from botocraft.sync.service import ManagerGenerator, ModelGenerator
+    from botocraft.sync.service import (
+        ManagerGenerator,
+        ModelGenerator,
+        PythonTypeShapeConverter,
+        DocumentationFormatter
+    )
 
 
 class ManagerMethodGenerator:
@@ -93,9 +98,9 @@ class ManagerMethodGenerator:
         self.output_shape = self.operation_model.output_shape
         #: Our model generator, which we use to generate any response models we
         #: need.
-        self.model_generator = generator.model_generator
+        self.model_generator = cast("ModelGenerator", generator.model_generator)
         #: The converter we use to convert botocore shapes to python types.
-        self.shape_converter = generator.shape_converter
+        self.shape_converter = cast("PythonTypeShapeConverter", generator.shape_converter)
         #: Any botocraft imports we need to add to the manager.
         self.imports = generator.imports
         #: The name of the model itself
@@ -107,7 +112,7 @@ class ManagerMethodGenerator:
         if self.model_def.plural:
             self.model_name_plural = self.model_def.plural
         #: Our documentation formatter
-        self.docformatter = generator.docformatter
+        self.docformatter = cast("DocumentationFormatter", generator.docformatter)
 
     def get_explicit_args_from_request(self) -> OrderedDict[str, MethodArgumentDefinition]:
         """
@@ -383,7 +388,7 @@ class ManagerMethodGenerator:
         """
         call = self.operation_args
         call = f"self.client.{self.boto3_name}(**{{k: v for k, v in args.items() if v is not None}})"
-        if self.return_type == 'None':
+        if self.return_type == 'None' or self.return_type == '"None"':
             return call
         call = "_response = " + call
         call += f"\n        response = {self.response_class}(**_response)"
