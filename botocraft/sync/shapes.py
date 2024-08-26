@@ -208,8 +208,8 @@ class MapShapeConverter(AbstractShapeConverter):
         if shape.type_name != 'map':
             raise ValueError(f'Not map type: {shape.type_name}')
         shape = cast(botocore.model.MapShape, shape)
-        value_type = self.shape_converter.convert(shape.key, quote=True)
-        key_type = self.shape_converter.convert(shape.value, quote=True)
+        value_type = self.shape_converter.convert(shape.value, quote=True)
+        key_type = self.shape_converter.convert(shape.key, quote=True)
         return f'Dict[{key_type}, {value_type}]'
 
 
