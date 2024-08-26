@@ -231,6 +231,34 @@ class AutoScalingGroupManager(Boto3ModelManager):
             **{k: v for k, v in args.items() if v is not None}
         )
 
+    def instance_status(
+        self, *, InstanceIds: Optional[List[str]] = None
+    ) -> List["AutoScalingInstanceDetails"]:
+        """
+        Gets information about the Auto Scaling instances in the account and
+        Region.
+
+        Keyword Args:
+            InstanceIds: The IDs of the instances. If you omit this property, all Auto
+                Scaling instances are described. If you specify an ID that does not exist,
+                it is ignored with no error.
+        """
+        paginator = self.client.get_paginator("describe_auto_scaling_instances")
+        args: Dict[str, Any] = dict(InstanceIds=self.serialize(InstanceIds))
+        response_iterator = paginator.paginate(
+            **{k: v for k, v in args.items() if v is not None}
+        )
+        results: List["AutoScalingInstanceDetails"] = []
+        for _response in response_iterator:
+            response = AutoScalingInstancesType(**_response)
+
+            if response.AutoScalingInstances:
+                results.extend(response.AutoScalingInstances)
+
+            else:
+                break
+        return results
+
 
 class LaunchConfigurationManager(Boto3ModelManager):
     service_name: str = "autoscaling"
@@ -1313,6 +1341,52 @@ class LifecycleHookSpecification(Boto3Model):
 class AutoScalingGroupsType(Boto3Model):
     #: The groups.
     AutoScalingGroups: List["AutoScalingGroup"]
+    #: A string that indicates that the response contains more items than can be
+    #: returned in a single response. To receive additional items, specify this string
+    #: for the ``NextToken`` value when requesting the next set of items. This value
+    #: is null when there are no more items to return.
+    NextToken: Optional[str] = None
+
+
+class AutoScalingInstanceDetails(Boto3Model):
+    """
+    Describes an EC2 instance associated with an Auto Scaling group.
+    """
+
+    #: The ID of the instance.
+    InstanceId: str
+    #: The instance type of the EC2 instance.
+    InstanceType: Optional[str] = None
+    #: The name of the Auto Scaling group for the instance.
+    AutoScalingGroupName: str
+    #: The Availability Zone for the instance.
+    AvailabilityZone: str
+    #: The lifecycle state for the instance. The ``Quarantined`` state is not used.
+    #: For more information, see `Amazon EC2 Auto Scaling instance lifecycle
+    #: <https://docs.aws.amazon.com/autoscaling/ec2/userguide/ec2-auto- scaling-
+    #: lifecycle.html>`_ in the *Amazon EC2 Auto Scaling User Guide*.
+    LifecycleState: str
+    #: The last reported health status of this instance. ``Healthy`` means that the
+    #: instance is healthy and should remain in service. ``Unhealthy`` means that the
+    #: instance is unhealthy and Amazon EC2 Auto Scaling should terminate and replace
+    #: it.
+    HealthStatus: str
+    #: The launch configuration used to launch the instance. This value is not
+    #: available if you attached the instance to the Auto Scaling group.
+    LaunchConfigurationName: Optional[str] = None
+    #: The launch template for the instance.
+    LaunchTemplate: Optional[AutoScalingLaunchTemplateSpecification] = None
+    #: Indicates whether the instance is protected from termination by Amazon EC2 Auto
+    #: Scaling when scaling in.
+    ProtectedFromScaleIn: bool
+    #: The number of capacity units contributed by the instance based on its instance
+    #: type.
+    WeightedCapacity: Optional[str] = None
+
+
+class AutoScalingInstancesType(Boto3Model):
+    #: The instances.
+    AutoScalingInstances: Optional[List["AutoScalingInstanceDetails"]] = None
     #: A string that indicates that the response contains more items than can be
     #: returned in a single response. To receive additional items, specify this string
     #: for the ``NextToken`` value when requesting the next set of items. This value

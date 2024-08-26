@@ -35,6 +35,9 @@ AutoScalingGroup:
         HonorCooldown:
           value: "False"
           python_type: bool
+    instance_status:
+      boto3_name: describe_auto_scaling_instances
+      response_attr: AutoScalingInstances
 LaunchConfiguration:
   methods:
     create:
