@@ -14,7 +14,7 @@ def shell_command():
     Start an interactive Python shell with preloaded imports.
     """
     # Import botocraft.services
-    preload_command = 'from botocraft.services import *'
+    preload_command = 'from botocraft.services import *; import boto3'
 
     # Check if IPython is installed
     ipython_installed = importlib.util.find_spec("IPython") is not None
