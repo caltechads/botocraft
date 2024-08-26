@@ -25,6 +25,7 @@ from .methods import (  # pylint: disable=import-error
     DeleteMethodGenerator,
     ModelPropertyGenerator,
     ModelRelationGenerator,
+    ModelManagerMethodGenerator,
     GeneralMethodGenerator,
 )
 from .models import (
@@ -32,6 +33,7 @@ from .models import (
     ModelAttributeDefinition,
     ModelDefinition,
     ManagerDefinition,
+    ManagerMethodDefinition,
 )
 from .shapes import PythonTypeShapeConverter
 
@@ -347,6 +349,16 @@ class ModelGenerator(AbstractGenerator):
                 properties = ''
             properties += ModelRelationGenerator(self, model_def.name, property_name).code
 
+        # Now build the manager shortcut methods
+        for method_name in model_def.manager_methods:
+            if not properties:
+                properties = ''
+            properties += ModelManagerMethodGenerator(
+                self.service_generator,
+                model_def.name,
+                method_name
+            ).code
+
         return properties
 
     def field_type(
@@ -658,25 +670,7 @@ class ManagerGenerator(AbstractGenerator):
         """
         methods: OrderedDict[str, str] = OrderedDict()
         for method_name, method_def in manager_def.methods.items():
-            try:
-                method_generator_class = self.METHOD_GENERATORS[method_name]
-            except KeyError:
-                # We have no specific method generator for this method, so we
-                # will use the general method generator.
-                generator: ManagerMethodGenerator = GeneralMethodGenerator(
-                    self,
-                    model_name,
-                    method_def,
-                    method_name=method_name
-                )
-            else:
-                # We have a specific method generator for this method, so we
-                # will use that.
-                generator = method_generator_class(
-                    self,
-                    model_name,
-                    method_def
-                )
+            generator = self.get_method_generator(model_name, method_name, method_def)
             methods[method_name] = generator.code
         method_code = '\n\n'.join(methods.values())
         base_class = 'Boto3ModelManager'
@@ -701,6 +695,46 @@ class {model_name}Manager({base_class}):
 {method_code}
 """
         self.classes[f'{model_name}Manager'] = code
+
+    def get_method_generator(
+        self,
+        model_name: str,
+        method_name: str,
+        method_def: ManagerMethodDefinition
+    ) -> ManagerMethodGenerator:
+        """
+        Return the appropriate method generator class for a given method
+        definition.
+
+        Args:
+            model_name: the model name for the manager we're generating
+            method_name: the name of the method we're generating
+            method_def: the method definition for the method we're generating
+
+        Returns:
+            A method generator class.
+        """
+        try:
+            method_generator_class = self.METHOD_GENERATORS[method_name]
+        except KeyError:
+            # We have no specific method generator for this method, so we
+            # will use the general method generator.
+            generator: ManagerMethodGenerator = GeneralMethodGenerator(
+                self,
+                model_name,
+                method_def,
+                method_name=method_name
+            )
+        else:
+            # We have a specific method generator for this method, so we
+            # will use that.
+            generator = method_generator_class(
+                self,
+                model_name,
+                method_def
+            )
+
+        return generator
 
     def generate(self) -> None:
         for model_name, manager_def in self.service_def.managers.items():

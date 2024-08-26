@@ -9,6 +9,7 @@ import yaml
 
 from pydantic import (
     BaseModel,
+    Field,
     field_validator,
     ValidationInfo,
     model_validator
@@ -219,6 +220,60 @@ class ModelRelationshipDefinition(BaseModel):
         return data
 
 
+class ModelManagerMethodArgDefinition(BaseModel):
+
+    #: The name of the argument
+    name: str
+    #: The value of the argument.  If ``None``, we'll use the value of the
+    #: attribute on the model with the same name.
+    value: Optional[str] = None
+    #: The type of the argument
+    attr_type: Optional[str] = None
+
+
+class ModelManagerMethodKwargDefinition(BaseModel):
+
+    #: The name of the argument
+    name: str
+    #: The value of the argument.  if ``None``, we'll use the value of the
+    #: attribute on the model with the same name.
+    value: Optional[str] = None
+    #: The type of the argument
+    attr_type: Optional[str] = None
+    #: The default value for the argument
+    default: Optional[Any] = None
+
+
+class ModelManagerMethodDefinition(BaseModel):
+    """
+    This definition is used to provide methods on a model
+    that call methods on the manager for the model.
+    """
+    # The name of the method on the manager
+    manager_method: str
+    #: If ``True``, make this result from this cached
+    cached: bool = False
+    #: The docstring for the method
+    docstring: Optional[str] = None
+    #: The arguments for the method.  These should refer to attributes : on the
+    #: model and map them to args on the manager method in the proper : order.
+    #: The key is the position of the argument in the manager method signature,
+    #: value is the name of the attribute on the model.
+    args: Dict[int, ModelManagerMethodArgDefinition] = Field(default_factory=dict)
+    #: Args the users must supply.  The key is the position of the argument in
+    #: the manager method signature, and the value is the name of the argument
+    #: to add to the model method signature.
+    user_args: Dict[int, ModelManagerMethodArgDefinition] = Field(default_factory=dict)
+    #: The keyword arguments for the method.  These should refer to attributes
+    #: on the model and map them to kwargs on the manager method with the proper
+    #: keyword.
+    keyword_args: List[ModelManagerMethodKwargDefinition] = Field(default_factory=list)
+    #: Keyword arguments the users can supply
+    user_keyword_args: List[ModelManagerMethodKwargDefinition] = Field(default_factory=list)
+    #: A list of decorators to wrap the method in
+    decorators: List[Importable] = Field(default_factory=list)
+
+
 class ModelAttributeDefinition(BaseModel):
     """
     The definition of a single attribute on a :py:class:`ModelDefinition`.
@@ -302,6 +357,8 @@ class ModelDefinition(BaseModel):
     #: Relationships to other models.  These are all defined by us in the
     #: botocraft config.
     relations: Dict[str, ModelRelationshipDefinition] = {}
+    #: Methods on the model that call methods on the manager for the model.
+    manager_methods: Dict[str, ModelManagerMethodDefinition] = {}
 
     def unalias_field_name(self, field_name: str) -> str:
         """

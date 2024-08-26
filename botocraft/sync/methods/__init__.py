@@ -10,3 +10,4 @@ from .manager.general import GeneralMethodGenerator  # noqa: F401
 
 from .model.properties import ModelPropertyGenerator  # noqa: F401
 from .model.relations import ModelRelationGenerator  # noqa: F401
+from .model.methods import ModelManagerMethodGenerator  # noqa: F401
