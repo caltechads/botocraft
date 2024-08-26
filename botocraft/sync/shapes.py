@@ -66,7 +66,8 @@ class AbstractShapeConverter:
     def to_python(
         self,
         shape: botocore.model.Shape,
-        quote: bool = False
+        quote: bool = False,
+        name_only: bool = False
     ) -> str:
         """
         Converts the given shape ``shape`` to a python type,
@@ -82,6 +83,9 @@ class AbstractShapeConverter:
                 manager methods, because the manager classes appear
                 in the file before the models, so we need to quote
                 the model names to avoid mypy errors.
+            name_only: if ``True``, we will return the name of the model
+                and not create the model in the model generator, if this
+                is a structure shape.
 
         Returns:
             the python type for the shape
@@ -94,7 +98,8 @@ class StringShapeConverter(AbstractShapeConverter):
     def to_python(
         self,
         shape: botocore.model.Shape,
-        quote: bool = False
+        quote: bool = False,
+        name_only: bool = False
     ) -> str:
         if shape.type_name == 'string' or shape.name == 'String':
             value = cast(botocore.model.StringShape, shape)
@@ -112,7 +117,8 @@ class BooleanShapeConverter(AbstractShapeConverter):
     def to_python(
         self,
         shape: botocore.model.Shape,
-        quote: bool = False
+        quote: bool = False,
+        name_only: bool = False
     ) -> str:
         if shape.type_name == 'boolean':
             return 'bool'
@@ -124,7 +130,8 @@ class IntegerShapeConverter(AbstractShapeConverter):
     def to_python(
         self,
         shape: botocore.model.Shape,
-        quote: bool = False
+        quote: bool = False,
+        name_only: bool = False
     ) -> str:
         if shape.type_name in ['integer', 'long']:
             return 'int'
@@ -136,7 +143,8 @@ class DoubleShapeConverter(AbstractShapeConverter):
     def to_python(
         self,
         shape: botocore.model.Shape,
-        quote: bool = False
+        quote: bool = False,
+        name_only: bool = False
     ) -> str:
         if shape.type_name == 'double':
             return 'float'
@@ -148,7 +156,8 @@ class ListShapeConverter(AbstractShapeConverter):
     def to_python(
         self,
         shape: botocore.model.Shape,
-        quote: bool = False
+        quote: bool = False,
+        name_only: bool = False
     ) -> str:
         """
         Convert a list shape to a python type.  If the list members are not
@@ -163,6 +172,9 @@ class ListShapeConverter(AbstractShapeConverter):
                 manager methods, because the manager classes appear
                 in the file before the models, so we need to quote
                 the model names to avoid mypy errors.
+            name_only: if ``True``, we will return the name of the model
+                and not create the model in the model generator, if this
+                is a structure shape.
 
         Raises:
             ValueError: this is not a list shape
@@ -173,7 +185,11 @@ class ListShapeConverter(AbstractShapeConverter):
         if shape.type_name != 'list':
             raise ValueError(f'Not list type: {shape.type_name}')
         element_shape = cast(botocore.model.ListShape, shape).member
-        inner_model_name = self.shape_converter.convert(element_shape, quote=True)
+        inner_model_name = self.shape_converter.convert(
+            element_shape,
+            quote=True,
+            name_only=name_only
+        )
         return f'List[{inner_model_name}]'
 
 
@@ -182,7 +198,8 @@ class MapShapeConverter(AbstractShapeConverter):
     def to_python(
         self,
         shape: botocore.model.Shape,
-        quote: bool = False
+        quote: bool = False,
+        name_only: bool = False
     ) -> str:
         """
         Convert a map shape to a python type.  We're assuming that
@@ -198,6 +215,9 @@ class MapShapeConverter(AbstractShapeConverter):
                 manager methods, because the manager classes appear
                 in the file before the models, so we need to quote
                 the model names to avoid mypy errors.
+            name_only: if ``True``, we will return the name of the model
+                and not create the model in the model generator, if this
+                is a structure shape.
 
         Raises:
             ValueError: this is not a map shape
@@ -208,8 +228,16 @@ class MapShapeConverter(AbstractShapeConverter):
         if shape.type_name != 'map':
             raise ValueError(f'Not map type: {shape.type_name}')
         shape = cast(botocore.model.MapShape, shape)
-        value_type = self.shape_converter.convert(shape.value, quote=True)
-        key_type = self.shape_converter.convert(shape.key, quote=True)
+        value_type = self.shape_converter.convert(
+            shape.value,
+            quote=True,
+            name_only=name_only
+        )
+        key_type = self.shape_converter.convert(
+            shape.key,
+            quote=True,
+            name_only=name_only
+        )
         return f'Dict[{key_type}, {value_type}]'
 
 
@@ -218,7 +246,8 @@ class StructureShapeConverter(AbstractShapeConverter):
     def to_python(
         self,
         shape: botocore.model.Shape,
-        quote: bool = False
+        quote: bool = False,
+        name_only: bool = False
     ) -> str:
         """
         Convert a structure shape to a python type.  This
@@ -236,6 +265,8 @@ class StructureShapeConverter(AbstractShapeConverter):
                 manager methods, because the manager classes appear
                 in the file before the models, so we need to quote
                 the model names to avoid mypy errors.
+            name_only: if ``True``, we will return the name of the model
+                and not create the model in the model generator.
 
         Raises:
             ValueError: this is not a structure shape
@@ -251,21 +282,25 @@ class StructureShapeConverter(AbstractShapeConverter):
         model_name = shape.name
         if model_def.alternate_name:
             model_name = model_def.alternate_name
-        if not self.model_exists(model_name):
-            # We have not yet generated this model as a pydantic class
-            model_name = self.model_generator.generate_model(shape.name, model_shape=shape)
-        else:
-            # We've already generated the model, so we just need to import it
-            # if it's in another service, otherwise we can just use it
+        if not name_only:
+            if not self.model_exists(model_name):
+                # We have not yet generated this model as a pydantic class
+                model_name = self.model_generator.generate_model(shape.name, model_shape=shape)
+            else:
+                # We've already generated the model, so we just need to import it
+                # if it's in another service, otherwise we can just use it
 
-            # FIXME: we have a problem here that if we want to import the model
-            # from another service, but the model has an alternate name, we
-            # won't find it this way because ``model_name`` here will just be
-            # ``shape.name``
-            if import_path := self.import_line(model_name):
-                self.model_generator.imports.add(import_path)
-        if quote and not import_path:
-            return f'"{model_name}"'
+                # FIXME: we have a problem here that if we want to import the model
+                # from another service, but the model has an alternate name, we
+                # won't find it this way because ``model_name`` here will just be
+                # ``shape.name``
+                if import_path := self.import_line(model_name):
+                    self.model_generator.imports.add(import_path)
+            if quote and not import_path:
+                return f'"{model_name}"'
+        else:
+            if quote:
+                return f'"{model_name}"'
         return model_name
 
 
@@ -274,7 +309,8 @@ class TimestampShapeConverter(AbstractShapeConverter):
     def to_python(
         self,
         shape: botocore.model.Shape,
-        quote: bool = False
+        quote: bool = False,
+        name_only: bool = False
     ) -> str:
         """
         Convert a timestamp shape to a python type.   This
@@ -336,11 +372,12 @@ class PythonTypeShapeConverter:
     def convert(
         self,
         shape: botocore.model.Shape,
-        quote: bool = False
+        quote: bool = False,
+        name_only: bool = False
     ) -> str:
         for converter in self.converters.values():
             try:
-                return converter.to_python(shape, quote=quote)
+                return converter.to_python(shape, quote=quote, name_only=name_only)
             except ValueError:
                 pass
         raise ValueError(f'No converter for {shape.type_name}')

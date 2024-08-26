@@ -90,15 +90,13 @@ class GeneralMethodGenerator(ManagerMethodGenerator):
         {self.operation_args}
         {self.operation_call}
 """
-            if self.return_type == 'None':
+            if self.return_type == 'None' or self.return_type == '"None"':
                 pass
             elif self.response_attr is None:
                 code += """
         return response
 """
             else:
-                # FIXME: if response_attr references an index or a key, should we
-                # catch when that doesn't exist and return None?
                 code += f"""
         return response.{self.response_attr}
 """

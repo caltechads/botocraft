@@ -140,6 +140,7 @@ class ModelManagerMethodGenerator:
         if self.method_generator.output_shape is not None:
             output_shape = self.method_generator.output_shape
             response_attr = self.method_generator.response_attr
+            _return_shape = None
             if response_attr is not None:
                 try:
                     response_attr_shape = output_shape.members[cast(str, response_attr)]
@@ -151,8 +152,13 @@ class ModelManagerMethodGenerator:
                             break
                     else:
                         raise
-                return response_attr_shape.name
-            return output_shape.name
+                _return_shape = response_attr_shape
+            _return_shape = output_shape
+            return self.model_generator.shape_converter.convert(
+                _return_shape,
+                quote=True,
+                name_only=True
+            )
         return 'None'
 
     def get_arg_docstring(self, arg: str) -> Optional[str]:
@@ -235,13 +241,11 @@ class ModelManagerMethodGenerator:
                         f"{self.model_name}.{self.method_name}: The argument {arg.name} is not a valid argument for "
                         f"the manager method {self.method_def.manager_method}."
                     )
+                attr_type: Optional[str] = arg.attr_type
                 if arg.attr_type is None:
                     # If the argument type is not specified, then use the type
                     # from the manager method
                     attr_type = manager_args[arg.name]
-                else:
-                    # Else use the type specified in the user_args
-                    attr_type = arg.attr_type
                 sig += f', {arg.name}: {attr_type}'
         if self.method_def.user_keyword_args:
             # Deal with the user_keyword_args.  These are keyword arguments that the
@@ -258,19 +262,20 @@ class ModelManagerMethodGenerator:
                 # Building the argument here is a bit more complicated because we need to
                 # handle the default value.
                 if not kwarg.default:
-                    # A manager kwarg string will look like "name: type = default", so
+                    # A manager kwarg string will look like "type = default", so
                     # we need to split it on the " = " and take the second half
                     # to get the default value
                     default = manager_kwargs[kwarg.name].split(' = ')[1]
                 else:
                     # We're overriding the default value
                     default = kwarg.default
-                if kwarg.attr_type is None:
-                    # A manager kwarg string will look like "name: type = default", so
+                attr_type = kwarg.attr_type
+                if attr_type is None:
+                    # A manager kwarg string will look like "type = default", so
                     # we need to split it on the " = " and take the first half
                     # to get the type
-                    attr_type = manager_kwargs[kwarg.name].split(' = ')[0].split(': ')[1]
-                attr_type_default = f'{kwarg.attr_type} = {default}'
+                    attr_type = manager_kwargs[kwarg.name].split(' = ')[0]
+                attr_type_default = f'{attr_type} = {default}'
                 sig += f', {kwarg.name}: {attr_type_default}'
         return_type = self.return_type
         if '"' not in return_type:
@@ -288,8 +293,6 @@ class ModelManagerMethodGenerator:
         Returns:
             The method arguments.
         """
-        # FIXME: need to check the input shape of the manager method to determine
-        # if user_args are valid
         args_dict: Dict[int, "ModelManagerMethodArgDefinition"] = self.method_def.args | self.method_def.user_args
         if not args_dict:
             return ''
@@ -312,7 +315,10 @@ class ModelManagerMethodGenerator:
                 if args_dict[i].value is not None:
                     args[i] = cast(str, args_dict[i].value)
                 else:
-                    args[i] = f"self.{args_dict[i].name}"
+                    value = args_dict[i].name
+                    if 'self.' not in value:
+                        value = f"self.{value}"
+                    args[i] = value
             else:
                 args[i] = args_dict[i].name
         return ', '.join([f"{arg}, " for arg in args.values()])
@@ -338,7 +344,7 @@ class ModelManagerMethodGenerator:
                     kwargs.append(f"{arg.name}=self.{arg.name}")
         if self.method_def.user_keyword_args:
             kwargs = [
-                f"{arg.name}={arg.name}, "
+                f"{arg.name}={arg.name}"
                 for arg in self.method_def.user_keyword_args
             ]
         return ', '.join(kwargs)
