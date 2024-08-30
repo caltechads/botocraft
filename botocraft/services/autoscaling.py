@@ -7,13 +7,12 @@ from datetime import datetime
 from functools import cached_property
 from typing import Any, ClassVar, Dict, List, Literal, Optional, Type, cast
 
-from pydantic import Field
-
 from botocraft.mixins.autoscaling import AutoScalingGroupModelMixin
 from botocraft.mixins.tags import TagsDictMixin
 from botocraft.services.common import Filter, Tag
 from botocraft.services.ec2 import (LaunchTemplateVersion,
                                     LaunchTemplateVersionManager)
+from pydantic import Field
 
 from .abstract import (Boto3Model, Boto3ModelManager, PrimaryBoto3Model,
                        ReadonlyBoto3Model, ReadonlyBoto3ModelManager,
@@ -376,29 +375,41 @@ class AutoScalingLaunchTemplateSpecification(Boto3Model):
     The launch template for the group.
     """
 
-    #: The ID of the launch template. To get the template ID, use the Amazon EC2 `Desc
-    #: ribeLaunchTemplates <https://docs.aws.amazon.com/AWSEC2/latest/APIReference/API
-    #: _DescribeLaunchTemplates.html>`_ API operation. New launch templates can be
-    #: created using the Amazon EC2 `CreateLaunchTemplate <https://docs.aws.amazon.com
-    #: /AWSEC2/latest/APIReference/API_CreateLaunchTemplate.html>`_ API.
     LaunchTemplateId: Optional[str] = None
-    #: The name of the launch template. To get the template name, use the Amazon EC2 `
-    #: DescribeLaunchTemplates <https://docs.aws.amazon.com/AWSEC2/latest/APIReference
-    #: /API_DescribeLaunchTemplates.html>`_ API operation. New launch templates can be
-    #: created using the Amazon EC2 `CreateLaunchTemplate <https://docs.aws.amazon.com
-    #: /AWSEC2/latest/APIReference/API_CreateLaunchTemplate.html>`_ API.
+    """
+    The ID of the launch template.
+
+    To get the template ID, use the Amazon EC2 `Desc
+    ribeLaunchTemplates <https://docs.aws.amazon.com/AWSEC2/latest/APIReference/API
+    _DescribeLaunchTemplates.html>`_ API operation. New launch templates can be
+    created using the Amazon EC2 `CreateLaunchTemplate <https://docs.aws.amazon.com
+    /AWSEC2/latest/APIReference/API_CreateLaunchTemplate.html>`_ API.
+    """
     LaunchTemplateName: Optional[str] = None
-    #: The version number, ``$Latest``, or ``$Default``. To get the version number,
-    #: use the Amazon EC2 `DescribeLaunchTemplateVersions <https://docs.aws.amazon.com
-    #: /AWSEC2/latest/APIReference/API_DescribeLaunchTemplateVersions.html>`_ API
-    #: operation. New launch template versions can be created using the Amazon EC2 `Cr
-    #: eateLaunchTemplateVersion <https://docs.aws.amazon.com/AWSEC2/latest/APIReferen
-    #: ce/API_CreateLaunchTemplateVersion.html>`_ API. If the value is ``$Latest``,
-    #: Amazon EC2 Auto Scaling selects the latest version of the launch template when
-    #: launching instances. If the value is ``$Default``, Amazon EC2 Auto Scaling
-    #: selects the default version of the launch template when launching instances.
-    #: The default value is ``$Default``.
+    """
+    The name of the launch template.
+
+    To get the template name, use the Amazon EC2 `
+    DescribeLaunchTemplates <https://docs.aws.amazon.com/AWSEC2/latest/APIReference
+    /API_DescribeLaunchTemplates.html>`_ API operation. New launch templates can be
+    created using the Amazon EC2 `CreateLaunchTemplate <https://docs.aws.amazon.com
+    /AWSEC2/latest/APIReference/API_CreateLaunchTemplate.html>`_ API.
+    """
     Version: Optional[str] = None
+    """
+    The version number, ``$Latest``, or ``$Default``.
+
+    To get the version number,
+    use the Amazon EC2 `DescribeLaunchTemplateVersions <https://docs.aws.amazon.com
+    /AWSEC2/latest/APIReference/API_DescribeLaunchTemplateVersions.html>`_ API
+    operation. New launch template versions can be created using the Amazon EC2 `Cr
+    eateLaunchTemplateVersion <https://docs.aws.amazon.com/AWSEC2/latest/APIReferen
+    ce/API_CreateLaunchTemplateVersion.html>`_ API. If the value is ``$Latest``,
+    Amazon EC2 Auto Scaling selects the latest version of the launch template when
+    launching instances. If the value is ``$Default``, Amazon EC2 Auto Scaling
+    selects the default version of the launch template when launching instances.
+    The default value is ``$Default``.
+    """
 
 
 class VCpuCountRequest(Boto3Model):
@@ -406,10 +417,14 @@ class VCpuCountRequest(Boto3Model):
     The minimum and maximum number of vCPUs for an instance type.
     """
 
-    #: The minimum number of vCPUs.
     Min: int
-    #: The maximum number of vCPUs.
+    """
+    The minimum number of vCPUs.
+    """
     Max: Optional[int] = None
+    """
+    The maximum number of vCPUs.
+    """
 
 
 class AutoScalingMemoryMiBRequest(Boto3Model):
@@ -417,10 +432,14 @@ class AutoScalingMemoryMiBRequest(Boto3Model):
     The minimum and maximum instance memory size for an instance type, in MiB.
     """
 
-    #: The memory minimum in MiB.
     Min: int
-    #: The memory maximum in MiB.
+    """
+    The memory minimum in MiB.
+    """
     Max: Optional[int] = None
+    """
+    The memory maximum in MiB.
+    """
 
 
 class MemoryGiBPerVCpuRequest(Boto3Model):
@@ -431,10 +450,14 @@ class MemoryGiBPerVCpuRequest(Boto3Model):
     Default: No minimum or maximum limits
     """
 
-    #: The memory minimum in GiB.
     Min: Optional[float] = None
-    #: The memory maximum in GiB.
+    """
+    The memory minimum in GiB.
+    """
     Max: Optional[float] = None
+    """
+    The memory maximum in GiB.
+    """
 
 
 class AutoScalingNetworkInterfaceCountRequest(Boto3Model):
@@ -444,10 +467,14 @@ class AutoScalingNetworkInterfaceCountRequest(Boto3Model):
     Default: No minimum or maximum limits
     """
 
-    #: The minimum number of network interfaces.
     Min: Optional[int] = None
-    #: The maximum number of network interfaces.
+    """
+    The minimum number of network interfaces.
+    """
     Max: Optional[int] = None
+    """
+    The maximum number of network interfaces.
+    """
 
 
 class AutoScalingTotalLocalStorageGBRequest(Boto3Model):
@@ -458,10 +485,14 @@ class AutoScalingTotalLocalStorageGBRequest(Boto3Model):
     Default: No minimum or maximum limits
     """
 
-    #: The storage minimum in GB.
     Min: Optional[float] = None
-    #: The storage maximum in GB.
+    """
+    The storage minimum in GB.
+    """
     Max: Optional[float] = None
+    """
+    The storage maximum in GB.
+    """
 
 
 class AutoScalingBaselineEbsBandwidthMbsRequest(Boto3Model):
@@ -473,10 +504,14 @@ class AutoScalingBaselineEbsBandwidthMbsRequest(Boto3Model):
     Default: No minimum or maximum limits
     """
 
-    #: The minimum value in Mbps.
     Min: Optional[int] = None
-    #: The maximum value in Mbps.
+    """
+    The minimum value in Mbps.
+    """
     Max: Optional[int] = None
+    """
+    The maximum value in Mbps.
+    """
 
 
 class AutoScalingAcceleratorCountRequest(Boto3Model):
@@ -489,10 +524,14 @@ class AutoScalingAcceleratorCountRequest(Boto3Model):
     Default: No minimum or maximum limits
     """
 
-    #: The minimum value.
     Min: Optional[int] = None
-    #: The maximum value.
+    """
+    The minimum value.
+    """
     Max: Optional[int] = None
+    """
+    The maximum value.
+    """
 
 
 class AutoScalingAcceleratorTotalMemoryMiBRequest(Boto3Model):
@@ -503,10 +542,14 @@ class AutoScalingAcceleratorTotalMemoryMiBRequest(Boto3Model):
     Default: No minimum or maximum limits
     """
 
-    #: The memory minimum in MiB.
     Min: Optional[int] = None
-    #: The memory maximum in MiB.
+    """
+    The memory minimum in MiB.
+    """
     Max: Optional[int] = None
+    """
+    The memory maximum in MiB.
+    """
 
 
 class NetworkBandwidthGbpsRequest(Boto3Model):
@@ -517,10 +560,14 @@ class NetworkBandwidthGbpsRequest(Boto3Model):
     Default: No minimum or maximum limits
     """
 
-    #: The minimum amount of network bandwidth, in gigabits per second (Gbps).
     Min: Optional[float] = None
-    #: The maximum amount of network bandwidth, in gigabits per second (Gbps).
+    """
+    The minimum amount of network bandwidth, in gigabits per second (Gbps).
+    """
     Max: Optional[float] = None
+    """
+    The maximum amount of network bandwidth, in gigabits per second (Gbps).
+    """
 
 
 class AutoScalingInstanceRequirements(Boto3Model):
@@ -538,105 +585,172 @@ class AutoScalingInstanceRequirements(Boto3Model):
     If you specify ``InstanceRequirements``, you can't specify ``InstanceType``.
     """
 
-    #: The minimum and maximum number of vCPUs for an instance type.
     VCpuCount: VCpuCountRequest
-    #: The minimum and maximum instance memory size for an instance type, in MiB.
+    """
+    The minimum and maximum number of vCPUs for an instance type.
+    """
     MemoryMiB: AutoScalingMemoryMiBRequest
-    #: Lists which specific CPU manufacturers to include.
+    """
+    The minimum and maximum instance memory size for an instance type, in MiB.
+    """
     CpuManufacturers: Optional[
         List[Literal["intel", "amd", "amazon-web-services"]]
     ] = None
-    #: The minimum and maximum amount of memory per vCPU for an instance type, in GiB.
+    """
+    Lists which specific CPU manufacturers to include.
+    """
     MemoryGiBPerVCpu: Optional[MemoryGiBPerVCpuRequest] = None
-    #: The instance types to exclude. You can use strings with one or more wild cards,
-    #: represented by an asterisk (``*``), to exclude an instance family, type, size,
-    #: or generation. The following are examples: ``m5.8xlarge``, ``c5*.*``,
-    #: ``m5a.*``, ``r*``, ``*3*``.
+    """
+    The minimum and maximum amount of memory per vCPU for an instance type, in
+    GiB.
+    """
     ExcludedInstanceTypes: Optional[List[str]] = None
-    #: Indicates whether current or previous generation instance types are included.
+    """
+    The instance types to exclude.
+
+    You can use strings with one or more wild cards,
+    represented by an asterisk (``*``), to exclude an instance family, type, size,
+    or generation. The following are examples: ``m5.8xlarge``, ``c5*.*``,
+    ``m5a.*``, ``r*``, ``*3*``.
+    """
     InstanceGenerations: Optional[List[Literal["current", "previous"]]] = None
-    #: [Price protection] The price protection threshold for Spot Instances, as a
-    #: percentage higher than an identified Spot price. The identified Spot price is
-    #: the price of the lowest priced current generation C, M, or R instance type with
-    #: your specified attributes. If no current generation C, M, or R instance type
-    #: matches your attributes, then the identified price is from either the lowest
-    #: priced current generation instance types or, failing that, the lowest priced
-    #: previous generation instance types that match your attributes. When Amazon EC2
-    #: Auto Scaling selects instance types with your attributes, we will exclude
-    #: instance types whose price exceeds your specified threshold.
+    """
+    Indicates whether current or previous generation instance types are
+    included.
+    """
     SpotMaxPricePercentageOverLowestPrice: Optional[int] = None
-    #: [Price protection] The price protection threshold for Spot Instances, as a
-    #: percentage of an identified On-Demand price. The identified On-Demand price is
-    #: the price of the lowest priced current generation C, M, or R instance type with
-    #: your specified attributes. If no current generation C, M, or R instance type
-    #: matches your attributes, then the identified price is from either the lowest
-    #: priced current generation instance types or, failing that, the lowest priced
-    #: previous generation instance types that match your attributes. When Amazon EC2
-    #: Auto Scaling selects instance types with your attributes, we will exclude
-    #: instance types whose price exceeds your specified threshold.
+    """
+    [Price protection] The price protection threshold for Spot Instances, as a
+    percentage higher than an identified Spot price.
+
+    The identified Spot price is the price of the lowest priced current
+    generation C, M, or R instance type with your specified attributes. If no
+    current generation C, M, or R instance type matches your attributes, then
+    the identified price is from either the lowest priced current generation
+    instance types or, failing that, the lowest priced previous generation
+    instance types that match your attributes. When Amazon EC2 Auto Scaling
+    selects instance types with your attributes, we will exclude instance types
+    whose price exceeds your specified threshold.
+    """
     MaxSpotPriceAsPercentageOfOptimalOnDemandPrice: Optional[int] = None
-    #: [Price protection] The price protection threshold for On-Demand Instances, as a
-    #: percentage higher than an identified On-Demand price. The identified On-Demand
-    #: price is the price of the lowest priced current generation C, M, or R instance
-    #: type with your specified attributes. If no current generation C, M, or R
-    #: instance type matches your attributes, then the identified price is from either
-    #: the lowest priced current generation instance types or, failing that, the
-    #: lowest priced previous generation instance types that match your attributes.
-    #: When Amazon EC2 Auto Scaling selects instance types with your attributes, we
-    #: will exclude instance types whose price exceeds your specified threshold.
+    """
+    [Price protection] The price protection threshold for Spot Instances, as a
+    percentage of an identified On-Demand price.
+
+    The identified On-Demand price is the price of the lowest priced current
+    generation C, M, or R instance type with your specified attributes. If no
+    current generation C, M, or R instance type matches your attributes, then
+    the identified price is from either the lowest priced current generation
+    instance types or, failing that, the lowest priced previous generation
+    instance types that match your attributes. When Amazon EC2 Auto Scaling
+    selects instance types with your attributes, we will exclude instance types
+    whose price exceeds your specified threshold.
+    """
     OnDemandMaxPricePercentageOverLowestPrice: Optional[int] = None
-    #: Indicates whether bare metal instance types are included, excluded, or
-    #: required.
+    """
+    [Price protection] The price protection threshold for On-Demand Instances,
+    as a percentage higher than an identified On-Demand price.
+
+    The identified On-Demand price is the price of the lowest priced current
+    generation C, M, or R instance type with your specified attributes. If no
+    current generation C, M, or R instance type matches your attributes, then
+    the identified price is from either the lowest priced current generation
+    instance types or, failing that, the lowest priced previous generation
+    instance types that match your attributes. When Amazon EC2 Auto Scaling
+    selects instance types with your attributes, we will exclude instance types
+    whose price exceeds your specified threshold.
+    """
     BareMetal: Optional[Literal["included", "excluded", "required"]] = None
-    #: Indicates whether burstable performance instance types are included, excluded,
-    #: or required. For more information, see `Burstable performance instances
-    #: <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/burstable- performance-
-    #: instances.html>`_ in the *Amazon EC2 User Guide for Linux Instances*.
+    """
+    Indicates whether bare metal instance types are included, excluded, or
+    required.
+    """
     BurstablePerformance: Optional[Literal["included", "excluded", "required"]] = None
-    #: Indicates whether instance types must provide On-Demand Instance hibernation
-    #: support.
+    """
+    Indicates whether burstable performance instance types are included,
+    excluded, or required.
+
+    For more information, see
+    `Burstable performance instances <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/burstable-
+    performance-instances.html>`_ in the *Amazon EC2 User Guide for Linux Instances*.
+    """
     RequireHibernateSupport: Optional[bool] = None
-    #: The minimum and maximum number of network interfaces for an instance type.
+    """
+    Indicates whether instance types must provide On-Demand Instance
+    hibernation support.
+    """
     NetworkInterfaceCount: Optional[AutoScalingNetworkInterfaceCountRequest] = None
-    #: Indicates whether instance types with instance store volumes are included,
-    #: excluded, or required. For more information, see `Amazon EC2 instance store <ht
-    #: tps://docs.aws.amazon.com/AWSEC2/latest/UserGuide/InstanceStorage.html>`_ in
-    #: the *Amazon EC2 User Guide for Linux Instances*.
+    """
+    The minimum and maximum number of network interfaces for an instance type.
+    """
     LocalStorage: Optional[Literal["included", "excluded", "required"]] = None
-    #: Indicates the type of local storage that is required.
+    """
+    Indicates whether instance types with instance store volumes are included,
+    excluded, or required.
+
+    For more information, see `Amazon EC2 instance store <ht
+    tps://docs.aws.amazon.com/AWSEC2/latest/UserGuide/InstanceStorage.html>`_ in the
+    *Amazon EC2 User Guide for Linux Instances*.
+    """
     LocalStorageTypes: Optional[List[Literal["hdd", "ssd"]]] = None
-    #: The minimum and maximum total local storage size for an instance type, in GB.
+    """
+    Indicates the type of local storage that is required.
+    """
     TotalLocalStorageGB: Optional[AutoScalingTotalLocalStorageGBRequest] = None
-    #: The minimum and maximum baseline bandwidth performance for an instance type, in
-    #: Mbps. For more information, see `Amazon EBS–optimized instances
-    #: <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ebs- optimized.html>`_ in
-    #: the *Amazon EC2 User Guide for Linux Instances*.
+    """
+    The minimum and maximum total local storage size for an instance type, in
+    GB.
+    """
     BaselineEbsBandwidthMbps: Optional[AutoScalingBaselineEbsBandwidthMbsRequest] = None
-    #: Lists the accelerator types that must be on an instance type.
+    """
+    The minimum and maximum baseline bandwidth performance for an instance
+    type, in Mbps.
+
+    For more information, see `Amazon EBS–optimized
+    instances <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ebs-
+    optimized.html>`_ in the *Amazon EC2 User Guide for Linux Instances*.
+    """
     AcceleratorTypes: Optional[List[Literal["gpu", "fpga", "inference"]]] = None
-    #: The minimum and maximum number of accelerators (GPUs, FPGAs, or Amazon Web
-    #: Services Inferentia chips) for an instance type.
+    """
+    Lists the accelerator types that must be on an instance type.
+    """
     AcceleratorCount: Optional[AutoScalingAcceleratorCountRequest] = None
-    #: Indicates whether instance types must have accelerators by specific
-    #: manufacturers.
+    """
+    The minimum and maximum number of accelerators (GPUs, FPGAs, or Amazon Web
+    Services Inferentia chips) for an instance type.
+    """
     AcceleratorManufacturers: Optional[
         List[Literal["nvidia", "amd", "amazon-web-services", "xilinx"]]
     ] = None
-    #: Lists the accelerators that must be on an instance type.
+    """
+    Indicates whether instance types must have accelerators by specific
+    manufacturers.
+    """
     AcceleratorNames: Optional[
         List[Literal["a100", "v100", "k80", "t4", "m60", "radeon-pro-v520", "vu9p"]]
     ] = None
-    #: The minimum and maximum total memory size for the accelerators on an instance
-    #: type, in MiB.
+    """
+    Lists the accelerators that must be on an instance type.
+    """
     AcceleratorTotalMemoryMiB: Optional[
         AutoScalingAcceleratorTotalMemoryMiBRequest
     ] = None
-    #: The minimum and maximum amount of network bandwidth, in gigabits per second
-    #: (Gbps).
+    """
+    The minimum and maximum total memory size for the accelerators on an
+    instance type, in MiB.
+    """
     NetworkBandwidthGbps: Optional[NetworkBandwidthGbpsRequest] = None
-    #: The instance types to apply your specified attributes against. All other
-    #: instance types are ignored, even if they match your specified attributes.
+    """
+    The minimum and maximum amount of network bandwidth, in gigabits per second
+    (Gbps).
+    """
     AllowedInstanceTypes: Optional[List[str]] = None
+    """
+    The instance types to apply your specified attributes against.
+
+    All other instance types are ignored, even if they match your specified
+    attributes.
+    """
 
 
 class LaunchTemplateOverrides(Boto3Model):
@@ -659,39 +773,54 @@ class LaunchTemplateOverrides(Boto3Model):
     whether a new EC2 instance type can be used.
     """
 
-    #: The instance type, such as ``m3.xlarge``. You must specify an instance type
-    #: that is supported in your requested Region and Availability Zones. For more
-    #: information, see `Instance types
-    #: <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/instance-types.html>`_ in
-    #: the *Amazon EC2 User Guide for Linux Instances*.
     InstanceType: Optional[str] = None
-    #: If you provide a list of instance types to use, you can specify the number of
-    #: capacity units provided by each instance type in terms of virtual CPUs, memory,
-    #: storage, throughput, or other relative performance characteristic. When a Spot
-    #: or On-Demand Instance is launched, the capacity units count toward the desired
-    #: capacity. Amazon EC2 Auto Scaling launches instances until the desired capacity
-    #: is totally fulfilled, even if this results in an overage. For example, if there
-    #: are two units remaining to fulfill capacity, and Amazon EC2 Auto Scaling can
-    #: only launch an instance with a ``WeightedCapacity`` of five units, the instance
-    #: is launched, and the desired capacity is exceeded by three units. For more
-    #: information, see `Configure an Auto Scaling group to use instance weights
-    #: <https://docs.aws.amazon.com/autoscaling/ec2/userguide/ec2-auto- scaling-mixed-
-    #: instances-groups-instance-weighting.html>`_ in the *Amazon EC2 Auto Scaling
-    #: User Guide*. Value must be in the range of 1–999.
+    """
+    The instance type, such as ``m3.xlarge``.
+
+    You must specify an instance type that is supported in your requested
+    Region and Availability Zones. For more information, see
+    `Instance types <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/instance-types.html>`_
+    in the *Amazon EC2 User Guide for Linux Instances*.
+    """
     WeightedCapacity: Optional[str] = None
-    #: Provides a launch template for the specified instance type or set of instance
-    #: requirements. For example, some instance types might require a launch template
-    #: with a different AMI. If not provided, Amazon EC2 Auto Scaling uses the launch
-    #: template that's specified in the ``LaunchTemplate`` definition. For more
-    #: information, see `Specifying a different launch template for an instance type
-    #: <https://docs.aws.amazon.com/autoscaling/ec2/userguide/ec2-auto-scaling- mixed-
-    #: instances-groups-launch-template-overrides.html>`_ in the *Amazon EC2 Auto
-    #: Scaling User Guide*.
+    """
+    If you provide a list of instance types to use, you can specify the number
+    of capacity units provided by each instance type in terms of virtual CPUs,
+    memory, storage, throughput, or other relative performance characteristic.
+
+    When a Spot
+    or On-Demand Instance is launched, the capacity units count toward the desired
+    capacity. Amazon EC2 Auto Scaling launches instances until the desired capacity
+    is totally fulfilled, even if this results in an overage. For example, if there
+    are two units remaining to fulfill capacity, and Amazon EC2 Auto Scaling can
+    only launch an instance with a ``WeightedCapacity`` of five units, the instance
+    is launched, and the desired capacity is exceeded by three units. For more
+    information, see `Configure an Auto Scaling group to use instance
+    weights <https://docs.aws.amazon.com/autoscaling/ec2/userguide/ec2-auto-
+    scaling-mixed-instances-groups-instance-weighting.html>`_ in the *Amazon EC2 Auto
+    Scaling User Guide*. Value must be in the range of 1–999.
+    """
     LaunchTemplateSpecification: Optional[AutoScalingLaunchTemplateSpecification] = None
-    #: The instance requirements. Amazon EC2 Auto Scaling uses your specified
-    #: requirements to identify instance types. Then, it uses your On-Demand and Spot
-    #: allocation strategies to launch instances from these instance types.
+    """
+    Provides a launch template for the specified instance type or set of
+    instance requirements.
+
+    For example, some instance types might require a launch template
+    with a different AMI. If not provided, Amazon EC2 Auto Scaling uses the launch
+    template that's specified in the ``LaunchTemplate`` definition. For more
+    information, see `Specifying a different launch template for an instance
+    type <https://docs.aws.amazon.com/autoscaling/ec2/userguide/ec2-auto-scaling-
+    mixed-instances-groups-launch-template-overrides.html>`_ in the *Amazon EC2 Auto
+    Scaling User Guide*.
+    """
     InstanceRequirements: Optional[AutoScalingInstanceRequirements] = None
+    """
+    The instance requirements.
+
+    Amazon EC2 Auto Scaling uses your specified requirements to identify
+    instance types. Then, it uses your On-Demand and Spot allocation strategies
+    to launch instances from these instance types.
+    """
 
 
 class AutoScalingLaunchTemplate(Boto3Model):
@@ -700,11 +829,15 @@ class AutoScalingLaunchTemplate(Boto3Model):
     used to launch EC2 instances to fulfill On-Demand and Spot capacities.
     """
 
-    #: The launch template.
     LaunchTemplateSpecification: Optional[AutoScalingLaunchTemplateSpecification] = None
-    #: Any properties that you specify override the same properties in the launch
-    #: template.
+    """
+    The launch template.
+    """
     Overrides: Optional[List["LaunchTemplateOverrides"]] = None
+    """
+    Any properties that you specify override the same properties in the launch
+    template.
+    """
 
 
 class AutoScalingInstancesDistribution(Boto3Model):
@@ -712,36 +845,58 @@ class AutoScalingInstancesDistribution(Boto3Model):
     The instances distribution.
     """
 
-    #: The allocation strategy to apply to your On-Demand Instances when they are
-    #: launched. Possible instance types are determined by the launch template
-    #: overrides that you specify.
     OnDemandAllocationStrategy: Optional[str] = None
-    #: The minimum amount of the Auto Scaling group's capacity that must be fulfilled
-    #: by On-Demand Instances. This base portion is launched first as your group
-    #: scales.
+    """
+    The allocation strategy to apply to your On-Demand Instances when they are
+    launched.
+
+    Possible instance types are determined by the launch template overrides
+    that you specify.
+    """
     OnDemandBaseCapacity: Optional[int] = None
-    #: Controls the percentages of On-Demand Instances and Spot Instances for your
-    #: additional capacity beyond ``OnDemandBaseCapacity``. Expressed as a number (for
-    #: example, 20 specifies 20% On-Demand Instances, 80% Spot Instances). If set to
-    #: 100, only On-Demand Instances are used.
+    """
+    The minimum amount of the Auto Scaling group's capacity that must be
+    fulfilled by On-Demand Instances.
+
+    This base portion is launched first as your group scales.
+    """
     OnDemandPercentageAboveBaseCapacity: Optional[int] = None
-    #: The allocation strategy to apply to your Spot Instances when they are launched.
-    #: Possible instance types are determined by the launch template overrides that
-    #: you specify.
+    """
+    Controls the percentages of On-Demand Instances and Spot Instances for your
+    additional capacity beyond ``OnDemandBaseCapacity``.
+
+    Expressed as a number (for example, 20 specifies 20% On-Demand Instances,
+    80% Spot Instances). If set to 100, only On-Demand Instances are used.
+    """
     SpotAllocationStrategy: Optional[str] = None
-    #: The number of Spot Instance pools across which to allocate your Spot Instances.
-    #: The Spot pools are determined from the different instance types in the
-    #: overrides. Valid only when the ``SpotAllocationStrategy`` is ``lowest-price``.
-    #: Value must be in the range of 1–20.
+    """
+    The allocation strategy to apply to your Spot Instances when they are
+    launched.
+
+    Possible instance types are determined by the launch template overrides
+    that you specify.
+    """
     SpotInstancePools: Optional[int] = None
-    #: The maximum price per unit hour that you are willing to pay for a Spot
-    #: Instance. If your maximum price is lower than the Spot price for the instance
-    #: types that you selected, your Spot Instances are not launched. We do not
-    #: recommend specifying a maximum price because it can lead to increased
-    #: interruptions. When Spot Instances launch, you pay the current Spot price. To
-    #: remove a maximum price that you previously set, include the property but
-    #: specify an empty string ("") for the value.
+    """
+    The number of Spot Instance pools across which to allocate your Spot
+    Instances.
+
+    The Spot pools are determined from the different instance types in the
+    overrides. Valid only when the ``SpotAllocationStrategy`` is ``lowest-price``.
+    Value must be in the range of 1–20.
+    """
     SpotMaxPrice: Optional[str] = None
+    """
+    The maximum price per unit hour that you are willing to pay for a Spot
+    Instance.
+
+    If your maximum price is lower than the Spot price for the instance types
+    that you selected, your Spot Instances are not launched. We do not
+    recommend specifying a maximum price because it can lead to increased
+    interruptions. When Spot Instances launch, you pay the current Spot price.
+    To remove a maximum price that you previously set, include the property but
+    specify an empty string ("") for the value.
+    """
 
 
 class AutoScalingMixedInstancesPolicy(Boto3Model):
@@ -749,11 +904,15 @@ class AutoScalingMixedInstancesPolicy(Boto3Model):
     The mixed instances policy for the group.
     """
 
-    #: One or more launch templates and the instance types (overrides) that are used
-    #: to launch EC2 instances to fulfill On-Demand and Spot capacities.
     LaunchTemplate: Optional[AutoScalingLaunchTemplate] = None
-    #: The instances distribution.
+    """
+    One or more launch templates and the instance types (overrides) that are
+    used to launch EC2 instances to fulfill On-Demand and Spot capacities.
+    """
     InstancesDistribution: Optional[AutoScalingInstancesDistribution] = None
+    """
+    The instances distribution.
+    """
 
 
 class AutoScalingInstanceReference(Boto3Model):
@@ -761,16 +920,18 @@ class AutoScalingInstanceReference(Boto3Model):
     Describes an EC2 instance.
     """
 
-    #: The ID of the instance.
     InstanceId: str
-    #: The instance type of the EC2 instance.
+    """
+    The ID of the instance.
+    """
     InstanceType: Optional[str] = None
-    #: The Availability Zone in which the instance is running.
+    """
+    The instance type of the EC2 instance.
+    """
     AvailabilityZone: str
-    #: A description of the current lifecycle state. The ``Quarantined`` state is not
-    #: used. For more information, see `Amazon EC2 Auto Scaling instance lifecycle
-    #: <https://docs.aws.amazon.com/autoscaling/ec2/userguide/ec2-auto- scaling-
-    #: lifecycle.html>`_ in the *Amazon EC2 Auto Scaling User Guide*.
+    """
+    The Availability Zone in which the instance is running.
+    """
     LifecycleState: Literal[
         "Pending",
         "Pending:Wait",
@@ -796,21 +957,41 @@ class AutoScalingInstanceReference(Boto3Model):
         "Warmed:Running",
         "Warmed:Hibernated",
     ]
-    #: The last reported health status of the instance. ``Healthy`` means that the
-    #: instance is healthy and should remain in service. ``Unhealthy`` means that the
-    #: instance is unhealthy and that Amazon EC2 Auto Scaling should terminate and
-    #: replace it.
+    """
+    A description of the current lifecycle state.
+
+    The ``Quarantined`` state is not
+    used. For more information, see `Amazon EC2 Auto Scaling instance
+    lifecycle <https://docs.aws.amazon.com/autoscaling/ec2/userguide/ec2-auto-
+    scaling-lifecycle.html>`_ in the *Amazon EC2 Auto Scaling User Guide*.
+    """
     HealthStatus: str
-    #: The launch configuration associated with the instance.
+    """
+    The last reported health status of the instance.
+
+    ``Healthy`` means that the
+    instance is healthy and should remain in service. ``Unhealthy`` means that the
+    instance is unhealthy and that Amazon EC2 Auto Scaling should terminate and
+    replace it.
+    """
     LaunchConfigurationName: Optional[str] = None
-    #: The launch template for the instance.
+    """
+    The launch configuration associated with the instance.
+    """
     LaunchTemplate: Optional[AutoScalingLaunchTemplateSpecification] = None
-    #: Indicates whether the instance is protected from termination by Amazon EC2 Auto
-    #: Scaling when scaling in.
+    """
+    The launch template for the instance.
+    """
     ProtectedFromScaleIn: bool
-    #: The number of capacity units contributed by the instance based on its instance
-    #: type.
+    """
+    Indicates whether the instance is protected from termination by Amazon EC2
+    Auto Scaling when scaling in.
+    """
     WeightedCapacity: Optional[str] = None
+    """
+    The number of capacity units contributed by the instance based on its
+    instance type.
+    """
 
 
 class SuspendedProcess(Boto3Model):
@@ -823,10 +1004,14 @@ class SuspendedProcess(Boto3Model):
     Guide*.
     """
 
-    #: The name of the suspended process.
     ProcessName: Optional[str] = None
-    #: The reason that the process was suspended.
+    """
+    The name of the suspended process.
+    """
     SuspensionReason: Optional[str] = None
+    """
+    The reason that the process was suspended.
+    """
 
 
 class EnabledMetric(Boto3Model):
@@ -834,10 +1019,16 @@ class EnabledMetric(Boto3Model):
     Describes an enabled Auto Scaling group metric.
     """
 
-    #: One of the following metrics:
     Metric: Optional[str] = None
-    #: The granularity of the metric. The only valid value is ``1Minute``.
+    """
+One of the following metrics:
+    """
     Granularity: Optional[str] = None
+    """
+    The granularity of the metric.
+
+    The only valid value is ``1Minute``.
+    """
 
 
 class TagDescription(Boto3Model):
@@ -845,17 +1036,29 @@ class TagDescription(Boto3Model):
     Describes a tag for an Auto Scaling group.
     """
 
-    #: The name of the group.
     ResourceId: Optional[str] = None
-    #: The type of resource. The only supported value is ``auto-scaling-group``.
+    """
+    The name of the group.
+    """
     ResourceType: Optional[str] = None
-    #: The tag key.
+    """
+    The type of resource.
+
+    The only supported value is ``auto-scaling-group``.
+    """
     Key: Optional[str] = None
-    #: The tag value.
+    """
+    The tag key.
+    """
     Value: Optional[str] = None
-    #: Determines whether the tag is added to new instances as they are launched in
-    #: the group.
+    """
+    The tag value.
+    """
     PropagateAtLaunch: Optional[bool] = None
+    """
+    Determines whether the tag is added to new instances as they are launched
+    in the group.
+    """
 
 
 class AutoScalingInstanceReusePolicy(Boto3Model):
@@ -863,9 +1066,11 @@ class AutoScalingInstanceReusePolicy(Boto3Model):
     The instance reuse policy.
     """
 
-    #: Specifies whether instances in the Auto Scaling group can be returned to the
-    #: warm pool on scale in.
     ReuseOnScaleIn: Optional[bool] = None
+    """
+    Specifies whether instances in the Auto Scaling group can be returned to
+    the warm pool on scale in.
+    """
 
 
 class AutoScalingWarmPoolConfiguration(Boto3Model):
@@ -873,17 +1078,28 @@ class AutoScalingWarmPoolConfiguration(Boto3Model):
     The warm pool for the group.
     """
 
-    #: The maximum number of instances that are allowed to be in the warm pool or in
-    #: any state except ``Terminated`` for the Auto Scaling group.
     MaxGroupPreparedCapacity: Optional[int] = None
-    #: The minimum number of instances to maintain in the warm pool.
+    """
+    The maximum number of instances that are allowed to be in the warm pool or
+    in any state except ``Terminated`` for the Auto Scaling group.
+    """
     MinSize: Optional[int] = None
-    #: The instance state to transition to after the lifecycle actions are complete.
+    """
+    The minimum number of instances to maintain in the warm pool.
+    """
     PoolState: Optional[Literal["Stopped", "Running", "Hibernated"]] = None
-    #: The status of a warm pool that is marked for deletion.
+    """
+    The instance state to transition to after the lifecycle actions are
+    complete.
+    """
     Status: Optional[Literal["PendingDelete"]] = None
-    #: The instance reuse policy.
+    """
+    The status of a warm pool that is marked for deletion.
+    """
     InstanceReusePolicy: Optional[AutoScalingInstanceReusePolicy] = None
+    """
+    The instance reuse policy.
+    """
 
 
 class TrafficSourceIdentifier(Boto3Model):
@@ -891,10 +1107,14 @@ class TrafficSourceIdentifier(Boto3Model):
     Identifying information for a traffic source.
     """
 
-    #: Identifies the traffic source.
     Identifier: str
-    #: Provides additional context for the value of ``Identifier``.
+    """
+    Identifies the traffic source.
+    """
     Type: Optional[str] = None
+    """
+    Provides additional context for the value of ``Identifier``.
+    """
 
 
 class AutoScalingInstanceMaintenancePolicy(Boto3Model):
@@ -902,18 +1122,26 @@ class AutoScalingInstanceMaintenancePolicy(Boto3Model):
     An instance maintenance policy.
     """
 
-    #: Specifies the lower threshold as a percentage of the desired capacity of the
-    #: Auto Scaling group. It represents the minimum percentage of the group to keep
-    #: in service, healthy, and ready to use to support your workload when replacing
-    #: instances. Value range is 0 to 100. To clear a previously set value, specify a
-    #: value of ``-1``.
     MinHealthyPercentage: Optional[int] = None
-    #: Specifies the upper threshold as a percentage of the desired capacity of the
-    #: Auto Scaling group. It represents the maximum percentage of the group that can
-    #: be in service and healthy, or pending, to support your workload when replacing
-    #: instances. Value range is 100 to 200. To clear a previously set value, specify
-    #: a value of ``-1``.
+    """
+    Specifies the lower threshold as a percentage of the desired capacity of
+    the Auto Scaling group.
+
+    It represents the minimum percentage of the group to keep
+    in service, healthy, and ready to use to support your workload when replacing
+    instances. Value range is 0 to 100. To clear a previously set value, specify a
+    value of ``-1``.
+    """
     MaxHealthyPercentage: Optional[int] = None
+    """
+    Specifies the upper threshold as a percentage of the desired capacity of
+    the Auto Scaling group.
+
+    It represents the maximum percentage of the group that can
+    be in service and healthy, or pending, to support your workload when replacing
+    instances. Value range is 100 to 200. To clear a previously set value, specify
+    a value of ``-1``.
+    """
 
 
 class AutoScalingGroup(TagsDictMixin, AutoScalingGroupModelMixin, PrimaryBoto3Model):
@@ -924,83 +1152,158 @@ class AutoScalingGroup(TagsDictMixin, AutoScalingGroupModelMixin, PrimaryBoto3Mo
     tag_class: ClassVar[Type] = TagDescription
     objects: ClassVar[Boto3ModelManager] = AutoScalingGroupManager()
 
-    #: The duration of the default cooldown period, in seconds.
     DefaultCooldown: int
-    #: The name of the Auto Scaling group.
+    """
+    The duration of the default cooldown period, in seconds.
+    """
     AutoScalingGroupName: str
-    #: The Amazon Resource Name (ARN) of the Auto Scaling group.
+    """
+    The name of the Auto Scaling group.
+    """
     AutoScalingGroupARN: str = Field(default=None, frozen=True)
-    #: The name of the associated launch configuration.
+    """
+    The Amazon Resource Name (ARN) of the Auto Scaling group.
+    """
     LaunchConfigurationName: Optional[str] = None
-    #: The launch template for the group.
+    """
+    The name of the associated launch configuration.
+    """
     LaunchTemplate: Optional[AutoScalingLaunchTemplateSpecification] = None
-    #: The mixed instances policy for the group.
+    """
+    The launch template for the group.
+    """
     MixedInstancesPolicy: Optional[AutoScalingMixedInstancesPolicy] = None
-    #: The minimum size of the group.
+    """
+    The mixed instances policy for the group.
+    """
     MinSize: int
-    #: The maximum size of the group.
+    """
+    The minimum size of the group.
+    """
     MaxSize: int
-    #: The desired size of the group.
+    """
+    The maximum size of the group.
+    """
     DesiredCapacity: int
-    #: The predicted capacity of the group when it has a predictive scaling policy.
+    """
+    The desired size of the group.
+    """
     PredictedCapacity: int = Field(default=None, frozen=True)
-    #: One or more Availability Zones for the group.
+    """
+    The predicted capacity of the group when it has a predictive scaling
+    policy.
+    """
     AvailabilityZones: List[str]
-    #: One or more load balancers associated with the group.
+    """
+    One or more Availability Zones for the group.
+    """
     LoadBalancerNames: Optional[List[str]] = None
-    #: The Amazon Resource Names (ARN) of the target groups for your load balancer.
+    """
+    One or more load balancers associated with the group.
+    """
     TargetGroupARNs: Optional[List[str]] = None
-    #: A comma-separated value string of one or more health check types.
+    """
+    The Amazon Resource Names (ARN) of the target groups for your load
+    balancer.
+    """
     HealthCheckType: str
-    #: The duration of the health check grace period, in seconds.
+    """
+    A comma-separated value string of one or more health check types.
+    """
     HealthCheckGracePeriod: Optional[int] = None
-    #: The EC2 instances associated with the group.
+    """
+    The duration of the health check grace period, in seconds.
+    """
     Instances: List["AutoScalingInstanceReference"] = Field(default=None, frozen=True)
-    #: The date and time the group was created.
+    """
+    The EC2 instances associated with the group.
+    """
     CreatedTime: datetime = Field(frozen=True)
-    #: The suspended processes associated with the group.
+    """
+    The date and time the group was created.
+    """
     SuspendedProcesses: List["SuspendedProcess"] = Field(default=None, frozen=True)
-    #: The name of the placement group into which to launch your instances, if any.
+    """
+    The suspended processes associated with the group.
+    """
     PlacementGroup: Optional[str] = None
-    #: One or more subnet IDs, if applicable, separated by commas.
+    """
+    The name of the placement group into which to launch your instances, if
+    any.
+    """
     VPCZoneIdentifier: Optional[str] = None
-    #: The metrics enabled for the group.
+    """
+    One or more subnet IDs, if applicable, separated by commas.
+    """
     EnabledMetrics: List["EnabledMetric"] = Field(default=None, frozen=True)
-    #: The current state of the group when the DeleteAutoScalingGroup operation is in
-    #: progress.
+    """
+    The metrics enabled for the group.
+    """
     Status: str = Field(default=None, frozen=True)
-    #: The tags for the group.
+    """
+    The current state of the group when the DeleteAutoScalingGroup operation is
+    in progress.
+    """
     Tags: Optional[List["TagDescription"]] = None
-    #: The termination policies for the group.
+    """
+    The tags for the group.
+    """
     TerminationPolicies: Optional[List[str]] = None
-    #: Indicates whether newly launched instances are protected from termination by
-    #: Amazon EC2 Auto Scaling when scaling in.
+    """
+    The termination policies for the group.
+    """
     NewInstancesProtectedFromScaleIn: Optional[bool] = None
-    #: The Amazon Resource Name (ARN) of the service-linked role that the Auto Scaling
-    #: group uses to call other Amazon Web Services on your behalf.
+    """
+    Indicates whether newly launched instances are protected from termination
+    by Amazon EC2 Auto Scaling when scaling in.
+    """
     ServiceLinkedRoleARN: Optional[str] = None
-    #: The maximum amount of time, in seconds, that an instance can be in service.
+    """
+    The Amazon Resource Name (ARN) of the service-linked role that the Auto
+    Scaling group uses to call other Amazon Web Services on your behalf.
+    """
     MaxInstanceLifetime: Optional[int] = None
-    #: Indicates whether Capacity Rebalancing is enabled.
+    """
+    The maximum amount of time, in seconds, that an instance can be in service.
+    """
     CapacityRebalance: Optional[bool] = None
-    #: The warm pool for the group.
+    """
+    Indicates whether Capacity Rebalancing is enabled.
+    """
     WarmPoolConfiguration: AutoScalingWarmPoolConfiguration = Field(
         default=None, frozen=True
     )
-    #: The current size of the warm pool.
+    """
+    The warm pool for the group.
+    """
     WarmPoolSize: int = Field(default=None, frozen=True)
-    #: Reserved.
+    """
+    The current size of the warm pool.
+    """
     Context: Optional[str] = None
-    #: The unit of measurement for the value specified for desired capacity. Amazon
-    #: EC2 Auto Scaling supports ``DesiredCapacityType`` for attribute-based instance
-    #: type selection only.
+    """
+    Reserved.
+    """
     DesiredCapacityType: Optional[str] = None
-    #: The duration of the default instance warmup, in seconds.
+    """
+    The unit of measurement for the value specified for desired capacity.
+
+    Amazon
+    EC2 Auto Scaling supports ``DesiredCapacityType`` for attribute-based instance
+    type selection only.
+    """
     DefaultInstanceWarmup: Optional[int] = None
-    #: The traffic sources associated with this Auto Scaling group.
+    """
+    The duration of the default instance warmup, in seconds.
+    """
     TrafficSources: Optional[List["TrafficSourceIdentifier"]] = None
-    #: An instance maintenance policy.
+    """
+    The traffic sources associated with this Auto Scaling group.
+    """
     InstanceMaintenancePolicy: Optional[AutoScalingInstanceMaintenancePolicy] = None
+    """
+    An instance maintenance policy.
+    """
 
     @property
     def pk(self) -> Optional[str]:
@@ -1040,6 +1343,13 @@ class AutoScalingGroup(TagsDictMixin, AutoScalingGroupModelMixin, PrimaryBoto3Mo
         """
         Return the :py:class:`LaunchConfiguration` object that this group uses,
         if any.
+
+        .. note::
+
+            The output of this property is cached on the model instance, so
+            calling this multiple times will not result in multiple calls to the
+            AWS API.   If you need a fresh copy of the data, you can re-get the
+            model instance from the manager.
         """
 
         try:
@@ -1057,6 +1367,13 @@ class AutoScalingGroup(TagsDictMixin, AutoScalingGroupModelMixin, PrimaryBoto3Mo
         """
         Return the :py:class:`LaunchTemplate` object that this group uses, if
         any.
+
+        .. note::
+
+            The output of this property is cached on the model instance, so
+            calling this multiple times will not result in multiple calls to the
+            AWS API.   If you need a fresh copy of the data, you can re-get the
+            model instance from the manager.
         """
 
         try:
@@ -1076,33 +1393,56 @@ class EbsMapping(Boto3Model):
     Information to attach an EBS volume to an instance at launch.
     """
 
-    #: The snapshot ID of the volume to use.
     SnapshotId: Optional[str] = None
-    #: The volume size, in GiBs. The following are the supported volumes sizes for
-    #: each volume type:
+    """
+    The snapshot ID of the volume to use.
+    """
     VolumeSize: Optional[int] = None
-    #: The volume type. For more information, see `Amazon EBS volume types
-    #: <https://docs.aws.amazon.com/ebs/latest/userguide/ebs-volume-types.html>`_ in
-    #: the *Amazon EBS User Guide*.
+    """
+    The volume size, in GiBs.
+
+    The following are the supported volumes sizes for
+    each volume type:
+    """
     VolumeType: Optional[str] = None
-    #: Indicates whether the volume is deleted on instance termination. For Amazon EC2
-    #: Auto Scaling, the default value is ``true``.
+    """
+    The volume type.
+
+    For more information, see
+    `Amazon EBS volume types <https://docs.aws.amazon.com/ebs/latest/userguide/ebs-volume-types.html>`_
+    in the *Amazon EBS User Guide*.
+    """
     DeleteOnTermination: Optional[bool] = None
-    #: The number of input/output (I/O) operations per second (IOPS) to provision for
-    #: the volume. For ``gp3`` and ``io1`` volumes, this represents the number of IOPS
-    #: that are provisioned for the volume. For ``gp2`` volumes, this represents the
-    #: baseline performance of the volume and the rate at which the volume accumulates
-    #: I/O credits for bursting.
+    """
+    Indicates whether the volume is deleted on instance termination.
+
+    For Amazon EC2
+    Auto Scaling, the default value is ``true``.
+    """
     Iops: Optional[int] = None
-    #: Specifies whether the volume should be encrypted. Encrypted EBS volumes can
-    #: only be attached to instances that support Amazon EBS encryption. For more
-    #: information, see `Requirements for Amazon EBS encryption
-    #: <https://docs.aws.amazon.com/ebs/latest/userguide/ebs-encryption-
-    #: requirements.html>`_ in the *Amazon EBS User Guide*. If your AMI uses encrypted
-    #: volumes, you can also only launch it on supported instance types.
+    """
+    The number of input/output (I/O) operations per second (IOPS) to provision
+    for the volume.
+
+    For ``gp3`` and ``io1`` volumes, this represents the number of IOPS
+    that are provisioned for the volume. For ``gp2`` volumes, this represents the
+    baseline performance of the volume and the rate at which the volume accumulates
+    I/O credits for bursting.
+    """
     Encrypted: Optional[bool] = None
-    #: The throughput (MiBps) to provision for a ``gp3`` volume.
+    """
+    Specifies whether the volume should be encrypted.
+
+    Encrypted EBS volumes can only be attached to instances that support Amazon
+    EBS encryption. For more information, see
+    `Requirements for Amazon EBS encryption <https://docs.aws.amazon.com/ebs/latest/userguide/ebs-encryption-
+    requirements.html>`_ in the *Amazon EBS User Guide*. If your AMI uses encrypted
+    volumes, you can also only launch it on supported instance types.
+    """
     Throughput: Optional[int] = None
+    """
+    The throughput (MiBps) to provision for a ``gp3`` volume.
+    """
 
 
 class AutoScalingBlockDeviceMapping(Boto3Model):
@@ -1110,21 +1450,33 @@ class AutoScalingBlockDeviceMapping(Boto3Model):
     Describes a block device mapping.
     """
 
-    #: The name of the instance store volume (virtual device) to attach to an instance
-    #: at launch. The name must be in the form ephemeral*X* where *X* is a number
-    #: starting from zero (0), for example, ``ephemeral0``.
     VirtualName: Optional[str] = None
-    #: The device name assigned to the volume (for example, ``/dev/sdh`` or ``xvdh``).
-    #: For more information, see `Device naming on Linux instances <https://docs.aws.a
-    #: mazon.com/AWSEC2/latest/UserGuide/device_naming.html>`_ in the *Amazon EC2 User
-    #: Guide for Linux Instances*.
+    """
+    The name of the instance store volume (virtual device) to attach to an
+    instance at launch.
+
+    The name must be in the form ephemeral*X* where *X* is a number
+    starting from zero (0), for example, ``ephemeral0``.
+    """
     DeviceName: str
-    #: Information to attach an EBS volume to an instance at launch.
+    """
+    The device name assigned to the volume (for example, ``/dev/sdh`` or
+    ``xvdh``).
+
+    For more information, see `Device naming on Linux instances <https://docs.aws.a
+    mazon.com/AWSEC2/latest/UserGuide/device_naming.html>`_ in the *Amazon EC2 User
+    Guide for Linux Instances*.
+    """
     Ebs: Optional[EbsMapping] = None
-    #: Setting this value to ``true`` prevents a volume that is included in the block
-    #: device mapping of the AMI from being mapped to the specified device name at
-    #: launch.
+    """
+    Information to attach an EBS volume to an instance at launch.
+    """
     NoDevice: Optional[bool] = None
+    """
+    Setting this value to ``true`` prevents a volume that is included in the
+    block device mapping of the AMI from being mapped to the specified device
+    name at launch.
+    """
 
 
 class AutoScalingInstanceMonitoring(Boto3Model):
@@ -1137,9 +1489,12 @@ class AutoScalingInstanceMonitoring(Boto3Model):
     instance-metrics.html>`_ in the *Amazon EC2 Auto Scaling User Guide*.
     """
 
-    #: If ``true``, detailed monitoring is enabled. Otherwise, basic monitoring is
-    #: enabled.
     Enabled: Optional[bool] = None
+    """
+    If ``true``, detailed monitoring is enabled.
+
+    Otherwise, basic monitoring is enabled.
+    """
 
 
 class InstanceMetadataOptions(Boto3Model):
@@ -1152,15 +1507,26 @@ class InstanceMetadataOptions(Boto3Model):
     Guide*.
     """
 
-    #: The state of token usage for your instance metadata requests. If the parameter
-    #: is not specified in the request, the default state is ``optional``.
     HttpTokens: Optional[Literal["optional", "required"]] = None
-    #: The desired HTTP PUT response hop limit for instance metadata requests. The
-    #: larger the number, the further instance metadata requests can travel.
+    """
+    The state of token usage for your instance metadata requests.
+
+    If the parameter
+    is not specified in the request, the default state is ``optional``.
+    """
     HttpPutResponseHopLimit: Optional[int] = None
-    #: This parameter enables or disables the HTTP metadata endpoint on your
-    #: instances. If the parameter is not specified, the default state is ``enabled``.
+    """
+    The desired HTTP PUT response hop limit for instance metadata requests.
+
+    The larger the number, the further instance metadata requests can travel.
+    """
     HttpEndpoint: Optional[Literal["disabled", "enabled"]] = None
+    """
+    This parameter enables or disables the HTTP metadata endpoint on your
+    instances.
+
+    If the parameter is not specified, the default state is ``enabled``.
+    """
 
 
 class LaunchConfiguration(PrimaryBoto3Model):
@@ -1170,95 +1536,152 @@ class LaunchConfiguration(PrimaryBoto3Model):
 
     objects: ClassVar[Boto3ModelManager] = LaunchConfigurationManager()
 
-    #: The name of the launch configuration.
     LaunchConfigurationName: str
-    #: The Amazon Resource Name (ARN) of the launch configuration.
+    """
+    The name of the launch configuration.
+    """
     LaunchConfigurationARN: str = Field(default=None, frozen=True)
-    #: The ID of the Amazon Machine Image (AMI) to use to launch your EC2 instances.
-    #: For more information, see `Find a Linux AMI
-    #: <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/finding-an-ami.html>`_ in
-    #: the *Amazon EC2 User Guide for Linux Instances*.
+    """
+    The Amazon Resource Name (ARN) of the launch configuration.
+    """
     ImageId: str
-    #: The name of the key pair.
+    """
+    The ID of the Amazon Machine Image (AMI) to use to launch your EC2
+    instances.
+
+    For more information, see
+    `Find a Linux AMI <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/finding-an-ami.html>`_
+    in the *Amazon EC2 User Guide for Linux Instances*.
+    """
     KeyName: Optional[str] = None
-    #: A list that contains the security groups to assign to the instances in the Auto
-    #: Scaling group. For more information, see `Control traffic to your Amazon Web
-    #: Services resources using security groups
-    #: <https://docs.aws.amazon.com/vpc/latest/userguide/vpc-security- groups.html>`_
-    #: in the *Amazon Virtual Private Cloud User Guide*.
+    """
+    The name of the key pair.
+    """
     SecurityGroups: Optional[List[str]] = None
-    #: Available for backward compatibility.
+    """
+    A list that contains the security groups to assign to the instances in the
+    Auto Scaling group.
+
+    For more information, see
+    `Control traffic to your Amazon Web Services resources using security groups <https://docs.aws.amazon.com/vpc/latest/userguide/vpc-security-
+    groups.html>`_ in the *Amazon Virtual Private Cloud User Guide*.
+    """
     ClassicLinkVPCId: Optional[str] = None
-    #: Available for backward compatibility.
+    """
+    Available for backward compatibility.
+    """
     ClassicLinkVPCSecurityGroups: Optional[List[str]] = None
-    #: The user data to make available to the launched EC2 instances. For more
-    #: information, see `Instance metadata and user data
-    #: <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-instance-
-    #: metadata.html>`_ (Linux) and `Instance metadata and user data
-    #: <https://docs.aws.amazon.com/AWSEC2/latest/WindowsGuide/ec2-instance-
-    #: metadata.html>`_ (Windows). If you are using a command line tool,
-    #: base64-encoding is performed for you, and you can load the text from a file.
-    #: Otherwise, you must provide base64-encoded text. User data is limited to 16 KB.
+    """
+    Available for backward compatibility.
+    """
     UserData: Optional[str] = None
-    #: The instance type for the instances. For information about available instance
-    #: types, see `Available instance types
-    #: <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/instance-
-    #: types.html#AvailableInstanceTypes>`_ in the *Amazon EC2 User Guide for Linux
-    #: Instances*.
+    """
+    The user data to make available to the launched EC2 instances.
+
+    For more information, see
+    `Instance metadata and user data <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-instance-
+     metadata.html>`_ (Linux) and
+    `Instance metadata and user data <https://docs.aws.amazon.com/AWSEC2/latest/WindowsGuide/ec2-instance-
+    metadata.html>`_ (Windows). If you are using a command line tool, base64-encoding
+    is performed for you, and you can load the text from a file. Otherwise, you
+    must provide base64-encoded text. User data is limited to 16 KB.
+    """
     InstanceType: str
-    #: The ID of the kernel associated with the AMI.
+    """
+    The instance type for the instances.
+
+    For information about available instance types, see
+    `Available instance types <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/instance-
+    types.html#AvailableInstanceTypes>`_ in the *Amazon EC2 User Guide for Linux
+    Instances*.
+    """
     KernelId: Optional[str] = None
-    #: The ID of the RAM disk associated with the AMI.
+    """
+    The ID of the kernel associated with the AMI.
+    """
     RamdiskId: Optional[str] = None
-    #: The block device mapping entries that define the block devices to attach to the
-    #: instances at launch. By default, the block devices specified in the block
-    #: device mapping for the AMI are used. For more information, see `Block device
-    #: mappings <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/block-device-
-    #: mapping-concepts.html>`_ in the *Amazon EC2 User Guide for Linux Instances*.
+    """
+    The ID of the RAM disk associated with the AMI.
+    """
     BlockDeviceMappings: Optional[List["AutoScalingBlockDeviceMapping"]] = None
-    #: Controls whether instances in this group are launched with detailed (``true``)
-    #: or basic (``false``) monitoring.
+    """
+    The block device mapping entries that define the block devices to attach to
+    the instances at launch.
+
+    By default, the block devices specified in the block device mapping for the
+    AMI are used. For more information, see
+    `Block device mappings <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/block-device-
+    mapping-concepts.html>`_ in the *Amazon EC2 User Guide for Linux Instances*.
+    """
     InstanceMonitoring: Optional[AutoScalingInstanceMonitoring] = None
-    #: The maximum hourly price to be paid for any Spot Instance launched to fulfill
-    #: the request. Spot Instances are launched when the price you specify exceeds the
-    #: current Spot price. For more information, see `Requesting Spot Instances for
-    #: fault-tolerant and flexible applications
-    #: <https://docs.aws.amazon.com/autoscaling/ec2/userguide/launch- template-spot-
-    #: instances.html>`_ in the *Amazon EC2 Auto Scaling User Guide*.
+    """
+    Controls whether instances in this group are launched with detailed
+    (``true``) or basic (``false``) monitoring.
+    """
     SpotPrice: Optional[str] = None
-    #: The name or the Amazon Resource Name (ARN) of the instance profile associated
-    #: with the IAM role for the instance. The instance profile contains the IAM role.
-    #: For more information, see `IAM role for applications that run on Amazon EC2
-    #: instances <https://docs.aws.amazon.com/autoscaling/ec2/userguide/us-iam-
-    #: role.html>`_ in the *Amazon EC2 Auto Scaling User Guide*.
+    """
+    The maximum hourly price to be paid for any Spot Instance launched to
+    fulfill the request.
+
+    Spot Instances are launched when the price you specify exceeds the
+    current Spot price. For more information, see `Requesting Spot Instances for
+    fault-tolerant and flexible
+    applications <https://docs.aws.amazon.com/autoscaling/ec2/userguide/launch-
+    template-spot-instances.html>`_ in the *Amazon EC2 Auto Scaling User Guide*.
+    """
     IamInstanceProfile: Optional[str] = None
-    #: The creation date and time for the launch configuration.
+    """
+    The name or the Amazon Resource Name (ARN) of the instance profile
+    associated with the IAM role for the instance.
+
+    The instance profile contains the IAM role. For more information, see
+    `IAM role for applications that run on Amazon EC2 instances <https://docs.aws.amazon.com/autoscaling/ec2/userguide/us-iam-
+    role.html>`_ in the *Amazon EC2 Auto Scaling User Guide*.
+    """
     CreatedTime: datetime = Field(frozen=True)
-    #: Specifies whether the launch configuration is optimized for EBS I/O (``true``)
-    #: or not (``false``). For more information, see `Amazon EBS-optimized instances
-    #: <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ebs- optimized.html>`_ in
-    #: the *Amazon EC2 User Guide for Linux Instances*.
+    """
+    The creation date and time for the launch configuration.
+    """
     EbsOptimized: Optional[bool] = None
-    #: Specifies whether to assign a public IPv4 address to the group's instances. If
-    #: the instance is launched into a default subnet, the default is to assign a
-    #: public IPv4 address, unless you disabled the option to assign a public IPv4
-    #: address on the subnet. If the instance is launched into a nondefault subnet,
-    #: the default is not to assign a public IPv4 address, unless you enabled the
-    #: option to assign a public IPv4 address on the subnet. For more information, see
-    #: `Provide network connectivity for your Auto Scaling instances using Amazon VPC
-    #: <https://docs.aws.amazon.com/autoscaling/ec2/userguide/asg-in-vpc.html>`_ in
-    #: the *Amazon EC2 Auto Scaling User Guide*.
+    """
+    Specifies whether the launch configuration is optimized for EBS I/O
+    (``true``) or not (``false``).
+
+    For more information, see `Amazon EBS-optimized
+    instances <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ebs-
+    optimized.html>`_ in the *Amazon EC2 User Guide for Linux Instances*.
+    """
     AssociatePublicIpAddress: Optional[bool] = None
-    #: The tenancy of the instance, either ``default`` or ``dedicated``. An instance
-    #: with ``dedicated`` tenancy runs on isolated, single-tenant hardware and can
-    #: only be launched into a VPC.
+    """
+    Specifies whether to assign a public IPv4 address to the group's instances.
+
+    If the instance is launched into a default subnet, the default is to assign
+    a public IPv4 address, unless you disabled the option to assign a public
+    IPv4 address on the subnet. If the instance is launched into a nondefault
+    subnet, the default is not to assign a public IPv4 address, unless you
+    enabled the option to assign a public IPv4 address on the subnet. For more
+    information, see
+    `Provide network connectivity for your Auto Scaling instances using Amazon VPC <https://docs.aws.amazon.com/autoscaling/ec2/userguide/asg-in-vpc.html>`_
+    in
+    the *Amazon EC2 Auto Scaling User Guide*.
+    """
     PlacementTenancy: Optional[str] = None
-    #: The metadata options for the instances. For more information, see `Configure
-    #: the instance metadata options
-    #: <https://docs.aws.amazon.com/autoscaling/ec2/userguide/create-launch-
-    #: config.html#launch-configurations-imds>`_ in the *Amazon EC2 Auto Scaling User
-    #: Guide*.
+    """
+    The tenancy of the instance, either ``default`` or ``dedicated``.
+
+    An instance
+    with ``dedicated`` tenancy runs on isolated, single-tenant hardware and can
+    only be launched into a VPC.
+    """
     MetadataOptions: Optional[InstanceMetadataOptions] = None
+    """
+    The metadata options for the instances.
+
+    For more information, see
+    `Configure the instance metadata options <https://docs.aws.amazon.com/autoscaling/ec2/userguide/create-launch-
+    config.html#launch-configurations-imds>`_ in the *Amazon EC2 Auto Scaling User
+    Guide*.
+    """
 
     @property
     def pk(self) -> Optional[str]:
@@ -1309,41 +1732,69 @@ class LifecycleHookSpecification(Boto3Model):
     hooks.html>`_ in the *Amazon EC2 Auto Scaling User Guide*.
     """
 
-    #: The name of the lifecycle hook.
     LifecycleHookName: str
-    #: The lifecycle transition. For Auto Scaling groups, there are two major
-    #: lifecycle transitions.
+    """
+    The name of the lifecycle hook.
+    """
     LifecycleTransition: str
-    #: Additional information that you want to include any time Amazon EC2 Auto
-    #: Scaling sends a message to the notification target.
+    """
+    The lifecycle transition.
+
+    For Auto Scaling groups, there are two major lifecycle transitions.
+    """
     NotificationMetadata: Optional[str] = None
-    #: The maximum time, in seconds, that can elapse before the lifecycle hook times
-    #: out. The range is from ``30`` to ``7200`` seconds. The default value is
-    #: ``3600`` seconds (1 hour).
+    """
+    Additional information that you want to include any time Amazon EC2 Auto
+    Scaling sends a message to the notification target.
+    """
     HeartbeatTimeout: Optional[int] = None
-    #: The action the Auto Scaling group takes when the lifecycle hook timeout elapses
-    #: or if an unexpected failure occurs. The default value is ``ABANDON``.
+    """
+    The maximum time, in seconds, that can elapse before the lifecycle hook
+    times out.
+
+    The range is from ``30`` to ``7200`` seconds. The default value is
+    ``3600`` seconds (1 hour).
+    """
     DefaultResult: Optional[str] = None
-    #: The Amazon Resource Name (ARN) of the notification target that Amazon EC2 Auto
-    #: Scaling sends notifications to when an instance is in a wait state for the
-    #: lifecycle hook. You can specify an Amazon SNS topic or an Amazon SQS queue.
+    """
+    The action the Auto Scaling group takes when the lifecycle hook timeout
+    elapses or if an unexpected failure occurs.
+
+    The default value is ``ABANDON``.
+    """
     NotificationTargetARN: Optional[str] = None
-    #: The ARN of the IAM role that allows the Auto Scaling group to publish to the
-    #: specified notification target. For information about creating this role, see
-    #: `Prepare to add a lifecycle hook to your Auto Scaling group
-    #: <https://docs.aws.amazon.com/autoscaling/ec2/userguide/prepare-for- lifecycle-
-    #: notifications.html>`_ in the *Amazon EC2 Auto Scaling User Guide*.
+    """
+    The Amazon Resource Name (ARN) of the notification target that Amazon EC2
+    Auto Scaling sends notifications to when an instance is in a wait state for
+    the lifecycle hook.
+
+    You can specify an Amazon SNS topic or an Amazon SQS queue.
+    """
     RoleARN: Optional[str] = None
+    """
+    The ARN of the IAM role that allows the Auto Scaling group to publish to
+    the specified notification target.
+
+    For information about creating this role, see
+    `Prepare to add a lifecycle hook to your Auto Scaling group <https://docs.aws.amazon.com/autoscaling/ec2/userguide/prepare-for-
+    lifecycle-notifications.html>`_ in the *Amazon EC2 Auto Scaling User Guide*.
+    """
 
 
 class AutoScalingGroupsType(Boto3Model):
-    #: The groups.
     AutoScalingGroups: List["AutoScalingGroup"]
-    #: A string that indicates that the response contains more items than can be
-    #: returned in a single response. To receive additional items, specify this string
-    #: for the ``NextToken`` value when requesting the next set of items. This value
-    #: is null when there are no more items to return.
+    """
+    The groups.
+    """
     NextToken: Optional[str] = None
+    """
+    A string that indicates that the response contains more items than can be
+    returned in a single response.
+
+    To receive additional items, specify this string
+    for the ``NextToken`` value when requesting the next set of items. This value
+    is null when there are no more items to return.
+    """
 
 
 class AutoScalingInstanceDetails(Boto3Model):
@@ -1351,52 +1802,90 @@ class AutoScalingInstanceDetails(Boto3Model):
     Describes an EC2 instance associated with an Auto Scaling group.
     """
 
-    #: The ID of the instance.
     InstanceId: str
-    #: The instance type of the EC2 instance.
+    """
+    The ID of the instance.
+    """
     InstanceType: Optional[str] = None
-    #: The name of the Auto Scaling group for the instance.
+    """
+    The instance type of the EC2 instance.
+    """
     AutoScalingGroupName: str
-    #: The Availability Zone for the instance.
+    """
+    The name of the Auto Scaling group for the instance.
+    """
     AvailabilityZone: str
-    #: The lifecycle state for the instance. The ``Quarantined`` state is not used.
-    #: For more information, see `Amazon EC2 Auto Scaling instance lifecycle
-    #: <https://docs.aws.amazon.com/autoscaling/ec2/userguide/ec2-auto- scaling-
-    #: lifecycle.html>`_ in the *Amazon EC2 Auto Scaling User Guide*.
+    """
+    The Availability Zone for the instance.
+    """
     LifecycleState: str
-    #: The last reported health status of this instance. ``Healthy`` means that the
-    #: instance is healthy and should remain in service. ``Unhealthy`` means that the
-    #: instance is unhealthy and Amazon EC2 Auto Scaling should terminate and replace
-    #: it.
+    """
+    The lifecycle state for the instance.
+
+    The ``Quarantined`` state is not used.
+    For more information, see `Amazon EC2 Auto Scaling instance
+    lifecycle <https://docs.aws.amazon.com/autoscaling/ec2/userguide/ec2-auto-
+    scaling-lifecycle.html>`_ in the *Amazon EC2 Auto Scaling User Guide*.
+    """
     HealthStatus: str
-    #: The launch configuration used to launch the instance. This value is not
-    #: available if you attached the instance to the Auto Scaling group.
+    """
+    The last reported health status of this instance.
+
+    ``Healthy`` means that the
+    instance is healthy and should remain in service. ``Unhealthy`` means that the
+    instance is unhealthy and Amazon EC2 Auto Scaling should terminate and replace
+    it.
+    """
     LaunchConfigurationName: Optional[str] = None
-    #: The launch template for the instance.
+    """
+    The launch configuration used to launch the instance.
+
+    This value is not available if you attached the instance to the Auto
+    Scaling group.
+    """
     LaunchTemplate: Optional[AutoScalingLaunchTemplateSpecification] = None
-    #: Indicates whether the instance is protected from termination by Amazon EC2 Auto
-    #: Scaling when scaling in.
+    """
+    The launch template for the instance.
+    """
     ProtectedFromScaleIn: bool
-    #: The number of capacity units contributed by the instance based on its instance
-    #: type.
+    """
+    Indicates whether the instance is protected from termination by Amazon EC2
+    Auto Scaling when scaling in.
+    """
     WeightedCapacity: Optional[str] = None
+    """
+    The number of capacity units contributed by the instance based on its
+    instance type.
+    """
 
 
 class AutoScalingInstancesType(Boto3Model):
-    #: The instances.
     AutoScalingInstances: Optional[List["AutoScalingInstanceDetails"]] = None
-    #: A string that indicates that the response contains more items than can be
-    #: returned in a single response. To receive additional items, specify this string
-    #: for the ``NextToken`` value when requesting the next set of items. This value
-    #: is null when there are no more items to return.
+    """
+    The instances.
+    """
     NextToken: Optional[str] = None
+    """
+    A string that indicates that the response contains more items than can be
+    returned in a single response.
+
+    To receive additional items, specify this string
+    for the ``NextToken`` value when requesting the next set of items. This value
+    is null when there are no more items to return.
+    """
 
 
 class LaunchConfigurationsType(Boto3Model):
-    #: The launch configurations.
     LaunchConfigurations: List["LaunchConfiguration"]
-    #: A string that indicates that the response contains more items than can be
-    #: returned in a single response. To receive additional items, specify this string
-    #: for the ``NextToken`` value when requesting the next set of items. This value
-    #: is null when there are no more items to return.
+    """
+    The launch configurations.
+    """
     NextToken: Optional[str] = None
+    """
+    A string that indicates that the response contains more items than can be
+    returned in a single response.
+
+    To receive additional items, specify this string
+    for the ``NextToken`` value when requesting the next set of items. This value
+    is null when there are no more items to return.
+    """

@@ -144,3 +144,11 @@ secondary:
     alternate_name: TargetHealthInfo
   AnomalyDetection:
     alternate_name: AnomalyDetectionInfo
+  RuleCondition:
+    fields:
+      Field:
+        rename: FieldName
+  Action:
+    fields:
+      Type:
+        rename: ActionType

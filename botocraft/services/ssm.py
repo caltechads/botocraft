@@ -5,10 +5,9 @@
 from datetime import datetime
 from typing import Any, ClassVar, Dict, List, Literal, Optional, Type, cast
 
-from pydantic import Field
-
 from botocraft.mixins.tags import TagsDictMixin
 from botocraft.services.common import Tag
+from pydantic import Field
 
 from .abstract import (Boto3Model, Boto3ModelManager, PrimaryBoto3Model,
                        ReadonlyBoto3Model, ReadonlyBoto3ModelManager,
@@ -225,29 +224,55 @@ class Parameter(PrimaryBoto3Model):
 
     objects: ClassVar[Boto3ModelManager] = ParameterManager()
 
-    #: The name of the parameter.
     Name: str
-    #: The parameter value.
+    """
+    The name of the parameter.
+    """
     Value: Optional[str] = None
-    #: The type of parameter. Valid values include the following: ``String``,
-    #: ``StringList``, and ``SecureString``.
+    """
+    The parameter value.
+    """
     Type: Literal["String", "StringList", "SecureString"]
-    #: The data type of the parameter, such as ``text`` or ``aws:ec2:image``. The
-    #: default is ``text``.
+    """
+    The type of parameter.
+
+    Valid values include the following: ``String``,
+    ``StringList``, and ``SecureString``.
+    """
     DataType: Optional[str] = "text"
-    #: The parameter version.
+    """
+    The data type of the parameter, such as ``text`` or ``aws:ec2:image``.
+
+    The
+    default is ``text``.
+    """
     Version: int = Field(default=None, frozen=True)
-    #: Either the version number or the label used to retrieve the parameter value.
-    #: Specify selectors by using one of the following formats:
+    """
+    The parameter version.
+    """
     Selector: str = Field(default=None, frozen=True)
-    #: Applies to parameters that reference information in other Amazon Web Services
-    #: services. ``SourceResult`` is the raw result or response from the source.
+    """
+    Either the version number or the label used to retrieve the parameter
+    value.
+
+    Specify selectors by using one of the following formats:
+    """
     SourceResult: str = Field(default=None, frozen=True)
-    #: Date the parameter was last changed or updated and the parameter version was
-    #: created.
+    """
+    Applies to parameters that reference information in other Amazon Web
+    Services services.
+
+    ``SourceResult`` is the raw result or response from the source.
+    """
     LastModifiedDate: datetime = Field(default=None, frozen=True)
-    #: The Amazon Resource Name (ARN) of the parameter.
+    """
+    Date the parameter was last changed or updated and the parameter version
+    was created.
+    """
     ARN: str = Field(default=None, frozen=True)
+    """
+    The Amazon Resource Name (ARN) of the parameter.
+    """
 
     @property
     def pk(self) -> Optional[str]:
@@ -289,23 +314,32 @@ class Parameter(PrimaryBoto3Model):
 
 
 class PutParameterResult(Boto3Model):
-    #: The new version number of a parameter. If you edit a parameter value, Parameter
-    #: Store automatically creates a new version and assigns this new version a unique
-    #: ID. You can reference a parameter version ID in API operations or in Systems
-    #: Manager documents (SSM documents). By default, if you don't specify a specific
-    #: version, the system returns the latest parameter value when a parameter is
-    #: called.
     Version: Optional[int] = None
-    #: The tier assigned to the parameter.
+    """
+    The new version number of a parameter.
+
+    If you edit a parameter value, Parameter Store automatically creates a new
+    version and assigns this new version a unique ID. You can reference a
+    parameter version ID in API operations or in Systems Manager documents (SSM
+    documents). By default, if you don't specify a specific version, the system
+    returns the latest parameter value when a parameter is called.
+    """
     Tier: Optional[Literal["Standard", "Advanced", "Intelligent-Tiering"]] = None
+    """
+    The tier assigned to the parameter.
+    """
 
 
 class GetParametersResult(Boto3Model):
-    #: A list of details for a parameter.
     Parameters: Optional[List["Parameter"]] = None
-    #: A list of parameters that aren't formatted correctly or don't run during an
-    #: execution.
+    """
+    A list of details for a parameter.
+    """
     InvalidParameters: Optional[List[str]] = None
+    """
+    A list of parameters that aren't formatted correctly or don't run during an
+    execution.
+    """
 
 
 class ParametersFilter(Boto3Model):
@@ -315,10 +349,14 @@ class ParametersFilter(Boto3Model):
     Instead, use ParameterStringFilter.
     """
 
-    #: The name of the filter.
     Key: Literal["Name", "Type", "KeyId"]
-    #: The filter values.
+    """
+    The name of the filter.
+    """
     Values: List[str]
+    """
+    The filter values.
+    """
 
 
 class ParameterStringFilter(Boto3Model):
@@ -328,15 +366,23 @@ class ParameterStringFilter(Boto3Model):
     Use a filter to return a more specific list of results.
     """
 
-    #: The name of the filter.
     Key: str
-    #: For all filters used with DescribeParameters, valid options include ``Equals``
-    #: and ``BeginsWith``. The ``Name`` filter additionally supports the ``Contains``
-    #: option. (Exception: For filters using the key ``Path``, valid options include
-    #: ``Recursive`` and ``OneLevel``.)
+    """
+    The name of the filter.
+    """
     Option: Optional[str] = None
-    #: The value you want to search for.
+    """
+    For all filters used with DescribeParameters, valid options include
+    ``Equals`` and ``BeginsWith``.
+
+    The ``Name`` filter additionally supports the ``Contains``
+    option. (Exception: For filters using the key ``Path``, valid options include
+    ``Recursive`` and ``OneLevel``.)
+    """
     Values: Optional[List[str]] = None
+    """
+    The value you want to search for.
+    """
 
 
 class ParameterInlinePolicy(Boto3Model):
@@ -344,17 +390,27 @@ class ParameterInlinePolicy(Boto3Model):
     One or more policies assigned to a parameter.
     """
 
-    #: The JSON text of the policy.
     PolicyText: Optional[str] = None
-    #: The type of policy. Parameter Store, a capability of Amazon Web Services
-    #: Systems Manager, supports the following policy types: Expiration,
-    #: ExpirationNotification, and NoChangeNotification.
+    """
+    The JSON text of the policy.
+    """
     PolicyType: Optional[str] = None
-    #: The status of the policy. Policies report the following statuses: Pending (the
-    #: policy hasn't been enforced or applied yet), Finished (the policy was applied),
-    #: Failed (the policy wasn't applied), or InProgress (the policy is being applied
-    #: now).
+    """
+    The type of policy.
+
+    Parameter Store, a capability of Amazon Web Services Systems Manager,
+    supports the following policy types: Expiration, ExpirationNotification,
+    and NoChangeNotification.
+    """
     PolicyStatus: Optional[str] = None
+    """
+    The status of the policy.
+
+    Policies report the following statuses: Pending (the
+    policy hasn't been enforced or applied yet), Finished (the policy was applied),
+    Failed (the policy wasn't applied), or InProgress (the policy is being applied
+    now).
+    """
 
 
 class ParameterMetadata(Boto3Model):
@@ -364,41 +420,75 @@ class ParameterMetadata(Boto3Model):
     last used.
     """
 
-    #: The parameter name.
     Name: Optional[str] = None
-    #: The (ARN) of the last user to update the parameter.
+    """
+    The parameter name.
+    """
     ARN: Optional[str] = None
-    #: The type of parameter. Valid parameter types include the following: ``String``,
-    #: ``StringList``, and ``SecureString``.
+    """
+    The (ARN) of the last user to update the parameter.
+    """
     Type: Optional[Literal["String", "StringList", "SecureString"]] = None
-    #: The alias of the Key Management Service (KMS) key used to encrypt the
-    #: parameter. Applies to ``SecureString`` parameters only.
+    """
+    The type of parameter.
+
+    Valid parameter types include the following: ``String``,
+    ``StringList``, and ``SecureString``.
+    """
     KeyId: Optional[str] = None
-    #: Date the parameter was last changed or updated.
+    """
+    The alias of the Key Management Service (KMS) key used to encrypt the
+    parameter.
+
+    Applies to ``SecureString`` parameters only.
+    """
     LastModifiedDate: Optional[datetime] = None
-    #: Amazon Resource Name (ARN) of the Amazon Web Services user who last changed the
-    #: parameter.
+    """
+    Date the parameter was last changed or updated.
+    """
     LastModifiedUser: Optional[str] = None
-    #: Description of the parameter actions.
+    """
+    Amazon Resource Name (ARN) of the Amazon Web Services user who last changed
+    the parameter.
+    """
     Description: Optional[str] = None
-    #: A parameter name can include only the following letters and symbols.
+    """
+    Description of the parameter actions.
+    """
     AllowedPattern: Optional[str] = None
-    #: The parameter version.
+    """
+    A parameter name can include only the following letters and symbols.
+    """
     Version: Optional[int] = None
-    #: The parameter tier.
+    """
+    The parameter version.
+    """
     Tier: Optional[Literal["Standard", "Advanced", "Intelligent-Tiering"]] = None
-    #: A list of policies associated with a parameter.
+    """
+    The parameter tier.
+    """
     Policies: Optional[List["ParameterInlinePolicy"]] = None
-    #: The data type of the parameter, such as ``text`` or ``aws:ec2:image``. The
-    #: default is ``text``.
+    """
+    A list of policies associated with a parameter.
+    """
     DataType: Optional[str] = None
+    """
+    The data type of the parameter, such as ``text`` or ``aws:ec2:image``.
+
+    The
+    default is ``text``.
+    """
 
 
 class DescribeParametersResult(Boto3Model):
-    #: Parameters returned by the request.
     Parameters: Optional[List["ParameterMetadata"]] = None
-    #: The token to use when requesting the next set of items.
+    """
+    Parameters returned by the request.
+    """
     NextToken: Optional[str] = None
+    """
+    The token to use when requesting the next set of items.
+    """
 
 
 class DeleteParameterResult(Boto3Model):

@@ -1,0 +1,7 @@
+- :doc:`/api/services/autoscaling`
+- :doc:`/api/services/ec2`
+- :doc:`/api/services/ecr`
+- :doc:`/api/services/ecs`
+- :doc:`/api/services/elbv2`
+- :doc:`/api/services/rds`
+- :doc:`/api/services/ssm`

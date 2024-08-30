@@ -1,8 +1,8 @@
 from functools import cached_property
-from typing import Dict, Optional, Any, Union, cast, Type, ClassVar
+from typing import Dict, Optional, Any, Union, cast, Type, TYPE_CHECKING
 
-from botocraft.services.abstract import Boto3Model
-from botocraft.services.common import Tag
+if TYPE_CHECKING:
+    from botocraft.services.abstract import Boto3Model
 
 
 class TagsDict(dict):
@@ -24,7 +24,7 @@ class TagsDict(dict):
 
     def __init__(self, *args, **kwargs) -> None:
         #: The model instance that we are setting tags for.
-        self.instance: Optional[Boto3Model] = None
+        self.instance: Optional["Boto3Model"] = None
         #: The boto3 tag class.  This has to be configurable because once
         #: again boto3 has different tag classes for different services.
         self.tag_class: Optional[Type] = None
@@ -67,7 +67,7 @@ class TagsDict(dict):
         """
         self.check()
         found: bool = False
-        instance = cast(Boto3Model, self.instance)
+        instance = cast("Boto3Model", self.instance)
         if instance.Tags is None:  # type: ignore
             instance.Tags = []  # type: ignore
         for tag in instance.Tags:  # type: ignore
@@ -89,7 +89,7 @@ class TagsDict(dict):
             key: the key to delete.
         """
         self.check()
-        instance = cast(Boto3Model, self.instance)
+        instance = cast("Boto3Model", self.instance)
         for tag in instance.Tags:  # type: ignore
             if getattr(tag, cast(str, self.tag_Key)) == key:
                 instance.Tags.remove(tag)  # type: ignore
@@ -111,7 +111,7 @@ class TagsDict(dict):
             _type_: _description_
         """
         self.check()
-        instance = cast(Boto3Model, self.instance)
+        instance = cast("Boto3Model", self.instance)
         for tag in instance.Tags:  # type: ignore
             if getattr(tag, cast(str, self.tag_Key)) == key:
                 instance.Tags.remove(tag)  # type: ignore
@@ -139,13 +139,21 @@ class TagsDictMixin:
 
     #: The boto3 tag class.  This has to be configurable because once
     #: again boto3 has different tag classes for different services.
-    tag_class: ClassVar[Type] = Tag
+    tag_class: Optional[Type] = None
+
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+        if self.tag_class is None:
+            from botocraft.services.common import Tag  # pylint: disable=import-outside-toplevel
+            self.tag_class = Tag
 
     @cached_property
     def __tag_Key(self) -> str:
         """
         The name of the key attribute in the tag class.
         """
+        assert self.tag_class is not None, \
+            "The tag_class class attribute must be set before using tags."
         instance = self.tag_class()
         candidates = ['key', 'Key']
         for candidate in candidates:
@@ -158,6 +166,8 @@ class TagsDictMixin:
         """
         The name of the value attribute in the tag class.
         """
+        assert self.tag_class is not None, \
+            "The tag_class class attribute must be set before using tags."
         instance = self.tag_class()
         candidates = ['value', 'Value']
         for candidate in candidates:
@@ -182,7 +192,7 @@ class TagsDictMixin:
                 getattr(tag, self.__tag_Key): getattr(tag, self.__tag_Value)
                 for tag in self.Tags
             })
-        _tags.instance = cast(Boto3Model, self)
+        _tags.instance = cast("Boto3Model", self)
         _tags.tag_class = self.tag_class
         _tags.tag_Key = self.__tag_Key
         _tags.tag_Value = self.__tag_Value
@@ -196,6 +206,8 @@ class TagsDictMixin:
         Args:
             value: the tags to set for the model instance.
         """
+        assert self.tag_class is not None, \
+            "The tag_class class attribute must be set before setting tags."
         assert hasattr(self, 'Tags'), \
             f"The {self.__class__.__name__} does not have a Tags attribute."
         self.Tags = []

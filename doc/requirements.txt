@@ -6,6 +6,7 @@ sphinxcontrib-django2                         # https://github.com/timoludwig/sp
 sphinxcontrib-openapi                         # https://github.com/sphinx-contrib/openapi
 sphinxcontrib-jsonglobaltoc                   # https://github.com/caltechads/sphinxcontrib-jsonglobaltoc
 sphinxcontrib-images
+autodoc_pydantic
 # We use our own version of sphinx-terraform that fixes a bug in the
 # the upstream version that has yet to be merged
 git+https://gitlab.com/cmalek1/sphinx-terraform.git

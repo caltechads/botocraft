@@ -1,9 +1,9 @@
 from typing import List, Literal, Optional, TYPE_CHECKING, Callable, cast
 
-from botocraft.services import Tag
 
 if TYPE_CHECKING:
     from botocraft.services import (
+        Tag,
         TagSpecification,
         Instance,
         Reservation,
@@ -107,8 +107,13 @@ ResourceType = Literal[
 # -------------
 
 class EC2TagsManagerMixin:
+    """
+    This mixin is used on on :py:class:`botocraft.services.ec2.InstanceManager`
+    to convert the odd EC2 tag list to a :py:class:`TagSpecification` object.
+    """
+
     def convert_tags(
-        self, tags: Optional[List[Tag]], resource_type: ResourceType
+        self, tags: Optional[List["Tag"]], resource_type: ResourceType
     ) -> Optional["TagSpecification"]:
         """
         Given a TagList, convert it to a TagSpecification with ResourceType of
@@ -129,6 +134,15 @@ class EC2TagsManagerMixin:
 
 
 class SecurityGroupModelMixin:
+    """
+    This mixin is used on :py:class:`botocraft.services.ec2.SecurityGroup` to
+    enhance the ``.save()`` method to allow for managing ingress and egress
+    rules at the same time as saving the security group.
+
+    Normally this is done with several boto3 calls, but this mixin allows for a
+    single call to ``.save()`` to create a security group and manage the rules.
+    """
+
     def save(self, **kwargs):
         """
         Save the model.  For security groups, ingress rules are managed via
@@ -136,6 +150,7 @@ class SecurityGroupModelMixin:
         the ``save`` method will allow the user to create a security group and
         add ingress rules in one step.
         """
+        # FIXME: this needs to be enhanced to handle egress rules as well.
         if not self.pk:
             group_id = self.objects.create(self, **kwargs)
             self.objects.authorize_ingress(group_id, self.IpPermissions, **kwargs)

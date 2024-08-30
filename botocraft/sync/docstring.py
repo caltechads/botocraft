@@ -161,8 +161,12 @@ class DocumentationFormatter:
             The formatted documentation for the attribute as reStructuredText.
         """
         documentation = self.clean(docs, max_lines=1)
-        lines = wrap(documentation, self.max_length)
-        return '\n'.join([f'    #: {line.strip()}' for line in lines])
+        #lines = wrap(documentation, self.max_length)
+        #documentation = '\n'.join([f'    {line.strip()}' for line in lines])
+        docs = '    """\n'
+        docs += documentation
+        docs += '\n    """'
+        return docs
 
     def format_argument(self, arg: str, docs: Optional[str]) -> str:
         """

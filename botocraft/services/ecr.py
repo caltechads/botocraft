@@ -6,13 +6,12 @@ from collections import OrderedDict
 from datetime import datetime
 from typing import Any, ClassVar, Dict, List, Literal, Optional, Type, cast
 
-from pydantic import Field
-
 from botocraft.mixins.ecr import (ECRImageMixin, RepositoryMixin,
                                   image_list_images_ecr_images_only,
                                   repo_list_images_ecr_images_only)
 from botocraft.mixins.tags import TagsDictMixin
 from botocraft.services.common import Tag
+from pydantic import Field
 
 from .abstract import (Boto3Model, Boto3ModelManager, PrimaryBoto3Model,
                        ReadonlyBoto3Model, ReadonlyBoto3ModelManager,
@@ -458,13 +457,17 @@ class ImageScanningConfiguration(Boto3Model):
     The image scanning configuration for a repository.
     """
 
-    #: The setting that determines whether images are scanned after being pushed to a
-    #: repository. If set to ``true``, images will be scanned after being pushed. If
-    #: this parameter is not specified, it will default to ``false`` and images will
-    #: not be scanned unless a scan is manually started with the [API\_StartImageScan]
-    #: (https://docs.aws.amazon.com/AmazonECR/latest/APIReference/API_StartImageScan.h
-    #: tml) API.
     scanOnPush: Optional[bool] = None
+    """
+    The setting that determines whether images are scanned after being pushed
+    to a repository.
+
+    If set to ``true``, images will be scanned after being pushed. If
+    this parameter is not specified, it will default to ``false`` and images will
+    not be scanned unless a scan is manually started with the [API\_StartImageScan]
+    (https://docs.aws.amazon.com/AmazonECR/latest/APIReference/API_StartImageScan.h
+    tml) API.
+    """
 
 
 class EncryptionConfiguration(Boto3Model):
@@ -474,13 +477,20 @@ class EncryptionConfiguration(Boto3Model):
     This determines how the contents of your repository are encrypted at rest.
     """
 
-    #: The encryption type to use.
     encryptionType: Literal["AES256", "KMS"]
-    #: If you use the ``KMS`` encryption type, specify the KMS key to use for
-    #: encryption. The alias, key ID, or full ARN of the KMS key can be specified. The
-    #: key must exist in the same Region as the repository. If no key is specified,
-    #: the default Amazon Web Services managed KMS key for Amazon ECR will be used.
+    """
+    The encryption type to use.
+    """
     kmsKey: Optional[str] = None
+    """
+    If you use the ``KMS`` encryption type, specify the KMS key to use for
+    encryption.
+
+    The alias, key ID, or full ARN of the KMS key can be specified. The key
+    must exist in the same Region as the repository. If no key is specified,
+    the default Amazon Web Services managed KMS key for Amazon ECR will be
+    used.
+    """
 
 
 class Repository(RepositoryMixin, PrimaryBoto3Model):
@@ -490,29 +500,51 @@ class Repository(RepositoryMixin, PrimaryBoto3Model):
 
     objects: ClassVar[Boto3ModelManager] = RepositoryManager()
 
-    #: The name of the repository.
     repositoryName: str
-    #: The tag mutability setting for the repository.
+    """
+    The name of the repository.
+    """
     imageTagMutability: Literal["MUTABLE", "IMMUTABLE"]
-    #: The image scanning configuration for a repository.
+    """
+    The tag mutability setting for the repository.
+    """
     imageScanningConfiguration: ImageScanningConfiguration
-    #: The Amazon Resource Name (ARN) that identifies the repository. The ARN contains
-    #: the ``arn:aws:ecr`` namespace, followed by the region of the repository, Amazon
-    #: Web Services account ID of the repository owner, repository namespace, and
-    #: repository name. For example, ``arn:aws:ecr:region:012345678910:repository-
-    #: namespace/repository-name``.
+    """
+    The image scanning configuration for a repository.
+    """
     repositoryArn: str = Field(default=None, frozen=True)
-    #: The Amazon Web Services account ID associated with the registry that contains
-    #: the repository.
+    """
+    The Amazon Resource Name (ARN) that identifies the repository.
+
+    The ARN contains
+    the ``arn:aws:ecr`` namespace, followed by the region of the repository, Amazon
+    Web Services account ID of the repository owner, repository namespace, and
+    repository name. For example, ``arn:aws:ecr:region:012345678910:repository-
+    namespace/repository-name``.
+    """
     registryId: Optional[str] = None
-    #: The URI for the repository. You can use this URI for container image ``push``
-    #: and ``pull`` operations.
+    """
+    The Amazon Web Services account ID associated with the registry that
+    contains the repository.
+    """
     repositoryUri: str = Field(default=None, frozen=True)
-    #: The date and time, in JavaScript date format, when the repository was created.
+    """
+    The URI for the repository.
+
+    You can use this URI for container image ``push``
+    and ``pull`` operations.
+    """
     createdAt: datetime = Field(default=None, frozen=True)
-    #: The encryption configuration for the repository. This determines how the
-    #: contents of your repository are encrypted at rest.
+    """
+    The date and time, in JavaScript date format, when the repository was
+    created.
+    """
     encryptionConfiguration: Optional[EncryptionConfiguration] = None
+    """
+    The encryption configuration for the repository.
+
+    This determines how the contents of your repository are encrypted at rest.
+    """
 
     @property
     def pk(self) -> Optional[str]:
@@ -554,10 +586,14 @@ class ImageIdentifier(Boto3Model):
     image.
     """
 
-    #: The ``sha256`` digest of the image manifest.
     imageDigest: Optional[str] = None
-    #: The tag used for the image.
+    """
+    The ``sha256`` digest of the image manifest.
+    """
     imageTag: Optional[str] = None
+    """
+    The tag used for the image.
+    """
 
 
 class Image(ECRImageMixin, ReadonlyPrimaryBoto3Model):
@@ -567,17 +603,28 @@ class Image(ECRImageMixin, ReadonlyPrimaryBoto3Model):
 
     objects: ClassVar[Boto3ModelManager] = ImageManager()
 
-    #: The Amazon Web Services account ID associated with the registry containing the
-    #: image.
     registryId: Optional[str] = None
-    #: The name of the repository associated with the image.
+    """
+    The Amazon Web Services account ID associated with the registry containing
+    the image.
+    """
     repositoryName: Optional[str] = None
-    #: An object containing the image tag and image digest associated with an image.
+    """
+    The name of the repository associated with the image.
+    """
     imageId: ImageIdentifier = Field(default=None, frozen=True)
-    #: The image manifest associated with the image.
+    """
+    An object containing the image tag and image digest associated with an
+    image.
+    """
     imageManifest: str = Field(default=None, frozen=True)
-    #: The manifest media type of the image.
+    """
+    The image manifest associated with the image.
+    """
     imageManifestMediaType: str = Field(default=None, frozen=True)
+    """
+    The manifest media type of the image.
+    """
 
     @property
     def pk(self) -> OrderedDict[str, Any]:
@@ -613,23 +660,33 @@ class Image(ECRImageMixin, ReadonlyPrimaryBoto3Model):
 
 
 class CreateRepositoryResponse(Boto3Model):
-    #: The repository that was created.
     repository: Optional[Repository] = None
+    """
+    The repository that was created.
+    """
 
 
 class DeleteRepositoryResponse(Boto3Model):
-    #: The repository that was deleted.
     repository: Optional[Repository] = None
+    """
+    The repository that was deleted.
+    """
 
 
 class DescribeRepositoriesResponse(Boto3Model):
-    #: A list of repository objects corresponding to valid repositories.
     repositories: Optional[List["Repository"]] = None
-    #: The ``nextToken`` value to include in a future ``DescribeRepositories``
-    #: request. When the results of a ``DescribeRepositories`` request exceed
-    #: ``maxResults``, this value can be used to retrieve the next page of results.
-    #: This value is ``null`` when there are no more results to return.
+    """
+    A list of repository objects corresponding to valid repositories.
+    """
     nextToken: Optional[str] = None
+    """
+    The ``nextToken`` value to include in a future ``DescribeRepositories``
+    request.
+
+    When the results of a ``DescribeRepositories`` request exceed
+    ``maxResults``, this value can be used to retrieve the next page of results.
+    This value is ``null`` when there are no more results to return.
+    """
 
 
 class ListImagesFilter(Boto3Model):
@@ -637,19 +694,29 @@ class ListImagesFilter(Boto3Model):
     The filter key and value with which to filter your ``ListImages`` results.
     """
 
-    #: The tag status with which to filter your ListImages results. You can filter
-    #: results based on whether they are ``TAGGED`` or ``UNTAGGED``.
     tagStatus: Optional[Literal["TAGGED", "UNTAGGED", "ANY"]] = None
+    """
+    The tag status with which to filter your ListImages results.
+
+    You can filter
+    results based on whether they are ``TAGGED`` or ``UNTAGGED``.
+    """
 
 
 class ListImagesResponse(Boto3Model):
-    #: The list of image IDs for the requested repository.
     imageIds: Optional[List["ImageIdentifier"]] = None
-    #: The ``nextToken`` value to include in a future ``ListImages`` request. When the
-    #: results of a ``ListImages`` request exceed ``maxResults``, this value can be
-    #: used to retrieve the next page of results. This value is ``null`` when there
-    #: are no more results to return.
+    """
+    The list of image IDs for the requested repository.
+    """
     nextToken: Optional[str] = None
+    """
+    The ``nextToken`` value to include in a future ``ListImages`` request.
+
+    When the
+    results of a ``ListImages`` request exceed ``maxResults``, this value can be
+    used to retrieve the next page of results. This value is ``null`` when there
+    are no more results to return.
+    """
 
 
 class ImageFailure(Boto3Model):
@@ -657,9 +724,10 @@ class ImageFailure(Boto3Model):
     An object representing an Amazon ECR image failure.
     """
 
-    #: The image ID associated with the failure.
     imageId: Optional[ImageIdentifier] = None
-    #: The code associated with the failure.
+    """
+    The image ID associated with the failure.
+    """
     failureCode: Optional[
         Literal[
             "InvalidImageDigest",
@@ -674,22 +742,36 @@ class ImageFailure(Boto3Model):
             "UpstreamUnavailable",
         ]
     ] = None
-    #: The reason for the failure.
+    """
+    The code associated with the failure.
+    """
     failureReason: Optional[str] = None
+    """
+    The reason for the failure.
+    """
 
 
 class BatchGetImageResponse(Boto3Model):
-    #: A list of image objects corresponding to the image references in the request.
     images: Optional[List["Image"]] = None
-    #: Any failures associated with the call.
+    """
+    A list of image objects corresponding to the image references in the
+    request.
+    """
     failures: Optional[List["ImageFailure"]] = None
+    """
+    Any failures associated with the call.
+    """
 
 
 class BatchDeleteImageResponse(Boto3Model):
-    #: The image IDs of the deleted images.
     imageIds: Optional[List["ImageIdentifier"]] = None
-    #: Any failures associated with the call.
+    """
+    The image IDs of the deleted images.
+    """
     failures: Optional[List["ImageFailure"]] = None
+    """
+    Any failures associated with the call.
+    """
 
 
 class ImageReplicationStatus(Boto3Model):
@@ -697,25 +779,39 @@ class ImageReplicationStatus(Boto3Model):
     The status of the replication process for an image.
     """
 
-    #: The destination Region for the image replication.
     region: Optional[str] = None
-    #: The Amazon Web Services account ID associated with the registry to which the
-    #: image belongs.
+    """
+    The destination Region for the image replication.
+    """
     registryId: Optional[str] = None
-    #: The image replication status.
+    """
+    The Amazon Web Services account ID associated with the registry to which
+    the image belongs.
+    """
     status: Optional[Literal["IN_PROGRESS", "COMPLETE", "FAILED"]] = None
-    #: The failure code for a replication that has failed.
+    """
+    The image replication status.
+    """
     failureCode: Optional[str] = None
+    """
+    The failure code for a replication that has failed.
+    """
 
 
 class DescribeImageReplicationStatusResponse(Boto3Model):
-    #: The repository name associated with the request.
     repositoryName: Optional[str] = None
-    #: An object with identifying information for an image in an Amazon ECR
-    #: repository.
+    """
+    The repository name associated with the request.
+    """
     imageId: Optional[ImageIdentifier] = None
-    #: The replication status details for the images in the specified repository.
+    """
+    An object with identifying information for an image in an Amazon ECR
+    repository.
+    """
     replicationStatuses: Optional[List["ImageReplicationStatus"]] = None
+    """
+    The replication status details for the images in the specified repository.
+    """
 
 
 class ImageScanStatus(Boto3Model):
@@ -723,7 +819,6 @@ class ImageScanStatus(Boto3Model):
     The current state of the scan.
     """
 
-    #: The current state of an image scan.
     status: Optional[
         Literal[
             "IN_PROGRESS",
@@ -736,8 +831,13 @@ class ImageScanStatus(Boto3Model):
             "FINDINGS_UNAVAILABLE",
         ]
     ] = None
-    #: The description of the image scan status.
+    """
+    The current state of an image scan.
+    """
     description: Optional[str] = None
+    """
+    The description of the image scan status.
+    """
 
 
 class ECRAttribute(Boto3Model):
@@ -745,10 +845,14 @@ class ECRAttribute(Boto3Model):
     This data type is used in the ImageScanFinding data type.
     """
 
-    #: The attribute key.
     key: str
-    #: The value assigned to the attribute key.
+    """
+    The attribute key.
+    """
     value: Optional[str] = None
+    """
+    The value assigned to the attribute key.
+    """
 
 
 class ImageScanFinding(Boto3Model):
@@ -756,18 +860,28 @@ class ImageScanFinding(Boto3Model):
     Contains information about an image scan finding.
     """
 
-    #: The name associated with the finding, usually a CVE number.
     name: Optional[str] = None
-    #: The description of the finding.
+    """
+    The name associated with the finding, usually a CVE number.
+    """
     description: Optional[str] = None
-    #: A link containing additional details about the security vulnerability.
+    """
+    The description of the finding.
+    """
     uri: Optional[str] = None
-    #: The finding severity.
+    """
+    A link containing additional details about the security vulnerability.
+    """
     severity: Optional[
         Literal["INFORMATIONAL", "LOW", "MEDIUM", "HIGH", "CRITICAL", "UNDEFINED"]
     ] = None
-    #: A collection of attributes of the host from which the finding is generated.
+    """
+    The finding severity.
+    """
     attributes: Optional[List["ECRAttribute"]] = None
+    """
+    A collection of attributes of the host from which the finding is generated.
+    """
 
 
 class CvssScore(Boto3Model):
@@ -775,14 +889,22 @@ class CvssScore(Boto3Model):
     The CVSS score for a finding.
     """
 
-    #: The base CVSS score used for the finding.
     baseScore: Optional[float] = None
-    #: The vector string of the CVSS score.
+    """
+    The base CVSS score used for the finding.
+    """
     scoringVector: Optional[str] = None
-    #: The source of the CVSS score.
+    """
+    The vector string of the CVSS score.
+    """
     source: Optional[str] = None
-    #: The version of CVSS used for the score.
+    """
+    The source of the CVSS score.
+    """
     version: Optional[str] = None
+    """
+    The version of CVSS used for the score.
+    """
 
 
 class VulnerablePackage(Boto3Model):
@@ -790,22 +912,38 @@ class VulnerablePackage(Boto3Model):
     Information on the vulnerable package identified by a finding.
     """
 
-    #: The architecture of the vulnerable package.
     arch: Optional[str] = None
-    #: The epoch of the vulnerable package.
+    """
+    The architecture of the vulnerable package.
+    """
     epoch: Optional[int] = None
-    #: The file path of the vulnerable package.
+    """
+    The epoch of the vulnerable package.
+    """
     filePath: Optional[str] = None
-    #: The name of the vulnerable package.
+    """
+    The file path of the vulnerable package.
+    """
     name: Optional[str] = None
-    #: The package manager of the vulnerable package.
+    """
+    The name of the vulnerable package.
+    """
     packageManager: Optional[str] = None
-    #: The release of the vulnerable package.
+    """
+    The package manager of the vulnerable package.
+    """
     release: Optional[str] = None
-    #: The source layer hash of the vulnerable package.
+    """
+    The release of the vulnerable package.
+    """
     sourceLayerHash: Optional[str] = None
-    #: The version of the vulnerable package.
+    """
+    The source layer hash of the vulnerable package.
+    """
     version: Optional[str] = None
+    """
+    The version of the vulnerable package.
+    """
 
 
 class PackageVulnerabilityDetails(Boto3Model):
@@ -813,27 +951,48 @@ class PackageVulnerabilityDetails(Boto3Model):
     An object that contains the details of a package vulnerability finding.
     """
 
-    #: An object that contains details about the CVSS score of a finding.
     cvss: Optional[List["CvssScore"]] = None
-    #: One or more URLs that contain details about this vulnerability type.
+    """
+    An object that contains details about the CVSS score of a finding.
+    """
     referenceUrls: Optional[List[str]] = None
-    #: One or more vulnerabilities related to the one identified in this finding.
+    """
+    One or more URLs that contain details about this vulnerability type.
+    """
     relatedVulnerabilities: Optional[List[str]] = None
-    #: The source of the vulnerability information.
+    """
+    One or more vulnerabilities related to the one identified in this finding.
+    """
     source: Optional[str] = None
-    #: A URL to the source of the vulnerability information.
+    """
+    The source of the vulnerability information.
+    """
     sourceUrl: Optional[str] = None
-    #: The date and time that this vulnerability was first added to the vendor's
-    #: database.
+    """
+    A URL to the source of the vulnerability information.
+    """
     vendorCreatedAt: Optional[datetime] = None
-    #: The severity the vendor has given to this vulnerability type.
+    """
+    The date and time that this vulnerability was first added to the vendor's
+    database.
+    """
     vendorSeverity: Optional[str] = None
-    #: The date and time the vendor last updated this vulnerability in their database.
+    """
+    The severity the vendor has given to this vulnerability type.
+    """
     vendorUpdatedAt: Optional[datetime] = None
-    #: The ID given to this vulnerability.
+    """
+    The date and time the vendor last updated this vulnerability in their
+    database.
+    """
     vulnerabilityId: Optional[str] = None
-    #: The packages impacted by this vulnerability.
+    """
+    The ID given to this vulnerability.
+    """
     vulnerablePackages: Optional[List["VulnerablePackage"]] = None
+    """
+    The packages impacted by this vulnerability.
+    """
 
 
 class Recommendation(Boto3Model):
@@ -842,10 +1001,14 @@ class Recommendation(Boto3Model):
     to remediate the finding.
     """
 
-    #: The URL address to the CVE remediation recommendations.
     url: Optional[str] = None
-    #: The recommended course of action to remediate the finding.
+    """
+    The URL address to the CVE remediation recommendations.
+    """
     text: Optional[str] = None
+    """
+    The recommended course of action to remediate the finding.
+    """
 
 
 class Remediation(Boto3Model):
@@ -853,9 +1016,11 @@ class Remediation(Boto3Model):
     An object that contains the details about how to remediate a finding.
     """
 
-    #: An object that contains information about the recommended course of action to
-    #: remediate the finding.
     recommendation: Optional[Recommendation] = None
+    """
+    An object that contains information about the recommended course of action
+    to remediate the finding.
+    """
 
 
 class AwsEcrContainerImageDetails(Boto3Model):
@@ -864,22 +1029,38 @@ class AwsEcrContainerImageDetails(Boto3Model):
     involved in the finding.
     """
 
-    #: The architecture of the Amazon ECR container image.
     architecture: Optional[str] = None
-    #: The image author of the Amazon ECR container image.
+    """
+    The architecture of the Amazon ECR container image.
+    """
     author: Optional[str] = None
-    #: The image hash of the Amazon ECR container image.
+    """
+    The image author of the Amazon ECR container image.
+    """
     imageHash: Optional[str] = None
-    #: The image tags attached to the Amazon ECR container image.
+    """
+    The image hash of the Amazon ECR container image.
+    """
     imageTags: Optional[List[str]] = None
-    #: The platform of the Amazon ECR container image.
+    """
+    The image tags attached to the Amazon ECR container image.
+    """
     platform: Optional[str] = None
-    #: The date and time the Amazon ECR container image was pushed.
+    """
+    The platform of the Amazon ECR container image.
+    """
     pushedAt: Optional[datetime] = None
-    #: The registry the Amazon ECR container image belongs to.
+    """
+    The date and time the Amazon ECR container image was pushed.
+    """
     registry: Optional[str] = None
-    #: The name of the repository the Amazon ECR container image resides in.
+    """
+    The registry the Amazon ECR container image belongs to.
+    """
     repositoryName: Optional[str] = None
+    """
+    The name of the repository the Amazon ECR container image resides in.
+    """
 
 
 class ResourceDetails(Boto3Model):
@@ -887,9 +1068,11 @@ class ResourceDetails(Boto3Model):
     An object that contains details about the resource involved in a finding.
     """
 
-    #: An object that contains details about the Amazon ECR container image involved
-    #: in the finding.
     awsEcrContainerImage: Optional[AwsEcrContainerImageDetails] = None
+    """
+    An object that contains details about the Amazon ECR container image
+    involved in the finding.
+    """
 
 
 class Resource(TagsDictMixin, Boto3Model):
@@ -898,14 +1081,22 @@ class Resource(TagsDictMixin, Boto3Model):
     """
 
     tag_class: ClassVar[Type] = Dict[str, str]
-    #: The tags attached to the resource.
     Tags: Dict[str, str] = Field(default=None, serialization_alias="tags")
-    #: An object that contains details about the resource involved in a finding.
+    """
+    The tags attached to the resource.
+    """
     details: Optional[ResourceDetails] = None
-    #: The ID of the resource.
+    """
+    An object that contains details about the resource involved in a finding.
+    """
     id: Optional[str] = None
-    #: The type of resource.
+    """
+    The ID of the resource.
+    """
     type: Optional[str] = None
+    """
+    The type of resource.
+    """
 
 
 class CvssScoreAdjustment(Boto3Model):
@@ -914,10 +1105,14 @@ class CvssScoreAdjustment(Boto3Model):
     finding.
     """
 
-    #: The metric used to adjust the CVSS score.
     metric: Optional[str] = None
-    #: The reason the CVSS score has been adjustment.
+    """
+    The metric used to adjust the CVSS score.
+    """
     reason: Optional[str] = None
+    """
+    The reason the CVSS score has been adjustment.
+    """
 
 
 class CvssScoreDetails(Boto3Model):
@@ -925,17 +1120,27 @@ class CvssScoreDetails(Boto3Model):
     An object that contains details about the CVSS score given to a finding.
     """
 
-    #: An object that contains details about adjustment Amazon Inspector made to the
-    #: CVSS score.
     adjustments: Optional[List["CvssScoreAdjustment"]] = None
-    #: The CVSS score.
+    """
+    An object that contains details about adjustment Amazon Inspector made to
+    the CVSS score.
+    """
     score: Optional[float] = None
-    #: The source for the CVSS score.
+    """
+    The CVSS score.
+    """
     scoreSource: Optional[str] = None
-    #: The vector for the CVSS score.
+    """
+    The source for the CVSS score.
+    """
     scoringVector: Optional[str] = None
-    #: The CVSS version used in scoring.
+    """
+    The vector for the CVSS score.
+    """
     version: Optional[str] = None
+    """
+    The CVSS version used in scoring.
+    """
 
 
 class ScoreDetails(Boto3Model):
@@ -943,8 +1148,10 @@ class ScoreDetails(Boto3Model):
     An object that contains details of the Amazon Inspector score.
     """
 
-    #: An object that contains details about the CVSS score given to a finding.
     cvss: Optional[CvssScoreDetails] = None
+    """
+    An object that contains details about the CVSS score given to a finding.
+    """
 
 
 class EnhancedImageScanFinding(Boto3Model):
@@ -955,36 +1162,66 @@ class EnhancedImageScanFinding(Boto3Model):
     registry.
     """
 
-    #: The Amazon Web Services account ID associated with the image.
     awsAccountId: Optional[str] = None
-    #: The description of the finding.
+    """
+    The Amazon Web Services account ID associated with the image.
+    """
     description: Optional[str] = None
-    #: The Amazon Resource Number (ARN) of the finding.
+    """
+    The description of the finding.
+    """
     findingArn: Optional[str] = None
-    #: The date and time that the finding was first observed.
+    """
+    The Amazon Resource Number (ARN) of the finding.
+    """
     firstObservedAt: Optional[datetime] = None
-    #: The date and time that the finding was last observed.
+    """
+    The date and time that the finding was first observed.
+    """
     lastObservedAt: Optional[datetime] = None
-    #: An object that contains the details of a package vulnerability finding.
+    """
+    The date and time that the finding was last observed.
+    """
     packageVulnerabilityDetails: Optional[PackageVulnerabilityDetails] = None
-    #: An object that contains the details about how to remediate a finding.
+    """
+    An object that contains the details of a package vulnerability finding.
+    """
     remediation: Optional[Remediation] = None
-    #: Contains information on the resources involved in a finding.
+    """
+    An object that contains the details about how to remediate a finding.
+    """
     resources: Optional[List["Resource"]] = None
-    #: The Amazon Inspector score given to the finding.
+    """
+    Contains information on the resources involved in a finding.
+    """
     score: Optional[float] = None
-    #: An object that contains details of the Amazon Inspector score.
+    """
+    The Amazon Inspector score given to the finding.
+    """
     scoreDetails: Optional[ScoreDetails] = None
-    #: The severity of the finding.
+    """
+    An object that contains details of the Amazon Inspector score.
+    """
     severity: Optional[str] = None
-    #: The status of the finding.
+    """
+    The severity of the finding.
+    """
     status: Optional[str] = None
-    #: The title of the finding.
+    """
+    The status of the finding.
+    """
     title: Optional[str] = None
-    #: The type of the finding.
+    """
+    The title of the finding.
+    """
     type: Optional[str] = None
-    #: The date and time the finding was last updated at.
+    """
+    The type of the finding.
+    """
     updatedAt: Optional[datetime] = None
+    """
+    The date and time the finding was last updated at.
+    """
 
 
 class ImageScanFindings(ReadonlyBoto3Model):
@@ -992,7 +1229,6 @@ class ImageScanFindings(ReadonlyBoto3Model):
     The information contained in the image scan findings.
     """
 
-    #: The image vulnerability counts, sorted by severity.
     findingSeverityCounts: Optional[
         Optional[
             Dict[
@@ -1009,30 +1245,55 @@ class ImageScanFindings(ReadonlyBoto3Model):
             ]
         ]
     ] = None
-    #: The time of the last completed image scan.
+    """
+    The image vulnerability counts, sorted by severity.
+    """
     imageScanCompletedAt: Optional[datetime] = None
-    #: The time when the vulnerability data was last scanned.
+    """
+    The time of the last completed image scan.
+    """
     vulnerabilitySourceUpdatedAt: Optional[datetime] = None
-    #: The findings from the image scan.
+    """
+    The time when the vulnerability data was last scanned.
+    """
     findings: Optional[List["ImageScanFinding"]] = None
-    #: Details about the enhanced scan findings from Amazon Inspector.
+    """
+    The findings from the image scan.
+    """
     enhancedFindings: Optional[List["EnhancedImageScanFinding"]] = None
+    """
+    Details about the enhanced scan findings from Amazon Inspector.
+    """
 
 
 class DescribeImageScanFindingsResponse(Boto3Model):
-    #: The registry ID associated with the request.
     registryId: Optional[str] = None
-    #: The repository name associated with the request.
+    """
+    The registry ID associated with the request.
+    """
     repositoryName: Optional[str] = None
-    #: An object with identifying information for an image in an Amazon ECR
-    #: repository.
+    """
+    The repository name associated with the request.
+    """
     imageId: Optional[ImageIdentifier] = None
-    #: The current state of the scan.
+    """
+    An object with identifying information for an image in an Amazon ECR
+    repository.
+    """
     imageScanStatus: Optional[ImageScanStatus] = None
-    #: The information contained in the image scan findings.
+    """
+    The current state of the scan.
+    """
     imageScanFindings: Optional[ImageScanFindings] = None
-    #: The ``nextToken`` value to include in a future ``DescribeImageScanFindings``
-    #: request. When the results of a ``DescribeImageScanFindings`` request exceed
-    #: ``maxResults``, this value can be used to retrieve the next page of results.
-    #: This value is null when there are no more results to return.
+    """
+    The information contained in the image scan findings.
+    """
     nextToken: Optional[str] = None
+    """
+    The ``nextToken`` value to include in a future
+    ``DescribeImageScanFindings`` request.
+
+    When the results of a ``DescribeImageScanFindings`` request exceed
+    ``maxResults``, this value can be used to retrieve the next page of results.
+    This value is null when there are no more results to return.
+    """

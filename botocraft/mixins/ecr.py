@@ -46,7 +46,13 @@ class ECRDockerClient(BaseModel):
 class ImageInfo(BaseModel):
     """
     A class to hold information about a :py:class:`botocraft.services.ecr.Image`
-    that is not available from the boto3 library.
+    that is not available from the boto3 library.  We extract this information
+    by pulling the image from the repository and inspecting it with the docker
+    Python library.
+
+    Important:
+        You must have the docker daemon running to use the methods that return
+        this object.
     """
 
     # The image name, including the registry, repository, and tag.
@@ -74,8 +80,9 @@ class ImageInfo(BaseModel):
 
 def repo_list_images_ecr_images_only(func: Callable[..., List["ImageIdentifier"]]) -> Callable[..., List["Image"]]:
     """
-    Convert a list of ECR image identifiers returned by ``list_images`` to a
-    list of :py:class:`botocraft.services.ecr.Image` objects.
+    Convert a list of ECR image identifiers returned by
+    :py:meth:`botocraft.services.ecr.RepositoryManager.list_images` into a list
+    of :py:class:`botocraft.services.ecr.Image` objects.
     """
     def wrapper(self, *args, **kwargs) -> List["Image"]:
         identifiers: List["ImageIdentifier"] = func(self, *args, **kwargs)
@@ -98,8 +105,9 @@ def repo_list_images_ecr_images_only(func: Callable[..., List["ImageIdentifier"]
 
 def image_list_images_ecr_images_only(func: Callable[..., List["ImageIdentifier"]]) -> Callable[..., List["Image"]]:
     """
-    Convert a list of ECR image identifiers returned by ``list_images`` to a
-    list of :py:class:`botocraft.services.ecr.Image` objects.
+    Convert a list of ECR image identifiers returned by
+    :py:meth:`botocraft.services.ecr.Image.list` into a list
+    of :py:class:`botocraft.services.ecr.Image` objects.
     """
     def wrapper(self, *args, **kwargs) -> List["Image"]:
         identifiers: List["ImageIdentifier"] = func(self, *args, **kwargs)
@@ -258,7 +266,8 @@ class ECRImageMixin:
             get the sha256 hash of the first layer (which is the base image),
             then look in in various repositories to find the image that
             has the same layer, then get that image's name.  That seems stupid
-            hard to do.
+            hard to do, especially if the base image is in the ECR registry of
+            another AWS account.
 
         Raises:
             RuntimeError: If the docker daemon is not running.
@@ -287,7 +296,10 @@ class ECRImageMixin:
     @cached_property
     def docker_image(self) -> docker.models.images.Image:
         """
-        Get the build history for this image.
+        Return the :py:class:`docker.models.images.Image` object for this image.
+
+        Raises:
+            RuntimeError: If the docker daemon is not running.
         """
         ecr_client = self.docker_client
         if not self.is_pulled:
@@ -306,7 +318,9 @@ class ECRImageMixin:
     @cached_property
     def history(self) -> List[Dict[str, Any]]:
         """
-        Return the build history for this image.
+        Return the build history for this image.  You can use this to reconstruct
+        **most** of the Dockerfile that was used to build the image.   You won't
+        have the ``FROM`` line, but you can get most of the rest of it.
 
         Raises:
             RuntimeError: If the docker daemon is not running.

@@ -1,10 +1,9 @@
 import re
-from typing import ClassVar, Callable, List, TYPE_CHECKING, Optional
+from typing import Callable, List, TYPE_CHECKING, Optional
 
 if TYPE_CHECKING:
     from botocraft.services import (
         Service,
-        ServiceManager,
         Cluster,
         ContainerInstance,
         Task,
@@ -41,12 +40,16 @@ def extract_task_family_and_revision(task_definition_arn: str) -> str:
 
 def ecs_services_only(func: Callable[..., List[str]]) -> Callable[..., List["Service"]]:
     """
-    Convert a list of ECS service ARNs to a list of
-    :py:class:`botocraft.services.ecs.Service` objects.
+    This wraps :py:meth:`botocraft.services.ecs.ServiceManager.list` to return a list of
+    :py:class:`botocraft.services.ecs.Service` objects instead of only a list of
+    ARNs.
     """
     def wrapper(self, *args, **kwargs) -> List["Service"]:
         arns = func(self, *args, **kwargs)
         services = []
+        # We have to do this in batches of 10 because the get_many method,
+        # which uses the boto3 ``describe_services`` method, only accepts 10 ARNs
+        # at a time.
         for i in range(0, len(arns), 10):
             services.extend(
                 self.get_many(
@@ -63,12 +66,16 @@ def ecs_services_only(func: Callable[..., List[str]]) -> Callable[..., List["Ser
 
 def ecs_clusters_only(func: Callable[..., List[str]]) -> Callable[..., List["Cluster"]]:
     """
-    Convert a list of ECS cluster ARNs to a list of
-    :py:class:`botocraft.services.ecs.Cluster` objects.
+    This wraps :py:meth:`botocraft.services.ecs.ClusterManager.list` to return a list of
+    :py:class:`botocraft.services.ecs.Cluster` objects instead of only a list of
+    ARNs.
     """
     def wrapper(self, *args, **kwargs) -> List["Cluster"]:
         arns = func(self, *args, **kwargs)
         clusters = []
+        # We have to do this in batches of 100 because the get_many method,
+        # which uses the boto3 ``describe_clusters`` method, only accepts 100 ARNs
+        # at a time.
         for i in range(0, len(arns), 100):
             clusters.extend(
                 self.get_many(clusters=arns[i:i + 100])
@@ -125,8 +132,13 @@ def ecs_task_populate_taskDefinition(
     func: Callable[..., Optional["Task"]]
 ) -> Callable[..., Optional["Task"]]:
     """
-    When getting a single task, populate the
+    This wraps :py:meth:`botocraft.services.ecs.TaskManager.get` to populate the
     :py:attr:`botocraft.services.ecs.Task.taskDefinition` attribute.
+
+    We set the ``taskDefinition`` attribute to the task family and revision in the
+    format ``<family>:<revision>``.  ``taskDefinition`` is an extra field that we
+    add to the :py:class:`botocraft.services.ecs.Task` object that is not in the
+    original botocore shape, but is useful for our purposes.
     """
     def wrapper(self, *args, **kwargs) -> Optional["Task"]:
         task = func(self, *args, **kwargs)
@@ -140,8 +152,14 @@ def ecs_task_populate_taskDefinitions(
     func: Callable[..., List["Task"]]
 ) -> Callable[..., List["Task"]]:
     """
-    When getting a list of tasks, populate the
-    :py:attr:`botocraft.services.ecs.Task.taskDefinition` attribute on each task.
+    This wraps :py:meth:`botocraft.services.ecs.TaskManager.get_many` to
+    populate the :py:attr:`botocraft.services.ecs.Task.taskDefinition` attribute
+    on each task.
+
+    We set the ``taskDefinition`` attribute to the task family and revision in the
+    format ``<family>:<revision>``.  ``taskDefinition`` is an extra field that we
+    add to the :py:class:`botocraft.services.ecs.Task` object that is not in the
+    original botocore shape, but is useful for our purposes.
     """
     def wrapper(self, *args, **kwargs) -> List["Task"]:
         tasks = func(self, *args, **kwargs)
@@ -155,12 +173,16 @@ def ecs_tasks_only(
     func: Callable[..., List[str]]
 ) -> Callable[..., List["Task"]]:
     """
-    Decorator to convert a list of ECS task arns to a list of
-    :py:class:`botocraft.services.ecs.Task` objects.
+    Wrap :py:meth:`botocraft.services.ecs.TaskManager.list` to return a list of
+    :py:class:`botocraft.services.ecs.Task` objects instead of only a list of
+    ARNs.
     """
     def wrapper(self, *args, **kwargs) -> List["Task"]:
         arns = func(self, *args, **kwargs)
         tasks = []
+        # We have to do this in batches of 100 because the get_many method,
+        # which uses the boto3 ``describe_tasks`` method, only accepts 100 ARNs
+        # at a time.
         for i in range(0, len(arns), 100):
             tasks.extend(
                 self.get_many(
@@ -175,6 +197,10 @@ def ecs_tasks_only(
 # Mixins
 
 class ECSServiceModelMixin:
+    """
+    This is a mixin for :py:class:`botocraft.services.ecs.Service` that adds
+    some additional methods that we can't auto generate.
+    """
 
     def scale(
         self,
@@ -182,7 +208,9 @@ class ECSServiceModelMixin:
         wait: bool = False,
     ) -> None:
         """
-        Scale the service to the desired count.
+        Scale the service to the desired count.  If ``wait`` is True, this will
+        wait for the service to reach the desired count using the ``services_stable``
+        boto3 waiter.
 
         Args:
             desired_count: The number of tasks to run.

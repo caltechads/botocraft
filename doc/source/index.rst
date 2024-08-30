@@ -6,19 +6,23 @@ botocraft
    :caption: Overview
    :hidden:
 
-   overview/authoring
+   overview/using
 
 .. toctree::
    :caption: Runbook
    :hidden:
 
    runbook/contributing
+   runbook/authoring
 
 .. toctree::
    :caption: Reference
    :hidden:
 
    api/models
+   api/mixins
+
+.. include:: _services_index.rst
 
 Current version is |release|.
 
@@ -83,9 +87,13 @@ AWS services.
 Features
 --------
 
-* Provide AWS resources as Python classes, backed by `pydantic
-  <https://github.com/pydantic/pydantic>`
-* Automatically generate resource classes and manager classes by inspecting the
-  ``botocore`` definitions, overlaid with our customizations
-* Automatically paginate results if they are paginated in the AWS API
-* Automatically resolve foreign keys and many-to-many relationships to resource objects
+* Provides AWS resources as Django ORM-like Python classes, backed by `pydantic
+  <https://github.com/pydantic/pydantic>`_
+* Provides tooling to generate the code files for those classes by inspecting the ``botocore`` definitions. This allows us to stay up-to-date with the AWS API, while also adding our own customizations.
+* Automatically generates managers for the resources that provide CRUDL functionality
+* Automatically generates documentation for the resources and managers, and other classes
+* Allows us to add custom methods and attributes to the classes that are not provided by the AWS API
+* Automatically paginates results if they are paginated in the AWS API
+* Allows us to resolve foreign keys and many-to-many relationships to resource objects.  For
+example, if you have an ECS service, you can get the cluster object by accessing
+the ``cluster`` attribute of the service object.

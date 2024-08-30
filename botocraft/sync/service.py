@@ -2,7 +2,7 @@ from copy import deepcopy
 from collections import OrderedDict
 from pathlib import Path
 import re
-from typing import Dict, Set, List, Optional, Type, cast
+from typing import Any, Dict, Set, List, Optional, Type, cast
 import warnings
 
 import black
@@ -36,6 +36,7 @@ from .models import (
     ManagerMethodDefinition,
 )
 from .shapes import PythonTypeShapeConverter
+from .sphinx import ServiceSphinxDocBuilder
 
 
 class AbstractGenerator:
@@ -92,6 +93,15 @@ class AbstractGenerator:
             model_name = self.service_def.resolve_model_name(name)
             return self.service_model.shape_for(model_name)
 
+    def get_metadata(self) -> Dict[str, Any]:
+        """
+        Get the metadata for the botocore service definition.
+
+        Returns:
+            The contents of the metadata attribute.
+        """
+        return self.service_model.metadata
+
     def generate(self) -> None:
         raise NotImplementedError
 
@@ -103,11 +113,24 @@ class ModelGenerator(AbstractGenerator):
 
     def __init__(self, service_generator: "ServiceGenerator") -> None:
         super().__init__(service_generator)
+        #: The shape converter we will use to convert botocore shapes to python
+        #: types, and build the appropriate python classes for ``StructureShape``
+        #: objects.
         self.shape_converter = PythonTypeShapeConverter(service_generator, self)
 
     def get_model_def(self, model_name: str) -> ModelDefinition:
         """
         Return the :py:class:`ModelDefinition` for a model.
+
+        Notes:
+            If there is no human defined model definition for the model, we will
+            create a default one.
+
+        Args:
+            model_name: The name of the model to get the definition for.
+
+        Returns:
+            The model definition.
         """
         if model_name in self.service_def.primary_models:
             defn = self.service_def.primary_models[model_name]
@@ -140,6 +163,9 @@ class ModelGenerator(AbstractGenerator):
             model_fields: the botocraft model field definitions for the model
             output_shape_name: the name of the botocore shape of the output of the
                 get/list method
+
+        Returns:
+
         """
         model_def = self.get_model_def(model_name)
         if not model_def.output_shape:
@@ -162,7 +188,8 @@ class ModelGenerator(AbstractGenerator):
     ) -> Dict[str, ModelAttributeDefinition]:
         """
         Mark model fields as readonly if they are not in any of the input shapes
-        defined for the model.
+        defined for the model.  Such fields are returned by AWS but are not
+        settable by the user.
 
         Args:
             model_name: The name of the model to mark fields for.
@@ -201,7 +228,7 @@ class ModelGenerator(AbstractGenerator):
         :py:class:`ModelAttributeDefinitions` from the  ``fields`` attribute of
         the associated model definition, if it exists.
 
-        .. note::
+        Note:
             This really only makes sense on :py:class:`botocore.model.StructureShape`
             objects, since they are the only ones that have fields (aka "members").
 
@@ -277,7 +304,22 @@ class ModelGenerator(AbstractGenerator):
         base_class: str
     ) -> Optional[str]:
         """
-        Handle the special properties for primary models.
+        Handle the special properties and methods for primary models.  A primary
+        model is a model that has either ``PrimaryBoto3Model`` or
+        ``ReadonlyPrimaryBoto3Model`` as its ``base_class``.   Primary models are
+        the main models that represent AWS resources, and are those that users can
+        create, update, and delete.
+
+        This means:
+
+        * Adding a ``pk`` property that is an alias for the primary key.
+        * Maybe adding a ``arn`` property that is an alias for the ARN key.
+        * Maybe adding a ``name`` property that is an alias for the name key.
+        * Adding any extra properties that were defined in the model definition.
+        * Adding any relations to other models that were defined in the model
+          definition.
+        * Adding any manager shortcut methods that were defined in the model
+          definition.
 
         Args:
             model_def: the botocraft model definition for this model
@@ -370,7 +412,8 @@ class ModelGenerator(AbstractGenerator):
         field_shape: Optional[botocore.model.Shape] = None
     ) -> str:
         """
-        Return the python type annotation for a field.
+        Return the python type annotation for a field on a model by combining
+        the ``model_shape``, ``field_shape`` and ``field_def``.
 
         Args:
             model_name: The name of the model to get the field from.
@@ -392,7 +435,10 @@ class ModelGenerator(AbstractGenerator):
         if not hasattr(model_shape, 'members'):
             raise ValueError(f'Model {model_name} has no fields.')
         if not field_shape:
-            field_shape = cast(botocore.model.StructureShape, model_shape).members.get(field_name)
+            field_shape = cast(
+                botocore.model.StructureShape,
+                model_shape
+            ).members.get(field_name)
         if not field_def:
             model_def = self.get_model_def(model_name)
             field_def = model_def.fields.get(field_name, ModelAttributeDefinition())
@@ -430,7 +476,7 @@ class ModelGenerator(AbstractGenerator):
             TypeError: we have determined that the type for the field is invalid
 
         Returns:
-            The python type annotation for the field.
+            The python type annotation for the field on the model.
         """
         if python_type is None:
             raise ValueError(f'Could not determine type for field {field_name}.')
@@ -507,10 +553,17 @@ class ModelGenerator(AbstractGenerator):
         Keyword Args:
             shape: The shape to generate the model for.  If not provided, we
                 will look it up in the service model.
+
+        Returns:
+            The name of the model class that was generated.
         """
+        # The list of fields for this model
         fields: List[str] = []
 
+        # Get the model definition for this model from the service definition
+        # file in ``botocraft/data/<service_name>/models.yml``.
         model_def = self.get_model_def(model_name)
+        # Get the base class for this model
         base_class = cast(str, model_def.base_class)
         if not model_shape:
             model_shape = self.get_shape(model_name)
@@ -551,9 +604,6 @@ class ModelGenerator(AbstractGenerator):
                         python_type = f'Optional[{python_type}]'
                     default = 'None' if field_def.default is None else field_def.default
 
-                # Add the docstring for this field
-                if docstring:
-                    fields.append(self.docformatter.format_attribute(docstring))
 
                 # Determine whether we need to add a pydantic.Field class instance as the
                 # value for this field.
@@ -578,6 +628,9 @@ class ModelGenerator(AbstractGenerator):
                 elif default:
                     field_line += f' = {field_def.default}'
                 fields.append(field_line)
+                # Add the docstring for this field
+                if docstring:
+                    fields.append(self.docformatter.format_attribute(docstring))
 
             # Add any botocraft defined properties.  This includes relations.
             properties = self.get_properties(model_def, base_class)
@@ -788,6 +841,8 @@ class ServiceGenerator:
         self.model_generator = ModelGenerator(self)
         #: The :py:class:`ManagerGenerator` class we will use to generate managers
         self.manager_generator = ManagerGenerator(self)
+        #: The :py:class:`ManagerGenerator` class we will use to generate managers
+        self.sphinx_generator = ServiceSphinxDocBuilder(self)
 
     @property
     def aws_service_name(self) -> str:
@@ -795,6 +850,16 @@ class ServiceGenerator:
         Return the boto3 service name for this service.
         """
         return self.service_def.name
+
+    @property
+    def service_full_name(self) -> str:
+        """
+        Return what AWS thinks the full name of this services is.
+
+        Returns:
+            The full name of the service, as defined in the botocore service.
+        """
+        return self.model_generator.service_model.metadata['serviceId']
 
     @property
     def classes(self) -> Dict[str, str]:
@@ -862,7 +927,10 @@ class ServiceGenerator:
         self.imports.update(self.manager_generator.imports)
         self.model_generator.clear()
 
+        # Write the generated code to the output file
         self.write()
+        # Write the sphinx documentation for the service
+        self.sphinx_generator.write()
 
         # Update the interface with the manager models we generated
         for model_name in self.model_classes:

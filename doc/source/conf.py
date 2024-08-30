@@ -42,6 +42,7 @@ extensions: List[str] = [
     'sphinxcontrib.images',
     'sphinx.ext.intersphinx',
     'sphinx_rtd_theme',
+    'sphinxcontrib.autodoc_pydantic',
 ]
 
 source_suffix: str = ".rst"
@@ -59,10 +60,13 @@ add_module_names: bool = True
 
 autodoc_member_order: str = 'groupwise'
 autodoc_type_aliases: Dict[str, str] = {}
+autodoc_model_show_json: bool = False
+
 
 # the locations and names of other projects that should be linked to this one
 intersphinx_mapping: Dict[str, Tuple[str, Optional[str]]] = {
     'python': ('https://docs.python.org/3', None),
+    "docker": ("https://docker-py.readthedocs.io/en/stable/", None),
 }
 
 

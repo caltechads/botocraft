@@ -1,19 +1,50 @@
-botocraft models
-================
+Using botocraft
+===============
+
+``botocraft`` provides a Django ORM-like interface to AWS resources.  This
+interface is provided by models and managers.
 
 When thinking of models in a botocraft context, think of them as
-object-relational type objects for resources in an AWS service.  By resources, we
-mean things in AWS that you manage via the AWS API.  For example,
+object-relational type objects for resources in an AWS service.  By resources,
+we mean things in AWS that you manage via the AWS API.  For example,
 
 * in ``ec2``, Instance, VPC, SecurityGroup, etc are resources
-* in ``s3``, Bucket, Object, etc are resources
+* in ``autoscaling``, AutoScalingGroup, LaunchConfiguration, etc are resources
 * in ``ecs``, Cluster, TaskDefinition, Service, etc are resources
 * etc.
 
-There are two types of models in botocraft:
+There are three types of models in botocraft:
 
-* **Primary models** are models that you can perform operations on directly.
-* **Secondary models** are models that are used to build out the sub-structure of primary models.
+Primary models
+  These are models that you can perform AWS API operations on directly.
+
+Secondary models
+  These are models that are used to build out the sub-structure of primary
+  models.  Some fields on primary models are of secondary model types.
+
+Request/Response models
+  These are models that are used to represent the request and response
+  structures of AWS API operations.  You will typically not use directly by
+  the user, but are used by the botocraft code generator to generate the
+  primary and secondary models.
+
+Importing models
+----------------
+
+All models are available via the ``botocraft.services`` module.  You can import them
+without having to know the service they are in.  For example, to import the
+``Service`` model from ``ecs``:
+
+.. code-block:: python
+
+    from botocraft.services import Service
+
+    service = Service.objects.get('my-service')
+
+Available services
+------------------
+
+.. include:: _services_list.rst
 
 Primary models
 --------------
@@ -97,20 +128,65 @@ Simple properties
 ^^^^^^^^^^^^^^^^^
 
 Most models implement some simple properties to get typical attributes of the
-model like ``name``, ``id`` and ``arn``.  These are shorthands so that we don't
+model like ``name``, ``pk`` and ``arn``.  These are shorthands so that we don't
 need to inspect the model object to get the particular, resource-specific
 attribute.
+
+All models will have a ``pk`` property that returns the primary key for the
+model, but not all models will have ``name`` or ``arn`` properties.
+
+For ``pk``, the primary key is always a dict, and it should be in the form needed
+to be passed into the manager's ``get`` method.
+
+.. code-block::
+
+  >>> from botocraft.models import Service
+  >>> service = Service.objects.get('my-service')
+  >>> print(service.pk)
+  {'service': 'my-service', 'cluster': 'my-cluster'}
+  >>> print(service.arn)
+  'arn:aws:ecs:us-west-2:123456789012:service/my-cluster/my-service'
+
+There may be more such simple properties available on a model, depending on the
+resource type and model definition.
 
 Relationships
 ^^^^^^^^^^^^^
 
-Some primary models have relationships with other primary models.  For example,
-in ``ecs``, ``Service`` has a relationship with ``TaskDefinition``.
-``Service.task_definition`` is a property that returns a ``TaskDefinition``
-object that is associated with the service via its ``taskDefinition`` attribute,
-which is the ARN of the task definition.
+Some primary models have relationships with other primary models.  These are python properties, not methods.  For example,
+in ``ecs``, :py:class:`botocraft.services.ecs.Service` has a relationship with
+:py:class:`botocraft.services.ecs.TaskDefinition`.
+:py:meth:`botocraft.services.ecs.Service.task_definition`` is a property that
+returns a :py:class:`botocraft.services.ecs.TaskDefinition`` object that is
+associated with the service via its
+:py:class:`botocraft.service.ecs.Service.taskDefinition` attribute, which is the
+ARN of the task definition.
+
+.. code-block:: python
+
+  from botocraft.models import Service
+
+  # Get a service
+  service = Service.objects.get('my-service')
+
+  # Get the task definition for the service
+  task_definition = service.task_definition
+
+Some relationships are implemented as ``@cached_property`` properties if we know they
+won't change during our use of the model object.  Others are implemented as
+``@property`` properties if we know they might change during our use of the model.
 
 Relationships are not available for all primary models.
+
+Manager method proxies
+^^^^^^^^^^^^^^^^^^^^^^
+
+Some primary models have proxies to manager methods on them, typically so you can use a non-CRUDL method that takes a single resource directly from the primary model instance.
+
+For example, in ``ecr``, the :py:class:`botocraft.models.ecr.Image` model has a :py:meth:`botocraft.models.ecr.Image.scan_findings` method that is a proxy to the
+:py:meth:`botocraft.managers.ecr.ImageManager.scan_findings` method, returning only the findings for that image.
+
+Manager method proxies are not available for all primary models.
 
 Secondary models
 ----------------

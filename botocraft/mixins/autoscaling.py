@@ -3,14 +3,18 @@ from collections import OrderedDict
 import time
 from typing import ClassVar, List, TYPE_CHECKING
 
-from botocraft.services.ec2 import Instance
-
 if TYPE_CHECKING:
-    from botocraft.services import AutoScalingGroupManager
+    from botocraft.services import (
+        AutoScalingGroupManager,
+        Instance,
+    )
 
 
 class AutoScalingGroupModelMixin:
     """
+    This is a mixin for :py:class:`AutoScalingGroup` that adds some convenience
+    methods.
+
     Sometimes we like full :py:class:`Instance` objects instead of the
     :py:class:`AutoScalingInstanceReference` objects that get listed on
     :py:attr:`AutoScalingGroup.Instances`.
@@ -36,6 +40,8 @@ class AutoScalingGroupModelMixin:
         """
         Return the :py:class:`Instance` objects that belong to this group, if any.
         """
+        # Avoid circular import
+        from botocraft.services.ec2 import Instance  # pylint: disable=import-outside-toplevel
         if self.AutoScalingGroupName:  # type: ignore
             pk = OrderedDict(
                 Filters=[

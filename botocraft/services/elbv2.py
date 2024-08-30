@@ -7,12 +7,11 @@ from datetime import datetime
 from functools import cached_property
 from typing import Any, ClassVar, Dict, List, Literal, Optional, Type, cast
 
-from pydantic import Field
-
 from botocraft.mixins.tags import TagsDictMixin
 from botocraft.services.common import Tag
 from botocraft.services.ec2 import (SecurityGroup, SecurityGroupManager, Vpc,
                                     VpcManager)
+from pydantic import Field
 
 from .abstract import (Boto3Model, Boto3ModelManager, PrimaryBoto3Model,
                        ReadonlyBoto3Model, ReadonlyBoto3ModelManager,
@@ -552,16 +551,22 @@ class LoadBalancerState(Boto3Model):
     The state of the load balancer.
     """
 
-    #: The state code. The initial state of the load balancer is ``provisioning``.
-    #: After the load balancer is fully set up and ready to route traffic, its state
-    #: is ``active``. If load balancer is routing traffic but does not have the
-    #: resources it needs to scale, its state is``active_impaired``. If the load
-    #: balancer could not be set up, its state is ``failed``.
     Code: Optional[
         Literal["active", "provisioning", "active_impaired", "failed"]
     ] = None
-    #: A description of the state.
+    """
+    The state code.
+
+    The initial state of the load balancer is ``provisioning``.
+    After the load balancer is fully set up and ready to route traffic, its state
+    is ``active``. If load balancer is routing traffic but does not have the
+    resources it needs to scale, its state is``active_impaired``. If the load
+    balancer could not be set up, its state is ``failed``.
+    """
     Reason: Optional[str] = None
+    """
+    A description of the state.
+    """
 
 
 class LoadBalancerAddress(Boto3Model):
@@ -569,16 +574,24 @@ class LoadBalancerAddress(Boto3Model):
     Information about a static IP address for a load balancer.
     """
 
-    #: The static IP address.
     IpAddress: Optional[str] = None
-    #: [Network Load Balancers] The allocation ID of the Elastic IP address for an
-    #: internal-facing load balancer.
+    """
+    The static IP address.
+    """
     AllocationId: Optional[str] = None
-    #: [Network Load Balancers] The private IPv4 address for an internal load
-    #: balancer.
+    """
+    [Network Load Balancers] The allocation ID of the Elastic IP address for an
+    internal-facing load balancer.
+    """
     PrivateIPv4Address: Optional[str] = None
-    #: [Network Load Balancers] The IPv6 address.
+    """
+    [Network Load Balancers] The private IPv4 address for an internal load
+    balancer.
+    """
     IPv6Address: Optional[str] = None
+    """
+    [Network Load Balancers] The IPv6 address.
+    """
 
 
 class AvailabilityZone(Boto3Model):
@@ -586,17 +599,29 @@ class AvailabilityZone(Boto3Model):
     Information about an Availability Zone.
     """
 
-    #: The name of the Availability Zone.
     ZoneName: Optional[str] = None
-    #: The ID of the subnet. You can specify one subnet per Availability Zone.
+    """
+    The name of the Availability Zone.
+    """
     SubnetId: Optional[str] = None
-    #: [Application Load Balancers on Outposts] The ID of the Outpost.
+    """
+    The ID of the subnet.
+
+    You can specify one subnet per Availability Zone.
+    """
     OutpostId: Optional[str] = None
-    #: [Network Load Balancers] If you need static IP addresses for your load
-    #: balancer, you can specify one Elastic IP address per Availability Zone when you
-    #: create an internal-facing load balancer. For internal load balancers, you can
-    #: specify a private IP address from the IPv4 range of the subnet.
+    """
+    [Application Load Balancers on Outposts] The ID of the Outpost.
+    """
     LoadBalancerAddresses: Optional[List["LoadBalancerAddress"]] = None
+    """
+    [Network Load Balancers] If you need static IP addresses for your load
+    balancer, you can specify one Elastic IP address per Availability Zone when
+    you create an internal-facing load balancer.
+
+    For internal load balancers, you can specify a private IP address from the
+    IPv4 range of the subnet.
+    """
 
 
 class LoadBalancer(PrimaryBoto3Model):
@@ -606,47 +631,79 @@ class LoadBalancer(PrimaryBoto3Model):
 
     objects: ClassVar[Boto3ModelManager] = LoadBalancerManager()
 
-    #: The name of the load balancer.
     LoadBalancerName: str
-    #: The nodes of an Internet-facing load balancer have public IP addresses. The DNS
-    #: name of an Internet-facing load balancer is publicly resolvable to the public
-    #: IP addresses of the nodes. Therefore, Internet-facing load balancers can route
-    #: requests from clients over the internet.
+    """
+    The name of the load balancer.
+    """
     Scheme: Optional[Literal["internet-facing", "internal"]] = "internet-facing"
-    #: The type of load balancer.
+    """
+    The nodes of an Internet-facing load balancer have public IP addresses.
+
+    The DNS name of an Internet-facing load balancer is publicly resolvable to
+    the public IP addresses of the nodes. Therefore, Internet-facing load
+    balancers can route requests from clients over the internet.
+    """
     Type: Optional[Literal["application", "network", "gateway"]] = "application"
-    #: [Application Load Balancers] The type of IP addresses used for public or
-    #: private connections by the subnets attached to your load balancer. The possible
-    #: values are ``ipv4`` (for only IPv4 addresses), ``dualstack`` (for IPv4 and IPv6
-    #: addresses), and ``dualstack-without-public-ipv4`` (for IPv6 only public
-    #: addresses, with private IPv4 and IPv6 addresses).
+    """
+    The type of load balancer.
+    """
     IpAddressType: Optional[
         Literal["ipv4", "dualstack", "dualstack-without-public-ipv4"]
     ] = "ipv4"
-    #: The Amazon Resource Name (ARN) of the load balancer.
+    """
+    [Application Load Balancers] The type of IP addresses used for public or
+    private connections by the subnets attached to your load balancer.
+
+    The possible
+    values are ``ipv4`` (for only IPv4 addresses), ``dualstack`` (for IPv4 and IPv6
+    addresses), and ``dualstack-without-public-ipv4`` (for IPv6 only public
+    addresses, with private IPv4 and IPv6 addresses).
+    """
     LoadBalancerArn: str = Field(default=None, frozen=True)
-    #: The public DNS name of the load balancer.
+    """
+    The Amazon Resource Name (ARN) of the load balancer.
+    """
     DNSName: str = Field(default=None, frozen=True)
-    #: The ID of the Amazon Route 53 hosted zone associated with the load balancer.
+    """
+    The public DNS name of the load balancer.
+    """
     CanonicalHostedZoneId: str = Field(default=None, frozen=True)
-    #: The date and time the load balancer was created.
+    """
+    The ID of the Amazon Route 53 hosted zone associated with the load
+    balancer.
+    """
     CreatedTime: datetime = Field(default=None, frozen=True)
-    #: The ID of the VPC for the load balancer.
+    """
+    The date and time the load balancer was created.
+    """
     VpcId: str = Field(default=None, frozen=True)
-    #: The state of the load balancer.
+    """
+    The ID of the VPC for the load balancer.
+    """
     State: LoadBalancerState = Field(default=None, frozen=True)
-    #: The subnets for the load balancer.
+    """
+    The state of the load balancer.
+    """
     AvailabilityZones: List["AvailabilityZone"] = Field(default=None, frozen=True)
-    #: The IDs of the security groups for the load balancer.
+    """
+    The subnets for the load balancer.
+    """
     SecurityGroups: Optional[List[str]] = None
-    #: [Application Load Balancers on Outposts] The ID of the customer-owned address
-    #: pool.
+    """
+    The IDs of the security groups for the load balancer.
+    """
     CustomerOwnedIpv4Pool: Optional[str] = None
-    #: Indicates whether to evaluate inbound security group rules for traffic sent to
-    #: a Network Load Balancer through Amazon Web Services PrivateLink.
+    """
+    [Application Load Balancers on Outposts] The ID of the customer-owned
+    address pool.
+    """
     EnforceSecurityGroupInboundRulesOnPrivateLinkTraffic: str = Field(
         default=None, frozen=True
     )
+    """
+    Indicates whether to evaluate inbound security group rules for traffic sent
+    to a Network Load Balancer through Amazon Web Services PrivateLink.
+    """
 
     @property
     def pk(self) -> Optional[str]:
@@ -686,6 +743,13 @@ class LoadBalancer(PrimaryBoto3Model):
         """
         Return the ARNs of :py:class:`Listener` objects that belong to this
         load balancer, if any.
+
+        .. note::
+
+            The output of this property is cached on the model instance, so
+            calling this multiple times will not result in multiple calls to the
+            AWS API.   If you need a fresh copy of the data, you can re-get the
+            model instance from the manager.
         """
 
         try:
@@ -703,6 +767,13 @@ class LoadBalancer(PrimaryBoto3Model):
         """
         Return the :py:class:`Vpc` object that this load balancer belongs to,
         if any.
+
+        .. note::
+
+            The output of this property is cached on the model instance, so
+            calling this multiple times will not result in multiple calls to the
+            AWS API.   If you need a fresh copy of the data, you can re-get the
+            model instance from the manager.
         """
 
         try:
@@ -720,6 +791,13 @@ class LoadBalancer(PrimaryBoto3Model):
         """
         Return the ARNs of :py:class:`SecurityGroup` objects that belong to
         this load balancer, if any.
+
+        .. note::
+
+            The output of this property is cached on the model instance, so
+            calling this multiple times will not result in multiple calls to the
+            AWS API.   If you need a fresh copy of the data, you can re-get the
+            model instance from the manager.
         """
 
         try:
@@ -738,13 +816,18 @@ class Certificate(ReadonlyBoto3Model):
     Information about an SSL server certificate.
     """
 
-    #: The Amazon Resource Name (ARN) of the certificate.
     CertificateArn: Optional[str] = None
-    #: Indicates whether the certificate is the default certificate. Do not set this
-    #: value when specifying a certificate as an input. This value is not included in
-    #: the output when describing a listener, but is included when describing listener
-    #: certificates.
+    """
+    The Amazon Resource Name (ARN) of the certificate.
+    """
     IsDefault: Optional[bool] = None
+    """
+    Indicates whether the certificate is the default certificate.
+
+    Do not set this value when specifying a certificate as an input. This value
+    is not included in the output when describing a listener, but is included
+    when describing listener certificates.
+    """
 
 
 class AuthenticateOidcActionConfig(Boto3Model):
@@ -755,41 +838,82 @@ class AuthenticateOidcActionConfig(Boto3Model):
     Specify only when ``Type`` is ``authenticate-oidc``.
     """
 
-    #: The OIDC issuer identifier of the IdP. This must be a full URL, including the
-    #: HTTPS protocol, the domain, and the path.
     Issuer: str
-    #: The authorization endpoint of the IdP. This must be a full URL, including the
-    #: HTTPS protocol, the domain, and the path.
+    """
+    The OIDC issuer identifier of the IdP.
+
+    This must be a full URL, including the HTTPS protocol, the domain, and the
+    path.
+    """
     AuthorizationEndpoint: str
-    #: The token endpoint of the IdP. This must be a full URL, including the HTTPS
-    #: protocol, the domain, and the path.
+    """
+    The authorization endpoint of the IdP.
+
+    This must be a full URL, including the HTTPS protocol, the domain, and the
+    path.
+    """
     TokenEndpoint: str
-    #: The user info endpoint of the IdP. This must be a full URL, including the HTTPS
-    #: protocol, the domain, and the path.
+    """
+    The token endpoint of the IdP.
+
+    This must be a full URL, including the HTTPS protocol, the domain, and the
+    path.
+    """
     UserInfoEndpoint: str
-    #: The OAuth 2.0 client identifier.
+    """
+    The user info endpoint of the IdP.
+
+    This must be a full URL, including the HTTPS protocol, the domain, and the
+    path.
+    """
     ClientId: str
-    #: The OAuth 2.0 client secret. This parameter is required if you are creating a
-    #: rule. If you are modifying a rule, you can omit this parameter if you set
-    #: ``UseExistingClientSecret`` to true.
+    """
+    The OAuth 2.0 client identifier.
+    """
     ClientSecret: Optional[str] = None
-    #: The name of the cookie used to maintain session information. The default is
-    #: AWSELBAuthSessionCookie.
+    """
+    The OAuth 2.0 client secret.
+
+    This parameter is required if you are creating a
+    rule. If you are modifying a rule, you can omit this parameter if you set
+    ``UseExistingClientSecret`` to true.
+    """
     SessionCookieName: Optional[str] = None
-    #: The set of user claims to be requested from the IdP. The default is ``openid``.
+    """
+    The name of the cookie used to maintain session information.
+
+    The default is AWSELBAuthSessionCookie.
+    """
     Scope: Optional[str] = None
-    #: The maximum duration of the authentication session, in seconds. The default is
-    #: 604800 seconds (7 days).
+    """
+    The set of user claims to be requested from the IdP.
+
+    The default is ``openid``.
+    """
     SessionTimeout: Optional[int] = None
-    #: The query parameters (up to 10) to include in the redirect request to the
-    #: authorization endpoint.
+    """
+    The maximum duration of the authentication session, in seconds.
+
+    The default is 604800 seconds (7 days).
+    """
     AuthenticationRequestExtraParams: Optional[Dict[str, str]] = None
-    #: The behavior if the user is not authenticated. The following are possible
-    #: values:
+    """
+    The query parameters (up to 10) to include in the redirect request to the
+    authorization endpoint.
+    """
     OnUnauthenticatedRequest: Optional[Literal["deny", "allow", "authenticate"]] = None
-    #: Indicates whether to use the existing client secret when modifying a rule. If
-    #: you are creating a rule, you can omit this parameter or set it to false.
+    """
+    The behavior if the user is not authenticated.
+
+    The following are possible
+    values:
+    """
     UseExistingClientSecret: Optional[bool] = None
+    """
+    Indicates whether to use the existing client secret when modifying a rule.
+
+    If you are creating a rule, you can omit this parameter or set it to false.
+    """
 
 
 class AuthenticateCognitoActionConfig(Boto3Model):
@@ -800,27 +924,49 @@ class AuthenticateCognitoActionConfig(Boto3Model):
     Specify only when ``Type`` is ``authenticate-cognito``.
     """
 
-    #: The Amazon Resource Name (ARN) of the Amazon Cognito user pool.
     UserPoolArn: str
-    #: The ID of the Amazon Cognito user pool client.
+    """
+    The Amazon Resource Name (ARN) of the Amazon Cognito user pool.
+    """
     UserPoolClientId: str
-    #: The domain prefix or fully-qualified domain name of the Amazon Cognito user
-    #: pool.
+    """
+    The ID of the Amazon Cognito user pool client.
+    """
     UserPoolDomain: str
-    #: The name of the cookie used to maintain session information. The default is
-    #: AWSELBAuthSessionCookie.
+    """
+    The domain prefix or fully-qualified domain name of the Amazon Cognito user
+    pool.
+    """
     SessionCookieName: Optional[str] = None
-    #: The set of user claims to be requested from the IdP. The default is ``openid``.
+    """
+    The name of the cookie used to maintain session information.
+
+    The default is AWSELBAuthSessionCookie.
+    """
     Scope: Optional[str] = None
-    #: The maximum duration of the authentication session, in seconds. The default is
-    #: 604800 seconds (7 days).
+    """
+    The set of user claims to be requested from the IdP.
+
+    The default is ``openid``.
+    """
     SessionTimeout: Optional[int] = None
-    #: The query parameters (up to 10) to include in the redirect request to the
-    #: authorization endpoint.
+    """
+    The maximum duration of the authentication session, in seconds.
+
+    The default is 604800 seconds (7 days).
+    """
     AuthenticationRequestExtraParams: Optional[Dict[str, str]] = None
-    #: The behavior if the user is not authenticated. The following are possible
-    #: values:
+    """
+    The query parameters (up to 10) to include in the redirect request to the
+    authorization endpoint.
+    """
     OnUnauthenticatedRequest: Optional[Literal["deny", "allow", "authenticate"]] = None
+    """
+    The behavior if the user is not authenticated.
+
+    The following are possible
+    values:
+    """
 
 
 class RedirectActionConfig(Boto3Model):
@@ -831,25 +977,45 @@ class RedirectActionConfig(Boto3Model):
     only when ``Type`` is ``redirect``.
     """
 
-    #: The protocol. You can specify HTTP, HTTPS, or #{protocol}. You can redirect
-    #: HTTP to HTTP, HTTP to HTTPS, and HTTPS to HTTPS. You cannot redirect HTTPS to
-    #: HTTP.
     Protocol: Optional[str] = None
-    #: The port. You can specify a value from 1 to 65535 or #{port}.
+    """
+    The protocol.
+
+    You can specify HTTP, HTTPS, or #{protocol}. You can redirect HTTP to HTTP,
+    HTTP to HTTPS, and HTTPS to HTTPS. You cannot redirect HTTPS to HTTP.
+    """
     Port: Optional[str] = None
-    #: The hostname. This component is not percent-encoded. The hostname can contain
-    #: #{host}.
+    """
+    The port.
+
+    You can specify a value from 1 to 65535 or #{port}.
+    """
     Host: Optional[str] = None
-    #: The absolute path, starting with the leading "/". This component is not
-    #: percent-encoded. The path can contain #{host}, #{path}, and #{port}.
+    """
+    The hostname.
+
+    This component is not percent-encoded. The hostname can contain #{host}.
+    """
     Path: Optional[str] = None
-    #: The query parameters, URL-encoded when necessary, but not percent-encoded. Do
-    #: not include the leading "?", as it is automatically added. You can specify any
-    #: of the reserved keywords.
+    """
+    The absolute path, starting with the leading "/".
+
+    This component is not percent-encoded. The path can contain #{host},
+    #{path}, and #{port}.
+    """
     Query: Optional[str] = None
-    #: The HTTP redirect code. The redirect is either permanent (HTTP 301) or
-    #: temporary (HTTP 302).
+    """
+    The query parameters, URL-encoded when necessary, but not percent-encoded.
+
+    Do not include the leading "?", as it is automatically added. You can
+    specify any of the reserved keywords.
+    """
     StatusCode: Literal["HTTP_301", "HTTP_302"]
+    """
+    The HTTP redirect code.
+
+    The redirect is either permanent (HTTP 301) or temporary (HTTP 302).
+    """
 
 
 class FixedResponseActionConfig(Boto3Model):
@@ -860,12 +1026,18 @@ class FixedResponseActionConfig(Boto3Model):
     Specify only when ``Type`` is ``fixed-response``.
     """
 
-    #: The message.
     MessageBody: Optional[str] = None
-    #: The HTTP response code (2XX, 4XX, or 5XX).
+    """
+    The message.
+    """
     StatusCode: str
-    #: The content type.
+    """
+    The HTTP response code (2XX, 4XX, or 5XX).
+    """
     ContentType: Optional[str] = None
+    """
+    The content type.
+    """
 
 
 class TargetGroupTuple(Boto3Model):
@@ -874,10 +1046,16 @@ class TargetGroupTuple(Boto3Model):
     groups in a forward rule.
     """
 
-    #: The Amazon Resource Name (ARN) of the target group.
     TargetGroupArn: Optional[str] = None
-    #: The weight. The range is 0 to 999.
+    """
+    The Amazon Resource Name (ARN) of the target group.
+    """
     Weight: Optional[int] = None
+    """
+    The weight.
+
+    The range is 0 to 999.
+    """
 
 
 class ElbV2TargetGroupStickinessConfig(Boto3Model):
@@ -885,11 +1063,17 @@ class ElbV2TargetGroupStickinessConfig(Boto3Model):
     The target group stickiness for the rule.
     """
 
-    #: Indicates whether target group stickiness is enabled.
     Enabled: Optional[bool] = None
-    #: The time period, in seconds, during which requests from a client should be
-    #: routed to the same target group. The range is 1-604800 seconds (7 days).
+    """
+    Indicates whether target group stickiness is enabled.
+    """
     DurationSeconds: Optional[int] = None
+    """
+    The time period, in seconds, during which requests from a client should be
+    routed to the same target group.
+
+    The range is 1-604800 seconds (7 days).
+    """
 
 
 class ForwardActionConfig(Boto3Model):
@@ -904,11 +1088,16 @@ class ForwardActionConfig(Boto3Model):
     ``TargetGroupArn``.
     """
 
-    #: The target groups. For Network Load Balancers, you can specify a single target
-    #: group.
     TargetGroups: Optional[List["TargetGroupTuple"]] = None
-    #: The target group stickiness for the rule.
+    """
+    The target groups.
+
+    For Network Load Balancers, you can specify a single target group.
+    """
     TargetGroupStickinessConfig: Optional[ElbV2TargetGroupStickinessConfig] = None
+    """
+    The target group stickiness for the rule.
+    """
 
 
 class Action(Boto3Model):
@@ -920,40 +1109,70 @@ class Action(Boto3Model):
     action to be performed.
     """
 
-    #: The type of action.
-    Type: Literal[
+    ActionType: Literal[
         "forward",
         "authenticate-oidc",
         "authenticate-cognito",
         "redirect",
         "fixed-response",
-    ]
-    #: The Amazon Resource Name (ARN) of the target group. Specify only when ``Type``
-    #: is ``forward`` and you want to route to a single target group. To route to one
-    #: or more target groups, use ``ForwardConfig`` instead.
+    ] = Field(serialization_alias="Type")
+    """
+    The type of action.
+    """
     TargetGroupArn: Optional[str] = None
-    #: [HTTPS listeners] Information about an identity provider that is compliant with
-    #: OpenID Connect (OIDC). Specify only when ``Type`` is ``authenticate-oidc``.
+    """
+    The Amazon Resource Name (ARN) of the target group.
+
+    Specify only when ``Type``
+    is ``forward`` and you want to route to a single target group. To route to one
+    or more target groups, use ``ForwardConfig`` instead.
+    """
     AuthenticateOidcConfig: Optional[AuthenticateOidcActionConfig] = None
-    #: [HTTPS listeners] Information for using Amazon Cognito to authenticate users.
-    #: Specify only when ``Type`` is ``authenticate-cognito``.
+    """
+    [HTTPS listeners] Information about an identity provider that is compliant
+    with OpenID Connect (OIDC).
+
+    Specify only when ``Type`` is ``authenticate-oidc``.
+    """
     AuthenticateCognitoConfig: Optional[AuthenticateCognitoActionConfig] = None
-    #: The order for the action. This value is required for rules with multiple
-    #: actions. The action with the lowest value for order is performed first.
+    """
+    [HTTPS listeners] Information for using Amazon Cognito to authenticate
+    users.
+
+    Specify only when ``Type`` is ``authenticate-cognito``.
+    """
     Order: Optional[int] = None
-    #: [Application Load Balancer] Information for creating a redirect action. Specify
-    #: only when ``Type`` is ``redirect``.
+    """
+    The order for the action.
+
+    This value is required for rules with multiple actions. The action with the
+    lowest value for order is performed first.
+    """
     RedirectConfig: Optional[RedirectActionConfig] = None
-    #: [Application Load Balancer] Information for creating an action that returns a
-    #: custom HTTP response. Specify only when ``Type`` is ``fixed-response``.
+    """
+    [Application Load Balancer] Information for creating a redirect action.
+
+    Specify
+    only when ``Type`` is ``redirect``.
+    """
     FixedResponseConfig: Optional[FixedResponseActionConfig] = None
-    #: Information for creating an action that distributes requests among one or more
-    #: target groups. For Network Load Balancers, you can specify a single target
-    #: group. Specify only when ``Type`` is ``forward``. If you specify both
-    #: ``ForwardConfig`` and ``TargetGroupArn``, you can specify only one target group
-    #: using ``ForwardConfig`` and it must be the same target group specified in
-    #: ``TargetGroupArn``.
+    """
+    [Application Load Balancer] Information for creating an action that returns
+    a custom HTTP response.
+
+    Specify only when ``Type`` is ``fixed-response``.
+    """
     ForwardConfig: Optional[ForwardActionConfig] = None
+    """
+    Information for creating an action that distributes requests among one or
+    more target groups.
+
+    For Network Load Balancers, you can specify a single target
+    group. Specify only when ``Type`` is ``forward``. If you specify both
+    ``ForwardConfig`` and ``TargetGroupArn``, you can specify only one target group
+    using ``ForwardConfig`` and it must be the same target group specified in
+    ``TargetGroupArn``.
+    """
 
 
 class MutualAuthenticationAttributes(Boto3Model):
@@ -961,15 +1180,25 @@ class MutualAuthenticationAttributes(Boto3Model):
     The mutual authentication configuration information.
     """
 
-    #: The client certificate handling method. Options are ``off``, ``passthrough`` or
-    #: ``verify``. The default value is ``off``.
     Mode: Optional[str] = None
-    #: The Amazon Resource Name (ARN) of the trust store.
+    """
+    The client certificate handling method.
+
+    Options are ``off``, ``passthrough`` or
+    ``verify``. The default value is ``off``.
+    """
     TrustStoreArn: Optional[str] = None
-    #: Indicates whether expired client certificates are ignored.
+    """
+    The Amazon Resource Name (ARN) of the trust store.
+    """
     IgnoreClientCertificateExpiry: Optional[bool] = None
-    #: Indicates a shared trust stores association status.
+    """
+    Indicates whether expired client certificates are ignored.
+    """
     TrustStoreAssociationStatus: Optional[Literal["active", "removed"]] = None
+    """
+    Indicates a shared trust stores association status.
+    """
 
 
 class Listener(PrimaryBoto3Model):
@@ -979,28 +1208,46 @@ class Listener(PrimaryBoto3Model):
 
     objects: ClassVar[Boto3ModelManager] = ListenerManager()
 
-    #: The Amazon Resource Name (ARN) of the load balancer.
     LoadBalancerArn: str
-    #: The port on which the load balancer is listening.
+    """
+    The Amazon Resource Name (ARN) of the load balancer.
+    """
     Port: int
-    #: The protocol for connections from clients to the load balancer.
+    """
+    The port on which the load balancer is listening.
+    """
     Protocol: Optional[
         Literal["HTTP", "HTTPS", "TCP", "TLS", "UDP", "TCP_UDP", "GENEVE"]
     ] = "HTTPS"
-    #: The Amazon Resource Name (ARN) of the listener.
+    """
+    The protocol for connections from clients to the load balancer.
+    """
     ListenerArn: Optional[str] = None
-    #: [HTTPS or TLS listener] The default certificate for the listener.
+    """
+    The Amazon Resource Name (ARN) of the listener.
+    """
     Certificates: Optional[List["Certificate"]] = None
-    #: [HTTPS or TLS listener] The security policy that defines which protocols and
-    #: ciphers are supported.
+    """
+    [HTTPS or TLS listener] The default certificate for the listener.
+    """
     SslPolicy: Optional[str] = None
-    #: The default actions for the listener.
+    """
+    [HTTPS or TLS listener] The security policy that defines which protocols
+    and ciphers are supported.
+    """
     DefaultActions: Optional[List["Action"]] = None
-    #: [TLS listener] The name of the Application-Layer Protocol Negotiation (ALPN)
-    #: policy.
+    """
+    The default actions for the listener.
+    """
     AlpnPolicy: Optional[List[str]] = None
-    #: The mutual authentication configuration information.
+    """
+    [TLS listener] The name of the Application-Layer Protocol Negotiation
+    (ALPN) policy.
+    """
     MutualAuthentication: Optional[MutualAuthenticationAttributes] = None
+    """
+    The mutual authentication configuration information.
+    """
 
     @property
     def pk(self) -> Optional[str]:
@@ -1029,6 +1276,13 @@ class Listener(PrimaryBoto3Model):
         """
         Return the :py:class:`LoadBalancer` object that this listener belongs
         to, if any.
+
+        .. note::
+
+            The output of this property is cached on the model instance, so
+            calling this multiple times will not result in multiple calls to the
+            AWS API.   If you need a fresh copy of the data, you can re-get the
+            model instance from the manager.
         """
 
         try:
@@ -1046,6 +1300,13 @@ class Listener(PrimaryBoto3Model):
         """
         Return the ARNs of :py:class:`Rule` objects that belong to this
         listener, if any.
+
+        .. note::
+
+            The output of this property is cached on the model instance, so
+            calling this multiple times will not result in multiple calls to the
+            AWS API.   If you need a fresh copy of the data, you can re-get the
+            model instance from the manager.
         """
 
         try:
@@ -1067,10 +1328,14 @@ class HostHeaderConditionConfig(Boto3Model):
     header``.
     """
 
-    #: The host names. The maximum size of each name is 128 characters. The comparison
-    #: is case insensitive. The following wildcard characters are supported: \*
-    #: (matches 0 or more characters) and ? (matches exactly 1 character).
     Values: Optional[List[str]] = None
+    """
+    The host names.
+
+    The maximum size of each name is 128 characters. The comparison is case
+    insensitive. The following wildcard characters are supported: \* (matches 0
+    or more characters) and ? (matches exactly 1 character).
+    """
 
 
 class PathPatternConditionConfig(Boto3Model):
@@ -1081,11 +1346,15 @@ class PathPatternConditionConfig(Boto3Model):
     ``path-pattern``.
     """
 
-    #: The path patterns to compare against the request URL. The maximum size of each
-    #: string is 128 characters. The comparison is case sensitive. The following
-    #: wildcard characters are supported: \* (matches 0 or more characters) and ?
-    #: (matches exactly 1 character).
     Values: Optional[List[str]] = None
+    """
+    The path patterns to compare against the request URL.
+
+    The maximum size of each
+    string is 128 characters. The comparison is case sensitive. The following
+    wildcard characters are supported: \* (matches 0 or more characters) and ?
+    (matches exactly 1 character).
+    """
 
 
 class HttpHeaderConditionConfig(Boto3Model):
@@ -1096,15 +1365,22 @@ class HttpHeaderConditionConfig(Boto3Model):
     ``http-header``.
     """
 
-    #: The name of the HTTP header field. The maximum size is 40 characters. The
-    #: header name is case insensitive. The allowed characters are specified by RFC
-    #: 7230. Wildcards are not supported.
     HttpHeaderName: Optional[str] = None
-    #: The strings to compare against the value of the HTTP header. The maximum size
-    #: of each string is 128 characters. The comparison strings are case insensitive.
-    #: The following wildcard characters are supported: \* (matches 0 or more
-    #: characters) and ? (matches exactly 1 character).
+    """
+    The name of the HTTP header field.
+
+    The maximum size is 40 characters. The header name is case insensitive. The
+    allowed characters are specified by RFC 7230. Wildcards are not supported.
+    """
     Values: Optional[List[str]] = None
+    """
+    The strings to compare against the value of the HTTP header.
+
+    The maximum size
+    of each string is 128 characters. The comparison strings are case insensitive.
+    The following wildcard characters are supported: \* (matches 0 or more
+    characters) and ? (matches exactly 1 character).
+    """
 
 
 class QueryStringKeyValuePair(Boto3Model):
@@ -1112,10 +1388,16 @@ class QueryStringKeyValuePair(Boto3Model):
     Information about a key/value pair.
     """
 
-    #: The key. You can omit the key.
     Key: Optional[str] = None
-    #: The value.
+    """
+    The key.
+
+    You can omit the key.
+    """
     Value: Optional[str] = None
+    """
+    The value.
+    """
 
 
 class QueryStringConditionConfig(Boto3Model):
@@ -1126,13 +1408,17 @@ class QueryStringConditionConfig(Boto3Model):
     ``query-string``.
     """
 
-    #: The key/value pairs or values to find in the query string. The maximum size of
-    #: each string is 128 characters. The comparison is case insensitive. The
-    #: following wildcard characters are supported: \* (matches 0 or more characters)
-    #: and ? (matches exactly 1 character). To search for a literal '\*' or '?'
-    #: character in a query string, you must escape these characters in ``Values``
-    #: using a '\' character.
     Values: Optional[List["QueryStringKeyValuePair"]] = None
+    """
+    The key/value pairs or values to find in the query string.
+
+    The maximum size of
+    each string is 128 characters. The comparison is case insensitive. The
+    following wildcard characters are supported: \* (matches 0 or more characters)
+    and ? (matches exactly 1 character). To search for a literal '\*' or '?'
+    character in a query string, you must escape these characters in ``Values``
+    using a '\' character.
+    """
 
 
 class HttpRequestMethodConditionConfig(Boto3Model):
@@ -1143,11 +1429,14 @@ class HttpRequestMethodConditionConfig(Boto3Model):
     ``http-request-method``.
     """
 
-    #: The name of the request method. The maximum size is 40 characters. The allowed
-    #: characters are A-Z, hyphen (-), and underscore (\_). The comparison is case
-    #: sensitive. Wildcards are not supported; therefore, the method name must be an
-    #: exact match.
     Values: Optional[List[str]] = None
+    """
+    The name of the request method.
+
+    The maximum size is 40 characters. The allowed characters are A-Z, hyphen
+    (-), and underscore (\_). The comparison is case sensitive. Wildcards are
+    not supported; therefore, the method name must be an exact match.
+    """
 
 
 class SourceIpConditionConfig(Boto3Model):
@@ -1158,9 +1447,12 @@ class SourceIpConditionConfig(Boto3Model):
     ip``.
     """
 
-    #: The source IP addresses, in CIDR format. You can use both IPv4 and IPv6
-    #: addresses. Wildcards are not supported.
     Values: Optional[List[str]] = None
+    """
+    The source IP addresses, in CIDR format.
+
+    You can use both IPv4 and IPv6 addresses. Wildcards are not supported.
+    """
 
 
 class RuleCondition(Boto3Model):
@@ -1178,30 +1470,62 @@ class RuleCondition(Boto3Model):
     limits.html>`_.
     """
 
-    #: The field in the HTTP request. The following are the possible values:
-    Field: Optional[str] = None
-    #: The condition value. Specify only when ``Field`` is ``host-header`` or ``path-
-    #: pattern``. Alternatively, to specify multiple host names or multiple path
-    #: patterns, use ``HostHeaderConfig`` or ``PathPatternConfig``.
+    FieldName: str = Field(default=None, serialization_alias="Field")
+    """
+    The field in the HTTP request.
+
+    The following are the possible values:
+    """
     Values: Optional[List[str]] = None
-    #: Information for a host header condition. Specify only when ``Field`` is ``host-
-    #: header``.
+    """
+    The condition value.
+
+    Specify only when ``Field`` is ``host-header`` or ``path-
+    pattern``. Alternatively, to specify multiple host names or multiple path
+    patterns, use ``HostHeaderConfig`` or ``PathPatternConfig``.
+    """
     HostHeaderConfig: Optional[HostHeaderConditionConfig] = None
-    #: Information for a path pattern condition. Specify only when ``Field`` is
-    #: ``path-pattern``.
+    """
+    Information for a host header condition.
+
+    Specify only when ``Field`` is ``host-
+    header``.
+    """
     PathPatternConfig: Optional[PathPatternConditionConfig] = None
-    #: Information for an HTTP header condition. Specify only when ``Field`` is
-    #: ``http-header``.
+    """
+    Information for a path pattern condition.
+
+    Specify only when ``Field`` is
+    ``path-pattern``.
+    """
     HttpHeaderConfig: Optional[HttpHeaderConditionConfig] = None
-    #: Information for a query string condition. Specify only when ``Field`` is
-    #: ``query-string``.
+    """
+    Information for an HTTP header condition.
+
+    Specify only when ``Field`` is
+    ``http-header``.
+    """
     QueryStringConfig: Optional[QueryStringConditionConfig] = None
-    #: Information for an HTTP method condition. Specify only when ``Field`` is
-    #: ``http-request-method``.
+    """
+    Information for a query string condition.
+
+    Specify only when ``Field`` is
+    ``query-string``.
+    """
     HttpRequestMethodConfig: Optional[HttpRequestMethodConditionConfig] = None
-    #: Information for a source IP condition. Specify only when ``Field`` is ``source-
-    #: ip``.
+    """
+    Information for an HTTP method condition.
+
+    Specify only when ``Field`` is
+    ``http-request-method``.
+    """
     SourceIpConfig: Optional[SourceIpConditionConfig] = None
+    """
+    Information for a source IP condition.
+
+    Specify only when ``Field`` is ``source-
+    ip``.
+    """
 
 
 class Rule(PrimaryBoto3Model):
@@ -1211,21 +1535,35 @@ class Rule(PrimaryBoto3Model):
 
     objects: ClassVar[Boto3ModelManager] = RuleManager()
 
-    #: The priority.
     Priority: Optional[str] = "1"
-    #: The conditions. Each rule can include zero or one of the following conditions:
-    #: ``http-request-method``, ``host-header``, ``path-pattern``, and ``source-ip``,
-    #: and zero or more of the following conditions: ``http-header`` and ``query-
-    #: string``.
+    """
+    The priority.
+    """
     Conditions: List["RuleCondition"]
-    #: The actions. Each rule must include exactly one of the following types of
-    #: actions: ``forward``, ``redirect``, or ``fixed-response``, and it must be the
-    #: last action to be performed.
+    """
+    The conditions.
+
+    Each rule can include zero or one of the following conditions:
+    ``http-request-method``, ``host-header``, ``path-pattern``, and ``source-ip``,
+    and zero or more of the following conditions: ``http-header`` and ``query-
+    string``.
+    """
     Actions: List["Action"]
-    #: Indicates whether this is the default rule.
+    """
+    The actions.
+
+    Each rule must include exactly one of the following types of
+    actions: ``forward``, ``redirect``, or ``fixed-response``, and it must be the
+    last action to be performed.
+    """
     IsDefault: Optional[bool] = False
-    #: The Amazon Resource Name (ARN) of the rule.
+    """
+    Indicates whether this is the default rule.
+    """
     RuleArn: Optional[str] = None
+    """
+    The Amazon Resource Name (ARN) of the rule.
+    """
 
     @property
     def pk(self) -> Optional[str]:
@@ -1256,14 +1594,21 @@ class ResponseCodeMatcher(Boto3Model):
     a target.
     """
 
-    #: For Application Load Balancers, you can specify values between 200 and 499,
-    #: with the default value being 200. You can specify multiple values (for example,
-    #: "200,202") or a range of values (for example, "200-299").
     HttpCode: Optional[str] = None
-    #: You can specify values between 0 and 99. You can specify multiple values (for
-    #: example, "0,1") or a range of values (for example, "0-5"). The default value is
-    #: 12.
+    """
+    For Application Load Balancers, you can specify values between 200 and 499,
+    with the default value being 200.
+
+    You can specify multiple values (for example, "200,202") or a range of
+    values (for example, "200-299").
+    """
     GrpcCode: Optional[str] = None
+    """
+    You can specify values between 0 and 99.
+
+    You can specify multiple values (for example, "0,1") or a range of values
+    (for example, "0-5"). The default value is 12.
+    """
 
 
 class TargetGroup(PrimaryBoto3Model):
@@ -1273,61 +1618,108 @@ class TargetGroup(PrimaryBoto3Model):
 
     objects: ClassVar[Boto3ModelManager] = TargetGroupManager()
 
-    #: The name of the target group.
     TargetGroupName: str
-    #: The protocol to use for routing traffic to the targets.
+    """
+    The name of the target group.
+    """
     Protocol: Optional[
         Literal["HTTP", "HTTPS", "TCP", "TLS", "UDP", "TCP_UDP", "GENEVE"]
     ] = "HTTPS"
-    #: The port on which the targets are listening. This parameter is not used if the
-    #: target is a Lambda function.
+    """
+    The protocol to use for routing traffic to the targets.
+    """
     Port: int
-    #: The ID of the VPC for the targets.
+    """
+    The port on which the targets are listening.
+
+    This parameter is not used if the target is a Lambda function.
+    """
     VpcId: str
-    #: The type of target that you must specify when registering targets with this
-    #: target group. The possible values are ``instance`` (register targets by
-    #: instance ID), ``ip`` (register targets by IP address), ``lambda`` (register a
-    #: single Lambda function as a target), or ``alb`` (register a single Application
-    #: Load Balancer as a target).
+    """
+    The ID of the VPC for the targets.
+    """
     TargetType: Optional[Literal["instance", "ip", "lambda", "alb"]] = "ip"
-    #: The type of IP address used for this target group. The possible values are
-    #: ``ipv4`` and ``ipv6``. This is an optional parameter. If not specified, the IP
-    #: address type defaults to ``ipv4``.
+    """
+    The type of target that you must specify when registering targets with this
+    target group.
+
+    The possible values are ``instance`` (register targets by
+    instance ID), ``ip`` (register targets by IP address), ``lambda`` (register a
+    single Lambda function as a target), or ``alb`` (register a single Application
+    Load Balancer as a target).
+    """
     IpAddressType: Optional[Literal["ipv4", "ipv6"]] = "ipv4"
-    #: The Amazon Resource Name (ARN) of the target group.
+    """
+    The type of IP address used for this target group.
+
+    The possible values are
+    ``ipv4`` and ``ipv6``. This is an optional parameter. If not specified, the IP
+    address type defaults to ``ipv4``.
+    """
     TargetGroupArn: Optional[str] = None
-    #: The protocol to use to connect with the target. The GENEVE, TLS, UDP, and
-    #: TCP\_UDP protocols are not supported for health checks.
+    """
+    The Amazon Resource Name (ARN) of the target group.
+    """
     HealthCheckProtocol: Optional[
         Literal["HTTP", "HTTPS", "TCP", "TLS", "UDP", "TCP_UDP", "GENEVE"]
     ] = None
-    #: The port to use to connect with the target.
+    """
+    The protocol to use to connect with the target.
+
+    The GENEVE, TLS, UDP, and TCP\_UDP protocols are not supported for health
+    checks.
+    """
     HealthCheckPort: Optional[str] = None
-    #: Indicates whether health checks are enabled.
+    """
+    The port to use to connect with the target.
+    """
     HealthCheckEnabled: Optional[bool] = None
-    #: The approximate amount of time, in seconds, between health checks of an
-    #: individual target.
+    """
+    Indicates whether health checks are enabled.
+    """
     HealthCheckIntervalSeconds: Optional[int] = None
-    #: The amount of time, in seconds, during which no response means a failed health
-    #: check.
+    """
+    The approximate amount of time, in seconds, between health checks of an
+    individual target.
+    """
     HealthCheckTimeoutSeconds: Optional[int] = None
-    #: The number of consecutive health checks successes required before considering
-    #: an unhealthy target healthy.
+    """
+    The amount of time, in seconds, during which no response means a failed
+    health check.
+    """
     HealthyThresholdCount: Optional[int] = None
-    #: The number of consecutive health check failures required before considering the
-    #: target unhealthy.
+    """
+    The number of consecutive health checks successes required before
+    considering an unhealthy target healthy.
+    """
     UnhealthyThresholdCount: Optional[int] = None
-    #: The destination for health checks on the targets.
+    """
+    The number of consecutive health check failures required before considering
+    the target unhealthy.
+    """
     HealthCheckPath: Optional[str] = None
-    #: The HTTP or gRPC codes to use when checking for a successful response from a
-    #: target.
+    """
+    The destination for health checks on the targets.
+    """
     Matcher: Optional[ResponseCodeMatcher] = None
-    #: The Amazon Resource Name (ARN) of the load balancer that routes traffic to this
-    #: target group. You can use each target group with only one load balancer.
+    """
+    The HTTP or gRPC codes to use when checking for a successful response from
+    a target.
+    """
     LoadBalancerArns: Optional[List[str]] = None
-    #: [HTTP/HTTPS protocol] The protocol version. The possible values are ``GRPC``,
-    #: ``HTTP1``, and ``HTTP2``.
+    """
+    The Amazon Resource Name (ARN) of the load balancer that routes traffic to
+    this target group.
+
+    You can use each target group with only one load balancer.
+    """
     ProtocolVersion: Optional[str] = None
+    """
+    [HTTP/HTTPS protocol] The protocol version.
+
+    The possible values are ``GRPC``,
+    ``HTTP1``, and ``HTTP2``.
+    """
 
     @property
     def pk(self) -> Optional[str]:
@@ -1367,6 +1759,13 @@ class TargetGroup(PrimaryBoto3Model):
         """
         Return the ARNs of :py:class:`LoadBalancer` objects that this target
         group belongs to, if any.
+
+        .. note::
+
+            The output of this property is cached on the model instance, so
+            calling this multiple times will not result in multiple calls to the
+            AWS API.   If you need a fresh copy of the data, you can re-get the
+            model instance from the manager.
         """
 
         try:
@@ -1384,6 +1783,13 @@ class TargetGroup(PrimaryBoto3Model):
         """
         Return the :py:class:`Vpc` object that this target group belongs to, if
         any.
+
+        .. note::
+
+            The output of this property is cached on the model instance, so
+            calling this multiple times will not result in multiple calls to the
+            AWS API.   If you need a fresh copy of the data, you can re-get the
+            model instance from the manager.
         """
 
         try:
@@ -1407,21 +1813,31 @@ class SubnetMapping(Boto3Model):
     Information about a subnet mapping.
     """
 
-    #: The ID of the subnet.
     SubnetId: str
-    #: [Network Load Balancers] The allocation ID of the Elastic IP address for an
-    #: internet-facing load balancer.
+    """
+    The ID of the subnet.
+    """
     AllocationId: Optional[str] = None
-    #: [Network Load Balancers] The private IPv4 address for an internal load
-    #: balancer.
+    """
+    [Network Load Balancers] The allocation ID of the Elastic IP address for an
+    internet-facing load balancer.
+    """
     PrivateIPv4Address: Optional[str] = None
-    #: [Network Load Balancers] The IPv6 address.
+    """
+    [Network Load Balancers] The private IPv4 address for an internal load
+    balancer.
+    """
     IPv6Address: Optional[str] = None
+    """
+    [Network Load Balancers] The IPv6 address.
+    """
 
 
 class CreateLoadBalancerOutput(Boto3Model):
-    #: Information about the load balancer.
     LoadBalancers: Optional[List["LoadBalancer"]] = None
+    """
+    Information about the load balancer.
+    """
 
 
 class DeleteLoadBalancerOutput(Boto3Model):
@@ -1429,21 +1845,31 @@ class DeleteLoadBalancerOutput(Boto3Model):
 
 
 class DescribeLoadBalancersOutput(Boto3Model):
-    #: Information about the load balancers.
     LoadBalancers: Optional[List["LoadBalancer"]] = None
-    #: If there are additional results, this is the marker for the next set of
-    #: results. Otherwise, this is null.
+    """
+    Information about the load balancers.
+    """
     NextMarker: Optional[str] = None
+    """
+    If there are additional results, this is the marker for the next set of
+    results.
+
+    Otherwise, this is null.
+    """
 
 
 class CreateListenerOutput(Boto3Model):
-    #: Information about the listener.
     Listeners: Optional[List["Listener"]] = None
+    """
+    Information about the listener.
+    """
 
 
 class ModifyListenerOutput(Boto3Model):
-    #: Information about the modified listener.
     Listeners: Optional[List["Listener"]] = None
+    """
+    Information about the modified listener.
+    """
 
 
 class DeleteListenerOutput(Boto3Model):
@@ -1451,21 +1877,31 @@ class DeleteListenerOutput(Boto3Model):
 
 
 class DescribeListenersOutput(Boto3Model):
-    #: Information about the listeners.
     Listeners: Optional[List["Listener"]] = None
-    #: If there are additional results, this is the marker for the next set of
-    #: results. Otherwise, this is null.
+    """
+    Information about the listeners.
+    """
     NextMarker: Optional[str] = None
+    """
+    If there are additional results, this is the marker for the next set of
+    results.
+
+    Otherwise, this is null.
+    """
 
 
 class CreateRuleOutput(Boto3Model):
-    #: Information about the rule.
     Rules: Optional[List["Rule"]] = None
+    """
+    Information about the rule.
+    """
 
 
 class ModifyRuleOutput(Boto3Model):
-    #: Information about the modified rule.
     Rules: Optional[List["Rule"]] = None
+    """
+    Information about the modified rule.
+    """
 
 
 class DeleteRuleOutput(Boto3Model):
@@ -1473,21 +1909,31 @@ class DeleteRuleOutput(Boto3Model):
 
 
 class DescribeRulesOutput(Boto3Model):
-    #: Information about the rules.
     Rules: Optional[List["Rule"]] = None
-    #: If there are additional results, this is the marker for the next set of
-    #: results. Otherwise, this is null.
+    """
+    Information about the rules.
+    """
     NextMarker: Optional[str] = None
+    """
+    If there are additional results, this is the marker for the next set of
+    results.
+
+    Otherwise, this is null.
+    """
 
 
 class CreateTargetGroupOutput(Boto3Model):
-    #: Information about the target group.
     TargetGroups: Optional[List["TargetGroup"]] = None
+    """
+    Information about the target group.
+    """
 
 
 class ModifyTargetGroupOutput(Boto3Model):
-    #: Information about the modified target group.
     TargetGroups: Optional[List["TargetGroup"]] = None
+    """
+    Information about the modified target group.
+    """
 
 
 class DeleteTargetGroupOutput(Boto3Model):
@@ -1495,11 +1941,17 @@ class DeleteTargetGroupOutput(Boto3Model):
 
 
 class DescribeTargetGroupsOutput(Boto3Model):
-    #: Information about the target groups.
     TargetGroups: Optional[List["TargetGroup"]] = None
-    #: If there are additional results, this is the marker for the next set of
-    #: results. Otherwise, this is null.
+    """
+    Information about the target groups.
+    """
     NextMarker: Optional[str] = None
+    """
+    If there are additional results, this is the marker for the next set of
+    results.
+
+    Otherwise, this is null.
+    """
 
 
 class TargetDescription(Boto3Model):
@@ -1507,22 +1959,34 @@ class TargetDescription(Boto3Model):
     Information about a target.
     """
 
-    #: The ID of the target. If the target type of the target group is ``instance``,
-    #: specify an instance ID. If the target type is ``ip``, specify an IP address. If
-    #: the target type is ``lambda``, specify the ARN of the Lambda function. If the
-    #: target type is ``alb``, specify the ARN of the Application Load Balancer
-    #: target.
     Id: str
-    #: The port on which the target is listening. If the target group protocol is
-    #: GENEVE, the supported port is 6081. If the target type is ``alb``, the targeted
-    #: Application Load Balancer must have at least one listener whose port matches
-    #: the target group port. This parameter is not used if the target is a Lambda
-    #: function.
+    """
+    The ID of the target.
+
+    If the target type of the target group is ``instance``,
+    specify an instance ID. If the target type is ``ip``, specify an IP address. If
+    the target type is ``lambda``, specify the ARN of the Lambda function. If the
+    target type is ``alb``, specify the ARN of the Application Load Balancer
+    target.
+    """
     Port: Optional[int] = None
-    #: An Availability Zone or ``all``. This determines whether the target receives
-    #: traffic from the load balancer nodes in the specified Availability Zone or from
-    #: all enabled Availability Zones for the load balancer.
+    """
+    The port on which the target is listening.
+
+    If the target group protocol is
+    GENEVE, the supported port is 6081. If the target type is ``alb``, the targeted
+    Application Load Balancer must have at least one listener whose port matches
+    the target group port. This parameter is not used if the target is a Lambda
+    function.
+    """
     AvailabilityZone: Optional[str] = None
+    """
+    An Availability Zone or ``all``.
+
+    This determines whether the target receives traffic from the load balancer
+    nodes in the specified Availability Zone or from all enabled Availability
+    Zones for the load balancer.
+    """
 
 
 class TargetHealthInfo(Boto3Model):
@@ -1530,7 +1994,6 @@ class TargetHealthInfo(Boto3Model):
     The health information for the target.
     """
 
-    #: The state of the target.
     State: Optional[
         Literal[
             "initial",
@@ -1542,7 +2005,9 @@ class TargetHealthInfo(Boto3Model):
             "unavailable",
         ]
     ] = None
-    #: The reason code.
+    """
+    The state of the target.
+    """
     Reason: Optional[
         Literal[
             "Elb.RegistrationInProgress",
@@ -1559,9 +2024,16 @@ class TargetHealthInfo(Boto3Model):
             "Elb.InternalError",
         ]
     ] = None
-    #: A description of the target health that provides additional details. If the
-    #: state is ``healthy``, a description is not provided.
+    """
+    The reason code.
+    """
     Description: Optional[str] = None
+    """
+    A description of the target health that provides additional details.
+
+    If the
+    state is ``healthy``, a description is not provided.
+    """
 
 
 class AnomalyDetectionInfo(Boto3Model):
@@ -1573,10 +2045,14 @@ class AnomalyDetectionInfo(Boto3Model):
     If anomalies were detected, the result is ``anomalous``.
     """
 
-    #: The latest anomaly detection result.
     Result: Optional[Literal["anomalous", "normal"]] = None
-    #: Indicates whether anomaly mitigation is in progress.
+    """
+    The latest anomaly detection result.
+    """
     MitigationInEffect: Optional[Literal["yes", "no"]] = None
+    """
+    Indicates whether anomaly mitigation is in progress.
+    """
 
 
 class TargetHealthDescription(Boto3Model):
@@ -1584,16 +2060,26 @@ class TargetHealthDescription(Boto3Model):
     Information about the health of a target.
     """
 
-    #: The description of the target.
     Target: Optional[TargetDescription] = None
-    #: The port to use to connect with the target.
+    """
+    The description of the target.
+    """
     HealthCheckPort: Optional[str] = None
-    #: The health information for the target.
+    """
+    The port to use to connect with the target.
+    """
     TargetHealth: Optional[TargetHealthInfo] = None
-    #: The anomaly detection result for the target.
+    """
+    The health information for the target.
+    """
     AnomalyDetection: Optional[AnomalyDetectionInfo] = None
+    """
+    The anomaly detection result for the target.
+    """
 
 
 class DescribeTargetHealthOutput(Boto3Model):
-    #: Information about the health of the targets.
     TargetHealthDescriptions: Optional[List["TargetHealthDescription"]] = None
+    """
+    Information about the health of the targets.
+    """

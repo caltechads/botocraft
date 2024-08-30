@@ -19,6 +19,7 @@ from botocraft.sync.docstring import DocumentationFormatter
 
 DATA_DIR = Path(__file__).parent.parent / 'data'
 SERVICES_DIR = Path(__file__).parent.parent / 'services'
+DOCS_DIR = Path(__file__).parent.parent.parent / 'doc' / 'source'
 
 
 # ------
@@ -536,7 +537,7 @@ class MethodDocstringDefinition:
     render them into a single sphinx-napoleon style docstring.
     """
 
-    # The main method docstring.  This is the description of the method.
+    #: The main method docstring.  This is the description of the method.
     method: Optional[str] = None
     #: The docstrings for our positional arguments
     args: OrderedDict[str, Optional[str]] = field(default_factory=OrderedDict)
@@ -805,6 +806,35 @@ class BotocraftInterface(BaseModel):
             for service in self.services:
                 f.write(f'from .{service} import *  # noqa: F401,F403\n')
 
+    def populate_services_toc(self):
+        """
+        Populate the ``_services_index.rst`` file in the ``doc/source``
+        folder with the ``.. toctree::`` directive for all of our services.
+        """
+        index_path = DOCS_DIR / '_services_index.rst'
+        code = """
+.. toctree::
+   :caption: AWS Services
+   :hidden:
+
+"""
+        for service in sorted(self.services.keys()):
+            code += f'   api/services/{service}\n'
+        with open(index_path, 'w', encoding='utf-8') as f:
+            f.write(code)
+
+    def populate_services_list(self):
+        """
+        Populate the ``_services_list.rst`` file in the ``doc/source``
+        folder with links to all of our services.
+        """
+        index_path = DOCS_DIR / 'overview' / '_services_list.rst'
+        code = ""
+        for service in sorted(self.services.keys()):
+            code += f'- :doc:`/api/services/{service}`\n'
+        with open(index_path, 'w', encoding='utf-8') as f:
+            f.write(code)
+
     def update_init_py(self, service: str) -> None:
         """
         Update the ``__init__.py`` file in the ``botocraft.models``
@@ -822,6 +852,22 @@ class BotocraftInterface(BaseModel):
             with open(init_path, 'a', encoding='utf-8') as f:
                 f.write(f'{import_line}\n')
 
+    def purge_docs(self) -> None:
+        """
+        Purge all the previously generated documentation.
+        """
+        path = DOCS_DIR / 'api' / 'services'
+        for service in self.services:
+            service_path = path / f'{service}.rst'
+            if service_path.exists():
+                service_path.unlink()
+        path = DOCS_DIR / '_services_index.rst'
+        if path.exists():
+            path.unlink()
+        path = DOCS_DIR / 'overview' / '_services_list.rst'
+        if path.exists():
+            path.unlink()
+
     def generate(self, service: Optional[str] = None) -> None:
         """
         Generate all our service interfaces.
@@ -831,6 +877,8 @@ class BotocraftInterface(BaseModel):
                 service.  Otherwise, generate all interfaces.
         """
         from .service import ServiceGenerator  # pylint: disable=import-outside-toplevel
+        # First purge all the previously generated documentation
+        self.purge_docs()
         if service:
             assert service in self.services, f'No service definition for AWS Service "{service}"'
             print(f'Generating {service} service interface')
@@ -843,3 +891,5 @@ class BotocraftInterface(BaseModel):
                 generator = ServiceGenerator(_service)
                 generator.generate()
             self.populate_init_py()
+            self.populate_services_toc()
+            self.populate_services_list()

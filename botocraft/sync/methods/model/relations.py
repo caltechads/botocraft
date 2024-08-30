@@ -106,13 +106,24 @@ class ModelRelationGenerator:
         """
         Return the docstring for the method.
         """
+        code: str = ''
         if self.property_def.docstring:
-            return f'''
+            code = f'''
         """
         {self.property_def.docstring}
-        """
 '''
-        return ''
+        if self.property_def.cached:
+            code += """
+
+        .. note::
+
+            The output of this property is cached on the model instance, so
+            calling this multiple times will not result in multiple calls to the
+            AWS API.   If you need a fresh copy of the data, you can re-get the
+            model instance from the manager.
+"""
+        code += '        """'
+        return code
 
     @property
     def signature(self) -> str:
