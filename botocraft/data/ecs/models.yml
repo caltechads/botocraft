@@ -216,6 +216,19 @@ primary:
         transformer:
           mapping:
             InstanceId: ec2InstanceId
+      tasks:
+        primary_model_name: Task
+        many: true
+        cached: false
+        docstring: >-
+          Return the ARNs of :py:class:`Task` objects that run on this container
+          instance, if any.
+        transformer:
+          mapping:
+            cluster: clusterName
+            containerInstance: containerInstanceArn
+            desiredStatus: >-
+              "RUNNING"
 secondary:
   Deployment:
     readonly: true
