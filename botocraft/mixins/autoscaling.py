@@ -142,7 +142,10 @@ class AutoScalingGroupModelMixin:
             raise ValueError(
                 f"desired_count must be less than or equal to MaxSize, which is {self.MaxSize}."
             )
-        self.save()  # type: ignore[attr-defined]
+        self.objects.scale(
+            self.AutoScalingGroupName,
+            desired_count
+        )
         time.sleep(10)
         if wait:
             wait_count: int = 0
@@ -153,14 +156,7 @@ class AutoScalingGroupModelMixin:
                     raise TimeoutError(
                         f"Reached max attempts of {max_attempts} to reach desired count of {desired_count}."
                     )
-                if len(self.ec2_instances) == desired_count:
-                    # check if all instances are in service
-                    if all(instance.State.Name == 'running' for instance in self.ec2_instances):
-                        instance_ids = [instance.InstanceId for instance in self.ec2_instances]
-                        details = self.objects.instance_status(
-                            InstanceIds=instance_ids
-                        )
-                        if all(detail.HealthStatus == 'Healthy' for detail in details):
-                            break
+                if self.is_stable:
+                    break
                 wait_count += 1
                 time.sleep(5)
