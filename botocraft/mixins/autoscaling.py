@@ -3,6 +3,8 @@ from collections import OrderedDict
 import time
 from typing import ClassVar, List, TYPE_CHECKING
 
+from botocore.exceptions import WaiterError
+
 if TYPE_CHECKING:
     from botocraft.services import (
         AutoScalingGroupManager,
@@ -32,6 +34,7 @@ class AutoScalingGroupModelMixin:
 
     objects: ClassVar["AutoScalingGroupManager"]
 
+    AutoScalingGroupName: str
     MinSize: int
     MaxSize: int
 
@@ -54,6 +57,62 @@ class AutoScalingGroupModelMixin:
             return Instance.objects.list(**pk)
         else:
             return []
+
+    @property
+    def is_stable(self) -> bool:
+        """
+        Return ``True`` if the autoscaling group is stable, ``False`` otherwise.
+
+        An autoscaling group is considered stable if all instances are running
+        and healthy and the DesiredCapacity is equal to the number of instances.
+        """
+        ec2_instances = self.ec2_instances
+        if len(ec2_instances) == self.DesiredCapacity:
+            # check if all instances are in service
+            instance_ids = [instance.InstanceId for instance in ec2_instances]
+            details = self.objects.instance_status(
+                InstanceIds=instance_ids
+            )
+            if all(detail.HealthStatus == 'HEALTHY' for detail in details):
+                return True
+        return False
+
+    def wait_until_stable(
+        self,
+        max_attempts: int = 40,
+        delay: int = 15
+    ) -> None:
+        """
+        Since there is no waiter for this, we'll use this method to wait until
+        the autoscaling group is stable.
+
+        Raises:
+            botocore.exceptions.WaiterError: If the autoscaling group is not
+                stable after ``max_attempts``.
+
+        Keyword Args:
+            max_attempts: The maximum number of attempts to make before giving
+                up.
+            delay: The number of seconds to wait between attempts.
+        """
+        from botocraft.services import AutoScalingGroupsType  # pylint: disable=import-outside-toplevel
+        wait_count: int = 0
+        # There is no waiter for this, so we'll just poll until the desired
+        # count is reached, or we reach max_attempts.
+        while True:
+            asg = self.objects.get(AutoScalingGroupName=self.AutoScalingGroupName)
+            assert asg is not None, "AutoScalingGroup.wait_until_stable(): Autoscaling group not found."
+            if wait_count >= max_attempts:
+                reason = 'Max attempts exceeded'
+                raise WaiterError(
+                    name='asg_stable',
+                    reason=reason,
+                    last_response=AutoScalingGroupsType(AutoScalingGroups=[asg]).model_dump(),  # type: ignore
+                )
+            if asg.is_stable:
+                break
+            wait_count += 1
+            time.sleep(delay)
 
     def scale(
         self,
