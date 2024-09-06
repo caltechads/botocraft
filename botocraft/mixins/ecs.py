@@ -1,5 +1,5 @@
 import re
-from typing import Callable, List, TYPE_CHECKING, Optional
+from typing import Callable, List, TYPE_CHECKING, Optional, cast
 
 if TYPE_CHECKING:
     from botocraft.services import (
@@ -7,6 +7,7 @@ if TYPE_CHECKING:
         Cluster,
         ContainerInstance,
         Task,
+        TaskManager,
         TaskDefinition
     )
 
@@ -218,6 +219,86 @@ class ECSServiceModelMixin:
     This is a mixin for :py:class:`botocraft.services.ecs.Service` that adds
     some additional methods that we can't auto generate.
     """
+
+    @property
+    def required_cpu(self) -> int:
+        """
+        The required CPU for the service in CPU shares.  One full CPU is
+        equivalent to 1024 CPU shares.
+        """
+        cpu: int = 0
+        td = self.task_definition
+        if td.cpu:
+            cpu = int(td.cpu)
+        else:
+            for container in td.containerDefinitions:
+                if container.cpu:
+                    cpu += container.cpu
+        return cpu
+
+    @property
+    def required_memory(self) -> int:
+        """
+        Return the required memory for the service in MiB.
+        """
+        memory: int = 0
+        td = self.task_definition
+        if td.memory:
+            memory = int(td.memory)
+        else:
+            for container in td.containerDefinitions:
+                if container.memory:
+                    memory += container.memory
+        return int(memory)
+
+    @property
+    def container_instances(self) -> List["ContainerInstance"]:
+        """
+        Return the :py:class:`botocraft.services.ecs.ContainerInstance` objects which
+        are running our tasks for the service.
+        """
+        return [task.container_instance for task in self.tasks]
+
+    @property
+    def is_stable(self) -> bool:
+        """
+        Return whether the service is stable or not.
+        """
+        # this is the same test that the `services_stable` waiter uses
+        return len(self.deployments) == 1 and (self.runningCount == self.desiredCount)
+
+    def wait_until_stable(
+        self,
+        max_attempts: int = 40,
+        delay: int = 15
+    ) -> None:
+        """
+        Wait until the service is stable.
+
+        Raises:
+            botocore.exceptions.WaiterError: if the service is not stable after
+                ``max_attempts``, or some other error occurred.
+
+        Keyword Args:
+            max_attempts: The maximum number of attempts to make before giving
+                up.
+            delay: The number of seconds to wait between attempts.
+        """
+        waiter_config = {}
+        if max_attempts:
+            waiter_config['maxAttempts'] = max_attempts
+        if delay:
+            waiter_config['delay'] = delay
+        if waiter_config:
+            waiter_config['operation'] = 'DescribeServices'
+        waiter = self.objects.get_waiter(
+            'services_stable',
+            WaiterConfig=waiter_config
+        )
+        waiter.wait(
+            cluster=self.clusterArn,
+            services=[self.serviceName]
+        )
 
     def scale(
         self,
