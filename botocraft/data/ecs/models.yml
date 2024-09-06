@@ -265,3 +265,5 @@ secondary:
     fields:
       tags:
         rename: Tags
+  Resource:
+    alternate_name: ContainerInstanceResource
