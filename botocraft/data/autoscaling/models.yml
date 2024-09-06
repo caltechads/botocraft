@@ -82,3 +82,5 @@ secondary:
     alternate_name: AutoScalingNetworkBandwithGbpsRequest
   InstanceMaintenancePolicy:
     alternate_name: AutoScalingInstanceMaintenancePolicy
+  Activity:
+    alternate_name: AutoScalingActivity
