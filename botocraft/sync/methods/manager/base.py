@@ -543,7 +543,12 @@ class ManagerMethodGenerator:
                         break
                 else:
                     raise
-        return self.shape_converter.convert(response_attr_shape, quote=True)
+        return_type = self.shape_converter.convert(response_attr_shape, quote=True)
+        # Deal with the primary model itself having an alternate name
+        if self.model_def.alternate_name:
+            if f'"{self.model_name}"' in return_type:
+                return_type = return_type.replace(f'"{self.model_name}"', f'"{self.model_def.alternate_name}"')
+        return return_type
 
     @property
     def decorators(self) -> Optional[str]:

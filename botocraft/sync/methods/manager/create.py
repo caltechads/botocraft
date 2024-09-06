@@ -29,7 +29,11 @@ class CreateMethodGenerator(ManagerMethodGenerator):
         Returns:
             The method signature for the method.
         """
-        signature = f'    def {self.method_name}(self, model: "{self.model_name}"'
+        if self.model_def.alternate_name:
+            model_name = self.model_def.alternate_name
+        else:
+            model_name = self.model_name
+        signature = f'    def {self.method_name}(self, model: "{model_name}"'
         if self.explicit_args or self.explicit_kwargs:
             signature += ", "
         signature += ", ".join([f"{arg}: {arg_type}" for arg, arg_type in self.explicit_args.items()])

@@ -42,10 +42,12 @@ class GetMethodGenerator(ManagerMethodGenerator):
             The name of the return type class.
         """
         _ = super().return_type
-
-        return_type = f'Optional["{self.model_name}"]'
         if self.method_def.return_type:
             return_type = self.method_def.return_type
+        elif self.model_def.alternate_name:
+            return_type = f'Optional["{self.model_def.alternate_name}"]'
+        else:
+            return_type = f'Optional["{self.model_name}"]'
         return return_type
 
     @property
