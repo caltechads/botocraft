@@ -14,8 +14,6 @@ primary:
         required: true
       taskDefinition:
         required: true
-      roleArn:
-        required: true
       clusterArn:
         required: true
       desiredCount:
