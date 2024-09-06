@@ -229,3 +229,29 @@ class ECSServiceModelMixin:
                 cluster=self.cluster,  # type: ignore[attr-defined]
                 services=[self.serviceName]  # type: ignore[attr-defined]
             )
+
+
+class ECSContainerInstanceModelMixin:
+
+    @property
+    def free_cpu(self) -> int:
+        """
+        Return the free CPU shares on the container instance.  One full CPU is
+        equivalent to 1024 CPU shares.
+        """
+        value: int = 0
+        for resource in self.remainingResources:
+            if resource['name'] == 'CPU':
+                value = int(resource['integerValue'])
+        return value
+
+    @property
+    def free_ram(self) -> int:
+        """
+        Return the free RAM in MiB on the container instance.
+        """
+        value: int = 0
+        for resource in self.remainingResources:
+            if resource['name'] == 'MEMORY':
+                value = int(resource['integerValue'])
+        return value

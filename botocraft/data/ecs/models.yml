@@ -186,6 +186,9 @@ primary:
   ContainerInstance:
     primary_key: containerInstanceArn
     arn_key: containerInstanceArn
+    mixins:
+      - name: ECSContainerInstanceModelMixin
+        import_path: botocraft.mixins.ecs
     readonly: true
     fields:
       tags:
