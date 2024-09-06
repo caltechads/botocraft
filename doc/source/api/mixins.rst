@@ -55,6 +55,10 @@ ECS
 
 .. autofunction:: botocraft.mixins.ecs.ecs_clusters_only
 
+.. autofunction:: botocraft.mixins.ecs.ecs_task_definitions_only
+
+.. autofunction:: botocraft.mixins.ecs.ecs_container_instances_only
+
 .. autofunction:: botocraft.mixins.ecs.ecs_task_populate_taskDefinition
 
 .. autofunction:: botocraft.mixins.ecs.ecs_task_populate_taskDefinitions
@@ -106,4 +110,7 @@ ECS
 ~~~
 
 .. autoclass:: botocraft.mixins.ecs.ECSServiceModelMixin
+   :members:
+
+.. autoclass:: botocraft.mixins.ecs.ECSContainerInstanceModelMixin
    :members:
