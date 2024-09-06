@@ -108,8 +108,6 @@ primary:
     fields:
       family:
         required: true
-      taskRoleArn:
-        required: true
       containerDefinitions:
         required: true
       networkMode:
