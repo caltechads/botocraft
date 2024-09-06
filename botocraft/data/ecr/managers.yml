@@ -43,7 +43,7 @@ Repository:
     get_images:
       boto3_name: batch_get_image
       return_type: >-
-        Optional[List["Image"]]
+        Optional[List["ECRImage"]]
       response_attr: images
       args:
         registryId:
@@ -63,7 +63,7 @@ Repository:
     get_image:
       boto3_name: batch_get_image
       return_type: >-
-        "Image"
+        "ECRImage"
       response_attr: images[0]
       args:
         registryId:
@@ -86,7 +86,7 @@ Image:
     get:
       boto3_name: batch_get_image
       return_type: >-
-        Optional["Image"]
+        Optional["ECRImage"]
       response_attr: images
       args:
         registryId:
