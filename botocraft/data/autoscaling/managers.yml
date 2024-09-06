@@ -5,6 +5,11 @@ AutoScalingGroup:
       boto3_name: create_auto_scaling_group
     update:
       boto3_name: update_auto_scaling_group
+      args:
+        LaunchTemplate:
+          value: >-
+            {"LaunchTemplateId": data["LaunchTemplate"]["LaunchTemplateId"], "Version": data["LaunchTemplate"]["Version"]} if "LaunchTemplate" in data else None
+          raw_value: true
     delete:
       boto3_name: delete_auto_scaling_group
     get:
@@ -38,6 +43,9 @@ AutoScalingGroup:
     instance_status:
       boto3_name: describe_auto_scaling_instances
       response_attr: AutoScalingInstances
+    terminate_instance:
+      boto3_name: terminate_instance_in_auto_scaling_group
+      response_attr: None
 LaunchConfiguration:
   methods:
     create:
