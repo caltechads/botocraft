@@ -1,5 +1,5 @@
 from functools import cached_property
-from typing import Dict, Optional, Any, Union, cast, Type, TYPE_CHECKING
+from typing import ClassVar, Dict, Optional, Any, Union, cast, Type, TYPE_CHECKING
 
 if TYPE_CHECKING:
     from botocraft.services.abstract import Boto3Model
@@ -139,7 +139,7 @@ class TagsDictMixin:
 
     #: The boto3 tag class.  This has to be configurable because once
     #: again boto3 has different tag classes for different services.
-    tag_class: Optional[Type] = None
+    tag_class: ClassVar[Optional[Type]] = None
 
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
