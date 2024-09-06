@@ -53,6 +53,56 @@ primary:
     name_key: NetworkAclId
     input_shapes:
       - CreateNetworkAclRequest
+  Image:
+    alternate_name: AMI
+    primary_key: ImageId
+    name_key: Name
+    input_shapes:
+      - CreateImageRequest
+    fields:
+      Architecture:
+        readonly: true
+      ImageId:
+        readonly: true
+      ImageType:
+        readonly: true
+      Public:
+        readonly: true
+      KernelId:
+        readonly: true
+      Platform:
+        readonly: true
+      PlatformDetails:
+        readonly: true
+      UsageOperation:
+        readonly: true
+      ProductCodes:
+        readonly: true
+      RamdiskId:
+        readonly: true
+      State:
+        readonly: true
+      EnaSupport:
+        readonly: true
+      ImageOwnerAlias:
+        readonly: true
+      RootDeviceName:
+        readonly: true
+      RootDeviceType:
+        readonly: true
+      SriovNetSupport:
+        readonly: true
+      VirtualizationType:
+        readonly: true
+      StateReason:
+        readonly: true
+      BootMode:
+        readonly: true
+      DeprecationTime:
+        readonly: true
+      ImdsSupport:
+        readonly: true
+
   Instance:
     primary_key: InstanceId
     input_shapes:
