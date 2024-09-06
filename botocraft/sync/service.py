@@ -565,6 +565,8 @@ class ModelGenerator(AbstractGenerator):
         model_def = self.get_model_def(model_name)
         # Get the base class for this model
         base_class = cast(str, model_def.base_class)
+        # This needs to be up here before we check for alternate names
+        model_fields = self.fields(model_name)
         if not model_shape:
             model_shape = self.get_shape(model_name)
         if model_def.alternate_name:
@@ -575,7 +577,6 @@ class ModelGenerator(AbstractGenerator):
             # botocode definitions.  This includes fields from the botocore model,
             # and any extra fields we have defined in the botocraft model
             # definition.
-            model_fields = self.fields(model_name)
             for field_name, field_def in model_fields.items():
                 # The botocore shape for this field.  We determined this in
                 # :py:meth:`fields`.
@@ -603,7 +604,6 @@ class ModelGenerator(AbstractGenerator):
                     if not field_def.readonly and not field_def.rename:
                         python_type = f'Optional[{python_type}]'
                     default = 'None' if field_def.default is None else field_def.default
-
 
                 # Determine whether we need to add a pydantic.Field class instance as the
                 # value for this field.
@@ -671,7 +671,11 @@ class ModelGenerator(AbstractGenerator):
             if has_tags:
                 code += f'    tag_class: ClassVar[Type] = {tag_class}\n'
             if 'PrimaryBoto3Model' in base_class:
-                code += f'    objects: ClassVar[Boto3ModelManager] = {model_name}Manager()\n\n'
+                if model_def.alternate_name:
+                    manager_name = f'{model_def.alternate_name}Manager'
+                else:
+                    manager_name = f'{model_name}Manager'
+                code += f'    objects: ClassVar[Boto3ModelManager] = {manager_name}()\n\n'
             if fields:
                 code += '\n'.join(fields)
             if properties:
@@ -727,6 +731,11 @@ class ManagerGenerator(AbstractGenerator):
             methods[method_name] = generator.code
         method_code = '\n\n'.join(methods.values())
         base_class = 'Boto3ModelManager'
+        model_def = self.model_generator.get_model_def(model_name)
+        if model_def.alternate_name:
+            manager_name = f'{model_def.alternate_name}Manager'
+        else:
+            manager_name = f'{model_name}Manager'
 
         # Add any botocraft defined mixins to the class inheritance
         if manager_def.mixins:
@@ -741,13 +750,13 @@ class ManagerGenerator(AbstractGenerator):
         code = f"""
 
 
-class {model_name}Manager({base_class}):
+class {manager_name}({base_class}):
 
     service_name: str = '{self.service_name}'
 
 {method_code}
 """
-        self.classes[f'{model_name}Manager'] = code
+        self.classes[manager_name] = code
 
     def get_method_generator(
         self,
