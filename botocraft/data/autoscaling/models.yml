@@ -21,7 +21,7 @@ primary:
           any.
         transformer:
           mapping:
-            launchConfigurationName: LaunchConfigurationName
+            LaunchConfigurationName: LaunchConfigurationName
       launch_template:
         primary_model_name: LaunchTemplateVersion
         docstring: >-
