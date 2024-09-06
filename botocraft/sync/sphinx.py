@@ -127,6 +127,8 @@ class ServiceSphinxDocBuilder:
         """
         managers = list(self.generator.manager_classes.keys())
         managers_doc = self.classes(managers, pydantic=False)
+        # FIXME: the following code doesn't take into account alternate names
+        # for primary models.
         primary_models = [
             model for model in self.generator.model_classes.keys()
             if model in self.generator.service_def.primary_models
