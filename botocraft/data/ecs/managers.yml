@@ -169,6 +169,17 @@ ContainerInstance:
         cluster:
           default: >-
             "default"
+    list_tasks:
+      boto3_name: list_tasks
+      response_attr: taskArns
+      mixins:
+        - name: ecs_container_instance_tasks_only
+          import_path: botocraft.mixins.ecs
+      args:
+        containerInstance:
+          required: true
+          python_type: str
+          source_arg: "[containerInstance]"
 Task:
   methods:
     get:
