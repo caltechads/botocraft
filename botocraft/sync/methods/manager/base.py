@@ -222,6 +222,9 @@ class ManagerMethodGenerator:
             _arg_name = arg_name
             if location == 'method' and arg_def.rename:
                 _arg_name = arg_def.rename
+            if arg_def.attribute and location == 'operation':
+                # The attribute name is different from the argument name
+                _arg_name = arg_def.attribute
             if arg_def.hidden:
                 # This is a hidden argument, so we don't want to expose it
                 # in the method signature or the boto3 call.
