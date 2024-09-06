@@ -4,45 +4,6 @@ EC2 (ec2)
 =========
 
 
-Managers
---------
-
-Managers work with the primary models to provide a high-level interface to the
-AWS service. They are responsible for creating, updating, and deleting the
-resources in the service, as well as any additional operations that are
-available for those models.
-
-
-.. autoclass:: botocraft.services.ec2.InstanceManager
-   :members:
-   :show-inheritance:
-
-.. autoclass:: botocraft.services.ec2.LaunchTemplateManager
-   :members:
-   :show-inheritance:
-
-.. autoclass:: botocraft.services.ec2.LaunchTemplateVersionManager
-   :members:
-   :show-inheritance:
-
-.. autoclass:: botocraft.services.ec2.NetworkAclManager
-   :members:
-   :show-inheritance:
-
-.. autoclass:: botocraft.services.ec2.SecurityGroupManager
-   :members:
-   :show-inheritance:
-
-.. autoclass:: botocraft.services.ec2.SubnetManager
-   :members:
-   :show-inheritance:
-
-.. autoclass:: botocraft.services.ec2.VpcManager
-   :members:
-   :show-inheritance:
-
-
-
 Primary Models
 --------------
 
@@ -94,6 +55,50 @@ represent resources in the AWS service, and are acted on by the managers.
 
 
 
+Managers
+--------
+
+Managers work with the primary models to provide a high-level interface to the
+AWS service. They are responsible for creating, updating, and deleting the
+resources in the service, as well as any additional operations that are
+available for those models.
+
+
+.. autoclass:: botocraft.services.ec2.AMIManager
+   :members:
+   :show-inheritance:
+
+.. autoclass:: botocraft.services.ec2.InstanceManager
+   :members:
+   :show-inheritance:
+
+.. autoclass:: botocraft.services.ec2.LaunchTemplateManager
+   :members:
+   :show-inheritance:
+
+.. autoclass:: botocraft.services.ec2.LaunchTemplateVersionManager
+   :members:
+   :show-inheritance:
+
+.. autoclass:: botocraft.services.ec2.NetworkAclManager
+   :members:
+   :show-inheritance:
+
+.. autoclass:: botocraft.services.ec2.SecurityGroupManager
+   :members:
+   :show-inheritance:
+
+.. autoclass:: botocraft.services.ec2.SubnetManager
+   :members:
+   :show-inheritance:
+
+.. autoclass:: botocraft.services.ec2.VpcManager
+   :members:
+   :show-inheritance:
+
+
+
+
 Secondary Models
 ----------------
 
@@ -101,6 +106,12 @@ Secondary models are models that are used by the primary models to organize
 their data. They are not acted on directly, but are used to describe the
 structure of the fields in the primary models or other secondary models.
 
+
+
+.. autopydantic_model:: botocraft.services.ec2.AMI
+    :show-inheritance:
+    :inherited-members:
+    :exclude-members: update_forward_refs, model_extra, model_fields_set, validate, schema_json, model_rebuild, model_post_init, model_parametrized_name, model_json_schema, copy, from_orm, dict, json, schema, schema_json
 
 
 .. autopydantic_model:: botocraft.services.ec2.CapacityReservationSpecificationResponse
@@ -116,6 +127,12 @@ structure of the fields in the primary models or other secondary models.
 
 
 .. autopydantic_model:: botocraft.services.ec2.ConnectionTrackingSpecificationResponse
+    :show-inheritance:
+    :inherited-members:
+    :exclude-members: update_forward_refs, model_extra, model_fields_set, validate, schema_json, model_rebuild, model_post_init, model_parametrized_name, model_json_schema, copy, from_orm, dict, json, schema, schema_json
+
+
+.. autopydantic_model:: botocraft.services.ec2.EC2BlockDeviceMapping
     :show-inheritance:
     :inherited-members:
     :exclude-members: update_forward_refs, model_extra, model_fields_set, validate, schema_json, model_rebuild, model_post_init, model_parametrized_name, model_json_schema, copy, from_orm, dict, json, schema, schema_json
@@ -176,6 +193,12 @@ structure of the fields in the primary models or other secondary models.
 
 
 .. autopydantic_model:: botocraft.services.ec2.EC2StateReason
+    :show-inheritance:
+    :inherited-members:
+    :exclude-members: update_forward_refs, model_extra, model_fields_set, validate, schema_json, model_rebuild, model_post_init, model_parametrized_name, model_json_schema, copy, from_orm, dict, json, schema, schema_json
+
+
+.. autopydantic_model:: botocraft.services.ec2.EbsBlockDevice
     :show-inheritance:
     :inherited-members:
     :exclude-members: update_forward_refs, model_extra, model_fields_set, validate, schema_json, model_rebuild, model_post_init, model_parametrized_name, model_json_schema, copy, from_orm, dict, json, schema, schema_json
@@ -653,7 +676,19 @@ because they have some useful additional information.
     :exclude-members: update_forward_refs, model_extra, model_fields_set, validate, schema_json, model_rebuild, model_post_init, model_parametrized_name, model_json_schema, copy, from_orm, dict, json, schema, schema_json
 
 
+.. autopydantic_model:: botocraft.services.ec2.CopyImageResult
+    :show-inheritance:
+    :inherited-members:
+    :exclude-members: update_forward_refs, model_extra, model_fields_set, validate, schema_json, model_rebuild, model_post_init, model_parametrized_name, model_json_schema, copy, from_orm, dict, json, schema, schema_json
+
+
 .. autopydantic_model:: botocraft.services.ec2.CpuOptionsRequest
+    :show-inheritance:
+    :inherited-members:
+    :exclude-members: update_forward_refs, model_extra, model_fields_set, validate, schema_json, model_rebuild, model_post_init, model_parametrized_name, model_json_schema, copy, from_orm, dict, json, schema, schema_json
+
+
+.. autopydantic_model:: botocraft.services.ec2.CreateImageResult
     :show-inheritance:
     :inherited-members:
     :exclude-members: update_forward_refs, model_extra, model_fields_set, validate, schema_json, model_rebuild, model_post_init, model_parametrized_name, model_json_schema, copy, from_orm, dict, json, schema, schema_json
@@ -713,6 +748,12 @@ because they have some useful additional information.
     :exclude-members: update_forward_refs, model_extra, model_fields_set, validate, schema_json, model_rebuild, model_post_init, model_parametrized_name, model_json_schema, copy, from_orm, dict, json, schema, schema_json
 
 
+.. autopydantic_model:: botocraft.services.ec2.DescribeImagesResult
+    :show-inheritance:
+    :inherited-members:
+    :exclude-members: update_forward_refs, model_extra, model_fields_set, validate, schema_json, model_rebuild, model_post_init, model_parametrized_name, model_json_schema, copy, from_orm, dict, json, schema, schema_json
+
+
 .. autopydantic_model:: botocraft.services.ec2.DescribeInstancesResult
     :show-inheritance:
     :inherited-members:
@@ -761,12 +802,6 @@ because they have some useful additional information.
     :exclude-members: update_forward_refs, model_extra, model_fields_set, validate, schema_json, model_rebuild, model_post_init, model_parametrized_name, model_json_schema, copy, from_orm, dict, json, schema, schema_json
 
 
-.. autopydantic_model:: botocraft.services.ec2.EC2BlockDeviceMapping
-    :show-inheritance:
-    :inherited-members:
-    :exclude-members: update_forward_refs, model_extra, model_fields_set, validate, schema_json, model_rebuild, model_post_init, model_parametrized_name, model_json_schema, copy, from_orm, dict, json, schema, schema_json
-
-
 .. autopydantic_model:: botocraft.services.ec2.EC2CapacityReservationTarget
     :show-inheritance:
     :inherited-members:
@@ -792,12 +827,6 @@ because they have some useful additional information.
 
 
 .. autopydantic_model:: botocraft.services.ec2.EC2ResponseError
-    :show-inheritance:
-    :inherited-members:
-    :exclude-members: update_forward_refs, model_extra, model_fields_set, validate, schema_json, model_rebuild, model_post_init, model_parametrized_name, model_json_schema, copy, from_orm, dict, json, schema, schema_json
-
-
-.. autopydantic_model:: botocraft.services.ec2.EbsBlockDevice
     :show-inheritance:
     :inherited-members:
     :exclude-members: update_forward_refs, model_extra, model_fields_set, validate, schema_json, model_rebuild, model_post_init, model_parametrized_name, model_json_schema, copy, from_orm, dict, json, schema, schema_json

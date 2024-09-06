@@ -4,25 +4,6 @@ Auto Scaling (autoscaling)
 ==========================
 
 
-Managers
---------
-
-Managers work with the primary models to provide a high-level interface to the
-AWS service. They are responsible for creating, updating, and deleting the
-resources in the service, as well as any additional operations that are
-available for those models.
-
-
-.. autoclass:: botocraft.services.autoscaling.AutoScalingGroupManager
-   :members:
-   :show-inheritance:
-
-.. autoclass:: botocraft.services.autoscaling.LaunchConfigurationManager
-   :members:
-   :show-inheritance:
-
-
-
 Primary Models
 --------------
 
@@ -41,6 +22,26 @@ represent resources in the AWS service, and are acted on by the managers.
     :show-inheritance:
     :inherited-members:
     :exclude-members: update_forward_refs, model_extra, model_fields_set, validate, schema_json, model_rebuild, model_post_init, model_parametrized_name, model_json_schema, copy, from_orm, dict, json, schema, schema_json
+
+
+
+Managers
+--------
+
+Managers work with the primary models to provide a high-level interface to the
+AWS service. They are responsible for creating, updating, and deleting the
+resources in the service, as well as any additional operations that are
+available for those models.
+
+
+.. autoclass:: botocraft.services.autoscaling.AutoScalingGroupManager
+   :members:
+   :show-inheritance:
+
+.. autoclass:: botocraft.services.autoscaling.LaunchConfigurationManager
+   :members:
+   :show-inheritance:
+
 
 
 
@@ -229,6 +230,18 @@ internally to send requests and parse responses -- but they are included here
 for completeness, and because occasionally we return them directly to you
 because they have some useful additional information.
 
+
+
+.. autopydantic_model:: botocraft.services.autoscaling.ActivityType
+    :show-inheritance:
+    :inherited-members:
+    :exclude-members: update_forward_refs, model_extra, model_fields_set, validate, schema_json, model_rebuild, model_post_init, model_parametrized_name, model_json_schema, copy, from_orm, dict, json, schema, schema_json
+
+
+.. autopydantic_model:: botocraft.services.autoscaling.AutoScalingActivity
+    :show-inheritance:
+    :inherited-members:
+    :exclude-members: update_forward_refs, model_extra, model_fields_set, validate, schema_json, model_rebuild, model_post_init, model_parametrized_name, model_json_schema, copy, from_orm, dict, json, schema, schema_json
 
 
 .. autopydantic_model:: botocraft.services.autoscaling.AutoScalingGroupsType

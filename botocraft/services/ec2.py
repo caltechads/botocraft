@@ -7,11 +7,12 @@ from datetime import datetime
 from functools import cached_property
 from typing import Any, ClassVar, Dict, List, Literal, Optional, Type, cast
 
+from pydantic import Field
+
 from botocraft.mixins.ec2 import (EC2TagsManagerMixin, SecurityGroupModelMixin,
                                   ec2_instance_only, ec2_instances_only)
 from botocraft.mixins.tags import TagsDictMixin
 from botocraft.services.common import Filter, Tag
-from pydantic import Field
 
 from .abstract import (Boto3Model, Boto3ModelManager, PrimaryBoto3Model,
                        ReadonlyBoto3Model, ReadonlyBoto3ModelManager,
@@ -527,6 +528,249 @@ class NetworkAclManager(EC2TagsManagerMixin, Boto3ModelManager):
             else:
                 break
         return results
+
+
+class AMIManager(EC2TagsManagerMixin, Boto3ModelManager):
+    service_name: str = "ec2"
+
+    def create(self, model: "AMI", NoReboot: Optional[bool] = None) -> str:
+        """
+        Creates an Amazon EBS-backed AMI from an Amazon EBS-backed instance
+        that is either running or stopped.
+
+        Args:
+            model: The :py:class:`Image` to create.
+
+        Keyword Args:
+            NoReboot: Indicates whether or not the instance should be automatically
+                rebooted before creating the image. Specify one of the following values:
+        """
+        data = model.model_dump(exclude_none=True, by_alias=True)
+        args = dict(
+            InstanceId=data.get("InstanceId"),
+            Name=data.get("Name"),
+            BlockDeviceMappings=data.get("BlockDeviceMappings"),
+            Description=data.get("Description"),
+            DryRun=data.get("DryRun"),
+            NoReboot=self.serialize(NoReboot),
+            TagSpecifications=self.serialize(
+                self.serialize(self.convert_tags(model.Tags, "image"))
+            ),
+        )
+        _response = self.client.create_image(
+            **{k: v for k, v in args.items() if v is not None}
+        )
+        response = CreateImageResult(**_response)
+
+        return cast(str, response.ImageId)
+
+    def delete(self, ImageId: str, *, DryRun: bool = False) -> None:
+        """
+        Deregisters the specified AMI. After you deregister an AMI, it can't be
+        used to launch new instances.
+
+        Args:
+            ImageId: The ID of the AMI.
+
+        Keyword Args:
+            DryRun: Checks whether you have the required permissions for the action,
+                without actually making the request, and provides an error response. If you
+                have the required permissions, the error response is ``DryRunOperation``.
+                Otherwise, it is ``UnauthorizedOperation``.
+        """
+        args: Dict[str, Any] = dict(
+            ImageId=self.serialize(ImageId), DryRun=self.serialize(DryRun)
+        )
+        self.client.deregister_image(**{k: v for k, v in args.items() if v is not None})
+
+    def get(
+        self,
+        ImageId: str,
+        *,
+        ExecutableUsers: Optional[List[str]] = None,
+        Owners: Optional[List[str]] = None,
+        IncludeDeprecated: Optional[bool] = None,
+        IncludeDisabled: Optional[bool] = None,
+        DryRun: bool = False
+    ) -> Optional["AMI"]:
+        """
+        Describes the specified images (AMIs, AKIs, and ARIs) available to you
+        or all of the images available to you.
+
+        Args:
+            ImageId: The IDs of the images.
+
+        Keyword Args:
+            ExecutableUsers: Scopes the images by users with explicit launch
+                permissions. Specify an Amazon Web Services account ID, ``self`` (the
+                sender of the request), or ``all`` (public AMIs).
+            Owners: Scopes the results to images with the specified owners. You can
+                specify a combination of Amazon Web Services account IDs, ``self``,
+                ``amazon``, and ``aws-marketplace``. If you omit this parameter, the
+                results include all images for which you have launch permissions,
+                regardless of ownership.
+            IncludeDeprecated: Specifies whether to include deprecated AMIs.
+            IncludeDisabled: Specifies whether to include disabled AMIs.
+            DryRun: Checks whether you have the required permissions for the action,
+                without actually making the request, and provides an error response. If you
+                have the required permissions, the error response is ``DryRunOperation``.
+                Otherwise, it is ``UnauthorizedOperation``.
+        """
+        args: Dict[str, Any] = dict(
+            ExecutableUsers=self.serialize(ExecutableUsers),
+            ImageIds=self.serialize([ImageId]),
+            Owners=self.serialize(Owners),
+            IncludeDeprecated=self.serialize(IncludeDeprecated),
+            IncludeDisabled=self.serialize(IncludeDisabled),
+            DryRun=self.serialize(DryRun),
+        )
+        _response = self.client.describe_images(
+            **{k: v for k, v in args.items() if v is not None}
+        )
+        response = DescribeImagesResult(**_response)
+
+        if response.Images:
+            return response.Images[0]
+        return None
+
+    def list(
+        self,
+        *,
+        ExecutableUsers: Optional[List[str]] = None,
+        Filters: Optional[List[Filter]] = None,
+        ImageIds: Optional[List[str]] = None,
+        Owners: Optional[List[str]] = None,
+        IncludeDeprecated: Optional[bool] = None,
+        IncludeDisabled: Optional[bool] = None,
+        DryRun: bool = False
+    ) -> List["AMI"]:
+        """
+        Describes the specified images (AMIs, AKIs, and ARIs) available to you
+        or all of the images available to you.
+
+        Keyword Args:
+            ExecutableUsers: Scopes the images by users with explicit launch
+                permissions. Specify an Amazon Web Services account ID, ``self`` (the
+                sender of the request), or ``all`` (public AMIs).
+            Filters: The filters.
+            ImageIds: The image IDs.
+            Owners: Scopes the results to images with the specified owners. You can
+                specify a combination of Amazon Web Services account IDs, ``self``,
+                ``amazon``, and ``aws-marketplace``. If you omit this parameter, the
+                results include all images for which you have launch permissions,
+                regardless of ownership.
+            IncludeDeprecated: Specifies whether to include deprecated AMIs.
+            IncludeDisabled: Specifies whether to include disabled AMIs.
+            DryRun: Checks whether you have the required permissions for the action,
+                without actually making the request, and provides an error response. If you
+                have the required permissions, the error response is ``DryRunOperation``.
+                Otherwise, it is ``UnauthorizedOperation``.
+        """
+        paginator = self.client.get_paginator("describe_images")
+        args: Dict[str, Any] = dict(
+            ExecutableUsers=self.serialize(ExecutableUsers),
+            Filters=self.serialize(Filters),
+            ImageIds=self.serialize(ImageIds),
+            Owners=self.serialize(Owners),
+            IncludeDeprecated=self.serialize(IncludeDeprecated),
+            IncludeDisabled=self.serialize(IncludeDisabled),
+            DryRun=self.serialize(DryRun),
+        )
+        response_iterator = paginator.paginate(
+            **{k: v for k, v in args.items() if v is not None}
+        )
+        results: List["AMI"] = []
+        for _response in response_iterator:
+            response = DescribeImagesResult(**_response)
+            if response.Images:
+                results.extend(response.Images)
+            else:
+                break
+        return results
+
+    def copy(
+        self,
+        ClientToken: str,
+        Name: str,
+        SourceImageId: str,
+        SourceRegion: str,
+        *,
+        Description: Optional[str] = None,
+        Encrypted: Optional[bool] = None,
+        KmsKeyId: Optional[str] = None,
+        DestinationOutpostArn: Optional[str] = None,
+        DryRun: Optional[bool] = None,
+        CopyImageTags: Optional[bool] = None,
+        Tags: Optional[Optional[List["Tag"]]] = None
+    ) -> str:
+        """
+        Initiates an AMI copy operation. You can copy an AMI from one Region to
+        another, or from a Region to an Outpost. You can't copy an AMI from an Outpost
+        to a Region, from one Outpost to another, or within the same Outpost. To copy
+        an AMI to another partition, see `CreateStoreImageTask <https://docs.aws.amazon
+        .com/AWSEC2/latest/APIReference/API_CreateStoreImageTask.html>`_.
+
+        Args:
+            ClientToken: Unique, case-sensitive identifier you provide to ensure
+                idempotency of the request. For more information, see `Ensuring idempotency
+                <https://docs.aws.amaz
+                on.com/AWSEC2/latest/APIReference/Run_Instance_Idempotency.html>`_ in the
+                *Amazon EC2 API Reference*.
+            Name: The name of the new AMI in the destination Region.
+            SourceImageId: The ID of the AMI to copy.
+            SourceRegion: The name of the Region that contains the AMI to copy.
+
+        Keyword Args:
+            Description: A description for the new AMI in the destination Region.
+            Encrypted: Specifies whether the destination snapshots of the copied image
+                should be encrypted. You can encrypt a copy of an unencrypted snapshot, but
+                you cannot create an unencrypted copy of an encrypted snapshot. The default
+                KMS key for Amazon EBS is used unless you specify a non-default Key
+                Management Service (KMS) KMS key using ``KmsKeyId``. For more information,
+                see `Use encryption with EBS-backed AMIs
+                <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/AMIEncryption.html>`_
+                in the *Amazon EC2 User Guide*.
+            KmsKeyId: The identifier of the symmetric Key Management Service (KMS) KMS
+                key to use when creating encrypted volumes. If this parameter is not
+                specified, your Amazon Web Services managed KMS key for Amazon EBS is used.
+                If you specify a KMS key, you must also set the encrypted state to
+                ``true``.
+            DestinationOutpostArn: The Amazon Resource Name (ARN) of the Outpost to
+                which to copy the AMI. Only specify this parameter when copying an AMI from
+                an Amazon Web Services Region to an Outpost. The AMI must be in the Region
+                of the destination Outpost. You cannot copy an AMI from an Outpost to a
+                Region, from one Outpost to another, or within the same Outpost.
+            DryRun: Checks whether you have the required permissions for the action,
+                without actually making the request, and provides an error response. If you
+                have the required permissions, the error response is ``DryRunOperation``.
+                Otherwise, it is ``UnauthorizedOperation``.
+            CopyImageTags: Indicates whether to include your user-defined AMI tags when
+                copying the AMI.
+            Tags: The tags to apply to the new AMI and new snapshots. You can tag the
+                AMI, the snapshots, or both.
+
+        """
+        args: Dict[str, Any] = dict(
+            Name=self.serialize(Name),
+            SourceImageId=self.serialize(SourceImageId),
+            SourceRegion=self.serialize(SourceRegion),
+            ClientToken=self.serialize(ClientToken),
+            Description=self.serialize(Description),
+            Encrypted=self.serialize(Encrypted),
+            KmsKeyId=self.serialize(KmsKeyId),
+            DestinationOutpostArn=self.serialize(DestinationOutpostArn),
+            DryRun=self.serialize(DryRun),
+            CopyImageTags=self.serialize(CopyImageTags),
+            TagSpecifications=self.serialize(
+                self.serialize(self.convert_tags(model.Tags, "image"))
+            ),
+        )
+        _response = self.client.copy_image(
+            **{k: v for k, v in args.items() if v is not None}
+        )
+        response = CopyImageResult(**_response)
+
+        return response.ImageId
 
 
 class InstanceManager(EC2TagsManagerMixin, Boto3ModelManager):
@@ -1968,6 +2212,385 @@ class NetworkAcl(TagsDictMixin, PrimaryBoto3Model):
         return self.NetworkAclId
 
 
+class ProductCode(Boto3Model):
+    """
+    Describes a product code.
+    """
+
+    ProductCodeId: Optional[str] = None
+    """
+    The product code.
+    """
+    ProductCodeType: Optional[Literal["devpay", "marketplace"]] = None
+    """
+    The type of product code.
+    """
+
+
+class EC2StateReason(Boto3Model):
+    """
+    The reason for the state change.
+    """
+
+    Code: Optional[str] = None
+    """
+    The reason code for the state change.
+    """
+    Message: Optional[str] = None
+    """
+    The message for the state change.
+    """
+
+
+class EbsBlockDevice(Boto3Model):
+    """
+    Parameters used to automatically set up EBS volumes when the instance is
+    launched.
+    """
+
+    DeleteOnTermination: Optional[bool] = None
+    """
+    Indicates whether the EBS volume is deleted on instance termination.
+
+    For more
+    information, see `Preserving Amazon EBS volumes on instance
+    termination <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/terminating-
+    instances.html#preserving-volumes-on-termination>`_ in the *Amazon EC2 User
+    Guide*.
+    """
+    Iops: Optional[int] = None
+    """
+    The number of I/O operations per second (IOPS).
+
+    For ``gp3``, ``io1``, and
+    ``io2`` volumes, this represents the number of IOPS that are provisioned for
+    the volume. For ``gp2`` volumes, this represents the baseline performance of
+    the volume and the rate at which the volume accumulates I/O credits for
+    bursting.
+    """
+    SnapshotId: Optional[str] = None
+    """
+    The ID of the snapshot.
+    """
+    VolumeSize: Optional[int] = None
+    """
+    The size of the volume, in GiBs.
+
+    You must specify either a snapshot ID or a volume size. If you specify a
+    snapshot, the default is the snapshot size. You can specify a volume size
+    that is equal to or larger than the snapshot size.
+    """
+    VolumeType: Optional[
+        Literal["standard", "io1", "io2", "gp2", "sc1", "st1", "gp3"]
+    ] = None
+    """
+    The volume type.
+
+    For more information, see
+    `Amazon EBS volume types <https://docs.aws.amazon.com/ebs/latest/userguide/ebs-volume-types.html>`_
+    in the *Amazon EBS User Guide*.
+    """
+    KmsKeyId: Optional[str] = None
+    """
+    Identifier (key ID, key alias, ID ARN, or alias ARN) for a customer managed
+    CMK under which the EBS volume is encrypted.
+    """
+    Throughput: Optional[int] = None
+    """
+    The throughput that the volume supports, in MiB/s.
+    """
+    OutpostArn: Optional[str] = None
+    """
+    The ARN of the Outpost on which the snapshot is stored.
+    """
+    Encrypted: Optional[bool] = None
+    """
+    Indicates whether the encryption state of an EBS volume is changed while
+    being restored from a backing snapshot.
+
+    The effect of setting the encryption state to
+    ``true`` depends on the volume origin (new or from a snapshot), starting
+    encryption state, ownership, and whether encryption by default is enabled. For
+    more information, see `Amazon EBS
+    encryption <https://docs.aws.amazon.com/ebs/latest/userguide/ebs-
+    encryption.html#encryption-parameters>`_ in the *Amazon EBS User Guide*.
+    """
+
+
+class EC2BlockDeviceMapping(Boto3Model):
+    """
+    Describes a block device mapping, which defines the EBS volumes and
+    instance store volumes to attach to an instance at launch.
+    """
+
+    DeviceName: Optional[str] = None
+    """
+    The device name (for example, ``/dev/sdh`` or ``xvdh``).
+    """
+    VirtualName: Optional[str] = None
+    """
+    The virtual device name (``ephemeral``N).
+
+    Instance store volumes are numbered
+    starting from 0. An instance type with 2 available instance store volumes can
+    specify mappings for ``ephemeral0`` and ``ephemeral1``. The number of available
+    instance store volumes depends on the instance type. After you connect to the
+    instance, you must mount the volume.
+    """
+    Ebs: Optional[EbsBlockDevice] = None
+    """
+    Parameters used to automatically set up EBS volumes when the instance is
+    launched.
+    """
+    NoDevice: Optional[str] = None
+    """
+    To omit the device from the block device mapping, specify an empty string.
+
+    When this property is specified, the device is removed from the block
+    device mapping regardless of the assigned value.
+    """
+
+
+class AMI(TagsDictMixin, PrimaryBoto3Model):
+    """
+    Describes an image.
+    """
+
+    tag_class: ClassVar[Type] = Tag
+    objects: ClassVar[Boto3ModelManager] = AMIManager()
+
+    Architecture: Literal["i386", "x86_64", "arm64", "x86_64_mac", "arm64_mac"] = Field(
+        default=None, frozen=True
+    )
+    """
+    The architecture of the image.
+    """
+    ImageId: str = Field(default=None, frozen=True)
+    """
+    The ID of the AMI.
+    """
+    ImageType: Literal["machine", "kernel", "ramdisk"] = Field(
+        default=None, frozen=True
+    )
+    """
+    The type of image.
+    """
+    Public: bool = Field(default=None, frozen=True)
+    """
+    Indicates whether the image has public launch permissions.
+
+    The value is
+    ``true`` if this image has public launch permissions or ``false`` if it has
+    only implicit and explicit launch permissions.
+    """
+    KernelId: str = Field(default=None, frozen=True)
+    """
+    The kernel associated with the image, if any.
+
+    Only applicable for machine images.
+    """
+    Platform: Literal["Windows"] = Field(default=None, frozen=True)
+    """
+    This value is set to ``windows`` for Windows AMIs; otherwise, it is blank.
+    """
+    PlatformDetails: str = Field(default=None, frozen=True)
+    """
+    The platform details associated with the billing code of the AMI.
+
+    For more information, see
+    `Understand AMI billing information <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ami-billing-
+    info.html>`_ in the *Amazon EC2 User Guide*.
+    """
+    UsageOperation: str = Field(default=None, frozen=True)
+    """
+    The operation of the Amazon EC2 instance and the billing code that is
+    associated with the AMI.
+
+    ``usageOperation`` corresponds to the
+    `lineitem/Operation <https://docs.aws.amazon.com/cur/latest/userguide/Lineitem-
+    columns.html#Lineitem-details-O-Operation>`_ column on your Amazon Web Services
+    Cost and Usage Report and in the `Amazon Web Services Price List
+    API <https://docs.aws.amazon.com/awsaccountbilling/latest/aboutv2/price-
+    changes.html>`_. You can view these fields on the **Instances** or **AMIs** pages
+    in the Amazon EC2 console, or in the responses that are returned by the `Descri
+    beImages <https://docs.aws.amazon.com/AWSEC2/latest/APIReference/API_DescribeIm
+    ages.html>`_ command in the Amazon EC2 API, or the `describe-
+    images <https://docs.aws.amazon.com/cli/latest/reference/ec2/describe-
+    images.html>`_ command in the CLI.
+    """
+    ProductCodes: List["ProductCode"] = Field(default=None, frozen=True)
+    """
+    Any product codes associated with the AMI.
+    """
+    RamdiskId: str = Field(default=None, frozen=True)
+    """
+    The RAM disk associated with the image, if any.
+
+    Only applicable for machine images.
+    """
+    State: Literal[
+        "pending",
+        "available",
+        "invalid",
+        "deregistered",
+        "transient",
+        "failed",
+        "error",
+        "disabled",
+    ] = Field(default=None, frozen=True)
+    """
+    The current state of the AMI.
+
+    If the state is ``available``, the image is
+    successfully registered and can be used to launch an instance.
+    """
+    EnaSupport: bool = Field(default=None, frozen=True)
+    """
+    Specifies whether enhanced networking with ENA is enabled.
+    """
+    ImageOwnerAlias: str = Field(default=None, frozen=True)
+    """
+    The owner alias (``amazon`` | ``aws-marketplace``).
+    """
+    RootDeviceName: str = Field(default=None, frozen=True)
+    """
+    The device name of the root device volume (for example, ``/dev/sda1``).
+    """
+    RootDeviceType: Literal["ebs", "instance-store"] = Field(default=None, frozen=True)
+    """
+    The type of root device used by the AMI.
+
+    The AMI can use an Amazon EBS volume or an instance store volume.
+    """
+    SriovNetSupport: str = Field(default=None, frozen=True)
+    """
+    Specifies whether enhanced networking with the Intel 82599 Virtual Function
+    interface is enabled.
+    """
+    VirtualizationType: Literal["hvm", "paravirtual"] = Field(default=None, frozen=True)
+    """
+    The type of virtualization of the AMI.
+    """
+    StateReason: EC2StateReason = Field(default=None, frozen=True)
+    """
+    The reason for the state change.
+    """
+    BootMode: Literal["legacy-bios", "uefi", "uefi-preferred"] = Field(
+        default=None, frozen=True
+    )
+    """
+    The boot mode of the image.
+
+    For more information, see
+    `Boot modes <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ami-boot.html>`_
+    in
+    the *Amazon EC2 User Guide*.
+    """
+    DeprecationTime: str = Field(default=None, frozen=True)
+    """
+    The date and time to deprecate the AMI, in UTC, in the following format:
+
+    *YYYY*-*MM*-*DD*T*HH*:*MM*:*SS*Z. If you specified a value for seconds,
+    Amazon EC2 rounds the seconds to the nearest minute.
+    """
+    ImdsSupport: Literal["v2.0"] = Field(default=None, frozen=True)
+    """
+    If ``v2.0``, it indicates that IMDSv2 is specified in the AMI.
+
+    Instances
+    launched from this AMI will have ``HttpTokens`` automatically set to
+    ``required`` so that, by default, the instance requires that IMDSv2 is used
+    when requesting instance metadata. In addition, ``HttpPutResponseHopLimit`` is
+    set to ``2``. For more information, see `Configure the
+    AMI <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/configuring-IMDS-new-
+    instances.html#configure-IMDS-new-instances-ami-configuration>`_ in the *Amazon
+    EC2 User Guide*.
+    """
+    CreationDate: str = Field(default=None, frozen=True)
+    """
+    The date and time the image was created.
+    """
+    ImageLocation: str = Field(default=None, frozen=True)
+    """
+    The location of the AMI.
+    """
+    OwnerId: str = Field(default=None, frozen=True)
+    """
+    The ID of the Amazon Web Services account that owns the image.
+    """
+    BlockDeviceMappings: Optional[List["EC2BlockDeviceMapping"]] = None
+    """
+    Any block device mapping entries.
+    """
+    Description: Optional[str] = None
+    """
+    The description of the AMI that was provided during image creation.
+    """
+    Hypervisor: Literal["ovm", "xen"] = Field(default=None, frozen=True)
+    """
+    The hypervisor type of the image.
+
+    Only ``xen`` is supported. ``ovm`` is not
+    supported.
+    """
+    Name: Optional[str] = None
+    """
+    The name of the AMI that was provided during image creation.
+    """
+    Tags: List[Tag] = Field(default=None, frozen=True)
+    """
+    Any tags assigned to the image.
+    """
+    TpmSupport: Literal["v2.0"] = Field(default=None, frozen=True)
+    """
+    If the image is configured for NitroTPM support, the value is ``v2.0``.
+
+    For more information, see
+    `NitroTPM <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/nitrotpm.html>`_
+    in the *Amazon EC2 User Guide*.
+    """
+    SourceInstanceId: str = Field(default=None, frozen=True)
+    """
+The ID of the instance that the AMI was created from if the AMI was created
+using `CreateImage <https://docs.aws.amazon.com/AWSEC2/latest/APIReference/API_
+CreateImage.html>`_. This field only appears if the AMI was created using
+CreateImage.
+    """
+    DeregistrationProtection: str = Field(default=None, frozen=True)
+    """
+    Indicates whether deregistration protection is enabled for the AMI.
+    """
+    LastLaunchedTime: str = Field(default=None, frozen=True)
+    """
+The date and time, in `ISO 8601 date-time
+format <http://www.iso.org/iso/iso8601>`_, when the AMI was last used to launch
+an EC2 instance. When the AMI is used to launch an instance, there is a 24-hour
+delay before that usage is reported.
+    """
+
+    @property
+    def pk(self) -> Optional[str]:
+        """
+        Return the primary key of the model.   This is the value of the
+        :py:attr:`ImageId` attribute.
+
+        Returns:
+            The primary key of the model instance.
+        """
+        return self.ImageId
+
+    @property
+    def name(self) -> Optional[str]:
+        """
+        Return the name of the model.   This is the value of the
+        :py:attr:`Name` attribute.
+
+        Returns:
+            The name of the model instance.
+        """
+        return self.Name
+
+
 class EC2DetailedMonitoring(Boto3Model):
     """
     The monitoring for the instance.
@@ -2033,21 +2656,6 @@ class EC2Placement(Boto3Model):
 
     If you specify
     ``GroupId``, you can't specify ``GroupName``.
-    """
-
-
-class ProductCode(Boto3Model):
-    """
-    Describes a product code.
-    """
-
-    ProductCodeId: Optional[str] = None
-    """
-    The product code.
-    """
-    ProductCodeType: Optional[Literal["devpay", "marketplace"]] = None
-    """
-    The type of product code.
     """
 
 
@@ -2497,21 +3105,6 @@ class InstanceNetworkInterface(Boto3Model):
     timeouts <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/security-group-
     connection-tracking.html#connection-tracking-timeouts>`_ in the *Amazon EC2 User
     Guide*.
-    """
-
-
-class EC2StateReason(Boto3Model):
-    """
-    The reason for the most recent state transition.
-    """
-
-    Code: Optional[str] = None
-    """
-    The reason code for the state change.
-    """
-    Message: Optional[str] = None
-    """
-    The message for the state change.
     """
 
 
@@ -4670,13 +5263,9 @@ class InstanceCreditSpecification(Boto3Model):
     The credit option for CPU usage of the instance.
     """
 
-    InstanceId: Optional[str] = None
-    """
-    The ID of the instance.
-    """
     CpuCredits: Optional[str] = None
     """
-    The credit option for CPU usage of the instance.
+    The credit option for CPU usage of a T instance.
     """
 
 
@@ -6662,6 +7251,38 @@ class DescribeNetworkAclsResult(Boto3Model):
     """
 
 
+class CreateImageResult(Boto3Model):
+    ImageId: Optional[str] = None
+    """
+    The ID of the new AMI.
+    """
+
+
+class DescribeImagesResult(Boto3Model):
+    Images: Optional[List["AMI"]] = None
+    """
+    Information about the images.
+    """
+    NextToken: Optional[str] = None
+    """
+    The token to include in another request to get the next page of items.
+
+    This
+    value is ``null`` when there are no more items to return.
+    """
+
+
+class CopyImageResult(Boto3Model):
+    """
+    Contains the output of CopyImage.
+    """
+
+    ImageId: Optional[str] = None
+    """
+    The ID of the new AMI.
+    """
+
+
 class ElasticGpuSpecification(Boto3Model):
     """
     Amazon Elastic Graphics reached end of life on January 8, 2024. For
@@ -6805,115 +7426,6 @@ class LicenseConfigurationRequest(Boto3Model):
     LicenseConfigurationArn: Optional[str] = None
     """
     The Amazon Resource Name (ARN) of the license configuration.
-    """
-
-
-class EbsBlockDevice(Boto3Model):
-    """
-    Parameters used to automatically set up EBS volumes when the instance is
-    launched.
-    """
-
-    DeleteOnTermination: Optional[bool] = None
-    """
-    Indicates whether the EBS volume is deleted on instance termination.
-
-    For more
-    information, see `Preserving Amazon EBS volumes on instance
-    termination <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/terminating-
-    instances.html#preserving-volumes-on-termination>`_ in the *Amazon EC2 User
-    Guide*.
-    """
-    Iops: Optional[int] = None
-    """
-    The number of I/O operations per second (IOPS).
-
-    For ``gp3``, ``io1``, and
-    ``io2`` volumes, this represents the number of IOPS that are provisioned for
-    the volume. For ``gp2`` volumes, this represents the baseline performance of
-    the volume and the rate at which the volume accumulates I/O credits for
-    bursting.
-    """
-    SnapshotId: Optional[str] = None
-    """
-    The ID of the snapshot.
-    """
-    VolumeSize: Optional[int] = None
-    """
-    The size of the volume, in GiBs.
-
-    You must specify either a snapshot ID or a volume size. If you specify a
-    snapshot, the default is the snapshot size. You can specify a volume size
-    that is equal to or larger than the snapshot size.
-    """
-    VolumeType: Optional[
-        Literal["standard", "io1", "io2", "gp2", "sc1", "st1", "gp3"]
-    ] = None
-    """
-    The volume type.
-
-    For more information, see
-    `Amazon EBS volume types <https://docs.aws.amazon.com/ebs/latest/userguide/ebs-volume-types.html>`_
-    in the *Amazon EBS User Guide*.
-    """
-    KmsKeyId: Optional[str] = None
-    """
-    Identifier (key ID, key alias, ID ARN, or alias ARN) for a customer managed
-    CMK under which the EBS volume is encrypted.
-    """
-    Throughput: Optional[int] = None
-    """
-    The throughput that the volume supports, in MiB/s.
-    """
-    OutpostArn: Optional[str] = None
-    """
-    The ARN of the Outpost on which the snapshot is stored.
-    """
-    Encrypted: Optional[bool] = None
-    """
-    Indicates whether the encryption state of an EBS volume is changed while
-    being restored from a backing snapshot.
-
-    The effect of setting the encryption state to
-    ``true`` depends on the volume origin (new or from a snapshot), starting
-    encryption state, ownership, and whether encryption by default is enabled. For
-    more information, see `Amazon EBS
-    encryption <https://docs.aws.amazon.com/ebs/latest/userguide/ebs-
-    encryption.html#encryption-parameters>`_ in the *Amazon EBS User Guide*.
-    """
-
-
-class EC2BlockDeviceMapping(Boto3Model):
-    """
-    Describes a block device mapping, which defines the EBS volumes and
-    instance store volumes to attach to an instance at launch.
-    """
-
-    DeviceName: Optional[str] = None
-    """
-    The device name (for example, ``/dev/sdh`` or ``xvdh``).
-    """
-    VirtualName: Optional[str] = None
-    """
-    The virtual device name (``ephemeral``N).
-
-    Instance store volumes are numbered
-    starting from 0. An instance type with 2 available instance store volumes can
-    specify mappings for ``ephemeral0`` and ``ephemeral1``. The number of available
-    instance store volumes depends on the instance type. After you connect to the
-    instance, you must mount the volume.
-    """
-    Ebs: Optional[EbsBlockDevice] = None
-    """
-    Parameters used to automatically set up EBS volumes when the instance is
-    launched.
-    """
-    NoDevice: Optional[str] = None
-    """
-    To omit the device from the block device mapping, specify an empty string.
-
-    When this property is specified, the device is removed from the block
-    device mapping regardless of the assigned value.
     """
 
 

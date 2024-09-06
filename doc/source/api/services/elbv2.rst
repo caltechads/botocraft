@@ -4,33 +4,6 @@ Elastic Load Balancing v2 (elbv2)
 =================================
 
 
-Managers
---------
-
-Managers work with the primary models to provide a high-level interface to the
-AWS service. They are responsible for creating, updating, and deleting the
-resources in the service, as well as any additional operations that are
-available for those models.
-
-
-.. autoclass:: botocraft.services.elbv2.ListenerManager
-   :members:
-   :show-inheritance:
-
-.. autoclass:: botocraft.services.elbv2.LoadBalancerManager
-   :members:
-   :show-inheritance:
-
-.. autoclass:: botocraft.services.elbv2.RuleManager
-   :members:
-   :show-inheritance:
-
-.. autoclass:: botocraft.services.elbv2.TargetGroupManager
-   :members:
-   :show-inheritance:
-
-
-
 Primary Models
 --------------
 
@@ -61,6 +34,34 @@ represent resources in the AWS service, and are acted on by the managers.
     :show-inheritance:
     :inherited-members:
     :exclude-members: update_forward_refs, model_extra, model_fields_set, validate, schema_json, model_rebuild, model_post_init, model_parametrized_name, model_json_schema, copy, from_orm, dict, json, schema, schema_json
+
+
+
+Managers
+--------
+
+Managers work with the primary models to provide a high-level interface to the
+AWS service. They are responsible for creating, updating, and deleting the
+resources in the service, as well as any additional operations that are
+available for those models.
+
+
+.. autoclass:: botocraft.services.elbv2.ListenerManager
+   :members:
+   :show-inheritance:
+
+.. autoclass:: botocraft.services.elbv2.LoadBalancerManager
+   :members:
+   :show-inheritance:
+
+.. autoclass:: botocraft.services.elbv2.RuleManager
+   :members:
+   :show-inheritance:
+
+.. autoclass:: botocraft.services.elbv2.TargetGroupManager
+   :members:
+   :show-inheritance:
+
 
 
 

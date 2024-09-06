@@ -4,6 +4,21 @@ ECR (ecr)
 =========
 
 
+Primary Models
+--------------
+
+Primary models are models that you can act on directly. They are the models that
+represent resources in the AWS service, and are acted on by the managers.
+
+
+
+.. autopydantic_model:: botocraft.services.ecr.Repository
+    :show-inheritance:
+    :inherited-members:
+    :exclude-members: update_forward_refs, model_extra, model_fields_set, validate, schema_json, model_rebuild, model_post_init, model_parametrized_name, model_json_schema, copy, from_orm, dict, json, schema, schema_json
+
+
+
 Managers
 --------
 
@@ -13,7 +28,7 @@ resources in the service, as well as any additional operations that are
 available for those models.
 
 
-.. autoclass:: botocraft.services.ecr.ImageManager
+.. autoclass:: botocraft.services.ecr.ECRImageManager
    :members:
    :show-inheritance:
 
@@ -21,26 +36,6 @@ available for those models.
    :members:
    :show-inheritance:
 
-
-
-Primary Models
---------------
-
-Primary models are models that you can act on directly. They are the models that
-represent resources in the AWS service, and are acted on by the managers.
-
-
-
-.. autopydantic_model:: botocraft.services.ecr.Image
-    :show-inheritance:
-    :inherited-members:
-    :exclude-members: update_forward_refs, model_extra, model_fields_set, validate, schema_json, model_rebuild, model_post_init, model_parametrized_name, model_json_schema, copy, from_orm, dict, json, schema, schema_json
-
-
-.. autopydantic_model:: botocraft.services.ecr.Repository
-    :show-inheritance:
-    :inherited-members:
-    :exclude-members: update_forward_refs, model_extra, model_fields_set, validate, schema_json, model_rebuild, model_post_init, model_parametrized_name, model_json_schema, copy, from_orm, dict, json, schema, schema_json
 
 
 
@@ -51,6 +46,12 @@ Secondary models are models that are used by the primary models to organize
 their data. They are not acted on directly, but are used to describe the
 structure of the fields in the primary models or other secondary models.
 
+
+
+.. autopydantic_model:: botocraft.services.ecr.ECRImage
+    :show-inheritance:
+    :inherited-members:
+    :exclude-members: update_forward_refs, model_extra, model_fields_set, validate, schema_json, model_rebuild, model_post_init, model_parametrized_name, model_json_schema, copy, from_orm, dict, json, schema, schema_json
 
 
 .. autopydantic_model:: botocraft.services.ecr.EncryptionConfiguration

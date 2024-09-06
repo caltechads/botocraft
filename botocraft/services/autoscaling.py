@@ -7,12 +7,13 @@ from datetime import datetime
 from functools import cached_property
 from typing import Any, ClassVar, Dict, List, Literal, Optional, Type, cast
 
+from pydantic import Field
+
 from botocraft.mixins.autoscaling import AutoScalingGroupModelMixin
 from botocraft.mixins.tags import TagsDictMixin
 from botocraft.services.common import Filter, Tag
 from botocraft.services.ec2 import (LaunchTemplateVersion,
                                     LaunchTemplateVersionManager)
-from pydantic import Field
 
 from .abstract import (Boto3Model, Boto3ModelManager, PrimaryBoto3Model,
                        ReadonlyBoto3Model, ReadonlyBoto3ModelManager,
@@ -107,7 +108,12 @@ class AutoScalingGroupManager(Boto3ModelManager):
         args = dict(
             AutoScalingGroupName=data.get("AutoScalingGroupName"),
             LaunchConfigurationName=data.get("LaunchConfigurationName"),
-            LaunchTemplate=data.get("LaunchTemplate"),
+            LaunchTemplate={
+                "LaunchTemplateId": data["LaunchTemplate"]["LaunchTemplateId"],
+                "Version": data["LaunchTemplate"]["Version"],
+            }
+            if "LaunchTemplate" in data
+            else None,
             MixedInstancesPolicy=data.get("MixedInstancesPolicy"),
             MinSize=data.get("MinSize"),
             MaxSize=data.get("MaxSize"),
@@ -257,6 +263,32 @@ class AutoScalingGroupManager(Boto3ModelManager):
             else:
                 break
         return results
+
+    def terminate_instance(
+        self, InstanceId: str, ShouldDecrementDesiredCapacity: bool
+    ) -> "ActivityType":
+        """
+        Terminates the specified instance and optionally adjusts the desired
+        group size. This operation cannot be called on instances in a warm
+        pool.
+
+        Args:
+            InstanceId: The ID of the instance.
+            ShouldDecrementDesiredCapacity: Indicates whether terminating the instance
+                also decrements the size of the Auto Scaling group.
+        """
+        args: Dict[str, Any] = dict(
+            InstanceId=self.serialize(InstanceId),
+            ShouldDecrementDesiredCapacity=self.serialize(
+                ShouldDecrementDesiredCapacity
+            ),
+        )
+        _response = self.client.terminate_instance_in_auto_scaling_group(
+            **{k: v for k, v in args.items() if v is not None}
+        )
+        response = ActivityType(**_response)
+
+        return response
 
 
 class LaunchConfigurationManager(Boto3ModelManager):
@@ -1355,7 +1387,7 @@ class AutoScalingGroup(TagsDictMixin, AutoScalingGroupModelMixin, PrimaryBoto3Mo
         try:
             pk = OrderedDict(
                 {
-                    "launchConfigurationName": self.LaunchConfigurationName,
+                    "LaunchConfigurationName": self.LaunchConfigurationName,
                 }
             )
         except AttributeError:
@@ -1872,6 +1904,83 @@ class AutoScalingInstancesType(Boto3Model):
     To receive additional items, specify this string
     for the ``NextToken`` value when requesting the next set of items. This value
     is null when there are no more items to return.
+    """
+
+
+class AutoScalingActivity(Boto3Model):
+    """
+    A scaling activity.
+    """
+
+    ActivityId: str
+    """
+    The ID of the activity.
+    """
+    AutoScalingGroupName: str
+    """
+    The name of the Auto Scaling group.
+    """
+    Description: Optional[str] = None
+    """
+    A friendly, more verbose description of the activity.
+    """
+    Cause: str
+    """
+    The reason the activity began.
+    """
+    StartTime: datetime
+    """
+    The start time of the activity.
+    """
+    EndTime: Optional[datetime] = None
+    """
+    The end time of the activity.
+    """
+    StatusCode: Literal[
+        "PendingSpotBidPlacement",
+        "WaitingForSpotInstanceRequestId",
+        "WaitingForSpotInstanceId",
+        "WaitingForInstanceId",
+        "PreInService",
+        "InProgress",
+        "WaitingForELBConnectionDraining",
+        "MidLifecycleAction",
+        "WaitingForInstanceWarmup",
+        "Successful",
+        "Failed",
+        "Cancelled",
+        "WaitingForConnectionDraining",
+    ]
+    """
+    The current status of the activity.
+    """
+    StatusMessage: Optional[str] = None
+    """
+    A friendly, more verbose description of the activity status.
+    """
+    Progress: Optional[int] = None
+    """
+    A value between 0 and 100 that indicates the progress of the activity.
+    """
+    Details: Optional[str] = None
+    """
+    The details about the activity.
+    """
+    AutoScalingGroupState: Optional[str] = None
+    """
+    The state of the Auto Scaling group, which is either ``InService`` or
+    ``Deleted``.
+    """
+    AutoScalingGroupARN: Optional[str] = None
+    """
+    The Amazon Resource Name (ARN) of the Auto Scaling group.
+    """
+
+
+class ActivityType(Boto3Model):
+    Activity: Optional[AutoScalingActivity] = None
+    """
+    A scaling activity.
     """
 
 

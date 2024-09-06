@@ -7,7 +7,10 @@ from datetime import datetime
 from functools import cached_property
 from typing import Any, ClassVar, Dict, List, Literal, Optional, Type, cast
 
-from botocraft.mixins.ecs import (ECSServiceModelMixin, ecs_clusters_only,
+from pydantic import Field
+
+from botocraft.mixins.ecs import (ECSContainerInstanceModelMixin,
+                                  ECSServiceModelMixin, ecs_clusters_only,
                                   ecs_container_instances_only,
                                   ecs_services_only, ecs_task_definitions_only,
                                   ecs_task_populate_taskDefinition,
@@ -15,8 +18,6 @@ from botocraft.mixins.ecs import (ECSServiceModelMixin, ecs_clusters_only,
                                   ecs_tasks_only)
 from botocraft.mixins.tags import TagsDictMixin
 from botocraft.services.ec2 import Instance, InstanceManager
-from botocraft.services.ecr import Resource
-from pydantic import Field
 
 from .abstract import (Boto3Model, Boto3ModelManager, PrimaryBoto3Model,
                        ReadonlyBoto3Model, ReadonlyBoto3ModelManager,
@@ -57,7 +58,7 @@ class ServiceManager(Boto3ModelManager):
         data = model.model_dump(exclude_none=True, by_alias=True)
         args = dict(
             serviceName=data.get("serviceName"),
-            cluster=data["clusterArn"],
+            clusterArn=data.get("clusterArn"),
             taskDefinition=data.get("taskDefinition"),
             loadBalancers=data.get("loadBalancers"),
             serviceRegistries=data.get("serviceRegistries"),
@@ -66,7 +67,7 @@ class ServiceManager(Boto3ModelManager):
             launchType=data.get("launchType"),
             capacityProviderStrategy=data.get("capacityProviderStrategy"),
             platformVersion=data.get("platformVersion"),
-            role=data["roleArn"],
+            roleArn=data.get("roleArn"),
             deploymentConfiguration=data.get("deploymentConfiguration"),
             placementConstraints=data.get("placementConstraints"),
             placementStrategy=data.get("placementStrategy"),
@@ -267,8 +268,8 @@ class ServiceManager(Boto3ModelManager):
         """
         data = model.model_dump(exclude_none=True, by_alias=True)
         args = dict(
-            service=data["serviceName"],
-            cluster=data["clusterArn"],
+            serviceName=data.get("serviceName"),
+            clusterArn=data.get("clusterArn"),
             desiredCount=data.get("desiredCount"),
             taskDefinition=data.get("taskDefinition"),
             capacityProviderStrategy=data.get("capacityProviderStrategy"),
@@ -572,7 +573,7 @@ class ClusterManager(Boto3ModelManager):
         """
         data = model.model_dump(exclude_none=True, by_alias=True)
         args = dict(
-            cluster=data["clusterName"],
+            clusterName=data.get("clusterName"),
             settings=data.get("settings"),
             configuration=data.get("configuration"),
             serviceConnectDefaults=data.get("serviceConnectDefaults"),
@@ -977,6 +978,75 @@ class ContainerInstanceManager(ReadonlyBoto3ModelManager):
                 break
         return results
 
+    def list_tasks(
+        self,
+        containerInstance: str,
+        *,
+        cluster: Optional[str] = None,
+        family: Optional[str] = None,
+        startedBy: Optional[str] = None,
+        serviceName: Optional[str] = None,
+        desiredStatus: Optional[Literal["RUNNING", "PENDING", "STOPPED"]] = None,
+        launchType: Optional[Literal["EC2", "FARGATE", "EXTERNAL"]] = None
+    ) -> List[str]:
+        """
+        Returns a list of tasks. You can filter the results by cluster, task
+        definition family, container instance, launch type, what IAM principal
+        started the task, or by the desired status of the task.
+
+        Args:
+            containerInstance: The container instance ID or full ARN of the container
+                instance to use when filtering the ``ListTasks`` results. Specifying a
+                ``containerInstance`` limits the results to tasks that belong to that
+                container instance.
+
+        Keyword Args:
+            cluster: The short name or full Amazon Resource Name (ARN) of the cluster
+                to use when filtering the ``ListTasks`` results. If you do not specify a
+                cluster, the default cluster is assumed.
+            family: The name of the task definition family to use when filtering the
+                ``ListTasks`` results. Specifying a ``family`` limits the results to tasks
+                that belong to that family.
+            startedBy: The ``startedBy`` value to filter the task results with.
+                Specifying a ``startedBy`` value limits the results to tasks that were
+                started with that value.
+            serviceName: The name of the service to use when filtering the
+                ``ListTasks`` results. Specifying a ``serviceName`` limits the results to
+                tasks that belong to that service.
+            desiredStatus: The task desired status to use when filtering the
+                ``ListTasks`` results. Specifying a ``desiredStatus`` of ``STOPPED`` limits
+                the results to tasks that Amazon ECS has set the desired status to
+                ``STOPPED``. This can be useful for debugging tasks that aren't starting
+                properly or have died or finished. The default status filter is
+                ``RUNNING``, which shows tasks that Amazon ECS has set the desired status
+                to ``RUNNING``.
+            launchType: The launch type to use when filtering the ``ListTasks``
+                results.
+        """
+        paginator = self.client.get_paginator("list_tasks")
+        args: Dict[str, Any] = dict(
+            cluster=self.serialize(cluster),
+            containerInstance=self.serialize([containerInstance]),
+            family=self.serialize(family),
+            startedBy=self.serialize(startedBy),
+            serviceName=self.serialize(serviceName),
+            desiredStatus=self.serialize(desiredStatus),
+            launchType=self.serialize(launchType),
+        )
+        response_iterator = paginator.paginate(
+            **{k: v for k, v in args.items() if v is not None}
+        )
+        results: List[str] = []
+        for _response in response_iterator:
+            response = ListTasksResponse(**_response)
+
+            if response.taskArns:
+                results.extend(response.taskArns)
+
+            else:
+                break
+        return results
+
 
 class TaskManager(Boto3ModelManager):
     service_name: str = "ecs"
@@ -1192,7 +1262,7 @@ class TaskManager(Boto3ModelManager):
         args = dict(
             taskDefinition=data.get("taskDefinition"),
             capacityProviderStrategy=self.serialize(capacityProviderStrategy),
-            cluster=data["clusterArn"],
+            clusterArn=data.get("clusterArn"),
             count=self.serialize(count),
             enableECSManagedTags=self.serialize(enableECSManagedTags),
             enableExecuteCommand=data.get("enableExecuteCommand"),
@@ -2531,13 +2601,6 @@ class Service(TagsDictMixin, ECSServiceModelMixin, PrimaryBoto3Model):
     with `UpdateService <https://docs.aws.amazon.com/AmazonECS/latest/APIReference/
     API_UpdateService.html>`_.
     """
-    roleArn: str
-    """
-    The ARN of the IAM role that's associated with the service.
-
-    It allows the Amazon ECS container agent to register container instances
-    with an Elastic Load Balancing load balancer.
-    """
     clusterArn: str
     """
     The Amazon Resource Name (ARN) of the cluster that hosts the service.
@@ -2657,6 +2720,13 @@ class Service(TagsDictMixin, ECSServiceModelMixin, PrimaryBoto3Model):
     deployments: List["Deployment"] = Field(default=None, frozen=True)
     """
     The current state of deployments for the service.
+    """
+    roleArn: str = Field(default=None, frozen=True)
+    """
+    The ARN of the IAM role that's associated with the service.
+
+    It allows the Amazon ECS container agent to register container instances
+    with an Elastic Load Balancing load balancer.
     """
     events: List["ServiceEvent"] = Field(default=None, frozen=True)
     """
@@ -4651,17 +4721,6 @@ class TaskDefinition(TagsDictMixin, PrimaryBoto3Model):
     Up to 255 characters are allowed. Letters (both uppercase and lowercase
     letters), numbers, hyphens (-), and underscores (\_) are allowed.
     """
-    taskRoleArn: str
-    """
-    The short name or full Amazon Resource Name (ARN) of the Identity and
-    Access Management role that grants containers in the task permission to
-    call Amazon Web Services APIs on your behalf.
-
-    For informationabout the required IAM roles for Amazon ECS, see
-    `IAM roles for Amazon ECS <https://docs.aws.amazon.com/AmazonECS/latest/developerguide/security-ecs-
-    iam-role-overview.html>`_ in the *Amazon Elastic Container Service Developer
-    Guide*.
-    """
     containerDefinitions: List["ContainerDefinition"]
     """
     A list of container definitions in JSON format that describe the different
@@ -4683,6 +4742,17 @@ class TaskDefinition(TagsDictMixin, PrimaryBoto3Model):
     taskDefinitionArn: str = Field(default=None, frozen=True)
     """
     The full Amazon Resource Name (ARN) of the task definition.
+    """
+    taskRoleArn: Optional[str] = None
+    """
+    The short name or full Amazon Resource Name (ARN) of the Identity and
+    Access Management role that grants containers in the task permission to
+    call Amazon Web Services APIs on your behalf.
+
+    For informationabout the required IAM roles for Amazon ECS, see
+    `IAM roles for Amazon ECS <https://docs.aws.amazon.com/AmazonECS/latest/developerguide/security-ecs-
+    iam-role-overview.html>`_ in the *Amazon Elastic Container Service Developer
+    Guide*.
     """
     executionRoleArn: Optional[str] = None
     """
@@ -5600,6 +5670,45 @@ repository.
     """
 
 
+class ContainerInstanceResource(Boto3Model):
+    """
+    Describes the resources available for a container instance.
+    """
+
+    name: Optional[str] = None
+    """
+    The name of the resource, such as ``CPU``, ``MEMORY``, ``PORTS``,
+    ``PORTS_UDP``, or a user-defined resource.
+    """
+    type: Optional[str] = None
+    """
+    The type of the resource.
+
+    Valid values: ``INTEGER``, ``DOUBLE``, ``LONG``, or
+    ``STRINGSET``.
+    """
+    doubleValue: Optional[float] = None
+    """
+    When the ``doubleValue`` type is set, the value of the resource must be a
+    double precision floating-point type.
+    """
+    longValue: Optional[int] = None
+    """
+    When the ``longValue`` type is set, the value of the resource must be an
+    extended precision floating-point type.
+    """
+    integerValue: Optional[int] = None
+    """
+    When the ``integerValue`` type is set, the value of the resource must be an
+    integer.
+    """
+    stringSetValue: Optional[List[str]] = None
+    """
+    When the ``stringSetValue`` type is set, the value of the resource must be
+    a string type.
+    """
+
+
 class InstanceHealthCheckResult(Boto3Model):
     """
     An object representing the result of a container instance health status
@@ -5648,7 +5757,9 @@ class ContainerInstanceHealthStatus(Boto3Model):
     """
 
 
-class ContainerInstance(TagsDictMixin, ReadonlyPrimaryBoto3Model):
+class ContainerInstance(
+    TagsDictMixin, ECSContainerInstanceModelMixin, ReadonlyPrimaryBoto3Model
+):
     """
     An Amazon EC2 or External instance that's running the Amazon ECS agent and
     has been registered with a cluster.
@@ -5702,7 +5813,7 @@ class ContainerInstance(TagsDictMixin, ReadonlyPrimaryBoto3Model):
     The version information for the Amazon ECS container agent and Docker
     daemon running on the container instance.
     """
-    remainingResources: Optional[List[Resource]] = None
+    remainingResources: Optional[List["ContainerInstanceResource"]] = None
     """
     For CPU and memory resource types, this parameter describes the remaining
     CPU and memory that wasn't already allocated to tasks and is therefore
@@ -5714,7 +5825,7 @@ class ContainerInstance(TagsDictMixin, ReadonlyPrimaryBoto3Model):
     ``host`` or ``bridge`` network mode). Any port that's not specified here is
     available for new tasks.
     """
-    registeredResources: Optional[List[Resource]] = None
+    registeredResources: Optional[List["ContainerInstanceResource"]] = None
     """
     For CPU and memory resource types, this parameter describes the amount of
     each resource that was available on the container instance when the
@@ -5807,6 +5918,26 @@ class ContainerInstance(TagsDictMixin, ReadonlyPrimaryBoto3Model):
         """
         return self.containerInstanceArn
 
+    @property
+    def clusterName(self) -> Optional[str]:
+        """
+        The name of the cluster that houses this task, if any.
+        """
+
+        return self.transform(
+            "containerInstanceArn", r":container-instance/(.+)/[0-9a-f]+$"
+        )
+
+    @property
+    def name(self) -> Optional[str]:
+        """
+        The name of the cluster that houses this task, if any.
+        """
+
+        return self.transform(
+            "containerInstanceArn", r":container-instance/.+/([0-9a-f]+)$"
+        )
+
     @cached_property
     def instance(self) -> Optional["Instance"]:
         """
@@ -5830,6 +5961,25 @@ class ContainerInstance(TagsDictMixin, ReadonlyPrimaryBoto3Model):
         except AttributeError:
             return None
         return Instance.objects.using(self.objects.session).get(**pk)
+
+    @property
+    def tasks(self) -> Optional[List["Task"]]:
+        """
+        Return the ARNs of :py:class:`Task` objects that run on this container
+        instance, if any.
+        """
+
+        try:
+            pk = OrderedDict(
+                {
+                    "cluster": self.clusterName,
+                    "containerInstance": self.containerInstanceArn,
+                    "desiredStatus": "RUNNING",
+                }
+            )
+        except AttributeError:
+            return []
+        return Task.objects.using(self.objects.session).list(**pk)
 
 
 # =======================
@@ -6070,17 +6220,6 @@ class ListContainerInstancesResponse(Boto3Model):
     """
 
 
-class DescribeTasksResponse(Boto3Model):
-    tasks: Optional[List["Task"]] = None
-    """
-    The list of tasks.
-    """
-    failures: Optional[List["Failure"]] = None
-    """
-    Any failures associated with the call.
-    """
-
-
 class ListTasksResponse(Boto3Model):
     taskArns: Optional[List[str]] = None
     """
@@ -6094,6 +6233,17 @@ class ListTasksResponse(Boto3Model):
     results of a ``ListTasks`` request exceed ``maxResults``, this value can be
     used to retrieve the next page of results. This value is ``null`` when there
     are no more results to return.
+    """
+
+
+class DescribeTasksResponse(Boto3Model):
+    tasks: Optional[List["Task"]] = None
+    """
+    The list of tasks.
+    """
+    failures: Optional[List["Failure"]] = None
+    """
+    Any failures associated with the call.
     """
 
 

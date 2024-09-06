@@ -6,12 +6,13 @@ from collections import OrderedDict
 from datetime import datetime
 from typing import Any, ClassVar, Dict, List, Literal, Optional, Type, cast
 
+from pydantic import Field
+
 from botocraft.mixins.ecr import (ECRImageMixin, RepositoryMixin,
                                   image_list_images_ecr_images_only,
                                   repo_list_images_ecr_images_only)
 from botocraft.mixins.tags import TagsDictMixin
 from botocraft.services.common import Tag
-from pydantic import Field
 
 from .abstract import (Boto3Model, Boto3ModelManager, PrimaryBoto3Model,
                        ReadonlyBoto3Model, ReadonlyBoto3ModelManager,
@@ -197,7 +198,7 @@ class RepositoryManager(Boto3ModelManager):
         acceptedMediaTypes: List[str] = [
             "application/vnd.docker.distribution.manifest.v2+json"
         ]
-    ) -> Optional[List["Image"]]:
+    ) -> Optional[List["ECRImage"]]:
         """
         Use this method when you want to get just a few images from the
         repository. If you want to get all images, use the ````list\_images````
@@ -232,7 +233,7 @@ class RepositoryManager(Boto3ModelManager):
         acceptedMediaTypes: List[str] = [
             "application/vnd.docker.distribution.manifest.v2+json"
         ]
-    ) -> "Image":
+    ) -> "ECRImage":
         """
         Gets detailed information for an image. Images are specified with
         either an ``imageTag`` or ``imageDigest``.
@@ -258,7 +259,7 @@ class RepositoryManager(Boto3ModelManager):
         return response.images[0]
 
 
-class ImageManager(Boto3ModelManager):
+class ECRImageManager(Boto3ModelManager):
     service_name: str = "ecr"
 
     def get(
@@ -269,7 +270,7 @@ class ImageManager(Boto3ModelManager):
         acceptedMediaTypes: List[str] = [
             "application/vnd.docker.distribution.manifest.v2+json"
         ]
-    ) -> Optional["Image"]:
+    ) -> Optional["ECRImage"]:
         """
         Gets detailed information for an image. Images are specified with
         either an ``imageTag`` or ``imageDigest``.
@@ -596,12 +597,12 @@ class ImageIdentifier(Boto3Model):
     """
 
 
-class Image(ECRImageMixin, ReadonlyPrimaryBoto3Model):
+class ECRImage(ECRImageMixin, ReadonlyPrimaryBoto3Model):
     """
     An object representing an Amazon ECR image.
     """
 
-    objects: ClassVar[Boto3ModelManager] = ImageManager()
+    objects: ClassVar[Boto3ModelManager] = ECRImageManager()
 
     registryId: Optional[str] = None
     """
@@ -752,7 +753,7 @@ class ImageFailure(Boto3Model):
 
 
 class BatchGetImageResponse(Boto3Model):
-    images: Optional[List["Image"]] = None
+    images: Optional[List["ECRImage"]] = None
     """
     A list of image objects corresponding to the image references in the
     request.

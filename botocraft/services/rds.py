@@ -5,9 +5,10 @@
 from datetime import datetime
 from typing import Any, ClassVar, Dict, List, Literal, Optional, Type, cast
 
+from pydantic import Field
+
 from botocraft.mixins.tags import TagsDictMixin
 from botocraft.services.common import Filter, Tag
-from pydantic import Field
 
 from .abstract import (Boto3Model, Boto3ModelManager, PrimaryBoto3Model,
                        ReadonlyBoto3Model, ReadonlyBoto3ModelManager,
@@ -91,7 +92,7 @@ class DBInstanceManager(Boto3ModelManager):
             DBParameterGroupName=self.serialize(DBParameterGroupName),
             BackupRetentionPeriod=data.get("BackupRetentionPeriod"),
             PreferredBackupWindow=data.get("PreferredBackupWindow"),
-            Port=data["DbInstancePort"],
+            DbInstancePort=data.get("DbInstancePort"),
             MultiAZ=data.get("MultiAZ"),
             EngineVersion=data.get("EngineVersion"),
             AutoMinorVersionUpgrade=data.get("AutoMinorVersionUpgrade"),
@@ -101,7 +102,7 @@ class DBInstanceManager(Boto3ModelManager):
             CharacterSetName=data.get("CharacterSetName"),
             NcharCharacterSetName=data.get("NcharCharacterSetName"),
             PubliclyAccessible=data.get("PubliclyAccessible"),
-            Tags=data["TagList"],
+            TagList=data.get("TagList"),
             DBClusterIdentifier=data.get("DBClusterIdentifier"),
             StorageType=data.get("StorageType"),
             TdeCredentialArn=data.get("TdeCredentialArn"),
@@ -119,17 +120,19 @@ class DBInstanceManager(Boto3ModelManager):
             DomainIAMRoleName=self.serialize(DomainIAMRoleName),
             PromotionTier=data.get("PromotionTier"),
             Timezone=data.get("Timezone"),
-            EnableIAMDatabaseAuthentication=data["IAMDatabaseAuthenticationEnabled"],
-            EnablePerformanceInsights=data["PerformanceInsightsEnabled"],
+            IAMDatabaseAuthenticationEnabled=data.get(
+                "IAMDatabaseAuthenticationEnabled"
+            ),
+            PerformanceInsightsEnabled=data.get("PerformanceInsightsEnabled"),
             PerformanceInsightsKMSKeyId=data.get("PerformanceInsightsKMSKeyId"),
             PerformanceInsightsRetentionPeriod=data.get(
                 "PerformanceInsightsRetentionPeriod"
             ),
-            EnableCloudwatchLogsExports=data["EnabledCloudwatchLogsExports"],
+            EnabledCloudwatchLogsExports=data.get("EnabledCloudwatchLogsExports"),
             ProcessorFeatures=data.get("ProcessorFeatures"),
             DeletionProtection=data.get("DeletionProtection"),
             MaxAllocatedStorage=data.get("MaxAllocatedStorage"),
-            EnableCustomerOwnedIp=data["CustomerOwnedIpEnabled"],
+            CustomerOwnedIpEnabled=data.get("CustomerOwnedIpEnabled"),
             CustomIamInstanceProfile=data.get("CustomIamInstanceProfile"),
             BackupTarget=data.get("BackupTarget"),
             NetworkType=data.get("NetworkType"),
@@ -290,8 +293,10 @@ class DBInstanceManager(Boto3ModelManager):
             DomainIAMRoleName=self.serialize(DomainIAMRoleName),
             DisableDomain=self.serialize(DisableDomain),
             PromotionTier=data.get("PromotionTier"),
-            EnableIAMDatabaseAuthentication=data["IAMDatabaseAuthenticationEnabled"],
-            EnablePerformanceInsights=data["PerformanceInsightsEnabled"],
+            IAMDatabaseAuthenticationEnabled=data.get(
+                "IAMDatabaseAuthenticationEnabled"
+            ),
+            PerformanceInsightsEnabled=data.get("PerformanceInsightsEnabled"),
             PerformanceInsightsKMSKeyId=data.get("PerformanceInsightsKMSKeyId"),
             PerformanceInsightsRetentionPeriod=data.get(
                 "PerformanceInsightsRetentionPeriod"
@@ -305,7 +310,7 @@ class DBInstanceManager(Boto3ModelManager):
             MaxAllocatedStorage=data.get("MaxAllocatedStorage"),
             CertificateRotationRestart=self.serialize(CertificateRotationRestart),
             ReplicaMode=data.get("ReplicaMode"),
-            EnableCustomerOwnedIp=data["CustomerOwnedIpEnabled"],
+            CustomerOwnedIpEnabled=data.get("CustomerOwnedIpEnabled"),
             AwsBackupRecoveryPointArn=data.get("AwsBackupRecoveryPointArn"),
             AutomationMode=data.get("AutomationMode"),
             ResumeFullAutomationModeMinutes=self.serialize(
