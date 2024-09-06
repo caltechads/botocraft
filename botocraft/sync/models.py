@@ -420,6 +420,9 @@ class MethodArgumentDefinition(BaseModel):
     #: of this argument to this specifically.  If this is set, we hide
     #: the argument from the method signature.
     value: Optional[Any] = None
+    #: If ``True``, take value as the raw value to pass to the boto3 call
+    #: instead of wrapping it in self.serialize()
+    raw_value: bool = False
     #: If ``True``, force the argument to be in in the method
     #: signature.  This is only useful for methods that take a model
     #: instance as an argument.

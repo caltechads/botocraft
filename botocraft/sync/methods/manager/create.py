@@ -120,7 +120,10 @@ class CreateMethodGenerator(ManagerMethodGenerator):
                     continue
                 _arg = f"data.get('{arg}')"
                 if arg_def.value:
-                    _arg = self.serialize(cast(str, arg_def.value))
+                    if arg_def.raw_value:
+                        _arg = arg_def.value
+                    else:
+                        _arg = self.serialize(cast(str, arg_def.value))
                 elif arg_def.source_arg:
                     _arg = self.serialize(cast(str, arg_def.source_arg))
                 elif arg_def.attribute:

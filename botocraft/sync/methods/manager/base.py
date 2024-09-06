@@ -187,7 +187,9 @@ class ManagerMethodGenerator:
             return arg_def.value
         if arg_def.source_arg:
             _arg = arg_def.source_arg
-        return f'self.serialize({_arg})'
+        if not arg_def.raw_value:
+            return f'self.serialize({_arg})'
+        return _arg
 
     def _args(
         self,
