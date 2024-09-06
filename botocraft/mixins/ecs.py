@@ -127,6 +127,23 @@ def ecs_container_instances_only(
     return wrapper
 
 
+def ecs_container_instances_tasks_only(
+    func: Callable[..., List[str]]
+) -> Callable[..., List["Task"]]:
+    """
+    Decorator to convert a list of ECS container instance arns to a list of
+    :py:class:`botocraft.services.ecs.ContainerInstance` objects.
+    """
+    def wrapper(self, *args, **kwargs) -> List["Task"]:
+        from botocraft.services.ecs import Task  # pylint: disable=import-outside-toplevel
+        arns = func(self, *args, **kwargs)
+        tasks = []
+        for i in range(0, len(arns), 100):
+            tasks.extend(cast("TaskManager", Task.objects).get_many(arns[i:i + 100]))
+        return tasks
+    return wrapper
+
+
 # Task
 def ecs_task_populate_taskDefinition(
     func: Callable[..., Optional["Task"]]
