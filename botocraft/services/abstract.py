@@ -44,9 +44,10 @@ class TransformMixin:
             raise ValueError(f"Invalid attribute: {self.__class__.__name__}.{attribrute}")
         if transformer is None:
             return getattr(self, attribrute)
-        if getattr(self, attribrute) is None:
+        value = getattr(self, attribrute)
+        if value is None:
             return None
-        if match := re.match(transformer, str(getattr(self, attribrute))):
+        if match := re.search(transformer, value):
             if match.groupdict():
                 return match.groupdict()
             return match.group(1)
