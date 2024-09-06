@@ -140,6 +140,18 @@ class Boto3ModelManager(TransformMixin):
     def delete(self, pk: str, **kwargs):
         raise NotImplementedError
 
+    def get_waiter(self, name: str) -> Any:
+        """
+        Get a boto3 waiter object for this service.
+
+        Args:
+            name: The name of the waiter to get.
+
+        Returns:
+            The boto3 waiter object.
+        """
+        return self.client.get_waiter(name)
+
 
 class ReadonlyBoto3ModelManager(Boto3ModelManager):   # pylint: disable=abstract-method
 
