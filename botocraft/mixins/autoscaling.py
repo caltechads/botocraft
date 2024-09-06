@@ -38,10 +38,11 @@ class AutoScalingGroupModelMixin:
     MinSize: int
     MaxSize: int
 
-    @cached_property
+    @property
     def ec2_instances(self) -> List["Instance"]:
         """
-        Return the :py:class:`Instance` objects that belong to this group, if any.
+        Return the running :py:class:`Instance` objects that belong to this
+        group, if any.
         """
         # Avoid circular import
         from botocraft.services.ec2 import Instance  # pylint: disable=import-outside-toplevel
@@ -51,6 +52,10 @@ class AutoScalingGroupModelMixin:
                     {
                         'Name': 'tag:aws:autoscaling:groupName',
                         'Values': [self.AutoScalingGroupName]  # type: ignore
+                    },
+                    {
+                        'Name': 'instance-state-name',
+                        'Values': ['running']
                     }
                 ]
             )
