@@ -1,9 +1,10 @@
+from collections import OrderedDict
 import re
 from textwrap import (
     indent as add_prefix,
     wrap,
 )
-from typing import Optional, List
+from typing import Optional, List, Dict
 
 import click
 
@@ -22,7 +23,7 @@ def camel_to_snake(camel_str: str) -> str:
     Returns:
         The snake case version of the input string
     """
-    return re.sub(r'(?<!^)(?=[A-Z])', '_', camel_str).lower()
+    return re.sub(r'(?<=[a-z])(?=[A-Z])', '_', camel_str).lower()
 
 
 def print_shape(
@@ -43,7 +44,7 @@ def print_shape(
         indent: the number of spaces to indent the output
         label: a label to print before the shape name
     """
-    shape = service_model._shape_resolver.get_shape_by_name(shape_name)  # pylint: disable=protected-access  # type: ignore[attr-defined]
+    shape = service_model._shape_resolver.get_shape_by_name(shape_name)  # type: ignore[attr-defined]  # pylint: disable=protected-access
     output = []
     if shape.type_name == 'structure':
         if label is not None:
@@ -60,7 +61,8 @@ def print_shape(
         if hasattr(shape, 'members') and shape.members:
             for member_name, member_shape in shape.members.items():
                 output.append(
-                    f"    {click.style(member_name, fg='cyan')}: {member_shape.type_name} -> {click.style(member_shape.name, fg='blue')}"
+                    f"    {click.style(member_name, fg='cyan')}: {member_shape.type_name} -> "
+                    f"{click.style(member_shape.name, fg='blue')}"
                 )
         else:
             output.append('    No members')
@@ -92,8 +94,9 @@ def botocore_list_services():
 
 
 @botocore_group.command('models', short_help="List all available shapes for a service")
+@click.option('--names-only', is_flag=True, help="List only model names, not shapes")
 @click.argument('service')
-def botocore_list_shapes(service: str):
+def botocore_list_shapes(service: str, names_only: bool):
     """
     List all shapes in a botocore service model.
 
@@ -103,12 +106,15 @@ def botocore_list_shapes(service: str):
     session = botocore.session.get_session()
     service_model = session.get_service_model(service)
     for shape_name in service_model.shape_names:  # pylint: disable=not-an-iterable
-        print_shape(service_model, shape_name)
+        if names_only:
+            click.secho(shape_name, fg='red')
+        else:
+            print_shape(service_model, shape_name)
 
 
 @botocore_group.command('model', short_help="List all available shapes for a service")
 @click.option('--dependencies', is_flag=True, help="List dependencies for the model")
-@click.option('--operations', is_flag=True, help="List dependencies for the model")
+@click.option('--operations', is_flag=True, help="List operations for the model")
 @click.option('--documentation', is_flag=True, help="Show documentation for the model")
 @click.argument('service')
 @click.argument('model')
@@ -125,13 +131,13 @@ def botocore_list_shape(
         click.secho(f"Model {model} not found in service {service}", fg='red')
     print_shape(service_model, model, documentation=documentation)
     if operations:
-        operations = [op for op in list(service_model.operation_names) if model in op]
-        if operations:
+        _operations = [op for op in list(service_model.operation_names) if model in op]
+        if _operations:
             print()
             click.secho("Operations:", fg='yellow')
             click.secho("-" * len('Operations'), fg='yellow')
             print()
-            for operation in operations:
+            for operation in _operations:
                 click.secho(camel_to_snake(operation), fg='cyan')
     if dependencies:
         print()
@@ -197,23 +203,39 @@ def botocore_list_primary_models(service: str):
     session = botocore.session.get_session()
     service_model = session.get_service_model(service)
     operation_names: List[str] = list(service_model.operation_names)
-    prefixes = ('Put', 'Create', 'Delete', 'Describe', 'List', 'Update', 'Modify')
+    prefixes = ('Put', 'Get', 'Create', 'Delete', 'Describe', 'List', 'Update', 'Modify')
     writable_prefixes = ('Put', 'Create', 'Delete', 'Update', 'Modify')
-    # FIXME: do this in two passes
     # First pass: list all shapes
     # Second pass: assign operations to the most specific shape
     # Then print the shapes with their operations
-    for shape_name in service_model.shape_names:  # pylint: disable=not-an-iterable
-        operations = [op for op in operation_names if shape_name in op and op.startswith(prefixes)]
+    models: Dict[str, List[str]] = {}
+    names = list(service_model.shape_names)
+    names.sort(key=lambda x: len(x))
+    names.reverse()
+    taken = []
+    for shape_name in names:
+        shape = service_model._shape_resolver.get_shape_by_name(shape_name)  # pylint: disable=protected-access  # type: ignore[attr-defined]
+        if shape.type_name != 'structure':
+            continue
+        operations = [
+            op for op in operation_names
+            if shape_name in op and
+            op.startswith(prefixes) and
+            op not in taken]
         if operations:
-            writable: bool = False
-            label: str = ''
-            for op in operations:
-                if op.startswith(writable_prefixes):
-                    writable = True
-                    break
-            if not writable:
-                label = click.style(': [READONLY]', fg='green')
-            click.echo(f'{click.style(shape_name, fg="red")}{label}')
-            for operation in operations:
-                click.secho(f'    {camel_to_snake(operation)}', fg='cyan')
+            models[shape_name] = operations
+            taken.extend(operations)
+    _models = OrderedDict(sorted(models.items(), key=lambda x: x[1]))
+    for model in _models:
+        operations = _models[model]
+        writable: bool = False
+        label: str = ''
+        for op in operations:
+            if op.startswith(writable_prefixes):
+                writable = True
+                break
+        if not writable:
+            label = click.style(': [READONLY]', fg='green')
+        click.echo(f'{click.style(model, fg="red")}{label}')
+        for operation in operations:
+            click.secho(f'    {camel_to_snake(operation)}', fg='cyan')
