@@ -237,13 +237,13 @@ class ECSServiceModelMixin:
         """
         self.objects.partial_update(  # type: ignore[attr-defined]
             self.serviceName,  # type: ignore[attr-defined]
-            cluster=self.cluster,  # type: ignore[attr-defined]
+            cluster=self.clusterArn,  # type: ignore[attr-defined]
             desiredCount=desired_count
         )
         waiter = self.objects.get_waiter('services_stable')  # type: ignore[attr-defined]
         if wait:
             waiter.wait(
-                cluster=self.cluster,  # type: ignore[attr-defined]
+                cluster=self.clusterArn,  # type: ignore[attr-defined]
                 services=[self.serviceName]  # type: ignore[attr-defined]
             )
 
