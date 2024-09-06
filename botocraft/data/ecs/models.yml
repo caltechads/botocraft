@@ -190,6 +190,23 @@ primary:
     fields:
       tags:
         rename: Tags
+    properties:
+      clusterName:
+        docstring: >-
+          The name of the cluster that houses this task, if any.
+        transformer:
+          regex:
+            attribute: containerInstanceArn
+            regex: >-
+              :container-instance/(.+)/[0-9a-f]+$
+      name:
+        docstring: >-
+          The name of the cluster that houses this task, if any.
+        transformer:
+          regex:
+            attribute: containerInstanceArn
+            regex: >-
+              :container-instance/.+/([0-9a-f]+)$
     relations:
       instance:
         primary_model_name: Instance
