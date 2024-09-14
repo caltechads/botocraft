@@ -339,8 +339,8 @@ class ECSContainerInstanceModelMixin:
         """
         value: int = 0
         for resource in self.remainingResources:
-            if resource['name'] == 'CPU':
-                value = int(resource['integerValue'])
+            if resource.name == 'CPU':
+                value = int(resource.integerValue)
         return value
 
     @property
@@ -350,6 +350,6 @@ class ECSContainerInstanceModelMixin:
         """
         value: int = 0
         for resource in self.remainingResources:
-            if resource['name'] == 'MEMORY':
-                value = int(resource['integerValue'])
+            if resource.name == 'MEMORY':
+                value = int(resource.integerValue)
         return value
