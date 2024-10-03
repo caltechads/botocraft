@@ -24,6 +24,7 @@ from .abstract import (Boto3Model, Boto3ModelManager, PrimaryBoto3Model,
 
 
 class LoadBalancerManager(Boto3ModelManager):
+
     service_name: str = "elbv2"
 
     def create(
@@ -37,7 +38,7 @@ class LoadBalancerManager(Boto3ModelManager):
         Load Balancer.
 
         Args:
-            model: The :py:class:`LoadBalancer` to create.
+            model: The :py:class:\``LoadBalancer\`` to create.
 
         Keyword Args:
             SubnetMappings: The IDs of the subnets. You can specify only one subnet per
@@ -62,6 +63,8 @@ class LoadBalancerManager(Boto3ModelManager):
         )
         response = CreateLoadBalancerOutput(**_response)
 
+        if hasattr(response.LoadBalancers[0], "session"):
+            response.LoadBalancers[0].session = self.session
         return cast("LoadBalancer", response.LoadBalancers[0])
 
     def delete(self, LoadBalancerArn: str) -> None:
@@ -98,7 +101,9 @@ class LoadBalancerManager(Boto3ModelManager):
         response = DescribeLoadBalancersOutput(**_response)
 
         if response.LoadBalancers:
-            return response.LoadBalancers[0]
+            obj = response.LoadBalancers[0]
+            obj.session = self.session
+            return obj
         return None
 
     def list(
@@ -127,13 +132,19 @@ class LoadBalancerManager(Boto3ModelManager):
         for _response in response_iterator:
             response = DescribeLoadBalancersOutput(**_response)
             if response.LoadBalancers:
-                results.extend(response.LoadBalancers)
+                if hasattr(response.LoadBalancers[0], "session"):
+                    for obj in response.LoadBalancers:
+                        obj.session = self.session
+                        results.append(obj)
+                else:
+                    results.extend(response.LoadBalancers)
             else:
                 break
         return results
 
 
 class ListenerManager(Boto3ModelManager):
+
     service_name: str = "elbv2"
 
     def create(self, model: "Listener", Tags: Optional[List[Tag]] = None) -> "Listener":
@@ -142,7 +153,7 @@ class ListenerManager(Boto3ModelManager):
         Load Balancer, or Gateway Load Balancer.
 
         Args:
-            model: The :py:class:`Listener` to create.
+            model: The :py:class:\``Listener\`` to create.
 
         Keyword Args:
             Tags: The tags to assign to the listener.
@@ -164,6 +175,8 @@ class ListenerManager(Boto3ModelManager):
         )
         response = CreateListenerOutput(**_response)
 
+        if hasattr(response.Listeners[0], "session"):
+            response.Listeners[0].session = self.session
         return cast("Listener", response.Listeners[0])
 
     def update(self, model: "Listener") -> "Listener":
@@ -172,7 +185,7 @@ class ListenerManager(Boto3ModelManager):
         properties that you do not specify remain unchanged.
 
         Args:
-            model: The :py:class:`Listener` to update.
+            model: The :py:class:\``Listener\`` to update.
         """
         data = model.model_dump(exclude_none=True, by_alias=True)
         args = dict(
@@ -190,6 +203,8 @@ class ListenerManager(Boto3ModelManager):
         )
         response = ModifyListenerOutput(**_response)
 
+        if hasattr(response.Listeners[0], "session"):
+            response.Listeners[0].session = self.session
         return cast("Listener", response.Listeners[0])
 
     def delete(self, ListenerArn: str) -> None:
@@ -219,7 +234,9 @@ class ListenerManager(Boto3ModelManager):
         response = DescribeListenersOutput(**_response)
 
         if response.Listeners:
-            return response.Listeners[0]
+            obj = response.Listeners[0]
+            obj.session = self.session
+            return obj
         return None
 
     def list(
@@ -250,13 +267,19 @@ class ListenerManager(Boto3ModelManager):
         for _response in response_iterator:
             response = DescribeListenersOutput(**_response)
             if response.Listeners:
-                results.extend(response.Listeners)
+                if hasattr(response.Listeners[0], "session"):
+                    for obj in response.Listeners:
+                        obj.session = self.session
+                        results.append(obj)
+                else:
+                    results.extend(response.Listeners)
             else:
                 break
         return results
 
 
 class RuleManager(Boto3ModelManager):
+
     service_name: str = "elbv2"
 
     def create(
@@ -267,7 +290,7 @@ class RuleManager(Boto3ModelManager):
         associated with an Application Load Balancer.
 
         Args:
-            model: The :py:class:`Rule` to create.
+            model: The :py:class:\``Rule\`` to create.
             ListenerArn: The Amazon Resource Name (ARN) of the listener.
 
         Keyword Args:
@@ -286,6 +309,8 @@ class RuleManager(Boto3ModelManager):
         )
         response = CreateRuleOutput(**_response)
 
+        if hasattr(response.Rules[0], "session"):
+            response.Rules[0].session = self.session
         return cast("Rule", response.Rules[0])
 
     def update(self, model: "Rule") -> "Rule":
@@ -294,7 +319,7 @@ class RuleManager(Boto3ModelManager):
         that you do not specify are unchanged.
 
         Args:
-            model: The :py:class:`Rule` to update.
+            model: The :py:class:\``Rule\`` to update.
         """
         data = model.model_dump(exclude_none=True, by_alias=True)
         args = dict(
@@ -307,6 +332,8 @@ class RuleManager(Boto3ModelManager):
         )
         response = ModifyRuleOutput(**_response)
 
+        if hasattr(response.Rules[0], "session"):
+            response.Rules[0].session = self.session
         return cast("Rule", response.Rules[0])
 
     def delete(self, RuleArn: str) -> None:
@@ -334,7 +361,9 @@ class RuleManager(Boto3ModelManager):
         response = DescribeRulesOutput(**_response)
 
         if response.Rules:
-            return response.Rules[0]
+            obj = response.Rules[0]
+            obj.session = self.session
+            return obj
         return None
 
     def list(
@@ -359,13 +388,19 @@ class RuleManager(Boto3ModelManager):
         for _response in response_iterator:
             response = DescribeRulesOutput(**_response)
             if response.Rules:
-                results.extend(response.Rules)
+                if hasattr(response.Rules[0], "session"):
+                    for obj in response.Rules:
+                        obj.session = self.session
+                        results.append(obj)
+                else:
+                    results.extend(response.Rules)
             else:
                 break
         return results
 
 
 class TargetGroupManager(Boto3ModelManager):
+
     service_name: str = "elbv2"
 
     def create(
@@ -375,7 +410,7 @@ class TargetGroupManager(Boto3ModelManager):
         Creates a target group.
 
         Args:
-            model: The :py:class:`TargetGroup` to create.
+            model: The :py:class:\``TargetGroup\`` to create.
             Name: The name of the target group.
 
         Keyword Args:
@@ -406,6 +441,8 @@ class TargetGroupManager(Boto3ModelManager):
         )
         response = CreateTargetGroupOutput(**_response)
 
+        if hasattr(response.TargetGroups[0], "session"):
+            response.TargetGroups[0].session = self.session
         return cast("TargetGroup", response.TargetGroups[0])
 
     def update(self, model: "TargetGroup") -> "TargetGroup":
@@ -414,7 +451,7 @@ class TargetGroupManager(Boto3ModelManager):
         targets in the specified target group.
 
         Args:
-            model: The :py:class:`TargetGroup` to update.
+            model: The :py:class:\``TargetGroup\`` to update.
         """
         data = model.model_dump(exclude_none=True, by_alias=True)
         args = dict(
@@ -434,6 +471,8 @@ class TargetGroupManager(Boto3ModelManager):
         )
         response = ModifyTargetGroupOutput(**_response)
 
+        if hasattr(response.TargetGroups[0], "session"):
+            response.TargetGroups[0].session = self.session
         return cast("TargetGroup", response.TargetGroups[0])
 
     def delete(self, TargetGroupArn: str) -> None:
@@ -472,7 +511,9 @@ class TargetGroupManager(Boto3ModelManager):
         response = DescribeTargetGroupsOutput(**_response)
 
         if response.TargetGroups:
-            return response.TargetGroups[0]
+            obj = response.TargetGroups[0]
+            obj.session = self.session
+            return obj
         return None
 
     def list(
@@ -507,7 +548,12 @@ class TargetGroupManager(Boto3ModelManager):
         for _response in response_iterator:
             response = DescribeTargetGroupsOutput(**_response)
             if response.TargetGroups:
-                results.extend(response.TargetGroups)
+                if hasattr(response.TargetGroups[0], "session"):
+                    for obj in response.TargetGroups:
+                        obj.session = self.session
+                        results.append(obj)
+                else:
+                    results.extend(response.TargetGroups)
             else:
                 break
         return results
@@ -552,9 +598,9 @@ class LoadBalancerState(Boto3Model):
     The state of the load balancer.
     """
 
-    Code: Optional[
-        Literal["active", "provisioning", "active_impaired", "failed"]
-    ] = None
+    Code: Optional[Literal["active", "provisioning", "active_impaired", "failed"]] = (
+        None
+    )
     """
     The state code.
 
@@ -581,17 +627,17 @@ class LoadBalancerAddress(Boto3Model):
     """
     AllocationId: Optional[str] = None
     """
-    [Network Load Balancers] The allocation ID of the Elastic IP address for an
-    internal-facing load balancer.
+    \[Network Load Balancers] The allocation ID of the Elastic IP address for
+    an internal\-facing load balancer.
     """
     PrivateIPv4Address: Optional[str] = None
     """
-    [Network Load Balancers] The private IPv4 address for an internal load
+    \[Network Load Balancers] The private IPv4 address for an internal load
     balancer.
     """
     IPv6Address: Optional[str] = None
     """
-    [Network Load Balancers] The IPv6 address.
+    \[Network Load Balancers] The IPv6 address.
     """
 
 
@@ -612,13 +658,13 @@ class AvailabilityZone(Boto3Model):
     """
     OutpostId: Optional[str] = None
     """
-    [Application Load Balancers on Outposts] The ID of the Outpost.
+    \[Application Load Balancers on Outposts] The ID of the Outpost.
     """
     LoadBalancerAddresses: Optional[List["LoadBalancerAddress"]] = None
     """
-    [Network Load Balancers] If you need static IP addresses for your load
+    \[Network Load Balancers] If you need static IP addresses for your load
     balancer, you can specify one Elastic IP address per Availability Zone when
-    you create an internal-facing load balancer.
+    you create an internal\-facing load balancer.
 
     For internal load balancers, you can specify a private IP address from the
     IPv4 range of the subnet.
@@ -630,7 +676,7 @@ class LoadBalancer(PrimaryBoto3Model):
     Information about a load balancer.
     """
 
-    objects: ClassVar[Boto3ModelManager] = LoadBalancerManager()
+    manager_class: ClassVar[Type[Boto3ModelManager]] = LoadBalancerManager
 
     LoadBalancerName: str
     """
@@ -638,10 +684,10 @@ class LoadBalancer(PrimaryBoto3Model):
     """
     Scheme: Optional[Literal["internet-facing", "internal"]] = "internet-facing"
     """
-    The nodes of an Internet-facing load balancer have public IP addresses.
+    The nodes of an Internet\-facing load balancer have public IP addresses.
 
-    The DNS name of an Internet-facing load balancer is publicly resolvable to
-    the public IP addresses of the nodes. Therefore, Internet-facing load
+    The DNS name of an Internet\-facing load balancer is publicly resolvable to
+    the public IP addresses of the nodes. Therefore, Internet\-facing load
     balancers can route requests from clients over the internet.
     """
     Type: Optional[Literal["application", "network", "gateway"]] = "application"
@@ -652,7 +698,7 @@ class LoadBalancer(PrimaryBoto3Model):
         Literal["ipv4", "dualstack", "dualstack-without-public-ipv4"]
     ] = "ipv4"
     """
-    [Application Load Balancers] The type of IP addresses used for public or
+    \[Application Load Balancers] The type of IP addresses used for public or
     private connections by the subnets attached to your load balancer.
 
     The possible
@@ -695,7 +741,7 @@ class LoadBalancer(PrimaryBoto3Model):
     """
     CustomerOwnedIpv4Pool: Optional[str] = None
     """
-    [Application Load Balancers on Outposts] The ID of the customer-owned
+    \[Application Load Balancers on Outposts] The ID of the customer\-owned
     address pool.
     """
     EnforceSecurityGroupInboundRulesOnPrivateLinkTraffic: str = Field(
@@ -761,7 +807,7 @@ class LoadBalancer(PrimaryBoto3Model):
             )
         except AttributeError:
             return []
-        return Listener.objects.using(self.objects.session).list(**pk)
+        return Listener.objects.using(self.session).list(**pk)
 
     @cached_property
     def vpc(self) -> Optional["Vpc"]:
@@ -785,7 +831,7 @@ class LoadBalancer(PrimaryBoto3Model):
             )
         except AttributeError:
             return None
-        return Vpc.objects.using(self.objects.session).get(**pk)
+        return Vpc.objects.using(self.session).get(**pk)
 
     @cached_property
     def security_groups(self) -> Optional[List["SecurityGroup"]]:
@@ -809,7 +855,7 @@ class LoadBalancer(PrimaryBoto3Model):
             )
         except AttributeError:
             return []
-        return SecurityGroup.objects.using(self.objects.session).list(**pk)
+        return SecurityGroup.objects.using(self.session).list(**pk)
 
 
 class Certificate(ReadonlyBoto3Model):
@@ -833,10 +879,11 @@ class Certificate(ReadonlyBoto3Model):
 
 class AuthenticateOidcActionConfig(Boto3Model):
     """
-    [HTTPS listeners] Information about an identity provider that is compliant
+    \[HTTPS listeners] Information about an identity provider that is compliant
     with OpenID Connect (OIDC).
 
-    Specify only when ``Type`` is ``authenticate-oidc``.
+    Specify only when ``Type`` is ``authenticate-
+    oidc``.
     """
 
     Issuer: str
@@ -869,11 +916,11 @@ class AuthenticateOidcActionConfig(Boto3Model):
     """
     ClientId: str
     """
-    The OAuth 2.0 client identifier.
+    The OAuth 2\.0 client identifier.
     """
     ClientSecret: Optional[str] = None
     """
-    The OAuth 2.0 client secret.
+    The OAuth 2\.0 client secret.
 
     This parameter is required if you are creating a
     rule. If you are modifying a rule, you can omit this parameter if you set
@@ -899,7 +946,7 @@ class AuthenticateOidcActionConfig(Boto3Model):
     """
     AuthenticationRequestExtraParams: Optional[Dict[str, str]] = None
     """
-    The query parameters (up to 10) to include in the redirect request to the
+    The query parameters (up to 10\) to include in the redirect request to the
     authorization endpoint.
     """
     OnUnauthenticatedRequest: Optional[Literal["deny", "allow", "authenticate"]] = None
@@ -919,7 +966,7 @@ class AuthenticateOidcActionConfig(Boto3Model):
 
 class AuthenticateCognitoActionConfig(Boto3Model):
     """
-    [HTTPS listeners] Information for using Amazon Cognito to authenticate
+    \[HTTPS listeners] Information for using Amazon Cognito to authenticate
     users.
 
     Specify only when ``Type`` is ``authenticate-cognito``.
@@ -935,8 +982,8 @@ class AuthenticateCognitoActionConfig(Boto3Model):
     """
     UserPoolDomain: str
     """
-    The domain prefix or fully-qualified domain name of the Amazon Cognito user
-    pool.
+    The domain prefix or fully\-qualified domain name of the Amazon Cognito
+    user pool.
     """
     SessionCookieName: Optional[str] = None
     """
@@ -958,7 +1005,7 @@ class AuthenticateCognitoActionConfig(Boto3Model):
     """
     AuthenticationRequestExtraParams: Optional[Dict[str, str]] = None
     """
-    The query parameters (up to 10) to include in the redirect request to the
+    The query parameters (up to 10\) to include in the redirect request to the
     authorization endpoint.
     """
     OnUnauthenticatedRequest: Optional[Literal["deny", "allow", "authenticate"]] = None
@@ -972,41 +1019,41 @@ class AuthenticateCognitoActionConfig(Boto3Model):
 
 class RedirectActionConfig(Boto3Model):
     """
-    [Application Load Balancer] Information for creating a redirect action.
+    \[Application Load Balancer] Information for creating a redirect action.
 
-    Specify
-    only when ``Type`` is ``redirect``.
+    Specify only when ``Type`` is ``redirect``.
     """
 
     Protocol: Optional[str] = None
     """
     The protocol.
 
-    You can specify HTTP, HTTPS, or #{protocol}. You can redirect HTTP to HTTP,
-    HTTP to HTTPS, and HTTPS to HTTPS. You cannot redirect HTTPS to HTTP.
+    You can specify HTTP, HTTPS, or \#{protocol}. You can redirect HTTP to
+    HTTP, HTTP to HTTPS, and HTTPS to HTTPS. You cannot redirect HTTPS to HTTP.
     """
     Port: Optional[str] = None
     """
     The port.
 
-    You can specify a value from 1 to 65535 or #{port}.
+    You can specify a value from 1 to 65535 or \#{port}.
     """
     Host: Optional[str] = None
     """
     The hostname.
 
-    This component is not percent-encoded. The hostname can contain #{host}.
+    This component is not percent\-encoded. The hostname can contain \#{host}.
     """
     Path: Optional[str] = None
     """
     The absolute path, starting with the leading "/".
 
-    This component is not percent-encoded. The path can contain #{host},
-    #{path}, and #{port}.
+    This component is not percent\-encoded. The path can contain \#{host},
+    \#{path}, and \#{port}.
     """
     Query: Optional[str] = None
     """
-    The query parameters, URL-encoded when necessary, but not percent-encoded.
+    The query parameters, URL\-encoded when necessary, but not
+    percent\-encoded.
 
     Do not include the leading "?", as it is automatically added. You can
     specify any of the reserved keywords.
@@ -1015,14 +1062,14 @@ class RedirectActionConfig(Boto3Model):
     """
     The HTTP redirect code.
 
-    The redirect is either permanent (HTTP 301) or temporary (HTTP 302).
+    The redirect is either permanent (HTTP 301\) or temporary (HTTP 302\).
     """
 
 
 class FixedResponseActionConfig(Boto3Model):
     """
-    [Application Load Balancer] Information for creating an action that returns
-    a custom HTTP response.
+    \[Application Load Balancer] Information for creating an action that
+    returns a custom HTTP response.
 
     Specify only when ``Type`` is ``fixed-response``.
     """
@@ -1055,7 +1102,7 @@ class TargetGroupTuple(Boto3Model):
     """
     The weight.
 
-    The range is 0 to 999.
+    The range is 0 to 999\.
     """
 
 
@@ -1073,7 +1120,7 @@ class ElbV2TargetGroupStickinessConfig(Boto3Model):
     The time period, in seconds, during which requests from a client should be
     routed to the same target group.
 
-    The range is 1-604800 seconds (7 days).
+    The range is 1\-604800 seconds (7 days).
     """
 
 
@@ -1130,14 +1177,15 @@ class Action(Boto3Model):
     """
     AuthenticateOidcConfig: Optional[AuthenticateOidcActionConfig] = None
     """
-    [HTTPS listeners] Information about an identity provider that is compliant
+    \[HTTPS listeners] Information about an identity provider that is compliant
     with OpenID Connect (OIDC).
 
-    Specify only when ``Type`` is ``authenticate-oidc``.
+    Specify only when ``Type`` is ``authenticate-
+    oidc``.
     """
     AuthenticateCognitoConfig: Optional[AuthenticateCognitoActionConfig] = None
     """
-    [HTTPS listeners] Information for using Amazon Cognito to authenticate
+    \[HTTPS listeners] Information for using Amazon Cognito to authenticate
     users.
 
     Specify only when ``Type`` is ``authenticate-cognito``.
@@ -1151,15 +1199,14 @@ class Action(Boto3Model):
     """
     RedirectConfig: Optional[RedirectActionConfig] = None
     """
-    [Application Load Balancer] Information for creating a redirect action.
+    \[Application Load Balancer] Information for creating a redirect action.
 
-    Specify
-    only when ``Type`` is ``redirect``.
+    Specify only when ``Type`` is ``redirect``.
     """
     FixedResponseConfig: Optional[FixedResponseActionConfig] = None
     """
-    [Application Load Balancer] Information for creating an action that returns
-    a custom HTTP response.
+    \[Application Load Balancer] Information for creating an action that
+    returns a custom HTTP response.
 
     Specify only when ``Type`` is ``fixed-response``.
     """
@@ -1207,7 +1254,7 @@ class Listener(PrimaryBoto3Model):
     Information about a listener.
     """
 
-    objects: ClassVar[Boto3ModelManager] = ListenerManager()
+    manager_class: ClassVar[Type[Boto3ModelManager]] = ListenerManager
 
     LoadBalancerArn: str
     """
@@ -1229,11 +1276,11 @@ class Listener(PrimaryBoto3Model):
     """
     Certificates: Optional[List["Certificate"]] = None
     """
-    [HTTPS or TLS listener] The default certificate for the listener.
+    \[HTTPS or TLS listener] The default certificate for the listener.
     """
     SslPolicy: Optional[str] = None
     """
-    [HTTPS or TLS listener] The security policy that defines which protocols
+    \[HTTPS or TLS listener] The security policy that defines which protocols
     and ciphers are supported.
     """
     DefaultActions: Optional[List["Action"]] = None
@@ -1242,7 +1289,7 @@ class Listener(PrimaryBoto3Model):
     """
     AlpnPolicy: Optional[List[str]] = None
     """
-    [TLS listener] The name of the Application-Layer Protocol Negotiation
+    \[TLS listener] The name of the Application\-Layer Protocol Negotiation
     (ALPN) policy.
     """
     MutualAuthentication: Optional[MutualAuthenticationAttributes] = None
@@ -1294,7 +1341,7 @@ class Listener(PrimaryBoto3Model):
             )
         except AttributeError:
             return None
-        return LoadBalancer.objects.using(self.objects.session).get(**pk)
+        return LoadBalancer.objects.using(self.session).get(**pk)
 
     @cached_property
     def rules(self) -> Optional[List["Rule"]]:
@@ -1318,7 +1365,7 @@ class Listener(PrimaryBoto3Model):
             )
         except AttributeError:
             return []
-        return Rule.objects.using(self.objects.session).list(**pk)
+        return Rule.objects.using(self.session).list(**pk)
 
 
 class HostHeaderConditionConfig(Boto3Model):
@@ -1371,7 +1418,7 @@ class HttpHeaderConditionConfig(Boto3Model):
     The name of the HTTP header field.
 
     The maximum size is 40 characters. The header name is case insensitive. The
-    allowed characters are specified by RFC 7230. Wildcards are not supported.
+    allowed characters are specified by RFC 7230\. Wildcards are not supported.
     """
     Values: Optional[List[str]] = None
     """
@@ -1418,7 +1465,7 @@ class QueryStringConditionConfig(Boto3Model):
     following wildcard characters are supported: \* (matches 0 or more characters)
     and ? (matches exactly 1 character). To search for a literal '\*' or '?'
     character in a query string, you must escape these characters in ``Values``
-    using a '\' character.
+    using a '\\' character.
     """
 
 
@@ -1434,8 +1481,8 @@ class HttpRequestMethodConditionConfig(Boto3Model):
     """
     The name of the request method.
 
-    The maximum size is 40 characters. The allowed characters are A-Z, hyphen
-    (-), and underscore (\_). The comparison is case sensitive. Wildcards are
+    The maximum size is 40 characters. The allowed characters are A\-Z, hyphen
+    (\-), and underscore (\_). The comparison is case sensitive. Wildcards are
     not supported; therefore, the method name must be an exact match.
     """
 
@@ -1534,7 +1581,7 @@ class Rule(PrimaryBoto3Model):
     Information about a rule.
     """
 
-    objects: ClassVar[Boto3ModelManager] = RuleManager()
+    manager_class: ClassVar[Type[Boto3ModelManager]] = RuleManager
 
     Priority: Optional[str] = "1"
     """
@@ -1598,17 +1645,17 @@ class ResponseCodeMatcher(Boto3Model):
     HttpCode: Optional[str] = None
     """
     For Application Load Balancers, you can specify values between 200 and 499,
-    with the default value being 200.
+    with the default value being 200\.
 
     You can specify multiple values (for example, "200,202") or a range of
-    values (for example, "200-299").
+    values (for example, "200\-299").
     """
     GrpcCode: Optional[str] = None
     """
-    You can specify values between 0 and 99.
+    You can specify values between 0 and 99\.
 
     You can specify multiple values (for example, "0,1") or a range of values
-    (for example, "0-5"). The default value is 12.
+    (for example, "0\-5"). The default value is 12\.
     """
 
 
@@ -1617,7 +1664,7 @@ class TargetGroup(PrimaryBoto3Model):
     Information about a target group.
     """
 
-    objects: ClassVar[Boto3ModelManager] = TargetGroupManager()
+    manager_class: ClassVar[Type[Boto3ModelManager]] = TargetGroupManager
 
     TargetGroupName: str
     """
@@ -1716,7 +1763,7 @@ class TargetGroup(PrimaryBoto3Model):
     """
     ProtocolVersion: Optional[str] = None
     """
-    [HTTP/HTTPS protocol] The protocol version.
+    \[HTTP/HTTPS protocol] The protocol version.
 
     The possible values are ``GRPC``,
     ``HTTP1``, and ``HTTP2``.
@@ -1777,7 +1824,7 @@ class TargetGroup(PrimaryBoto3Model):
             )
         except AttributeError:
             return []
-        return LoadBalancer.objects.using(self.objects.session).list(**pk)
+        return LoadBalancer.objects.using(self.session).list(**pk)
 
     @cached_property
     def vpc(self) -> Optional["Vpc"]:
@@ -1801,7 +1848,7 @@ class TargetGroup(PrimaryBoto3Model):
             )
         except AttributeError:
             return None
-        return Vpc.objects.using(self.objects.session).get(**pk)
+        return Vpc.objects.using(self.session).get(**pk)
 
 
 # =======================
@@ -1820,17 +1867,17 @@ class SubnetMapping(Boto3Model):
     """
     AllocationId: Optional[str] = None
     """
-    [Network Load Balancers] The allocation ID of the Elastic IP address for an
-    internet-facing load balancer.
+    \[Network Load Balancers] The allocation ID of the Elastic IP address for
+    an internet\-facing load balancer.
     """
     PrivateIPv4Address: Optional[str] = None
     """
-    [Network Load Balancers] The private IPv4 address for an internal load
+    \[Network Load Balancers] The private IPv4 address for an internal load
     balancer.
     """
     IPv6Address: Optional[str] = None
     """
-    [Network Load Balancers] The IPv6 address.
+    \[Network Load Balancers] The IPv6 address.
     """
 
 
@@ -1975,10 +2022,10 @@ class TargetDescription(Boto3Model):
     The port on which the target is listening.
 
     If the target group protocol is
-    GENEVE, the supported port is 6081. If the target type is ``alb``, the targeted
-    Application Load Balancer must have at least one listener whose port matches
-    the target group port. This parameter is not used if the target is a Lambda
-    function.
+    GENEVE, the supported port is 6081\. If the target type is ``alb``, the
+    targeted Application Load Balancer must have at least one listener whose port
+    matches the target group port. This parameter is not used if the target is a
+    Lambda function.
     """
     AvailabilityZone: Optional[str] = None
     """

@@ -20,6 +20,7 @@ from .abstract import (Boto3Model, Boto3ModelManager, PrimaryBoto3Model,
 
 
 class ParameterManager(Boto3ModelManager):
+
     service_name: str = "ssm"
 
     def create(
@@ -36,7 +37,7 @@ class ParameterManager(Boto3ModelManager):
         Add a parameter to the system.
 
         Args:
-            model: The :py:class:`Parameter` to create.
+            model: The :py:class:\``Parameter\`` to create.
 
         Keyword Args:
             Description: Information about the parameter that you want to add to the
@@ -46,13 +47,13 @@ class ParameterManager(Boto3ModelManager):
                 that use the ``SecureString`` data type.
             AllowedPattern: A regular expression used to validate the parameter value.
                 For example, for String types with values restricted to numbers, you can
-                specify the following: AllowedPattern=^\d+$
+                specify the following: AllowedPattern\=^\\d\+$
             Tags: Optional metadata that you assign to a resource. Tags enable you to
                 categorize a resource in different ways, such as by purpose, owner, or
                 environment. For example, you might want to tag a Systems Manager parameter
                 to identify the type of resource to which it applies, the environment, or
                 the type of configuration data referenced by the parameter. In this case,
-                you could specify the following key-value pairs:
+                you could specify the following key\-value pairs:
             Tier: The parameter tier to assign to a parameter.
             Policies: One or more policies to apply to a parameter. This operation
                 takes a JSON array. Parameter Store, a capability of Amazon Web Services
@@ -77,6 +78,8 @@ class ParameterManager(Boto3ModelManager):
         )
         response = PutParameterResult(**_response)
 
+        if hasattr(response.Version, "session"):
+            response.Version.session = self.session
         return cast(int, response.Version)
 
     def update(
@@ -94,7 +97,7 @@ class ParameterManager(Boto3ModelManager):
         Add a parameter to the system.
 
         Args:
-            model: The :py:class:`Parameter` to update.
+            model: The :py:class:\``Parameter\`` to update.
 
         Keyword Args:
             Description: Information about the parameter that you want to add to the
@@ -105,13 +108,13 @@ class ParameterManager(Boto3ModelManager):
             Overwrite: Overwrite an existing parameter. The default value is ``false``.
             AllowedPattern: A regular expression used to validate the parameter value.
                 For example, for String types with values restricted to numbers, you can
-                specify the following: AllowedPattern=^\d+$
+                specify the following: AllowedPattern\=^\\d\+$
             Tags: Optional metadata that you assign to a resource. Tags enable you to
                 categorize a resource in different ways, such as by purpose, owner, or
                 environment. For example, you might want to tag a Systems Manager parameter
                 to identify the type of resource to which it applies, the environment, or
                 the type of configuration data referenced by the parameter. In this case,
-                you could specify the following key-value pairs:
+                you could specify the following key\-value pairs:
             Tier: The parameter tier to assign to a parameter.
             Policies: One or more policies to apply to a parameter. This operation
                 takes a JSON array. Parameter Store, a capability of Amazon Web Services
@@ -136,6 +139,8 @@ class ParameterManager(Boto3ModelManager):
         )
         response = PutParameterResult(**_response)
 
+        if hasattr(response.Version, "session"):
+            response.Version.session = self.session
         return cast(int, response.Version)
 
     def get(self, Name: str, *, WithDecryption: bool = True) -> Optional["Parameter"]:
@@ -160,7 +165,9 @@ class ParameterManager(Boto3ModelManager):
         response = GetParametersResult(**_response)
 
         if response.Parameters:
-            return response.Parameters[0]
+            obj = response.Parameters[0]
+            obj.session = self.session
+            return obj
         return None
 
     def list(
@@ -196,7 +203,12 @@ class ParameterManager(Boto3ModelManager):
         for _response in response_iterator:
             response = DescribeParametersResult(**_response)
             if response.Parameters:
-                results.extend(response.Parameters)
+                if hasattr(response.Parameters[0], "session"):
+                    for obj in response.Parameters:
+                        obj.session = self.session
+                        results.append(obj)
+                else:
+                    results.extend(response.Parameters)
             else:
                 break
         return results
@@ -223,7 +235,7 @@ class Parameter(PrimaryBoto3Model):
     An Amazon Web Services Systems Manager parameter in Parameter Store.
     """
 
-    objects: ClassVar[Boto3ModelManager] = ParameterManager()
+    manager_class: ClassVar[Type[Boto3ModelManager]] = ParameterManager
 
     Name: str
     """

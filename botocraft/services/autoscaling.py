@@ -25,6 +25,7 @@ from .abstract import (Boto3Model, Boto3ModelManager, PrimaryBoto3Model,
 
 
 class AutoScalingGroupManager(Boto3ModelManager):
+
     service_name: str = "autoscaling"
 
     def create(
@@ -38,10 +39,10 @@ class AutoScalingGroupManager(Boto3ModelManager):
         """
         **We strongly recommend using a launch template when calling this
         operation to ensure full functionality for Amazon EC2 Auto Scaling and
-        Amazon EC2.**
+        Amazon EC2\.**
 
         Args:
-            model: The :py:class:`AutoScalingGroup` to create.
+            model: The :py:class:\``AutoScalingGroup\`` to create.
 
         Keyword Args:
             InstanceId: The ID of the instance used to base the launch configuration
@@ -99,21 +100,23 @@ class AutoScalingGroupManager(Boto3ModelManager):
         """
         **We strongly recommend that all Auto Scaling groups use launch
         templates to ensure full functionality for Amazon EC2 Auto Scaling and
-        Amazon EC2.**
+        Amazon EC2\.**
 
         Args:
-            model: The :py:class:`AutoScalingGroup` to update.
+            model: The :py:class:\``AutoScalingGroup\`` to update.
         """
         data = model.model_dump(exclude_none=True, by_alias=True)
         args = dict(
             AutoScalingGroupName=data.get("AutoScalingGroupName"),
             LaunchConfigurationName=data.get("LaunchConfigurationName"),
-            LaunchTemplate={
-                "LaunchTemplateId": data["LaunchTemplate"]["LaunchTemplateId"],
-                "Version": data["LaunchTemplate"]["Version"],
-            }
-            if "LaunchTemplate" in data
-            else None,
+            LaunchTemplate=(
+                {
+                    "LaunchTemplateId": data["LaunchTemplate"]["LaunchTemplateId"],
+                    "Version": data["LaunchTemplate"]["Version"],
+                }
+                if "LaunchTemplate" in data
+                else None
+            ),
             MixedInstancesPolicy=data.get("MixedInstancesPolicy"),
             MinSize=data.get("MinSize"),
             MaxSize=data.get("MaxSize"),
@@ -181,7 +184,9 @@ class AutoScalingGroupManager(Boto3ModelManager):
         response = AutoScalingGroupsType(**_response)
 
         if response.AutoScalingGroups:
-            return response.AutoScalingGroups[0]
+            obj = response.AutoScalingGroups[0]
+            obj.session = self.session
+            return obj
         return None
 
     def list(
@@ -212,7 +217,12 @@ class AutoScalingGroupManager(Boto3ModelManager):
         for _response in response_iterator:
             response = AutoScalingGroupsType(**_response)
             if response.AutoScalingGroups:
-                results.extend(response.AutoScalingGroups)
+                if hasattr(response.AutoScalingGroups[0], "session"):
+                    for obj in response.AutoScalingGroups:
+                        obj.session = self.session
+                        results.append(obj)
+                else:
+                    results.extend(response.AutoScalingGroups)
             else:
                 break
         return results
@@ -258,7 +268,14 @@ class AutoScalingGroupManager(Boto3ModelManager):
             response = AutoScalingInstancesType(**_response)
 
             if response.AutoScalingInstances:
-                results.extend(response.AutoScalingInstances)
+                if hasattr(response.AutoScalingInstances, "session"):
+                    objs = []
+                    for obj in response.AutoScalingInstances:
+                        obj.session = self.session
+                        objs.append(obj)
+                    results.extend(objs)
+                else:
+                    results.extend(response.AutoScalingInstances)
 
             else:
                 break
@@ -292,6 +309,7 @@ class AutoScalingGroupManager(Boto3ModelManager):
 
 
 class LaunchConfigurationManager(Boto3ModelManager):
+
     service_name: str = "autoscaling"
 
     def create(
@@ -301,7 +319,7 @@ class LaunchConfigurationManager(Boto3ModelManager):
         Creates a launch configuration.
 
         Args:
-            model: The :py:class:`LaunchConfiguration` to create.
+            model: The :py:class:\``LaunchConfiguration\`` to create.
 
         Keyword Args:
             InstanceId: The ID of the instance to use to create the launch
@@ -366,7 +384,9 @@ class LaunchConfigurationManager(Boto3ModelManager):
         response = LaunchConfigurationsType(**_response)
 
         if response.LaunchConfigurations:
-            return response.LaunchConfigurations[0]
+            obj = response.LaunchConfigurations[0]
+            obj.session = self.session
+            return obj
         return None
 
     def list(
@@ -391,7 +411,12 @@ class LaunchConfigurationManager(Boto3ModelManager):
         for _response in response_iterator:
             response = LaunchConfigurationsType(**_response)
             if response.LaunchConfigurations:
-                results.extend(response.LaunchConfigurations)
+                if hasattr(response.LaunchConfigurations[0], "session"):
+                    for obj in response.LaunchConfigurations:
+                        obj.session = self.session
+                        results.append(obj)
+                else:
+                    results.extend(response.LaunchConfigurations)
             else:
                 break
         return results
@@ -534,6 +559,7 @@ class AutoScalingBaselineEbsBandwidthMbsRequest(Boto3Model):
     optimized.html>`_ in the *Amazon EC2 User Guide for Linux Instances*.
 
     Default: No minimum or maximum limits
+
     """
 
     Min: Optional[int] = None
@@ -551,7 +577,7 @@ class AutoScalingAcceleratorCountRequest(Boto3Model):
     The minimum and maximum number of accelerators (GPUs, FPGAs, or Amazon Web
     Services Inferentia chips) for an instance type.
 
-    To exclude accelerator-enabled instance types, set ``Max`` to ``0``.
+    To exclude accelerator\-enabled instance types, set ``Max`` to ``0``.
 
     Default: No minimum or maximum limits
     """
@@ -605,7 +631,7 @@ class NetworkBandwidthGbpsRequest(Boto3Model):
 class AutoScalingInstanceRequirements(Boto3Model):
     """
     The instance requirements. Amazon EC2 Auto Scaling uses your specified
-    requirements to identify instance types. Then, it uses your On-Demand and
+    requirements to identify instance types. Then, it uses your On\-Demand and
     Spot allocation strategies to launch instances from these instance types.
 
     You can specify up to four separate sets of instance requirements per Auto
@@ -625,9 +651,9 @@ class AutoScalingInstanceRequirements(Boto3Model):
     """
     The minimum and maximum instance memory size for an instance type, in MiB.
     """
-    CpuManufacturers: Optional[
-        List[Literal["intel", "amd", "amazon-web-services"]]
-    ] = None
+    CpuManufacturers: Optional[List[Literal["intel", "amd", "amazon-web-services"]]] = (
+        None
+    )
     """
     Lists which specific CPU manufacturers to include.
     """
@@ -652,7 +678,7 @@ class AutoScalingInstanceRequirements(Boto3Model):
     """
     SpotMaxPricePercentageOverLowestPrice: Optional[int] = None
     """
-    [Price protection] The price protection threshold for Spot Instances, as a
+    \[Price protection] The price protection threshold for Spot Instances, as a
     percentage higher than an identified Spot price.
 
     The identified Spot price is the price of the lowest priced current
@@ -666,10 +692,10 @@ class AutoScalingInstanceRequirements(Boto3Model):
     """
     MaxSpotPriceAsPercentageOfOptimalOnDemandPrice: Optional[int] = None
     """
-    [Price protection] The price protection threshold for Spot Instances, as a
-    percentage of an identified On-Demand price.
+    \[Price protection] The price protection threshold for Spot Instances, as a
+    percentage of an identified On\-Demand price.
 
-    The identified On-Demand price is the price of the lowest priced current
+    The identified On\-Demand price is the price of the lowest priced current
     generation C, M, or R instance type with your specified attributes. If no
     current generation C, M, or R instance type matches your attributes, then
     the identified price is from either the lowest priced current generation
@@ -680,10 +706,10 @@ class AutoScalingInstanceRequirements(Boto3Model):
     """
     OnDemandMaxPricePercentageOverLowestPrice: Optional[int] = None
     """
-    [Price protection] The price protection threshold for On-Demand Instances,
-    as a percentage higher than an identified On-Demand price.
+    \[Price protection] The price protection threshold for On\-Demand
+    Instances, as a percentage higher than an identified On\-Demand price.
 
-    The identified On-Demand price is the price of the lowest priced current
+    The identified On\-Demand price is the price of the lowest priced current
     generation C, M, or R instance type with your specified attributes. If no
     current generation C, M, or R instance type matches your attributes, then
     the identified price is from either the lowest priced current generation
@@ -708,7 +734,7 @@ class AutoScalingInstanceRequirements(Boto3Model):
     """
     RequireHibernateSupport: Optional[bool] = None
     """
-    Indicates whether instance types must provide On-Demand Instance
+    Indicates whether instance types must provide On\-Demand Instance
     hibernation support.
     """
     NetworkInterfaceCount: Optional[AutoScalingNetworkInterfaceCountRequest] = None
@@ -764,9 +790,9 @@ class AutoScalingInstanceRequirements(Boto3Model):
     """
     Lists the accelerators that must be on an instance type.
     """
-    AcceleratorTotalMemoryMiB: Optional[
-        AutoScalingAcceleratorTotalMemoryMiBRequest
-    ] = None
+    AcceleratorTotalMemoryMiB: Optional[AutoScalingAcceleratorTotalMemoryMiBRequest] = (
+        None
+    )
     """
     The minimum and maximum total memory size for the accelerators on an
     instance type, in MiB.
@@ -795,14 +821,15 @@ class LaunchTemplateOverrides(Boto3Model):
     Specify the instance types that you want, or define your instance requirements
     instead and let Amazon EC2 Auto Scaling provision the available instance types
     that meet your requirements. This can provide Amazon EC2 Auto Scaling with a
-    larger selection of instance types to choose from when fulfilling Spot and On-
-    Demand capacities. You can view which instance types are matched before you
+    larger selection of instance types to choose from when fulfilling Spot and
+    On\-Demand capacities. You can view which instance types are matched before you
     apply the instance requirements to your Auto Scaling group.
 
     After you define your instance requirements, you don't have to keep updating
     these settings to get new EC2 instance types automatically. Amazon EC2 Auto
     Scaling uses the instance requirements of the Auto Scaling group to determine
     whether a new EC2 instance type can be used.
+
     """
 
     InstanceType: Optional[str] = None
@@ -821,7 +848,7 @@ class LaunchTemplateOverrides(Boto3Model):
     memory, storage, throughput, or other relative performance characteristic.
 
     When a Spot
-    or On-Demand Instance is launched, the capacity units count toward the desired
+    or On\-Demand Instance is launched, the capacity units count toward the desired
     capacity. Amazon EC2 Auto Scaling launches instances until the desired capacity
     is totally fulfilled, even if this results in an overage. For example, if there
     are two units remaining to fulfill capacity, and Amazon EC2 Auto Scaling can
@@ -830,7 +857,7 @@ class LaunchTemplateOverrides(Boto3Model):
     information, see `Configure an Auto Scaling group to use instance
     weights <https://docs.aws.amazon.com/autoscaling/ec2/userguide/ec2-auto-
     scaling-mixed-instances-groups-instance-weighting.html>`_ in the *Amazon EC2 Auto
-    Scaling User Guide*. Value must be in the range of 1–999.
+    Scaling User Guide*. Value must be in the range of 1–999\.
     """
     LaunchTemplateSpecification: Optional[AutoScalingLaunchTemplateSpecification] = None
     """
@@ -850,15 +877,15 @@ class LaunchTemplateOverrides(Boto3Model):
     The instance requirements.
 
     Amazon EC2 Auto Scaling uses your specified requirements to identify
-    instance types. Then, it uses your On-Demand and Spot allocation strategies
-    to launch instances from these instance types.
+    instance types. Then, it uses your On\-Demand and Spot allocation
+    strategies to launch instances from these instance types.
     """
 
 
 class AutoScalingLaunchTemplate(Boto3Model):
     """
     One or more launch templates and the instance types (overrides) that are
-    used to launch EC2 instances to fulfill On-Demand and Spot capacities.
+    used to launch EC2 instances to fulfill On\-Demand and Spot capacities.
     """
 
     LaunchTemplateSpecification: Optional[AutoScalingLaunchTemplateSpecification] = None
@@ -879,7 +906,7 @@ class AutoScalingInstancesDistribution(Boto3Model):
 
     OnDemandAllocationStrategy: Optional[str] = None
     """
-    The allocation strategy to apply to your On-Demand Instances when they are
+    The allocation strategy to apply to your On\-Demand Instances when they are
     launched.
 
     Possible instance types are determined by the launch template overrides
@@ -888,17 +915,17 @@ class AutoScalingInstancesDistribution(Boto3Model):
     OnDemandBaseCapacity: Optional[int] = None
     """
     The minimum amount of the Auto Scaling group's capacity that must be
-    fulfilled by On-Demand Instances.
+    fulfilled by On\-Demand Instances.
 
     This base portion is launched first as your group scales.
     """
     OnDemandPercentageAboveBaseCapacity: Optional[int] = None
     """
-    Controls the percentages of On-Demand Instances and Spot Instances for your
-    additional capacity beyond ``OnDemandBaseCapacity``.
+    Controls the percentages of On\-Demand Instances and Spot Instances for
+    your additional capacity beyond ``OnDemandBaseCapacity``.
 
-    Expressed as a number (for example, 20 specifies 20% On-Demand Instances,
-    80% Spot Instances). If set to 100, only On-Demand Instances are used.
+    Expressed as a number (for example, 20 specifies 20% On\-Demand Instances,
+    80% Spot Instances). If set to 100, only On\-Demand Instances are used.
     """
     SpotAllocationStrategy: Optional[str] = None
     """
@@ -915,7 +942,7 @@ class AutoScalingInstancesDistribution(Boto3Model):
 
     The Spot pools are determined from the different instance types in the
     overrides. Valid only when the ``SpotAllocationStrategy`` is ``lowest-price``.
-    Value must be in the range of 1–20.
+    Value must be in the range of 1–20\.
     """
     SpotMaxPrice: Optional[str] = None
     """
@@ -939,7 +966,7 @@ class AutoScalingMixedInstancesPolicy(Boto3Model):
     LaunchTemplate: Optional[AutoScalingLaunchTemplate] = None
     """
     One or more launch templates and the instance types (overrides) that are
-    used to launch EC2 instances to fulfill On-Demand and Spot capacities.
+    used to launch EC2 instances to fulfill On\-Demand and Spot capacities.
     """
     InstancesDistribution: Optional[AutoScalingInstancesDistribution] = None
     """
@@ -1161,7 +1188,7 @@ class AutoScalingInstanceMaintenancePolicy(Boto3Model):
 
     It represents the minimum percentage of the group to keep
     in service, healthy, and ready to use to support your workload when replacing
-    instances. Value range is 0 to 100. To clear a previously set value, specify a
+    instances. Value range is 0 to 100\. To clear a previously set value, specify a
     value of ``-1``.
     """
     MaxHealthyPercentage: Optional[int] = None
@@ -1171,7 +1198,7 @@ class AutoScalingInstanceMaintenancePolicy(Boto3Model):
 
     It represents the maximum percentage of the group that can
     be in service and healthy, or pending, to support your workload when replacing
-    instances. Value range is 100 to 200. To clear a previously set value, specify
+    instances. Value range is 100 to 200\. To clear a previously set value, specify
     a value of ``-1``.
     """
 
@@ -1182,7 +1209,7 @@ class AutoScalingGroup(TagsDictMixin, AutoScalingGroupModelMixin, PrimaryBoto3Mo
     """
 
     tag_class: ClassVar[Type] = TagDescription
-    objects: ClassVar[Boto3ModelManager] = AutoScalingGroupManager()
+    manager_class: ClassVar[Type[Boto3ModelManager]] = AutoScalingGroupManager
 
     DefaultCooldown: int
     """
@@ -1240,7 +1267,7 @@ class AutoScalingGroup(TagsDictMixin, AutoScalingGroupModelMixin, PrimaryBoto3Mo
     """
     HealthCheckType: str
     """
-    A comma-separated value string of one or more health check types.
+    A comma\-separated value string of one or more health check types.
     """
     HealthCheckGracePeriod: Optional[int] = None
     """
@@ -1291,7 +1318,7 @@ class AutoScalingGroup(TagsDictMixin, AutoScalingGroupModelMixin, PrimaryBoto3Mo
     """
     ServiceLinkedRoleARN: Optional[str] = None
     """
-    The Amazon Resource Name (ARN) of the service-linked role that the Auto
+    The Amazon Resource Name (ARN) of the service\-linked role that the Auto
     Scaling group uses to call other Amazon Web Services on your behalf.
     """
     MaxInstanceLifetime: Optional[int] = None
@@ -1321,7 +1348,7 @@ class AutoScalingGroup(TagsDictMixin, AutoScalingGroupModelMixin, PrimaryBoto3Mo
     The unit of measurement for the value specified for desired capacity.
 
     Amazon
-    EC2 Auto Scaling supports ``DesiredCapacityType`` for attribute-based instance
+    EC2 Auto Scaling supports ``DesiredCapacityType`` for attribute\-based instance
     type selection only.
     """
     DefaultInstanceWarmup: Optional[int] = None
@@ -1392,7 +1419,7 @@ class AutoScalingGroup(TagsDictMixin, AutoScalingGroupModelMixin, PrimaryBoto3Mo
             )
         except AttributeError:
             return None
-        return LaunchConfiguration.objects.using(self.objects.session).get(**pk)
+        return LaunchConfiguration.objects.using(self.session).get(**pk)
 
     @cached_property
     def launch_template(self) -> Optional["LaunchTemplateVersion"]:
@@ -1417,7 +1444,7 @@ class AutoScalingGroup(TagsDictMixin, AutoScalingGroupModelMixin, PrimaryBoto3Mo
             )
         except AttributeError:
             return None
-        return LaunchTemplateVersion.objects.using(self.objects.session).get(**pk)
+        return LaunchTemplateVersion.objects.using(self.session).get(**pk)
 
 
 class EbsMapping(Boto3Model):
@@ -1488,7 +1515,7 @@ class AutoScalingBlockDeviceMapping(Boto3Model):
     instance at launch.
 
     The name must be in the form ephemeral*X* where *X* is a number
-    starting from zero (0), for example, ``ephemeral0``.
+    starting from zero (0\), for example, ``ephemeral0``.
     """
     DeviceName: str
     """
@@ -1566,7 +1593,7 @@ class LaunchConfiguration(PrimaryBoto3Model):
     Describes a launch configuration.
     """
 
-    objects: ClassVar[Boto3ModelManager] = LaunchConfigurationManager()
+    manager_class: ClassVar[Type[Boto3ModelManager]] = LaunchConfigurationManager
 
     LaunchConfigurationName: str
     """
@@ -1614,9 +1641,10 @@ class LaunchConfiguration(PrimaryBoto3Model):
     `Instance metadata and user data <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-instance-
      metadata.html>`_ (Linux) and
     `Instance metadata and user data <https://docs.aws.amazon.com/AWSEC2/latest/WindowsGuide/ec2-instance-
-    metadata.html>`_ (Windows). If you are using a command line tool, base64-encoding
-    is performed for you, and you can load the text from a file. Otherwise, you
-    must provide base64-encoded text. User data is limited to 16 KB.
+    metadata.html>`_ (Windows). If you are using a command line tool,
+    base64\-encoding is performed for you, and you can load the text from a file.
+    Otherwise, you must provide base64\-encoded text. User data is limited to 16
+    KB.
     """
     InstanceType: str
     """
@@ -1657,7 +1685,7 @@ class LaunchConfiguration(PrimaryBoto3Model):
 
     Spot Instances are launched when the price you specify exceeds the
     current Spot price. For more information, see `Requesting Spot Instances for
-    fault-tolerant and flexible
+    fault\-tolerant and flexible
     applications <https://docs.aws.amazon.com/autoscaling/ec2/userguide/launch-
     template-spot-instances.html>`_ in the *Amazon EC2 Auto Scaling User Guide*.
     """
@@ -1679,7 +1707,7 @@ class LaunchConfiguration(PrimaryBoto3Model):
     Specifies whether the launch configuration is optimized for EBS I/O
     (``true``) or not (``false``).
 
-    For more information, see `Amazon EBS-optimized
+    For more information, see `Amazon EBS\-optimized
     instances <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ebs-
     optimized.html>`_ in the *Amazon EC2 User Guide for Linux Instances*.
     """
@@ -1702,7 +1730,7 @@ class LaunchConfiguration(PrimaryBoto3Model):
     The tenancy of the instance, either ``default`` or ``dedicated``.
 
     An instance
-    with ``dedicated`` tenancy runs on isolated, single-tenant hardware and can
+    with ``dedicated`` tenancy runs on isolated, single\-tenant hardware and can
     only be launched into a VPC.
     """
     MetadataOptions: Optional[InstanceMetadataOptions] = None

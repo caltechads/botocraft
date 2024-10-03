@@ -29,6 +29,7 @@ from .abstract import (Boto3Model, Boto3ModelManager, PrimaryBoto3Model,
 
 
 class ServiceManager(Boto3ModelManager):
+
     service_name: str = "ecs"
 
     def create(
@@ -42,12 +43,12 @@ class ServiceManager(Boto3ModelManager):
         Create an ECS service.
 
         Args:
-            model: The :py:class:`Service` to create.
+            model: The :py:class:\``Service\`` to create.
 
         Keyword Args:
             clientToken: An identifier that you provide to ensure the idempotency of
                 the request. It must be unique and is case sensitive. Up to 36 ASCII
-                characters in the range of 33-126 (inclusive) are allowed.
+                characters in the range of 33\-126 (inclusive) are allowed.
             serviceConnectConfiguration: The configuration for this service to discover
                 and connect to services, and be discovered by, and connected from, other
                 services within a namespace.
@@ -87,6 +88,8 @@ class ServiceManager(Boto3ModelManager):
         )
         response = CreateServiceResponse(**_response)
 
+        if hasattr(response.service, "session"):
+            response.service.session = self.session
         return cast("Service", response.service)
 
     def delete(
@@ -152,7 +155,9 @@ class ServiceManager(Boto3ModelManager):
         response = DescribeServicesResponse(**_response)
 
         if response.services:
-            return response.services[0]
+            obj = response.services[0]
+            obj.session = self.session
+            return obj
         return None
 
     def get_many(
@@ -190,7 +195,14 @@ class ServiceManager(Boto3ModelManager):
         response = DescribeServicesResponse(**_response)
 
         if response.services is not None:
-            return response.services
+            if hasattr(response.services[0], "session"):
+                objs = []
+                for obj in response.services:
+                    obj.session = self.session
+                    objs.append(obj)
+                return objs
+            else:
+                return response.services
 
         return []
 
@@ -228,7 +240,12 @@ class ServiceManager(Boto3ModelManager):
         for _response in response_iterator:
             response = ListServicesResponse(**_response)
             if response.serviceArns:
-                results.extend(response.serviceArns)
+                if hasattr(response.serviceArns[0], "session"):
+                    for obj in response.serviceArns:
+                        obj.session = self.session
+                        results.append(obj)
+                else:
+                    results.extend(response.serviceArns)
             else:
                 break
         return results
@@ -244,7 +261,7 @@ class ServiceManager(Boto3ModelManager):
         Modifies the parameters of a service.
 
         Args:
-            model: The :py:class:`Service` to update.
+            model: The :py:class:\``Service\`` to update.
 
         Keyword Args:
             forceNewDeployment: Determines whether to force a new deployment of the
@@ -293,6 +310,8 @@ class ServiceManager(Boto3ModelManager):
         )
         response = UpdateServiceResponse(**_response)
 
+        if hasattr(response.service, "session"):
+            response.service.session = self.session
         return cast("Service", response.service)
 
     def partial_update(
@@ -434,10 +453,13 @@ class ServiceManager(Boto3ModelManager):
         )
         response = UpdateServiceResponse(**_response)
 
+        if hasattr(response.service, "session"):
+            response.service.session = self.session
         return cast("Service", response.service)
 
 
 class ClusterManager(Boto3ModelManager):
+
     service_name: str = "ecs"
 
     def create(self, model: "Cluster") -> "Cluster":
@@ -445,7 +467,7 @@ class ClusterManager(Boto3ModelManager):
         Create an ECS cluster.
 
         Args:
-            model: The :py:class:`Cluster` to create.
+            model: The :py:class:\``Cluster\`` to create.
         """
         data = model.model_dump(exclude_none=True, by_alias=True)
         args = dict(
@@ -462,6 +484,8 @@ class ClusterManager(Boto3ModelManager):
         )
         response = CreateClusterResponse(**_response)
 
+        if hasattr(response.cluster, "session"):
+            response.cluster.session = self.session
         return cast("Cluster", response.cluster)
 
     def delete(self, cluster: str) -> "Cluster":
@@ -508,7 +532,9 @@ class ClusterManager(Boto3ModelManager):
         response = DescribeClustersResponse(**_response)
 
         if response.clusters:
-            return response.clusters[0]
+            obj = response.clusters[0]
+            obj.session = self.session
+            return obj
         return None
 
     def get_many(
@@ -539,7 +565,14 @@ class ClusterManager(Boto3ModelManager):
         response = DescribeClustersResponse(**_response)
 
         if response.clusters is not None:
-            return response.clusters
+            if hasattr(response.clusters[0], "session"):
+                objs = []
+                for obj in response.clusters:
+                    obj.session = self.session
+                    objs.append(obj)
+                return objs
+            else:
+                return response.clusters
 
         return []
 
@@ -559,7 +592,12 @@ class ClusterManager(Boto3ModelManager):
         for _response in response_iterator:
             response = ListClustersResponse(**_response)
             if response.clusterArns:
-                results.extend(response.clusterArns)
+                if hasattr(response.clusterArns[0], "session"):
+                    for obj in response.clusterArns:
+                        obj.session = self.session
+                        results.append(obj)
+                else:
+                    results.extend(response.clusterArns)
             else:
                 break
         return results
@@ -569,7 +607,7 @@ class ClusterManager(Boto3ModelManager):
         Update an ECS cluster.
 
         Args:
-            model: The :py:class:`Cluster` to update.
+            model: The :py:class:\``Cluster\`` to update.
         """
         data = model.model_dump(exclude_none=True, by_alias=True)
         args = dict(
@@ -583,6 +621,8 @@ class ClusterManager(Boto3ModelManager):
         )
         response = UpdateClusterResponse(**_response)
 
+        if hasattr(response.cluster, "session"):
+            response.cluster.session = self.session
         return cast("Cluster", response.cluster)
 
     def partial_update(
@@ -622,10 +662,13 @@ class ClusterManager(Boto3ModelManager):
         )
         response = UpdateClusterResponse(**_response)
 
+        if hasattr(response.cluster, "session"):
+            response.cluster.session = self.session
         return cast("Cluster", response.cluster)
 
 
 class TaskDefinitionManager(Boto3ModelManager):
+
     service_name: str = "ecs"
 
     def create(
@@ -640,7 +683,7 @@ class TaskDefinitionManager(Boto3ModelManager):
         *Amazon Elastic Container Service Developer Guide*.
 
         Args:
-            model: The :py:class:`TaskDefinition` to create.
+            model: The :py:class:\``TaskDefinition\`` to create.
 
         Keyword Args:
             tags: The metadata that you apply to the task definition to help you
@@ -673,6 +716,8 @@ class TaskDefinitionManager(Boto3ModelManager):
         )
         response = RegisterTaskDefinitionResponse(**_response)
 
+        if hasattr(response.taskDefinition, "session"):
+            response.taskDefinition.session = self.session
         return cast("TaskDefinition", response.taskDefinition)
 
     def delete(self, taskDefinition: str) -> "TaskDefinition":
@@ -726,7 +771,9 @@ class TaskDefinitionManager(Boto3ModelManager):
         )
         response = DescribeTaskDefinitionResponse(**_response)
 
-        return response.taskDefinition
+        obj = response.taskDefinition
+        obj.session = self.session
+        return obj
 
     @ecs_task_definitions_only
     def list(
@@ -772,7 +819,12 @@ class TaskDefinitionManager(Boto3ModelManager):
         for _response in response_iterator:
             response = ListTaskDefinitionsResponse(**_response)
             if response.taskDefinitionArns:
-                results.extend(response.taskDefinitionArns)
+                if hasattr(response.taskDefinitionArns[0], "session"):
+                    for obj in response.taskDefinitionArns:
+                        obj.session = self.session
+                        results.append(obj)
+                else:
+                    results.extend(response.taskDefinitionArns)
             else:
                 break
         return results
@@ -789,7 +841,7 @@ class TaskDefinitionManager(Boto3ModelManager):
         *Amazon Elastic Container Service Developer Guide*.
 
         Args:
-            model: The :py:class:`TaskDefinition` to update.
+            model: The :py:class:\``TaskDefinition\`` to update.
 
         Keyword Args:
             tags: The metadata that you apply to the task definition to help you
@@ -822,10 +874,13 @@ class TaskDefinitionManager(Boto3ModelManager):
         )
         response = RegisterTaskDefinitionResponse(**_response)
 
+        if hasattr(response.taskDefinition, "session"):
+            response.taskDefinition.session = self.session
         return cast("TaskDefinition", response.taskDefinition)
 
 
 class ContainerInstanceManager(ReadonlyBoto3ModelManager):
+
     service_name: str = "ecs"
 
     def get(
@@ -869,7 +924,9 @@ class ContainerInstanceManager(ReadonlyBoto3ModelManager):
         response = DescribeContainerInstancesResponse(**_response)
 
         if response.containerInstances:
-            return response.containerInstances[0]
+            obj = response.containerInstances[0]
+            obj.session = self.session
+            return obj
         return None
 
     def get_many(
@@ -913,7 +970,14 @@ class ContainerInstanceManager(ReadonlyBoto3ModelManager):
         response = DescribeContainerInstancesResponse(**_response)
 
         if response.containerInstances is not None:
-            return response.containerInstances
+            if hasattr(response.containerInstances[0], "session"):
+                objs = []
+                for obj in response.containerInstances:
+                    obj.session = self.session
+                    objs.append(obj)
+                return objs
+            else:
+                return response.containerInstances
 
         return []
 
@@ -973,7 +1037,12 @@ class ContainerInstanceManager(ReadonlyBoto3ModelManager):
         for _response in response_iterator:
             response = ListContainerInstancesResponse(**_response)
             if response.containerInstanceArns:
-                results.extend(response.containerInstanceArns)
+                if hasattr(response.containerInstanceArns[0], "session"):
+                    for obj in response.containerInstanceArns:
+                        obj.session = self.session
+                        results.append(obj)
+                else:
+                    results.extend(response.containerInstanceArns)
             else:
                 break
         return results
@@ -1041,7 +1110,14 @@ class ContainerInstanceManager(ReadonlyBoto3ModelManager):
             response = ListTasksResponse(**_response)
 
             if response.taskArns:
-                results.extend(response.taskArns)
+                if hasattr(response.taskArns, "session"):
+                    objs = []
+                    for obj in response.taskArns:
+                        obj.session = self.session
+                        objs.append(obj)
+                    results.extend(objs)
+                else:
+                    results.extend(response.taskArns)
 
             else:
                 break
@@ -1049,6 +1125,7 @@ class ContainerInstanceManager(ReadonlyBoto3ModelManager):
 
 
 class TaskManager(Boto3ModelManager):
+
     service_name: str = "ecs"
 
     @ecs_task_populate_taskDefinition
@@ -1087,7 +1164,9 @@ class TaskManager(Boto3ModelManager):
         response = DescribeTasksResponse(**_response)
 
         if response.tasks:
-            return response.tasks[0]
+            obj = response.tasks[0]
+            obj.session = self.session
+            return obj
         return None
 
     @ecs_task_populate_taskDefinitions
@@ -1125,7 +1204,14 @@ class TaskManager(Boto3ModelManager):
         response = DescribeTasksResponse(**_response)
 
         if response.tasks is not None:
-            return response.tasks
+            if hasattr(response.tasks[0], "session"):
+                objs = []
+                for obj in response.tasks:
+                    obj.session = self.session
+                    objs.append(obj)
+                return objs
+            else:
+                return response.tasks
 
         return []
 
@@ -1190,7 +1276,12 @@ class TaskManager(Boto3ModelManager):
         for _response in response_iterator:
             response = ListTasksResponse(**_response)
             if response.taskArns:
-                results.extend(response.taskArns)
+                if hasattr(response.taskArns[0], "session"):
+                    for obj in response.taskArns:
+                        obj.session = self.session
+                        results.append(obj)
+                else:
+                    results.extend(response.taskArns)
             else:
                 break
         return results
@@ -1213,7 +1304,7 @@ class TaskManager(Boto3ModelManager):
         Starts a new task using the specified task definition.
 
         Args:
-            model: The :py:class:`Task` to create.
+            model: The :py:class:\``Task\`` to create.
 
         Keyword Args:
             capacityProviderStrategy: The capacity provider strategy to use for the
@@ -1246,7 +1337,7 @@ class TaskManager(Boto3ModelManager):
                 have a maximum length of 1024 characters.
             clientToken: An identifier that you provide to ensure the idempotency of
                 the request. It must be unique and is case sensitive. Up to 64 characters
-                are allowed. The valid characters are characters in the range of 33-126,
+                are allowed. The valid characters are characters in the range of 33\-126,
                 inclusive. For more information, see `Ensuring idempotency
                 <https://docs.aws.amazon.com/AmazonECS/l
                 atest/APIReference/ECS_Idempotency.html>`_.
@@ -1285,6 +1376,8 @@ class TaskManager(Boto3ModelManager):
         )
         response = RunTaskResponse(**_response)
 
+        if hasattr(response.tasks[0], "session"):
+            response.tasks[0].session = self.session
         return cast("Task", response.tasks[0])
 
     def delete(
@@ -1305,7 +1398,7 @@ class TaskManager(Boto3ModelManager):
                 if you're using a custom scheduler, you can use this parameter to specify
                 the reason for stopping the task here, and the message appears in
                 subsequent `DescribeTasks <h ttps://docs.aws.amazon.com/AmazonECS/latest/AP
-                IReference/API_DescribeTasks.html >`_> API operations on this task.
+                IReference/API_DescribeTasks.html >`_\> API operations on this task.
         """
         args: Dict[str, Any] = dict(
             task=self.serialize(task),
@@ -1332,16 +1425,16 @@ class ECSTag(Boto3Model):
 
     The following basic restrictions apply to tags:
 
-    * Maximum number of tags per resource - 50
+    * Maximum number of tags per resource \- 50
     * For each resource, each tag key must be unique, and each tag key can have
       only one value.
-    * Maximum key length - 128 Unicode characters in UTF-8
-    * Maximum value length - 256 Unicode characters in UTF-8
+    * Maximum key length \- 128 Unicode characters in UTF\-8
+    * Maximum value length \- 256 Unicode characters in UTF\-8
     * If your tagging schema is used across multiple services and resources,
       remember that other services may have restrictions on allowed characters.
       Generally allowed characters are: letters, numbers, and spaces representable in
-      UTF-8, and the following characters: + - = . \_ : / @.
-    * Tag keys and values are case-sensitive.
+      UTF\-8, and the following characters: \+ \- \= . \_ : / @.
+    * Tag keys and values are case\-sensitive.
     * Do not use ``aws:``, ``AWS:``, or any upper or lowercase combination of such
       as a prefix for either keys or values as it is reserved for Amazon Web Services
       use. You cannot edit or delete tag keys or values with this prefix. Tags with
@@ -1350,17 +1443,17 @@ class ECSTag(Boto3Model):
 
     key: Optional[str] = None
     """
-    One part of a key-value pair that make up a tag.
+    One part of a key\-value pair that make up a tag.
 
     A ``key`` is a general label
     that acts like a category for more specific tag values.
     """
     value: Optional[str] = None
     """
-    The optional part of a key-value pair that make up a tag.
+    The optional part of a key\-value pair that make up a tag.
 
-    A ``value`` acts as a
-    descriptor within a tag category (key).
+    A ``value`` acts as
+    a descriptor within a tag category (key).
     """
 
 
@@ -1375,8 +1468,8 @@ class LoadBalancerConfiguration(Boto3Model):
     We recommend that you verify this on a test environment before you update the
     Elastic Load Balancing configuration.
 
-    A service-linked role is required for services that use multiple target groups.
-    For more information, see `Using service-linked
+    A service\-linked role is required for services that use multiple target
+    groups. For more information, see `Using service\-linked
     roles <https://docs.aws.amazon.com/AmazonECS/latest/developerguide/using-
     service-linked-roles.html>`_ in the *Amazon Elastic Container Service Developer
     Guide*.
@@ -1493,10 +1586,12 @@ class CapacityProviderStrategyItem(Boto3Model):
     With ``FARGATE_SPOT``, you can run interruption tolerant tasks at a rate that's
     discounted compared to the ``FARGATE`` price. ``FARGATE_SPOT`` runs tasks on
     spare compute capacity. When Amazon Web Services needs the capacity back, your
-    tasks are interrupted with a two-minute warning. ``FARGATE_SPOT`` only supports
-    Linux tasks with the X86\_64 architecture on platform version 1.3.0 or later.
+    tasks are interrupted with a two\-minute warning. ``FARGATE_SPOT`` only
+    supports Linux tasks with the X86\_64 architecture on platform version 1\.3\.0
+    or later.
 
     A capacity provider strategy may contain a maximum of 6 capacity providers.
+
     """
 
     capacityProvider: str
@@ -1670,7 +1765,7 @@ class NetworkConfiguration(Boto3Model):
 
 class Scale(Boto3Model):
     """
-    A floating-point percentage of your desired number of tasks to place and
+    A floating\-point percentage of your desired number of tasks to place and
     keep running in the task set.
     """
 
@@ -1679,7 +1774,7 @@ class Scale(Boto3Model):
     The value, specified as a percent total of a service's ``desiredCount``, to
     scale the task set.
 
-    Accepted values are numbers between 0 and 100.
+    Accepted values are numbers between 0 and 100\.
     """
     unit: Optional[Literal["PERCENT"]] = None
     """
@@ -1762,8 +1857,8 @@ class TaskSet(TagsDictMixin, Boto3Model):
 
     This is calculated by multiplying
     the service's ``desiredCount`` by the task set's ``scale`` percentage. The
-    result is always rounded up. For example, if the computed desired count is 1.2,
-    it rounds up to 2 tasks.
+    result is always rounded up. For example, if the computed desired count is
+    1\.2, it rounds up to 2 tasks.
     """
     pendingCount: Optional[int] = None
     """
@@ -1838,7 +1933,7 @@ class TaskSet(TagsDictMixin, Boto3Model):
     """
     scale: Optional[Scale] = None
     """
-    A floating-point percentage of your desired number of tasks to place and
+    A floating\-point percentage of your desired number of tasks to place and
     keep running in the task set.
     """
     stabilityStatus: Optional[Literal["STEADY_STATE", "STABILIZING"]] = None
@@ -1862,7 +1957,7 @@ class TaskSet(TagsDictMixin, Boto3Model):
 
 class ServiceConnectClientAlias(Boto3Model):
     """
-    Each alias ("endpoint") is a fully-qualified name and port number that
+    Each alias ("endpoint") is a fully\-qualified name and port number that
     other tasks ("clients") can use to connect to this service.
 
     Each name and port mapping must be unique within the namespace.
@@ -1889,9 +1984,9 @@ class ServiceConnectClientAlias(Boto3Model):
     The ``dnsName`` is the name that you use in the applications of client
     tasks to connect to this service.
 
-    The name must be a valid DNS name but doesn't need to be fully-qualified.
+    The name must be a valid DNS name but doesn't need to be fully\-qualified.
     The name can include up to 127 characters. The name can include lowercase
-    letters, numbers, underscores (\_), hyphens (-), and periods (.). The name
+    letters, numbers, underscores (\_), hyphens (\-), and periods (.). The name
     can't start with a hyphen.
     """
 
@@ -1974,14 +2069,14 @@ class ServiceConnectService(Boto3Model):
 
     This must be unique within the Cloud Map namespace. The name can contain up
     to 64 characters. The name can include lowercase letters, numbers,
-    underscores (\_), and hyphens (-). The name can't start with a hyphen.
+    underscores (\_), and hyphens (\-). The name can't start with a hyphen.
     """
     clientAliases: Optional[List["ServiceConnectClientAlias"]] = None
     """
     The list of client aliases for this Service Connect service.
 
     You use these to assign names that can be used by client applications. The
-    maximum number of client aliases that you can have in this list is 1.
+    maximum number of client aliases that you can have in this list is 1\.
     """
     ingressPortOverride: Optional[int] = None
     """
@@ -2011,6 +2106,7 @@ class Secret(Boto3Model):
     For more information, see `Specifying sensitive
     data <https://docs.aws.amazon.com/AmazonECS/latest/developerguide/specifying-
     sensitive-data.html>`_ in the *Amazon Elastic Container Service Developer Guide*.
+
     """
 
     name: str
@@ -2029,7 +2125,7 @@ class Secret(Boto3Model):
 class LogConfiguration(Boto3Model):
     """
     The log configuration for the container. This parameter maps to
-    ``LogConfig`` in the docker conainer create command and the ``--log-
+    ``LogConfig`` in the docker container create command and the ``--log-
     driver`` option to docker run.
 
     By default, containers use the same logging driver that the Docker daemon uses.
@@ -2050,7 +2146,7 @@ class LogConfiguration(Boto3Model):
     ``awslogs``, ``fluentd``, ``gelf``, ``json-file``, ``journald``,``syslog``,
     ``splunk``, and ``awsfirelens``.
 
-    * This parameter requires version 1.18 of the Docker Remote API or greater on
+    * This parameter requires version 1\.18 of the Docker Remote API or greater on
       your container instance.
     * For tasks that are hosted on Amazon EC2 instances, the Amazon ECS container
       agent must register the available logging drivers with the
@@ -2081,11 +2177,11 @@ class LogConfiguration(Boto3Model):
     options: Optional[Dict[str, str]] = None
     """
     The configuration options to send to the log driver. This parameter
-    requires version 1.19 of the Docker Remote API or greater on your container
-    instance. To check the Docker Remote API version on your container
-    instance, log in to your.
+    requires version 1\.19 of the Docker Remote API or greater on your
+    container instance. To check the Docker Remote API version on your
+    container instance, log in to.
 
-    container instance and run the following command: ``sudo docker version
+    your container instance and run the following command: ``sudo docker version
     --format '{{.Server.APIVersion}}'``
     """
     secretOptions: Optional[List["Secret"]] = None
@@ -2144,8 +2240,8 @@ class ServiceConnectConfiguration(Boto3Model):
     The log configuration for the container.
 
     This parameter maps to ``LogConfig``
-    in the docker conainer create command and the ``--log-driver`` option to docker
-    run.
+    in the docker container create command and the ``--log-driver`` option to
+    docker run.
     """
 
 
@@ -2290,7 +2386,7 @@ class ServiceManagedEBSVolumeConfiguration(Boto3Model):
     """
     The tags to apply to the volume.
 
-    Amazon ECS applies service-managed tags by
+    Amazon ECS applies service\-managed tags by
     default. This parameter maps 1:1 with the ``TagSpecifications.N`` parameter of
     the `CreateVolume API <https://docs.aws.amazon.com/AWSEC2/latest/APIReference/A
     PI_CreateVolume.html>`_ in the *Amazon EC2 API Reference*.
@@ -2301,7 +2397,7 @@ class ServiceManagedEBSVolumeConfiguration(Boto3Model):
 
     This is the Amazon ECS
     infrastructure IAM role that is used to manage your Amazon Web Services
-    infrastructure. We recommend using the Amazon ECS-managed
+    infrastructure. We recommend using the Amazon ECS\-managed
     ``AmazonECSInfrastructureRolePolicyForVolumes`` IAM policy with this role. For
     more information, see `Amazon ECS infrastructure IAM role <https://docs.aws.ama
     zon.com/AmazonECS/latest/developerguide/infrastructure_IAM_role.html>`_ in the
@@ -2504,6 +2600,7 @@ class PlacementConstraint(Boto3Model):
 
     If you're using the Fargate launch type, task placement constraints aren't
     supported.
+
     """
 
     type: Optional[Literal["distinctInstance", "memberOf"]] = None
@@ -2580,7 +2677,7 @@ class Service(TagsDictMixin, ECSServiceModelMixin, PrimaryBoto3Model):
     """
 
     tag_class: ClassVar[Type] = ECSTag
-    objects: ClassVar[Boto3ModelManager] = ServiceManager()
+    manager_class: ClassVar[Type[Boto3ModelManager]] = ServiceManager
 
     serviceName: str
     """
@@ -2851,7 +2948,7 @@ class Service(TagsDictMixin, ECSServiceModelMixin, PrimaryBoto3Model):
             )
         except AttributeError:
             return None
-        return Cluster.objects.using(self.objects.session).get(**pk)
+        return Cluster.objects.using(self.session).get(**pk)
 
     @cached_property
     def task_definition(self) -> Optional["TaskDefinition"]:
@@ -2875,7 +2972,7 @@ class Service(TagsDictMixin, ECSServiceModelMixin, PrimaryBoto3Model):
             )
         except AttributeError:
             return None
-        return TaskDefinition.objects.using(self.objects.session).get(**pk)
+        return TaskDefinition.objects.using(self.session).get(**pk)
 
     @property
     def tasks(self) -> Optional[List["Task"]]:
@@ -2893,7 +2990,7 @@ class Service(TagsDictMixin, ECSServiceModelMixin, PrimaryBoto3Model):
             )
         except AttributeError:
             return []
-        return Task.objects.using(self.objects.session).list(**pk)
+        return Task.objects.using(self.session).list(**pk)
 
 
 class ExecuteCommandLogConfiguration(Boto3Model):
@@ -2991,18 +3088,18 @@ class ClusterConfiguration(Boto3Model):
 
 class KeyValuePair(Boto3Model):
     """
-    A key-value pair object.
+    A key\-value pair object.
     """
 
     name: Optional[str] = None
     """
-    The name of the key-value pair.
+    The name of the key\-value pair.
 
     For environment variables, this is the name of the environment variable.
     """
     value: Optional[str] = None
     """
-    The value of the key-value pair.
+    The value of the key\-value pair.
 
     For environment variables, this is the value of the environment variable.
     """
@@ -3101,11 +3198,11 @@ class Cluster(TagsDictMixin, PrimaryBoto3Model):
     """
 
     tag_class: ClassVar[Type] = ECSTag
-    objects: ClassVar[Boto3ModelManager] = ClusterManager()
+    manager_class: ClassVar[Type[Boto3ModelManager]] = ClusterManager
 
     clusterName: str
     """
-    A user-generated string that you use to identify your cluster.
+    A user\-generated string that you use to identify your cluster.
     """
     Tags: List["ECSTag"] = Field(default=None, serialization_alias="tags")
     """
@@ -3174,9 +3271,9 @@ class Cluster(TagsDictMixin, PrimaryBoto3Model):
     """
     The capacity providers associated with the cluster.
     """
-    defaultCapacityProviderStrategy: Optional[
-        List["CapacityProviderStrategyItem"]
-    ] = None
+    defaultCapacityProviderStrategy: Optional[List["CapacityProviderStrategyItem"]] = (
+        None
+    )
     """
     The default capacity provider strategy for the cluster.
 
@@ -3265,7 +3362,7 @@ class Cluster(TagsDictMixin, PrimaryBoto3Model):
             )
         except AttributeError:
             return []
-        return Service.objects.using(self.objects.session).list(**pk)
+        return Service.objects.using(self.session).list(**pk)
 
     @cached_property
     def container_instances(self) -> Optional[List["ContainerInstance"]]:
@@ -3289,7 +3386,7 @@ class Cluster(TagsDictMixin, PrimaryBoto3Model):
             )
         except AttributeError:
             return []
-        return ContainerInstance.objects.using(self.objects.session).list(**pk)
+        return ContainerInstance.objects.using(self.session).list(**pk)
 
 
 class RepositoryCredentials(Boto3Model):
@@ -3315,7 +3412,7 @@ class PortMapping(Boto3Model):
     blank or it must be the same value as the ``containerPort``.
 
     Most fields of this parameter (``containerPort``, ``hostPort``, ``protocol``)
-    maps to ``PortBindings`` in the docker conainer create command and the
+    maps to ``PortBindings`` in the docker container create command and the
     ``--publish`` option to ``docker run``. If the network mode of a task
     definition is set to ``host``, host ports must either be undefined or match the
     container port in the port mapping.
@@ -3331,7 +3428,7 @@ class PortMapping(Boto3Model):
 
     containerPort: Optional[int] = None
     """
-    The port number on the container that's bound to the user-specified or
+    The port number on the container that's bound to the user\-specified or
     automatically assigned host port.
     """
     hostPort: Optional[int] = None
@@ -3354,7 +3451,7 @@ class PortMapping(Boto3Model):
     Service Connect. This parameter is the name that you use in the
     ``serviceConnectConfiguration`` of a service. The name can include up to 64
     characters. The characters can include lowercase letters, numbers, underscores
-    (\_), and hyphens (-). The name can't start with a hyphen.
+    (\_), and hyphens (\-). The name can't start with a hyphen.
     """
     appProtocol: Optional[Literal["http", "http2", "grpc"]] = None
     """
@@ -3362,9 +3459,9 @@ class PortMapping(Boto3Model):
 
     This parameter only applies to Service Connect. We recommend that you set
     this parameter to be consistent with the protocol that your application
-    uses. If you set this parameter, Amazon ECS adds protocol-specific
+    uses. If you set this parameter, Amazon ECS adds protocol\-specific
     connection handling to the Service Connect proxy. If you set this
-    parameter, Amazon ECS adds protocol-specific telemetry in the Amazon ECS
+    parameter, Amazon ECS adds protocol\-specific telemetry in the Amazon ECS
     console and CloudWatch.
     """
     containerPortRange: Optional[str] = None
@@ -3439,7 +3536,7 @@ class EnvironmentFile(Boto3Model):
 
     Consider the following when using the Fargate launch type:
 
-    * The file is handled like a native Docker env-file.
+    * The file is handled like a native Docker env\-file.
     * There is no support for shell escape handling.
     * The container entry point interperts the ``VARIABLE`` values.
     """
@@ -3453,7 +3550,7 @@ class EnvironmentFile(Boto3Model):
     """
     The file type to use.
 
-    Environment files are objects in Amazon S3. The only
+    Environment files are objects in Amazon S3\. The only
     supported value is ``s3``.
     """
 
@@ -3476,11 +3573,10 @@ class MountPoint(Boto3Model):
     """
     readOnly: Optional[bool] = None
     """
-    If this value is ``true``, the container has read-only access to the
+    If this value is ``true``, the container has read\-only access to the
     volume.
 
-    If
-    this value is ``false``, then the container can write to the volume. The
+    If this value is ``false``, then the container can write to the volume. The
     default value is ``false``.
     """
 
@@ -3498,11 +3594,10 @@ class VolumeFrom(Boto3Model):
     """
     readOnly: Optional[bool] = None
     """
-    If this value is ``true``, the container has read-only access to the
+    If this value is ``true``, the container has read\-only access to the
     volume.
 
-    If
-    this value is ``false``, then the container can write to the volume. The
+    If this value is ``false``, then the container can write to the volume. The
     default value is ``false``.
     """
 
@@ -3514,7 +3609,7 @@ class KernelCapabilities(Boto3Model):
 
     For tasks that use the Fargate launch type, ``capabilities`` is supported for
     all platform versions but the ``add`` parameter is only supported if using
-    platform version 1.4.0 or later.
+    platform version 1\.4\.0 or later.
     """
 
     add: Optional[List[str]] = None
@@ -3523,7 +3618,7 @@ class KernelCapabilities(Boto3Model):
     default configuration provided by Docker.
 
     This parameter maps to ``CapAdd`` in the
-    docker conainer create command and the ``--cap-add`` option to docker run.
+    docker container create command and the ``--cap-add`` option to docker run.
     """
     drop: Optional[List[str]] = None
     """
@@ -3531,7 +3626,8 @@ class KernelCapabilities(Boto3Model):
     default configuration provided by Docker.
 
     This parameter maps to ``CapDrop`` in
-    the docker conainer create command and the ``--cap-drop`` option to docker run.
+    the docker container create command and the ``--cap-drop`` option to docker
+    run.
     """
 
 
@@ -3578,11 +3674,12 @@ class Tmpfs(Boto3Model):
 
 
 class LinuxParameters(Boto3Model):
-    """Linux-specific modifications that are applied to the container, such as Linux
+    """Linux\-specific modifications that are applied to the container, such as Linux
     kernel capabilities. For more information see `KernelCapabilities <https://docs
     .aws.amazon.com/AmazonECS/latest/APIReference/API_KernelCapabilities.html>`_.
 
     This parameter is not supported for Windows containers.
+
     """
 
     capabilities: Optional[KernelCapabilities] = None
@@ -3595,7 +3692,7 @@ class LinuxParameters(Boto3Model):
     Any host devices to expose to the container.
 
     This parameter maps to ``Devices``
-    in tthe docker conainer create command and the ``--device`` option to docker
+    in the docker container create command and the ``--device`` option to docker
     run.
     """
     initProcessEnabled: Optional[bool] = None
@@ -3604,7 +3701,7 @@ class LinuxParameters(Boto3Model):
     reaps processes.
 
     This parameter maps to the ``--init`` option to docker run. This
-    parameter requires version 1.25 of the Docker Remote API or greater on your
+    parameter requires version 1\.25 of the Docker Remote API or greater on your
     container instance. To check the Docker Remote API version on your container
     instance, log in to your container instance and run the following command:
     ``sudo docker version --format '{{.Server.APIVersion}}'``
@@ -3652,18 +3749,18 @@ class ContainerDependency(Boto3Model):
     can contain multiple dependencies. When a dependency is defined for
     container startup, for container shutdown it is reversed.
 
-    Your Amazon ECS container instances require at least version 1.26.0 of the
+    Your Amazon ECS container instances require at least version 1\.26\.0 of the
     container agent to use container dependencies. However, we recommend using the
     latest container agent version. For information about checking your agent
     version and updating to the latest version, see `Updating the Amazon ECS
     Container
     Agent <https://docs.aws.amazon.com/AmazonECS/latest/developerguide/ecs-agent-
     update.html>`_ in the *Amazon Elastic Container Service Developer Guide*. If
-    you're using an Amazon ECS-optimized Linux AMI, your instance needs at least
-    version 1.26.0-1 of the ``ecs-init`` package. If your container instances are
-    launched from version ``20190301`` or later, then they contain the required
+    you're using an Amazon ECS\-optimized Linux AMI, your instance needs at least
+    version 1\.26\.0\-1 of the ``ecs-init`` package. If your container instances
+    are launched from version ``20190301`` or later, then they contain the required
     versions of the container agent and ``ecs-init``. For more information, see
-    `Amazon ECS-optimized Linux
+    `Amazon ECS\-optimized Linux
     AMI <https://docs.aws.amazon.com/AmazonECS/latest/developerguide/ecs-
     optimized_AMI.html>`_ in the *Amazon Elastic Container Service Developer Guide*.
 
@@ -3697,6 +3794,7 @@ class HostEntry(Boto3Model):
     container via the ``extraHosts`` parameter of its `ContainerDefinition <https:/
     /docs.aws.amazon.com/AmazonECS/latest/APIReference/API_ContainerDefinition.html
     >`_.
+
     """
 
     hostname: str
@@ -3745,10 +3843,16 @@ class Ulimit(Boto3Model):
     softLimit: int
     """
     The soft limit for the ``ulimit`` type.
+
+    The value can be specified in bytes,
+    seconds, or as a count, depending on the ``type`` of the ``ulimit``.
     """
     hardLimit: int
     """
     The hard limit for the ``ulimit`` type.
+
+    The value can be specified in bytes,
+    seconds, or as a count, depending on the ``type`` of the ``ulimit``.
     """
 
 
@@ -3757,7 +3861,7 @@ class HealthCheck(Boto3Model):
     The container health check command and associated configuration parameters
     for the container.
 
-    This parameter maps to ``HealthCheck`` in the docker conainer
+    This parameter maps to ``HealthCheck`` in the docker container
     create command and the ``HEALTHCHECK`` parameter of docker run.
     """
 
@@ -3781,14 +3885,14 @@ class HealthCheck(Boto3Model):
     The time period in seconds to wait for a health check to succeed before it
     is considered a failure.
 
-    You may specify between 2 and 60 seconds. The default value is 5.
+    You may specify between 2 and 60 seconds. The default value is 5\.
     """
     retries: Optional[int] = None
     """
     The number of times to retry a failed health check before the container is
     considered unhealthy.
 
-    You may specify between 1 and 10 retries. The default value is 3.
+    You may specify between 1 and 10 retries. The default value is 3\.
     """
     startPeriod: Optional[int] = None
     """
@@ -3803,12 +3907,12 @@ class HealthCheck(Boto3Model):
 class SystemControl(Boto3Model):
     """
     A list of namespaced kernel parameters to set in the container. This
-    parameter maps to ``Sysctls`` in tthe docker conainer create command and
+    parameter maps to ``Sysctls`` in the docker container create command and
     the ``--sysctl`` option to docker run. For example, you can configure
     ``net.ipv4.tcp_keepalive_time`` setting to maintain longer lived
     connections.
 
-    We don't recommend that you specify network-related ``systemControls``
+    We don't recommend that you specify network\-related ``systemControls``
     parameters for multiple containers in a single task that also uses either the
     ``awsvpc`` or ``host`` network mode. Doing this has the following
     disadvantages:
@@ -3917,7 +4021,7 @@ class ContainerDefinition(Boto3Model):
     task definition, the ``name`` of one container can be entered in the ``links``
     of another container to connect the containers. Up to 255 letters (uppercase
     and lowercase), numbers, underscores, and hyphens are allowed. This parameter
-    maps to ``name`` in tthe docker conainer create command and the ``--name``
+    maps to ``name`` in the docker container create command and the ``--name``
     option to docker run.
     """
     image: str
@@ -3926,12 +4030,11 @@ class ContainerDefinition(Boto3Model):
 
     This string is passed directly to the
     Docker daemon. By default, images in the Docker Hub registry are available.
-    Other repositories are specified with either  ``*repository-
-    url*/*image*:*tag*``  or  ``*repository-url*/*image*@*digest*`` . Up to 255
-    letters (uppercase and lowercase), numbers, hyphens, underscores, colons,
-    periods, forward slashes, and number signs are allowed. This parameter maps to
-    ``Image`` in the docker conainer create command and the ``IMAGE`` parameter of
-    docker run.
+    Other repositories are specified with either  ``repository-url/image:tag``  or
+    ``repository-url/image@digest`` . Up to 255 letters (uppercase and lowercase),
+    numbers, hyphens, underscores, colons, periods, forward slashes, and number
+    signs are allowed. This parameter maps to ``Image`` in the docker container
+    create command and the ``IMAGE`` parameter of docker run.
     """
     essential: bool
     """
@@ -3952,7 +4055,7 @@ class ContainerDefinition(Boto3Model):
     The number of ``cpu`` units reserved for the container.
 
     This parameter maps to
-    ``CpuShares`` in the docker conainer create commandand the ``--cpu-shares``
+    ``CpuShares`` in the docker container create commandand the ``--cpu-shares``
     option to docker run.
     """
     memory: Optional[int] = None
@@ -3963,7 +4066,7 @@ class ContainerDefinition(Boto3Model):
     attempts to exceed the memory specified here, the container is killed. The
     total amount of memory reserved for all containers within a task must be lower
     than the task ``memory`` value, if one is specified. This parameter maps to
-    ``Memory`` in thethe docker conainer create command and the ``--memory`` option
+    ``Memory`` in the docker container create command and the ``--memory`` option
     to docker run.
     """
     memoryReservation: Optional[int] = None
@@ -3975,8 +4078,8 @@ class ContainerDefinition(Boto3Model):
     to this soft limit. However, your container can consume more memory when it
     needs to, up to either the hard limit specified with the ``memory`` parameter
     (if applicable), or all of the available memory on the container instance,
-    whichever comes first. This parameter maps to ``MemoryReservation`` in the the
-    docker conainer create command and the ``--memory-reservation`` option to
+    whichever comes first. This parameter maps to ``MemoryReservation`` in the
+    docker container create command and the ``--memory-reservation`` option to
     docker run.
     """
     links: Optional[List[str]] = None
@@ -3988,7 +4091,7 @@ class ContainerDefinition(Boto3Model):
     network mode of a task definition is ``bridge``. The ``name:internalName``
     construct is analogous to ``name:alias`` in Docker links. Up to 255 letters
     (uppercase and lowercase), numbers, underscores, and hyphens are allowed.. This
-    parameter maps to ``Links`` in the docker conainer create command and the
+    parameter maps to ``Links`` in the docker container create command and the
     ``--link`` option to docker run.
     """
     portMappings: Optional[List["PortMapping"]] = None
@@ -4022,16 +4125,16 @@ class ContainerDefinition(Boto3Model):
     The command that's passed to the container.
 
     This parameter maps to ``Cmd`` in
-    the docker conainer create command and the ``COMMAND`` parameter to docker run.
-    If there are multiple arguments, each argument is a separated string in the
-    array.
+    the docker container create command and the ``COMMAND`` parameter to docker
+    run. If there are multiple arguments, each argument is a separated string in
+    the array.
     """
     environment: Optional[List["KeyValuePair"]] = None
     """
     The environment variables to pass to a container.
 
     This parameter maps to
-    ``Env`` in the docker conainer create command and the ``--env`` option to
+    ``Env`` in the docker container create command and the ``--env`` option to
     docker run.
     """
     environmentFiles: Optional[List["EnvironmentFile"]] = None
@@ -4050,12 +4153,12 @@ class ContainerDefinition(Boto3Model):
     Data volumes to mount from another container.
 
     This parameter maps to
-    ``VolumesFrom`` in tthe docker conainer create command and the ``--volumes-
+    ``VolumesFrom`` in the docker container create command and the ``--volumes-
     from`` option to docker run.
     """
     linuxParameters: Optional[LinuxParameters] = None
     """
-    Linux-specific modifications that are applied to the container, such as
+    Linux\-specific modifications that are applied to the container, such as
     Linux kernel capabilities.
 
     For more information see `KernelCapabilities <https://docs
@@ -4099,7 +4202,7 @@ class ContainerDefinition(Boto3Model):
     The hostname to use for your container.
 
     This parameter maps to ``Hostname`` in
-    thethe docker conainer create command and the ``--hostname`` option to docker
+    the docker container create command and the ``--hostname`` option to docker
     run.
     """
     user: Optional[str] = None
@@ -4107,14 +4210,14 @@ class ContainerDefinition(Boto3Model):
     The user to use inside the container.
 
     This parameter maps to ``User`` in the
-    docker conainer create command and the ``--user`` option to docker run.
+    docker container create command and the ``--user`` option to docker run.
     """
     workingDirectory: Optional[str] = None
     """
     The working directory to run commands inside the container in.
 
     This parameter
-    maps to ``WorkingDir`` in the docker conainer create command and the
+    maps to ``WorkingDir`` in the docker container create command and the
     ``--workdir`` option to docker run.
     """
     disableNetworking: Optional[bool] = None
@@ -4122,7 +4225,7 @@ class ContainerDefinition(Boto3Model):
     When this parameter is true, networking is off within the container.
 
     This
-    parameter maps to ``NetworkDisabled`` in the docker conainer create command.
+    parameter maps to ``NetworkDisabled`` in the docker container create command.
     """
     privileged: Optional[bool] = None
     """
@@ -4130,31 +4233,31 @@ class ContainerDefinition(Boto3Model):
     the host container instance (similar to the ``root`` user).
 
     This parameter maps to
-    ``Privileged`` in the the docker conainer create command and the
-    ``--privileged`` option to docker run
+    ``Privileged`` in the docker container create command and the ``--privileged``
+    option to docker run
     """
     readonlyRootFilesystem: Optional[bool] = None
     """
-    When this parameter is true, the container is given read-only access to its
-    root file system.
+    When this parameter is true, the container is given read\-only access to
+    its root file system.
 
     This parameter maps to ``ReadonlyRootfs`` in the docker
-    conainer create command and the ``--read-only`` option to docker run.
+    container create command and the ``--read-only`` option to docker run.
     """
     dnsServers: Optional[List[str]] = None
     """
     A list of DNS servers that are presented to the container.
 
     This parameter maps
-    to ``Dns`` in the the docker conainer create command and the ``--dns`` option
-    to docker run.
+    to ``Dns`` in the docker container create command and the ``--dns`` option to
+    docker run.
     """
     dnsSearchDomains: Optional[List[str]] = None
     """
     A list of DNS search domains that are presented to the container.
 
     This
-    parameter maps to ``DnsSearch`` in the docker conainer create command and the
+    parameter maps to ``DnsSearch`` in the docker container create command and the
     ``--dns-search`` option to docker run.
     """
     extraHosts: Optional[List["HostEntry"]] = None
@@ -4163,7 +4266,7 @@ class ContainerDefinition(Boto3Model):
     file on the container.
 
     This parameter maps to ``ExtraHosts`` in the docker
-    conainer create command and the ``--add-host`` option to docker run.
+    container create command and the ``--add-host`` option to docker run.
     """
     dockerSecurityOptions: Optional[List[str]] = None
     """
@@ -4179,7 +4282,7 @@ class ContainerDefinition(Boto3Model):
     that require ``stdin`` or a ``tty`` to be allocated.
 
     This parameter maps to
-    ``OpenStdin`` in the docker conainer create command and the ``--interactive``
+    ``OpenStdin`` in the docker container create command and the ``--interactive``
     option to docker run.
     """
     pseudoTerminal: Optional[bool] = None
@@ -4187,7 +4290,7 @@ class ContainerDefinition(Boto3Model):
     When this parameter is ``true``, a TTY is allocated.
 
     This parameter maps to
-    ``Tty`` in tthe docker conainer create command and the ``--tty`` option to
+    ``Tty`` in the docker container create command and the ``--tty`` option to
     docker run.
     """
     dockerLabels: Optional[Dict[str, str]] = None
@@ -4195,8 +4298,8 @@ class ContainerDefinition(Boto3Model):
     A key/value map of labels to add to the container.
 
     This parameter maps to
-    ``Labels`` in the docker conainer create command and the ``--label`` option to
-    docker run. This parameter requires version 1.18 of the Docker Remote API or
+    ``Labels`` in the docker container create command and the ``--label`` option to
+    docker run. This parameter requires version 1\.18 of the Docker Remote API or
     greater on your container instance. To check the Docker Remote API version on
     your container instance, log in to your container instance and run the
     following command: ``sudo docker version --format '{{.Server.APIVersion}}'``
@@ -4207,7 +4310,7 @@ class ContainerDefinition(Boto3Model):
 
     If a ``ulimit`` value is
     specified in a task definition, it overrides the default values set by Docker.
-    This parameter maps to ``Ulimits`` in tthe docker conainer create command and
+    This parameter maps to ``Ulimits`` in the docker container create command and
     the ``--ulimit`` option to docker run. Valid naming values are displayed in the
     `Ulimit <https://docs.aws.amazon.com/AmazonECS/latest/APIReference/API_Ulimit.h
     tml>`_ data type.
@@ -4221,7 +4324,7 @@ class ContainerDefinition(Boto3Model):
     The container health check command and associated configuration parameters
     for the container.
 
-    This parameter maps to ``HealthCheck`` in the docker conainer
+    This parameter maps to ``HealthCheck`` in the docker container
     create command and the ``HEALTHCHECK`` parameter of docker run.
     """
     systemControls: Optional[List["SystemControl"]] = None
@@ -4229,7 +4332,7 @@ class ContainerDefinition(Boto3Model):
     A list of namespaced kernel parameters to set in the container.
 
     This parameter
-    maps to ``Sysctls`` in tthe docker conainer create command and the ``--sysctl``
+    maps to ``Sysctls`` in the docker container create command and the ``--sysctl``
     option to docker run. For example, you can configure
     ``net.ipv4.tcp_keepalive_time`` setting to maintain longer lived connections.
     """
@@ -4255,7 +4358,7 @@ class ContainerDefinition(Boto3Model):
 
     We recommend
     that you use this parameter instead of the ``dockerSecurityOptions``. The
-    maximum number of ARNs is 1.
+    maximum number of ARNs is 1\.
     """
 
 
@@ -4323,15 +4426,15 @@ class DockerVolumeConfiguration(Boto3Model):
     installed using the Docker plugin CLI, use ``docker plugin ls`` to retrieve the
     driver name from your container instance. If the driver was installed using
     another method, use Docker plugin discovery to retrieve the driver name. This
-    parameter maps to ``Driver`` in the docker conainer create command and the
+    parameter maps to ``Driver`` in the docker container create command and the
     ``xxdriver`` option to docker volume create.
     """
     driverOpts: Optional[Dict[str, str]] = None
     """
-    A map of Docker driver-specific options passed through.
+    A map of Docker driver\-specific options passed through.
 
     This parameter maps to
-    ``DriverOpts`` in the docker create-volume command and the ``xxopt`` option to
+    ``DriverOpts`` in the docker create\-volume command and the ``xxopt`` option to
     docker volume create.
     """
     labels: Optional[Dict[str, str]] = None
@@ -4339,7 +4442,7 @@ class DockerVolumeConfiguration(Boto3Model):
     Custom metadata to add to your Docker volume.
 
     This parameter maps to ``Labels``
-    in the docker conainer create command and the ``xxlabel`` option to docker
+    in the docker container create command and the ``xxlabel`` option to docker
     volume create.
     """
 
@@ -4443,7 +4546,7 @@ class FSxWindowsFileServerAuthorizationConfig(Boto3Model):
 A fully qualified domain name hosted by an `Directory
 Service <https://docs.aws.amazon.com/directoryservice/latest/admin-
 guide/directory_microsoft_ad.html>`_ Managed Microsoft AD (Active Directory) or
-self-hosted AD on Amazon EC2.
+self\-hosted AD on Amazon EC2\.
     """
 
 
@@ -4531,7 +4634,7 @@ class Volume(Boto3Model):
 
 class Attribute(Boto3Model):
     """
-    An attribute is a name-value pair that's associated with an Amazon ECS
+    An attribute is a name\-value pair that's associated with an Amazon ECS
     object.
 
     Use attributes to extend the Amazon ECS data model by adding custom
@@ -4547,7 +4650,7 @@ class Attribute(Boto3Model):
 
     The ``name`` must contain between 1 and 128
     characters. The name may contain letters (uppercase and lowercase), numbers,
-    hyphens (-), underscores (\_), forward slashes (/), back slashes (\), or
+    hyphens (\-), underscores (\_), forward slashes (/), back slashes (\\), or
     periods (.).
     """
     value: Optional[str] = None
@@ -4556,8 +4659,8 @@ class Attribute(Boto3Model):
 
     The ``value`` must contain between 1 and 128
     characters. It can contain letters (uppercase and lowercase), numbers, hyphens
-    (-), underscores (\_), periods (.), at signs (@), forward slashes (/), back
-    slashes (\), colons (:), or spaces. The value can't start or end with a space.
+    (\-), underscores (\_), periods (.), at signs (@), forward slashes (/), back
+    slashes (\\), colons (:), or spaces. The value can't start or end with a space.
     """
     targetType: Optional[Literal["container-instance"]] = None
     """
@@ -4583,6 +4686,7 @@ class TaskDefinitionPlacementConstraint(Boto3Model):
     Guide*.
 
     Task placement constraints aren't supported for tasks run on Fargate.
+
     """
 
     type: Optional[Literal["memberOf"]] = None
@@ -4659,12 +4763,12 @@ class ProxyConfiguration(Boto3Model):
     """
     The configuration details for the App Mesh proxy.
 
-    Your Amazon ECS container instances require at least version 1.26.0 of the
-    container agent and at least version 1.26.0-1 of the ``ecs-init`` package to
+    Your Amazon ECS container instances require at least version 1\.26\.0 of the
+    container agent and at least version 1\.26\.0\-1 of the ``ecs-init`` package to
     use a proxy configuration. If your container instances are launched from the
     Amazon ECS optimized AMI version ``20190301`` or later, they contain the
     required versions of the container agent and ``ecs-init``. For more
-    information, see `Amazon ECS-optimized Linux
+    information, see `Amazon ECS\-optimized Linux
     AMI <https://docs.aws.amazon.com/AmazonECS/latest/developerguide/ecs-
     optimized_AMI.html>`_ in the *Amazon Elastic Container Service Developer Guide*.
     """
@@ -4682,7 +4786,7 @@ class ProxyConfiguration(Boto3Model):
     properties: Optional[List["KeyValuePair"]] = None
     """
     The set of network configuration parameters to provide the Container
-    Network Interface (CNI) plugin, specified as key-value pairs.
+    Network Interface (CNI) plugin, specified as key\-value pairs.
     """
 
 
@@ -4712,14 +4816,14 @@ class TaskDefinition(TagsDictMixin, PrimaryBoto3Model):
     """
 
     tag_class: ClassVar[Type] = ECSTag
-    objects: ClassVar[Boto3ModelManager] = TaskDefinitionManager()
+    manager_class: ClassVar[Type[Boto3ModelManager]] = TaskDefinitionManager
 
     family: str
     """
     The name of a family that this task definition is registered to.
 
     Up to 255 characters are allowed. Letters (both uppercase and lowercase
-    letters), numbers, hyphens (-), and underscores (\_) are allowed.
+    letters), numbers, hyphens (\-), and underscores (\_) are allowed.
     """
     containerDefinitions: List["ContainerDefinition"]
     """
@@ -4797,10 +4901,10 @@ class TaskDefinition(TagsDictMixin, PrimaryBoto3Model):
 
     When an Amazon EC2 instance is registered to your cluster, the Amazon ECS
     container agent assigns some standard attributes to the instance. You can
-    apply custom attributes. These are specified as key-value pairs using the
+    apply custom attributes. These are specified as key\-value pairs using the
     Amazon ECS console or the
-    `Put Attributes <https://docs.aws.amazon.com/AmazonECS/latest/APIReference/API_PutAt
-     tributes.html>`_ API. These attributes are used when determining task
+    `Pu tAttributes <https://docs.aws.amazon.com/AmazonECS/latest/APIReference/API_PutA
+     ttributes.html>`_ API. These attributes are used when determining task
     placement for tasks hosted on Amazon EC2 instances. For more information,
     see
     `Attributes <https://docs.aws.amazon.com/AmazonECS/latest/developerguide/task-
@@ -4815,12 +4919,12 @@ class TaskDefinition(TagsDictMixin, PrimaryBoto3Model):
         default=None, frozen=True
     )
     """
-    The task launch types the task definition validated against during task
-    definition registration.
+    Amazon ECS validates the task definition parameters with those supported by
+    the launch type.
 
-    For more information, see `Amazon ECS launch types <ht
-    tps://docs.aws.amazon.com/AmazonECS/latest/developerguide/launch_types.html>`_ in
-    the *Amazon Elastic Container Service Developer Guide*.
+    For more information, see `Amazon ECS launch types <https://docs.a
+    ws.amazon.com/AmazonECS/latest/developerguide/launch_types.html>`_ in the *Amazon
+    Elastic Container Service Developer Guide*.
     """
     runtimePlatform: Optional[RuntimePlatform] = None
     """
@@ -4829,9 +4933,9 @@ class TaskDefinition(TagsDictMixin, PrimaryBoto3Model):
     A platform family is specified only for tasks using the Fargate launch
     type.
     """
-    requiresCompatibilities: Optional[
-        List[Literal["EC2", "FARGATE", "EXTERNAL"]]
-    ] = None
+    requiresCompatibilities: Optional[List[Literal["EC2", "FARGATE", "EXTERNAL"]]] = (
+        None
+    )
     """
     The task launch types the task definition was validated against.
 
@@ -5058,7 +5162,7 @@ class Container(Boto3Model):
     """
     reason: Optional[str] = None
     """
-    A short (255 max characters) human-readable string to provide additional
+    A short (255 max characters) human\-readable string to provide additional
     details about a running or stopped container.
     """
     networkBindings: Optional[List["NetworkBinding"]] = None
@@ -5107,7 +5211,7 @@ class ContainerOverride(Boto3Model):
     """
     The overrides that are sent to a container. An empty container override can
     be passed in. An example of an empty container override is
-    ``{"containerOverrides": ` ] }``. If a non-empty container override is
+    ``{"containerOverrides": ` ] }``. If a non\-empty container override is
     specified, the ``name`` parameter must be included.
 
     You can use Secrets Manager or Amazon Web Services Systems Manager Parameter
@@ -5269,7 +5373,7 @@ class Task(TagsDictMixin, PrimaryBoto3Model):
     """
 
     tag_class: ClassVar[Type] = ECSTag
-    objects: ClassVar[Boto3ModelManager] = TaskManager()
+    manager_class: ClassVar[Type[Boto3ModelManager]] = TaskManager
 
     Tags: List["ECSTag"] = Field(default=None, serialization_alias="tags")
     """
@@ -5513,11 +5617,11 @@ class Task(TagsDictMixin, PrimaryBoto3Model):
     """
     taskDefinition: Optional[str] = None
     """
-    The ``family`` and ``revision`` (``family:revision``) or full ARN of the
-    task definition to run.
+    The \``family\`` and \``revision\`` (\``family:revision\``) or full ARN of
+    the task definition to run.
 
-    If a ``revision`` isn't specified, the latest ``ACTIVE``
-    revision is used.
+    If a \``revision\`` isn't specified, the latest
+    \``ACTIVE\`` revision is used.
     """
 
     @property
@@ -5572,7 +5676,7 @@ class Task(TagsDictMixin, PrimaryBoto3Model):
             )
         except AttributeError:
             return None
-        return Cluster.objects.using(self.objects.session).get(**pk)
+        return Cluster.objects.using(self.session).get(**pk)
 
     @cached_property
     def task_definition(self) -> Optional["TaskDefinition"]:
@@ -5596,7 +5700,7 @@ class Task(TagsDictMixin, PrimaryBoto3Model):
             )
         except AttributeError:
             return None
-        return TaskDefinition.objects.using(self.objects.session).get(**pk)
+        return TaskDefinition.objects.using(self.session).get(**pk)
 
     @cached_property
     def container_instance(self) -> Optional["ContainerInstance"]:
@@ -5621,7 +5725,7 @@ class Task(TagsDictMixin, PrimaryBoto3Model):
             )
         except AttributeError:
             return None
-        return ContainerInstance.objects.using(self.objects.session).get(**pk)
+        return ContainerInstance.objects.using(self.session).get(**pk)
 
     @cached_property
     def service(self) -> Optional["Service"]:
@@ -5645,7 +5749,7 @@ class Task(TagsDictMixin, PrimaryBoto3Model):
             )
         except AttributeError:
             return None
-        return Service.objects.using(self.objects.session).get(**pk)
+        return Service.objects.using(self.session).get(**pk)
 
 
 class VersionInfo(Boto3Model):
@@ -5660,9 +5764,9 @@ class VersionInfo(Boto3Model):
     """
     agentHash: Optional[str] = None
     """
-The Git commit hash for the Amazon ECS container agent build on the `amazon-
-ecs-agent <https://github.com/aws/amazon-ecs-agent/commits/master>`_  GitHub
-repository.
+The Git commit hash for the Amazon ECS container agent build on the
+`amazon\-ecs\-agent <https://github.com/aws/amazon-ecs-agent/commits/master>`_
+GitHub repository.
     """
     dockerVersion: Optional[str] = None
     """
@@ -5678,7 +5782,7 @@ class ContainerInstanceResource(Boto3Model):
     name: Optional[str] = None
     """
     The name of the resource, such as ``CPU``, ``MEMORY``, ``PORTS``,
-    ``PORTS_UDP``, or a user-defined resource.
+    ``PORTS_UDP``, or a user\-defined resource.
     """
     type: Optional[str] = None
     """
@@ -5690,12 +5794,12 @@ class ContainerInstanceResource(Boto3Model):
     doubleValue: Optional[float] = None
     """
     When the ``doubleValue`` type is set, the value of the resource must be a
-    double precision floating-point type.
+    double precision floating\-point type.
     """
     longValue: Optional[int] = None
     """
     When the ``longValue`` type is set, the value of the resource must be an
-    extended precision floating-point type.
+    extended precision floating\-point type.
     """
     integerValue: Optional[int] = None
     """
@@ -5719,9 +5823,9 @@ class InstanceHealthCheckResult(Boto3Model):
     """
     The type of container instance health status that was verified.
     """
-    status: Optional[
-        Literal["OK", "IMPAIRED", "INSUFFICIENT_DATA", "INITIALIZING"]
-    ] = None
+    status: Optional[Literal["OK", "IMPAIRED", "INSUFFICIENT_DATA", "INITIALIZING"]] = (
+        None
+    )
     """
     The container instance health status.
     """
@@ -5766,7 +5870,7 @@ class ContainerInstance(
     """
 
     tag_class: ClassVar[Type] = ECSTag
-    objects: ClassVar[Boto3ModelManager] = ContainerInstanceManager()
+    manager_class: ClassVar[Type[Boto3ModelManager]] = ContainerInstanceManager
 
     Tags: List["ECSTag"] = Field(default=None, serialization_alias="tags")
     """
@@ -5960,7 +6064,7 @@ class ContainerInstance(
             )
         except AttributeError:
             return None
-        return Instance.objects.using(self.objects.session).get(**pk)
+        return Instance.objects.using(self.session).get(**pk)
 
     @property
     def tasks(self) -> Optional[List["Task"]]:
@@ -5979,7 +6083,7 @@ class ContainerInstance(
             )
         except AttributeError:
             return []
-        return Task.objects.using(self.objects.session).list(**pk)
+        return Task.objects.using(self.session).list(**pk)
 
 
 # =======================
@@ -6086,9 +6190,9 @@ class ClusterServiceConnectDefaultsRequest(Boto3Model):
     namespace that's used when you create a service and don't specify a Service
     Connect configuration.
 
-    The namespace name can include up to 1024 characters. The name is case-
-    sensitive. The name can't include hyphens (-), tilde (~), greater than (>),
-    less than (<), or slash (/).
+    The namespace name can include up to 1024 characters. The name is
+    case\-sensitive. The name can't include hyphens (\-), tilde (\~), greater
+    than (\>), less than (\<), or slash (/).
     """
 
 
@@ -6356,7 +6460,7 @@ class TaskManagedEBSVolumeConfiguration(Boto3Model):
     """
     The tags to apply to the volume.
 
-    Amazon ECS applies service-managed tags by
+    Amazon ECS applies service\-managed tags by
     default. This parameter maps 1:1 with the ``TagSpecifications.N`` parameter of
     the `CreateVolume API <https://docs.aws.amazon.com/AWSEC2/latest/APIReference/A
     PI_CreateVolume.html>`_ in the *Amazon EC2 API Reference*.
@@ -6367,7 +6471,7 @@ class TaskManagedEBSVolumeConfiguration(Boto3Model):
 
     This is the Amazon ECS
     infrastructure IAM role that is used to manage your Amazon Web Services
-    infrastructure. We recommend using the Amazon ECS-managed
+    infrastructure. We recommend using the Amazon ECS\-managed
     ``AmazonECSInfrastructureRolePolicyForVolumes`` IAM policy with this role. For
     more information, see `Amazon ECS infrastructure IAM role <https://docs.aws.ama
     zon.com/AmazonECS/latest/developerguide/infrastructure_IAM_role.html>`_ in the

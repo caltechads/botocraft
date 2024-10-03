@@ -24,6 +24,7 @@ from .abstract import (Boto3Model, Boto3ModelManager, PrimaryBoto3Model,
 
 
 class RepositoryManager(Boto3ModelManager):
+
     service_name: str = "ecr"
 
     def create(
@@ -33,7 +34,7 @@ class RepositoryManager(Boto3ModelManager):
         Create an ECR repository.
 
         Args:
-            model: The :py:class:`Repository` to create.
+            model: The :py:class:\``Repository\`` to create.
 
         Keyword Args:
             tags: The metadata that you apply to the repository to help you categorize
@@ -55,6 +56,8 @@ class RepositoryManager(Boto3ModelManager):
         )
         response = CreateRepositoryResponse(**_response)
 
+        if hasattr(response.repository, "session"):
+            response.repository.session = self.session
         return cast("Repository", response.repository)
 
     def delete(
@@ -113,7 +116,9 @@ class RepositoryManager(Boto3ModelManager):
         response = DescribeRepositoriesResponse(**_response)
 
         if response.repositories:
-            return response.repositories[0]
+            obj = response.repositories[0]
+            obj.session = self.session
+            return obj
         return None
 
     def list(
@@ -144,7 +149,12 @@ class RepositoryManager(Boto3ModelManager):
         for _response in response_iterator:
             response = DescribeRepositoriesResponse(**_response)
             if response.repositories:
-                results.extend(response.repositories)
+                if hasattr(response.repositories[0], "session"):
+                    for obj in response.repositories:
+                        obj.session = self.session
+                        results.append(obj)
+                else:
+                    results.extend(response.repositories)
             else:
                 break
         return results
@@ -184,7 +194,14 @@ class RepositoryManager(Boto3ModelManager):
             response = ListImagesResponse(**_response)
 
             if response.imageIds:
-                results.extend(response.imageIds)
+                if hasattr(response.imageIds, "session"):
+                    objs = []
+                    for obj in response.imageIds:
+                        obj.session = self.session
+                        objs.append(obj)
+                    results.extend(objs)
+                else:
+                    results.extend(response.imageIds)
 
             else:
                 break
@@ -201,8 +218,8 @@ class RepositoryManager(Boto3ModelManager):
     ) -> Optional[List["ECRImage"]]:
         """
         Use this method when you want to get just a few images from the
-        repository. If you want to get all images, use the ````list\_images````
-        method.
+        repository. If you want to get all images, use the
+        \``\``list\_images\``\`` method.
 
         Args:
             repositoryName: The repository that contains the images to describe.
@@ -241,7 +258,7 @@ class RepositoryManager(Boto3ModelManager):
         Args:
             repositoryName: The repository that contains the images to describe.
             imageId: The image ID or tag to describe. The format of the imageId
-                reference is ````imageTag=tag```` or ````imageDigest=digest````
+                reference is \``\``imageTag\=tag\``\`` or \``\``imageDigest\=digest\``\``
 
         Keyword Args:
             acceptedMediaTypes: The accepted media types for the request.
@@ -260,6 +277,7 @@ class RepositoryManager(Boto3ModelManager):
 
 
 class ECRImageManager(Boto3ModelManager):
+
     service_name: str = "ecr"
 
     def get(
@@ -278,7 +296,7 @@ class ECRImageManager(Boto3ModelManager):
         Args:
             repositoryName: The repository that contains the images to describe.
             imageId: The image ID or tag to describe. The format of the imageId
-                reference is ````imageTag=tag```` or ````imageDigest=digest````
+                reference is \``\``imageTag\=tag\``\`` or \``\``imageDigest\=digest\``\``
 
         Keyword Args:
             acceptedMediaTypes: The accepted media types for the request.
@@ -294,7 +312,9 @@ class ECRImageManager(Boto3ModelManager):
         response = BatchGetImageResponse(**_response)
 
         if response.images:
-            return response.images[0]
+            obj = response.images[0]
+            obj.session = self.session
+            return obj
         return None
 
     def get_many(
@@ -330,7 +350,14 @@ class ECRImageManager(Boto3ModelManager):
         response = BatchGetImageResponse(**_response)
 
         if response is not None:
-            return response
+            if hasattr(response[0], "session"):
+                objs = []
+                for obj in response:
+                    obj.session = self.session
+                    objs.append(obj)
+                return objs
+            else:
+                return response
 
         return []
 
@@ -359,7 +386,12 @@ class ECRImageManager(Boto3ModelManager):
         for _response in response_iterator:
             response = ListImagesResponse(**_response)
             if response.imageIds:
-                results.extend(response.imageIds)
+                if hasattr(response.imageIds[0], "session"):
+                    for obj in response.imageIds:
+                        obj.session = self.session
+                        results.append(obj)
+                else:
+                    results.extend(response.imageIds)
             else:
                 break
         return results
@@ -374,7 +406,7 @@ class ECRImageManager(Boto3ModelManager):
         Args:
             repositoryName: The repository that contains the image to delete.
             imageId: The image ID or tag to delete. The format of the imageId reference
-                is ````imageTag=tag```` or ````imageDigest=digest````
+                is \``\``imageTag\=tag\``\`` or \``\``imageDigest\=digest\``\``
         """
         args: Dict[str, Any] = dict(
             repositoryName=self.serialize(repositoryName),
@@ -437,11 +469,20 @@ class ECRImageManager(Boto3ModelManager):
                     # Test whether the response is iterable
                     iter(response)
                 except TypeError:
+                    if hasattr(response, "session"):
+                        response.session = self.session
                     # If it not, append the response to the results list
                     results.append(response)  # type: ignore[arg-type]
                 else:
                     # If it is, extend the results list with the response
-                    results.extend(response)  # type: ignore[arg-type]
+                    if hasattr(response[0], "session"):
+                        objs = []
+                        for obj in response:
+                            obj.session = self.session
+                            objs.append(obj)
+                        results.extend(objs)
+                    else:
+                        results.extend(response)  # type: ignore[arg-type]
 
             else:
                 break
@@ -478,7 +519,7 @@ class EncryptionConfiguration(Boto3Model):
     This determines how the contents of your repository are encrypted at rest.
     """
 
-    encryptionType: Literal["AES256", "KMS"]
+    encryptionType: Literal["AES256", "KMS", "KMS_DSSE"]
     """
     The encryption type to use.
     """
@@ -499,7 +540,7 @@ class Repository(RepositoryMixin, PrimaryBoto3Model):
     An object representing a repository.
     """
 
-    objects: ClassVar[Boto3ModelManager] = RepositoryManager()
+    manager_class: ClassVar[Type[Boto3ModelManager]] = RepositoryManager
 
     repositoryName: str
     """
@@ -602,7 +643,7 @@ class ECRImage(ECRImageMixin, ReadonlyPrimaryBoto3Model):
     An object representing an Amazon ECR image.
     """
 
-    objects: ClassVar[Boto3ModelManager] = ECRImageManager()
+    manager_class: ClassVar[Type[Boto3ModelManager]] = ECRImageManager
 
     registryId: Optional[str] = None
     """
@@ -629,6 +670,7 @@ class ECRImage(ECRImageMixin, ReadonlyPrimaryBoto3Model):
 
     @property
     def pk(self) -> OrderedDict[str, Any]:
+
         return OrderedDict(
             {
                 "repositoryName": self.repositoryName,
@@ -641,8 +683,10 @@ class ECRImage(ECRImageMixin, ReadonlyPrimaryBoto3Model):
         Return the replication status for the image.
         """
 
-        return cast(ImageManager, self.objects).replication_status(
-            cast(str, self.repositoryName), imageId=self.imageId
+        return (
+            cast(ImageManager, self.objects)
+            .using(self.session)
+            .replication_status(cast(str, self.repositoryName), imageId=self.imageId)
         )
 
     def scan_findings(self) -> List["DescribeImageScanFindingsResponse"]:
@@ -650,8 +694,10 @@ class ECRImage(ECRImageMixin, ReadonlyPrimaryBoto3Model):
         Return the scan results for the image.
         """
 
-        return cast(ImageManager, self.objects).scan_findings(
-            cast(str, self.repositoryName), imageId=self.imageId
+        return (
+            cast(ImageManager, self.objects)
+            .using(self.session)
+            .scan_findings(cast(str, self.repositoryName), imageId=self.imageId)
         )
 
 
@@ -945,6 +991,10 @@ class VulnerablePackage(Boto3Model):
     """
     The version of the vulnerable package.
     """
+    fixedInVersion: Optional[str] = None
+    """
+    The version of the package that contains the vulnerability fix.
+    """
 
 
 class PackageVulnerabilityDetails(Boto3Model):
@@ -1222,6 +1272,19 @@ class EnhancedImageScanFinding(Boto3Model):
     updatedAt: Optional[datetime] = None
     """
     The date and time the finding was last updated at.
+    """
+    fixAvailable: Optional[str] = None
+    """
+    Details on whether a fix is available through a version update.
+
+    This value can
+    be ``YES``, ``NO``, or ``PARTIAL``. A ``PARTIAL`` fix means that some, but not
+    all, of the packages identified in the finding have fixes available through
+    updated versions.
+    """
+    exploitAvailable: Optional[str] = None
+    """
+    If a finding discovered in your environment has an exploit available.
     """
 
 

@@ -51,7 +51,9 @@ class VpcManager(ReadonlyBoto3ModelManager):
         response = DescribeVpcsResult(**_response)
 
         if response.Vpcs:
-            return response.Vpcs[0]
+            obj = response.Vpcs[0]
+            obj.session = self.session
+            return obj
         return None
 
     def list(
@@ -87,7 +89,12 @@ class VpcManager(ReadonlyBoto3ModelManager):
         for _response in response_iterator:
             response = DescribeVpcsResult(**_response)
             if response.Vpcs:
-                results.extend(response.Vpcs)
+                if hasattr(response.Vpcs[0], "session"):
+                    for obj in response.Vpcs:
+                        obj.session = self.session
+                        results.append(obj)
+                else:
+                    results.extend(response.Vpcs)
             else:
                 break
         return results
@@ -177,7 +184,9 @@ class SubnetManager(ReadonlyBoto3ModelManager):
         response = DescribeSubnetsResult(**_response)
 
         if response.Subnets:
-            return response.Subnets[0]
+            obj = response.Subnets[0]
+            obj.session = self.session
+            return obj
         return None
 
     def list(
@@ -213,7 +222,12 @@ class SubnetManager(ReadonlyBoto3ModelManager):
         for _response in response_iterator:
             response = DescribeSubnetsResult(**_response)
             if response.Subnets:
-                results.extend(response.Subnets)
+                if hasattr(response.Subnets[0], "session"):
+                    for obj in response.Subnets:
+                        obj.session = self.session
+                        results.append(obj)
+                else:
+                    results.extend(response.Subnets)
             else:
                 break
         return results
@@ -251,6 +265,8 @@ class SecurityGroupManager(EC2TagsManagerMixin, Boto3ModelManager):
         )
         response = CreateSecurityGroupResult(**_response)
 
+        if hasattr(response.GroupId, "session"):
+            response.GroupId.session = self.session
         return cast(str, response.GroupId)
 
     def delete(self, GroupId: str, *, DryRun: bool = False) -> None:
@@ -295,7 +311,9 @@ class SecurityGroupManager(EC2TagsManagerMixin, Boto3ModelManager):
         response = DescribeSecurityGroupsResult(**_response)
 
         if response.SecurityGroups:
-            return response.SecurityGroups[0]
+            obj = response.SecurityGroups[0]
+            obj.session = self.session
+            return obj
         return None
 
     def list(
@@ -336,7 +354,12 @@ class SecurityGroupManager(EC2TagsManagerMixin, Boto3ModelManager):
         for _response in response_iterator:
             response = DescribeSecurityGroupsResult(**_response)
             if response.SecurityGroups:
-                results.extend(response.SecurityGroups)
+                if hasattr(response.SecurityGroups[0], "session"):
+                    for obj in response.SecurityGroups:
+                        obj.session = self.session
+                        results.append(obj)
+                else:
+                    results.extend(response.SecurityGroups)
             else:
                 break
         return results
@@ -443,6 +466,8 @@ class NetworkAclManager(EC2TagsManagerMixin, Boto3ModelManager):
         )
         response = CreateNetworkAclResult(**_response)
 
+        if hasattr(response.NetworkAclInstance, "session"):
+            response.NetworkAclInstance.session = self.session
         return cast("NetworkAcl", response.NetworkAclInstance)
 
     def delete(self, NetworkAclId: str, *, DryRun: bool = False) -> None:
@@ -491,7 +516,9 @@ class NetworkAclManager(EC2TagsManagerMixin, Boto3ModelManager):
         response = DescribeNetworkAclsResult(**_response)
 
         if response.NetworkAcls:
-            return response.NetworkAcls[0]
+            obj = response.NetworkAcls[0]
+            obj.session = self.session
+            return obj
         return None
 
     def list(
@@ -528,7 +555,12 @@ class NetworkAclManager(EC2TagsManagerMixin, Boto3ModelManager):
         for _response in response_iterator:
             response = DescribeNetworkAclsResult(**_response)
             if response.NetworkAcls:
-                results.extend(response.NetworkAcls)
+                if hasattr(response.NetworkAcls[0], "session"):
+                    for obj in response.NetworkAcls:
+                        obj.session = self.session
+                        results.append(obj)
+                else:
+                    results.extend(response.NetworkAcls)
             else:
                 break
         return results
@@ -567,6 +599,8 @@ class AMIManager(EC2TagsManagerMixin, Boto3ModelManager):
         )
         response = CreateImageResult(**_response)
 
+        if hasattr(response.ImageId, "session"):
+            response.ImageId.session = self.session
         return cast(str, response.ImageId)
 
     def delete(self, ImageId: str, *, DryRun: bool = False) -> None:
@@ -635,7 +669,9 @@ class AMIManager(EC2TagsManagerMixin, Boto3ModelManager):
         response = DescribeImagesResult(**_response)
 
         if response.Images:
-            return response.Images[0]
+            obj = response.Images[0]
+            obj.session = self.session
+            return obj
         return None
 
     def list(
@@ -688,7 +724,12 @@ class AMIManager(EC2TagsManagerMixin, Boto3ModelManager):
         for _response in response_iterator:
             response = DescribeImagesResult(**_response)
             if response.Images:
-                results.extend(response.Images)
+                if hasattr(response.Images[0], "session"):
+                    for obj in response.Images:
+                        obj.session = self.session
+                        results.append(obj)
+                else:
+                    results.extend(response.Images)
             else:
                 break
         return results
@@ -938,6 +979,8 @@ class InstanceManager(EC2TagsManagerMixin, Boto3ModelManager):
         )
         response = Reservation(**_response)
 
+        if hasattr(response.Instances[0], "session"):
+            response.Instances[0].session = self.session
         return cast("Instance", response.Instances[0])
 
     @ec2_instance_only
@@ -963,7 +1006,9 @@ class InstanceManager(EC2TagsManagerMixin, Boto3ModelManager):
         response = DescribeInstancesResult(**_response)
 
         if response.Reservations:
-            return response.Reservations[0]
+            obj = response.Reservations[0]
+            obj.session = self.session
+            return obj
         return None
 
     @ec2_instances_only
@@ -998,7 +1043,12 @@ class InstanceManager(EC2TagsManagerMixin, Boto3ModelManager):
         for _response in response_iterator:
             response = DescribeInstancesResult(**_response)
             if response.Reservations:
-                results.extend(response.Reservations)
+                if hasattr(response.Reservations[0], "session"):
+                    for obj in response.Reservations:
+                        obj.session = self.session
+                        results.append(obj)
+                else:
+                    results.extend(response.Reservations)
             else:
                 break
         return results
@@ -1171,6 +1221,8 @@ class LaunchTemplateManager(EC2TagsManagerMixin, Boto3ModelManager):
         )
         response = CreateLaunchTemplateResult(**_response)
 
+        if hasattr(response.LaunchTemplateInstance, "session"):
+            response.LaunchTemplateInstance.session = self.session
         return cast("LaunchTemplate", response.LaunchTemplateInstance)
 
     def delete(
@@ -1230,7 +1282,9 @@ class LaunchTemplateManager(EC2TagsManagerMixin, Boto3ModelManager):
         response = DescribeLaunchTemplatesResult(**_response)
 
         if response.LaunchTemplates:
-            return response.LaunchTemplates[0]
+            obj = response.LaunchTemplates[0]
+            obj.session = self.session
+            return obj
         return None
 
     def list(
@@ -1267,7 +1321,12 @@ class LaunchTemplateManager(EC2TagsManagerMixin, Boto3ModelManager):
         for _response in response_iterator:
             response = DescribeLaunchTemplatesResult(**_response)
             if response.LaunchTemplates:
-                results.extend(response.LaunchTemplates)
+                if hasattr(response.LaunchTemplates[0], "session"):
+                    for obj in response.LaunchTemplates:
+                        obj.session = self.session
+                        results.append(obj)
+                else:
+                    results.extend(response.LaunchTemplates)
             else:
                 break
         return results
@@ -1324,6 +1383,8 @@ class LaunchTemplateVersionManager(Boto3ModelManager):
         )
         response = CreateLaunchTemplateVersionResult(**_response)
 
+        if hasattr(response.LaunchTemplateVersionInstance, "session"):
+            response.LaunchTemplateVersionInstance.session = self.session
         return cast("LaunchTemplateVersion", response.LaunchTemplateVersionInstance)
 
     def delete(
@@ -1400,7 +1461,9 @@ class LaunchTemplateVersionManager(Boto3ModelManager):
         response = DescribeLaunchTemplateVersionsResult(**_response)
 
         if response.LaunchTemplateVersions:
-            return response.LaunchTemplateVersions[0]
+            obj = response.LaunchTemplateVersions[0]
+            obj.session = self.session
+            return obj
         return None
 
     def list(
@@ -1457,7 +1520,12 @@ class LaunchTemplateVersionManager(Boto3ModelManager):
         for _response in response_iterator:
             response = DescribeLaunchTemplateVersionsResult(**_response)
             if response.LaunchTemplateVersions:
-                results.extend(response.LaunchTemplateVersions)
+                if hasattr(response.LaunchTemplateVersions[0], "session"):
+                    for obj in response.LaunchTemplateVersions:
+                        obj.session = self.session
+                        results.append(obj)
+                else:
+                    results.extend(response.LaunchTemplateVersions)
             else:
                 break
         return results
@@ -4449,7 +4517,7 @@ class Instance(TagsDictMixin, PrimaryBoto3Model):
             )
         except AttributeError:
             return None
-        return Vpc.objects.using(self.objects.session).get(**pk)
+        return Vpc.objects.using(self.session).get(**pk)
 
     @cached_property
     def subnet(self) -> Optional["Subnet"]:
@@ -4473,7 +4541,7 @@ class Instance(TagsDictMixin, PrimaryBoto3Model):
             )
         except AttributeError:
             return None
-        return Subnet.objects.using(self.objects.session).get(**pk)
+        return Subnet.objects.using(self.session).get(**pk)
 
     @cached_property
     def security_groups(self) -> Optional[List["SecurityGroup"]]:
@@ -4502,7 +4570,7 @@ class Instance(TagsDictMixin, PrimaryBoto3Model):
             )
         except AttributeError:
             return []
-        return SecurityGroup.objects.using(self.objects.session).list(**pk)
+        return SecurityGroup.objects.using(self.session).list(**pk)
 
     def start(self, DryRun: bool = False) -> Optional[List["InstanceStateChange"]]:
         """
@@ -4515,8 +4583,10 @@ class Instance(TagsDictMixin, PrimaryBoto3Model):
                 Otherwise, it is ``UnauthorizedOperation``.
         """
 
-        return cast(InstanceManager, self.objects).start(
-            [self.InstanceId], DryRun=DryRun
+        return (
+            cast(InstanceManager, self.objects)
+            .using(self.session)
+            .start([self.InstanceId], DryRun=DryRun)
         )
 
     def stop(
@@ -4544,8 +4614,10 @@ class Instance(TagsDictMixin, PrimaryBoto3Model):
                 option is not recommended for Windows instances.
         """
 
-        return cast(InstanceManager, self.objects).stop(
-            [self.InstanceId], DryRun=DryRun, Hibernate=Hibernate, Force=Force
+        return (
+            cast(InstanceManager, self.objects)
+            .using(self.session)
+            .stop([self.InstanceId], DryRun=DryRun, Hibernate=Hibernate, Force=Force)
         )
 
     def reboot(self, DryRun: bool = False) -> "None":
@@ -4559,8 +4631,10 @@ class Instance(TagsDictMixin, PrimaryBoto3Model):
                 Otherwise, it is ``UnauthorizedOperation``.
         """
 
-        return cast(InstanceManager, self.objects).reboot(
-            [self.InstanceId], DryRun=DryRun
+        return (
+            cast(InstanceManager, self.objects)
+            .using(self.session)
+            .reboot([self.InstanceId], DryRun=DryRun)
         )
 
     def terminate(self, DryRun: bool = False) -> Optional[List["InstanceStateChange"]]:
@@ -4574,8 +4648,10 @@ class Instance(TagsDictMixin, PrimaryBoto3Model):
                 Otherwise, it is ``UnauthorizedOperation``.
         """
 
-        return cast(InstanceManager, self.objects).terminate(
-            [self.InstanceId], DryRun=DryRun
+        return (
+            cast(InstanceManager, self.objects)
+            .using(self.session)
+            .terminate([self.InstanceId], DryRun=DryRun)
         )
 
 
@@ -4660,7 +4736,7 @@ class LaunchTemplate(TagsDictMixin, PrimaryBoto3Model):
             )
         except AttributeError:
             return []
-        return LaunchTemplateVersion.objects.using(self.objects.session).list(**pk)
+        return LaunchTemplateVersion.objects.using(self.session).list(**pk)
 
     @cached_property
     def default_version(self) -> Optional["LaunchTemplateVersion"]:
@@ -4685,7 +4761,7 @@ class LaunchTemplate(TagsDictMixin, PrimaryBoto3Model):
             )
         except AttributeError:
             return None
-        return LaunchTemplateVersion.objects.using(self.objects.session).get(**pk)
+        return LaunchTemplateVersion.objects.using(self.session).get(**pk)
 
     @cached_property
     def latest_version(self) -> Optional["LaunchTemplateVersion"]:
@@ -4710,7 +4786,7 @@ class LaunchTemplate(TagsDictMixin, PrimaryBoto3Model):
             )
         except AttributeError:
             return None
-        return LaunchTemplateVersion.objects.using(self.objects.session).get(**pk)
+        return LaunchTemplateVersion.objects.using(self.session).get(**pk)
 
 
 class LaunchTemplateIamInstanceProfileSpecification(Boto3Model):
@@ -6906,7 +6982,7 @@ class LaunchTemplateVersion(PrimaryBoto3Model):
             )
         except AttributeError:
             return None
-        return LaunchTemplate.objects.using(self.objects.session).get(**pk)
+        return LaunchTemplate.objects.using(self.session).get(**pk)
 
 
 # =======================

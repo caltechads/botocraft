@@ -20,6 +20,7 @@ from .abstract import (Boto3Model, Boto3ModelManager, PrimaryBoto3Model,
 
 
 class DBInstanceManager(Boto3ModelManager):
+
     service_name: str = "rds"
 
     def create(
@@ -44,7 +45,7 @@ class DBInstanceManager(Boto3ModelManager):
         Creates a new DB instance.
 
         Args:
-            model: The :py:class:`DBInstance` to create.
+            model: The :py:class:\``DBInstance\`` to create.
 
         Keyword Args:
             MasterUserPassword: The password for the master user.
@@ -150,6 +151,8 @@ class DBInstanceManager(Boto3ModelManager):
         )
         response = CreateDBInstanceResult(**_response)
 
+        if hasattr(response.RDSDBInstance, "session"):
+            response.RDSDBInstance.session = self.session
         return cast("DBInstance", response.RDSDBInstance)
 
     def update(
@@ -190,7 +193,7 @@ class DBInstanceManager(Boto3ModelManager):
         before you call ``ModifyDBInstance``.
 
         Args:
-            model: The :py:class:`DBInstance` to update.
+            model: The :py:class:\``DBInstance\`` to update.
 
         Keyword Args:
             DBSubnetGroupName: The new DB subnet group for the DB instance. You can use
@@ -330,6 +333,8 @@ class DBInstanceManager(Boto3ModelManager):
         )
         response = ModifyDBInstanceResult(**_response)
 
+        if hasattr(response.RDSDBInstance, "session"):
+            response.RDSDBInstance.session = self.session
         return cast("DBInstance", response.RDSDBInstance)
 
     def delete(
@@ -348,7 +353,7 @@ class DBInstanceManager(Boto3ModelManager):
 
         Args:
             DBInstanceIdentifier: The DB instance identifier for the DB instance to be
-                deleted. This parameter isn't case-sensitive.
+                deleted. This parameter isn't case\-sensitive.
 
         Keyword Args:
             SkipFinalSnapshot: Specifies whether to skip the creation of a final DB
@@ -360,9 +365,9 @@ class DBInstanceManager(Boto3ModelManager):
                 ``DBSnapshot`` created when the ``SkipFinalSnapshot`` parameter is
                 disabled.
             DeleteAutomatedBackups: Specifies whether to remove automated backups
-                immediately after the DB instance is deleted. This parameter isn't case-
-                sensitive. The default is to remove automated backups immediately after the
-                DB instance is deleted.
+                immediately after the DB instance is deleted. This parameter isn't
+                case\-sensitive. The default is to remove automated backups immediately
+                after the DB instance is deleted.
         """
         args: Dict[str, Any] = dict(
             DBInstanceIdentifier=self.serialize(DBInstanceIdentifier),
@@ -383,10 +388,10 @@ class DBInstanceManager(Boto3ModelManager):
         Describes provisioned RDS instances. This API supports pagination.
 
         Args:
-            DBInstanceIdentifier: The user-supplied instance identifier or the Amazon
+            DBInstanceIdentifier: The user\-supplied instance identifier or the Amazon
                 Resource Name (ARN) of the DB instance. If this parameter is specified,
                 information from only the specific DB instance is returned. This parameter
-                isn't case-sensitive.
+                isn't case\-sensitive.
 
         Keyword Args:
             Filters: A filter that specifies one or more DB instances to describe.
@@ -401,7 +406,9 @@ class DBInstanceManager(Boto3ModelManager):
         response = DBInstanceMessage(**_response)
 
         if response.DBInstances:
-            return response.DBInstances[0]
+            obj = response.DBInstances[0]
+            obj.session = self.session
+            return obj
         return None
 
     def list(
@@ -414,10 +421,10 @@ class DBInstanceManager(Boto3ModelManager):
         Describes provisioned RDS instances. This API supports pagination.
 
         Keyword Args:
-            DBInstanceIdentifier: The user-supplied instance identifier or the Amazon
+            DBInstanceIdentifier: The user\-supplied instance identifier or the Amazon
                 Resource Name (ARN) of the DB instance. If this parameter is specified,
                 information from only the specific DB instance is returned. This parameter
-                isn't case-sensitive.
+                isn't case\-sensitive.
             Filters: A filter that specifies one or more DB instances to describe.
         """
         paginator = self.client.get_paginator("describe_db_instances")
@@ -432,7 +439,12 @@ class DBInstanceManager(Boto3ModelManager):
         for _response in response_iterator:
             response = DBInstanceMessage(**_response)
             if response.DBInstances:
-                results.extend(response.DBInstances)
+                if hasattr(response.DBInstances[0], "session"):
+                    for obj in response.DBInstances:
+                        obj.session = self.session
+                        results.append(obj)
+                else:
+                    results.extend(response.DBInstances)
             else:
                 break
         return results
@@ -471,7 +483,8 @@ class DBSecurityGroupMembership(Boto3Model):
     * ``ModifyDBInstance``
     * ``RebootDBInstance``
     * ``RestoreDBInstanceFromDBSnapshot``
-    * ``RestoreDBInstanceToPointInTime``"""
+    * ``RestoreDBInstanceToPointInTime``
+    """
 
     DBSecurityGroupName: Optional[str] = None
     """
@@ -520,6 +533,8 @@ class DBParameterGroupStatus(Boto3Model):
     ParameterApplyStatus: Optional[str] = None
     """
     The status of parameter updates.
+
+    Valid values are:
     """
 
 
@@ -665,13 +680,13 @@ class ProcessorFeature(Boto3Model):
     * ``DescribeDBSnapshots``
     * ``DescribeValidDBInstanceModifications``
 
-    If you call ``DescribeDBInstances``, ``ProcessorFeature`` returns non-null
+    If you call ``DescribeDBInstances``, ``ProcessorFeature`` returns non\-null
     values only if the following conditions are met:
 
     * You are accessing an Oracle DB instance.
     * Your Oracle DB instance class supports configuring the number of CPU cores
       and threads per core.
-    * The current number CPU cores and threads is set to a non-default value.
+    * The current number CPU cores and threads is set to a non\-default value.
 
     For more information, see  `Configuring the processor for a DB instance class
     in RDS for Oracle <https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/Conce
@@ -723,7 +738,7 @@ class RDSPendingModifiedValues(Boto3Model):
     """
     MultiAZ: Optional[bool] = None
     """
-    Indicates whether the Single-AZ DB instance will change to a Multi-AZ
+    Indicates whether the Single\-AZ DB instance will change to a Multi\-AZ
     deployment.
     """
     EngineVersion: Optional[str] = None
@@ -783,7 +798,7 @@ If ``full``, the DB instance automates monitoring and instance recovery. If
     The number of minutes to pause the automation.
 
     When the time period ends, RDS Custom resumes full automation. The minimum
-    value is 60 (default). The maximum value is 1,440.
+    value is 60 (default). The maximum value is 1,440\.
     """
     StorageThroughput: Optional[int] = None
     """
@@ -796,12 +811,12 @@ If ``full``, the DB instance automates monitoring and instance recovery. If
     DedicatedLogVolume: Optional[bool] = None
     """
     Indicates whether the DB instance has a dedicated log volume (DLV)
-    enabled.>
+    enabled.\>
     """
     MultiTenant: Optional[bool] = None
     """
-    Indicates whether the DB instance will change to the multi-tenant
-    configuration (TRUE) or the single-tenant configuration (FALSE).
+    Indicates whether the DB instance will change to the multi\-tenant
+    configuration (TRUE) or the single\-tenant configuration (FALSE).
     """
 
 
@@ -993,11 +1008,11 @@ class DBInstance(PrimaryBoto3Model):
     ``StartDBInstance``, and ``StopDBInstance``.
     """
 
-    objects: ClassVar[Boto3ModelManager] = DBInstanceManager()
+    manager_class: ClassVar[Type[Boto3ModelManager]] = DBInstanceManager
 
     DBInstanceIdentifier: str
     """
-    The user-supplied database identifier.
+    The user\-supplied database identifier.
 
     This identifier is the unique key that identifies a DB instance.
     """
@@ -1007,7 +1022,7 @@ class DBInstance(PrimaryBoto3Model):
     """
     MultiAZ: Optional[bool]
     """
-    Indicates whether the DB instance is a Multi-AZ deployment.
+    Indicates whether the DB instance is a Multi\-AZ deployment.
 
     This setting doesn't apply to RDS Custom DB instances.
     """
@@ -1059,7 +1074,7 @@ class DBInstance(PrimaryBoto3Model):
     """
     CustomerOwnedIpEnabled: Optional[bool] = None
     """
-    Indicates whether a customer-owned IP address (CoIP) is enabled for an RDS
+    Indicates whether a customer\-owned IP address (CoIP) is enabled for an RDS
     on Outposts DB instance.
     """
     PerformanceInsightsEnabled: Optional[bool] = None
@@ -1143,7 +1158,7 @@ class DBInstance(PrimaryBoto3Model):
     LatestRestorableTime: datetime = Field(default=None, frozen=True)
     """
     The latest time to which a database in this DB instance can be restored
-    with point-in-time restore.
+    with point\-in\-time restore.
     """
     ReadReplicaSourceDBInstanceIdentifier: str = Field(default=None, frozen=True)
     """
@@ -1161,7 +1176,7 @@ class DBInstance(PrimaryBoto3Model):
 
     For example, when you create an Aurora read replica of an RDS for MySQL DB
     instance, the Aurora MySQL DB cluster for the Aurora read replica is shown.
-    This output doesn't contain information about cross-Region Aurora read
+    This output doesn't contain information about cross\-Region Aurora read
     replicas.
     """
     ReplicaMode: Optional[Literal["open-read-only", "mounted"]] = None
@@ -1199,12 +1214,12 @@ class DBInstance(PrimaryBoto3Model):
     The name of the NCHAR character set for the Oracle DB instance.
 
     This character set specifies the Unicode encoding for data stored in table
-    columns of type NCHAR, NCLOB, or NVARCHAR2.
+    columns of type NCHAR, NCLOB, or NVARCHAR2\.
     """
     SecondaryAvailabilityZone: str = Field(default=None, frozen=True)
     """
     If present, specifies the name of the secondary Availability Zone for a DB
-    instance with multi-AZ support.
+    instance with multi\-AZ support.
     """
     StatusInfos: List["DBInstanceStatusInfo"] = Field(default=None, frozen=True)
     """
@@ -1233,7 +1248,7 @@ class DBInstance(PrimaryBoto3Model):
     """
     DbiResourceId: str = Field(default=None, frozen=True)
     """
-    The Amazon Web Services Region-unique, immutable identifier for the DB
+    The Amazon Web Services Region\-unique, immutable identifier for the DB
     instance.
 
     This identifier is found in Amazon Web Services CloudTrail log entries
@@ -1368,7 +1383,7 @@ class DBInstance(PrimaryBoto3Model):
         default=None, frozen=True
     )
     """
-    Indicates whether engine-native audit fields are included in the database
+    Indicates whether engine\-native audit fields are included in the database
     activity stream.
     """
     AutomationMode: Optional[Literal["full", "all-paused"]] = None
@@ -1383,7 +1398,7 @@ If ``full``, the DB instance automates monitoring and instance recovery. If
     The number of minutes to pause the automation.
 
     When the time period ends, RDS Custom resumes full automation. The minimum
-    value is 60 (default). The maximum value is 1,440.
+    value is 60 (default). The maximum value is 1,440\.
     """
     CustomIamInstanceProfile: Optional[str] = None
     """
@@ -1454,8 +1469,8 @@ Web Services Outposts or the Amazon Web Services Region.
     """
     MultiTenant: Optional[bool] = None
     """
-    Specifies whether the DB instance is in the multi-tenant configuration
-    (TRUE) or the single-tenant configuration (FALSE).
+    Specifies whether the DB instance is in the multi\-tenant configuration
+    (TRUE) or the single\-tenant configuration (FALSE).
     """
     EngineLifecycleSupport: Optional[str] = None
     """
