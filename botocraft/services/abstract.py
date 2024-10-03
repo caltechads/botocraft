@@ -1,15 +1,14 @@
-from typing import Optional, Any, ClassVar
 import re
-from pydantic import BaseModel, ConfigDict
+from typing import Any, ClassVar, Optional, Type
 
 import boto3
+from pydantic import BaseModel, ConfigDict
 
 
 class TransformMixin:
-
     def transform(
         self,
-        attribrute: str,
+        attribute: str,
         transformer: Optional[str],
     ) -> Any:
         """
@@ -39,28 +38,32 @@ class TransformMixin:
 
         Returns:
             The transformed attribute.
+
         """
-        if not hasattr(self, attribrute):
-            raise ValueError(f"Invalid attribute: {self.__class__.__name__}.{attribrute}")
+        if not hasattr(self, attribute):
+            msg = f"Invalid attribute: {self.__class__.__name__}.{attribute}"
+            raise ValueError(msg)
         if transformer is None:
-            return getattr(self, attribrute)
-        value = getattr(self, attribrute)
+            return getattr(self, attribute)
+        value = getattr(self, attribute)
         if value is None:
             return None
         if match := re.search(transformer, value):
             if match.groupdict():
                 return match.groupdict()
             return match.group(1)
-        else:
-            raise RuntimeError(
-                f"Transformer failed to match: transformer=r'{transformer}', value='{getattr(self, attribrute)}'"
-            )
+        msg = (
+            f"Transformer failed to match: transformer=r'{transformer}', "
+            f"value='{getattr(self, attribute)}'"
+        )
+        raise RuntimeError(msg)
 
 
 class Boto3Model(TransformMixin, BaseModel):
     """
     The base class for all boto3 models.
     """
+
     model_config = ConfigDict(validate_assignment=True)
 
 
@@ -68,20 +71,17 @@ class ReadonlyBoto3Model(Boto3Model):
     """
     The base class for all boto3 models that are readonly.
     """
-    model_config = ConfigDict(
-        frozen=True,
-        validate_assignment=True
-    )
+
+    model_config = ConfigDict(frozen=True, validate_assignment=True)
 
 
 class Boto3ModelManager(TransformMixin):
-
     #: The name of the boto3 service.  Example: ``ec2``, ``s3``, etc.
     service_name: str
 
     def __init__(self) -> None:
         #: The boto3 client for the AWS service
-        self.client = boto3.client(self.service_name)  # type: ignore
+        self.client = boto3.client(self.service_name)  # type: ignore[call-overload]
         #: The boto3 session to use for this manager.
         self.session = boto3.session.Session()
 
@@ -91,9 +91,15 @@ class Boto3ModelManager(TransformMixin):
 
         Args:
             session: The boto3 session to use.
+
         """
+        # TODO: this is a bad way to do this -- it means that whatever session
+        # was last set with .using() will be transparently used by all other
+        # calls to the manager.  This is not good.  We need som way to make
+        # it like a context manager, so that the session is only used for the
+        # duration of the actual method call.
         self.session = session
-        self.client = session.client(self.service_name)  # type: ignore
+        self.client = session.client(self.service_name)  # type: ignore[call-overload]
         return self
 
     def serialize(self, arg: Any) -> Any:
@@ -114,12 +120,13 @@ class Boto3ModelManager(TransformMixin):
 
         Returns:
             A properly serialized argument.
+
         """
         if arg is None:
             return None
         if isinstance(arg, Boto3Model):
             return arg.model_dump(exclude_none=True)
-        elif isinstance(arg, list):
+        if isinstance(arg, list):
             # Oop, this is a list.  We need to serialize each item in the list.
             return [self.serialize(a) for a in arg]
         return arg
@@ -133,10 +140,11 @@ class Boto3ModelManager(TransformMixin):
     def create(self, model, **kwargs):
         raise NotImplementedError
 
-    def update(self, model, **kwargs):
+    def update(self, model, **kwargs):  # noqa: ARG002
         # Some models cannot be updated, so instead of raising a
         # NotImplementedError, we raise a RuntimeError.
-        raise RuntimeError("This model cannot be updated.")
+        msg = "This model cannot be updated."
+        raise RuntimeError(msg)
 
     def delete(self, pk: str, **kwargs):
         raise NotImplementedError
@@ -150,24 +158,26 @@ class Boto3ModelManager(TransformMixin):
 
         Returns:
             The boto3 waiter object.
+
         """
         return self.client.get_waiter(name)
 
 
-class ReadonlyBoto3ModelManager(Boto3ModelManager):   # pylint: disable=abstract-method
+class ReadonlyBoto3ModelManager(Boto3ModelManager):  # pylint: disable=abstract-method
+    def create(self, model, **kwargs):  # noqa: ARG002
+        msg = "This model cannot be created."
+        raise RuntimeError(msg)
 
-    def create(self, model, **kwargs):
-        raise RuntimeError("This model cannot be created.")
+    def update(self, model, **kwargs):  # noqa: ARG002
+        msg = "This model cannot be updated."
+        raise RuntimeError(msg)
 
-    def update(self, model, **kwargs):
-        raise RuntimeError("This model cannot be updated.")
-
-    def delete(self, pk: str, **kwargs):
-        raise RuntimeError("This model cannot be deleted.")
+    def delete(self, pk: str, **kwargs):  # noqa: ARG002
+        msg = "This model cannot be deleted."
+        raise RuntimeError(msg)
 
 
 class ModelIdentityMixin:
-
     @property
     def pk(self) -> Optional[str]:
         """
@@ -175,6 +185,7 @@ class ModelIdentityMixin:
 
         Returns:
             The primary key of the model instance.
+
         """
         raise NotImplementedError
 
@@ -185,8 +196,10 @@ class ModelIdentityMixin:
 
         Returns:
             The ARN of the model instance.
+
         """
-        raise ValueError("The model does not have an ARN.")
+        msg = "The model does not have an ARN."
+        raise ValueError(msg)
 
     @property
     def name(self) -> Optional[str]:
@@ -195,34 +208,50 @@ class ModelIdentityMixin:
 
         Returns:
             The name of the model instance.
+
         """
-        raise ValueError("The model does not have a name.")
+        msg = "The model does not have a name."
+        raise ValueError(msg)
+
+
+def classproperty(func):
+    return classmethod(property(func))
 
 
 class ReadonlyPrimaryBoto3Model(  # pylint: disable=abstract-method
-    ModelIdentityMixin,
-    ReadonlyBoto3Model
+    ModelIdentityMixin, ReadonlyBoto3Model
 ):
-
     #: The manager for this model
-    objects: ClassVar[Boto3ModelManager]
+    manager_class: ClassVar[Type[Boto3ModelManager]]
 
-    def save(self, **kwargs):
+    @classproperty
+    def objects(cls) -> Boto3ModelManager:  # noqa: N805
+        """
+        Get the manager for this model.
+
+        Returns:
+            The manager for this model.
+
+        """
+        return cls.manager_class()
+
+    def save(self, **kwargs):  # noqa: ARG002
         """
         Save the model.
         """
-        raise RuntimeError("Cannot save a readonly model.")
+        msg = "Cannot save a readonly model."
+        raise RuntimeError(msg)
 
     def delete(self):
         """
         Delete the model.
         """
-        raise RuntimeError("Cannot delete a readonly model.")
+        msg = "Cannot delete a readonly model."
+        raise RuntimeError(msg)
 
 
 class PrimaryBoto3Model(  # pylint: disable=abstract-method
-    ModelIdentityMixin,
-    Boto3Model
+    ModelIdentityMixin, Boto3Model
 ):
     """
     The base class for all boto3 models that get returned as the primary object
@@ -230,7 +259,18 @@ class PrimaryBoto3Model(  # pylint: disable=abstract-method
     """
 
     #: The manager for this model
-    manager: ClassVar[Boto3ModelManager]
+    manager_class: ClassVar[Type[Boto3ModelManager]]
+
+    @classproperty
+    def objects(cls) -> Boto3ModelManager:  # noqa: N805
+        """
+        Get the manager for this model.
+
+        Returns:
+            The manager for this model.
+
+        """
+        return cls.manager_class()
 
     def save(self, **kwargs):
         """
@@ -245,5 +285,6 @@ class PrimaryBoto3Model(  # pylint: disable=abstract-method
         Delete the model.
         """
         if not self.pk:
-            raise ValueError("Cannot delete a model that has not been saved.")
+            msg = "Cannot delete a model that has not been saved."
+            raise ValueError(msg)
         return self.manager.delete(self.pk)

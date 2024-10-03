@@ -675,8 +675,8 @@ class ModelGenerator(AbstractGenerator):
                 if model_def.alternate_name:
                     manager_name = f"{model_def.alternate_name}Manager"
                 else:
-                    manager_name = f'{model_name}Manager'
-                code += f'    objects: ClassVar[Boto3ModelManager] = {manager_name}()\n\n'
+                    manager_name = f"{model_name}Manager"
+                code += f"    manager_class: ClassVar[Type[Boto3ModelManager]] = {manager_name}\n\n"  # noqa: E501
             if fields:
                 code += "\n".join(fields)
             if properties:
