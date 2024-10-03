@@ -8,12 +8,13 @@ import botocraft
 
 @click.group(invoke_without_command=True)
 @click.option(
-    '--version/--no-version', '-v',
+    "--version/--no-version",
+    "-v",
     default=False,
-    help="Print the current version and exit."
+    help="Print the current version and exit.",
 )
 @click.pass_context
-def cli(ctx, version):
+def cli(_, version):
     """
     botocraft command line interface.
     """

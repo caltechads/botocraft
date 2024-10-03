@@ -24,6 +24,7 @@ from .abstract import (Boto3Model, Boto3ModelManager, PrimaryBoto3Model,
 
 
 class VpcManager(ReadonlyBoto3ModelManager):
+
     service_name: str = "ec2"
 
     def get(self, VpcId: str, *, DryRun: bool = False) -> Optional["Vpc"]:
@@ -149,6 +150,7 @@ class VpcManager(ReadonlyBoto3ModelManager):
 
 
 class SubnetManager(ReadonlyBoto3ModelManager):
+
     service_name: str = "ec2"
 
     def get(self, SubnetId: str, *, DryRun: bool = False) -> Optional["Subnet"]:
@@ -218,6 +220,7 @@ class SubnetManager(ReadonlyBoto3ModelManager):
 
 
 class SecurityGroupManager(EC2TagsManagerMixin, Boto3ModelManager):
+
     service_name: str = "ec2"
 
     def create(self, model: "SecurityGroup", DryRun: bool = False) -> str:
@@ -225,7 +228,7 @@ class SecurityGroupManager(EC2TagsManagerMixin, Boto3ModelManager):
         Creates a security group.
 
         Args:
-            model: The :py:class:`SecurityGroup` to create.
+            model: The :py:class:\``SecurityGroup\`` to create.
 
         Keyword Args:
             DryRun: Checks whether you have the required permissions for the action,
@@ -308,12 +311,12 @@ class SecurityGroupManager(EC2TagsManagerMixin, Boto3ModelManager):
 
         Keyword Args:
             Filters: The filters. If using multiple filters for rules, the results
-                include security groups for which any combination of rules - not
-                necessarily a single rule - match all filters.
+                include security groups for which any combination of rules \- not
+                necessarily a single rule \- match all filters.
             GroupIds: The IDs of the security groups. Required for security groups in a
                 nondefault VPC.
-            GroupNames: [Default VPC] The names of the security groups. You can specify
-                either the security group name or the security group ID.
+            GroupNames: \[Default VPC] The names of the security groups. You can
+                specify either the security group name or the security group ID.
             DryRun: Checks whether you have the required permissions for the action,
                 without actually making the request, and provides an error response. If you
                 have the required permissions, the error response is ``DryRunOperation``.
@@ -406,6 +409,7 @@ class SecurityGroupManager(EC2TagsManagerMixin, Boto3ModelManager):
 
 
 class NetworkAclManager(EC2TagsManagerMixin, Boto3ModelManager):
+
     service_name: str = "ec2"
 
     def create(
@@ -417,10 +421,10 @@ class NetworkAclManager(EC2TagsManagerMixin, Boto3ModelManager):
         VPC.
 
         Args:
-            model: The :py:class:`NetworkAcl` to create.
+            model: The :py:class:\``NetworkAcl\`` to create.
 
         Keyword Args:
-            ClientToken: Unique, case-sensitive identifier that you provide to ensure
+            ClientToken: Unique, case\-sensitive identifier that you provide to ensure
                 the idempotency of the request. For more information, see `Ensuring
                 idempotency <https://docs.aws.amazon.com/ec2/latest/devguide/ec2-api-
                 idempotency.html>`_.
@@ -531,15 +535,16 @@ class NetworkAclManager(EC2TagsManagerMixin, Boto3ModelManager):
 
 
 class AMIManager(EC2TagsManagerMixin, Boto3ModelManager):
+
     service_name: str = "ec2"
 
     def create(self, model: "AMI", NoReboot: Optional[bool] = None) -> str:
         """
-        Creates an Amazon EBS-backed AMI from an Amazon EBS-backed instance
+        Creates an Amazon EBS\-backed AMI from an Amazon EBS\-backed instance
         that is either running or stopped.
 
         Args:
-            model: The :py:class:`Image` to create.
+            model: The :py:class:\``Image\`` to create.
 
         Keyword Args:
             NoReboot: Indicates whether or not the instance should be automatically
@@ -711,7 +716,7 @@ class AMIManager(EC2TagsManagerMixin, Boto3ModelManager):
         .com/AWSEC2/latest/APIReference/API_CreateStoreImageTask.html>`_.
 
         Args:
-            ClientToken: Unique, case-sensitive identifier you provide to ensure
+            ClientToken: Unique, case\-sensitive identifier you provide to ensure
                 idempotency of the request. For more information, see `Ensuring idempotency
                 <https://docs.aws.amaz
                 on.com/AWSEC2/latest/APIReference/Run_Instance_Idempotency.html>`_ in the
@@ -725,9 +730,9 @@ class AMIManager(EC2TagsManagerMixin, Boto3ModelManager):
             Encrypted: Specifies whether the destination snapshots of the copied image
                 should be encrypted. You can encrypt a copy of an unencrypted snapshot, but
                 you cannot create an unencrypted copy of an encrypted snapshot. The default
-                KMS key for Amazon EBS is used unless you specify a non-default Key
+                KMS key for Amazon EBS is used unless you specify a non\-default Key
                 Management Service (KMS) KMS key using ``KmsKeyId``. For more information,
-                see `Use encryption with EBS-backed AMIs
+                see `Use encryption with EBS\-backed AMIs
                 <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/AMIEncryption.html>`_
                 in the *Amazon EC2 User Guide*.
             KmsKeyId: The identifier of the symmetric Key Management Service (KMS) KMS
@@ -744,8 +749,8 @@ class AMIManager(EC2TagsManagerMixin, Boto3ModelManager):
                 without actually making the request, and provides an error response. If you
                 have the required permissions, the error response is ``DryRunOperation``.
                 Otherwise, it is ``UnauthorizedOperation``.
-            CopyImageTags: Indicates whether to include your user-defined AMI tags when
-                copying the AMI.
+            CopyImageTags: Indicates whether to include your user\-defined AMI tags
+                when copying the AMI.
             Tags: The tags to apply to the new AMI and new snapshots. You can tag the
                 AMI, the snapshots, or both.
 
@@ -774,6 +779,7 @@ class AMIManager(EC2TagsManagerMixin, Boto3ModelManager):
 
 
 class InstanceManager(EC2TagsManagerMixin, Boto3ModelManager):
+
     service_name: str = "ec2"
 
     def create(
@@ -803,7 +809,7 @@ class InstanceManager(EC2TagsManagerMixin, Boto3ModelManager):
         have permissions.
 
         Args:
-            model: The :py:class:`Instance` to create.
+            model: The :py:class:\``Instance\`` to create.
             MaxCount: The maximum number of instances to launch. If you specify a value
                 that is more capacity than Amazon EC2 can launch in the target Availability
                 Zone, Amazon EC2 launches the largest possible number of instances above
@@ -843,9 +849,9 @@ class InstanceManager(EC2TagsManagerMixin, Boto3ModelManager):
                 <https://docs.aws.amazon.com/AWSEC2/latest/APIReference/API_CreateS
                 ecurityGroup.html>`_.
             UserData: The user data to make available to the instance. User data must
-                be base64-encoded. Depending on the tool or SDK that you're using, the
-                base64-encoding might be performed for you. For more information, see `Work
-                with instance user data
+                be base64\-encoded. Depending on the tool or SDK that you're using, the
+                base64\-encoding might be performed for you. For more information, see
+                `Work with instance user data
                 <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/instancedata-add-
                 user-data.html>`_.
             ElasticGpuSpecification: An elastic GPU to associate with the instance.
@@ -864,8 +870,8 @@ class InstanceManager(EC2TagsManagerMixin, Boto3ModelManager):
                 <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/burstable-
                 performance-instances.html>`_ in the *Amazon EC2 User Guide*.
             LicenseSpecifications: The license configurations.
-            EnablePrimaryIpv6: If you’re launching an instance into a dual-stack or
-                IPv6-only subnet, you can enable assigning a primary IPv6 address. A
+            EnablePrimaryIpv6: If you’re launching an instance into a dual\-stack or
+                IPv6\-only subnet, you can enable assigning a primary IPv6 address. A
                 primary IPv6 address is an IPv6 GUA address associated with an ENI that you
                 have enabled to use a primary IPv6 address. Use this option if an instance
                 relies on its IPv6 address not changing. When you launch the instance,
@@ -1005,7 +1011,7 @@ class InstanceManager(EC2TagsManagerMixin, Boto3ModelManager):
         DryRun: bool = False
     ) -> Optional[List["InstanceStateChange"]]:
         """
-        Starts an Amazon EBS-backed instance that you've previously stopped.
+        Starts an Amazon EBS\-backed instance that you've previously stopped.
 
         Args:
             InstanceIds: The IDs of the instances.
@@ -1038,7 +1044,7 @@ class InstanceManager(EC2TagsManagerMixin, Boto3ModelManager):
         Force: Optional[bool] = None
     ) -> Optional[List["InstanceStateChange"]]:
         """
-        Stops an Amazon EBS-backed instance. For more information, see `Stop and start
+        Stops an Amazon EBS\-backed instance. For more information, see `Stop and start
         Amazon EC2
         instances <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/Stop_Start.html>`_
         in the *Amazon EC2 User Guide*.
@@ -1124,6 +1130,7 @@ class InstanceManager(EC2TagsManagerMixin, Boto3ModelManager):
 
 
 class LaunchTemplateManager(EC2TagsManagerMixin, Boto3ModelManager):
+
     service_name: str = "ec2"
 
     def create(
@@ -1137,11 +1144,11 @@ class LaunchTemplateManager(EC2TagsManagerMixin, Boto3ModelManager):
         Creates a launch template.
 
         Args:
-            model: The :py:class:`LaunchTemplate` to create.
+            model: The :py:class:\``LaunchTemplate\`` to create.
             LaunchTemplateData: The information for the launch template.
 
         Keyword Args:
-            ClientToken: Unique, case-sensitive identifier you provide to ensure the
+            ClientToken: Unique, case\-sensitive identifier you provide to ensure the
                 idempotency of the request. For more information, see `Ensuring idempotency
                 <https://docs.aws.amaz
                 on.com/AWSEC2/latest/APIReference/Run_Instance_Idempotency.html>`_.
@@ -1267,6 +1274,7 @@ class LaunchTemplateManager(EC2TagsManagerMixin, Boto3ModelManager):
 
 
 class LaunchTemplateVersionManager(Boto3ModelManager):
+
     service_name: str = "ec2"
 
     def create(
@@ -1283,10 +1291,10 @@ class LaunchTemplateVersionManager(Boto3ModelManager):
         add or overwrite parameters as needed.
 
         Args:
-            model: The :py:class:`LaunchTemplateVersion` to create.
+            model: The :py:class:\``LaunchTemplateVersion\`` to create.
 
         Keyword Args:
-            ClientToken: Unique, case-sensitive identifier you provide to ensure the
+            ClientToken: Unique, case\-sensitive identifier you provide to ensure the
                 idempotency of the request. For more information, see `Ensuring idempotency
                 <https://docs.aws.amaz
                 on.com/AWSEC2/latest/APIReference/Run_Instance_Idempotency.html>`_.
@@ -1555,7 +1563,7 @@ class Vpc(TagsDictMixin, PrimaryBoto3Model):
     """
 
     tag_class: ClassVar[Type] = Tag
-    objects: ClassVar[Boto3ModelManager] = VpcManager()
+    manager_class: ClassVar[Type[Boto3ModelManager]] = VpcManager
 
     CidrBlock: str
     """
@@ -1697,7 +1705,7 @@ class EC2PrivateDnsNameOptionsOnLaunch(Boto3Model):
 
     For IPv4 only subnets, an instance DNS name must be based on the instance
     IPv4 address. For IPv6 only subnets, an instance DNS name must be based on
-    the instance ID. For dual-stack subnets, you can specify whether DNS names
+    the instance ID. For dual\-stack subnets, you can specify whether DNS names
     use the instance IPv4 address or the instance ID.
     """
     EnableResourceNameDnsARecord: Optional[bool] = None
@@ -1718,7 +1726,7 @@ class Subnet(TagsDictMixin, PrimaryBoto3Model):
     """
 
     tag_class: ClassVar[Type] = Tag
-    objects: ClassVar[Boto3ModelManager] = SubnetManager()
+    manager_class: ClassVar[Type[Boto3ModelManager]] = SubnetManager
 
     VpcId: str
     """
@@ -1760,7 +1768,7 @@ class Subnet(TagsDictMixin, PrimaryBoto3Model):
 
     For
     example, ``1`` indicates local network interfaces in this subnet are the
-    secondary network interface (eth1).
+    secondary network interface (eth1\).
     """
     MapPublicIpOnLaunch: bool = Field(default=None, frozen=True)
     """
@@ -1770,12 +1778,12 @@ class Subnet(TagsDictMixin, PrimaryBoto3Model):
     MapCustomerOwnedIpOnLaunch: bool = Field(default=None, frozen=True)
     """
     Indicates whether a network interface created in this subnet (including a
-    network interface created by RunInstances) receives a customer-owned IPv4
+    network interface created by RunInstances) receives a customer\-owned IPv4
     address.
     """
     CustomerOwnedIpv4Pool: str = Field(default=None, frozen=True)
     """
-    The customer-owned IPv4 address pool associated with the subnet.
+    The customer\-owned IPv4 address pool associated with the subnet.
     """
     State: Literal["pending", "available", "unavailable"] = Field(
         default=None, frozen=True
@@ -1812,8 +1820,8 @@ class Subnet(TagsDictMixin, PrimaryBoto3Model):
     """
     EnableDns64: bool = Field(default=None, frozen=True)
     """
-    Indicates whether DNS queries made to the Amazon-provided DNS Resolver in
-    this subnet should return synthetic IPv6 addresses for IPv4-only
+    Indicates whether DNS queries made to the Amazon\-provided DNS Resolver in
+    this subnet should return synthetic IPv6 addresses for IPv4\-only
     destinations.
     """
     PrivateDnsNameOptionsOnLaunch: EC2PrivateDnsNameOptionsOnLaunch = Field(
@@ -1929,7 +1937,7 @@ class UserIdGroupPair(Boto3Model):
     """
     GroupName: Optional[str] = None
     """
-    [Default VPC] The name of the security group.
+    \[Default VPC] The name of the security group.
 
     For a security group in a nondefault VPC, use the security group ID.
     """
@@ -1960,7 +1968,7 @@ class IpPermission(Boto3Model):
     """
     If the protocol is TCP or UDP, this is the start of the port range.
 
-    If the protocol is ICMP or ICMPv6, this is the ICMP type or -1 (all ICMP
+    If the protocol is ICMP or ICMPv6, this is the ICMP type or \-1 (all ICMP
     types).
     """
     IpProtocol: Optional[str] = None
@@ -1985,9 +1993,9 @@ numbers.xhtml>`_).
     """
     If the protocol is TCP or UDP, this is the end of the port range.
 
-    If the protocol is ICMP or ICMPv6, this is the ICMP code or -1 (all ICMP
-    codes). If the start port is -1 (all ICMP types), then the end port must be
-    -1 (all ICMP codes).
+    If the protocol is ICMP or ICMPv6, this is the ICMP code or \-1 (all ICMP
+    codes). If the start port is \-1 (all ICMP types), then the end port must
+    be \-1 (all ICMP codes).
     """
     UserIdGroupPairs: Optional[List["UserIdGroupPair"]] = None
     """
@@ -2001,7 +2009,7 @@ class SecurityGroup(TagsDictMixin, SecurityGroupModelMixin, PrimaryBoto3Model):
     """
 
     tag_class: ClassVar[Type] = Tag
-    objects: ClassVar[Boto3ModelManager] = SecurityGroupManager()
+    manager_class: ClassVar[Type[Boto3ModelManager]] = SecurityGroupManager
 
     VpcId: str
     """
@@ -2085,13 +2093,13 @@ class EC2IcmpTypeCode(Boto3Model):
     """
     The ICMP code.
 
-    A value of -1 means all codes for the specified ICMP type.
+    A value of \-1 means all codes for the specified ICMP type.
     """
     Type: Optional[int] = None
     """
     The ICMP type.
 
-    A value of -1 means all types.
+    A value of \-1 means all types.
     """
 
 
@@ -2138,7 +2146,7 @@ TCP or UDP protocols: The range of ports the rule applies to.
     """
     The protocol number.
 
-    A value of "-1" means all protocols.
+    A value of "\-1" means all protocols.
     """
     RuleAction: Optional[Literal["allow", "deny"]] = None
     """
@@ -2158,7 +2166,7 @@ class NetworkAcl(TagsDictMixin, PrimaryBoto3Model):
     """
 
     tag_class: ClassVar[Type] = Tag
-    objects: ClassVar[Boto3ModelManager] = NetworkAclManager()
+    manager_class: ClassVar[Type[Boto3ModelManager]] = NetworkAclManager
 
     Associations: List["NetworkAclAssociation"] = Field(default=None, frozen=True)
     """
@@ -2332,7 +2340,7 @@ class EC2BlockDeviceMapping(Boto3Model):
     The virtual device name (``ephemeral``N).
 
     Instance store volumes are numbered
-    starting from 0. An instance type with 2 available instance store volumes can
+    starting from 0\. An instance type with 2 available instance store volumes can
     specify mappings for ``ephemeral0`` and ``ephemeral1``. The number of available
     instance store volumes depends on the instance type. After you connect to the
     instance, you must mount the volume.
@@ -2357,7 +2365,7 @@ class AMI(TagsDictMixin, PrimaryBoto3Model):
     """
 
     tag_class: ClassVar[Type] = Tag
-    objects: ClassVar[Boto3ModelManager] = AMIManager()
+    manager_class: ClassVar[Type[Boto3ModelManager]] = AMIManager
 
     Architecture: Literal["i386", "x86_64", "arm64", "x86_64_mac", "arm64_mac"] = Field(
         default=None, frozen=True
@@ -2414,7 +2422,7 @@ class AMI(TagsDictMixin, PrimaryBoto3Model):
     changes.html>`_. You can view these fields on the **Instances** or **AMIs** pages
     in the Amazon EC2 console, or in the responses that are returned by the `Descri
     beImages <https://docs.aws.amazon.com/AWSEC2/latest/APIReference/API_DescribeIm
-    ages.html>`_ command in the Amazon EC2 API, or the `describe-
+    ages.html>`_ command in the Amazon EC2 API, or the `describe\-
     images <https://docs.aws.amazon.com/cli/latest/reference/ec2/describe-
     images.html>`_ command in the CLI.
     """
@@ -2450,7 +2458,7 @@ class AMI(TagsDictMixin, PrimaryBoto3Model):
     """
     ImageOwnerAlias: str = Field(default=None, frozen=True)
     """
-    The owner alias (``amazon`` | ``aws-marketplace``).
+    The owner alias (``amazon`` \| ``aws-marketplace``).
     """
     RootDeviceName: str = Field(default=None, frozen=True)
     """
@@ -2490,7 +2498,7 @@ class AMI(TagsDictMixin, PrimaryBoto3Model):
     """
     The date and time to deprecate the AMI, in UTC, in the following format:
 
-    *YYYY*-*MM*-*DD*T*HH*:*MM*:*SS*Z. If you specified a value for seconds,
+    *YYYY*\-*MM*\-*DD*T*HH*:*MM*:*SS*Z. If you specified a value for seconds,
     Amazon EC2 rounds the seconds to the nearest minute.
     """
     ImdsSupport: Literal["v2.0"] = Field(default=None, frozen=True)
@@ -2562,10 +2570,10 @@ CreateImage.
     """
     LastLaunchedTime: str = Field(default=None, frozen=True)
     """
-The date and time, in `ISO 8601 date-time
+The date and time, in `ISO 8601 date\-time
 format <http://www.iso.org/iso/iso8601>`_, when the AMI was last used to launch
-an EC2 instance. When the AMI is used to launch an instance, there is a 24-hour
-delay before that usage is reported.
+an EC2 instance. When the AMI is used to launch an instance, there is a
+24\-hour delay before that usage is reported.
     """
 
     @property
@@ -2640,7 +2648,7 @@ class EC2Placement(Boto3Model):
     The tenancy of the instance.
 
     An instance with a tenancy of ``dedicated`` runs
-    on single-tenant hardware.
+    on single\-tenant hardware.
     """
     SpreadDomain: Optional[str] = None
     """
@@ -2666,7 +2674,7 @@ class InstanceState(Boto3Model):
 
     Code: Optional[int] = None
     """
-    The state of the instance as a 16-bit unsigned integer.
+    The state of the instance as a 16\-bit unsigned integer.
     """
     Name: Optional[
         Literal[
@@ -2743,7 +2751,7 @@ class EC2IamInstanceProfile(Boto3Model):
 
 class ElasticGpuAssociation(Boto3Model):
     """
-    Amazon Elastic Graphics reached end of life on January 8, 2024. For
+    Amazon Elastic Graphics reached end of life on January 8, 2024\. For
     workloads that require graphics acceleration, we recommend that you use
     Amazon EC2 G4, G5, or G6 instances.
 
@@ -2807,7 +2815,7 @@ class InstanceNetworkInterfaceAssociation(Boto3Model):
     """
     CustomerOwnedIp: Optional[str] = None
     """
-    The customer-owned IP address associated with the network interface.
+    The customer\-owned IP address associated with the network interface.
     """
     IpOwnerId: Optional[str] = None
     """
@@ -2997,7 +3005,7 @@ class ConnectionTrackingSpecificationResponse(Boto3Model):
     UdpStreamTimeout: Optional[int] = None
     """
     Timeout (in seconds) for idle UDP flows classified as streams which have
-    seen more than one request-response transaction.
+    seen more than one request\-response transaction.
 
     Min: 60 seconds. Max: 180 seconds
     (3 minutes). Default: 180 seconds.
@@ -3005,7 +3013,7 @@ class ConnectionTrackingSpecificationResponse(Boto3Model):
     UdpTimeout: Optional[int] = None
     """
     Timeout (in seconds) for idle UDP flows that have seen traffic only in a
-    single direction or a single request-response transaction.
+    single direction or a single request\-response transaction.
 
     Min: 30 seconds. Max: 60
     seconds. Default: 30 seconds.
@@ -3123,9 +3131,9 @@ class EC2CpuOptions(Boto3Model):
     """
     AmdSevSnp: Optional[Literal["enabled", "disabled"]] = None
     """
-    Indicates whether the instance is enabled for AMD SEV-SNP.
+    Indicates whether the instance is enabled for AMD SEV\-SNP.
 
-    For more information, see `AMD SEV- SNP
+    For more information, see `AMD SEV\-SNP
     <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/sev-snp.html>`_.
     """
 
@@ -3280,7 +3288,7 @@ class Instance(TagsDictMixin, PrimaryBoto3Model):
     """
 
     tag_class: ClassVar[Type] = Tag
-    objects: ClassVar[Boto3ModelManager] = InstanceManager()
+    manager_class: ClassVar[Type[Boto3ModelManager]] = InstanceManager
 
     Tags: Optional[List[Tag]] = None
     """
@@ -4121,6 +4129,14 @@ class Instance(TagsDictMixin, PrimaryBoto3Model):
             "r8g.metal-24xl",
             "r8g.metal-48xl",
             "mac2-m1ultra.metal",
+            "g6e.xlarge",
+            "g6e.2xlarge",
+            "g6e.4xlarge",
+            "g6e.8xlarge",
+            "g6e.12xlarge",
+            "g6e.16xlarge",
+            "g6e.24xlarge",
+            "g6e.48xlarge",
         ]
     ] = None
     """
@@ -4156,7 +4172,7 @@ class Instance(TagsDictMixin, PrimaryBoto3Model):
     """
     PrivateDnsName: str = Field(default=None, frozen=True)
     """
-    [IPv4 only] The private DNS hostname name assigned to the instance.
+    \[IPv4 only] The private DNS hostname name assigned to the instance.
 
     This DNS
     hostname can only be used inside the Amazon EC2 network. This name is not
@@ -4172,7 +4188,7 @@ class Instance(TagsDictMixin, PrimaryBoto3Model):
     """
     PublicDnsName: str = Field(default=None, frozen=True)
     """
-    [IPv4 only] The public DNS name assigned to the instance.
+    \[IPv4 only] The public DNS name assigned to the instance.
 
     This name is not
     available until the instance enters the ``running`` state. This name is only
@@ -4569,7 +4585,7 @@ class LaunchTemplate(TagsDictMixin, PrimaryBoto3Model):
     """
 
     tag_class: ClassVar[Type] = Tag
-    objects: ClassVar[Boto3ModelManager] = LaunchTemplateManager()
+    manager_class: ClassVar[Type[Boto3ModelManager]] = LaunchTemplateManager
 
     LaunchTemplateName: str
     """
@@ -4870,7 +4886,7 @@ class EC2ConnectionTrackingSpecification(Boto3Model):
     UdpTimeout: Optional[int] = None
     """
     Timeout (in seconds) for idle UDP flows that have seen traffic only in a
-    single direction or a single request-response transaction.
+    single direction or a single request\-response transaction.
 
     Min: 30 seconds. Max: 60
     seconds. Default: 30 seconds.
@@ -4878,7 +4894,7 @@ class EC2ConnectionTrackingSpecification(Boto3Model):
     UdpStreamTimeout: Optional[int] = None
     """
     Timeout (in seconds) for idle UDP flows classified as streams which have
-    seen more than one request-response transaction.
+    seen more than one request\-response transaction.
 
     Min: 60 seconds. Max: 180 seconds
     (3 minutes). Default: 180 seconds.
@@ -5038,7 +5054,7 @@ class LaunchTemplatePlacement(Boto3Model):
     The tenancy of the instance.
 
     An instance with a tenancy of ``dedicated`` runs
-    on single-tenant hardware.
+    on single\-tenant hardware.
     """
     SpreadDomain: Optional[str] = None
     """
@@ -5174,7 +5190,7 @@ class ElasticGpuSpecificationResponse(Boto3Model):
     """
     Deprecated.
 
-    Amazon Elastic Graphics reached end of life on January 8, 2024. For
+    Amazon Elastic Graphics reached end of life on January 8, 2024\. For
     workloads that require graphics acceleration, we recommend that you use
     Amazon EC2 G4ad, G4dn, or G5 instances.
     """
@@ -5194,7 +5210,7 @@ class LaunchTemplateElasticInferenceAcceleratorResponse(Boto3Model):
     """
     The type of elastic inference accelerator.
 
-    The possible values are eia1.medium, eia1.large, and eia1.xlarge.
+    The possible values are eia1\.medium, eia1\.large, and eia1\.xlarge.
     """
     Count: Optional[int] = None
     """
@@ -5224,13 +5240,13 @@ class LaunchTemplateSpotMarketOptions(Boto3Model):
     The required duration for the Spot Instances (also known as Spot blocks),
     in minutes.
 
-    This value must be a multiple of 60 (60, 120, 180, 240, 300, or 360).
+    This value must be a multiple of 60 (60, 120, 180, 240, 300, or 360\).
     """
     ValidUntil: Optional[datetime] = None
     """
     The end date of the request.
 
-    For a one-time request, the request remains active until all instances
+    For a one\-time request, the request remains active until all instances
     launch, the request is canceled, or this date is reached. If the request is
     persistent, it remains active until it is canceled or this date and time is
     reached.
@@ -5288,9 +5304,9 @@ class LaunchTemplateCpuOptions(Boto3Model):
     """
     AmdSevSnp: Optional[Literal["enabled", "disabled"]] = None
     """
-    Indicates whether the instance is enabled for AMD SEV-SNP.
+    Indicates whether the instance is enabled for AMD SEV\-SNP.
 
-    For more information, see `AMD SEV- SNP
+    For more information, see `AMD SEV\-SNP
     <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/sev-snp.html>`_.
     """
 
@@ -5509,6 +5525,7 @@ class InstanceBaselineEbsBandwidthMbps(Boto3Model):
     optimized.html>`_ in the *Amazon EC2 User Guide*.
 
     Default: No minimum or maximum limits
+
     """
 
     Min: Optional[int] = None
@@ -5530,7 +5547,7 @@ class InstanceAcceleratorCount(Boto3Model):
     The minimum and maximum number of accelerators (GPUs, FPGAs, or Amazon Web
     Services Inferentia chips) on an instance.
 
-    To exclude accelerator-enabled instance types, set ``Max`` to ``0``.
+    To exclude accelerator\-enabled instance types, set ``Max`` to ``0``.
 
     Default: No minimum or maximum limits
     """
@@ -5608,9 +5625,9 @@ class LaunchTemplateInstanceRequirements(Boto3Model):
     """
     The minimum and maximum amount of memory, in MiB.
     """
-    CpuManufacturers: Optional[
-        List[Literal["intel", "amd", "amazon-web-services"]]
-    ] = None
+    CpuManufacturers: Optional[List[Literal["intel", "amd", "amazon-web-services"]]] = (
+        None
+    )
     """
     The CPU manufacturers to include.
     """
@@ -5635,7 +5652,7 @@ class LaunchTemplateInstanceRequirements(Boto3Model):
     """
     SpotMaxPricePercentageOverLowestPrice: Optional[int] = None
     """
-    [Price protection] The price protection threshold for Spot Instances, as a
+    \[Price protection] The price protection threshold for Spot Instances, as a
     percentage higher than an identified Spot price.
 
     The identified Spot price is the Spot price of the lowest priced current
@@ -5649,10 +5666,10 @@ class LaunchTemplateInstanceRequirements(Boto3Model):
     """
     OnDemandMaxPricePercentageOverLowestPrice: Optional[int] = None
     """
-    [Price protection] The price protection threshold for On-Demand Instances,
-    as a percentage higher than an identified On-Demand price.
+    \[Price protection] The price protection threshold for On\-Demand
+    Instances, as a percentage higher than an identified On\-Demand price.
 
-    The identified On-Demand price is the price of the lowest priced current
+    The identified On\-Demand price is the price of the lowest priced current
     generation C, M, or R instance type with your specified attributes. When
     Amazon EC2 selects instance types with your attributes, it will exclude
     instance types whose price exceeds your specified threshold.
@@ -5673,7 +5690,7 @@ class LaunchTemplateInstanceRequirements(Boto3Model):
     """
     RequireHibernateSupport: Optional[bool] = None
     """
-    Indicates whether instance types must support hibernation for On-Demand
+    Indicates whether instance types must support hibernation for On\-Demand
     Instances.
     """
     NetworkInterfaceCount: Optional[InstanceNetworkInterfaceCount] = None
@@ -5761,10 +5778,10 @@ class LaunchTemplateInstanceRequirements(Boto3Model):
     """
     MaxSpotPriceAsPercentageOfOptimalOnDemandPrice: Optional[int] = None
     """
-    [Price protection] The price protection threshold for Spot Instances, as a
-    percentage of an identified On-Demand price.
+    \[Price protection] The price protection threshold for Spot Instances, as a
+    percentage of an identified On\-Demand price.
 
-    The identified On-Demand price is the price of the lowest priced current
+    The identified On\-Demand price is the price of the lowest priced current
     generation C, M, or R instance type with your specified attributes. If no
     current generation C, M, or R instance type matches your attributes, then
     the identified price is from the lowest priced current generation instance
@@ -6664,6 +6681,14 @@ class ResponseLaunchTemplateData(Boto3Model):
             "r8g.metal-24xl",
             "r8g.metal-48xl",
             "mac2-m1ultra.metal",
+            "g6e.xlarge",
+            "g6e.2xlarge",
+            "g6e.4xlarge",
+            "g6e.8xlarge",
+            "g6e.12xlarge",
+            "g6e.16xlarge",
+            "g6e.24xlarge",
+            "g6e.48xlarge",
         ]
     ] = None
     """
@@ -6803,7 +6828,7 @@ class LaunchTemplateVersion(PrimaryBoto3Model):
     Describes a launch template version.
     """
 
-    objects: ClassVar[Boto3ModelManager] = LaunchTemplateVersionManager()
+    manager_class: ClassVar[Type[Boto3ModelManager]] = LaunchTemplateVersionManager
 
     LaunchTemplateId: Optional[str] = None
     """
@@ -6851,6 +6876,7 @@ class LaunchTemplateVersion(PrimaryBoto3Model):
 
     @property
     def pk(self) -> OrderedDict[str, Any]:
+
         return OrderedDict(
             {
                 "LaunchTemplateId": self.LaunchTemplateId,
@@ -7173,16 +7199,16 @@ numbers.xhtml>`_).
     """
     If the protocol is TCP or UDP, this is the start of the port range.
 
-    If the protocol is ICMP or ICMPv6, this is the ICMP type or -1 (all ICMP
+    If the protocol is ICMP or ICMPv6, this is the ICMP type or \-1 (all ICMP
     types).
     """
     ToPort: Optional[int] = None
     """
     If the protocol is TCP or UDP, this is the end of the port range.
 
-    If the protocol is ICMP or ICMPv6, this is the ICMP code or -1 (all ICMP
-    codes). If the start port is -1 (all ICMP types), then the end port must be
-    -1 (all ICMP codes).
+    If the protocol is ICMP or ICMPv6, this is the ICMP code or \-1 (all ICMP
+    codes). If the start port is \-1 (all ICMP types), then the end port must
+    be \-1 (all ICMP codes).
     """
     CidrIpv4: Optional[str] = None
     """
@@ -7231,7 +7257,8 @@ class CreateNetworkAclResult(Boto3Model):
     """
     ClientToken: Optional[str] = None
     """
-    Unique, case-sensitive identifier to ensure the idempotency of the request.
+    Unique, case\-sensitive identifier to ensure the idempotency of the
+    request.
 
     Only returned if a client token was provided in the request.
     """
@@ -7285,7 +7312,7 @@ class CopyImageResult(Boto3Model):
 
 class ElasticGpuSpecification(Boto3Model):
     """
-    Amazon Elastic Graphics reached end of life on January 8, 2024. For
+    Amazon Elastic Graphics reached end of life on January 8, 2024\. For
     workloads that require graphics acceleration, we recommend that you use
     Amazon EC2 G4, G5, or G6 instances.
 
@@ -7368,7 +7395,7 @@ class SpotMarketOptions(Boto3Model):
     ValidUntil: Optional[datetime] = None
     """
     The end date of the request, in UTC format
-    (*YYYY*-*MM*-*DD*T*HH*:*MM*:*SS*Z).
+    (*YYYY*\-*MM*\-*DD*T*HH*:*MM*:*SS*Z).
 
     Supported only for persistent requests.
     """
@@ -7410,6 +7437,7 @@ class CreditSpecificationRequest(Boto3Model):
     Default: ``standard`` (T2 instances) or ``unlimited`` (T3/T3a/T4g instances)
 
     For T3 instances with ``host`` tenancy, only ``standard`` is supported.
+
     """
 
     CpuCredits: str
@@ -7541,7 +7569,7 @@ class ConnectionTrackingSpecificationRequest(Boto3Model):
     UdpStreamTimeout: Optional[int] = None
     """
     Timeout (in seconds) for idle UDP flows classified as streams which have
-    seen more than one request-response transaction.
+    seen more than one request\-response transaction.
 
     Min: 60 seconds. Max: 180 seconds
     (3 minutes). Default: 180 seconds.
@@ -7549,7 +7577,7 @@ class ConnectionTrackingSpecificationRequest(Boto3Model):
     UdpTimeout: Optional[int] = None
     """
     Timeout (in seconds) for idle UDP flows that have seen traffic only in a
-    single direction or a single request-response transaction.
+    single direction or a single request\-response transaction.
 
     Min: 30 seconds. Max: 60
     seconds. Default: 30 seconds.
@@ -7589,7 +7617,7 @@ class InstanceNetworkInterfaceSpecification(Boto3Model):
     """
     The position of the network interface in the attachment order.
 
-    A primary network interface has a device index of 0.
+    A primary network interface has a device index of 0\.
     """
     Groups: Optional[List[str]] = None
     """
@@ -7665,8 +7693,8 @@ class InstanceNetworkInterfaceSpecification(Boto3Model):
     The index of the network card.
 
     Some instance types support multiple network cards. The primary network
-    interface must be assigned to network card index 0. The default is network
-    card index 0.
+    interface must be assigned to network card index 0\. The default is network
+    card index 0\.
     """
     Ipv4Prefixes: Optional[List["Ipv4PrefixSpecificationRequest"]] = None
     """
@@ -7750,11 +7778,11 @@ class CpuOptionsRequest(Boto3Model):
     """
     AmdSevSnp: Optional[Literal["enabled", "disabled"]] = None
     """
-    Indicates whether to enable the instance for AMD SEV-SNP.
+    Indicates whether to enable the instance for AMD SEV\-SNP.
 
-    AMD SEV-SNP is
+    AMD SEV\-SNP is
     supported with M6a, R6a, and C6a instance types only. For more information, see
-    `AMD SEV-SNP <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/sev-
+    `AMD SEV\-SNP <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/sev-
     snp.html>`_.
     """
 
@@ -7810,6 +7838,7 @@ class HibernationOptionsRequest(Boto3Model):
 
     You can't enable hibernation and Amazon Web Services Nitro Enclaves on the same
     instance.
+
     """
 
     Configured: Optional[bool] = None
@@ -7863,6 +7892,7 @@ class EnclaveOptionsRequest(Boto3Model):
 
     You can't enable Amazon Web Services Nitro Enclaves and hibernation on the same
     instance.
+
     """
 
     Enabled: Optional[bool] = None
@@ -7886,7 +7916,7 @@ class PrivateDnsNameOptionsRequest(Boto3Model):
 
     For IPv4 only subnets, an instance DNS name must be based on the instance
     IPv4 address. For IPv6 only subnets, an instance DNS name must be based on
-    the instance ID. For dual-stack subnets, you can specify whether DNS names
+    the instance ID. For dual\-stack subnets, you can specify whether DNS names
     use the instance IPv4 address or the instance ID.
     """
     EnableResourceNameDnsARecord: Optional[bool] = None
@@ -8091,9 +8121,9 @@ class LaunchTemplateBlockDeviceMappingRequest(Boto3Model):
     """
     The virtual device name (ephemeralN).
 
-    Instance store volumes are numbered starting from 0. An instance type with
+    Instance store volumes are numbered starting from 0\. An instance type with
     2 available instance store volumes can specify mappings for ephemeral0 and
-    ephemeral1. The number of available instance store volumes depends on the
+    ephemeral1\. The number of available instance store volumes depends on the
     instance type. After you connect to the instance, you must mount the
     volume.
     """
@@ -8203,8 +8233,8 @@ class LaunchTemplateInstanceNetworkInterfaceSpecificationRequest(Boto3Model):
     The index of the network card.
 
     Some instance types support multiple network cards. The primary network
-    interface must be assigned to network card index 0. The default is network
-    card index 0.
+    interface must be assigned to network card index 0\. The default is network
+    card index 0\.
     """
     Ipv4Prefixes: Optional[List["Ipv4PrefixSpecificationRequest"]] = None
     """
@@ -8301,7 +8331,7 @@ class LaunchTemplatePlacementRequest(Boto3Model):
     """
     The tenancy of the instance.
 
-    An instance with a tenancy of dedicated runs on single-tenant hardware.
+    An instance with a tenancy of dedicated runs on single\-tenant hardware.
     """
     SpreadDomain: Optional[str] = None
     """
@@ -8447,7 +8477,7 @@ class LaunchTemplateElasticInferenceAccelerator(Boto3Model):
     """
     The type of elastic inference accelerator.
 
-    The possible values are eia1.medium, eia1.large, and eia1.xlarge.
+    The possible values are eia1\.medium, eia1\.large, and eia1\.xlarge.
     """
     Count: Optional[int] = None
     """
@@ -8478,7 +8508,7 @@ class LaunchTemplateSpotMarketOptionsRequest(Boto3Model):
     """
     ValidUntil: Optional[datetime] = None
     """
-    The end date of the request, in UTC format (*YYYY-MM-DD*T*HH:MM:SS*Z).
+    The end date of the request, in UTC format (*YYYY\-MM\-DD*T*HH:MM:SS*Z).
 
     Supported only for persistent requests.
     """
@@ -8529,11 +8559,11 @@ class LaunchTemplateCpuOptionsRequest(Boto3Model):
     """
     AmdSevSnp: Optional[Literal["enabled", "disabled"]] = None
     """
-    Indicates whether to enable the instance for AMD SEV-SNP.
+    Indicates whether to enable the instance for AMD SEV\-SNP.
 
-    AMD SEV-SNP is
+    AMD SEV\-SNP is
     supported with M6a, R6a, and C6a instance types only. For more information, see
-    `AMD SEV-SNP <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/sev-
+    `AMD SEV\-SNP <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/sev-
     snp.html>`_.
     """
 
@@ -8641,6 +8671,7 @@ class LaunchTemplateEnclaveOptionsRequest(Boto3Model):
 
     You can't enable Amazon Web Services Nitro Enclaves and hibernation on the same
     instance.
+
     """
 
     Enabled: Optional[bool] = None
@@ -8759,6 +8790,7 @@ class BaselineEbsBandwidthMbpsRequest(Boto3Model):
     optimized.html>`_ in the *Amazon EC2 User Guide*.
 
     Default: No minimum or maximum limits
+
     """
 
     Min: Optional[int] = None
@@ -8780,7 +8812,7 @@ class AcceleratorCountRequest(Boto3Model):
     The minimum and maximum number of accelerators (GPUs, FPGAs, or Amazon Web
     Services Inferentia chips) on an instance.
 
-    To exclude accelerator-enabled instance types, set ``Max`` to ``0``.
+    To exclude accelerator\-enabled instance types, set ``Max`` to ``0``.
 
     Default: No minimum or maximum limits
     """
@@ -8796,7 +8828,8 @@ class AcceleratorCountRequest(Boto3Model):
     The maximum number of accelerators.
 
     To specify no maximum limit, omit this
-    parameter. To exclude accelerator-enabled instance types, set ``Max`` to ``0``.
+    parameter. To exclude accelerator\-enabled instance types, set ``Max`` to
+    ``0``.
     """
 
 
@@ -8828,6 +8861,7 @@ class EC2NetworkBandwidthGbpsRequest(Boto3Model):
     network-bandwidth.html>`_ in the *Amazon EC2 User Guide*.
 
     Default: No minimum or maximum limits
+
     """
 
     Min: Optional[float] = None
@@ -8860,14 +8894,14 @@ class InstanceRequirementsRequest(Boto3Model):
     instance types, you can use one of the following parameters, but not both in
     the same request:
 
-    * ``AllowedInstanceTypes`` - The instance types to include in the list. All
+    * ``AllowedInstanceTypes`` \- The instance types to include in the list. All
       other instance types are ignored, even if they match your specified attributes.
-    * ``ExcludedInstanceTypes`` - The instance types to exclude from the list, even
-      if they match your specified attributes.
+    * ``ExcludedInstanceTypes`` \- The instance types to exclude from the list,
+      even if they match your specified attributes.
 
     If you specify ``InstanceRequirements``, you can't specify ``InstanceType``.
 
-    Attribute-based instance type selection is only supported when using Auto
+    Attribute\-based instance type selection is only supported when using Auto
     Scaling groups, EC2 Fleet, and Spot Fleet to launch instances. If you plan to
     use the launch template in the `launch instance
     wizard <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-launch-
@@ -8877,9 +8911,9 @@ class InstanceRequirementsRequest(Boto3Model):
     ec2-instance.html>`_ Amazon Web Services CloudFormation resource, you can't
     specify ``InstanceRequirements``.
 
-    For more information, see `Attribute-based instance type selection for EC2
+    For more information, see `Attribute\-based instance type selection for EC2
     Fleet <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-fleet-attribute-
-    based-instance-type-selection.html>`_, `Attribute-based instance type selection
+    based-instance-type-selection.html>`_, `Attribute\-based instance type selection
     for Spot Fleet <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/spot-fleet-
     attribute-based-instance-type-selection.html>`_, and `Spot placement
     score <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/spot-placement-
@@ -8894,9 +8928,9 @@ class InstanceRequirementsRequest(Boto3Model):
     """
     The minimum and maximum amount of memory, in MiB.
     """
-    CpuManufacturers: Optional[
-        List[Literal["intel", "amd", "amazon-web-services"]]
-    ] = None
+    CpuManufacturers: Optional[List[Literal["intel", "amd", "amazon-web-services"]]] = (
+        None
+    )
     """
     The CPU manufacturers to include.
     """
@@ -8921,7 +8955,7 @@ class InstanceRequirementsRequest(Boto3Model):
     """
     SpotMaxPricePercentageOverLowestPrice: Optional[int] = None
     """
-    [Price protection] The price protection threshold for Spot Instances, as a
+    \[Price protection] The price protection threshold for Spot Instances, as a
     percentage higher than an identified Spot price.
 
     The identified Spot price is the Spot price of the lowest priced current
@@ -8935,10 +8969,10 @@ class InstanceRequirementsRequest(Boto3Model):
     """
     OnDemandMaxPricePercentageOverLowestPrice: Optional[int] = None
     """
-    [Price protection] The price protection threshold for On-Demand Instances,
-    as a percentage higher than an identified On-Demand price.
+    \[Price protection] The price protection threshold for On\-Demand
+    Instances, as a percentage higher than an identified On\-Demand price.
 
-    The identified On-Demand price is the price of the lowest priced current
+    The identified On\-Demand price is the price of the lowest priced current
     generation C, M, or R instance type with your specified attributes. When
     Amazon EC2 selects instance types with your attributes, it will exclude
     instance types whose price exceeds your specified threshold.
@@ -8959,7 +8993,7 @@ class InstanceRequirementsRequest(Boto3Model):
     """
     RequireHibernateSupport: Optional[bool] = None
     """
-    Indicates whether instance types must support hibernation for On-Demand
+    Indicates whether instance types must support hibernation for On\-Demand
     Instances.
     """
     NetworkInterfaceCount: Optional[NetworkInterfaceCountRequest] = None
@@ -9051,10 +9085,10 @@ class InstanceRequirementsRequest(Boto3Model):
     """
     MaxSpotPriceAsPercentageOfOptimalOnDemandPrice: Optional[int] = None
     """
-    [Price protection] The price protection threshold for Spot Instances, as a
-    percentage of an identified On-Demand price.
+    \[Price protection] The price protection threshold for Spot Instances, as a
+    percentage of an identified On\-Demand price.
 
-    The identified On-Demand price is the price of the lowest priced current
+    The identified On\-Demand price is the price of the lowest priced current
     generation C, M, or R instance type with your specified attributes. If no
     current generation C, M, or R instance type matches your attributes, then
     the identified price is from the lowest priced current generation instance
@@ -9078,7 +9112,7 @@ class LaunchTemplatePrivateDnsNameOptionsRequest(Boto3Model):
 
     For IPv4 only subnets, an instance DNS name must be based on the instance
     IPv4 address. For IPv6 native subnets, an instance DNS name must be based
-    on the instance ID. For dual-stack subnets, you can specify whether DNS
+    on the instance ID. For dual\-stack subnets, you can specify whether DNS
     names use the instance IPv4 address or the instance ID.
     """
     EnableResourceNameDnsARecord: Optional[bool] = None
@@ -9125,7 +9159,7 @@ class RequestLaunchTemplateData(Boto3Model):
     This optimization provides dedicated throughput to Amazon EBS and an
     optimized configuration stack to provide optimal Amazon EBS I/O
     performance. This optimization isn't available with all instance types.
-    Additional usage charges apply when using an EBS-optimized instance.
+    Additional usage charges apply when using an EBS\-optimized instance.
     """
     IamInstanceProfile: Optional[
         LaunchTemplateIamInstanceProfileSpecificationRequest
@@ -9133,9 +9167,9 @@ class RequestLaunchTemplateData(Boto3Model):
     """
     The name or Amazon Resource Name (ARN) of an IAM instance profile.
     """
-    BlockDeviceMappings: Optional[
-        List["LaunchTemplateBlockDeviceMappingRequest"]
-    ] = None
+    BlockDeviceMappings: Optional[List["LaunchTemplateBlockDeviceMappingRequest"]] = (
+        None
+    )
     """
     The block device mapping.
     """
@@ -9971,6 +10005,14 @@ class RequestLaunchTemplateData(Boto3Model):
             "r8g.metal-24xl",
             "r8g.metal-48xl",
             "mac2-m1ultra.metal",
+            "g6e.xlarge",
+            "g6e.2xlarge",
+            "g6e.4xlarge",
+            "g6e.8xlarge",
+            "g6e.12xlarge",
+            "g6e.16xlarge",
+            "g6e.24xlarge",
+            "g6e.48xlarge",
         ]
     ] = None
     """
@@ -10022,7 +10064,7 @@ class RequestLaunchTemplateData(Boto3Model):
     """
     The user data to make available to the instance.
 
-    You must provide base64-encoded text. User data is limited to 16 KB. For
+    You must provide base64\-encoded text. User data is limited to 16 KB. For
     more information, see
     `Run commands on your Amazon EC2 instance at launch <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/user-data.html>`_
     in

@@ -1,7 +1,6 @@
-from functools import cached_property
-from collections import OrderedDict
 import time
-from typing import ClassVar, List, TYPE_CHECKING
+from collections import OrderedDict
+from typing import TYPE_CHECKING, ClassVar, List
 
 from botocore.exceptions import WaiterError
 
@@ -14,8 +13,7 @@ if TYPE_CHECKING:
 
 class AutoScalingGroupModelMixin:
     """
-    This is a mixin for :py:class:`AutoScalingGroup` that adds some convenience
-    methods.
+    A mixin for :py:class:`AutoScalingGroup` that adds some convenience methods.
 
     Sometimes we like full :py:class:`Instance` objects instead of the
     :py:class:`AutoScalingInstanceReference` objects that get listed on
@@ -45,23 +43,20 @@ class AutoScalingGroupModelMixin:
         group, if any.
         """
         # Avoid circular import
-        from botocraft.services.ec2 import Instance  # pylint: disable=import-outside-toplevel
-        if self.AutoScalingGroupName:  # type: ignore
+        from botocraft.services.ec2 import Instance
+
+        if self.AutoScalingGroupName:
             pk = OrderedDict(
                 Filters=[
                     {
-                        'Name': 'tag:aws:autoscaling:groupName',
-                        'Values': [self.AutoScalingGroupName]  # type: ignore
+                        "Name": "tag:aws:autoscaling:groupName",
+                        "Values": [self.AutoScalingGroupName],
                     },
-                    {
-                        'Name': 'instance-state-name',
-                        'Values': ['running']
-                    }
+                    {"Name": "instance-state-name", "Values": ["running"]},
                 ]
             )
             return Instance.objects.list(**pk)
-        else:
-            return []
+        return []
 
     @property
     def is_stable(self) -> bool:
@@ -72,21 +67,15 @@ class AutoScalingGroupModelMixin:
         and healthy and the DesiredCapacity is equal to the number of instances.
         """
         ec2_instances = self.ec2_instances
-        if len(ec2_instances) == self.DesiredCapacity:
+        if len(ec2_instances) == self.DesiredCapacity:  # type: ignore[attr-defined]
             # check if all instances are in service
             instance_ids = [instance.InstanceId for instance in ec2_instances]
-            details = self.objects.instance_status(
-                InstanceIds=instance_ids
-            )
-            if all(detail.HealthStatus == 'HEALTHY' for detail in details):
+            details = self.objects.instance_status(InstanceIds=instance_ids)
+            if all(detail.HealthStatus == "HEALTHY" for detail in details):
                 return True
         return False
 
-    def wait_until_stable(
-        self,
-        max_attempts: int = 40,
-        delay: int = 15
-    ) -> None:
+    def wait_until_stable(self, max_attempts: int = 40, delay: int = 15) -> None:
         """
         Since there is no waiter for this, we'll use this method to wait until
         the autoscaling group is stable.
@@ -99,20 +88,26 @@ class AutoScalingGroupModelMixin:
             max_attempts: The maximum number of attempts to make before giving
                 up.
             delay: The number of seconds to wait between attempts.
+
         """
-        from botocraft.services import AutoScalingGroupsType  # pylint: disable=import-outside-toplevel
+        from botocraft.services import AutoScalingGroupsType
+
         wait_count: int = 0
         # There is no waiter for this, so we'll just poll until the desired
         # count is reached, or we reach max_attempts.
         while True:
             asg = self.objects.get(AutoScalingGroupName=self.AutoScalingGroupName)
-            assert asg is not None, "AutoScalingGroup.wait_until_stable(): Autoscaling group not found."
+            assert (
+                asg is not None
+            ), "AutoScalingGroup.wait_until_stable(): Autoscaling group not found."
             if wait_count >= max_attempts:
-                reason = 'Max attempts exceeded'
+                reason = "Max attempts exceeded"
                 raise WaiterError(
-                    name='asg_stable',
+                    name="asg_stable",
                     reason=reason,
-                    last_response=AutoScalingGroupsType(AutoScalingGroups=[asg]).model_dump(),  # type: ignore
+                    last_response=AutoScalingGroupsType(
+                        AutoScalingGroups=[asg]
+                    ).model_dump(),  # type: ignore[arg-type]
                 )
             if asg.is_stable:
                 break
@@ -133,19 +128,22 @@ class AutoScalingGroupModelMixin:
 
         Keyword Args:
             wait: If True, wait for the service to reach the desired count.
+            max_attempts: The maximum number of attempts to make before giving up
+
         """
         if desired_count < self.MinSize:
-            raise ValueError(
-                f"desired_count must be greater than or equal to MinSize, which is {self.MinSize}."
+            msg = (
+                f"desired_count must be greater than or equal to MinSize, "
+                f"which is {self.MinSize}."
             )
+            raise ValueError(msg)
         if desired_count > self.MaxSize:
-            raise ValueError(
-                f"desired_count must be less than or equal to MaxSize, which is {self.MaxSize}."
+            msg = (
+                f"desired_count must be less than or equal to MaxSize, "
+                f"which is {self.MaxSize}."
             )
-        self.objects.scale(
-            self.AutoScalingGroupName,
-            desired_count
-        )
+            raise ValueError(msg)
+        self.objects.scale(self.AutoScalingGroupName, desired_count)
         time.sleep(10)
         if wait:
             wait_count: int = 0
@@ -153,9 +151,11 @@ class AutoScalingGroupModelMixin:
             # count is reached, or we reach max_attempts.
             while True:
                 if wait_count >= max_attempts:
-                    raise TimeoutError(
-                        f"Reached max attempts of {max_attempts} to reach desired count of {desired_count}."
+                    msg = (
+                        f"Reached max attempts of {max_attempts} to reach desired "
+                        f"count of {desired_count}."
                     )
+                    raise TimeoutError(msg)
                 if self.is_stable:
                     break
                 wait_count += 1

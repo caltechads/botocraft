@@ -1,12 +1,11 @@
-from typing import List, Literal, Optional, TYPE_CHECKING, Callable, cast
-
+from typing import TYPE_CHECKING, Callable, List, Literal, Optional, cast
 
 if TYPE_CHECKING:
     from botocraft.services import (
-        Tag,
-        TagSpecification,
         Instance,
         Reservation,
+        Tag,
+        TagSpecification,
     )
 
 
@@ -106,9 +105,10 @@ ResourceType = Literal[
 # Mixin classes
 # -------------
 
+
 class EC2TagsManagerMixin:
     """
-    This mixin is used on on :py:class:`botocraft.services.ec2.InstanceManager`
+    A mixin is used on on :py:class:`botocraft.services.ec2.InstanceManager`
     to convert the odd EC2 tag list to a :py:class:`TagSpecification` object.
     """
 
@@ -126,8 +126,10 @@ class EC2TagsManagerMixin:
         Returns:
             A :py:class:`TagSpecification` object, or ``None`` if ``tags`` is
             ``None``.
+
         """
-        from botocraft.services import TagSpecification  # pylint: disable=import-outside-toplevel
+        from botocraft.services import TagSpecification
+
         if tags is None:
             return None
         return TagSpecification(ResourceType=resource_type, Tags=tags)
@@ -135,7 +137,7 @@ class EC2TagsManagerMixin:
 
 class SecurityGroupModelMixin:
     """
-    This mixin is used on :py:class:`botocraft.services.ec2.SecurityGroup` to
+    A mixin is used on :py:class:`botocraft.services.ec2.SecurityGroup` to
     enhance the ``.save()`` method to allow for managing ingress and egress
     rules at the same time as saving the security group.
 
@@ -150,7 +152,7 @@ class SecurityGroupModelMixin:
         the ``save`` method will allow the user to create a security group and
         add ingress rules in one step.
         """
-        # FIXME: this needs to be enhanced to handle egress rules as well.
+        # TODO: this needs to be enhanced to handle egress rules as well.
         if not self.pk:
             group_id = self.objects.create(self, **kwargs)
             self.objects.authorize_ingress(group_id, self.IpPermissions, **kwargs)
@@ -171,28 +173,37 @@ class SecurityGroupModelMixin:
 # Decorators
 # ----------
 
-def ec2_instances_only(func: Callable[..., List["Reservation"]]) -> Callable[..., List["Instance"]]:
+
+def ec2_instances_only(
+    func: Callable[..., List["Reservation"]],
+) -> Callable[..., List["Instance"]]:
     """
     Wraps a boto3 method that returns a list of :py:class:`Reservation` objects
     to return a list of :py:class:`Instance` objects instead.
     """
+
     def wrapper(*args, **kwargs) -> List["Instance"]:
         reservations = func(*args, **kwargs)
-        instances: List["Instance"] = []
+        instances: List["Instance"] = []  # noqa: UP037
         for reservation in reservations:
             instances.extend(cast(List["Instance"], reservation.Instances))
         return instances
+
     return wrapper
 
 
-def ec2_instance_only(func: Callable[..., Optional["Reservation"]]) -> Callable[..., Optional["Instance"]]:
+def ec2_instance_only(
+    func: Callable[..., Optional["Reservation"]],
+) -> Callable[..., Optional["Instance"]]:
     """
     Wraps a boto3 method that returns a list of :py:class:`Reservation` objects
     to return a single :py:class:`Instance` object instead.
     """
+
     def wrapper(*args, **kwargs) -> Optional["Instance"]:
         reservation = func(*args, **kwargs)
         if not reservation:
             return None
         return cast(List["Instance"], reservation.Instances)[0]
+
     return wrapper

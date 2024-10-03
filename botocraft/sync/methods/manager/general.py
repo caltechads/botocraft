@@ -1,14 +1,15 @@
 from collections import OrderedDict
-from typing import cast, Literal
+from typing import Literal, cast
 
 from .base import ManagerMethodGenerator
 
 
 class GeneralMethodGenerator(ManagerMethodGenerator):
+    method_name: str = "general"
 
-    method_name: str = 'general'
-
-    def kwargs(self, location: Literal['method', 'operation'] = 'method') -> OrderedDict[str, str]:
+    def kwargs(
+        self, location: Literal["method", "operation"] = "method"
+    ) -> OrderedDict[str, str]:
         """
         Just in case this ends up being used for a method that can paginate,
         we'll exclude the pagination arguments.
@@ -34,6 +35,7 @@ class GeneralMethodGenerator(ManagerMethodGenerator):
 
         Returns:
             The name of the return type class.
+
         """
         response_class_name = self.response_class
         if self.method_def.return_type:
@@ -41,9 +43,11 @@ class GeneralMethodGenerator(ManagerMethodGenerator):
         if self.response_attr is None:
             return f'"{response_class_name}"'
         if self.output_shape is not None:
-            response_attr_shape = self.output_shape.members[cast(str, self.response_attr)]
+            response_attr_shape = self.output_shape.members[
+                cast(str, self.response_attr)
+            ]
         return_type = self.shape_converter.convert(response_attr_shape, quote=True)
-        return return_type
+        return return_type  # noqa: RET504
 
     @property
     def body(self) -> str:
@@ -52,6 +56,7 @@ class GeneralMethodGenerator(ManagerMethodGenerator):
 
         Returns:
             The method body.
+
         """
         if self.client.can_paginate(self.boto3_name):
             code = f"""
@@ -61,7 +66,7 @@ class GeneralMethodGenerator(ManagerMethodGenerator):
         results: {self.return_type} = []
         for _response in response_iterator:
             response = {self.response_class}(**_response)
-"""
+"""  # noqa: E501
             if self.response_attr is not None:
                 code += f"""
             if response.{self.response_attr}:
@@ -90,7 +95,7 @@ class GeneralMethodGenerator(ManagerMethodGenerator):
         {self.operation_args}
         {self.operation_call}
 """
-            if self.return_type == 'None' or self.return_type == '"None"':
+            if self.return_type in ("None", '"None"'):
                 pass
             elif self.response_attr is None:
                 code += """

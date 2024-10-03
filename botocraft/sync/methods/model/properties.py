@@ -1,6 +1,5 @@
-from typing import TYPE_CHECKING
 import re
-
+from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from botocraft.sync.service import ModelGenerator
@@ -8,7 +7,7 @@ if TYPE_CHECKING:
 
 class ModelPropertyGenerator:
     """
-    The base class for all model method properties.  This is used to generate
+    Base class for all model method properties.  This is used to generate
     the code for a single method on a manager class.
 
     To use this, you subclass it and implement the :py:meth:`body`
@@ -25,6 +24,7 @@ class ModelPropertyGenerator:
         model_name: The name of the model we're generating the property for.
 
     """
+
     def __init__(
         self,
         generator: "ModelGenerator",
@@ -51,11 +51,12 @@ class ModelPropertyGenerator:
 
         Returns:
             The decorator for the method.
+
         """
         if self.property_def.cached:
-            self.generator.imports.add('from functools import cached_property')
-            return '    @cached_property'
-        return '    @property'
+            self.generator.imports.add("from functools import cached_property")
+            return "    @cached_property"
+        return "    @property"
 
     @property
     def return_type(self) -> str:
@@ -63,18 +64,19 @@ class ModelPropertyGenerator:
         Return the return type annotation for the method.
         """
         if self.property_def.transformer.regex:
-            return_type = 'Optional[str]'
+            return_type = "Optional[str]"
             num_groups = re.compile(self.property_def.transformer.regex.regex).groups
             if num_groups > 1:
-                return_type = 'Optional[Dict[str, str]]'
+                return_type = "Optional[Dict[str, str]]"
         elif self.property_def.transformer.mapping:
-            # FIXME: it'd be nice to do something like a typed dict here
-            return_type = 'OrderedDict[str, Any]'
-            self.generator.imports.add('from collections import OrderedDict')
+            # TODO: it'd be nice to do something like a typed dict here
+            return_type = "OrderedDict[str, Any]"
+            self.generator.imports.add("from collections import OrderedDict")
         elif self.property_def.transformer.alias:
             fields = self.generator.fields(self.model_name)
-            assert self.property_def.transformer.alias in fields, \
-                f"Alias: attribute {self.property_def.transformer.alias} not found in model {self.model_name}"
+            assert (
+                self.property_def.transformer.alias in fields
+            ), f"Alias: attribute {self.property_def.transformer.alias} not found in model {self.model_name}"  # noqa: E501
             return_type = self.generator.field_type(
                 self.model_name,
                 self.property_def.transformer.alias,
@@ -93,7 +95,7 @@ class ModelPropertyGenerator:
         {self.property_def.docstring}
         """
 '''
-        return ''
+        return ""
 
     @property
     def signature(self) -> str:
@@ -102,8 +104,9 @@ class ModelPropertyGenerator:
 
         Returns:
             The method signature.
+
         """
-        return f'    def {self.property_name}(self) -> {self.return_type}:'
+        return f"    def {self.property_name}(self) -> {self.return_type}:"
 
     @property
     def _regex_body(self) -> str:
@@ -112,9 +115,11 @@ class ModelPropertyGenerator:
 
         Returns:
             The method body.
+
         """
-        assert self.property_def.transformer.regex, \
-            f"Property {self.property_name} does not have a regex transformer"
+        assert (
+            self.property_def.transformer.regex
+        ), f"Property {self.property_name} does not have a regex transformer"
         return f"""
         return self.transform(
             "{self.property_def.transformer.regex.attribute}",
@@ -129,9 +134,11 @@ class ModelPropertyGenerator:
 
         Returns:
             The method body.
+
         """
-        assert self.property_def.transformer.mapping, \
-            f"Property {self.property_name} does not have a mapping transformer"
+        assert (
+            self.property_def.transformer.mapping
+        ), f"Property {self.property_name} does not have a mapping transformer"
         code = """
         return OrderedDict({
 """
@@ -151,9 +158,11 @@ class ModelPropertyGenerator:
 
         Returns:
             The method body.
+
         """
-        assert self.property_def.transformer.alias, \
-            f"Property {self.property_name} does not have an alias transformer"
+        assert (
+            self.property_def.transformer.alias
+        ), f"Property {self.property_name} does not have an alias transformer"
         return f"""
         return self.{self.property_def.transformer.alias}
 """
@@ -165,14 +174,16 @@ class ModelPropertyGenerator:
 
         Returns:
             The method body.
+
         """
         if self.property_def.transformer.regex:
             return self._regex_body
-        elif self.property_def.transformer.mapping:
+        if self.property_def.transformer.mapping:
             return self._mapping_body
-        elif self.property_def.transformer.alias:
+        if self.property_def.transformer.alias:
             return self._alias_body
-        raise RuntimeError(f"Property {self.property_name} does not have a transformer")
+        msg = f"Property {self.property_name} does not have a transformer"
+        raise RuntimeError(msg)
 
     @property
     def code(self) -> str:
@@ -181,6 +192,7 @@ class ModelPropertyGenerator:
 
         Returns:
             The code for the method.
+
         """
         return f"""
 

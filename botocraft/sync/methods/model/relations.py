@@ -21,6 +21,7 @@ class ModelRelationGenerator:
     Args:
         generator: The model generator that is creating the model class
         model_name: The name of the model we're generating the property for.
+
     """
 
     def __init__(
@@ -45,9 +46,9 @@ class ModelRelationGenerator:
         ]
         if not model_path.endswith(self.generator.service_generator.aws_service_name):
             # The relation is not to one of our models, so we need to import it
-            manager_model_name = f'{self.property_def.primary_model_name}Manager'
+            manager_model_name = f"{self.property_def.primary_model_name}Manager"
             self.generator.imports.add(
-                f'from {model_path} import {self.property_def.primary_model_name}, {manager_model_name}'
+                f"from {model_path} import {self.property_def.primary_model_name}, {manager_model_name}"  # noqa: E501
             )
 
     @property
@@ -57,6 +58,7 @@ class ModelRelationGenerator:
 
         Returns:
             ``True`` if this is a many-to-many relation, ``False`` otherwise.
+
         """
         if self.property_def.many is not None:
             return self.property_def.many
@@ -72,7 +74,7 @@ class ModelRelationGenerator:
                 field_name,
                 field_shape=fields[field_name].botocore_shape,
             )
-            if 'List[' in attr_python_type:
+            if "List[" in attr_python_type:
                 many = True
         return many
 
@@ -85,11 +87,12 @@ class ModelRelationGenerator:
 
         Returns:
             The decorator for the method.
+
         """
         if self.property_def.cached:
-            self.generator.imports.add('from functools import cached_property')
-            return '    @cached_property'
-        return '    @property'
+            self.generator.imports.add("from functools import cached_property")
+            return "    @cached_property"
+        return "    @property"
 
     @property
     def return_type(self) -> str:
@@ -106,7 +109,7 @@ class ModelRelationGenerator:
         """
         Return the docstring for the method.
         """
-        code: str = ''
+        code: str = ""
         if self.property_def.docstring:
             code = f'''
         """
@@ -132,16 +135,18 @@ class ModelRelationGenerator:
 
         Returns:
             The method signature.
+
         """
-        return f'    def {self.property_name}(self) -> {self.return_type}:'
+        return f"    def {self.property_name}(self) -> {self.return_type}:"
 
     @property
     def _regex_body(self) -> str:
         """
         Return the method body for a regex transformer.
         """
-        assert self.property_def.transformer.regex is not None, \
-            f"Regex: no regex defined for property {self.property_name} on model {self.model_name}"
+        assert (
+            self.property_def.transformer.regex is not None
+        ), f"Regex: no regex defined for property {self.property_name} on model {self.model_name}"  # noqa: E501
         if self.returns_many:
             code = f"""
         if self.{self.property_def.transformer.regex.attribute} is None:
@@ -151,14 +156,14 @@ class ModelRelationGenerator:
             for value in self.{self.property_def.transformer.regex.attribute}
         ]
         return {self.property_def.primary_model_name}.objects.using(self.objects.session).list(**pks)
-"""
+"""  # noqa: E501
         else:
             code = f"""
         if self.{self.property_def.transformer.regex.attribute} is None:
             return None
         pk = self.transform(value, r"{self.property_def.transformer.regex.regex}")
         return {self.property_def.primary_model_name}.objects.using(self.objects.session).get(**pk)
-"""
+"""  # noqa: E501
         return code
 
     @property
@@ -166,18 +171,20 @@ class ModelRelationGenerator:
         """
         Return the method body for a mapping transformer.
         """
-        assert self.property_def.transformer.mapping is not None, \
-            f"Mapping: no mapping defined for property {self.property_name} on model {self.model_name}"
-        self.generator.imports.add('from collections import OrderedDict')
+        assert (
+            self.property_def.transformer.mapping is not None
+        ), f"Mapping: no mapping defined for property {self.property_name} on model {self.model_name}"  # noqa: E501
+        self.generator.imports.add("from collections import OrderedDict")
         code = """
         try:
             pk = OrderedDict({
 """
         for key, value in self.property_def.transformer.mapping.items():
-            if 'self.' not in value and not value.startswith('"'):
-                value = f'self.{value}'
+            _value = value
+            if "self." not in _value and not value.startswith('"'):
+                _value = f"self.{_value}"
             code += f"""
-            "{key}": {value},
+            "{key}": {_value},
 """
         if self.returns_many:
             code += f"""
@@ -185,14 +192,14 @@ class ModelRelationGenerator:
         except AttributeError:
             return []
         return {self.property_def.primary_model_name}.objects.using(self.objects.session).list(**pk)
-"""
+"""  # noqa: E501
         else:
             code += f"""
         }})
         except AttributeError:
             return None
         return {self.property_def.primary_model_name}.objects.using(self.objects.session).get(**pk)
-"""
+"""  # noqa: E501
         return code
 
     @property
@@ -202,6 +209,7 @@ class ModelRelationGenerator:
 
         Returns:
             The method body.
+
         """
         if self.property_def.transformer.regex:
             body = self._regex_body
@@ -216,6 +224,7 @@ class ModelRelationGenerator:
 
         Returns:
             The code for the method.
+
         """
         return f"""
 

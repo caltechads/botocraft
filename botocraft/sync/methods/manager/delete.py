@@ -1,4 +1,5 @@
 from typing import Optional
+
 from .base import ManagerMethodGenerator
 
 
@@ -11,7 +12,7 @@ class DeleteMethodGenerator(ManagerMethodGenerator):
     that instead.
     """
 
-    method_name: str = 'delete'
+    method_name: str = "delete"
 
     @property
     def response_attr(self) -> Optional[str]:
@@ -22,6 +23,7 @@ class DeleteMethodGenerator(ManagerMethodGenerator):
 
         Returns:
             The response attribute name, or ``None``.
+
         """
         try:
             return super().response_attr
@@ -37,12 +39,13 @@ class DeleteMethodGenerator(ManagerMethodGenerator):
 
         Returns:
             The name of the return type class.
+
         """
         # Leave this here because the response_class property creates the
         # response class code if it doesn't exist.
         _ = self.response_class
         return_type = super().return_type
-        if return_type != 'None':
+        if return_type != "None":
             return_type = f'"{self.model_name}"'
             if self.method_def.return_type:
                 return_type = self.method_def.return_type
@@ -57,9 +60,9 @@ class DeleteMethodGenerator(ManagerMethodGenerator):
         {self.operation_args}
         {self.operation_call}
 """
-        if self.return_type != 'None':
+        if self.return_type != "None":
             if self.response_attr is None:
                 code += "        return response"
             else:
-                code += f"        return cast({self.model_name}, response.{self.response_attr})"
+                code += f"        return cast({self.model_name}, response.{self.response_attr})"  # noqa: E501
         return code

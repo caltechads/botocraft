@@ -1,30 +1,24 @@
+import re
 from collections import OrderedDict
 from dataclasses import dataclass, field
 from pathlib import Path
-import re
 from textwrap import indent
-from typing import Optional, Dict, List, Any
+from typing import Any, Dict, List, Optional
 
 import yaml
-
-from pydantic import (
-    BaseModel,
-    Field,
-    field_validator,
-    ValidationInfo,
-    model_validator
-)
+from pydantic import BaseModel, Field, ValidationInfo, field_validator, model_validator
 
 from botocraft.sync.docstring import DocumentationFormatter
 
-DATA_DIR = Path(__file__).parent.parent / 'data'
-SERVICES_DIR = Path(__file__).parent.parent / 'services'
-DOCS_DIR = Path(__file__).parent.parent.parent / 'doc' / 'source'
+DATA_DIR = Path(__file__).parent.parent / "data"
+SERVICES_DIR = Path(__file__).parent.parent / "services"
+DOCS_DIR = Path(__file__).parent.parent.parent / "doc" / "source"
 
 
 # ------
 # Models
 # ------
+
 
 class Importable(BaseModel):
     """
@@ -39,8 +33,8 @@ class Importable(BaseModel):
 
 class RegexTransformer(BaseModel):
     """
-    This transformer is used when generating a property on a model that is
-    a regular expression transformation of an attribute on the model.
+    Used when generating a property on a model that is a regular expression
+    transformation of an attribute on the model.
 
     If the regular expression has named groups, we'll return a dictionary
     of the named groups.  Otherwise, we'll return the value of the first
@@ -53,12 +47,12 @@ class RegexTransformer(BaseModel):
     #: Use this regular expression to transform the attribute value.
     regex: str
 
-    @field_validator('regex')
+    @field_validator("regex")
     @classmethod
     def check_valid_regexp(
         cls,
         v: Optional[str],
-        info: ValidationInfo
+        info: ValidationInfo,
     ) -> Optional[str]:
         """
         Validate that the transformer is a valid regular expression.
@@ -72,18 +66,18 @@ class RegexTransformer(BaseModel):
 
         Returns:
             The value of the field
-        """
 
+        """
         if v is not None:
             try:
                 re.compile(v)
             except re.error as exc:
-                raise ValueError(f'{info.field_name} must be a valid regular expression') from exc
+                msg = f"{info.field_name} must be a valid regular expression"
+                raise ValueError(msg) from exc
         return v
 
 
 class AttributeTransformerDefinition(BaseModel):
-
     #: If specified, use this regular expression to build the
     #: property output
     regex: Optional[RegexTransformer] = None
@@ -95,7 +89,7 @@ class AttributeTransformerDefinition(BaseModel):
     #: model
     alias: Optional[str] = None
 
-    @model_validator(mode='before')
+    @model_validator(mode="before")
     @classmethod
     def check_transformer(cls, data: Any) -> Any:
         """
@@ -110,12 +104,15 @@ class AttributeTransformerDefinition(BaseModel):
 
         Returns:
             The input data for this model
+
         """
-        transformers = [data.get('regex'), data.get('mapping'), data.get('alias')]
-        if transformers.count(None) < 2:
-            raise ValueError('Only one of regex, mapping or alias can be specified')
-        if transformers.count(None) == 3:
-            raise ValueError('One of regex, mapping, or alias must be specified')
+        transformers = [data.get("regex"), data.get("mapping"), data.get("alias")]
+        if transformers.count(None) < 2:  # noqa: PLR2004
+            msg = "Only one of regex, mapping or alias can be specified"
+            raise ValueError(msg)
+        if transformers.count(None) == 3:  # noqa: PLR2004
+            msg = "One of regex, mapping, or alias must be specified"
+            raise ValueError(msg)
         return data
 
 
@@ -140,9 +137,9 @@ class ModelPropertyDefinition(BaseModel):
 
 class ModelRelationshipDefinition(BaseModel):
     """
-    This defines a property on a model that is a relationship to another
-    model.
+    Defines a property on a model that is a relationship to another model.
     """
+
     #: The docstring for this property
     docstring: Optional[str] = None
     #: If ``True``, make this property be cached
@@ -155,7 +152,7 @@ class ModelRelationshipDefinition(BaseModel):
     #:     If you are using a regex transformer, you must use named groups.
     #:
     #:     Example::
-    #:         r'arn:aws:ecs:(?P<region>[^:]+):(?P<account_id>[^:]+):(?P<resource_type>[^:]+)/(?P<resource_id>[^:]+)'
+    #:         r'arn:aws:ecs:(?P<region>[^:]+):(?P<account_id>[^:]+):(?P<resource_type>[^:]+)/(?P<resource_id>[^:]+)'  # noqa: E501
     transformer: AttributeTransformerDefinition
     #: The name of the botocraft primary model to use for this relationship
     #:
@@ -168,7 +165,7 @@ class ModelRelationshipDefinition(BaseModel):
     #: try to figure it out from our transformer.
     many: Optional[bool] = None
 
-    @model_validator(mode='before')
+    @model_validator(mode="before")
     @classmethod
     def check_regex_transformer(cls, data: Any) -> Any:
         """
@@ -184,19 +181,22 @@ class ModelRelationshipDefinition(BaseModel):
 
         Returns:
             The input data for this model
+
         """
-        transformer = data['transformer']
-        regex_transformer = transformer.get('regex')
+        transformer = data["transformer"]
+        regex_transformer = transformer.get("regex")
         if regex_transformer is not None:
-            pattern = regex_transformer['regex']
-            regex = re.compile(fr'{pattern}')
+            pattern = regex_transformer["regex"]
+            regex = re.compile(rf"{pattern}")
             if not regex.groupindex:
-                raise ValueError('Regex transformer must have named groups')
+                msg = "Regex transformer must have named groups"
+                raise ValueError(msg)
             if len(regex.groupindex.keys()) != regex.groups:
-                raise ValueError('Regex transformer must have no unnamed groups')
+                msg = "Regex transformer must have no unnamed groups"
+                raise ValueError(msg)
         return data
 
-    @model_validator(mode='before')
+    @model_validator(mode="before")
     @classmethod
     def check_alias_transformer(cls, data: Any) -> Any:
         """
@@ -212,17 +212,18 @@ class ModelRelationshipDefinition(BaseModel):
 
         Returns:
             The input data for this model
+
         """
-        if data['transformer'].get('alias') is not None:
-            raise ValueError(
-                'Alias transformers are not supported for relations. Use a regex '
-                'or mapping transformer instead.'
+        if data["transformer"].get("alias") is not None:
+            msg = (
+                "Alias transformers are not supported for relations. Use a regex "
+                "or mapping transformer instead."
             )
+            raise ValueError(msg)
         return data
 
 
 class ModelManagerMethodArgDefinition(BaseModel):
-
     #: The name of the argument
     name: str
     #: The value of the argument.  If ``None``, we'll use the value of the
@@ -233,7 +234,6 @@ class ModelManagerMethodArgDefinition(BaseModel):
 
 
 class ModelManagerMethodKwargDefinition(BaseModel):
-
     #: The name of the argument
     name: str
     #: The value of the argument.  if ``None``, we'll use the value of the
@@ -247,9 +247,10 @@ class ModelManagerMethodKwargDefinition(BaseModel):
 
 class ModelManagerMethodDefinition(BaseModel):
     """
-    This definition is used to provide methods on a model
-    that call methods on the manager for the model.
+    Used to provide methods on a model that call methods on the manager for the
+    model.
     """
+
     # The name of the method on the manager
     manager_method: str
     #: If ``True``, make this result from this cached
@@ -270,7 +271,9 @@ class ModelManagerMethodDefinition(BaseModel):
     #: keyword.
     keyword_args: List[ModelManagerMethodKwargDefinition] = Field(default_factory=list)
     #: Keyword arguments the users can supply
-    user_keyword_args: List[ModelManagerMethodKwargDefinition] = Field(default_factory=list)
+    user_keyword_args: List[ModelManagerMethodKwargDefinition] = Field(
+        default_factory=list
+    )
     #: A list of decorators to wrap the method in
     decorators: List[Importable] = Field(default_factory=list)
 
@@ -373,18 +376,21 @@ class ModelDefinition(BaseModel):
 
         Returns:
             The botocore field name
+
         """
         if field_name in self.fields:
             return field_name
         for botocore_name, field_def in self.fields.items():
             if field_def.rename == field_name:
                 return botocore_name
-        raise KeyError(f'{self.name}: No field or alias named "{field_name}"')
+        msg = f'{self.name}: No field or alias named "{field_name}"'
+        raise KeyError(msg)
 
 
 # --------
 # Managers
 # --------
+
 
 class MethodArgumentDefinition(BaseModel):
     """
@@ -475,8 +481,8 @@ class ManagerMethodDefinition(BaseModel):
     #:
     #: .. important::
     #:     If you've renamed the model attribute you want to use on the response class
-    #:     using :py:attr:`ModelAttributeDefinition.rename`, put the name of the botocore
-    #:     attribute here, not the value of the ``rename`` attribute.
+    #:     using :py:attr:`ModelAttributeDefinition.rename`, put the name of
+    #:     the botocore here, not the value of the ``rename`` attribute.
     response_attr: Optional[str] = None
     #: If specified, use this as the docstring for the method itself (not
     #: the args, kwargs or return type).  If not specified, we'll use the
@@ -500,6 +506,7 @@ class ManagerMethodDefinition(BaseModel):
 
         Returns:
             A list of explicit positional arguments
+
         """
         if not self.args:
             return []
@@ -521,6 +528,7 @@ class ManagerMethodDefinition(BaseModel):
 
         Returns:
             A list of explicit keyword arguments
+
         """
         if not self.args:
             return []
@@ -555,37 +563,37 @@ class MethodDocstringDefinition:
         Return ``True`` if the docstring is empty, ``False`` otherwise.
         """
         return (
-            self.method is None and
-            not self.args and
-            not self.kwargs and
-            self.return_value is None
+            self.method is None
+            and not self.args
+            and not self.kwargs
+            and self.return_value is None
         )
 
-    def Args(self, formatter: DocumentationFormatter) -> str:
+    def Args(self, formatter: DocumentationFormatter) -> str:  # noqa: N802
         """
         Return the docstring for the positional arguments.
         """
         assert self.args, "No kwargs"
-        docstring = '''
+        docstring = """
         Args:
-'''
+"""
         for arg_name, arg_docstring in self.args.items():
             docstring += formatter.format_argument(arg_name, arg_docstring)
-            docstring += '\n'
+            docstring += "\n"
 
         return docstring
 
-    def Keyword_Args(self, formatter: DocumentationFormatter) -> str:
+    def Keyword_Args(self, formatter: DocumentationFormatter) -> str:  # noqa: N802
         """
         Return the docstring for the keyword arguments.
         """
         assert self.kwargs, "No args"
-        docstring = '''
+        docstring = """
         Keyword Args:
-'''
+"""
         for arg_name, arg_docstring in self.kwargs.items():
             docstring += formatter.format_argument(arg_name, arg_docstring)
-            docstring += '\n'
+            docstring += "\n"
         return docstring
 
     def render(self, formatter: DocumentationFormatter) -> Optional[str]:
@@ -600,8 +608,8 @@ class MethodDocstringDefinition:
 '''
         if self.method:
             method_str = formatter.clean(self.method, max_lines=1).strip()
-            docstring += indent(method_str, '        ')
-            docstring += '\n'
+            docstring += indent(method_str, "        ")
+            docstring += "\n"
         if self.args:
             docstring += self.Args(formatter)
         if self.kwargs:
@@ -615,7 +623,6 @@ class ManagerDefinition(BaseModel):
     The definition of a single manager on a :py:class:`ServiceDefinition`.
 
     Example:
-
         .. code-block:: yaml
 
             Repository:
@@ -632,13 +639,15 @@ class ManagerDefinition(BaseModel):
                                 required: true
                             force:
                                 default: false
+
     """
 
     #: The name of the model this manager is for
     name: str
     #: The methods to generate on this manager
     methods: Dict[str, ManagerMethodDefinition] = {}
-    #: If ``True``, make this manager use the :py:class:`ReadonlyBoto3ModelManager` superclass
+    #: If ``True``, make this manager use the :py:class:`ReadonlyBoto3ModelManager`
+    #: superclass
     readonly: bool = False
     #: Mixin classes to add to the manager
     mixins: List[Importable] = []
@@ -648,13 +657,14 @@ class ManagerDefinition(BaseModel):
 # Services
 # --------
 
+
 class ServiceDefinition(BaseModel):
     """
     Our definition of a single AWS service, e.g. ``ecs``, ``ec2``, etc.
     """
 
     #: The global botocraft interface model
-    interface: 'BotocraftInterface'
+    interface: "BotocraftInterface"
     #: The name of the botocore service
     name: str
     #: The models to generate for this service.  These are specifically models
@@ -683,23 +693,25 @@ class ServiceDefinition(BaseModel):
         return {**self.primary_models, **self.secondary_models}
 
     @classmethod
-    def load(cls, name: str, interface: 'BotocraftInterface') -> 'ServiceDefinition':
+    def load(cls, name: str, interface: "BotocraftInterface") -> "ServiceDefinition":
         """
         Load a service definition from its YAML files.
 
         Args:
             name: The name of the AWS service to load
+            interface: The global botocraft interface model
 
         Returns:
             The loaded service definition
+
         """
         managers: Optional[Dict[str, ManagerDefinition]] = None
-        model_path = DATA_DIR / name / 'models.yml'
-        manager_path = DATA_DIR / name / 'managers.yml'
-        with open(model_path, encoding='utf-8') as f:
+        model_path = DATA_DIR / name / "models.yml"
+        manager_path = DATA_DIR / name / "managers.yml"
+        with model_path.open(encoding="utf-8") as f:
             models = yaml.safe_load(f)
         if manager_path.exists():
-            with open(manager_path, encoding='utf-8') as f:
+            with manager_path.open(encoding="utf-8") as f:
                 managers = {
                     name: ManagerDefinition(name=name, **defn)
                     for name, defn in yaml.safe_load(f).items()
@@ -708,11 +720,11 @@ class ServiceDefinition(BaseModel):
             name=name,
             primary_models={
                 name: ModelDefinition(name=name, **defn)
-                for name, defn in models.get('primary', {}).items()
+                for name, defn in models.get("primary", {}).items()
             },
             secondary_models={
                 name: ModelDefinition(name=name, **defn)
-                for name, defn in models.get('secondary', {}).items()
+                for name, defn in models.get("secondary", {}).items()
             },
             managers=managers,
             interface=interface,
@@ -732,6 +744,7 @@ class ServiceDefinition(BaseModel):
 
         Returns:
             The botocore shape name
+
         """
         known_models = {**self.primary_models, **self.secondary_models}
         if model_name in known_models:
@@ -739,15 +752,16 @@ class ServiceDefinition(BaseModel):
         for name, model in known_models.items():
             if model.alternate_name == model_name:
                 return name
-        raise KeyError(f'Unknown model name "{model_name}"')
+        msg = f'Unknown model name "{model_name}"'
+        raise KeyError(msg)
 
 
 # ------
 # Global
 # ------
 
-class BotocraftInterface(BaseModel):
 
+class BotocraftInterface(BaseModel):
     #: The services to generate
     services: Dict[str, ServiceDefinition] = {}
     #: The model name to import path mappings
@@ -755,8 +769,8 @@ class BotocraftInterface(BaseModel):
         # Tag is defined in so many services that we manually
         # defined it in the botocraft.models.tagging module and
         # define it here so it doesn't get generated.
-        'Tag': 'botocraft.services.common',
-        'Filter': 'botocraft.services.common',
+        "Tag": "botocraft.services.common",
+        "Filter": "botocraft.services.common",
     }
 
     def load(self) -> None:
@@ -765,6 +779,7 @@ class BotocraftInterface(BaseModel):
 
         Returns:
             The loaded interface.
+
         """
         for path in DATA_DIR.iterdir():
             service = path.name
@@ -774,12 +789,12 @@ class BotocraftInterface(BaseModel):
                     # Register the model name to import path mapping so that we can
                     # have them available when we're building our inter-model
                     # relationships.
-                    self.models[model] = f'botocraft.services.{service}'
+                    self.models[model] = f"botocraft.services.{service}"
                 for manager in self.services[service].managers:
                     # Register the manager name to import path mapping so that we can
                     # have them available when we're building our inter-model
                     # relationships.
-                    self.models[manager] = f'botocraft.services.{service}'
+                    self.models[manager] = f"botocraft.services.{service}"
 
     def add_model(self, name: str, service: str) -> None:
         """
@@ -788,33 +803,35 @@ class BotocraftInterface(BaseModel):
         Args:
             name: the model name
             service: the AWS service name
+
         """
         if name in self.models:
             if (
-                name in self.services[service].primary_models and
-                self.models[name] == f'botocraft.services.{service}'
+                name in self.services[service].primary_models
+                and self.models[name] == f"botocraft.services.{service}"
             ):
                 # We already registered this model during :py:meth:`load`
                 return
-            raise ValueError(f'Model {name} already defined in "{self.models[name]}"')
-        self.models[name] = f'botocraft.services.{service}'
+            msg = f'Model {name} already defined in "{self.models[name]}"'
+            raise ValueError(msg)
+        self.models[name] = f"botocraft.services.{service}"
 
     def populate_init_py(self):
         """
         Populate the ``__init__.py`` file in the ``botocraft.models``
         package with import statements for all of our models.
         """
-        init_path = SERVICES_DIR / '__init__.py'
-        with open(init_path, 'w', encoding='utf-8') as f:
+        init_path = SERVICES_DIR / "__init__.py"
+        with init_path.open("w", encoding="utf-8") as f:
             for service in self.services:
-                f.write(f'from .{service} import *  # noqa: F401,F403\n')
+                f.write(f"from .{service} import *  # noqa: F401,F403\n")
 
     def populate_services_toc(self):
         """
         Populate the ``_services_index.rst`` file in the ``doc/source``
         folder with the ``.. toctree::`` directive for all of our services.
         """
-        index_path = DOCS_DIR / '_services_index.rst'
+        index_path = DOCS_DIR / "_services_index.rst"
         code = """
 .. toctree::
    :caption: AWS Services
@@ -822,8 +839,8 @@ class BotocraftInterface(BaseModel):
 
 """
         for service in sorted(self.services.keys()):
-            code += f'   api/services/{service}\n'
-        with open(index_path, 'w', encoding='utf-8') as f:
+            code += f"   api/services/{service}\n"
+        with index_path.open("w", encoding="utf-8") as f:
             f.write(code)
 
     def populate_services_list(self):
@@ -831,11 +848,11 @@ class BotocraftInterface(BaseModel):
         Populate the ``_services_list.rst`` file in the ``doc/source``
         folder with links to all of our services.
         """
-        index_path = DOCS_DIR / 'overview' / '_services_list.rst'
+        index_path = DOCS_DIR / "overview" / "_services_list.rst"
         code = ""
         for service in sorted(self.services.keys()):
-            code += f'- :doc:`/api/services/{service}`\n'
-        with open(index_path, 'w', encoding='utf-8') as f:
+            code += f"- :doc:`/api/services/{service}`\n"
+        with index_path.open("w", encoding="utf-8") as f:
             f.write(code)
 
     def update_init_py(self, service: str) -> None:
@@ -846,28 +863,29 @@ class BotocraftInterface(BaseModel):
         Args:
             service: The name of the service to update the ``__init__.py``
                 file for.
+
         """
-        init_path = SERVICES_DIR / '__init__.py'
-        import_line = f'from .{service} import *  # noqa: F401,F403'
-        with open(init_path, 'r', encoding='utf-8') as f:
+        init_path = SERVICES_DIR / "__init__.py"
+        import_line = f"from .{service} import *  # noqa: F401,F403"
+        with init_path.open(encoding="utf-8") as f:
             contents = f.read()
         if import_line not in contents:
-            with open(init_path, 'a', encoding='utf-8') as f:
-                f.write(f'{import_line}\n')
+            with init_path.open("a", encoding="utf-8") as f:
+                f.write(f"{import_line}\n")
 
     def purge_docs(self) -> None:
         """
         Purge all the previously generated documentation.
         """
-        path = DOCS_DIR / 'api' / 'services'
+        path = DOCS_DIR / "api" / "services"
         for service in self.services:
-            service_path = path / f'{service}.rst'
+            service_path = path / f"{service}.rst"
             if service_path.exists():
                 service_path.unlink()
-        path = DOCS_DIR / '_services_index.rst'
+        path = DOCS_DIR / "_services_index.rst"
         if path.exists():
             path.unlink()
-        path = DOCS_DIR / 'overview' / '_services_list.rst'
+        path = DOCS_DIR / "overview" / "_services_list.rst"
         if path.exists():
             path.unlink()
 
@@ -878,19 +896,23 @@ class BotocraftInterface(BaseModel):
         Keyword Args:
             service: If specified, only generate the interface for the given
                 service.  Otherwise, generate all interfaces.
+
         """
-        from .service import ServiceGenerator  # pylint: disable=import-outside-toplevel
+        from .service import ServiceGenerator
+
         # First purge all the previously generated documentation
         self.purge_docs()
         if service:
-            assert service in self.services, f'No service definition for AWS Service "{service}"'
-            print(f'Generating {service} service interface')
+            assert (
+                service in self.services
+            ), f'No service definition for AWS Service "{service}"'
+            print(f"Generating {service} service interface")
             generator = ServiceGenerator(self.services[service])
             generator.generate()
             self.update_init_py(service)
         else:
             for service_name, _service in self.services.items():
-                print(f'Generating {service_name} service interface')
+                print(f"Generating {service_name} service interface")
                 generator = ServiceGenerator(_service)
                 generator.generate()
             self.populate_init_py()

@@ -2,14 +2,14 @@ import base64
 import datetime
 from functools import cached_property
 from typing import (
-    cast,
+    TYPE_CHECKING,
     Any,
     Callable,
     ClassVar,
     Dict,
     List,
     Optional,
-    TYPE_CHECKING,
+    cast,
 )
 
 import docker
@@ -17,8 +17,8 @@ from pydantic import BaseModel
 
 if TYPE_CHECKING:
     from botocraft.services import (
-        Image,
-        ImageManager,
+        ECRImage,
+        ECRImageManager,
         ImageIdentifier,
         RepositoryManager,
     )
@@ -53,6 +53,7 @@ class ImageInfo(BaseModel):
     Important:
         You must have the docker daemon running to use the methods that return
         this object.
+
     """
 
     # The image name, including the registry, repository, and tag.
@@ -78,84 +79,91 @@ class ImageInfo(BaseModel):
 
 # Repository
 
-def repo_list_images_ecr_images_only(func: Callable[..., List["ImageIdentifier"]]) -> Callable[..., List["Image"]]:
+
+def repo_list_images_ecr_images_only(
+    func: Callable[..., List["ImageIdentifier"]],
+) -> Callable[..., List["ECRImage"]]:
     """
     Convert a list of ECR image identifiers returned by
     :py:meth:`botocraft.services.ecr.RepositoryManager.list_images` into a list
     of :py:class:`botocraft.services.ecr.Image` objects.
     """
-    def wrapper(self, *args, **kwargs) -> List["Image"]:
-        identifiers: List["ImageIdentifier"] = func(self, *args, **kwargs)
-        images: List["Image"] = []
+
+    def wrapper(self, *args, **kwargs) -> List["ECRImage"]:
+        identifiers: List["ImageIdentifier"] = func(self, *args, **kwargs)  # noqa: UP037
+        images: List["ECRImage"] = []  # noqa: UP037
         # NOTE: to be honest i'm not sure if there is a per request limit
         # for the number of images that can be retrieved, but i'm going to
         # assume that there is a limit of 100 images per request.
         for i in range(0, len(identifiers), 100):
             _images = self.get_images(
-                repositoryName=args[0],
-                imageIds=identifiers[i:i + 100]
+                repositoryName=args[0], imageIds=identifiers[i : i + 100]
             )
             if _images:
                 images.extend(_images)
         return images
+
     return wrapper
 
 
 # Image
 
-def image_list_images_ecr_images_only(func: Callable[..., List["ImageIdentifier"]]) -> Callable[..., List["Image"]]:
+
+def image_list_images_ecr_images_only(
+    func: Callable[..., List["ImageIdentifier"]],
+) -> Callable[..., List["ECRImage"]]:
     """
     Convert a list of ECR image identifiers returned by
     :py:meth:`botocraft.services.ecr.Image.list` into a list
     of :py:class:`botocraft.services.ecr.Image` objects.
     """
-    def wrapper(self, *args, **kwargs) -> List["Image"]:
-        identifiers: List["ImageIdentifier"] = func(self, *args, **kwargs)
-        images: List["Image"] = []
+
+    def wrapper(self, *args, **kwargs) -> List["ECRImage"]:
+        identifiers: List["ImageIdentifier"] = func(self, *args, **kwargs)  # noqa: UP037
+        images: List["ECRImage"] = []  # noqa: UP037
         # NOTE: to be honest i'm not sure if there is a per request limit
         # for the number of images that can be retrieved, but i'm going to
         # assume that there is a limit of 100 images per request.
         for i in range(0, len(identifiers), 100):
             _images = self.get_many(
-                repositoryName=args[0],
-                imageIds=identifiers[i:i + 100]
+                repositoryName=args[0], imageIds=identifiers[i : i + 100]
             )
             if _images:
                 images.extend(_images.images)
         return images
+
     return wrapper
 
 
 # Mixins
 
-class RepositoryMixin:
 
+class RepositoryMixin:
     objects: ClassVar["RepositoryManager"]
 
     # properties
 
     @property
-    def images(self) -> Optional[List["Image"]]:
+    def images(self) -> Optional[List["ECRImage"]]:
         """
         Get a list of images for a given repository.
         """
-        return self.objects.list_images(
-            repositoryName=self.repositoryName  # type: ignore
-        )
+        return self.objects.list_images(repositoryName=self.repositoryName)  # type: ignore[attr-defined]
 
     # methods
 
-    def get_image(self, imageId: "ImageIdentifier") -> Optional["Image"]:
+    def get_image(self, imageId: "ImageIdentifier") -> Optional["ECRImage"]:  # noqa: N803
         """
         Get an image object for a given repository and image identifier.
 
         Args:
             imageId: The image ID or tag to describe. The format of the imageId
                 reference is ``imageTag=tag`` or ``imageDigest=digest``
+
         """
         return self.objects.get_image(
-            self.repositoryName,  # type: ignore
-            imageId=imageId
+            self.repositoryName,  # type: ignore[attr-defined]
+            imageId=imageId,
         )
 
 
@@ -169,11 +177,12 @@ class ECRImageMixin:
         I don't love doing this because it is not pure AWS, which was my
         intention for botocraft, but I need these features for business
         purposes and they are not available in the boto3 library.
+
     """
 
-    objects: ClassVar["ImageManager"]
-    repositoryName: Optional[str]
-    imageId: "ImageIdentifier"
+    objects: ClassVar["ECRImageManager"]
+    repositoryName: Optional[str]  # noqa: N815
+    imageId: "ImageIdentifier"  # noqa: N815
 
     @property
     def version(self) -> str:
@@ -187,7 +196,14 @@ class ECRImageMixin:
         """
         Get the name of the image.
         """
-        return f'{self.docker_client.registry}/{self.repositoryName}:{self.imageId.imageTag}'
+        return f"{self.docker_client.registry}/{self.repositoryName}:{self.imageId.imageTag}"  # noqa: E501
+
+    @property
+    def image_name(self) -> str:
+        """
+        Return just the image name, excluding the registry.
+        """
+        return f"{self.repositoryName}:{self.imageId.imageTag}"
 
     @property
     def is_pulled(self) -> bool:
@@ -196,10 +212,14 @@ class ECRImageMixin:
 
         Returns:
             ``True`` if the image is pulled, ``False`` otherwise.
+
         """
-        if self.docker_client.client.images.list(self.name):
-            return True
-        return False
+        ecr_client = self.docker_client
+        exists = False
+        if ecr_client.client.images.list(self.name):
+            exists = True
+        ecr_client.client.logout()
+        return exists
 
     @property
     def dockerd_is_running(self) -> bool:
@@ -223,7 +243,7 @@ class ECRImageMixin:
             return False
         return True
 
-    @cached_property
+    @property
     def docker_client(self) -> ECRDockerClient:
         """
         Return a docker client, logged into our ECR registry.
@@ -234,27 +254,29 @@ class ECRImageMixin:
         Returns:
             A :py:class:`botocraft.mixins.ecr.ECRDockerClient` object, which
             has a docker client, username, password, and registry.
+
         """
         if not self.dockerd_is_running:
-            raise RuntimeError(
-                'Docker daemon is not running, so this command is not available.'
-            )
+            msg = "Docker daemon is not running, so this command is not available."
+            raise RuntimeError(msg)
         docker_client = docker.from_env()
         # Get our authorization token from AWS
         response = self.objects.client.get_authorization_token()
-        auth_token = base64.b64decode(response['authorizationData'][0]['authorizationToken'])
-        username, password = auth_token.decode().split(':')
-        registry = response['authorizationData'][0]['proxyEndpoint']
-        bare_registry = registry.split('//')[1]
+        auth_token = base64.b64decode(
+            response["authorizationData"][0]["authorizationToken"]
+        )
+        username, password = auth_token.decode().split(":")
+        registry = response["authorizationData"][0]["proxyEndpoint"]
+        bare_registry = registry.split("//")[1]
         docker_client.login(username, password=password, registry=registry)
         return ECRDockerClient(
             client=docker_client,
             username=username,
             password=password,
-            registry=bare_registry
+            registry=bare_registry,
         )
 
-    @cached_property
+    @property
     def info(self) -> ImageInfo:
         """
         Return information about the image.  We're doing this by pulling the
@@ -274,23 +296,27 @@ class ECRImageMixin:
 
         Returns:
             A :py:class:`botocraft.services.ecr.ImageInfo` object.
+
         """
         ecr_client = self.docker_client
-        data  = ecr_client.client.api.inspect_image(self.name)
+        data = ecr_client.client.api.inspect_image(self.name)
+        # you can't be logged into two ECR registries at the same time for some reason
+        # so we need to log out of the registry we are using.
+        ecr_client.client.close()
         # Strip off the nanoseconds from the created date so that strptime can
         # parse it.
-        created_date = data['Created'].split('.')[0] + 'Z'
+        created_date = data["Created"].split(".")[0] + "Z"
         return ImageInfo(
-            name=data['RepoTags'][0],
-            platform=data['Os'],
-            architecture=data['Architecture'],
-            size=data['Size'],
-            docker_version=data['DockerVersion'],
-            user=data['Config']['User'],
-            ports=data['Config']['ExposedPorts'],
+            name=data["RepoTags"][0],
+            platform=data["Os"],
+            architecture=data["Architecture"],
+            size=data["Size"],
+            docker_version=data["DockerVersion"],
+            user=data["Config"]["User"],
+            ports=data["Config"]["ExposedPorts"],
             # Created date looks like: '2024-08-19T21:59:57', convert
             # that to a datetime object.
-            created=datetime.datetime.strptime(created_date, '%Y-%m-%dT%H:%M:%SZ')
+            created=datetime.datetime.strptime(created_date, "%Y-%m-%dT%H:%M:%SZ"),  # noqa: DTZ007
         )
 
     @cached_property
@@ -300,19 +326,21 @@ class ECRImageMixin:
 
         Raises:
             RuntimeError: If the docker daemon is not running.
+
         """
         ecr_client = self.docker_client
         if not self.is_pulled:
             docker_image = ecr_client.client.images.pull(
-                f'{ecr_client.registry}/{self.repositoryName}',
+                f"{ecr_client.registry}/{self.repositoryName}",
                 auth_config={
-                    'username': ecr_client.username,
-                    'password': ecr_client.password
+                    "username": ecr_client.username,
+                    "password": ecr_client.password,
                 },
-                tag=self.imageId.imageTag
+                tag=self.imageId.imageTag,
             )
         else:
             docker_image = ecr_client.client.images.get(self.name)
+        ecr_client.client.close()
         return docker_image
 
     @cached_property
@@ -324,6 +352,7 @@ class ECRImageMixin:
 
         Raises:
             RuntimeError: If the docker daemon is not running.
+
         """
         return self.docker_image.history()
 
@@ -334,9 +363,12 @@ class ECRImageMixin:
 
         Raises:
             RuntimeError: If the docker daemon is not running.
+
         """
         if self.is_pulled:
-            self.docker_client.client.images.remove(self.name)
+            ecr_client = self.docker_client
+            ecr_client.client.images.remove(self.name)
+            ecr_client.client.close()
 
     # method
     def clean_other_versions(self) -> None:
@@ -346,10 +378,12 @@ class ECRImageMixin:
 
         Raises:
             RuntimeError: If the docker daemon is not running.
+
         """
         ecr_client = self.docker_client
-        prefix = f'{ecr_client.registry}/{self.repositoryName}'
+        prefix = f"{ecr_client.registry}/{self.repositoryName}"
         images = ecr_client.client.images.list(prefix)
         for image in images:
             if self.name not in image.tags:
-                ecr_client.client.images.remove(f'{prefix}:{image.imageTag}')
+                ecr_client.client.images.remove(f"{prefix}:{image.imageTag}")
+        ecr_client.client.close()

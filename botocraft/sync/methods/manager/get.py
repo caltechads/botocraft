@@ -1,5 +1,5 @@
 from collections import OrderedDict
-from typing import cast, Literal
+from typing import Literal, cast
 
 from .base import ManagerMethodGenerator
 
@@ -17,9 +17,11 @@ class GetMethodGenerator(ManagerMethodGenerator):
     asking for multiple objects.
     """
 
-    method_name: str = 'get'
+    method_name: str = "get"
 
-    def kwargs(self, location: Literal['method', 'operation'] = 'method') -> OrderedDict[str, str]:
+    def kwargs(
+        self, location: Literal["method", "operation"] = "method"
+    ) -> OrderedDict[str, str]:
         """
         Override the kwargs to exclude the pagination arguments if the boto3
         operation can paginate.  We should only ever be returning one object, so
@@ -40,6 +42,7 @@ class GetMethodGenerator(ManagerMethodGenerator):
 
         Returns:
             The name of the return type class.
+
         """
         _ = super().return_type
         if self.method_def.return_type:
@@ -57,6 +60,7 @@ class GetMethodGenerator(ManagerMethodGenerator):
 
         Returns:
             The code for the get method.
+
         """
         code = f"""
         {self.operation_args}
@@ -67,7 +71,7 @@ class GetMethodGenerator(ManagerMethodGenerator):
         response_attr = cast(str, self.response_attr)
         # Since this is a get method, we can assume that the response will
         # always be a StructureShape
-        if self.response_attr_multiplicity == 'many':
+        if self.response_attr_multiplicity == "many":
             code += f"""
         if response.{response_attr}:
             return response.{response_attr}[0]

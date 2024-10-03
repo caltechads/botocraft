@@ -1,46 +1,45 @@
-from copy import deepcopy
-from collections import OrderedDict
-from pathlib import Path
 import re
-from typing import Any, Dict, Set, List, Optional, Type, cast
 import warnings
+from collections import OrderedDict
+from copy import deepcopy
+from pathlib import Path
+from typing import Any, Dict, Final, List, Optional, Set, Type, cast
 
 import black
 import black.parsing
 import boto3
 import botocore.model
 import botocore.session
-from docformatter.format import Formatter
 import isort
+from docformatter.format import Formatter
 
 from .docstring import DocumentationFormatter, FormatterArgs
 from .methods import (  # pylint: disable=import-error
-    ManagerMethodGenerator,
-    ListMethodGenerator,
-    GetMethodGenerator,
-    GetManyMethodGenerator,
     CreateMethodGenerator,
-    UpdateMethodGenerator,
-    PartialUpdateMethodGenerator,
     DeleteMethodGenerator,
+    GeneralMethodGenerator,
+    GetManyMethodGenerator,
+    GetMethodGenerator,
+    ListMethodGenerator,
+    ManagerMethodGenerator,
+    ModelManagerMethodGenerator,
     ModelPropertyGenerator,
     ModelRelationGenerator,
-    ModelManagerMethodGenerator,
-    GeneralMethodGenerator,
+    PartialUpdateMethodGenerator,
+    UpdateMethodGenerator,
 )
 from .models import (
-    ServiceDefinition,
-    ModelAttributeDefinition,
-    ModelDefinition,
     ManagerDefinition,
     ManagerMethodDefinition,
+    ModelAttributeDefinition,
+    ModelDefinition,
+    ServiceDefinition,
 )
 from .shapes import PythonTypeShapeConverter
 from .sphinx import ServiceSphinxDocBuilder
 
 
 class AbstractGenerator:
-
     def __init__(self, service_generator: "ServiceGenerator") -> None:
         session = botocore.session.get_session()
         #: The :py:class:`ServiceGenerator` we're generating models for.
@@ -66,6 +65,7 @@ class AbstractGenerator:
 
         Returns:
             A list of shape names.
+
         """
         return self.service_model.shape_names
 
@@ -86,6 +86,7 @@ class AbstractGenerator:
 
         Returns:
             The shape object.
+
         """
         try:
             return self.service_model.shape_for(name)
@@ -99,6 +100,7 @@ class AbstractGenerator:
 
         Returns:
             The contents of the metadata attribute.
+
         """
         return self.service_model.metadata
 
@@ -131,27 +133,26 @@ class ModelGenerator(AbstractGenerator):
 
         Returns:
             The model definition.
+
         """
         if model_name in self.service_def.primary_models:
             defn = self.service_def.primary_models[model_name]
             if defn.readonly:
-                defn.base_class = 'ReadonlyPrimaryBoto3Model'
+                defn.base_class = "ReadonlyPrimaryBoto3Model"
             else:
-                defn.base_class = 'PrimaryBoto3Model'
+                defn.base_class = "PrimaryBoto3Model"
             return defn
-        elif model_name in self.service_def.secondary_models:
+        if model_name in self.service_def.secondary_models:
             defn = self.service_def.secondary_models[model_name]
             if defn.readonly:
-                defn.base_class = 'ReadonlyBoto3Model'
+                defn.base_class = "ReadonlyBoto3Model"
             else:
-                defn.base_class = 'Boto3Model'
+                defn.base_class = "Boto3Model"
             return defn
-        return ModelDefinition(base_class='Boto3Model', name=model_name)
+        return ModelDefinition(base_class="Boto3Model", name=model_name)
 
     def add_extra_fields(
-        self,
-        model_name: str,
-        model_fields: Dict[str, ModelAttributeDefinition]
+        self, model_name: str, model_fields: Dict[str, ModelAttributeDefinition]
     ) -> Dict[str, ModelAttributeDefinition]:
         """
         Extract extra fields from the output shape of a get or list method.
@@ -160,31 +161,28 @@ class ModelGenerator(AbstractGenerator):
         that we can load them from the API responses.
 
         Args:
+            model_name: the name of the model to add fields to
             model_fields: the botocraft model field definitions for the model
-            output_shape_name: the name of the botocore shape of the output of the
-                get/list method
 
         Returns:
+            model_fields with the extra fields added
 
         """
         model_def = self.get_model_def(model_name)
         if not model_def.output_shape:
             return model_fields
         output_shape = self.get_shape(model_def.output_shape)
-        if not hasattr(output_shape, 'members'):
+        if not hasattr(output_shape, "members"):
             return model_fields
         for field_name, field_shape in output_shape.members.items():
             if field_name not in model_fields:
                 model_fields[field_name] = ModelAttributeDefinition(
-                    readonly=True,
-                    botocore_shape=field_shape
+                    readonly=True, botocore_shape=field_shape
                 )
         return model_fields
 
     def mark_readonly_fields(
-        self,
-        model_name: str,
-        model_fields: Dict[str, ModelAttributeDefinition]
+        self, model_name: str, model_fields: Dict[str, ModelAttributeDefinition]
     ) -> Dict[str, ModelAttributeDefinition]:
         """
         Mark model fields as readonly if they are not in any of the input shapes
@@ -197,23 +195,22 @@ class ModelGenerator(AbstractGenerator):
 
         Returns:
             The updated model fields.
+
         """
         model_def = self.get_model_def(model_name)
         if not model_def.input_shapes:
             return model_fields
         # First include any fields that were manually set to writable
         # in the botocraft model definition
-        writable_fields: Set[str] = set(
-            [
-                field_name
-                for field_name in model_def.fields
-                if model_def.fields[field_name].readonly is False
-            ]
-        )
+        writable_fields: Set[str] = {
+            field_name
+            for field_name in model_def.fields
+            if model_def.fields[field_name].readonly is False
+        }
         # Now add any fields that are in the input shapes
         for input_shape_name in model_def.input_shapes:
             input_shape = self.get_shape(input_shape_name)
-            if hasattr(input_shape, 'members'):
+            if hasattr(input_shape, "members"):
                 writable_fields.update(input_shape.members.keys())
         # Mark any fields that are not in writable_fields as readonly
         for field_name, field_def in model_fields.items():
@@ -239,11 +236,12 @@ class ModelGenerator(AbstractGenerator):
 
         Returns:
             A dictionary of field names to field definitions.
+
         """
         model_def = self.get_model_def(model_name)
         fields: Dict[str, ModelAttributeDefinition] = deepcopy(model_def.fields)
         model_shape = self.get_shape(model_name)
-        if hasattr(model_shape, 'members'):
+        if hasattr(model_shape, "members"):
             for field, field_shape in model_shape.members.items():
                 if field not in fields:
                     fields[field] = ModelAttributeDefinition()
@@ -257,7 +255,7 @@ class ModelGenerator(AbstractGenerator):
         # These are the fields that are in the output shape of the get/list
         # methods but not in the service model shape
         fields = self.add_extra_fields(model_name, fields)
-        return fields
+        return fields  # noqa: RET504
 
     def generate(self) -> None:
         """
@@ -280,28 +278,25 @@ class ModelGenerator(AbstractGenerator):
 
         Returns:
             A list of extra fields.
+
         """
         fields: List[str] = []
-        for field_name, field_def in getattr(model_def, 'extra_fields', {}).items():
+        for field_name, field_def in getattr(model_def, "extra_fields", {}).items():
             if field_def.docstring:
-                fields.append(
-                    self.docformatter.format_attribute(field_def.docstring)
-                )
-            field = f'    {field_name}: {field_def.python_type}'
+                fields.append(self.docformatter.format_attribute(field_def.docstring))
+            field = f"    {field_name}: {field_def.python_type}"
             if field_def.readonly:
-                field = re.sub(r'Optional\[(.*)\]', r'\1', field)
-                _default = f', default={field_def.default}' if field_def.default else ''
-                field += f' = Field(frozen=True{_default})'
+                field = re.sub(r"Optional\[(.*)\]", r"\1", field)
+                _default = f", default={field_def.default}" if field_def.default else ""
+                field += f" = Field(frozen=True{_default})"
             elif field_def.default:
-                field += f' = {field_def.default}'
+                field += f" = {field_def.default}"
             self.imports.update(field_def.imports)
             fields.append(field)
         return fields
 
     def get_properties(
-        self,
-        model_def: ModelDefinition,
-        base_class: str
+        self, model_def: ModelDefinition, base_class: str
     ) -> Optional[str]:
         """
         Handle the special properties and methods for primary models.  A primary
@@ -328,13 +323,15 @@ class ModelGenerator(AbstractGenerator):
         Returns:
             The properties for this model, or ``None`` if this is not a primary
             model.
-        """
-        properties: str = ''
-        if base_class in ['PrimaryBoto3Model', 'ReadonlyPrimaryBoto3Model']:
-            assert model_def.primary_key or 'pk' in model_def.properties, \
-                f'Primary service model "{model_def.name}" has no primary key defined'
 
-            if 'pk' not in model_def.properties and model_def.primary_key:
+        """
+        properties: str = ""
+        if base_class in ["PrimaryBoto3Model", "ReadonlyPrimaryBoto3Model"]:
+            assert (
+                model_def.primary_key or "pk" in model_def.properties
+            ), f'Primary service model "{model_def.name}" has no primary key defined'
+
+            if "pk" not in model_def.properties and model_def.primary_key:
                 # There is no ``pk`` property, in the ``properties:`` section,
                 # but there is a ``primary_key:`` attribute.  We need to add a
                 # ``pk`` property that is an alias for the primary key.
@@ -382,23 +379,25 @@ class ModelGenerator(AbstractGenerator):
         # Build any regular properties that were defined in the model definition
         for property_name in model_def.properties:
             if not properties:
-                properties = ''
-            properties += ModelPropertyGenerator(self, model_def.name, property_name).code
+                properties = ""
+            properties += ModelPropertyGenerator(
+                self, model_def.name, property_name
+            ).code
 
         # Now build the relations to other models
         for property_name in model_def.relations:
             if not properties:
-                properties = ''
-            properties += ModelRelationGenerator(self, model_def.name, property_name).code
+                properties = ""
+            properties += ModelRelationGenerator(
+                self, model_def.name, property_name
+            ).code
 
         # Now build the manager shortcut methods
         for method_name in model_def.manager_methods:
             if not properties:
-                properties = ''
+                properties = ""
             properties += ModelManagerMethodGenerator(
-                self.service_generator,
-                model_def.name,
-                method_name
+                self.service_generator, model_def.name, method_name
             ).code
 
         return properties
@@ -409,7 +408,7 @@ class ModelGenerator(AbstractGenerator):
         field_name: str,
         field_def: Optional[ModelAttributeDefinition] = None,
         model_shape: Optional[botocore.model.Shape] = None,
-        field_shape: Optional[botocore.model.Shape] = None
+        field_shape: Optional[botocore.model.Shape] = None,
     ) -> str:
         """
         Return the python type annotation for a field on a model by combining
@@ -429,25 +428,27 @@ class ModelGenerator(AbstractGenerator):
 
         Returns:
             The python type annotation for the field.
+
         """
         if not model_shape:
             model_shape = self.get_shape(model_name)
-        if not hasattr(model_shape, 'members'):
-            raise ValueError(f'Model {model_name} has no fields.')
+        if not hasattr(model_shape, "members"):
+            msg = f"Model {model_name} has no fields."
+            raise ValueError(msg)
         if not field_shape:
-            field_shape = cast(
-                botocore.model.StructureShape,
-                model_shape
-            ).members.get(field_name)
+            field_shape = cast(botocore.model.StructureShape, model_shape).members.get(
+                field_name
+            )
         if not field_def:
             model_def = self.get_model_def(model_name)
             field_def = model_def.fields.get(field_name, ModelAttributeDefinition())
         python_type = field_def.python_type
         if not field_shape and not python_type:
-            raise TypeError(
-                f'{model_name}.{field_name} has neither a botocore shape nor a manually '
-                'defined python_type.'
+            msg = (
+                f"{model_name}.{field_name} has neither a botocore shape nor a "
+                "manually defined python_type."
             )
+            raise TypeError(msg)
         if not python_type:
             python_type = self.shape_converter.convert(
                 cast(botocore.model.StructureShape, field_shape)
@@ -459,7 +460,7 @@ class ModelGenerator(AbstractGenerator):
         model_name: str,
         field_name: str,
         field_def: ModelAttributeDefinition,
-        python_type: str
+        python_type: str,
     ) -> str:
         """
         After we have guessed the python type for a field, we need to validate
@@ -477,24 +478,19 @@ class ModelGenerator(AbstractGenerator):
 
         Returns:
             The python type annotation for the field on the model.
+
         """
         if python_type is None:
-            raise ValueError(f'Could not determine type for field {field_name}.')
+            msg = f"Could not determine type for field {field_name}."
+            raise ValueError(msg)
         name = field_def.rename if field_def.rename else field_name
-        if (
-            python_type == name or
-            f'[{name}]' in python_type
-        ):
+        if python_type == name or f"[{name}]" in python_type:
             # If our type annotation is for a model with the same name as the field
             # we'll get recursion errors when trying to import the file.  Quoting
             # the type annotation fixes this sometimes.
             python_type = f'"{python_type}"'
-        if (
-            field_def.readonly and
-            (
-                python_type == f'"{name}"' or
-                f'["{name}"]' in python_type
-            )
+        if field_def.readonly and (
+            python_type == f'"{name}"' or f'["{name}"]' in python_type
         ):
             # If the field is readonly, and the type is equal to the field name,
             # even if it is quoted, we will get a "TypeError: forward references
@@ -502,41 +498,37 @@ class ModelGenerator(AbstractGenerator):
             # readonly, we set it equal to ``Field(frozen=True, default=None)``.
             # This causes python typing a lot of consternation, and it throws
             # the TypeError.
-            raise TypeError(
-                f'Field {model_name}.{name} has type equal to its name, '
-                'but is marked as readonly.  This will cause a "TypeError: forward references '
-                'must evaluate to types". Fix this in '
-                f'botocraft/data/{self.service_generator.aws_service_name}/models.yml .'
-                'by either giving an alternate_name for the model named {name} or '
-                f'by renaming the field {model_name}.{name} with the rename attribute.'
+            msg = (
+                f"Field {model_name}.{name} has type equal to its name, "
+                'but is marked as readonly.  This will cause a "TypeError: forward '
+                'references must evaluate to types". Fix this in '
+                f"botocraft/data/{self.service_generator.aws_service_name}/models.yml ."
+                "by either giving an alternate_name for the model named {name} or "
+                f"by renaming the field {model_name}.{name} with the rename attribute."
             )
-        if (
-            not field_def.required and
-            (
-                python_type == f'"{name}"' or
-                f'["{name}"]' in python_type
-            )
+            raise TypeError(msg)
+        if not field_def.required and (
+            python_type == f'"{name}"' or f'["{name}"]' in python_type
         ):
             # If the field is optional with a None default value, and the type
             # is equal to the field name, pydantic will throw an exception when
             # trying to load data into that field: "ValidationError: Input
             # should be None".  This happens even the type is quoted.
-            raise TypeError(
-                f'Field {model_name}.{name} has type equal to its name, '
-                'but is marked as optional.  This will cause a "ValidationError: Input should '
-                'be None" exception from pydantic when trying to load data into this field.  '
-                'Fix this in '
-                f'botocraft/data/{self.service_generator.aws_service_name}/models.yml .'
-                'by either giving an alternate_name for the model named {name} or '
-                f'by renaming the field {model_name}.{name} with the rename attribute.'
+            msg = (
+                f"Field {model_name}.{name} has type equal to its name, "
+                'but is marked as optional.  This will cause a "ValidationError: Input '
+                'should be None" exception from pydantic when trying to load data '
+                "into this field.  Fix this in "
+                f"botocraft/data/{self.service_generator.aws_service_name}/models.yml ."
+                "by either giving an alternate_name for the model named {name} or "
+                f"by renaming the field {model_name}.{name} with the rename attribute."
             )
+            raise TypeError(msg)
 
         return python_type
 
-    def generate_model(
-        self,
-        model_name: str,
-        model_shape: Optional[botocore.model.Shape] = None
+    def generate_model(  # noqa: PLR0912, PLR0915
+        self, model_name: str, model_shape: Optional[botocore.model.Shape] = None
     ) -> str:
         """
         Generate the code for a single model and its dependent models and save
@@ -546,16 +538,17 @@ class ModelGenerator(AbstractGenerator):
             model_name: The name of the model to generate. This will be the
                 name of the class.
 
+        Keyword Args:
+            model_shape: The botocore shape to generate the model for.  If not provided,
+                we will look it up in the service model.
+
         Side Effects:
             This may add new models to :py:attr:`classes` and new imports to
             :py:attr:`imports`.
 
-        Keyword Args:
-            shape: The shape to generate the model for.  If not provided, we
-                will look it up in the service model.
-
         Returns:
             The name of the model class that was generated.
+
         """
         # The list of fields for this model
         fields: List[str] = []
@@ -572,7 +565,7 @@ class ModelGenerator(AbstractGenerator):
         if model_def.alternate_name:
             model_name = model_def.alternate_name
 
-        if hasattr(model_shape, 'members'):
+        if hasattr(model_shape, "members"):
             # Get the list of all the fields for this model, along with their
             # botocode definitions.  This includes fields from the botocore model,
             # and any extra fields we have defined in the botocraft model
@@ -582,7 +575,9 @@ class ModelGenerator(AbstractGenerator):
                 # :py:meth:`fields`.
                 field_shape = field_def.botocore_shape
                 # Whether this field is required
-                required: bool = (field_name in model_shape.required_members) or field_def.required
+                required: bool = (
+                    field_name in model_shape.required_members
+                ) or field_def.required
                 docstring = field_def.docstring
                 # Deterimine the python type for this field
                 if field_shape:
@@ -591,42 +586,44 @@ class ModelGenerator(AbstractGenerator):
                         field_name,
                         model_shape=model_shape,
                         field_def=field_def,
-                        field_shape=field_shape
+                        field_shape=field_shape,
                     )
                     if not docstring:
                         docstring = cast(str, field_shape.documentation)
                 else:
-                    assert field_def.python_type, \
-                        f'Field {field_name} in model {model_name} has no botocore shape or python type'
+                    assert field_def.python_type, (
+                        f"Field {field_name} in model {model_name} has no botocore "
+                        "shape or python type"
+                    )
                     python_type = field_def.python_type
                 default = None
                 if not required:
                     if not field_def.readonly and not field_def.rename:
-                        python_type = f'Optional[{python_type}]'
-                    default = 'None' if field_def.default is None else field_def.default
+                        python_type = f"Optional[{python_type}]"
+                    default = "None" if field_def.default is None else field_def.default
 
-                # Determine whether we need to add a pydantic.Field class instance as the
-                # value for this field.
+                # Determine whether we need to add a pydantic.Field class
+                # instance as the value for this field.
                 needs_field_class: bool = False
                 field_class_args: List[str] = []
                 if default:
-                    field_class_args.append(f'default={default}' if default else '')
-                field_line = f'    {field_name}: {python_type}'
+                    field_class_args.append(f"default={default}" if default else "")
+                field_line = f"    {field_name}: {python_type}"
                 if field_def.rename:
                     # We need it to be a pydantic Field class instance so that we can
                     # set the serialization_alias attribute.
                     needs_field_class = True
-                    field_line = f'    {field_def.rename}: {python_type}'
+                    field_line = f"    {field_def.rename}: {python_type}"
                     field_class_args.append(f'serialization_alias="{field_name}"')
                 if field_def.readonly:
                     # We need it to be a pydantic Field class instance so that we can
                     # set the frozen attribute.
                     needs_field_class = True
-                    field_class_args.append('frozen=True')
+                    field_class_args.append("frozen=True")
                 if needs_field_class:
                     field_line += f' = Field({", ".join(field_class_args)})'
                 elif default:
-                    field_line += f' = {field_def.default}'
+                    field_line += f" = {field_def.default}"
                 fields.append(field_line)
                 # Add the docstring for this field
                 if docstring:
@@ -638,115 +635,120 @@ class ModelGenerator(AbstractGenerator):
             # Add any botocraft defined mixins to the class inheritance
             if model_def.mixins:
                 for mixin in model_def.mixins:
-                    self.imports.add(f'from {mixin.import_path} import {mixin.name}')
-                base_class = ', '.join([mixin.name for mixin in model_def.mixins] + [base_class])
+                    self.imports.add(f"from {mixin.import_path} import {mixin.name}")
+                base_class = ", ".join(
+                    [mixin.name for mixin in model_def.mixins] + [base_class]
+                )
 
             # See if we need to add the TagsDictMixin
             tag_class: Optional[str] = None
             has_tags: bool = False
             field_names = {name.lower(): name for name in model_fields}
-            if 'tags' in field_names:
+            if "tags" in field_names:
                 # We do have tags defined in the model definition
                 has_tags = True
-                tag_attr = field_names['tags']
-                if tag_attr == 'tags':
-                    if not model_fields[tag_attr].rename == 'Tags':
-                        warnings.warn(
-                            f'Model {model_name} has a field named "tags".  Rename it to "Tags" '
-                            'in the model definition.'
+                tag_attr = field_names["tags"]
+                if tag_attr == "tags":
+                    if model_fields[tag_attr].rename != "Tags":
+                        warnings.warn(  # noqa: B028
+                            f'Model {model_name} has a field named "tags".  Rename it '
+                            'to "Tags" in the model definition.'
                         )
                 # Extract the name of the tag class from the python type annotation.
                 # Different services use different types for tags.
-                tag_class = self.field_type(model_name, tag_attr, model_fields[tag_attr])
-                tag_class = re.sub(r'List\[(.*)\]', r'\1', tag_class)
-                tag_class = re.sub(r'"(.*)"', r'\1', tag_class)
+                tag_class = self.field_type(
+                    model_name, tag_attr, model_fields[tag_attr]
+                )
+                tag_class = re.sub(r"List\[(.*)\]", r"\1", tag_class)
+                tag_class = re.sub(r'"(.*)"', r"\1", tag_class)
             if has_tags:
-                base_class = ', '.join(["TagsDictMixin", base_class])
+                base_class = f"TagsDictMixin, {base_class}"
 
             # Actually build the class code
-            code: str = f'class {model_name}({base_class}):\n'
+            code: str = f"class {model_name}({base_class}):\n"
             docstring = self.docformatter.format_docstring(model_shape)
             if docstring:
                 code += f'    """{docstring}"""\n'
             if has_tags:
-                code += f'    tag_class: ClassVar[Type] = {tag_class}\n'
-            if 'PrimaryBoto3Model' in base_class:
+                code += f"    tag_class: ClassVar[Type] = {tag_class}\n"
+            if "PrimaryBoto3Model" in base_class:
                 if model_def.alternate_name:
-                    manager_name = f'{model_def.alternate_name}Manager'
+                    manager_name = f"{model_def.alternate_name}Manager"
                 else:
                     manager_name = f'{model_name}Manager'
                 code += f'    objects: ClassVar[Boto3ModelManager] = {manager_name}()\n\n'
             if fields:
-                code += '\n'.join(fields)
+                code += "\n".join(fields)
             if properties:
-                code += f'\n{properties}'
+                code += f"\n{properties}"
             if not fields and not properties:
-                code += '    pass'
+                code += "    pass"
             self.classes[model_name] = code
         return model_name
 
 
 class ManagerGenerator(AbstractGenerator):
     """
-    This class generates the code for the manager class for a service.
+    Generates the code for the manager class for a service.
 
     Args:
         service_generator: The :py:class:`ServiceGenerator` we're generating
             models for.
+
     """
 
     #: A mapping of botocore operation names to the method generator class that
     #: will generate the code for that method.
-    METHOD_GENERATORS: Dict[str, Type[ManagerMethodGenerator]] = {
-        'create': CreateMethodGenerator,
-        'update': UpdateMethodGenerator,
-        'partial_update': PartialUpdateMethodGenerator,
-        'delete': DeleteMethodGenerator,
-        'get': GetMethodGenerator,
-        'get_many': GetManyMethodGenerator,
-        'list': ListMethodGenerator,
+    METHOD_GENERATORS: Final[Dict[str, Type[ManagerMethodGenerator]]] = {
+        "create": CreateMethodGenerator,
+        "update": UpdateMethodGenerator,
+        "partial_update": PartialUpdateMethodGenerator,
+        "delete": DeleteMethodGenerator,
+        "get": GetMethodGenerator,
+        "get_many": GetManyMethodGenerator,
+        "list": ListMethodGenerator,
     }
 
     def __init__(self, service_generator: "ServiceGenerator") -> None:
         super().__init__(service_generator)
         self.model_generator = self.service_generator.model_generator
         self.shape_converter = self.model_generator.shape_converter
-        self.client = boto3.client(self.service_name)  # type: ignore
+        self.client = boto3.client(self.service_name)  # type: ignore[call-overload]
 
-    def generate_manager(
-        self,
-        model_name: str,
-        manager_def: ManagerDefinition
-    ) -> None:
+    def generate_manager(self, model_name: str, manager_def: ManagerDefinition) -> None:
         """
         Generate the code for a single manager, and its dependent response
         classes and save them to :py:attr:`classes`.
 
         Args:
             model_name: The name of the model to generate the manager for.
+            manager_def: The botocraft manager definition for the manager.
+
         """
         methods: OrderedDict[str, str] = OrderedDict()
         for method_name, method_def in manager_def.methods.items():
             generator = self.get_method_generator(model_name, method_name, method_def)
             methods[method_name] = generator.code
-        method_code = '\n\n'.join(methods.values())
-        base_class = 'Boto3ModelManager'
+        method_code = "\n\n".join(methods.values())
+        base_class = "Boto3ModelManager"
         model_def = self.model_generator.get_model_def(model_name)
         if model_def.alternate_name:
-            manager_name = f'{model_def.alternate_name}Manager'
+            manager_name = f"{model_def.alternate_name}Manager"
         else:
-            manager_name = f'{model_name}Manager'
+            manager_name = f"{model_name}Manager"
 
         # Add any botocraft defined mixins to the class inheritance
         if manager_def.mixins:
             for mixin in manager_def.mixins:
-                self.imports.add(f'from {mixin.import_path} import {mixin.name}')
-            base_class = ', '.join([mixin.name for mixin in manager_def.mixins] + [base_class])
+                self.imports.add(f"from {mixin.import_path} import {mixin.name}")
+            base_class = ", ".join(
+                [mixin.name for mixin in manager_def.mixins] + [base_class]
+            )
 
         # If this is a readonly manager, we need to use the readonly manager
         # base class
         if manager_def.readonly:
-            base_class = 'ReadonlyBoto3ModelManager'
+            base_class = "ReadonlyBoto3ModelManager"
         code = f"""
 
 
@@ -759,10 +761,7 @@ class {manager_name}({base_class}):
         self.classes[manager_name] = code
 
     def get_method_generator(
-        self,
-        model_name: str,
-        method_name: str,
-        method_def: ManagerMethodDefinition
+        self, model_name: str, method_name: str, method_def: ManagerMethodDefinition
     ) -> ManagerMethodGenerator:
         """
         Return the appropriate method generator class for a given method
@@ -775,6 +774,7 @@ class {manager_name}({base_class}):
 
         Returns:
             A method generator class.
+
         """
         try:
             method_generator_class = self.METHOD_GENERATORS[method_name]
@@ -782,19 +782,12 @@ class {manager_name}({base_class}):
             # We have no specific method generator for this method, so we
             # will use the general method generator.
             generator: ManagerMethodGenerator = GeneralMethodGenerator(
-                self,
-                model_name,
-                method_def,
-                method_name=method_name
+                self, model_name, method_def, method_name=method_name
             )
         else:
             # We have a specific method generator for this method, so we
             # will use that.
-            generator = method_generator_class(
-                self,
-                model_name,
-                method_def
-            )
+            generator = method_generator_class(self, model_name, method_def)
 
         return generator
 
@@ -817,9 +810,10 @@ class ServiceGenerator:
     Args:
         service_def: The :py:class:`ServiceDefinition` for the service we are
             generating code for.
+
     """
 
-    service_path: Path = Path(__file__).parent.parent / 'services'
+    service_path: Path = Path(__file__).parent.parent / "services"
 
     def __init__(self, service_def: ServiceDefinition) -> None:
         #: The service definition
@@ -827,16 +821,14 @@ class ServiceGenerator:
         #: The botocraft interface object, where we will collect all our global data
         self.interface = service_def.interface
         #: A set of model imports we need to add to the top of the file
-        self.imports: Set[str] = set(
-            [
-                'from datetime import datetime',
-                'from typing import ClassVar, Type, Optional, Literal, Dict, List, Any, cast',
-                'from pydantic import Field',
-                'from .abstract import Boto3Model, ReadonlyBoto3Model, PrimaryBoto3Model, '
-                'ReadonlyPrimaryBoto3Model, Boto3ModelManager, ReadonlyBoto3ModelManager',
-                'from botocraft.mixins.tags import TagsDictMixin'
-            ]
-        )
+        self.imports: Set[str] = {
+            "from datetime import datetime",
+            "from typing import ClassVar, Type, Optional, Literal, Dict, List, Any, cast",  # noqa: E501
+            "from pydantic import Field",
+            "from .abstract import Boto3Model, ReadonlyBoto3Model, PrimaryBoto3Model, "
+            "ReadonlyPrimaryBoto3Model, Boto3ModelManager, ReadonlyBoto3ModelManager",
+            "from botocraft.mixins.tags import TagsDictMixin",
+        }
         #: A dictionary of model names to class code.  This is populated by
         #: service models
         self.model_classes: Dict[str, str] = {}
@@ -867,8 +859,9 @@ class ServiceGenerator:
 
         Returns:
             The full name of the service, as defined in the botocore service.
+
         """
-        return self.model_generator.service_model.metadata['serviceId']
+        return self.model_generator.service_model.metadata["serviceId"]
 
     @property
     def classes(self) -> Dict[str, str]:
@@ -886,10 +879,10 @@ class ServiceGenerator:
         """
         The code for this service.
         """
-        imports = '\n'.join(list(self.imports))
-        model_classes = '\n\n'.join(self.model_classes.values())
-        response_classes = '\n\n'.join(self.response_classes.values())
-        manager_classes = '\n\n'.join(self.manager_classes.values())
+        imports = "\n".join(list(self.imports))
+        model_classes = "\n\n".join(self.model_classes.values())
+        response_classes = "\n\n".join(self.response_classes.values())
+        manager_classes = "\n\n".join(self.manager_classes.values())
         return f"""
 # This file is automatically generated by botocraft.  Do not edit directly.
 # pylint: disable=anomalous-backslash-in-string,unsubscriptable-object,line-too-long,arguments-differ,arguments-renamed,unused-import,redefined-outer-name
@@ -917,7 +910,7 @@ class ServiceGenerator:
 
 {response_classes}
 
-"""
+"""  # noqa: E501
 
     def generate(self) -> None:
         """
@@ -956,6 +949,7 @@ class ServiceGenerator:
 
         Args:
             code: the code to write to the output file.
+
         """
         code = self.code
         # First format the code with black so we fix most of the formatting
@@ -963,13 +957,15 @@ class ServiceGenerator:
         try:
             formatted_code = black.format_str(code, mode=black.FileMode())
         except (KeyError, black.parsing.InvalidInput):  # pylint: disable=c-extension-no-member
-            code = [f"{i:04} " + line for i, line in enumerate(code.split('\n'))]
+            code = [f"{i:04} " + line for i, line in enumerate(code.split("\n"))]
             print("\n".join(code))
             raise
         # Now sort the imports with isort
         formatted_code = isort.code(formatted_code)
         # Finally format the docstrings with docformatter
-        formatted_code = Formatter(FormatterArgs(), None, None, None)._format_code(formatted_code)
-        output_file = self.service_path / f'{self.service_def.name}.py'
-        with open(output_file, 'w', encoding='utf-8') as fd:
+        formatted_code = Formatter(FormatterArgs(), None, None, None)._format_code(  # noqa: SLF001
+            formatted_code
+        )
+        output_file = self.service_path / f"{self.service_def.name}.py"
+        with output_file.open("w", encoding="utf-8") as fd:
             fd.write(formatted_code)

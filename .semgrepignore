@@ -1,0 +1,18 @@
+# Common test paths
+test/
+tests/
+testsuite/
+*_test.go
+
+# Dev related things -- not used in production
+docker-compose.yml
+deployfish.yml
+src/static/js/modernizr*
+certs/localhost.key
+
+# Semgrep rules folder
+.semgrep
+
+# Semgrep-action log folder
+.semgrep_logs/
+

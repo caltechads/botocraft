@@ -13,7 +13,7 @@ class GetManyMethodGenerator(ManagerMethodGenerator):
     paginated, otherwise we would have used it as the ``list`` method.
     """
 
-    method_name: str = 'get_many'
+    method_name: str = "get_many"
 
     @property
     def return_type(self) -> str:
@@ -26,6 +26,7 @@ class GetManyMethodGenerator(ManagerMethodGenerator):
 
         Returns:
             The name of the return type class.
+
         """
         _ = self.response_class
         return_type = f'List["{self.model_name}"]'

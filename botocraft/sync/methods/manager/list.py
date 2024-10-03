@@ -1,14 +1,15 @@
 from collections import OrderedDict
-from typing import cast, Literal
+from typing import Literal, cast
 
 from .base import ManagerMethodGenerator
 
 
 class ListMethodGenerator(ManagerMethodGenerator):
+    method_name: str = "list"
 
-    method_name: str = 'list'
-
-    def kwargs(self, location: Literal['method', 'operation'] = 'method') -> OrderedDict[str, str]:
+    def kwargs(
+        self, location: Literal["method", "operation"] = "method"
+    ) -> OrderedDict[str, str]:
         """
         Override the kwargs to exclude the pagination arguments if
         the boto3 operation can paginate.
@@ -31,12 +32,15 @@ class ListMethodGenerator(ManagerMethodGenerator):
 
         Returns:
             The name of the return type class.
+
         """
         # We do this because :py:meth:`response_class` will create the response class
         # if it doesn't exist, and we need that to happen so we can use its attributes
         _ = self.response_class
         if self.output_shape is not None:
-            response_attr_shape = self.output_shape.members[cast(str, self.response_attr)]
+            response_attr_shape = self.output_shape.members[
+                cast(str, self.response_attr)
+            ]
         return_type = self.shape_converter.convert(response_attr_shape, quote=True)
         if self.method_def.return_type:
             return_type = self.method_def.return_type
@@ -60,7 +64,7 @@ class ListMethodGenerator(ManagerMethodGenerator):
             else:
                 break
         return results
-"""
+"""  # noqa: E501
         else:
             code = f"""
         {self.operation_call}

@@ -1,5 +1,5 @@
 from pathlib import Path
-from typing import List, TYPE_CHECKING
+from typing import TYPE_CHECKING, List
 
 if TYPE_CHECKING:
     from botocraft.sync.service import ServiceGenerator
@@ -57,9 +57,9 @@ class ServiceSphinxDocBuilder:
         ...
 
 
-
     Args:
         generator: The service generator.
+
     """
 
     def __init__(self, generator: "ServiceGenerator") -> None:
@@ -73,15 +73,17 @@ class ServiceSphinxDocBuilder:
         """
         # First get the path to this file
         this_file = Path(__file__).resolve()
-        docs_dir = this_file.parents[2] / 'doc' / 'source' / 'api' / 'services'
-        return docs_dir / f'{self.generator.aws_service_name}.rst'
+        docs_dir = this_file.parents[2] / "doc" / "source" / "api" / "services"
+        return docs_dir / f"{self.generator.aws_service_name}.rst"
 
     @property
     def header(self) -> str:
         """
         The header for the service documentation.
         """
-        title = f"{self.generator.service_full_name} ({self.generator.aws_service_name})"
+        title = (
+            f"{self.generator.service_full_name} ({self.generator.aws_service_name})"
+        )
         return f"""
 {title}
 {'=' * len(title)}
@@ -92,7 +94,9 @@ class ServiceSphinxDocBuilder:
         The Sphinx documentation for a manager.
 
         Args:
-            manager_name: The name of the manager.
+            class_name: The name of the class to document
+            pydantic: Whether to use autopydantic_model or autoclass
+
         """
         if pydantic:
             return f"""
@@ -101,9 +105,8 @@ class ServiceSphinxDocBuilder:
     :show-inheritance:
     :inherited-members:
     :exclude-members: update_forward_refs, model_extra, model_fields_set, validate, schema_json, model_rebuild, model_post_init, model_parametrized_name, model_json_schema, copy, from_orm, dict, json, schema, schema_json
-"""
-        else:
-            return f"""
+"""  # noqa: E501
+        return f"""
 .. autoclass:: botocraft.services.{self.generator.aws_service_name}.{class_name}
    :members:
    :show-inheritance:
@@ -114,7 +117,7 @@ class ServiceSphinxDocBuilder:
         The Sphinx documentation for the managers.
         """
         names.sort()
-        code = ''
+        code = ""
         for name in names:
             code += self.autoclass(name, pydantic=pydantic)
         return f"""{code}
@@ -127,15 +130,16 @@ class ServiceSphinxDocBuilder:
         """
         managers = list(self.generator.manager_classes.keys())
         managers_doc = self.classes(managers, pydantic=False)
-        # FIXME: the following code doesn't take into account alternate names
+        # TODO: the following code doesn't take into account alternate names
         # for primary models.
         primary_models = [
-            model for model in self.generator.model_classes.keys()
+            model
+            for model in self.generator.model_classes
             if model in self.generator.service_def.primary_models
         ]
         primary_models_doc = self.classes(primary_models)
         secondary_models = []
-        for model in self.generator.model_classes.keys():
+        for model in self.generator.model_classes:
             if model in primary_models:
                 continue
             secondary_models.append(model)
@@ -196,8 +200,9 @@ because they have some useful additional information.
 
         Args:
             code: the code to write to the output file.
+
         """
         # First format the code with black so we fix most of the formatting
         # issues.
-        with open(self.path, 'w', encoding='utf-8') as fd:
+        with self.path.open("w", encoding="utf-8") as fd:
             fd.write(self.body)
