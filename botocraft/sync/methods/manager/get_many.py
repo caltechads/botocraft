@@ -46,12 +46,26 @@ class GetManyMethodGenerator(ManagerMethodGenerator):
         if self.response_attr is not None:
             code += f"""
         if response.{self.response_attr} is not None:
-            return response.{self.response_attr}
+            if hasattr(response.{self.response_attr}[0], "session"):
+                objs = []
+                for obj in response.{self.response_attr}:
+                    obj.session = self.session
+                    objs.append(obj)
+                return objs
+            else:
+                return response.{self.response_attr}
 """
         else:
             code += """
         if response is not None:
-            return response
+            if hasattr(response[0], "session"):
+                objs = []
+                for obj in response:
+                    obj.session = self.session
+                    objs.append(obj)
+                return objs
+            else:
+                return response
 """
         code += """
         return []

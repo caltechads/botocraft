@@ -70,7 +70,14 @@ class GeneralMethodGenerator(ManagerMethodGenerator):
             if self.response_attr is not None:
                 code += f"""
             if response.{self.response_attr}:
-                results.extend(response.{self.response_attr})
+                if hasattr(response.{self.response_attr}, "session"):
+                    objs = []
+                    for obj in response.{self.response_attr}:
+                        obj.session = self.session
+                        objs.append(obj)
+                    results.extend(objs)
+                else:
+                    results.extend(response.{self.response_attr})
 """
             else:
                 code += """
@@ -79,11 +86,20 @@ class GeneralMethodGenerator(ManagerMethodGenerator):
                     # Test whether the response is iterable
                     iter(response)
                 except TypeError:
+                    if hasattr(response, "session"):
+                        response.session = self.session
                     # If it not, append the response to the results list
                     results.append(response)  # type: ignore[arg-type]
                 else:
                     # If it is, extend the results list with the response
-                    results.extend(response)  # type: ignore[arg-type]
+                    if hasattr(response[0], "session"):
+                        objs = []
+                        for obj in response:
+                            obj.session = self.session
+                            objs.append(obj)
+                        results.extend(objs)
+                    else:
+                        results.extend(response)  # type: ignore[arg-type]
 """
             code += """
             else:

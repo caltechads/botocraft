@@ -155,14 +155,14 @@ class ModelRelationGenerator:
             self.transform(value, r"{self.property_def.transformer.regex.regex}")
             for value in self.{self.property_def.transformer.regex.attribute}
         ]
-        return {self.property_def.primary_model_name}.objects.using(self.objects.session).list(**pks)
+        return {self.property_def.primary_model_name}.objects.using(self.session).list(**pks)
 """  # noqa: E501
         else:
             code = f"""
         if self.{self.property_def.transformer.regex.attribute} is None:
             return None
         pk = self.transform(value, r"{self.property_def.transformer.regex.regex}")
-        return {self.property_def.primary_model_name}.objects.using(self.objects.session).get(**pk)
+        return {self.property_def.primary_model_name}.objects.using(self.session).get(**pk)
 """  # noqa: E501
         return code
 
@@ -191,14 +191,14 @@ class ModelRelationGenerator:
             }})
         except AttributeError:
             return []
-        return {self.property_def.primary_model_name}.objects.using(self.objects.session).list(**pk)
+        return {self.property_def.primary_model_name}.objects.using(self.session).list(**pk)
 """  # noqa: E501
         else:
             code += f"""
         }})
         except AttributeError:
             return None
-        return {self.property_def.primary_model_name}.objects.using(self.objects.session).get(**pk)
+        return {self.property_def.primary_model_name}.objects.using(self.session).get(**pk)
 """  # noqa: E501
         return code
 

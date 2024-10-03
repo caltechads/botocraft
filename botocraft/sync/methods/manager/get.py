@@ -74,11 +74,15 @@ class GetMethodGenerator(ManagerMethodGenerator):
         if self.response_attr_multiplicity == "many":
             code += f"""
         if response.{response_attr}:
-            return response.{response_attr}[0]
+            obj = response.{response_attr}[0]
+            obj.session = self.session
+            return obj
         return None
 """
         else:
             code += f"""
-        return response.{response_attr}
+        obj = response.{response_attr}
+        obj.session = self.session
+        return obj
 """
         return code

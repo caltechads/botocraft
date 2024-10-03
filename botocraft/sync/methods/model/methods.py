@@ -384,7 +384,7 @@ class ModelManagerMethodGenerator:
         args = self.args
         kwargs = self.kwargs
         code = f"""
-        return cast({self.model_name}Manager, self.objects).{self.method_def.manager_method}({args}{kwargs})
+        return cast({self.model_name}Manager, self.objects).using(self.session).{self.method_def.manager_method}({args}{kwargs})
 """  # noqa: E501
         return code  # noqa: RET504
 

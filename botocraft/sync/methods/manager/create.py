@@ -202,6 +202,8 @@ class CreateMethodGenerator(ManagerMethodGenerator):
 """
         if self.return_type != "None":
             code += f"""
+        if hasattr(response.{response_attr}, "session"):
+            response.{response_attr}.session = self.session
         return cast({self.return_type}, response.{response_attr})
 """
         return code

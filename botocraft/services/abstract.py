@@ -2,7 +2,7 @@ import re
 from typing import Any, ClassVar, Optional, Type
 
 import boto3
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, Field
 
 
 class TransformMixin:
@@ -224,6 +224,13 @@ class ReadonlyPrimaryBoto3Model(  # pylint: disable=abstract-method
     #: The manager for this model
     manager_class: ClassVar[Type[Boto3ModelManager]]
 
+    #: The boto3 session to use for this model.  This is set by the manager,
+    #: and is used in relationships.  We have to use ``Any`` here because we
+    #: pydantic complains vociferously if we use ``boto3.session.Session``.
+    #: We exclude it from the model dump because it's not something that should
+    #: be serialized.
+    session: Optional[Any] = Field(default=None, exclude=True)
+
     @classproperty
     def objects(cls) -> Boto3ModelManager:  # noqa: N805
         """
@@ -260,6 +267,13 @@ class PrimaryBoto3Model(  # pylint: disable=abstract-method
 
     #: The manager for this model
     manager_class: ClassVar[Type[Boto3ModelManager]]
+
+    #: The boto3 session to use for this model.  This is set by the manager,
+    #: and is used in relationships.  We have to use ``Any`` here because we
+    #: pydantic complains vociferously if we use ``boto3.session.Session``.
+    #: We exclude it from the model dump because it's not something that should
+    #: be serialized.
+    session: Optional[Any] = Field(default=None, exclude=True)
 
     @classproperty
     def objects(cls) -> Boto3ModelManager:  # noqa: N805
