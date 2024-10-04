@@ -25,6 +25,11 @@ Parameter:
             The name of the parameter you want to query.
         WithDecryption:
           default: "True"
+    get_many:
+      boto3_name: get_parameters
+      args:
+        WithDecryption:
+          default: "True"
     list:
       boto3_name: describe_parameters
     delete:
