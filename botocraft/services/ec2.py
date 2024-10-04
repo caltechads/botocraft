@@ -52,7 +52,8 @@ class VpcManager(ReadonlyBoto3ModelManager):
 
         if response.Vpcs:
             obj = response.Vpcs[0]
-            obj.session = self.session
+            if hasattr(obj, "session"):
+                obj.set_session(self.session)
             return obj
         return None
 
@@ -91,7 +92,7 @@ class VpcManager(ReadonlyBoto3ModelManager):
             if response.Vpcs:
                 if hasattr(response.Vpcs[0], "session"):
                     for obj in response.Vpcs:
-                        obj.session = self.session
+                        obj.set_session(self.session)
                         results.append(obj)
                 else:
                     results.extend(response.Vpcs)
@@ -185,7 +186,8 @@ class SubnetManager(ReadonlyBoto3ModelManager):
 
         if response.Subnets:
             obj = response.Subnets[0]
-            obj.session = self.session
+            if hasattr(obj, "session"):
+                obj.set_session(self.session)
             return obj
         return None
 
@@ -224,7 +226,7 @@ class SubnetManager(ReadonlyBoto3ModelManager):
             if response.Subnets:
                 if hasattr(response.Subnets[0], "session"):
                     for obj in response.Subnets:
-                        obj.session = self.session
+                        obj.set_session(self.session)
                         results.append(obj)
                 else:
                     results.extend(response.Subnets)
@@ -266,7 +268,7 @@ class SecurityGroupManager(EC2TagsManagerMixin, Boto3ModelManager):
         response = CreateSecurityGroupResult(**_response)
 
         if hasattr(response.GroupId, "session"):
-            response.GroupId.session = self.session
+            response.GroupId.set_session(self.session)
         return cast(str, response.GroupId)
 
     def delete(self, GroupId: str, *, DryRun: bool = False) -> None:
@@ -312,7 +314,8 @@ class SecurityGroupManager(EC2TagsManagerMixin, Boto3ModelManager):
 
         if response.SecurityGroups:
             obj = response.SecurityGroups[0]
-            obj.session = self.session
+            if hasattr(obj, "session"):
+                obj.set_session(self.session)
             return obj
         return None
 
@@ -356,7 +359,7 @@ class SecurityGroupManager(EC2TagsManagerMixin, Boto3ModelManager):
             if response.SecurityGroups:
                 if hasattr(response.SecurityGroups[0], "session"):
                     for obj in response.SecurityGroups:
-                        obj.session = self.session
+                        obj.set_session(self.session)
                         results.append(obj)
                 else:
                     results.extend(response.SecurityGroups)
@@ -467,7 +470,7 @@ class NetworkAclManager(EC2TagsManagerMixin, Boto3ModelManager):
         response = CreateNetworkAclResult(**_response)
 
         if hasattr(response.NetworkAclInstance, "session"):
-            response.NetworkAclInstance.session = self.session
+            response.NetworkAclInstance.set_session(self.session)
         return cast("NetworkAcl", response.NetworkAclInstance)
 
     def delete(self, NetworkAclId: str, *, DryRun: bool = False) -> None:
@@ -517,7 +520,8 @@ class NetworkAclManager(EC2TagsManagerMixin, Boto3ModelManager):
 
         if response.NetworkAcls:
             obj = response.NetworkAcls[0]
-            obj.session = self.session
+            if hasattr(obj, "session"):
+                obj.set_session(self.session)
             return obj
         return None
 
@@ -557,7 +561,7 @@ class NetworkAclManager(EC2TagsManagerMixin, Boto3ModelManager):
             if response.NetworkAcls:
                 if hasattr(response.NetworkAcls[0], "session"):
                     for obj in response.NetworkAcls:
-                        obj.session = self.session
+                        obj.set_session(self.session)
                         results.append(obj)
                 else:
                     results.extend(response.NetworkAcls)
@@ -600,7 +604,7 @@ class AMIManager(EC2TagsManagerMixin, Boto3ModelManager):
         response = CreateImageResult(**_response)
 
         if hasattr(response.ImageId, "session"):
-            response.ImageId.session = self.session
+            response.ImageId.set_session(self.session)
         return cast(str, response.ImageId)
 
     def delete(self, ImageId: str, *, DryRun: bool = False) -> None:
@@ -670,7 +674,8 @@ class AMIManager(EC2TagsManagerMixin, Boto3ModelManager):
 
         if response.Images:
             obj = response.Images[0]
-            obj.session = self.session
+            if hasattr(obj, "session"):
+                obj.set_session(self.session)
             return obj
         return None
 
@@ -726,7 +731,7 @@ class AMIManager(EC2TagsManagerMixin, Boto3ModelManager):
             if response.Images:
                 if hasattr(response.Images[0], "session"):
                     for obj in response.Images:
-                        obj.session = self.session
+                        obj.set_session(self.session)
                         results.append(obj)
                 else:
                     results.extend(response.Images)
@@ -980,7 +985,7 @@ class InstanceManager(EC2TagsManagerMixin, Boto3ModelManager):
         response = Reservation(**_response)
 
         if hasattr(response.Instances[0], "session"):
-            response.Instances[0].session = self.session
+            response.Instances[0].set_session(self.session)
         return cast("Instance", response.Instances[0])
 
     @ec2_instance_only
@@ -1007,7 +1012,8 @@ class InstanceManager(EC2TagsManagerMixin, Boto3ModelManager):
 
         if response.Reservations:
             obj = response.Reservations[0]
-            obj.session = self.session
+            if hasattr(obj, "session"):
+                obj.set_session(self.session)
             return obj
         return None
 
@@ -1045,7 +1051,7 @@ class InstanceManager(EC2TagsManagerMixin, Boto3ModelManager):
             if response.Reservations:
                 if hasattr(response.Reservations[0], "session"):
                     for obj in response.Reservations:
-                        obj.session = self.session
+                        obj.set_session(self.session)
                         results.append(obj)
                 else:
                     results.extend(response.Reservations)
@@ -1222,7 +1228,7 @@ class LaunchTemplateManager(EC2TagsManagerMixin, Boto3ModelManager):
         response = CreateLaunchTemplateResult(**_response)
 
         if hasattr(response.LaunchTemplateInstance, "session"):
-            response.LaunchTemplateInstance.session = self.session
+            response.LaunchTemplateInstance.set_session(self.session)
         return cast("LaunchTemplate", response.LaunchTemplateInstance)
 
     def delete(
@@ -1283,7 +1289,8 @@ class LaunchTemplateManager(EC2TagsManagerMixin, Boto3ModelManager):
 
         if response.LaunchTemplates:
             obj = response.LaunchTemplates[0]
-            obj.session = self.session
+            if hasattr(obj, "session"):
+                obj.set_session(self.session)
             return obj
         return None
 
@@ -1323,7 +1330,7 @@ class LaunchTemplateManager(EC2TagsManagerMixin, Boto3ModelManager):
             if response.LaunchTemplates:
                 if hasattr(response.LaunchTemplates[0], "session"):
                     for obj in response.LaunchTemplates:
-                        obj.session = self.session
+                        obj.set_session(self.session)
                         results.append(obj)
                 else:
                     results.extend(response.LaunchTemplates)
@@ -1384,7 +1391,7 @@ class LaunchTemplateVersionManager(Boto3ModelManager):
         response = CreateLaunchTemplateVersionResult(**_response)
 
         if hasattr(response.LaunchTemplateVersionInstance, "session"):
-            response.LaunchTemplateVersionInstance.session = self.session
+            response.LaunchTemplateVersionInstance.set_session(self.session)
         return cast("LaunchTemplateVersion", response.LaunchTemplateVersionInstance)
 
     def delete(
@@ -1462,7 +1469,8 @@ class LaunchTemplateVersionManager(Boto3ModelManager):
 
         if response.LaunchTemplateVersions:
             obj = response.LaunchTemplateVersions[0]
-            obj.session = self.session
+            if hasattr(obj, "session"):
+                obj.set_session(self.session)
             return obj
         return None
 
@@ -1522,7 +1530,7 @@ class LaunchTemplateVersionManager(Boto3ModelManager):
             if response.LaunchTemplateVersions:
                 if hasattr(response.LaunchTemplateVersions[0], "session"):
                     for obj in response.LaunchTemplateVersions:
-                        obj.session = self.session
+                        obj.set_session(self.session)
                         results.append(obj)
                 else:
                     results.extend(response.LaunchTemplateVersions)

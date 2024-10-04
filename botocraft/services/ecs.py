@@ -89,7 +89,7 @@ class ServiceManager(Boto3ModelManager):
         response = CreateServiceResponse(**_response)
 
         if hasattr(response.service, "session"):
-            response.service.session = self.session
+            response.service.set_session(self.session)
         return cast("Service", response.service)
 
     def delete(
@@ -156,7 +156,8 @@ class ServiceManager(Boto3ModelManager):
 
         if response.services:
             obj = response.services[0]
-            obj.session = self.session
+            if hasattr(obj, "session"):
+                obj.set_session(self.session)
             return obj
         return None
 
@@ -198,7 +199,7 @@ class ServiceManager(Boto3ModelManager):
             if hasattr(response.services[0], "session"):
                 objs = []
                 for obj in response.services:
-                    obj.session = self.session
+                    obj.set_session(self.session)
                     objs.append(obj)
                 return objs
             else:
@@ -242,7 +243,7 @@ class ServiceManager(Boto3ModelManager):
             if response.serviceArns:
                 if hasattr(response.serviceArns[0], "session"):
                     for obj in response.serviceArns:
-                        obj.session = self.session
+                        obj.set_session(self.session)
                         results.append(obj)
                 else:
                     results.extend(response.serviceArns)
@@ -311,7 +312,7 @@ class ServiceManager(Boto3ModelManager):
         response = UpdateServiceResponse(**_response)
 
         if hasattr(response.service, "session"):
-            response.service.session = self.session
+            response.service.set_session(self.session)
         return cast("Service", response.service)
 
     def partial_update(
@@ -454,7 +455,7 @@ class ServiceManager(Boto3ModelManager):
         response = UpdateServiceResponse(**_response)
 
         if hasattr(response.service, "session"):
-            response.service.session = self.session
+            response.service.set_session(self.session)
         return cast("Service", response.service)
 
 
@@ -485,7 +486,7 @@ class ClusterManager(Boto3ModelManager):
         response = CreateClusterResponse(**_response)
 
         if hasattr(response.cluster, "session"):
-            response.cluster.session = self.session
+            response.cluster.set_session(self.session)
         return cast("Cluster", response.cluster)
 
     def delete(self, cluster: str) -> "Cluster":
@@ -533,7 +534,8 @@ class ClusterManager(Boto3ModelManager):
 
         if response.clusters:
             obj = response.clusters[0]
-            obj.session = self.session
+            if hasattr(obj, "session"):
+                obj.set_session(self.session)
             return obj
         return None
 
@@ -568,7 +570,7 @@ class ClusterManager(Boto3ModelManager):
             if hasattr(response.clusters[0], "session"):
                 objs = []
                 for obj in response.clusters:
-                    obj.session = self.session
+                    obj.set_session(self.session)
                     objs.append(obj)
                 return objs
             else:
@@ -594,7 +596,7 @@ class ClusterManager(Boto3ModelManager):
             if response.clusterArns:
                 if hasattr(response.clusterArns[0], "session"):
                     for obj in response.clusterArns:
-                        obj.session = self.session
+                        obj.set_session(self.session)
                         results.append(obj)
                 else:
                     results.extend(response.clusterArns)
@@ -622,7 +624,7 @@ class ClusterManager(Boto3ModelManager):
         response = UpdateClusterResponse(**_response)
 
         if hasattr(response.cluster, "session"):
-            response.cluster.session = self.session
+            response.cluster.set_session(self.session)
         return cast("Cluster", response.cluster)
 
     def partial_update(
@@ -663,7 +665,7 @@ class ClusterManager(Boto3ModelManager):
         response = UpdateClusterResponse(**_response)
 
         if hasattr(response.cluster, "session"):
-            response.cluster.session = self.session
+            response.cluster.set_session(self.session)
         return cast("Cluster", response.cluster)
 
 
@@ -717,7 +719,7 @@ class TaskDefinitionManager(Boto3ModelManager):
         response = RegisterTaskDefinitionResponse(**_response)
 
         if hasattr(response.taskDefinition, "session"):
-            response.taskDefinition.session = self.session
+            response.taskDefinition.set_session(self.session)
         return cast("TaskDefinition", response.taskDefinition)
 
     def delete(self, taskDefinition: str) -> "TaskDefinition":
@@ -772,7 +774,8 @@ class TaskDefinitionManager(Boto3ModelManager):
         response = DescribeTaskDefinitionResponse(**_response)
 
         obj = response.taskDefinition
-        obj.session = self.session
+        if hasattr(obj, "session"):
+            obj.set_session(self.session)
         return obj
 
     @ecs_task_definitions_only
@@ -821,7 +824,7 @@ class TaskDefinitionManager(Boto3ModelManager):
             if response.taskDefinitionArns:
                 if hasattr(response.taskDefinitionArns[0], "session"):
                     for obj in response.taskDefinitionArns:
-                        obj.session = self.session
+                        obj.set_session(self.session)
                         results.append(obj)
                 else:
                     results.extend(response.taskDefinitionArns)
@@ -875,7 +878,7 @@ class TaskDefinitionManager(Boto3ModelManager):
         response = RegisterTaskDefinitionResponse(**_response)
 
         if hasattr(response.taskDefinition, "session"):
-            response.taskDefinition.session = self.session
+            response.taskDefinition.set_session(self.session)
         return cast("TaskDefinition", response.taskDefinition)
 
 
@@ -925,7 +928,8 @@ class ContainerInstanceManager(ReadonlyBoto3ModelManager):
 
         if response.containerInstances:
             obj = response.containerInstances[0]
-            obj.session = self.session
+            if hasattr(obj, "session"):
+                obj.set_session(self.session)
             return obj
         return None
 
@@ -973,7 +977,7 @@ class ContainerInstanceManager(ReadonlyBoto3ModelManager):
             if hasattr(response.containerInstances[0], "session"):
                 objs = []
                 for obj in response.containerInstances:
-                    obj.session = self.session
+                    obj.set_session(self.session)
                     objs.append(obj)
                 return objs
             else:
@@ -1039,7 +1043,7 @@ class ContainerInstanceManager(ReadonlyBoto3ModelManager):
             if response.containerInstanceArns:
                 if hasattr(response.containerInstanceArns[0], "session"):
                     for obj in response.containerInstanceArns:
-                        obj.session = self.session
+                        obj.set_session(self.session)
                         results.append(obj)
                 else:
                     results.extend(response.containerInstanceArns)
@@ -1113,7 +1117,7 @@ class ContainerInstanceManager(ReadonlyBoto3ModelManager):
                 if hasattr(response.taskArns, "session"):
                     objs = []
                     for obj in response.taskArns:
-                        obj.session = self.session
+                        obj.set_session(self.session)
                         objs.append(obj)
                     results.extend(objs)
                 else:
@@ -1165,7 +1169,8 @@ class TaskManager(Boto3ModelManager):
 
         if response.tasks:
             obj = response.tasks[0]
-            obj.session = self.session
+            if hasattr(obj, "session"):
+                obj.set_session(self.session)
             return obj
         return None
 
@@ -1207,7 +1212,7 @@ class TaskManager(Boto3ModelManager):
             if hasattr(response.tasks[0], "session"):
                 objs = []
                 for obj in response.tasks:
-                    obj.session = self.session
+                    obj.set_session(self.session)
                     objs.append(obj)
                 return objs
             else:
@@ -1278,7 +1283,7 @@ class TaskManager(Boto3ModelManager):
             if response.taskArns:
                 if hasattr(response.taskArns[0], "session"):
                     for obj in response.taskArns:
-                        obj.session = self.session
+                        obj.set_session(self.session)
                         results.append(obj)
                 else:
                     results.extend(response.taskArns)
@@ -1377,7 +1382,7 @@ class TaskManager(Boto3ModelManager):
         response = RunTaskResponse(**_response)
 
         if hasattr(response.tasks[0], "session"):
-            response.tasks[0].session = self.session
+            response.tasks[0].set_session(self.session)
         return cast("Task", response.tasks[0])
 
     def delete(

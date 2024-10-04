@@ -64,7 +64,7 @@ class LoadBalancerManager(Boto3ModelManager):
         response = CreateLoadBalancerOutput(**_response)
 
         if hasattr(response.LoadBalancers[0], "session"):
-            response.LoadBalancers[0].session = self.session
+            response.LoadBalancers[0].set_session(self.session)
         return cast("LoadBalancer", response.LoadBalancers[0])
 
     def delete(self, LoadBalancerArn: str) -> None:
@@ -102,7 +102,8 @@ class LoadBalancerManager(Boto3ModelManager):
 
         if response.LoadBalancers:
             obj = response.LoadBalancers[0]
-            obj.session = self.session
+            if hasattr(obj, "session"):
+                obj.set_session(self.session)
             return obj
         return None
 
@@ -134,7 +135,7 @@ class LoadBalancerManager(Boto3ModelManager):
             if response.LoadBalancers:
                 if hasattr(response.LoadBalancers[0], "session"):
                     for obj in response.LoadBalancers:
-                        obj.session = self.session
+                        obj.set_session(self.session)
                         results.append(obj)
                 else:
                     results.extend(response.LoadBalancers)
@@ -176,7 +177,7 @@ class ListenerManager(Boto3ModelManager):
         response = CreateListenerOutput(**_response)
 
         if hasattr(response.Listeners[0], "session"):
-            response.Listeners[0].session = self.session
+            response.Listeners[0].set_session(self.session)
         return cast("Listener", response.Listeners[0])
 
     def update(self, model: "Listener") -> "Listener":
@@ -204,7 +205,7 @@ class ListenerManager(Boto3ModelManager):
         response = ModifyListenerOutput(**_response)
 
         if hasattr(response.Listeners[0], "session"):
-            response.Listeners[0].session = self.session
+            response.Listeners[0].set_session(self.session)
         return cast("Listener", response.Listeners[0])
 
     def delete(self, ListenerArn: str) -> None:
@@ -235,7 +236,8 @@ class ListenerManager(Boto3ModelManager):
 
         if response.Listeners:
             obj = response.Listeners[0]
-            obj.session = self.session
+            if hasattr(obj, "session"):
+                obj.set_session(self.session)
             return obj
         return None
 
@@ -269,7 +271,7 @@ class ListenerManager(Boto3ModelManager):
             if response.Listeners:
                 if hasattr(response.Listeners[0], "session"):
                     for obj in response.Listeners:
-                        obj.session = self.session
+                        obj.set_session(self.session)
                         results.append(obj)
                 else:
                     results.extend(response.Listeners)
@@ -310,7 +312,7 @@ class RuleManager(Boto3ModelManager):
         response = CreateRuleOutput(**_response)
 
         if hasattr(response.Rules[0], "session"):
-            response.Rules[0].session = self.session
+            response.Rules[0].set_session(self.session)
         return cast("Rule", response.Rules[0])
 
     def update(self, model: "Rule") -> "Rule":
@@ -333,7 +335,7 @@ class RuleManager(Boto3ModelManager):
         response = ModifyRuleOutput(**_response)
 
         if hasattr(response.Rules[0], "session"):
-            response.Rules[0].session = self.session
+            response.Rules[0].set_session(self.session)
         return cast("Rule", response.Rules[0])
 
     def delete(self, RuleArn: str) -> None:
@@ -362,7 +364,8 @@ class RuleManager(Boto3ModelManager):
 
         if response.Rules:
             obj = response.Rules[0]
-            obj.session = self.session
+            if hasattr(obj, "session"):
+                obj.set_session(self.session)
             return obj
         return None
 
@@ -390,7 +393,7 @@ class RuleManager(Boto3ModelManager):
             if response.Rules:
                 if hasattr(response.Rules[0], "session"):
                     for obj in response.Rules:
-                        obj.session = self.session
+                        obj.set_session(self.session)
                         results.append(obj)
                 else:
                     results.extend(response.Rules)
@@ -442,7 +445,7 @@ class TargetGroupManager(Boto3ModelManager):
         response = CreateTargetGroupOutput(**_response)
 
         if hasattr(response.TargetGroups[0], "session"):
-            response.TargetGroups[0].session = self.session
+            response.TargetGroups[0].set_session(self.session)
         return cast("TargetGroup", response.TargetGroups[0])
 
     def update(self, model: "TargetGroup") -> "TargetGroup":
@@ -472,7 +475,7 @@ class TargetGroupManager(Boto3ModelManager):
         response = ModifyTargetGroupOutput(**_response)
 
         if hasattr(response.TargetGroups[0], "session"):
-            response.TargetGroups[0].session = self.session
+            response.TargetGroups[0].set_session(self.session)
         return cast("TargetGroup", response.TargetGroups[0])
 
     def delete(self, TargetGroupArn: str) -> None:
@@ -512,7 +515,8 @@ class TargetGroupManager(Boto3ModelManager):
 
         if response.TargetGroups:
             obj = response.TargetGroups[0]
-            obj.session = self.session
+            if hasattr(obj, "session"):
+                obj.set_session(self.session)
             return obj
         return None
 
@@ -550,7 +554,7 @@ class TargetGroupManager(Boto3ModelManager):
             if response.TargetGroups:
                 if hasattr(response.TargetGroups[0], "session"):
                     for obj in response.TargetGroups:
-                        obj.session = self.session
+                        obj.set_session(self.session)
                         results.append(obj)
                 else:
                     results.extend(response.TargetGroups)

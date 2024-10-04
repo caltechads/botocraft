@@ -152,7 +152,7 @@ class DBInstanceManager(Boto3ModelManager):
         response = CreateDBInstanceResult(**_response)
 
         if hasattr(response.RDSDBInstance, "session"):
-            response.RDSDBInstance.session = self.session
+            response.RDSDBInstance.set_session(self.session)
         return cast("DBInstance", response.RDSDBInstance)
 
     def update(
@@ -334,7 +334,7 @@ class DBInstanceManager(Boto3ModelManager):
         response = ModifyDBInstanceResult(**_response)
 
         if hasattr(response.RDSDBInstance, "session"):
-            response.RDSDBInstance.session = self.session
+            response.RDSDBInstance.set_session(self.session)
         return cast("DBInstance", response.RDSDBInstance)
 
     def delete(
@@ -407,7 +407,8 @@ class DBInstanceManager(Boto3ModelManager):
 
         if response.DBInstances:
             obj = response.DBInstances[0]
-            obj.session = self.session
+            if hasattr(obj, "session"):
+                obj.set_session(self.session)
             return obj
         return None
 
@@ -441,7 +442,7 @@ class DBInstanceManager(Boto3ModelManager):
             if response.DBInstances:
                 if hasattr(response.DBInstances[0], "session"):
                     for obj in response.DBInstances:
-                        obj.session = self.session
+                        obj.set_session(self.session)
                         results.append(obj)
                 else:
                     results.extend(response.DBInstances)

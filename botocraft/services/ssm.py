@@ -79,7 +79,7 @@ class ParameterManager(Boto3ModelManager):
         response = PutParameterResult(**_response)
 
         if hasattr(response.Version, "session"):
-            response.Version.session = self.session
+            response.Version.set_session(self.session)
         return cast(int, response.Version)
 
     def update(
@@ -140,7 +140,7 @@ class ParameterManager(Boto3ModelManager):
         response = PutParameterResult(**_response)
 
         if hasattr(response.Version, "session"):
-            response.Version.session = self.session
+            response.Version.set_session(self.session)
         return cast(int, response.Version)
 
     def get(self, Name: str, *, WithDecryption: bool = True) -> Optional["Parameter"]:
@@ -166,9 +166,47 @@ class ParameterManager(Boto3ModelManager):
 
         if response.Parameters:
             obj = response.Parameters[0]
-            obj.session = self.session
+            if hasattr(obj, "session"):
+                obj.set_session(self.session)
             return obj
         return None
+
+    def get_many(
+        self, Names: List[str], *, WithDecryption: bool = True
+    ) -> List["Parameter"]:
+        """
+        Get information about one or more parameters by specifying multiple
+        parameter names.
+
+        Args:
+            Names: The names or Amazon Resource Names (ARNs) of the parameters that you
+                want to query. For parameters shared with you from another account, you
+                must use the full ARNs.
+
+        Keyword Args:
+            WithDecryption: Return decrypted secure string value. Return decrypted
+                values for secure string parameters. This flag is ignored for ``String``
+                and ``StringList`` parameter types.
+        """
+        args: Dict[str, Any] = dict(
+            Names=self.serialize(Names), WithDecryption=self.serialize(WithDecryption)
+        )
+        _response = self.client.get_parameters(
+            **{k: v for k, v in args.items() if v is not None}
+        )
+        response = GetParametersResult(**_response)
+
+        if response.Parameters is not None:
+            if hasattr(response.Parameters[0], "session"):
+                objs = []
+                for obj in response.Parameters:
+                    obj.set_session(self.session)
+                    objs.append(obj)
+                return objs
+            else:
+                return response.Parameters
+
+        return []
 
     def list(
         self,
@@ -205,7 +243,7 @@ class ParameterManager(Boto3ModelManager):
             if response.Parameters:
                 if hasattr(response.Parameters[0], "session"):
                     for obj in response.Parameters:
-                        obj.session = self.session
+                        obj.set_session(self.session)
                         results.append(obj)
                 else:
                     results.extend(response.Parameters)

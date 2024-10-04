@@ -57,7 +57,7 @@ class RepositoryManager(Boto3ModelManager):
         response = CreateRepositoryResponse(**_response)
 
         if hasattr(response.repository, "session"):
-            response.repository.session = self.session
+            response.repository.set_session(self.session)
         return cast("Repository", response.repository)
 
     def delete(
@@ -117,7 +117,8 @@ class RepositoryManager(Boto3ModelManager):
 
         if response.repositories:
             obj = response.repositories[0]
-            obj.session = self.session
+            if hasattr(obj, "session"):
+                obj.set_session(self.session)
             return obj
         return None
 
@@ -151,7 +152,7 @@ class RepositoryManager(Boto3ModelManager):
             if response.repositories:
                 if hasattr(response.repositories[0], "session"):
                     for obj in response.repositories:
-                        obj.session = self.session
+                        obj.set_session(self.session)
                         results.append(obj)
                 else:
                     results.extend(response.repositories)
@@ -197,7 +198,7 @@ class RepositoryManager(Boto3ModelManager):
                 if hasattr(response.imageIds, "session"):
                     objs = []
                     for obj in response.imageIds:
-                        obj.session = self.session
+                        obj.set_session(self.session)
                         objs.append(obj)
                     results.extend(objs)
                 else:
@@ -313,7 +314,8 @@ class ECRImageManager(Boto3ModelManager):
 
         if response.images:
             obj = response.images[0]
-            obj.session = self.session
+            if hasattr(obj, "session"):
+                obj.set_session(self.session)
             return obj
         return None
 
@@ -353,11 +355,10 @@ class ECRImageManager(Boto3ModelManager):
             if hasattr(response[0], "session"):
                 objs = []
                 for obj in response:
-                    obj.session = self.session
+                    obj.set_session(self.session)
                     objs.append(obj)
                 return objs
-            else:
-                return response
+            return response
 
         return []
 
@@ -388,7 +389,7 @@ class ECRImageManager(Boto3ModelManager):
             if response.imageIds:
                 if hasattr(response.imageIds[0], "session"):
                     for obj in response.imageIds:
-                        obj.session = self.session
+                        obj.set_session(self.session)
                         results.append(obj)
                 else:
                     results.extend(response.imageIds)
@@ -470,7 +471,7 @@ class ECRImageManager(Boto3ModelManager):
                     iter(response)
                 except TypeError:
                     if hasattr(response, "session"):
-                        response.session = self.session
+                        response.set_session(self.session)
                     # If it not, append the response to the results list
                     results.append(response)  # type: ignore[arg-type]
                 else:
@@ -478,7 +479,7 @@ class ECRImageManager(Boto3ModelManager):
                     if hasattr(response[0], "session"):
                         objs = []
                         for obj in response:
-                            obj.session = self.session
+                            obj.set_session(self.session)
                             objs.append(obj)
                         results.extend(objs)
                     else:
@@ -684,7 +685,7 @@ class ECRImage(ECRImageMixin, ReadonlyPrimaryBoto3Model):
         """
 
         return (
-            cast(ImageManager, self.objects)
+            cast(ECRImageManager, self.objects)
             .using(self.session)
             .replication_status(cast(str, self.repositoryName), imageId=self.imageId)
         )
@@ -695,7 +696,7 @@ class ECRImage(ECRImageMixin, ReadonlyPrimaryBoto3Model):
         """
 
         return (
-            cast(ImageManager, self.objects)
+            cast(ECRImageManager, self.objects)
             .using(self.session)
             .scan_findings(cast(str, self.repositoryName), imageId=self.imageId)
         )

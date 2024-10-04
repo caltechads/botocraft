@@ -185,7 +185,8 @@ class AutoScalingGroupManager(Boto3ModelManager):
 
         if response.AutoScalingGroups:
             obj = response.AutoScalingGroups[0]
-            obj.session = self.session
+            if hasattr(obj, "session"):
+                obj.set_session(self.session)
             return obj
         return None
 
@@ -219,7 +220,7 @@ class AutoScalingGroupManager(Boto3ModelManager):
             if response.AutoScalingGroups:
                 if hasattr(response.AutoScalingGroups[0], "session"):
                     for obj in response.AutoScalingGroups:
-                        obj.session = self.session
+                        obj.set_session(self.session)
                         results.append(obj)
                 else:
                     results.extend(response.AutoScalingGroups)
@@ -271,7 +272,7 @@ class AutoScalingGroupManager(Boto3ModelManager):
                 if hasattr(response.AutoScalingInstances, "session"):
                     objs = []
                     for obj in response.AutoScalingInstances:
-                        obj.session = self.session
+                        obj.set_session(self.session)
                         objs.append(obj)
                     results.extend(objs)
                 else:
@@ -385,7 +386,8 @@ class LaunchConfigurationManager(Boto3ModelManager):
 
         if response.LaunchConfigurations:
             obj = response.LaunchConfigurations[0]
-            obj.session = self.session
+            if hasattr(obj, "session"):
+                obj.set_session(self.session)
             return obj
         return None
 
@@ -413,7 +415,7 @@ class LaunchConfigurationManager(Boto3ModelManager):
             if response.LaunchConfigurations:
                 if hasattr(response.LaunchConfigurations[0], "session"):
                     for obj in response.LaunchConfigurations:
-                        obj.session = self.session
+                        obj.set_session(self.session)
                         results.append(obj)
                 else:
                     results.extend(response.LaunchConfigurations)
