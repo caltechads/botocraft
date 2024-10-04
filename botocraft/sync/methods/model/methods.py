@@ -383,8 +383,12 @@ class ModelManagerMethodGenerator:
         """
         args = self.args
         kwargs = self.kwargs
+        # Get the model alias, if any
+        model_alias = self.model_def.alternate_name
+        if not model_alias:
+            model_alias = self.model_name
         code = f"""
-        return cast({self.model_name}Manager, self.objects).using(self.session).{self.method_def.manager_method}({args}{kwargs})
+        return cast({model_alias}Manager, self.objects).using(self.session).{self.method_def.manager_method}({args}{kwargs})
 """  # noqa: E501
         return code  # noqa: RET504
 
