@@ -93,6 +93,7 @@ class ModelPropertyGenerator:
             return f'''
         """
         {self.property_def.docstring}
+
         """
 '''
         return ""
@@ -139,8 +140,7 @@ class ModelPropertyGenerator:
         assert (
             self.property_def.transformer.mapping
         ), f"Property {self.property_name} does not have a mapping transformer"
-        code = """
-        return OrderedDict({
+        code = """        return OrderedDict({
 """
         for key, value in self.property_def.transformer.mapping.items():
             code += f"""

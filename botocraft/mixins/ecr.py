@@ -181,8 +181,8 @@ class ECRImageMixin:
     """
 
     objects: ClassVar["ECRImageManager"]
-    repositoryName: Optional[str]  # noqa: N815
-    imageId: "ImageIdentifier"  # noqa: N815
+    repositoryName: Optional[str]
+    imageId: "ImageIdentifier"
 
     @property
     def version(self) -> str:
@@ -218,7 +218,7 @@ class ECRImageMixin:
         exists = False
         if ecr_client.client.images.list(self.name):
             exists = True
-        ecr_client.client.logout()
+        ecr_client.client.close()
         return exists
 
     @property
@@ -261,14 +261,14 @@ class ECRImageMixin:
             raise RuntimeError(msg)
         docker_client = docker.from_env()
         # Get our authorization token from AWS
-        response = self.objects.client.get_authorization_token()
+        response = self.objects.using(self.session).client.get_authorization_token()  # type: ignore[attr-defined]
         auth_token = base64.b64decode(
             response["authorizationData"][0]["authorizationToken"]
         )
         username, password = auth_token.decode().split(":")
         registry = response["authorizationData"][0]["proxyEndpoint"]
         bare_registry = registry.split("//")[1]
-        docker_client.login(username, password=password, registry=registry)
+        docker_client.login(username, password=password, registry=registry, reauth=True)
         return ECRDockerClient(
             client=docker_client,
             username=username,
