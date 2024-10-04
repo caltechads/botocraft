@@ -3,8 +3,17 @@
 How to add a new service to botocraft
 =====================================
 
+Problem
+-------
+
+``botocraft`` supports only a small subset of all possible AWS Services, and you
+want to add support for an AWS service that ``botocraft`` does not yet support.
+
+Solution
+--------
+
 Find the botocore service alias
--------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Find the official alias of the service in botocore github repository.  Look here
 for the list of services: `botocore/services
@@ -29,7 +38,7 @@ the name of the directory in the ``botocore/data`` directory.
 From now on we will refer to the service as ``<service_name>``.
 
 Add the service to botocraft
-----------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 * Add a ``botocraft/data/<service_name>`` directory.  If this service was is
   named ``elasticache`` in the AWS SDK, then the directory would be
@@ -40,7 +49,7 @@ Add the service to botocraft
   This is a list of manager definitions for the primary models of the service.
 
 Find a primary model for the service and add a model definition
----------------------------------------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 For this we can use the ``botocraft inspect models`` command to help us.  This
 will parse the botocore definitions for the service and give us a list all
@@ -51,7 +60,7 @@ request and response structures, exceptions, etc.
 
 .. code-block:: bash
 
-    $ botocraft inspect models <service_name>
+    $ botocraft inspect models elasticache
     APICallRateForCustomerExceededFault:
     AddTagsToResourceMessage:
         ResourceName: string -> String
@@ -125,9 +134,9 @@ the model.
 
 .. note::
 
-  Note that the field types here are botocore ``Shape`` names, which are either simple
-  types like ``Boolean``, ``String``, ``Integer``, etc., or they are references to other
-  models in the file (e.g. ``CacheParameterGroupStatus``)
+  Note that the field types here are botocore ``Shape`` names, which are either
+  simple types like ``Boolean``, ``String``, ``Integer``, etc., or they are
+  references to other models in the file (e.g. ``CacheParameterGroupStatus``)
 
 We look through the list and find a model that represents a primary resource
 for the service.  For this you'll have to use your judgement by looking at the

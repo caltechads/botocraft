@@ -97,7 +97,8 @@ are create-only (can't be updated), and will not have an ``update`` method.
 The interface all depends on the AWS service and the resource type.
 
 * ``create`` - create a new resource.  You define a primary model object and
-  pass it into ``Model.objects.create(obj)``.
+  pass it into ``Model.objects.create(obj)``.  It usually returns the object
+  as retrieved from AWS after the creation completes, but check the documentation.
 * ``get`` - get a single resource.  You use the primary key for the model (which is
   resource dependent, typically one of ``name``, ``id``, ``arn``) and pass it
   pass it into with the appropriate args and keyword arguments.  For example,
@@ -106,13 +107,14 @@ The interface all depends on the AWS service and the resource type.
   changes to the object, and then call ``save`` on the object.  This calls ``update``
   on the manager.
 * ``partial_update`` - instead of using ``update`` some models offer a ``partial_update``
-  method.  This allows ou to pass in the primary key for the model, plus any other
+  method.  This allows you to pass in the primary key for the model, plus any other
   keyword arguments that you want to update.  For example,
-  ``Model.objects.partial_update('my-resource', cluster='my-cluster', desiredCount=2)``.
+  ``Model.objects.partial_update('my-resource', attribute=2)``.
 * ``delete`` - delete a resource by passing in the primary key for the model.
 * ``get_many`` - get many resources.  This is somewhere between a ``get`` (for a
   single object) and a ``list`` (all objects).  The signature of this varies by
-  resource type.  This will not exist for all models.
+  resource type.  And the number of items available to be returned will vary
+  also. This will not exist for all models.
 * ``list`` - list all resources of a given type.  For example, ``Model.objects.list()``.
   ``list`` will handle any pagination required by the AWS API, and often will offer
   ways to filter or refine your resulting list of objects.  This will depend on the
@@ -122,7 +124,8 @@ The manager may also have other methods for performing resource specific
 operations that are not CRUDL operations.  For example, ``SecurityGroup`` from the
 ``ec2`` service has a ``authorize_ingress`` method that allows you to add ingress
 rules to a security group.  Look at the documentation for the resource type to
-see what other methods are available.
+see what other methods are available.  These are added purposefully to the
+manager by the botocraft developers.
 
 Simple properties
 ^^^^^^^^^^^^^^^^^
@@ -153,8 +156,9 @@ resource type and model definition.
 Relationships
 ^^^^^^^^^^^^^
 
-Some primary models have relationships with other primary models.  These are python properties, not methods.  For example,
-in ``ecs``, :py:class:`botocraft.services.ecs.Service` has a relationship with
+Some primary models have relationships with other primary models.  These are
+python properties, not methods.  For example, in ``ecs``,
+:py:class:`botocraft.services.ecs.Service` has a relationship with
 :py:class:`botocraft.services.ecs.TaskDefinition`.
 :py:meth:`botocraft.services.ecs.Service.task_definition`` is a property that
 returns a :py:class:`botocraft.services.ecs.TaskDefinition`` object that is
@@ -181,10 +185,14 @@ Relationships are not available for all primary models.
 Manager method proxies
 ^^^^^^^^^^^^^^^^^^^^^^
 
-Some primary models have proxies to manager methods on them, typically so you can use a non-CRUDL method that takes a single resource directly from the primary model instance.
+Some primary models have proxies to manager methods on them, typically so you
+can use a non-CRUDL method that takes a single resource directly from the
+primary model instance.
 
-For example, in ``ecr``, the :py:class:`botocraft.models.ecr.Image` model has a :py:meth:`botocraft.models.ecr.Image.scan_findings` method that is a proxy to the
-:py:meth:`botocraft.managers.ecr.ImageManager.scan_findings` method, returning only the findings for that image.
+For example, in ``ecr``, the :py:class:`botocraft.models.ecr.Image` model has a
+:py:meth:`botocraft.models.ecr.Image.scan_findings` method that is a proxy to
+the :py:meth:`botocraft.managers.ecr.ImageManager.scan_findings` method,
+returning only the findings for that image.
 
 Manager method proxies are not available for all primary models.
 
