@@ -73,7 +73,7 @@ class GeneralMethodGenerator(ManagerMethodGenerator):
                 if hasattr(response.{self.response_attr}, "session"):
                     objs = []
                     for obj in response.{self.response_attr}:
-                        obj.session = self.session
+                        obj.set_session(self.session)
                         objs.append(obj)
                     results.extend(objs)
                 else:
@@ -87,7 +87,7 @@ class GeneralMethodGenerator(ManagerMethodGenerator):
                     iter(response)
                 except TypeError:
                     if hasattr(response, "session"):
-                        response.session = self.session
+                        response.set_session(self.session)
                     # If it not, append the response to the results list
                     results.append(response)  # type: ignore[arg-type]
                 else:
@@ -95,7 +95,7 @@ class GeneralMethodGenerator(ManagerMethodGenerator):
                     if hasattr(response[0], "session"):
                         objs = []
                         for obj in response:
-                            obj.session = self.session
+                            obj.set_session(self.session)
                             objs.append(obj)
                         results.extend(objs)
                     else:

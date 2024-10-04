@@ -30,7 +30,7 @@ class PartialUpdateMethodGenerator(ManagerMethodGenerator):
         if response_attr is not None:
             code += f"""
         if hasattr(response.{response_attr}, "session"):
-            response.{response_attr}.session = self.session
+            response.{response_attr}.set_session(self.session)
         return cast({self.return_type}, response.{response_attr})
 """
         return code

@@ -72,7 +72,7 @@ class ReadonlyBoto3Model(Boto3Model):
     The base class for all boto3 models that are readonly.
     """
 
-    model_config = ConfigDict(frozen=True, validate_assignment=True)
+    model_config = ConfigDict(frozen=True, validate_assignment=True, extra="allow")
 
 
 class Boto3ModelManager(TransformMixin):
@@ -256,6 +256,21 @@ class ReadonlyPrimaryBoto3Model(  # pylint: disable=abstract-method
         msg = "Cannot delete a readonly model."
         raise RuntimeError(msg)
 
+    def set_session(self, session: boto3.session.Session) -> None:
+        """
+        Set the boto3 session for this model.
+
+        Args:
+            session: The boto3 session to use.
+
+        Returns:
+            The model instance.
+
+        """
+        self.model_config["frozen"] = False
+        self.session = session  # type: ignore[misc]
+        self.model_config["frozen"] = True
+
 
 class PrimaryBoto3Model(  # pylint: disable=abstract-method
     ModelIdentityMixin, Boto3Model
@@ -273,7 +288,7 @@ class PrimaryBoto3Model(  # pylint: disable=abstract-method
     #: pydantic complains vociferously if we use ``boto3.session.Session``.
     #: We exclude it from the model dump because it's not something that should
     #: be serialized.
-    session: Optional[Any] = Field(default=None, exclude=True)
+    session: Optional[Any] = Field(default=None, exclude=True, frozen=False)
 
     @classproperty
     def objects(cls) -> Boto3ModelManager:  # noqa: N805
@@ -302,3 +317,16 @@ class PrimaryBoto3Model(  # pylint: disable=abstract-method
             msg = "Cannot delete a model that has not been saved."
             raise ValueError(msg)
         return self.manager.delete(self.pk)
+
+    def set_session(self, session: boto3.session.Session) -> None:
+        """
+        Set the boto3 session for this model.
+
+        Args:
+            session: The boto3 session to use.
+
+        Returns:
+            The model instance.
+
+        """
+        self.session = session

@@ -49,7 +49,7 @@ class GetManyMethodGenerator(ManagerMethodGenerator):
             if hasattr(response.{self.response_attr}[0], "session"):
                 objs = []
                 for obj in response.{self.response_attr}:
-                    obj.session = self.session
+                    obj.set_session(self.session)
                     objs.append(obj)
                 return objs
             else:
@@ -61,11 +61,10 @@ class GetManyMethodGenerator(ManagerMethodGenerator):
             if hasattr(response[0], "session"):
                 objs = []
                 for obj in response:
-                    obj.session = self.session
+                    obj.set_session(self.session)
                     objs.append(obj)
                 return objs
-            else:
-                return response
+            return response
 """
         code += """
         return []

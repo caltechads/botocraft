@@ -75,14 +75,16 @@ class GetMethodGenerator(ManagerMethodGenerator):
             code += f"""
         if response.{response_attr}:
             obj = response.{response_attr}[0]
-            obj.session = self.session
+            if hasattr(obj, "session"):
+                obj.set_session(self.session)
             return obj
         return None
 """
         else:
             code += f"""
         obj = response.{response_attr}
-        obj.session = self.session
+        if hasattr(obj, "session"):
+            obj.set_session(self.session)
         return obj
 """
         return code

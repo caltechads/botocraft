@@ -62,7 +62,7 @@ class ListMethodGenerator(ManagerMethodGenerator):
             if response.{self.response_attr}:
                 if hasattr(response.{self.response_attr}[0], "session"):
                     for obj in response.{self.response_attr}:
-                        obj.session = self.session
+                        obj.set_session(self.session)
                         results.append(obj)
                 else:
                     results.extend(response.{self.response_attr})
@@ -77,7 +77,8 @@ class ListMethodGenerator(ManagerMethodGenerator):
             if hasattr(response.{self.response_attr}[0], "session"):
                 objs = []
                 for obj in response.{self.response_attr}:
-                    obj.session = self.session
+                    if hasattr(obj, "session"):
+                        obj.set_session(self.session)
                     objs.append(obj)
                 return objs
         return response.{self.response_attr}
