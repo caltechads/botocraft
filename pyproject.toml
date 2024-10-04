@@ -158,6 +158,8 @@ ignore = [
     "FA100",  # stop bugging me about old-style Optional
     "UP035",  # stop bugging me about modern type hints
     "S101",   # stop bugging me about asserts
+    "N802",   # stop bugging me about camelCase names -- AWS uses camelCase
+    "N815",   # stop bugging me about camelCase names -- AWS uses camelCase
 ]
 
 # Allow fix for all enabled rules (when `--fix`) is provided.
