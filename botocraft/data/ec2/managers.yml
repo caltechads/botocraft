@@ -272,10 +272,9 @@ Image:
         Name:
           required: true
         TagSpecifications:
-          rename: Tags
-          python_type: Optional[List["Tag"]]
-          source_arg: >-
-            self.serialize(self.convert_tags(model.Tags, 'image'))
+          docstring: >-
+            The tags to apply to the new AMI and new snapshots. You can tag the AMI, the snapshots, or both.  To tag the new AMI, the value for ``ResourceType`` must be "image" To tag the new snapshots, the value for ``ResourceType`` must be "snapshot". The same tag is applied to all the new snapshots.
+
 
 Instance:
   mixins:
