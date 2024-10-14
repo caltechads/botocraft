@@ -195,3 +195,21 @@ docstring-code-format = false
 # This only has an effect when the `docstring-code-format` setting is
 # enabled.
 docstring-code-line-length = "dynamic"
+
+[tool.ruff.lint.per-file-ignores]
+"botocraft/services/*" = [
+    "N803",  # Argument name should be lowercase
+    "D301",  # Use 'r"""' for all backticks in docstrings
+    "UP037",  # Remove quotes from type annotation
+    "E501",  # Line too long
+    "C408",  # Unnecessary dict call - rewrite as a literal
+    "RET504",  # Unnecessary assignment before return statement
+    "D202",  # No blank lines allowed after function docstring
+    "D404",  # First word of the docstring should not be "This"
+    "D413",  # missing blank line after last section of docstring
+    "A002",  # Argument name is shadowing a python builtin
+    "PLR0913",  # Too many arguments in function call
+    "I001",  # Import order
+    "F401",  # Something imported but not used
+    "D213",  # Multi-line docstring summary should start at the second line
+]
