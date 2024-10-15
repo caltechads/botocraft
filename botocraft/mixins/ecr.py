@@ -196,7 +196,7 @@ class ECRImageMixin:
         """
         Get the name of the image.
         """
-        return f"{self.docker_client.registry}/{self.repositoryName}:{self.imageId.imageTag}"  # noqa: E501
+        return f"{self.repository.repositoryUri}:{self.imageId.imageTag}"  # type: ignore[attr-defined]
 
     @property
     def image_name(self) -> str:
