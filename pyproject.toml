@@ -1,6 +1,6 @@
 [project]
 name = "botocraft"
-version = "0.5.4"
+version = "0.5.5"
 authors = [
     {name = "Caltech IMSS ADS", email = "imss-ads-staff@caltech.edu"},
 ]
