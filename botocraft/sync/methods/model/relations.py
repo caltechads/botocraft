@@ -191,14 +191,14 @@ class ModelRelationGenerator:
             }})
         except AttributeError:
             return []
-        return {self.property_def.primary_model_name}.objects.using(self.session).list(**pk)
+        return {self.property_def.primary_model_name}.objects.using(self.session).list(**pk)  # type: ignore[arg-type]
 """  # noqa: E501
         else:
             code += f"""
         }})
         except AttributeError:
             return None
-        return {self.property_def.primary_model_name}.objects.using(self.session).get(**pk)
+        return {self.property_def.primary_model_name}.objects.using(self.session).get(**pk)  # type: ignore[arg-type]
 """  # noqa: E501
         return code
 

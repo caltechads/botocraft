@@ -136,7 +136,12 @@ class DocumentationFormatter:
         documentation = self._clean_uls(documentation)
         documentation = self._clean_links(documentation)
         documentation = self._undo_double_backticks(documentation)
-        return documentation  # noqa: RET504
+        # remove any double backticks
+        documentation = re.sub(r"\\{1}", "", documentation)
+        # Change en-dashes to hyphens
+        documentation = documentation.replace("–", "-")  # noqa: RUF001
+        # Change forward ticks to backticks
+        return documentation.replace("‘", "`")  # noqa: RUF001
 
     def format_docstring(self, shape: botocore.model.Shape) -> str:
         """

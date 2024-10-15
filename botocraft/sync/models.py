@@ -569,7 +569,7 @@ class MethodDocstringDefinition:
             and self.return_value is None
         )
 
-    def Args(self, formatter: DocumentationFormatter) -> str:  # noqa: N802
+    def Args(self, formatter: DocumentationFormatter) -> str:
         """
         Return the docstring for the positional arguments.
         """
@@ -583,7 +583,7 @@ class MethodDocstringDefinition:
 
         return docstring
 
-    def Keyword_Args(self, formatter: DocumentationFormatter) -> str:  # noqa: N802
+    def Keyword_Args(self, formatter: DocumentationFormatter) -> str:
         """
         Return the docstring for the keyword arguments.
         """

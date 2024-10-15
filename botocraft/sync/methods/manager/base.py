@@ -682,7 +682,10 @@ class ManagerMethodGenerator:
         """
         Return the docstring for the method.
         """
-        return self.docstrings_def.render(self.docformatter)
+        docs = self.docstrings_def.render(self.docformatter)
+        if not docs:
+            return None
+        return re.sub(r"\\{1}", "", docs, flags=re.MULTILINE)
 
     @property
     def body(self) -> str:
