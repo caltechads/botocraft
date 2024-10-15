@@ -152,6 +152,9 @@ class Boto3ModelManager(TransformMixin):
                 # iter(response) to check if it's a list.
                 # We get the fields on the model, excluding our special
                 # fields and then try to sessionize them.
+                if isinstance(response, (PrimaryBoto3Model, ReadonlyPrimaryBoto3Model)):
+                    response.set_session(self.session)
+                    return
                 attrs = [
                     attr
                     for attr in response.__fields__
@@ -160,7 +163,9 @@ class Boto3ModelManager(TransformMixin):
                 for attr in attrs:
                     _attr = getattr(response, attr)
                     if _attr is not None:
-                        if isinstance(_attr, BaseModel):
+                        if isinstance(
+                            _attr, (PrimaryBoto3Model, ReadonlyPrimaryBoto3Model)
+                        ):
                             if hasattr(_attr, "set_session"):
                                 _attr.set_session(self.session)
                         else:
