@@ -131,6 +131,62 @@ class Boto3ModelManager(TransformMixin):
             return [self.serialize(a) for a in arg]
         return arg
 
+    def sessionize(self, response: Any) -> None:  # noqa: PLR0912
+        """
+        Look through ``response`` for any object with ``set_session`` as
+        an attribute and set the session on that object.
+
+        .. note::
+
+            I'm making an assumption here that the only PrimaryBoto3Model
+            or ReadonlyPrimaryBoto3Model objects that will be in the response
+            will be at the top level.  If they are nested, we'll miss the ones
+            that are nested.
+
+        Args:
+            response: The response to search.
+        """
+        if response is not None:
+            if isinstance(response, BaseModel):
+                # Pydantic models are ALWAYS iterable, so we can't use
+                # iter(response) to check if it's a list.
+                # We get the fields on the model, excluding our special
+                # fields and then try to sessionize them.
+                attrs = [
+                    attr
+                    for attr in response.__fields__
+                    if attr not in ["session", "objects"]
+                ]
+                for attr in attrs:
+                    _attr = getattr(response, attr)
+                    if _attr is not None:
+                        if isinstance(_attr, BaseModel):
+                            if hasattr(_attr, "set_session"):
+                                _attr.set_session(self.session)
+                        else:
+                            try:
+                                iter(_attr)
+                            except TypeError:
+                                if hasattr(_attr, "set_session"):
+                                    _attr.set_session(self.session)
+                            else:
+                                if _attr:
+                                    if hasattr(_attr[0], "set_session"):
+                                        for obj in _attr:
+                                            obj.set_session(self.session)  # type: ignore[attr-defined]
+            else:
+                # This is NOT a pydantic model, now we test for iterability
+                try:
+                    iter(response)
+                except TypeError:
+                    # This is not an iterable
+                    if hasattr(response, "set_session"):
+                        response.set_session(self.session)  # type: ignore[attr-defined]
+                else:
+                    # This is an iterable
+                    if hasattr(response[0], "set_session"):
+                        [obj.set_session(self.session) or obj for obj in response]
+
     def get(self, *args, **kwargs):
         raise NotImplementedError
 

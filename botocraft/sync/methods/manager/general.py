@@ -1,4 +1,6 @@
+import re
 from collections import OrderedDict
+from copy import copy
 from typing import Literal, cast
 
 from .base import ManagerMethodGenerator
@@ -54,71 +56,79 @@ class GeneralMethodGenerator(ManagerMethodGenerator):
         """
         Generate the method body for a general method.
 
+        .. note::
+
+            This is a complicated one because we have to deal with:
+
+                1. Methods that can paginate.
+                2. Methods that return a single response.
+                3. Methods that can't paginate but return a list of responses.
+                4. Methods that return ``None``
+
         Returns:
             The method body.
 
         """
-        if self.client.can_paginate(self.boto3_name):
-            code = f"""
+
+        def generate_paginator_code() -> str:
+            code: str = f"""
         paginator = self.client.get_paginator('{self.boto3_name}')
         {self.operation_args}
         response_iterator = paginator.paginate(**{{k: v for k, v in args.items() if v is not None}})
-        results: {self.return_type} = []
-        for _response in response_iterator:
-            response = {self.response_class}(**_response)
 """  # noqa: E501
+            return_type = copy(self.return_type)
+            if not return_type.startswith("Optional["):
+                return_type = f"Optional[{return_type}]"
+            code += f"""
+        results: {self.return_type} = []
+"""
             if self.response_attr is not None:
                 code += f"""
-            if response.{self.response_attr}:
-                if hasattr(response.{self.response_attr}, "session"):
-                    objs = []
-                    for obj in response.{self.response_attr}:
-                        obj.set_session(self.session)
-                        objs.append(obj)
-                    results.extend(objs)
-                else:
-                    results.extend(response.{self.response_attr})
+        for _response in response_iterator:
+            response = {self.response_class}(**_response)
+            if response.{self.response_attr} is not None:
+                results.extend(response.{self.response_attr})
+            else:
+                break
+"""
+            else:
+                code += f"""
+        for _response in response_iterator:
+            response = {self.response_class}(**_response)
+            results.append(response)
+"""
+            return code
+
+        def handle_response() -> str:
+            code = ""
+            if self.return_type in ("None", '"None"'):
+                return ""
+            return_type = copy(self.return_type)
+            if not return_type.startswith("Optional["):
+                return_type = f"Optional[{return_type}]"
+            code += f"""
+        results: {self.return_type} = None
+        if response is not None:"""
+            if self.response_attr is not None:
+                code += f"""
+            results = response.{self.response_attr}
 """
             else:
                 code += """
-            if response is not None:
-                try:
-                    # Test whether the response is iterable
-                    iter(response)
-                except TypeError:
-                    if hasattr(response, "session"):
-                        response.set_session(self.session)
-                    # If it not, append the response to the results list
-                    results.append(response)  # type: ignore[arg-type]
-                else:
-                    # If it is, extend the results list with the response
-                    if hasattr(response[0], "session"):
-                        objs = []
-                        for obj in response:
-                            obj.set_session(self.session)
-                            objs.append(obj)
-                        results.extend(objs)
-                    else:
-                        results.extend(response)  # type: ignore[arg-type]
+            results = response
 """
-            code += """
-            else:
-                break
-        return results
-"""
+            return code
+
+        if self.client.can_paginate(self.boto3_name):
+            code = generate_paginator_code()
         else:
             code = f"""
         {self.operation_args}
         {self.operation_call}
+        {handle_response()}
 """
-            if self.return_type in ("None", '"None"'):
-                pass
-            elif self.response_attr is None:
-                code += """
-        return response
-"""
-            else:
-                code += f"""
-        return response.{self.response_attr}
+        code += f"""
+        self.sessionize(results)
+        return cast({self.return_type}, results)
 """
         return code

@@ -60,27 +60,18 @@ class ListMethodGenerator(ManagerMethodGenerator):
         for _response in response_iterator:
             response = {self.response_class}(**_response)
             if response.{self.response_attr}:
-                if hasattr(response.{self.response_attr}[0], "session"):
-                    for obj in response.{self.response_attr}:
-                        obj.set_session(self.session)
-                        results.append(obj)
-                else:
-                    results.extend(response.{self.response_attr})
+                results.extend(response.{self.response_attr})
             else:
                 break
+        self.sessionize(results)
         return results
 """  # noqa: E501
         else:
             code = f"""
         {self.operation_call}
-        if response.{self.response_attr} is not None:
-            if hasattr(response.{self.response_attr}[0], "session"):
-                objs = []
-                for obj in response.{self.response_attr}:
-                    if hasattr(obj, "session"):
-                        obj.set_session(self.session)
-                    objs.append(obj)
-                return objs
-        return response.{self.response_attr}
+        if response and response.{self.response_attr}:
+            self.sessionize(response.{self.response_attr})
+            return response.{self.response_attr}
+        return []
 """
         return code

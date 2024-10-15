@@ -36,37 +36,18 @@ class GetManyMethodGenerator(ManagerMethodGenerator):
 
     @property
     def body(self) -> str:
-        # This is a hard attribute to guess. Sometimes it's CamelCase, sometimes
-        # it's camelCase, sometimes it's snake_case.  We'll just assume it's a
-        # lowercase plural of the model name.
         code = f"""
         {self.operation_args}
         {self.operation_call}
 """
         if self.response_attr is not None:
             code += f"""
-        if response.{self.response_attr} is not None:
-            if hasattr(response.{self.response_attr}[0], "session"):
-                objs = []
-                for obj in response.{self.response_attr}:
-                    obj.set_session(self.session)
-                    objs.append(obj)
-                return objs
-            else:
-                return response.{self.response_attr}
+        self.sessionize(respsonse.{self.response_attr})
+        return response.{self.response_attr}j
 """
         else:
             code += """
-        if response is not None:
-            if hasattr(response[0], "session"):
-                objs = []
-                for obj in response:
-                    obj.set_session(self.session)
-                    objs.append(obj)
-                return objs
-            return response
-"""
-        code += """
-        return []
+        self.sessionize(response)
+        return response
 """
         return code

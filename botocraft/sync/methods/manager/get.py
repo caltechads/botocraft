@@ -73,18 +73,16 @@ class GetMethodGenerator(ManagerMethodGenerator):
         # always be a StructureShape
         if self.response_attr_multiplicity == "many":
             code += f"""
-        if response.{response_attr}:
-            obj = response.{response_attr}[0]
-            if hasattr(obj, "session"):
-                obj.set_session(self.session)
-            return obj
+        if response and response.{response_attr}:
+            self.sessionize(response.{response_attr}[0])
+            return response.{response_attr}[0]
         return None
 """
         else:
             code += f"""
-        obj = response.{response_attr}
-        if hasattr(obj, "session"):
-            obj.set_session(self.session)
-        return obj
+        if response and response.{response_attr}:
+            self.sessionize(response.{response_attr})
+            return response.{response_attr}
+        return None
 """
         return code
