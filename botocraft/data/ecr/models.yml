@@ -35,6 +35,14 @@ primary:
           mapping:
             repositoryName: repositoryName
             imageId: imageId
+    relations:
+      repository:
+        primary_model_name: Repository
+        docstring: >-
+          Return the :py:class:`Repository` object that this image belongs to.
+        transformer:
+          mapping:
+            repositoryName: repositoryName
     manager_methods:
       replication_status:
         docstring: >-
