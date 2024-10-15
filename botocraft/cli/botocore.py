@@ -68,6 +68,17 @@ def print_shape(
                 )
         else:
             output.append("    No members")
+    elif shape.type_name == "list":
+        output.append(
+            f"{click.style(shape_name, fg='red')}: List -> {click.style(shape.member.name, fg='blue')}"  # noqa: E501
+        )
+    elif shape.type_name == "string":
+        output.append(
+            f"{click.style(shape_name, fg='red')}: String -> {click.style(shape.name, fg='blue')}"  # noqa: E501
+        )
+        if shape.enum:
+            values = ", ".join(shape.enum)
+            output.append(f"    Enum: {click.style(values, fg='blue')}")
     # purge empty lines
     output = [line for line in output if line.strip()]
     _output = "\n".join(output)
