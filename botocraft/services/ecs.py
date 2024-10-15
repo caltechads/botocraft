@@ -192,8 +192,8 @@ class ServiceManager(Boto3ModelManager):
         )
         response = DescribeServicesResponse(**_response)
 
-        self.sessionize(respsonse.services)
-        return response.servicesj
+        self.sessionize(response.services)
+        return response.services
 
     @ecs_services_only
     def list(
@@ -545,8 +545,8 @@ class ClusterManager(Boto3ModelManager):
         )
         response = DescribeClustersResponse(**_response)
 
-        self.sessionize(respsonse.clusters)
-        return response.clustersj
+        self.sessionize(response.clusters)
+        return response.clusters
 
     @ecs_clusters_only
     def list(
@@ -929,8 +929,8 @@ class ContainerInstanceManager(ReadonlyBoto3ModelManager):
         )
         response = DescribeContainerInstancesResponse(**_response)
 
-        self.sessionize(respsonse.containerInstances)
-        return response.containerInstancesj
+        self.sessionize(response.containerInstances)
+        return response.containerInstances
 
     @ecs_container_instances_only
     def list(
@@ -1144,8 +1144,8 @@ class TaskManager(Boto3ModelManager):
         )
         response = DescribeTasksResponse(**_response)
 
-        self.sessionize(respsonse.tasks)
-        return response.tasksj
+        self.sessionize(response.tasks)
+        return response.tasks
 
     @ecs_tasks_only
     def list(

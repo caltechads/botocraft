@@ -42,8 +42,8 @@ class GetManyMethodGenerator(ManagerMethodGenerator):
 """
         if self.response_attr is not None:
             code += f"""
-        self.sessionize(respsonse.{self.response_attr})
-        return response.{self.response_attr}j
+        self.sessionize(response.{self.response_attr})
+        return response.{self.response_attr}
 """
         else:
             code += """

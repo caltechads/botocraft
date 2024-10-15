@@ -192,8 +192,8 @@ class ParameterManager(Boto3ModelManager):
         )
         response = GetParametersResult(**_response)
 
-        self.sessionize(respsonse.Parameters)
-        return response.Parametersj
+        self.sessionize(response.Parameters)
+        return response.Parameters
 
     def list(
         self,
