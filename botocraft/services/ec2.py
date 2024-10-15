@@ -7,12 +7,11 @@ from datetime import datetime
 from functools import cached_property
 from typing import Any, ClassVar, Dict, List, Literal, Optional, Type, cast
 
-from pydantic import Field
-
 from botocraft.mixins.ec2 import (EC2TagsManagerMixin, SecurityGroupModelMixin,
                                   ec2_instance_only, ec2_instances_only)
 from botocraft.mixins.tags import TagsDictMixin
 from botocraft.services.common import Filter, Tag
+from pydantic import Field
 
 from .abstract import (Boto3Model, Boto3ModelManager, PrimaryBoto3Model,
                        ReadonlyBoto3Model, ReadonlyBoto3ModelManager,
@@ -1158,9 +1157,6 @@ class InstanceManager(EC2TagsManagerMixin, Boto3ModelManager):
             InstanceIds=self.serialize(InstanceIds), DryRun=self.serialize(DryRun)
         )
         self.client.reboot_instances(**{k: v for k, v in args.items() if v is not None})
-
-        self.sessionize(results)
-        return cast("None", results)
 
     def terminate(
         self, InstanceIds: List[str], *, DryRun: bool = False

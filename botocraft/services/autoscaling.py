@@ -7,13 +7,12 @@ from datetime import datetime
 from functools import cached_property
 from typing import Any, ClassVar, Dict, List, Literal, Optional, Type, cast
 
-from pydantic import Field
-
 from botocraft.mixins.autoscaling import AutoScalingGroupModelMixin
 from botocraft.mixins.tags import TagsDictMixin
 from botocraft.services.common import Filter, Tag
 from botocraft.services.ec2 import (LaunchTemplateVersion,
                                     LaunchTemplateVersionManager)
+from pydantic import Field
 
 from .abstract import (Boto3Model, Boto3ModelManager, PrimaryBoto3Model,
                        ReadonlyBoto3Model, ReadonlyBoto3ModelManager,
@@ -240,9 +239,6 @@ class AutoScalingGroupManager(Boto3ModelManager):
         self.client.set_desired_capacity(
             **{k: v for k, v in args.items() if v is not None}
         )
-
-        self.sessionize(results)
-        return cast(None, results)
 
     def instance_status(
         self, *, InstanceIds: Optional[List[str]] = None
