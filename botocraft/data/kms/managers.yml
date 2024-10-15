@@ -1,0 +1,70 @@
+---
+KeyMetadata:
+  methods:
+    create:
+      boto3_name: create_key
+      response_attr: KeyMetadata
+      return_type: >-
+        "KMSKey"
+      args:
+        Overwrite:
+          default: "False"
+    get:
+      boto3_name: describe_key
+      args:
+        KeyId:
+          required: true
+    list:
+      boto3_name: list_keys
+      decorators:
+        - name: kms_keys_only
+          import_path: botocraft.mixins.kms
+      return_type: >-
+        List["str"]
+      response_attr: Keys
+    delete:
+      boto3_name: schedule_key_deletion
+      return_type: >-
+        "ScheduleKeyDeletionResponse"
+      args:
+        KeyId:
+          required: true
+        PendingWindowInDays:
+          default: "7"
+    enable:
+      boto3_name: enable_key
+      return_type: >-
+        None
+      args:
+        KeyId:
+          required: true
+    disable:
+      boto3_name: disable_key
+      return_type: >-
+        None
+      args:
+        KeyId:
+          required: true
+    cancel_deletion:
+      boto3_name: cancel_key_deletion
+      response_attr: KeyId
+      return_type: >-
+        str
+      args:
+        KeyId:
+          required: true
+    create_alias:
+      boto3_name: create_alias
+      args:
+        AliasName:
+          required: true
+        TargetKeyId:
+          required: true
+    update_alias:
+      boto3_name: update_alias
+      args:
+        AliasName:
+          required: true
+        TargetKeyId:
+          required: true
+

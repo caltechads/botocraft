@@ -1,0 +1,21 @@
+---
+primary:
+  KeyMetadata:
+    alternate_name: KMSKey
+    primary_key: KeyId
+    arn_key: Arn
+    input_shapes:
+      - CreateKeyRequest
+    fields:
+      Enabled:
+        default: >-
+          True
+      KeyUsage:
+        default: >-
+          "ENCRYPT_DECRYPT"
+      KeySpec:
+        default: >-
+          "SYMMETRIC_DEFAULT"
+secondary:
+  MultiRegionConfiguration:
+    alternate_name: KMSMultiRegionConfiguration
