@@ -121,16 +121,16 @@ wheels = [
 
 [[package]]
 name = "boto3-stubs"
-version = "1.35.32"
+version = "1.35.41"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "botocore-stubs" },
     { name = "types-s3transfer" },
     { name = "typing-extensions", marker = "python_full_version < '3.12'" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/78/37/7d9758dd725ba26bd4fd3f93a3888ad6dc787830ca161d1bc984ce87f6f6/boto3_stubs-1.35.32.tar.gz", hash = "sha256:1445abffb9238824cde8227e04b93b423b824173c62f2aa3d4d54c8feb7acff0", size = 90691 }
+sdist = { url = "https://files.pythonhosted.org/packages/90/f8/f0be1c40bc9a2c814e9c8eaac5f89f1a39a6fc1e56892f271c011258bf5f/boto3_stubs-1.35.41.tar.gz", hash = "sha256:5884048edf0581479ecc3726c0b4b6d83640b5590d4646cbd229bae8f5a5666b", size = 91127 }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/c7/d8/aaebddf916309c3b0391e31ae82bb3232e9db18827803593fa77958feabd/boto3_stubs-1.35.32-py3-none-any.whl", hash = "sha256:4315f87106b0e5a4db4f9b65a9b9464d973a830530a83306fe513bbd63e7bfd0", size = 61470 },
+    { url = "https://files.pythonhosted.org/packages/2a/04/5bf67a45399d2d8082d4aa034d0afc48a0aef62a670da0ba292f7d73fbbb/boto3_stubs-1.35.41-py3-none-any.whl", hash = "sha256:724c5999390eed5ed84832dcd003d1dcd1b12c941e50f6a6f63378c407d8fa0a", size = 61709 },
 ]
 
 [[package]]
@@ -149,19 +149,19 @@ wheels = [
 
 [[package]]
 name = "botocore-stubs"
-version = "1.35.32"
+version = "1.35.41"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "types-awscrt" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/1a/76/7b33cb94354bfc16e0f6054737b4e5ff5697925bb97fad9570ba540923eb/botocore_stubs-1.35.32.tar.gz", hash = "sha256:ff7b2450ccba4eb0acb486ddfacf5b9c13ab7db824ca43953d38874ca94687d8", size = 40591 }
+sdist = { url = "https://files.pythonhosted.org/packages/5c/f0/b3a113a7596bee6e50991e6504df22c957e5df478fbb438214b3f5897217/botocore_stubs-1.35.41.tar.gz", hash = "sha256:62e369aed694471eaf72305cd2f33c356337d49637a5fcc17fc2ef237e8f517f", size = 40563 }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/f9/37/8ae6013116fc1bffe98e22c0d22b1e79b0d272b22b2b19bc2ff2520eb442/botocore_stubs-1.35.32-py3-none-any.whl", hash = "sha256:58db0a21dc576cef715d6bf3f8a55882dfd193919caff796b30e712e6e2658cf", size = 60135 },
+    { url = "https://files.pythonhosted.org/packages/fa/30/2ace251941c374dd4cb24f9483ccb480cafb741798b7b5ba5876bb303796/botocore_stubs-1.35.41-py3-none-any.whl", hash = "sha256:99e8f0e20266b2abc0e095ef19e8e628a926c25c4a0edbfd25978f484677bac6", size = 60136 },
 ]
 
 [[package]]
 name = "botocraft"
-version = "0.5.1"
+version = "0.5.5"
 source = { editable = "." }
 dependencies = [
     { name = "autoflake" },
@@ -184,17 +184,21 @@ dependencies = [
 build = [
     { name = "build" },
 ]
+docs = [
+    { name = "autodoc-pydantic" },
+    { name = "diagrams" },
+    { name = "setuptools" },
+    { name = "sphinx" },
+    { name = "sphinx-rtd-theme" },
+    { name = "sphinxcontrib-images" },
+]
+
+[package.dev-dependencies]
 dev = [
     { name = "boto3-stubs" },
     { name = "botocore-stubs" },
     { name = "types-pyyaml" },
-]
-docs = [
-    { name = "autodoc-pydantic" },
-    { name = "diagrams" },
-    { name = "sphinx" },
-    { name = "sphinx-rtd-theme" },
-    { name = "sphinxcontrib-images" },
+    { name = "types-requests" },
 ]
 
 [package.metadata]
@@ -203,9 +207,7 @@ requires-dist = [
     { name = "autoflake", specifier = ">=2.3.1" },
     { name = "black", specifier = ">=24.8.0" },
     { name = "boto3", specifier = ">=1.35.32" },
-    { name = "boto3-stubs", marker = "extra == 'dev'", specifier = ">=1.35.32" },
     { name = "botocore", specifier = ">=1.35.32" },
-    { name = "botocore-stubs", marker = "extra == 'dev'", specifier = ">=1.35.32" },
     { name = "build", marker = "extra == 'build'", specifier = ">=1.2.2" },
     { name = "click", specifier = ">=8.0" },
     { name = "diagrams", marker = "extra == 'docs'", specifier = ">=0.23.3" },
@@ -218,10 +220,18 @@ requires-dist = [
     { name = "markdownify", specifier = ">=0.13.0" },
     { name = "pydantic", specifier = ">=2.9.0" },
     { name = "pyyaml", specifier = ">=6.0.2" },
+    { name = "setuptools", marker = "extra == 'docs'", specifier = ">=75.1.0" },
     { name = "sphinx", marker = "extra == 'docs'", specifier = "<7" },
     { name = "sphinx-rtd-theme", marker = "extra == 'docs'", specifier = "==2.0.0" },
     { name = "sphinxcontrib-images", marker = "extra == 'docs'", specifier = ">=0.9.4" },
-    { name = "types-pyyaml", marker = "extra == 'dev'", specifier = ">=6.0.12.2024.9.17" },
+]
+
+[package.metadata.requires-dev]
+dev = [
+    { name = "boto3-stubs", specifier = ">=1.35.35" },
+    { name = "botocore-stubs", specifier = ">=1.35.35" },
+    { name = "types-pyyaml", specifier = ">=6.0.12.2024.9.17" },
+    { name = "types-requests", specifier = ">=2.32.0.20240914" },
 ]
 
 [[package]]
@@ -846,6 +856,15 @@ wheels = [
 ]
 
 [[package]]
+name = "setuptools"
+version = "75.1.0"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/27/b8/f21073fde99492b33ca357876430822e4800cdf522011f18041351dfa74b/setuptools-75.1.0.tar.gz", hash = "sha256:d59a21b17a275fb872a9c3dae73963160ae079f1049ed956880cd7c09b120538", size = 1348057 }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/ff/ae/f19306b5a221f6a436d8f2238d5b80925004093fa3edea59835b514d9057/setuptools-75.1.0-py3-none-any.whl", hash = "sha256:35ab7fd3bcd95e6b7fd704e4a1539513edad446c097797f2985e0e4b960772f2", size = 1248506 },
+]
+
+[[package]]
 name = "six"
 version = "1.16.0"
 source = { registry = "https://pypi.org/simple" }
@@ -1058,6 +1077,18 @@ source = { registry = "https://pypi.org/simple" }
 sdist = { url = "https://files.pythonhosted.org/packages/92/7d/a95df0a11f95c8f48d7683f03e4aed1a2c0fc73e9de15cca4d38034bea1a/types-PyYAML-6.0.12.20240917.tar.gz", hash = "sha256:d1405a86f9576682234ef83bcb4e6fff7c9305c8b1fbad5e0bcd4f7dbdc9c587", size = 12381 }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/9e/2c/c1d81d680997d24b0542aa336f0a65bd7835e5224b7670f33a7d617da379/types_PyYAML-6.0.12.20240917-py3-none-any.whl", hash = "sha256:392b267f1c0fe6022952462bf5d6523f31e37f6cea49b14cee7ad634b6301570", size = 15264 },
+]
+
+[[package]]
+name = "types-requests"
+version = "2.32.0.20240914"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "urllib3" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/9b/9e/aea33405c230cc3984c9f1065012d3a2003cef910730c367a0e91e7a4901/types-requests-2.32.0.20240914.tar.gz", hash = "sha256:2850e178db3919d9bf809e434eef65ba49d0e7e33ac92d588f4a5e295fffd405", size = 18030 }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/8f/55/ea44dad71b9d92f86198f7448f5ba46ac919355f4f69bb1c0fa1af02b1b4/types_requests-2.32.0.20240914-py3-none-any.whl", hash = "sha256:59c2f673eb55f32a99b2894faf6020e1a9f4a402ad0f192bfee0b64469054310", size = 15838 },
 ]
 
 [[package]]
