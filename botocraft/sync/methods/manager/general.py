@@ -126,7 +126,8 @@ class GeneralMethodGenerator(ManagerMethodGenerator):
         {self.operation_call}
         {handle_response()}
 """
-        code += f"""
+        if self.return_type not in ("None", '"None"'):
+            code += f"""
         self.sessionize(results)
         return cast({self.return_type}, results)
 """
