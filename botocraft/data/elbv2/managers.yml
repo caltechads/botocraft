@@ -30,6 +30,15 @@ LoadBalancer:
             The names of the load balancer.
     list:
       boto3_name: describe_load_balancers
+    attributes:
+      boto3_name: describe_load_balancer_attributes
+      response_attr: Attributes
+      decorators:
+        - name: load_balancer_attributes_to_dict
+          import_path: botocraft.mixins.elbv2
+      args:
+        LoadBalancerArn:
+          required: true
 Listener:
   methods:
     create:
