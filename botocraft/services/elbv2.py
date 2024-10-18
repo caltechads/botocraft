@@ -7,11 +7,13 @@ from datetime import datetime
 from functools import cached_property
 from typing import Any, ClassVar, Dict, List, Literal, Optional, Type, cast
 
+from pydantic import Field
+
+from botocraft.mixins.elbv2 import load_balancer_attributes_to_dict
 from botocraft.mixins.tags import TagsDictMixin
 from botocraft.services.common import Tag
 from botocraft.services.ec2 import (SecurityGroup, SecurityGroupManager, Vpc,
                                     VpcManager)
-from pydantic import Field
 
 from .abstract import (Boto3Model, Boto3ModelManager, PrimaryBoto3Model,
                        ReadonlyBoto3Model, ReadonlyBoto3ModelManager,
@@ -134,6 +136,28 @@ class LoadBalancerManager(Boto3ModelManager):
                 break
         self.sessionize(results)
         return results
+
+    @load_balancer_attributes_to_dict
+    def attributes(self, LoadBalancerArn: str) -> List["LoadBalancerAttribute"]:
+        """
+        Describes the attributes for the specified Application Load Balancer,
+        Network Load Balancer, or Gateway Load Balancer.
+
+        Args:
+            LoadBalancerArn: The Amazon Resource Name (ARN) of the load balancer.
+        """
+        args: Dict[str, Any] = dict(LoadBalancerArn=self.serialize(LoadBalancerArn))
+        _response = self.client.describe_load_balancer_attributes(
+            **{k: v for k, v in args.items() if v is not None}
+        )
+        response = DescribeLoadBalancerAttributesOutput(**_response)
+
+        results: List["LoadBalancerAttribute"] = None
+        if response is not None:
+            results = response.Attributes
+
+        self.sessionize(results)
+        return cast(List["LoadBalancerAttribute"], results)
 
 
 class ListenerManager(Boto3ModelManager):
@@ -762,6 +786,30 @@ class LoadBalancer(PrimaryBoto3Model):
         """
         return self.LoadBalancerName
 
+    @property
+    def logging_enabled(self) -> bool:
+        """
+        Return whether logging is enabled for the load balancer.
+        """
+
+        return self.attributes().get("access_logs.s3.enabled") == "true"
+
+    @property
+    def logging_bucket(self) -> str:
+        """
+        Return the name of the S3 bucket that logs are stored in, if any.
+        """
+
+        return self.attributes().get("access_logs.s3.bucket")
+
+    @property
+    def logging_prefix(self) -> str:
+        """
+        Return the prefix in the S3 bucket that logs are stored in, if any.
+        """
+
+        return self.attributes().get("access_logs.s3.prefix")
+
     @cached_property
     def listeners(self) -> Optional[List["Listener"]]:
         """
@@ -833,6 +881,21 @@ class LoadBalancer(PrimaryBoto3Model):
         except AttributeError:
             return []
         return SecurityGroup.objects.using(self.session).list(**pk)  # type: ignore[arg-type]
+
+    def attributes(self) -> "DescribeLoadBalancerAttributesOutput":
+        """
+        Return the attributes of the load balancer.
+
+        These are stored separately from the load balancer object
+        """
+
+        return (
+            cast(LoadBalancerManager, self.objects)
+            .using(self.session)
+            .attributes(
+                cast(str, self.arn),
+            )
+        )
 
 
 class Certificate(ReadonlyBoto3Model):
@@ -1879,6 +1942,28 @@ class DescribeLoadBalancersOutput(Boto3Model):
     results.
 
     Otherwise, this is null.
+    """
+
+
+class LoadBalancerAttribute(Boto3Model):
+    """
+    Information about a load balancer attribute.
+    """
+
+    Key: Optional[str] = None
+    """
+    The name of the attribute.
+    """
+    Value: Optional[str] = None
+    """
+    The value of the attribute.
+    """
+
+
+class DescribeLoadBalancerAttributesOutput(Boto3Model):
+    Attributes: Optional[List["LoadBalancerAttribute"]] = None
+    """
+    Information about the load balancer attributes.
     """
 
 

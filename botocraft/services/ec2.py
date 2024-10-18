@@ -7,11 +7,12 @@ from datetime import datetime
 from functools import cached_property
 from typing import Any, ClassVar, Dict, List, Literal, Optional, Type, cast
 
+from pydantic import Field
+
 from botocraft.mixins.ec2 import (EC2TagsManagerMixin, SecurityGroupModelMixin,
                                   ec2_instance_only, ec2_instances_only)
 from botocraft.mixins.tags import TagsDictMixin
 from botocraft.services.common import Filter, Tag
-from pydantic import Field
 
 from .abstract import (Boto3Model, Boto3ModelManager, PrimaryBoto3Model,
                        ReadonlyBoto3Model, ReadonlyBoto3ModelManager,

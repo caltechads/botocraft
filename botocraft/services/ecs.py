@@ -7,6 +7,8 @@ from datetime import datetime
 from functools import cached_property
 from typing import Any, ClassVar, Dict, List, Literal, Optional, Type, cast
 
+from pydantic import Field
+
 from botocraft.mixins.ecs import (ECSContainerInstanceModelMixin,
                                   ECSServiceModelMixin, ecs_clusters_only,
                                   ecs_container_instances_only,
@@ -16,7 +18,7 @@ from botocraft.mixins.ecs import (ECSContainerInstanceModelMixin,
                                   ecs_tasks_only)
 from botocraft.mixins.tags import TagsDictMixin
 from botocraft.services.ec2 import Instance, InstanceManager
-from pydantic import Field
+from botocraft.services.elbv2 import TargetGroup, TargetGroupManager
 
 from .abstract import (Boto3Model, Boto3ModelManager, PrimaryBoto3Model,
                        ReadonlyBoto3Model, ReadonlyBoto3ModelManager,
@@ -2917,6 +2919,33 @@ class Service(TagsDictMixin, ECSServiceModelMixin, PrimaryBoto3Model):
         except AttributeError:
             return []
         return Task.objects.using(self.session).list(**pk)  # type: ignore[arg-type]
+
+    @cached_property
+    def target_groups(self) -> Optional[List["TargetGroup"]]:
+        """
+        Return the target groups that are associated with this service, if any.
+
+        .. note::
+
+            The output of this property is cached on the model instance, so
+            calling this multiple times will not result in multiple calls to the
+            AWS API.   If you need a fresh copy of the data, you can re-get the
+            model instance from the manager.
+        """
+
+        try:
+            pk = OrderedDict(
+                {
+                    "TargetGroupArns": [
+                        lb.targetGroupArn
+                        for lb in self.loadBalancers
+                        if lb.targetGroupArn
+                    ],
+                }
+            )
+        except AttributeError:
+            return []
+        return TargetGroup.objects.using(self.session).list(**pk)  # type: ignore[arg-type]
 
 
 class ExecuteCommandLogConfiguration(Boto3Model):
