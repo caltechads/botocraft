@@ -77,6 +77,19 @@ class RegexTransformer(BaseModel):
         return v
 
 
+class CodeTransformerDefinition(BaseModel):
+    """
+    Used when generating a property on a model that is a verbatim expression
+    to return.
+    """
+
+    #: The name of the attribute on our model to use as
+    #: the input to the regular expression.
+    code: str
+    #: Use this code to transform the attribute value.
+    return_type: str
+
+
 class AttributeTransformerDefinition(BaseModel):
     #: If specified, use this regular expression to build the
     #: property output
@@ -88,6 +101,11 @@ class AttributeTransformerDefinition(BaseModel):
     #: attribute.  This may be an alias on another related
     #: model
     alias: Optional[str] = None
+    #: If specified, use this property as a verbatim expression
+    #: to return
+    #: attribute.  This may be an alias on another related
+    #: model
+    code: Optional[CodeTransformerDefinition] = None
 
     @model_validator(mode="before")
     @classmethod
@@ -106,12 +124,19 @@ class AttributeTransformerDefinition(BaseModel):
             The input data for this model
 
         """
-        transformers = [data.get("regex"), data.get("mapping"), data.get("alias")]
+        transformers = [
+            data.get("regex"),
+            data.get("mapping"),
+            data.get("alias"),
+            data.get("code"),
+        ]
         if transformers.count(None) < 2:  # noqa: PLR2004
-            msg = "Only one of regex, mapping or alias can be specified"
+            # More than one is specified
+            msg = "Only one of regex, mapping, alias or code can be specified"
             raise ValueError(msg)
-        if transformers.count(None) == 3:  # noqa: PLR2004
-            msg = "One of regex, mapping, or alias must be specified"
+        if transformers.count(None) == 4:  # noqa: PLR2004
+            # Nothing is specified
+            msg = "One of regex, mapping, alias  or code must be specified"
             raise ValueError(msg)
         return data
 

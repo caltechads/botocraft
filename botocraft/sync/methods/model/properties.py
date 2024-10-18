@@ -82,6 +82,8 @@ class ModelPropertyGenerator:
                 self.property_def.transformer.alias,
                 field_shape=fields[self.property_def.transformer.alias].botocore_shape,
             )
+        elif self.property_def.transformer.code:
+            return_type = self.property_def.transformer.code.return_type
         return return_type
 
     @property
@@ -168,6 +170,22 @@ class ModelPropertyGenerator:
 """
 
     @property
+    def _code_body(self) -> str:
+        """
+        Render the body of the method for use with the code transformer.
+
+        Returns:
+            The method body.
+
+        """
+        assert (
+            self.property_def.transformer.code
+        ), f"Property {self.property_name} does not have an code transformer"
+        return f"""
+        return {self.property_def.transformer.code.code}
+"""
+
+    @property
     def body(self) -> str:
         """
         Return the method body.
@@ -182,6 +200,8 @@ class ModelPropertyGenerator:
             return self._mapping_body
         if self.property_def.transformer.alias:
             return self._alias_body
+        if self.property_def.transformer.code:
+            return self._code_body
         msg = f"Property {self.property_name} does not have a transformer"
         raise RuntimeError(msg)
 
