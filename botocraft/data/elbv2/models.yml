@@ -18,6 +18,17 @@ primary:
       IpAddressType:
         default: >-
           "ipv4"
+    manager_methods:
+      attributes:
+        docstring: >-
+          Return the attributes of the load balancer.  These are stored separately
+          from the load balancer object
+        manager_method: attributes
+        args:
+          0:
+            name: LoadBalancerArn
+            value: >-
+              cast(str, self.arn)
     relations:
       listeners:
         primary_model_name: Listener
