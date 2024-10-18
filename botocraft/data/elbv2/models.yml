@@ -56,6 +56,32 @@ primary:
         transformer:
           mapping:
             GroupIds: SecurityGroups
+    properties:
+      logging_enabled:
+        docstring: >-
+          Return whether logging is enabled for the load balancer.
+        transformer:
+          code:
+            code: >-
+              self.attributes().get("access_logs.s3.enabled") == "true"
+            return_type: bool
+      logging_bucket:
+        docstring: >-
+          Return the name of the S3 bucket that logs are stored in, if any.
+        transformer:
+          code:
+            code: >-
+              self.attributes().get("access_logs.s3.bucket")
+            return_type: str
+      logging_prefix:
+        docstring: >-
+          Return the prefix in the S3 bucket that logs are stored in, if any.
+        transformer:
+          code:
+            code: >-
+              self.attributes().get("access_logs.s3.prefix")
+            return_type: str
+
   Listener:
     primary_key: ListenerArn
     arn_key: ListenerArn
