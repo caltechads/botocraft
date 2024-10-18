@@ -1,10 +1,11 @@
 import re
-from typing import TYPE_CHECKING, Callable, List, Optional, cast
+from typing import TYPE_CHECKING, Callable, List, Optional, Set, cast
 
 if TYPE_CHECKING:
     from botocraft.services import (
         Cluster,
         ContainerInstance,
+        LoadBalancer,
         Service,
         Task,
         TaskDefinition,
@@ -155,7 +156,7 @@ def ecs_container_instances_tasks_only(
 
 
 # Task
-def ecs_task_populate_taskDefinition(  # noqa: N802
+def ecs_task_populate_taskDefinition(
     func: Callable[..., Optional["Task"]],
 ) -> Callable[..., Optional["Task"]]:
     """
@@ -179,7 +180,7 @@ def ecs_task_populate_taskDefinition(  # noqa: N802
     return wrapper
 
 
-def ecs_task_populate_taskDefinitions(  # noqa: N802
+def ecs_task_populate_taskDefinitions(
     func: Callable[..., List["Task"]],
 ) -> Callable[..., List["Task"]]:
     """
@@ -334,6 +335,22 @@ class ECSServiceModelMixin:
                 cluster=self.clusterArn,  # type: ignore[attr-defined]
                 services=[self.serviceName],  # type: ignore[attr-defined]
             )
+
+    @property
+    def load_balancers(self) -> List["LoadBalancer"]:
+        """
+        Return the :py:class:`LoadBalancer` objects that are associated with the
+        service.
+        """
+        from botocraft.services import LoadBalancer
+
+        arns: Set[str] = set()
+        for tg in self.target_groups:  # type: ignore[attr-defined]
+            for arn in tg.LoadBalancerArns:
+                arns.add(arn)
+        if arns:
+            return LoadBalancer.objects.list(LoadBalancerArns=list(arns))
+        return []
 
 
 class ECSContainerInstanceModelMixin:

@@ -68,6 +68,15 @@ primary:
           mapping:
             serviceName: serviceName
             cluster: clusterArn
+      target_groups:
+        primary_model_name: TargetGroup
+        many: true
+        docstring: >-
+          Return the target groups that are associated with this service, if any.
+        transformer:
+          mapping:
+            TargetGroupArns: >-
+              [lb.targetGroupArn for lb in self.loadBalancers if lb.targetGroupArn]
   Cluster:
     primary_key: clusterArn
     arn_key: clusterArn
