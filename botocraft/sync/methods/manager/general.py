@@ -44,11 +44,29 @@ class GeneralMethodGenerator(ManagerMethodGenerator):
         if self.response_attr is None:
             return f'"{response_class_name}"'
         if self.output_shape is not None:
-            response_attr_shape = self.output_shape.members[
-                cast(str, self.response_attr)
-            ]
+            try:
+                response_attr_shape = self.output_shape.members[
+                    cast(str, self.response_attr)
+                ]
+            except KeyError:
+                response_model_def = self.model_generator.get_model_def(
+                    self.output_shape.name
+                )
+                for field, field_data in response_model_def.fields.items():
+                    if field_data.rename == self.response_attr:
+                        response_attr_shape = self.output_shape.members[
+                            cast(str, field)
+                        ]
+                        break
+                else:
+                    raise
         return_type = self.shape_converter.convert(response_attr_shape, quote=True)
-        return return_type  # noqa: RET504
+        if self.model_def.alternate_name:
+            if f'"{self.model_name}"' in return_type:
+                return_type = return_type.replace(
+                    f'"{self.model_name}"', f'"{self.model_def.alternate_name}"'
+                )
+        return return_type
 
     @property
     def body(self) -> str:
