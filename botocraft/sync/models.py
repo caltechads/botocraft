@@ -810,16 +810,28 @@ class BotocraftInterface(BaseModel):
             service = path.name
             if path.is_dir():
                 self.services[service] = ServiceDefinition.load(service, interface=self)
-                for model in self.services[service].primary_models:
+                for model_name, model in self.services[service].primary_models.items():
                     # Register the model name to import path mapping so that we can
                     # have them available when we're building our inter-model
                     # relationships.
-                    self.models[model] = f"botocraft.services.{service}"
+                    _model_name = model.alternate_name or model_name
+                    if _model_name in self.models:
+                        msg = f'Model {_model_name} already defined "'
+                        f'in "{self.models[_model_name]}"'
+                        raise ValueError(msg)
+                    self.models[_model_name] = f"botocraft.services.{service}"
                 for manager in self.services[service].managers:
                     # Register the manager name to import path mapping so that we can
                     # have them available when we're building our inter-model
                     # relationships.
-                    self.models[manager] = f"botocraft.services.{service}"
+                    _manager = manager
+                    if manager in self.services[service].primary_models:
+                        # We already registered this model during :py:meth:`load`
+                        model = self.services[service].primary_models[manager]
+                        if model.alternate_name:
+                            _manager = model.alternate_name
+                    _manager = f"{_manager}Manager"
+                    self.models[_manager] = f"botocraft.services.{service}"
 
     def add_model(self, name: str, service: str) -> None:
         """
@@ -831,10 +843,7 @@ class BotocraftInterface(BaseModel):
 
         """
         if name in self.models:
-            if (
-                name in self.services[service].primary_models
-                and self.models[name] == f"botocraft.services.{service}"
-            ):
+            if self.models[name] == f"botocraft.services.{service}":
                 # We already registered this model during :py:meth:`load`
                 return
             msg = f'Model {name} already defined in "{self.models[name]}"'

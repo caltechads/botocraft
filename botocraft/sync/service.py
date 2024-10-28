@@ -928,6 +928,7 @@ class ServiceGenerator:
         self.manager_classes = deepcopy(self.manager_generator.classes)
         self.imports.update(self.manager_generator.imports)
         self.model_generator.clear()
+        self.manager_generator.clear()
 
         # Write the generated code to the output file
         self.write()

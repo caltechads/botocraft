@@ -56,6 +56,11 @@ class AbstractShapeConverter:
             # yet.  We don't need an import line, because the model lives
             # in this service.
             return None
+        for model in self.service_generator.service_def.models.values():
+            # We've generated this model in a previous phase of service
+            # generation and it has an alternate name
+            if model.alternate_name == model_name:
+                return None
         if model_name in self.service_generator.interface.models:
             import_path = self.service_generator.interface.models[model_name]
             return f"from {import_path} import {model_name}"
