@@ -344,7 +344,7 @@ class ModelManagerMethodGenerator:
                     args[i] = value
             else:
                 args[i] = args_dict[i].name
-        return ", ".join([f"{arg}, " for arg in args.values()])
+        return " ".join([f"{arg}, " for arg in args.values()])
 
     @property
     def kwargs(self) -> str:
