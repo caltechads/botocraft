@@ -87,6 +87,27 @@ def print_shape(
     print(_output)
 
 
+def print_operation(service_model: botocore.model.ServiceModel, name: str) -> None:
+    """
+    Print the full info for a botocore operation.
+
+    Args:
+        service_model: the botocore service model object
+        name: the name of the operation to print
+
+    """
+    operation_model = service_model.operation_model(name)
+    print(f"{name}:")
+    boto3_name = camel_to_snake(name)
+    print(f"    boto3 name: {boto3_name}")
+    input_shape = operation_model.input_shape
+    if input_shape is not None:
+        print_shape(service_model, input_shape.name, indent=4, label="Input")
+    output_shape = operation_model.output_shape
+    if output_shape is not None:
+        print_shape(service_model, output_shape.name, indent=4, label="Output")
+
+
 @cli.group(short_help="Inspect botocore definitions", name="botocore")
 def botocore_group():
     pass
@@ -153,7 +174,7 @@ def botocore_list_shape(
             click.secho("-" * len("Operations"), fg="yellow")
             print()
             for operation in _operations:
-                click.secho(camel_to_snake(operation), fg="cyan")
+                print_operation(service_model, operation)
     if dependencies:
         print()
         click.secho("Dependencies:", fg="yellow")
@@ -197,16 +218,7 @@ def botocore_list_operations(service: str):
     session = botocore.session.get_session()
     service_model = session.get_service_model(service)
     for name in service_model.operation_names:  # pylint: disable=not-an-iterable
-        operation_model = service_model.operation_model(name)
-        print(f"{name}:")
-        boto3_name = camel_to_snake(name)
-        print(f"    boto3 name: {boto3_name}")
-        input_shape = operation_model.input_shape
-        if input_shape is not None:
-            print_shape(service_model, input_shape.name, indent=4, label="Input")
-        output_shape = operation_model.output_shape
-        if output_shape is not None:
-            print_shape(service_model, output_shape.name, indent=4, label="Output")
+        print_operation(service_model, name)
 
 
 @botocore_group.command(
