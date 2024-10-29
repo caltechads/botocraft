@@ -1290,8 +1290,9 @@ class AutoScalingGroup(TagsDictMixin, AutoScalingGroupModelMixin, PrimaryBoto3Mo
     """
     Status: str = Field(default=None, frozen=True)
     """
-    The current state of the group when the DeleteAutoScalingGroup operation is
-    in progress.
+The current state of the group when the `DeleteAutoScalingGroup <https://docs.a
+ws.amazon.com/autoscaling/ec2/APIReference/API_DeleteAutoScalingGroup.html>`_
+operation is in progress.
     """
     Tags: Optional[List["TagDescription"]] = None
     """

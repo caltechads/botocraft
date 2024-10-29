@@ -1262,8 +1262,8 @@ class TaskManager(Boto3ModelManager):
                 To add tags to a task after task creation, use the`TagResource
                 <https://docs.aws.amazon.com/AmazonECS/latest/API
                 Reference/API_TagResource.html>`_ API action.
-            referenceId: The reference ID to use for the task. The reference ID can
-                have a maximum length of 1024 characters.
+            referenceId: This parameter is only used by Amazon ECS. It is not intended
+                for use by customers.
             clientToken: An identifier that you provide to ensure the idempotency of
                 the request. It must be unique and is case sensitive. Up to 64 characters
                 are allowed. The valid characters are characters in the range of 33-126,
@@ -1514,9 +1514,10 @@ class CapacityProviderStrategyItem(Boto3Model):
     With ``FARGATE_SPOT``, you can run interruption tolerant tasks at a rate that's
     discounted compared to the ``FARGATE`` price. ``FARGATE_SPOT`` runs tasks on
     spare compute capacity. When Amazon Web Services needs the capacity back, your
-    tasks are interrupted with a two-minute warning. ``FARGATE_SPOT`` only
-    supports Linux tasks with the X86_64 architecture on platform version 1.3.0
-    or later.
+    tasks are interrupted with a two-minute warning. ``FARGATE_SPOT`` supports
+    Linux tasks with the X86_64 architecture on platform version 1.3.0 or later.
+    ``FARGATE_SPOT`` supports Linux tasks with the ARM64 architecture on platform
+    version 1.4.0 or later.
 
     A capacity provider strategy may contain a maximum of 6 capacity providers.
 
@@ -2104,13 +2105,7 @@ class LogConfiguration(Boto3Model):
     """
     options: Optional[Dict[str, str]] = None
     """
-    The configuration options to send to the log driver. This parameter
-    requires version 1.19 of the Docker Remote API or greater on your container
-    instance. To check the Docker Remote API version on your container
-    instance, log in to.
-
-    your container instance and run the following command: ``sudo docker version
-    --format '{{.Server.APIVersion}}'``
+    The configuration options to send to the log driver.
     """
     secretOptions: Optional[List["Secret"]] = None
     """
@@ -2331,9 +2326,9 @@ class ServiceManagedEBSVolumeConfiguration(Boto3Model):
     zon.com/AmazonECS/latest/developerguide/infrastructure_IAM_role.html>`_ in the
     *Amazon ECS Developer Guide*.
     """
-    filesystemType: Optional[Literal["ext3", "ext4", "xfs"]] = None
+    filesystemType: Optional[Literal["ext3", "ext4", "xfs", "ntfs"]] = None
     """
-    The Linux filesystem type for the volume.
+    The filesystem type for the volume.
 
     For volumes created from a snapshot, you must specify the same filesystem
     type that the volume was using when the snapshot was created. If there is a
@@ -6439,7 +6434,7 @@ class TaskManagedEBSVolumeConfiguration(Boto3Model):
     This provides a way to control whether Amazon ECS terminates the Amazon EBS
     volume when the task stops.
     """
-    filesystemType: Optional[Literal["ext3", "ext4", "xfs"]] = None
+    filesystemType: Optional[Literal["ext3", "ext4", "xfs", "ntfs"]] = None
     """
     The Linux filesystem type for the volume.
 

@@ -2,6 +2,7 @@
 - :doc:`/api/services/ec2`
 - :doc:`/api/services/ecr`
 - :doc:`/api/services/ecs`
+- :doc:`/api/services/elasticache`
 - :doc:`/api/services/elbv2`
 - :doc:`/api/services/kms`
 - :doc:`/api/services/rds`

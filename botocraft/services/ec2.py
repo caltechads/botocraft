@@ -322,18 +322,15 @@ class SecurityGroupManager(EC2TagsManagerMixin, Boto3ModelManager):
     def list(
         self,
         *,
-        Filters: Optional[List[Filter]] = None,
         GroupIds: Optional[List[str]] = None,
         GroupNames: Optional[List[str]] = None,
-        DryRun: bool = False
+        DryRun: bool = False,
+        Filters: Optional[List[Filter]] = None
     ) -> List["SecurityGroup"]:
         """
         Describes the specified security groups or all of your security groups.
 
         Keyword Args:
-            Filters: The filters. If using multiple filters for rules, the results
-                include security groups for which any combination of rules - not
-                necessarily a single rule - match all filters.
             GroupIds: The IDs of the security groups. Required for security groups in a
                 nondefault VPC.
             GroupNames: [Default VPC] The names of the security groups. You can specify
@@ -342,13 +339,16 @@ class SecurityGroupManager(EC2TagsManagerMixin, Boto3ModelManager):
                 without actually making the request, and provides an error response. If you
                 have the required permissions, the error response is ``DryRunOperation``.
                 Otherwise, it is ``UnauthorizedOperation``.
+            Filters: The filters. If using multiple filters for rules, the results
+                include security groups for which any combination of rules - not
+                necessarily a single rule - match all filters.
         """
         paginator = self.client.get_paginator("describe_security_groups")
         args: Dict[str, Any] = dict(
-            Filters=self.serialize(Filters),
             GroupIds=self.serialize(GroupIds),
             GroupNames=self.serialize(GroupNames),
             DryRun=self.serialize(DryRun),
+            Filters=self.serialize(Filters),
         )
         response_iterator = paginator.paginate(
             **{k: v for k, v in args.items() if v is not None}
@@ -402,8 +402,8 @@ class SecurityGroupManager(EC2TagsManagerMixin, Boto3ModelManager):
         GroupId: str,
         IpPermissions: List["IpPermission"],
         *,
-        DryRun: bool = False,
-        Tags: Optional[Optional[List["Tag"]]] = None
+        Tags: Optional[Optional[List["Tag"]]] = None,
+        DryRun: bool = False
     ) -> Optional[bool]:
         """
         Adds the specified inbound (ingress) rules to a security group.
@@ -413,19 +413,19 @@ class SecurityGroupManager(EC2TagsManagerMixin, Boto3ModelManager):
             IpPermissions: The permissions for the security group rules.
 
         Keyword Args:
+            Tags: The tags applied to the security group rule.
             DryRun: Checks whether you have the required permissions for the action,
                 without actually making the request, and provides an error response. If you
                 have the required permissions, the error response is ``DryRunOperation``.
                 Otherwise, it is ``UnauthorizedOperation``.
-            Tags: The tags applied to the security group rule.
         """
         args: Dict[str, Any] = dict(
             GroupId=self.serialize(GroupId),
             IpPermissions=self.serialize(IpPermissions),
-            DryRun=self.serialize(DryRun),
             TagSpecifications=self.serialize(
                 self.serialize(self.convert_tags(Tags, "security-group-rule"))
             ),
+            DryRun=self.serialize(DryRun),
         )
         _response = self.client.authorize_security_group_ingress(
             **{k: v for k, v in args.items() if v is not None}
@@ -464,11 +464,11 @@ class NetworkAclManager(EC2TagsManagerMixin, Boto3ModelManager):
         data = model.model_dump(exclude_none=True, by_alias=True)
         args = dict(
             VpcId=data.get("VpcId"),
-            DryRun=data.get("DryRun"),
             TagSpecifications=self.serialize(
                 self.serialize(self.convert_tags(model.Tags, "network-acl"))
             ),
             ClientToken=self.serialize(ClientToken),
+            DryRun=data.get("DryRun"),
         )
         _response = self.client.create_network_acl(
             **{k: v for k, v in args.items() if v is not None}
@@ -531,9 +531,9 @@ class NetworkAclManager(EC2TagsManagerMixin, Boto3ModelManager):
     def list(
         self,
         *,
-        Filters: Optional[List[Filter]] = None,
         DryRun: bool = False,
-        NetworkAclIds: Optional[List[str]] = None
+        NetworkAclIds: Optional[List[str]] = None,
+        Filters: Optional[List[Filter]] = None
     ) -> List["NetworkAcl"]:
         """
         Describes your network ACLs. The default is to describe all your
@@ -542,18 +542,18 @@ class NetworkAclManager(EC2TagsManagerMixin, Boto3ModelManager):
         specific criteria.
 
         Keyword Args:
-            Filters: The filters.
             DryRun: Checks whether you have the required permissions for the action,
                 without actually making the request, and provides an error response. If you
                 have the required permissions, the error response is ``DryRunOperation``.
                 Otherwise, it is ``UnauthorizedOperation``.
             NetworkAclIds: The IDs of the network ACLs.
+            Filters: The filters.
         """
         paginator = self.client.get_paginator("describe_network_acls")
         args: Dict[str, Any] = dict(
-            Filters=self.serialize(Filters),
             DryRun=self.serialize(DryRun),
             NetworkAclIds=self.serialize(NetworkAclIds),
+            Filters=self.serialize(Filters),
         )
         response_iterator = paginator.paginate(
             **{k: v for k, v in args.items() if v is not None}
@@ -589,13 +589,13 @@ class AMIManager(EC2TagsManagerMixin, Boto3ModelManager):
         args = dict(
             InstanceId=data.get("InstanceId"),
             Name=data.get("Name"),
-            BlockDeviceMappings=data.get("BlockDeviceMappings"),
-            Description=data.get("Description"),
-            DryRun=data.get("DryRun"),
-            NoReboot=self.serialize(NoReboot),
             TagSpecifications=self.serialize(
                 self.serialize(self.convert_tags(model.Tags, "image"))
             ),
+            DryRun=data.get("DryRun"),
+            Description=data.get("Description"),
+            NoReboot=self.serialize(NoReboot),
+            BlockDeviceMappings=data.get("BlockDeviceMappings"),
         )
         _response = self.client.create_image(
             **{k: v for k, v in args.items() if v is not None}
@@ -679,12 +679,12 @@ class AMIManager(EC2TagsManagerMixin, Boto3ModelManager):
         self,
         *,
         ExecutableUsers: Optional[List[str]] = None,
-        Filters: Optional[List[Filter]] = None,
         ImageIds: Optional[List[str]] = None,
         Owners: Optional[List[str]] = None,
         IncludeDeprecated: Optional[bool] = None,
         IncludeDisabled: Optional[bool] = None,
-        DryRun: bool = False
+        DryRun: bool = False,
+        Filters: Optional[List[Filter]] = None
     ) -> List["AMI"]:
         """
         Describes the specified images (AMIs, AKIs, and ARIs) available to you
@@ -694,7 +694,6 @@ class AMIManager(EC2TagsManagerMixin, Boto3ModelManager):
             ExecutableUsers: Scopes the images by users with explicit launch
                 permissions. Specify an Amazon Web Services account ID, ``self`` (the
                 sender of the request), or ``all`` (public AMIs).
-            Filters: The filters.
             ImageIds: The image IDs.
             Owners: Scopes the results to images with the specified owners. You can
                 specify a combination of Amazon Web Services account IDs, ``self``,
@@ -707,16 +706,17 @@ class AMIManager(EC2TagsManagerMixin, Boto3ModelManager):
                 without actually making the request, and provides an error response. If you
                 have the required permissions, the error response is ``DryRunOperation``.
                 Otherwise, it is ``UnauthorizedOperation``.
+            Filters: The filters.
         """
         paginator = self.client.get_paginator("describe_images")
         args: Dict[str, Any] = dict(
             ExecutableUsers=self.serialize(ExecutableUsers),
-            Filters=self.serialize(Filters),
             ImageIds=self.serialize(ImageIds),
             Owners=self.serialize(Owners),
             IncludeDeprecated=self.serialize(IncludeDeprecated),
             IncludeDisabled=self.serialize(IncludeDisabled),
             DryRun=self.serialize(DryRun),
+            Filters=self.serialize(Filters),
         )
         response_iterator = paginator.paginate(
             **{k: v for k, v in args.items() if v is not None}
@@ -742,9 +742,9 @@ class AMIManager(EC2TagsManagerMixin, Boto3ModelManager):
         Encrypted: Optional[bool] = None,
         KmsKeyId: Optional[str] = None,
         DestinationOutpostArn: Optional[str] = None,
-        DryRun: Optional[bool] = None,
         CopyImageTags: Optional[bool] = None,
-        TagSpecifications: Optional[List["TagSpecification"]] = None
+        TagSpecifications: Optional[List["TagSpecification"]] = None,
+        DryRun: Optional[bool] = None
     ) -> str:
         """
         Initiates an AMI copy operation. You can copy an AMI from one Region to
@@ -783,10 +783,6 @@ class AMIManager(EC2TagsManagerMixin, Boto3ModelManager):
                 an Amazon Web Services Region to an Outpost. The AMI must be in the Region
                 of the destination Outpost. You cannot copy an AMI from an Outpost to a
                 Region, from one Outpost to another, or within the same Outpost.
-            DryRun: Checks whether you have the required permissions for the action,
-                without actually making the request, and provides an error response. If you
-                have the required permissions, the error response is ``DryRunOperation``.
-                Otherwise, it is ``UnauthorizedOperation``.
             CopyImageTags: Indicates whether to include your user-defined AMI tags when
                 copying the AMI.
             TagSpecifications: The tags to apply to the new AMI and new snapshots. You
@@ -794,6 +790,10 @@ class AMIManager(EC2TagsManagerMixin, Boto3ModelManager):
                 ````ResourceType```` must be "image" To tag the new snapshots, the value
                 for ````ResourceType```` must be "snapshot". The same tag is applied to all
                 the new snapshots.
+            DryRun: Checks whether you have the required permissions for the action,
+                without actually making the request, and provides an error response. If you
+                have the required permissions, the error response is ``DryRunOperation``.
+                Otherwise, it is ``UnauthorizedOperation``.
 
         """
         args: Dict[str, Any] = dict(
@@ -805,9 +805,9 @@ class AMIManager(EC2TagsManagerMixin, Boto3ModelManager):
             Encrypted=self.serialize(Encrypted),
             KmsKeyId=self.serialize(KmsKeyId),
             DestinationOutpostArn=self.serialize(DestinationOutpostArn),
-            DryRun=self.serialize(DryRun),
             CopyImageTags=self.serialize(CopyImageTags),
             TagSpecifications=self.serialize(TagSpecifications),
+            DryRun=self.serialize(DryRun),
         )
         _response = self.client.copy_image(
             **{k: v for k, v in args.items() if v is not None}
@@ -946,16 +946,6 @@ class InstanceManager(EC2TagsManagerMixin, Boto3ModelManager):
             SecurityGroupIds=self.serialize(SecurityGroupIds),
             SubnetId=data.get("SubnetId"),
             UserData=self.serialize(UserData),
-            ClientToken=data.get("ClientToken"),
-            DisableApiTermination=self.serialize(DisableApiTermination),
-            DryRun=data.get("DryRun"),
-            EbsOptimized=data.get("EbsOptimized"),
-            IamInstanceProfile=data.get("IamInstanceProfile"),
-            InstanceInitiatedShutdownBehavior=self.serialize(
-                InstanceInitiatedShutdownBehavior
-            ),
-            NetworkInterfaces=data.get("NetworkInterfaces"),
-            PrivateIpAddress=data.get("PrivateIpAddress"),
             ElasticGpuSpecification=self.serialize(ElasticGpuSpecification),
             ElasticInferenceAccelerators=self.serialize(ElasticInferenceAccelerators),
             TagSpecifications=self.serialize(
@@ -976,6 +966,16 @@ class InstanceManager(EC2TagsManagerMixin, Boto3ModelManager):
             MaintenanceOptions=data.get("MaintenanceOptions"),
             DisableApiStop=self.serialize(DisableApiStop),
             EnablePrimaryIpv6=self.serialize(EnablePrimaryIpv6),
+            DryRun=data.get("DryRun"),
+            DisableApiTermination=self.serialize(DisableApiTermination),
+            InstanceInitiatedShutdownBehavior=self.serialize(
+                InstanceInitiatedShutdownBehavior
+            ),
+            PrivateIpAddress=data.get("PrivateIpAddress"),
+            ClientToken=data.get("ClientToken"),
+            NetworkInterfaces=data.get("NetworkInterfaces"),
+            IamInstanceProfile=data.get("IamInstanceProfile"),
+            EbsOptimized=data.get("EbsOptimized"),
         )
         _response = self.client.run_instances(
             **{k: v for k, v in args.items() if v is not None}
@@ -994,7 +994,7 @@ class InstanceManager(EC2TagsManagerMixin, Boto3ModelManager):
             InstanceId: The IDs of the instance.
 
         Keyword Args:
-            DryRun: Checks whether you have the required permissions for the action,
+            DryRun: Checks whether you have the required permissions for the operation,
                 without actually making the request, and provides an error response. If you
                 have the required permissions, the error response is ``DryRunOperation``.
                 Otherwise, it is ``UnauthorizedOperation``.
@@ -1016,26 +1016,26 @@ class InstanceManager(EC2TagsManagerMixin, Boto3ModelManager):
     def list(
         self,
         *,
-        Filters: Optional[List[Filter]] = None,
         InstanceIds: Optional[List[str]] = None,
-        DryRun: bool = False
+        DryRun: bool = False,
+        Filters: Optional[List[Filter]] = None
     ) -> List["Reservation"]:
         """
         Describes the specified instances or all instances.
 
         Keyword Args:
-            Filters: The filters.
             InstanceIds: The instance IDs.
-            DryRun: Checks whether you have the required permissions for the action,
+            DryRun: Checks whether you have the required permissions for the operation,
                 without actually making the request, and provides an error response. If you
                 have the required permissions, the error response is ``DryRunOperation``.
                 Otherwise, it is ``UnauthorizedOperation``.
+            Filters: The filters.
         """
         paginator = self.client.get_paginator("describe_instances")
         args: Dict[str, Any] = dict(
-            Filters=self.serialize(Filters),
             InstanceIds=self.serialize(InstanceIds),
             DryRun=self.serialize(DryRun),
+            Filters=self.serialize(Filters),
         )
         response_iterator = paginator.paginate(
             **{k: v for k, v in args.items() if v is not None}
@@ -1065,7 +1065,7 @@ class InstanceManager(EC2TagsManagerMixin, Boto3ModelManager):
 
         Keyword Args:
             AdditionalInfo: Reserved.
-            DryRun: Checks whether you have the required permissions for the action,
+            DryRun: Checks whether you have the required permissions for the operation,
                 without actually making the request, and provides an error response. If you
                 have the required permissions, the error response is ``DryRunOperation``.
                 Otherwise, it is ``UnauthorizedOperation``.
@@ -1110,7 +1110,7 @@ class InstanceManager(EC2TagsManagerMixin, Boto3ModelManager):
                 normal shutdown occurs. For more information, see `Hibernate your instance
                 <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/Hibernate.html>`_ in
                 the *Amazon EC2 User Guide*.
-            DryRun: Checks whether you have the required permissions for the action,
+            DryRun: Checks whether you have the required permissions for the operation,
                 without actually making the request, and provides an error response. If you
                 have the required permissions, the error response is ``DryRunOperation``.
                 Otherwise, it is ``UnauthorizedOperation``.
@@ -1149,7 +1149,7 @@ class InstanceManager(EC2TagsManagerMixin, Boto3ModelManager):
             InstanceIds: The instance IDs.
 
         Keyword Args:
-            DryRun: Checks whether you have the required permissions for the action,
+            DryRun: Checks whether you have the required permissions for the operation,
                 without actually making the request, and provides an error response. If you
                 have the required permissions, the error response is ``DryRunOperation``.
                 Otherwise, it is ``UnauthorizedOperation``.
@@ -1170,7 +1170,7 @@ class InstanceManager(EC2TagsManagerMixin, Boto3ModelManager):
             InstanceIds: The IDs of the instances.
 
         Keyword Args:
-            DryRun: Checks whether you have the required permissions for the action,
+            DryRun: Checks whether you have the required permissions for the operation,
                 without actually making the request, and provides an error response. If you
                 have the required permissions, the error response is ``DryRunOperation``.
                 Otherwise, it is ``UnauthorizedOperation``.
@@ -1641,18 +1641,6 @@ class Vpc(TagsDictMixin, PrimaryBoto3Model):
     """
     Any tags assigned to the VPC.
     """
-    DhcpOptionsId: str = Field(default=None, frozen=True)
-    """
-    The ID of the set of DHCP options you've associated with the VPC.
-    """
-    State: Literal["pending", "available"] = Field(default=None, frozen=True)
-    """
-    The current state of the VPC.
-    """
-    VpcId: str = Field(default=None, frozen=True)
-    """
-    The ID of the VPC.
-    """
     OwnerId: str = Field(default=None, frozen=True)
     """
     The ID of the Amazon Web Services account that owns the VPC.
@@ -1676,6 +1664,18 @@ class Vpc(TagsDictMixin, PrimaryBoto3Model):
     IsDefault: bool = Field(default=None, frozen=True)
     """
     Indicates whether the VPC is the default VPC.
+    """
+    VpcId: str = Field(default=None, frozen=True)
+    """
+    The ID of the VPC.
+    """
+    State: Literal["pending", "available"] = Field(default=None, frozen=True)
+    """
+    The current state of the VPC.
+    """
+    DhcpOptionsId: str = Field(default=None, frozen=True)
+    """
+    The ID of the set of DHCP options you've associated with the VPC.
     """
 
     @property
@@ -1820,16 +1820,6 @@ class Subnet(TagsDictMixin, PrimaryBoto3Model):
     """
     The AZ ID of the subnet.
     """
-    AvailableIpAddressCount: int = Field(default=None, frozen=True)
-    """
-    The number of unused private IPv4 addresses in the subnet.
-
-    The IPv4 addresses for any stopped instances are considered unavailable.
-    """
-    DefaultForAz: bool = Field(default=None, frozen=True)
-    """
-    Indicates whether this is the default subnet for the Availability Zone.
-    """
     EnableLniAtDeviceIndex: int = Field(default=None, frozen=True)
     """
     Indicates the device position for local network interfaces in this subnet.
@@ -1837,11 +1827,6 @@ class Subnet(TagsDictMixin, PrimaryBoto3Model):
     For
     example, ``1`` indicates local network interfaces in this subnet are the
     secondary network interface (eth1).
-    """
-    MapPublicIpOnLaunch: bool = Field(default=None, frozen=True)
-    """
-    Indicates whether instances launched in this subnet receive a public IPv4
-    address.
     """
     MapCustomerOwnedIpOnLaunch: bool = Field(default=None, frozen=True)
     """
@@ -1852,16 +1837,6 @@ class Subnet(TagsDictMixin, PrimaryBoto3Model):
     CustomerOwnedIpv4Pool: str = Field(default=None, frozen=True)
     """
     The customer-owned IPv4 address pool associated with the subnet.
-    """
-    State: Literal["pending", "available", "unavailable"] = Field(
-        default=None, frozen=True
-    )
-    """
-    The current state of the subnet.
-    """
-    SubnetId: str = Field(default=None, frozen=True)
-    """
-    The ID of the subnet.
     """
     OwnerId: str = Field(default=None, frozen=True)
     """
@@ -1900,6 +1875,31 @@ class Subnet(TagsDictMixin, PrimaryBoto3Model):
 
     An instance hostname is based on the IPv4 address or ID of the instance.
     """
+    SubnetId: str = Field(default=None, frozen=True)
+    """
+    The ID of the subnet.
+    """
+    State: Literal["pending", "available", "unavailable"] = Field(
+        default=None, frozen=True
+    )
+    """
+    The current state of the subnet.
+    """
+    AvailableIpAddressCount: int = Field(default=None, frozen=True)
+    """
+    The number of unused private IPv4 addresses in the subnet.
+
+    The IPv4 addresses for any stopped instances are considered unavailable.
+    """
+    DefaultForAz: bool = Field(default=None, frozen=True)
+    """
+    Indicates whether this is the default subnet for the Availability Zone.
+    """
+    MapPublicIpOnLaunch: bool = Field(default=None, frozen=True)
+    """
+    Indicates whether instances launched in this subnet receive a public IPv4
+    address.
+    """
 
     @property
     def pk(self) -> Optional[str]:
@@ -1935,22 +1935,60 @@ class Subnet(TagsDictMixin, PrimaryBoto3Model):
         return self.SubnetId
 
 
+class UserIdGroupPair(Boto3Model):
+    """
+    Describes a security group and Amazon Web Services account ID pair.
+    """
+
+    Description: Optional[str] = None
+    """
+    A description for the security group rule that references this user ID
+    group pair.
+    """
+    UserId: Optional[str] = None
+    """
+    The ID of an Amazon Web Services account.
+    """
+    GroupName: Optional[str] = None
+    """
+    [Default VPC] The name of the security group.
+
+    For a security group in a nondefault VPC, use the security group ID.
+    """
+    GroupId: Optional[str] = None
+    """
+    The ID of the security group.
+    """
+    VpcId: Optional[str] = None
+    """
+    The ID of the VPC for the referenced security group, if applicable.
+    """
+    VpcPeeringConnectionId: Optional[str] = None
+    """
+    The ID of the VPC peering connection, if applicable.
+    """
+    PeeringStatus: Optional[str] = None
+    """
+    The status of a VPC peering connection, if applicable.
+    """
+
+
 class IpRange(Boto3Model):
     """
     Describes an IPv4 address range.
     """
 
+    Description: Optional[str] = None
+    """
+    A description for the security group rule that references this IPv4 address
+    range.
+    """
     CidrIp: Optional[str] = None
     """
     The IPv4 address range.
 
     You can either specify a CIDR block or a source security group, not both.
     To specify a single IPv4 address, use the /32 prefix length.
-    """
-    Description: Optional[str] = None
-    """
-    A description for the security group rule that references this IPv4 address
-    range.
     """
 
 
@@ -1959,17 +1997,17 @@ class Ipv6Range(Boto3Model):
     Describes an IPv6 address range.
     """
 
+    Description: Optional[str] = None
+    """
+    A description for the security group rule that references this IPv6 address
+    range.
+    """
     CidrIpv6: Optional[str] = None
     """
     The IPv6 address range.
 
     You can either specify a CIDR block or a source security group, not both.
     To specify a single IPv6 address, use the /128 prefix length.
-    """
-    Description: Optional[str] = None
-    """
-    A description for the security group rule that references this IPv6 address
-    range.
     """
 
 
@@ -1989,73 +2027,23 @@ class PrefixListId(Boto3Model):
     """
 
 
-class UserIdGroupPair(Boto3Model):
-    """
-    Describes a security group and Amazon Web Services account ID pair.
-    """
-
-    Description: Optional[str] = None
-    """
-    A description for the security group rule that references this user ID
-    group pair.
-    """
-    GroupId: Optional[str] = None
-    """
-    The ID of the security group.
-    """
-    GroupName: Optional[str] = None
-    """
-    [Default VPC] The name of the security group.
-
-    For a security group in a nondefault VPC, use the security group ID.
-    """
-    PeeringStatus: Optional[str] = None
-    """
-    The status of a VPC peering connection, if applicable.
-    """
-    UserId: Optional[str] = None
-    """
-    The ID of an Amazon Web Services account.
-    """
-    VpcId: Optional[str] = None
-    """
-    The ID of the VPC for the referenced security group, if applicable.
-    """
-    VpcPeeringConnectionId: Optional[str] = None
-    """
-    The ID of the VPC peering connection, if applicable.
-    """
-
-
 class IpPermission(Boto3Model):
     """
     Describes the permissions for a security group rule.
     """
 
-    FromPort: Optional[int] = None
-    """
-    If the protocol is TCP or UDP, this is the start of the port range.
-
-    If the protocol is ICMP or ICMPv6, this is the ICMP type or -1 (all ICMP
-    types).
-    """
     IpProtocol: Optional[str] = None
     """
 The IP protocol name (``tcp``, ``udp``, ``icmp``, ``icmpv6``) or number (see
 `Protocol Numbers <http://www.iana.org/assignments/protocol-numbers/protocol-
 numbers.xhtml>`_).
     """
-    IpRanges: Optional[List["IpRange"]] = None
+    FromPort: Optional[int] = None
     """
-    The IPv4 address ranges.
-    """
-    Ipv6Ranges: Optional[List["Ipv6Range"]] = None
-    """
-    The IPv6 address ranges.
-    """
-    PrefixListIds: Optional[List["PrefixListId"]] = None
-    """
-    The prefix list IDs.
+    If the protocol is TCP or UDP, this is the start of the port range.
+
+    If the protocol is ICMP or ICMPv6, this is the ICMP type or -1 (all ICMP
+    types).
     """
     ToPort: Optional[int] = None
     """
@@ -2068,6 +2056,18 @@ numbers.xhtml>`_).
     UserIdGroupPairs: Optional[List["UserIdGroupPair"]] = None
     """
     The security group and Amazon Web Services account ID pairs.
+    """
+    IpRanges: Optional[List["IpRange"]] = None
+    """
+    The IPv4 address ranges.
+    """
+    Ipv6Ranges: Optional[List["Ipv6Range"]] = None
+    """
+    The IPv6 address ranges.
+    """
+    PrefixListIds: Optional[List["PrefixListId"]] = None
+    """
+    The prefix list IDs.
     """
 
 
@@ -2103,13 +2103,13 @@ class SecurityGroup(TagsDictMixin, SecurityGroupModelMixin, PrimaryBoto3Model):
     """
     Any tags assigned to the security group.
     """
-    OwnerId: str = Field(default=None, frozen=True)
-    """
-    The Amazon Web Services account ID of the owner of the security group.
-    """
     GroupId: str = Field(default=None, frozen=True)
     """
     The ID of the security group.
+    """
+    OwnerId: str = Field(default=None, frozen=True)
+    """
+    The Amazon Web Services account ID of the owner of the security group.
     """
 
     @property
@@ -2368,8 +2368,8 @@ class EbsBlockDevice(Boto3Model):
     """
     KmsKeyId: Optional[str] = None
     """
-    Identifier (key ID, key alias, ID ARN, or alias ARN) for a customer managed
-    CMK under which the EBS volume is encrypted.
+    Identifier (key ID, key alias, key ARN, or alias ARN) of the customer
+    managed KMS key to use for EBS encryption.
     """
     Throughput: Optional[int] = None
     """
@@ -2399,6 +2399,18 @@ class EC2BlockDeviceMapping(Boto3Model):
     instance store volumes to attach to an instance at launch.
     """
 
+    Ebs: Optional[EbsBlockDevice] = None
+    """
+    Parameters used to automatically set up EBS volumes when the instance is
+    launched.
+    """
+    NoDevice: Optional[str] = None
+    """
+    To omit the device from the block device mapping, specify an empty string.
+
+    When this property is specified, the device is removed from the block
+    device mapping regardless of the assigned value.
+    """
     DeviceName: Optional[str] = None
     """
     The device name (for example, ``/dev/sdh`` or ``xvdh``).
@@ -2412,18 +2424,6 @@ class EC2BlockDeviceMapping(Boto3Model):
     specify mappings for ``ephemeral0`` and ``ephemeral1``. The number of available
     instance store volumes depends on the instance type. After you connect to the
     instance, you must mount the volume.
-    """
-    Ebs: Optional[EbsBlockDevice] = None
-    """
-    Parameters used to automatically set up EBS volumes when the instance is
-    launched.
-    """
-    NoDevice: Optional[str] = None
-    """
-    To omit the device from the block device mapping, specify an empty string.
-
-    When this property is specified, the device is removed from the block
-    device mapping regardless of the assigned value.
     """
 
 
@@ -2582,18 +2582,6 @@ class AMI(TagsDictMixin, PrimaryBoto3Model):
     instances.html#configure-IMDS-new-instances-ami-configuration>`_ in the *Amazon
     EC2 User Guide*.
     """
-    CreationDate: str = Field(default=None, frozen=True)
-    """
-    The date and time the image was created.
-    """
-    ImageLocation: str = Field(default=None, frozen=True)
-    """
-    The location of the AMI.
-    """
-    OwnerId: str = Field(default=None, frozen=True)
-    """
-    The ID of the Amazon Web Services account that owns the image.
-    """
     BlockDeviceMappings: Optional[List["EC2BlockDeviceMapping"]] = None
     """
     Any block device mapping entries.
@@ -2643,6 +2631,18 @@ format <http://www.iso.org/iso/iso8601>`_, when the AMI was last used to launch
 an EC2 instance. When the AMI is used to launch an instance, there is a
 24-hour delay before that usage is reported.
     """
+    ImageLocation: str = Field(default=None, frozen=True)
+    """
+    The location of the AMI.
+    """
+    OwnerId: str = Field(default=None, frozen=True)
+    """
+    The ID of the Amazon Web Services account that owns the image.
+    """
+    CreationDate: str = Field(default=None, frozen=True)
+    """
+    The date and time the image was created.
+    """
 
     @property
     def pk(self) -> Optional[str]:
@@ -2665,93 +2665,6 @@ an EC2 instance. When the AMI is used to launch an instance, there is a
             The name of the model instance.
         """
         return self.Name
-
-
-class EC2DetailedMonitoring(Boto3Model):
-    """
-    The monitoring for the instance.
-    """
-
-    State: Optional[Literal["disabled", "disabling", "enabled", "pending"]] = None
-    """
-    Indicates whether detailed monitoring is enabled.
-
-    Otherwise, basic monitoring is enabled.
-    """
-
-
-class EC2Placement(Boto3Model):
-    """
-    The location where the instance launched, if applicable.
-    """
-
-    AvailabilityZone: Optional[str] = None
-    """
-    The Availability Zone of the instance.
-    """
-    Affinity: Optional[str] = None
-    """
-    The affinity setting for the instance on the Dedicated Host.
-    """
-    GroupName: Optional[str] = None
-    """
-    The name of the placement group that the instance is in.
-
-    If you specify
-    ``GroupName``, you can't specify ``GroupId``.
-    """
-    PartitionNumber: Optional[int] = None
-    """
-    The number of the partition that the instance is in.
-
-    Valid only if the
-    placement group strategy is set to ``partition``.
-    """
-    HostId: Optional[str] = None
-    """
-    The ID of the Dedicated Host on which the instance resides.
-    """
-    Tenancy: Optional[Literal["default", "dedicated", "host"]] = None
-    """
-    The tenancy of the instance.
-
-    An instance with a tenancy of ``dedicated`` runs
-    on single-tenant hardware.
-    """
-    SpreadDomain: Optional[str] = None
-    """
-    Reserved for future use.
-    """
-    HostResourceGroupArn: Optional[str] = None
-    """
-    The ARN of the host resource group in which to launch the instances.
-    """
-    GroupId: Optional[str] = None
-    """
-    The ID of the placement group that the instance is in.
-
-    If you specify
-    ``GroupId``, you can't specify ``GroupName``.
-    """
-
-
-class InstanceState(Boto3Model):
-    """
-    The current state of the instance.
-    """
-
-    Code: Optional[int] = None
-    """
-    The state of the instance as a 16-bit unsigned integer.
-    """
-    Name: Optional[
-        Literal[
-            "pending", "running", "shutting-down", "terminated", "stopping", "stopped"
-        ]
-    ] = None
-    """
-    The current state of the instance.
-    """
 
 
 class EbsInstanceBlockDevice(Boto3Model):
@@ -2819,9 +2732,7 @@ class EC2IamInstanceProfile(Boto3Model):
 
 class ElasticGpuAssociation(Boto3Model):
     """
-    Amazon Elastic Graphics reached end of life on January 8, 2024. For
-    workloads that require graphics acceleration, we recommend that you use
-    Amazon EC2 G4, G5, or G6 instances.
+    Amazon Elastic Graphics reached end of life on January 8, 2024.
 
     Describes the association between an instance and an Elastic Graphics
     accelerator.
@@ -2848,6 +2759,8 @@ class ElasticGpuAssociation(Boto3Model):
 
 class ElasticInferenceAcceleratorAssociation(Boto3Model):
     """
+    Amazon Elastic Inference is no longer available.
+
     Describes the association between an instance and an elastic inference
     accelerator.
     """
@@ -2971,13 +2884,13 @@ class GroupIdentifier(Boto3Model):
     Describes a security group.
     """
 
-    GroupName: Optional[str] = None
-    """
-    The name of the security group.
-    """
     GroupId: Optional[str] = None
     """
     The ID of the security group.
+    """
+    GroupName: Optional[str] = None
+    """
+    The name of the security group.
     """
 
 
@@ -3350,6 +3263,93 @@ class InstanceMaintenanceOptions(Boto3Model):
     """
 
 
+class InstanceState(Boto3Model):
+    """
+    The current state of the instance.
+    """
+
+    Code: Optional[int] = None
+    """
+    The state of the instance as a 16-bit unsigned integer.
+    """
+    Name: Optional[
+        Literal[
+            "pending", "running", "shutting-down", "terminated", "stopping", "stopped"
+        ]
+    ] = None
+    """
+    The current state of the instance.
+    """
+
+
+class EC2Placement(Boto3Model):
+    """
+    The location where the instance launched, if applicable.
+    """
+
+    Affinity: Optional[str] = None
+    """
+    The affinity setting for the instance on the Dedicated Host.
+    """
+    GroupName: Optional[str] = None
+    """
+    The name of the placement group that the instance is in.
+
+    If you specify
+    ``GroupName``, you can't specify ``GroupId``.
+    """
+    PartitionNumber: Optional[int] = None
+    """
+    The number of the partition that the instance is in.
+
+    Valid only if the
+    placement group strategy is set to ``partition``.
+    """
+    HostId: Optional[str] = None
+    """
+    The ID of the Dedicated Host on which the instance resides.
+    """
+    Tenancy: Optional[Literal["default", "dedicated", "host"]] = None
+    """
+    The tenancy of the instance.
+
+    An instance with a tenancy of ``dedicated`` runs
+    on single-tenant hardware.
+    """
+    SpreadDomain: Optional[str] = None
+    """
+    Reserved for future use.
+    """
+    HostResourceGroupArn: Optional[str] = None
+    """
+    The ARN of the host resource group in which to launch the instances.
+    """
+    GroupId: Optional[str] = None
+    """
+    The ID of the placement group that the instance is in.
+
+    If you specify
+    ``GroupId``, you can't specify ``GroupName``.
+    """
+    AvailabilityZone: Optional[str] = None
+    """
+    The Availability Zone of the instance.
+    """
+
+
+class EC2DetailedMonitoring(Boto3Model):
+    """
+    The monitoring for the instance.
+    """
+
+    State: Optional[Literal["disabled", "disabling", "enabled", "pending"]] = None
+    """
+    Indicates whether detailed monitoring is enabled.
+
+    Otherwise, basic monitoring is enabled.
+    """
+
+
 class Instance(TagsDictMixin, PrimaryBoto3Model):
     """
     Describes an instance.
@@ -3362,18 +3362,247 @@ class Instance(TagsDictMixin, PrimaryBoto3Model):
     """
     Any tags assigned to the instance.
     """
-    AmiLaunchIndex: int = Field(default=None, frozen=True)
+    Architecture: Literal["i386", "x86_64", "arm64", "x86_64_mac", "arm64_mac"] = Field(
+        default=None, frozen=True
+    )
     """
-    The AMI launch index, which can be used to find this instance in the launch
-    group.
+    The architecture of the image.
+    """
+    BlockDeviceMappings: Optional[List["InstanceBlockDeviceMapping"]] = None
+    """
+    Any block device mapping entries for the instance.
+    """
+    ClientToken: Optional[str] = None
+    """
+    The idempotency token you provided when you launched the instance, if
+    applicable.
+    """
+    EbsOptimized: Optional[bool] = None
+    """
+    Indicates whether the instance is optimized for Amazon EBS I/O.
+
+    This optimization provides dedicated throughput to Amazon EBS and an
+    optimized configuration stack to provide optimal I/O performance. This
+    optimization isn't available with all instance types. Additional usage
+    charges apply when using an EBS Optimized instance.
+    """
+    EnaSupport: bool = Field(default=None, frozen=True)
+    """
+    Specifies whether enhanced networking with ENA is enabled.
+    """
+    Hypervisor: Literal["ovm", "xen"] = Field(default=None, frozen=True)
+    """
+    The hypervisor type of the instance.
+
+    The value ``xen`` is used for both Xen and
+    Nitro hypervisors.
+    """
+    IamInstanceProfile: Optional[EC2IamInstanceProfile] = None
+    """
+    The IAM instance profile associated with the instance, if applicable.
+    """
+    InstanceLifecycle: Literal["spot", "scheduled", "capacity-block"] = Field(
+        default=None, frozen=True
+    )
+    """
+    Indicates whether this is a Spot Instance or a Scheduled Instance.
+    """
+    ElasticGpuAssociations: List["ElasticGpuAssociation"] = Field(
+        default=None, frozen=True
+    )
+    """
+    Deprecated.
+    """
+    ElasticInferenceAcceleratorAssociations: List[
+        "ElasticInferenceAcceleratorAssociation"
+    ] = Field(default=None, frozen=True)
+    """
+    Deprecated.
+    """
+    NetworkInterfaces: Optional[List["InstanceNetworkInterface"]] = None
+    """
+    The network interfaces for the instance.
+    """
+    OutpostArn: str = Field(default=None, frozen=True)
+    """
+    The Amazon Resource Name (ARN) of the Outpost.
+    """
+    RootDeviceName: str = Field(default=None, frozen=True)
+    """
+    The device name of the root device volume (for example, ``/dev/sda1``).
+    """
+    RootDeviceType: Literal["ebs", "instance-store"] = Field(default=None, frozen=True)
+    """
+    The root device type used by the AMI.
+
+    The AMI can use an EBS volume or an instance store volume.
+    """
+    SecurityGroups: Optional[List["GroupIdentifier"]] = None
+    """
+    The security groups for the instance.
+    """
+    SourceDestCheck: bool = Field(default=None, frozen=True)
+    """
+    Indicates whether source/destination checking is enabled.
+    """
+    SpotInstanceRequestId: str = Field(default=None, frozen=True)
+    """
+    If the request is a Spot Instance request, the ID of the request.
+    """
+    SriovNetSupport: str = Field(default=None, frozen=True)
+    """
+    Specifies whether enhanced networking with the Intel 82599 Virtual Function
+    interface is enabled.
+    """
+    StateReason: EC2StateReason = Field(default=None, frozen=True)
+    """
+    The reason for the most recent state transition.
+    """
+    VirtualizationType: Literal["hvm", "paravirtual"] = Field(default=None, frozen=True)
+    """
+    The virtualization type of the instance.
+    """
+    CpuOptions: Optional[EC2CpuOptions] = None
+    """
+    The CPU options for the instance.
+    """
+    CapacityReservationId: str = Field(default=None, frozen=True)
+    """
+    The ID of the Capacity Reservation.
+    """
+    CapacityReservationSpecification: Optional[
+        CapacityReservationSpecificationResponse
+    ] = None
+    """
+    Information about the Capacity Reservation targeting option.
+    """
+    HibernationOptions: Optional[EC2HibernationOptions] = None
+    """
+    Indicates whether the instance is enabled for hibernation.
+    """
+    Licenses: List["LicenseConfiguration"] = Field(default=None, frozen=True)
+    """
+    The license configurations for the instance.
+    """
+    MetadataOptions: Optional[InstanceMetadataOptionsResponse] = None
+    """
+    The metadata options for the instance.
+    """
+    EnclaveOptions: Optional[EC2EnclaveOptions] = None
+    """
+    Indicates whether the instance is enabled for Amazon Web Services Nitro
+    Enclaves.
+    """
+    BootMode: Literal["legacy-bios", "uefi", "uefi-preferred"] = Field(
+        default=None, frozen=True
+    )
+    """
+    The boot mode that was specified by the AMI.
+
+    If the value is ``uefi-
+    preferred``, the AMI supports both UEFI and Legacy BIOS. The
+    ``currentInstanceBootMode`` parameter is the boot mode that is used to boot the
+    instance at launch or start.
+    """
+    PlatformDetails: str = Field(default=None, frozen=True)
+    """
+    The platform details value for the instance.
+
+    For more information, see
+    `AMI billing information fields <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/billing-info-
+    fields.html>`_ in the *Amazon EC2 User Guide*.
+    """
+    UsageOperation: str = Field(default=None, frozen=True)
+    """
+    The usage operation value for the instance.
+
+    For more information, see
+    `AMI billing information fields <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/billing-info-
+    fields.html>`_ in the *Amazon EC2 User Guide*.
+    """
+    UsageOperationUpdateTime: datetime = Field(default=None, frozen=True)
+    """
+    The time that the usage operation was last updated.
+    """
+    PrivateDnsNameOptions: Optional[PrivateDnsNameOptionsResponse] = None
+    """
+    The options for the instance hostname.
+    """
+    Ipv6Address: str = Field(default=None, frozen=True)
+    """
+    The IPv6 address assigned to the instance.
+    """
+    TpmSupport: str = Field(default=None, frozen=True)
+    """
+    If the instance is configured for NitroTPM support, the value is ``v2.0``.
+
+    For more information, see
+    `NitroTPM <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/nitrotpm.html>`_
+    in the *Amazon EC2 User Guide*.
+    """
+    MaintenanceOptions: Optional[InstanceMaintenanceOptions] = None
+    """
+    Provides information on the recovery and maintenance options of your
+    instance.
+    """
+    CurrentInstanceBootMode: Literal["legacy-bios", "uefi"] = Field(
+        default=None, frozen=True
+    )
+    """
+    The boot mode that is used to boot the instance at launch or start.
+
+    For more information, see
+    `Boot modes <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ami-boot.html>`_
+    in
+    the *Amazon EC2 User Guide*.
+    """
+    InstanceId: str = Field(default=None, frozen=True)
+    """
+    The ID of the instance.
     """
     ImageId: Optional[str] = None
     """
     The ID of the AMI used to launch the instance.
     """
-    InstanceId: str = Field(default=None, frozen=True)
+    State: InstanceState = Field(default=None, frozen=True)
     """
-    The ID of the instance.
+    The current state of the instance.
+    """
+    PrivateDnsName: str = Field(default=None, frozen=True)
+    """
+    [IPv4 only] The private DNS hostname name assigned to the instance.
+
+    This DNS
+    hostname can only be used inside the Amazon EC2 network. This name is not
+    available until the instance enters the ``running`` state.
+    """
+    PublicDnsName: str = Field(default=None, frozen=True)
+    """
+    [IPv4 only] The public DNS name assigned to the instance.
+
+    This name is not
+    available until the instance enters the ``running`` state. This name is only
+    available if you've enabled DNS hostnames for your VPC.
+    """
+    StateTransitionReason: str = Field(default=None, frozen=True)
+    """
+    The reason for the most recent state transition.
+
+    This might be an empty string.
+    """
+    KeyName: Optional[str] = None
+    """
+    The name of the key pair, if this instance was launched with an associated
+    key pair.
+    """
+    AmiLaunchIndex: int = Field(default=None, frozen=True)
+    """
+    The AMI launch index, which can be used to find this instance in the launch
+    group.
+    """
+    ProductCodes: List["ProductCode"] = Field(default=None, frozen=True)
+    """
+    The product codes attached to this instance, if applicable.
     """
     InstanceType: Optional[
         Literal[
@@ -4205,31 +4434,62 @@ class Instance(TagsDictMixin, PrimaryBoto3Model):
             "g6e.16xlarge",
             "g6e.24xlarge",
             "g6e.48xlarge",
+            "c8g.medium",
+            "c8g.large",
+            "c8g.xlarge",
+            "c8g.2xlarge",
+            "c8g.4xlarge",
+            "c8g.8xlarge",
+            "c8g.12xlarge",
+            "c8g.16xlarge",
+            "c8g.24xlarge",
+            "c8g.48xlarge",
+            "c8g.metal-24xl",
+            "c8g.metal-48xl",
+            "m8g.medium",
+            "m8g.large",
+            "m8g.xlarge",
+            "m8g.2xlarge",
+            "m8g.4xlarge",
+            "m8g.8xlarge",
+            "m8g.12xlarge",
+            "m8g.16xlarge",
+            "m8g.24xlarge",
+            "m8g.48xlarge",
+            "m8g.metal-24xl",
+            "m8g.metal-48xl",
+            "x8g.medium",
+            "x8g.large",
+            "x8g.xlarge",
+            "x8g.2xlarge",
+            "x8g.4xlarge",
+            "x8g.8xlarge",
+            "x8g.12xlarge",
+            "x8g.16xlarge",
+            "x8g.24xlarge",
+            "x8g.48xlarge",
+            "x8g.metal-24xl",
+            "x8g.metal-48xl",
         ]
     ] = None
     """
     The instance type.
     """
-    KernelId: Optional[str] = None
-    """
-    The kernel associated with this instance, if applicable.
-    """
-    KeyName: Optional[str] = None
-    """
-    The name of the key pair, if this instance was launched with an associated
-    key pair.
-    """
     LaunchTime: datetime = Field(default=None, frozen=True)
     """
     The time the instance was launched.
     """
-    Monitoring: Optional[EC2DetailedMonitoring] = None
-    """
-    The monitoring for the instance.
-    """
     Placement: Optional[EC2Placement] = None
     """
     The location where the instance launched, if applicable.
+    """
+    KernelId: Optional[str] = None
+    """
+    The kernel associated with this instance, if applicable.
+    """
+    RamdiskId: Optional[str] = None
+    """
+    The RAM disk associated with this instance, if applicable.
     """
     Platform: Literal["Windows"] = Field(default=None, frozen=True)
     """
@@ -4238,48 +4498,9 @@ class Instance(TagsDictMixin, PrimaryBoto3Model):
     This value is ``windows`` for Windows instances; otherwise, it is
     empty.
     """
-    PrivateDnsName: str = Field(default=None, frozen=True)
+    Monitoring: Optional[EC2DetailedMonitoring] = None
     """
-    [IPv4 only] The private DNS hostname name assigned to the instance.
-
-    This DNS
-    hostname can only be used inside the Amazon EC2 network. This name is not
-    available until the instance enters the ``running`` state.
-    """
-    PrivateIpAddress: Optional[str] = None
-    """
-    The private IPv4 address assigned to the instance.
-    """
-    ProductCodes: List["ProductCode"] = Field(default=None, frozen=True)
-    """
-    The product codes attached to this instance, if applicable.
-    """
-    PublicDnsName: str = Field(default=None, frozen=True)
-    """
-    [IPv4 only] The public DNS name assigned to the instance.
-
-    This name is not
-    available until the instance enters the ``running`` state. This name is only
-    available if you've enabled DNS hostnames for your VPC.
-    """
-    PublicIpAddress: str = Field(default=None, frozen=True)
-    """
-    The public IPv4 address, or the Carrier IP address assigned to the
-    instance, if applicable.
-    """
-    RamdiskId: Optional[str] = None
-    """
-    The RAM disk associated with this instance, if applicable.
-    """
-    State: InstanceState = Field(default=None, frozen=True)
-    """
-    The current state of the instance.
-    """
-    StateTransitionReason: str = Field(default=None, frozen=True)
-    """
-    The reason for the most recent state transition.
-
-    This might be an empty string.
+    The monitoring for the instance.
     """
     SubnetId: Optional[str] = None
     """
@@ -4289,199 +4510,14 @@ class Instance(TagsDictMixin, PrimaryBoto3Model):
     """
     The ID of the VPC in which the instance is running.
     """
-    Architecture: Literal["i386", "x86_64", "arm64", "x86_64_mac", "arm64_mac"] = Field(
-        default=None, frozen=True
-    )
+    PrivateIpAddress: Optional[str] = None
     """
-    The architecture of the image.
+    The private IPv4 address assigned to the instance.
     """
-    BlockDeviceMappings: Optional[List["InstanceBlockDeviceMapping"]] = None
+    PublicIpAddress: str = Field(default=None, frozen=True)
     """
-    Any block device mapping entries for the instance.
-    """
-    ClientToken: Optional[str] = None
-    """
-    The idempotency token you provided when you launched the instance, if
-    applicable.
-    """
-    EbsOptimized: Optional[bool] = None
-    """
-    Indicates whether the instance is optimized for Amazon EBS I/O.
-
-    This optimization provides dedicated throughput to Amazon EBS and an
-    optimized configuration stack to provide optimal I/O performance. This
-    optimization isn't available with all instance types. Additional usage
-    charges apply when using an EBS Optimized instance.
-    """
-    EnaSupport: bool = Field(default=None, frozen=True)
-    """
-    Specifies whether enhanced networking with ENA is enabled.
-    """
-    Hypervisor: Literal["ovm", "xen"] = Field(default=None, frozen=True)
-    """
-    The hypervisor type of the instance.
-
-    The value ``xen`` is used for both Xen and
-    Nitro hypervisors.
-    """
-    IamInstanceProfile: Optional[EC2IamInstanceProfile] = None
-    """
-    The IAM instance profile associated with the instance, if applicable.
-    """
-    InstanceLifecycle: Literal["spot", "scheduled", "capacity-block"] = Field(
-        default=None, frozen=True
-    )
-    """
-    Indicates whether this is a Spot Instance or a Scheduled Instance.
-    """
-    ElasticGpuAssociations: List["ElasticGpuAssociation"] = Field(
-        default=None, frozen=True
-    )
-    """
-    Deprecated.
-    """
-    ElasticInferenceAcceleratorAssociations: List[
-        "ElasticInferenceAcceleratorAssociation"
-    ] = Field(default=None, frozen=True)
-    """
-    The elastic inference accelerator associated with the instance.
-    """
-    NetworkInterfaces: Optional[List["InstanceNetworkInterface"]] = None
-    """
-    The network interfaces for the instance.
-    """
-    OutpostArn: str = Field(default=None, frozen=True)
-    """
-    The Amazon Resource Name (ARN) of the Outpost.
-    """
-    RootDeviceName: str = Field(default=None, frozen=True)
-    """
-    The device name of the root device volume (for example, ``/dev/sda1``).
-    """
-    RootDeviceType: Literal["ebs", "instance-store"] = Field(default=None, frozen=True)
-    """
-    The root device type used by the AMI.
-
-    The AMI can use an EBS volume or an instance store volume.
-    """
-    SecurityGroups: Optional[List["GroupIdentifier"]] = None
-    """
-    The security groups for the instance.
-    """
-    SourceDestCheck: bool = Field(default=None, frozen=True)
-    """
-    Indicates whether source/destination checking is enabled.
-    """
-    SpotInstanceRequestId: str = Field(default=None, frozen=True)
-    """
-    If the request is a Spot Instance request, the ID of the request.
-    """
-    SriovNetSupport: str = Field(default=None, frozen=True)
-    """
-    Specifies whether enhanced networking with the Intel 82599 Virtual Function
-    interface is enabled.
-    """
-    StateReason: EC2StateReason = Field(default=None, frozen=True)
-    """
-    The reason for the most recent state transition.
-    """
-    VirtualizationType: Literal["hvm", "paravirtual"] = Field(default=None, frozen=True)
-    """
-    The virtualization type of the instance.
-    """
-    CpuOptions: Optional[EC2CpuOptions] = None
-    """
-    The CPU options for the instance.
-    """
-    CapacityReservationId: str = Field(default=None, frozen=True)
-    """
-    The ID of the Capacity Reservation.
-    """
-    CapacityReservationSpecification: Optional[
-        CapacityReservationSpecificationResponse
-    ] = None
-    """
-    Information about the Capacity Reservation targeting option.
-    """
-    HibernationOptions: Optional[EC2HibernationOptions] = None
-    """
-    Indicates whether the instance is enabled for hibernation.
-    """
-    Licenses: List["LicenseConfiguration"] = Field(default=None, frozen=True)
-    """
-    The license configurations for the instance.
-    """
-    MetadataOptions: Optional[InstanceMetadataOptionsResponse] = None
-    """
-    The metadata options for the instance.
-    """
-    EnclaveOptions: Optional[EC2EnclaveOptions] = None
-    """
-    Indicates whether the instance is enabled for Amazon Web Services Nitro
-    Enclaves.
-    """
-    BootMode: Literal["legacy-bios", "uefi", "uefi-preferred"] = Field(
-        default=None, frozen=True
-    )
-    """
-    The boot mode that was specified by the AMI.
-
-    If the value is ``uefi-
-    preferred``, the AMI supports both UEFI and Legacy BIOS. The
-    ``currentInstanceBootMode`` parameter is the boot mode that is used to boot the
-    instance at launch or start.
-    """
-    PlatformDetails: str = Field(default=None, frozen=True)
-    """
-    The platform details value for the instance.
-
-    For more information, see
-    `AMI billing information fields <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/billing-info-
-    fields.html>`_ in the *Amazon EC2 User Guide*.
-    """
-    UsageOperation: str = Field(default=None, frozen=True)
-    """
-    The usage operation value for the instance.
-
-    For more information, see
-    `AMI billing information fields <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/billing-info-
-    fields.html>`_ in the *Amazon EC2 User Guide*.
-    """
-    UsageOperationUpdateTime: datetime = Field(default=None, frozen=True)
-    """
-    The time that the usage operation was last updated.
-    """
-    PrivateDnsNameOptions: Optional[PrivateDnsNameOptionsResponse] = None
-    """
-    The options for the instance hostname.
-    """
-    Ipv6Address: str = Field(default=None, frozen=True)
-    """
-    The IPv6 address assigned to the instance.
-    """
-    TpmSupport: str = Field(default=None, frozen=True)
-    """
-    If the instance is configured for NitroTPM support, the value is ``v2.0``.
-
-    For more information, see
-    `NitroTPM <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/nitrotpm.html>`_
-    in the *Amazon EC2 User Guide*.
-    """
-    MaintenanceOptions: Optional[InstanceMaintenanceOptions] = None
-    """
-    Provides information on the recovery and maintenance options of your
-    instance.
-    """
-    CurrentInstanceBootMode: Literal["legacy-bios", "uefi"] = Field(
-        default=None, frozen=True
-    )
-    """
-    The boot mode that is used to boot the instance at launch or start.
-
-    For more information, see
-    `Boot modes <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ami-boot.html>`_
-    in
-    the *Amazon EC2 User Guide*.
+    The public IPv4 address, or the Carrier IP address assigned to the
+    instance, if applicable.
     """
 
     @property
@@ -4577,7 +4613,7 @@ class Instance(TagsDictMixin, PrimaryBoto3Model):
         Start the instance.
 
         Keyword Args:
-            DryRun: Checks whether you have the required permissions for the action,
+            DryRun: Checks whether you have the required permissions for the operation,
                 without actually making the request, and provides an error response. If you
                 have the required permissions, the error response is ``DryRunOperation``.
                 Otherwise, it is ``UnauthorizedOperation``.
@@ -4599,7 +4635,7 @@ class Instance(TagsDictMixin, PrimaryBoto3Model):
         Stop the instance.
 
         Keyword Args:
-            DryRun: Checks whether you have the required permissions for the action,
+            DryRun: Checks whether you have the required permissions for the operation,
                 without actually making the request, and provides an error response. If you
                 have the required permissions, the error response is ``DryRunOperation``.
                 Otherwise, it is ``UnauthorizedOperation``.
@@ -4625,7 +4661,7 @@ class Instance(TagsDictMixin, PrimaryBoto3Model):
         Reboot the instance.
 
         Keyword Args:
-            DryRun: Checks whether you have the required permissions for the action,
+            DryRun: Checks whether you have the required permissions for the operation,
                 without actually making the request, and provides an error response. If you
                 have the required permissions, the error response is ``DryRunOperation``.
                 Otherwise, it is ``UnauthorizedOperation``.
@@ -4642,7 +4678,7 @@ class Instance(TagsDictMixin, PrimaryBoto3Model):
         Terminate the instance.
 
         Keyword Args:
-            DryRun: Checks whether you have the required permissions for the action,
+            DryRun: Checks whether you have the required permissions for the operation,
                 without actually making the request, and provides an error response. If you
                 have the required permissions, the error response is ``DryRunOperation``.
                 Otherwise, it is ``UnauthorizedOperation``.
@@ -4823,7 +4859,8 @@ class LaunchTemplateEbsBlockDevice(Boto3Model):
     """
     KmsKeyId: Optional[str] = None
     """
-    The ARN of the Key Management Service (KMS) CMK used for encryption.
+    Identifier (key ID, key alias, key ARN, or alias ARN) of the customer
+    managed KMS key to use for EBS encryption.
     """
     SnapshotId: Optional[str] = None
     """
@@ -5279,6 +5316,8 @@ class ElasticGpuSpecificationResponse(Boto3Model):
 
 class LaunchTemplateElasticInferenceAcceleratorResponse(Boto3Model):
     """
+    Amazon Elastic Inference is no longer available.
+
     Describes an elastic inference accelerator.
     """
 
@@ -6765,6 +6804,42 @@ class ResponseLaunchTemplateData(Boto3Model):
             "g6e.16xlarge",
             "g6e.24xlarge",
             "g6e.48xlarge",
+            "c8g.medium",
+            "c8g.large",
+            "c8g.xlarge",
+            "c8g.2xlarge",
+            "c8g.4xlarge",
+            "c8g.8xlarge",
+            "c8g.12xlarge",
+            "c8g.16xlarge",
+            "c8g.24xlarge",
+            "c8g.48xlarge",
+            "c8g.metal-24xl",
+            "c8g.metal-48xl",
+            "m8g.medium",
+            "m8g.large",
+            "m8g.xlarge",
+            "m8g.2xlarge",
+            "m8g.4xlarge",
+            "m8g.8xlarge",
+            "m8g.12xlarge",
+            "m8g.16xlarge",
+            "m8g.24xlarge",
+            "m8g.48xlarge",
+            "m8g.metal-24xl",
+            "m8g.metal-48xl",
+            "x8g.medium",
+            "x8g.large",
+            "x8g.xlarge",
+            "x8g.2xlarge",
+            "x8g.4xlarge",
+            "x8g.8xlarge",
+            "x8g.12xlarge",
+            "x8g.16xlarge",
+            "x8g.24xlarge",
+            "x8g.48xlarge",
+            "x8g.metal-24xl",
+            "x8g.metal-48xl",
         ]
     ] = None
     """
@@ -6814,10 +6889,7 @@ class ResponseLaunchTemplateData(Boto3Model):
         List["LaunchTemplateElasticInferenceAcceleratorResponse"]
     ] = None
     """
-    An elastic inference accelerator to associate with the instance.
-
-    Elastic inference accelerators are a resource you can attach to your Amazon
-    EC2 instances to accelerate your Deep Learning (DL) inference workloads.
+    Amazon Elastic Inference is no longer available.
     """
     SecurityGroupIds: Optional[List[str]] = None
     """
@@ -6991,16 +7063,16 @@ class LaunchTemplateVersion(PrimaryBoto3Model):
 
 
 class DescribeVpcsResult(Boto3Model):
-    Vpcs: Optional[List["Vpc"]] = None
-    """
-    Information about the VPCs.
-    """
     NextToken: Optional[str] = None
     """
     The token to include in another request to get the next page of items.
 
     This
     value is ``null`` when there are no more items to return.
+    """
+    Vpcs: Optional[List["Vpc"]] = None
+    """
+    Information about the VPCs.
     """
 
 
@@ -7022,10 +7094,6 @@ class AttributeBooleanValue(Boto3Model):
 
 
 class DescribeVpcAttributeResult(Boto3Model):
-    VpcId: Optional[str] = None
-    """
-    The ID of the VPC.
-    """
     EnableDnsHostnames: Optional[AttributeBooleanValue] = None
     """
     Indicates whether the instances launched in the VPC get DNS hostnames.
@@ -7046,19 +7114,23 @@ class DescribeVpcAttributeResult(Boto3Model):
     """
     Indicates whether Network Address Usage metrics are enabled for your VPC.
     """
+    VpcId: Optional[str] = None
+    """
+    The ID of the VPC.
+    """
 
 
 class DescribeSubnetsResult(Boto3Model):
-    Subnets: Optional[List["Subnet"]] = None
-    """
-    Information about the subnets.
-    """
     NextToken: Optional[str] = None
     """
     The token to include in another request to get the next page of items.
 
     This
     value is ``null`` when there are no more items to return.
+    """
+    Subnets: Optional[List["Subnet"]] = None
+    """
+    Information about the subnets.
     """
 
 
@@ -7188,16 +7260,16 @@ class CreateSecurityGroupResult(TagsDictMixin, Boto3Model):
 
 
 class DescribeSecurityGroupsResult(Boto3Model):
-    SecurityGroups: Optional[List["SecurityGroup"]] = None
-    """
-    Information about the security groups.
-    """
     NextToken: Optional[str] = None
     """
     The token to include in another request to get the next page of items.
 
     This
     value is ``null`` when there are no more items to return.
+    """
+    SecurityGroups: Optional[List["SecurityGroup"]] = None
+    """
+    Information about the security groups.
     """
 
 
@@ -7361,16 +7433,16 @@ class CreateImageResult(Boto3Model):
 
 
 class DescribeImagesResult(Boto3Model):
-    Images: Optional[List["AMI"]] = None
-    """
-    Information about the images.
-    """
     NextToken: Optional[str] = None
     """
     The token to include in another request to get the next page of items.
 
     This
     value is ``null`` when there are no more items to return.
+    """
+    Images: Optional[List["AMI"]] = None
+    """
+    Information about the images.
     """
 
 
@@ -7387,9 +7459,7 @@ class CopyImageResult(Boto3Model):
 
 class ElasticGpuSpecification(Boto3Model):
     """
-    Amazon Elastic Graphics reached end of life on January 8, 2024. For
-    workloads that require graphics acceleration, we recommend that you use
-    Amazon EC2 G4, G5, or G6 instances.
+    Amazon Elastic Graphics reached end of life on January 8, 2024.
 
     A specification for an Elastic Graphics accelerator.
     """
@@ -7402,6 +7472,8 @@ class ElasticGpuSpecification(Boto3Model):
 
 class ElasticInferenceAccelerator(Boto3Model):
     """
+    Amazon Elastic Inference is no longer available.
+
     Describes an elastic inference accelerator.
     """
 
@@ -7545,18 +7617,194 @@ class RunInstancesMonitoringEnabled(Boto3Model):
     """
 
 
-class IamInstanceProfileSpecification(Boto3Model):
+class CpuOptionsRequest(Boto3Model):
     """
-    The name or Amazon Resource Name (ARN) of an IAM instance profile.
+    The CPU options for the instance.
+
+    For more information, see
+    `Optimize CPU options <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/instance-optimize-
+    cpu.html>`_ in the *Amazon EC2 User Guide*.
     """
 
-    Arn: Optional[str] = None
+    CoreCount: Optional[int] = None
     """
-    The Amazon Resource Name (ARN) of the instance profile.
+    The number of CPU cores for the instance.
     """
-    Name: Optional[str] = None
+    ThreadsPerCore: Optional[int] = None
     """
-    The name of the instance profile.
+    The number of threads per CPU core.
+
+    To disable multithreading for the instance,
+    specify a value of ``1``. Otherwise, specify the default value of ``2``.
+    """
+    AmdSevSnp: Optional[Literal["enabled", "disabled"]] = None
+    """
+    Indicates whether to enable the instance for AMD SEV-SNP.
+
+    AMD SEV-SNP is
+    supported with M6a, R6a, and C6a instance types only. For more information, see
+    `AMD SEV-SNP <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/sev-
+    snp.html>`_.
+    """
+
+
+class EC2CapacityReservationTarget(Boto3Model):
+    """
+    Information about the target Capacity Reservation or Capacity Reservation
+    group.
+    """
+
+    CapacityReservationId: Optional[str] = None
+    """
+    The ID of the Capacity Reservation in which to run the instance.
+    """
+    CapacityReservationResourceGroupArn: Optional[str] = None
+    """
+    The ARN of the Capacity Reservation resource group in which to run the
+    instance.
+    """
+
+
+class CapacityReservationSpecification(Boto3Model):
+    """
+    Information about the Capacity Reservation targeting option.
+
+    If you do not
+    specify this parameter, the instance's Capacity Reservation preference defaults
+    to ``open``, which enables it to run in any open Capacity Reservation that has
+    matching attributes (instance type, platform, Availability Zone).
+    """
+
+    CapacityReservationPreference: Optional[Literal["open", "none"]] = None
+    """
+    Indicates the instance's Capacity Reservation preferences.
+
+    Possible preferences
+    include:
+    """
+    CapacityReservationTarget: Optional[EC2CapacityReservationTarget] = None
+    """
+    Information about the target Capacity Reservation or Capacity Reservation
+    group.
+    """
+
+
+class HibernationOptionsRequest(Boto3Model):
+    """Indicates whether an instance is enabled for hibernation. This parameter is
+    valid only if the instance meets the `hibernation
+    prerequisites <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/hibernating-
+    prerequisites.html>`_. For more information, see `Hibernate your Amazon EC2
+    instance <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/Hibernate.html>`_
+    in the *Amazon EC2 User Guide*.
+
+    You can't enable hibernation and Amazon Web Services Nitro Enclaves on the same
+    instance.
+
+    """
+
+    Configured: Optional[bool] = None
+    """
+    Set to ``true`` to enable your instance for hibernation.
+    """
+
+
+class InstanceMetadataOptionsRequest(Boto3Model):
+    """
+    The metadata options for the instance.
+
+    For more information, see
+    `Instance metadata and user data <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-instance-
+    metadata.html>`_.
+    """
+
+    HttpTokens: Optional[Literal["optional", "required"]] = None
+    """
+    Indicates whether IMDSv2 is required.
+    """
+    HttpPutResponseHopLimit: Optional[int] = None
+    """
+    The maximum number of hops that the metadata token can travel.
+    """
+    HttpEndpoint: Optional[Literal["disabled", "enabled"]] = None
+    """
+    Enables or disables the HTTP metadata endpoint on your instances.
+    """
+    HttpProtocolIpv6: Optional[Literal["disabled", "enabled"]] = None
+    """
+    Enables or disables the IPv6 endpoint for the instance metadata service.
+    """
+    InstanceMetadataTags: Optional[Literal["disabled", "enabled"]] = None
+    """
+    Set to ``enabled`` to allow access to instance tags from the instance
+    metadata.
+
+    Set to ``disabled`` to turn off access to instance tags from the instance
+    metadata. For more information, see `Work with instance tags using the instance
+    metadata <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/Using_Tags.html#w
+    ork-with-tags-in-IMDS>`_.
+    """
+
+
+class EnclaveOptionsRequest(Boto3Model):
+    """Indicates whether the instance is enabled for Amazon Web Services Nitro
+    Enclaves. For more information, see `What is Amazon Web Services Nitro
+    Enclaves? <https://docs.aws.amazon.com/enclaves/latest/user/nitro-enclave.html>`_
+    in the *Amazon Web Services Nitro Enclaves User Guide*.
+
+    You can't enable Amazon Web Services Nitro Enclaves and hibernation on the same
+    instance.
+
+    """
+
+    Enabled: Optional[bool] = None
+    """
+    To enable the instance for Amazon Web Services Nitro Enclaves, set this
+    parameter to ``true``.
+    """
+
+
+class PrivateDnsNameOptionsRequest(Boto3Model):
+    """
+    The options for the instance hostname.
+
+    The default values are inherited from the subnet. Applies only if creating
+    a network interface, not attaching an existing one.
+    """
+
+    HostnameType: Optional[Literal["ip-name", "resource-name"]] = None
+    """
+    The type of hostname for EC2 instances.
+
+    For IPv4 only subnets, an instance DNS name must be based on the instance
+    IPv4 address. For IPv6 only subnets, an instance DNS name must be based on
+    the instance ID. For dual-stack subnets, you can specify whether DNS names
+    use the instance IPv4 address or the instance ID.
+    """
+    EnableResourceNameDnsARecord: Optional[bool] = None
+    """
+    Indicates whether to respond to DNS queries for instance hostnames with DNS
+    A records.
+    """
+    EnableResourceNameDnsAAAARecord: Optional[bool] = None
+    """
+    Indicates whether to respond to DNS queries for instance hostnames with DNS
+    AAAA records.
+    """
+
+
+class InstanceMaintenanceOptionsRequest(Boto3Model):
+    """
+    The maintenance and recovery options for the instance.
+    """
+
+    AutoRecovery: Optional[Literal["disabled", "default"]] = None
+    """
+    Disables the automatic recovery behavior of your instance or sets it to
+    default.
+
+    For more information, see
+    `Simplified automatic recovery <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-instance-
+    recover.html#instance-configuration-recovery>`_.
     """
 
 
@@ -7831,194 +8079,18 @@ class InstanceNetworkInterfaceSpecification(Boto3Model):
     """
 
 
-class CpuOptionsRequest(Boto3Model):
+class IamInstanceProfileSpecification(Boto3Model):
     """
-    The CPU options for the instance.
-
-    For more information, see
-    `Optimize CPU options <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/instance-optimize-
-    cpu.html>`_ in the *Amazon EC2 User Guide*.
+    The name or Amazon Resource Name (ARN) of an IAM instance profile.
     """
 
-    CoreCount: Optional[int] = None
+    Arn: Optional[str] = None
     """
-    The number of CPU cores for the instance.
+    The Amazon Resource Name (ARN) of the instance profile.
     """
-    ThreadsPerCore: Optional[int] = None
+    Name: Optional[str] = None
     """
-    The number of threads per CPU core.
-
-    To disable multithreading for the instance,
-    specify a value of ``1``. Otherwise, specify the default value of ``2``.
-    """
-    AmdSevSnp: Optional[Literal["enabled", "disabled"]] = None
-    """
-    Indicates whether to enable the instance for AMD SEV-SNP.
-
-    AMD SEV-SNP is
-    supported with M6a, R6a, and C6a instance types only. For more information, see
-    `AMD SEV-SNP <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/sev-
-    snp.html>`_.
-    """
-
-
-class EC2CapacityReservationTarget(Boto3Model):
-    """
-    Information about the target Capacity Reservation or Capacity Reservation
-    group.
-    """
-
-    CapacityReservationId: Optional[str] = None
-    """
-    The ID of the Capacity Reservation in which to run the instance.
-    """
-    CapacityReservationResourceGroupArn: Optional[str] = None
-    """
-    The ARN of the Capacity Reservation resource group in which to run the
-    instance.
-    """
-
-
-class CapacityReservationSpecification(Boto3Model):
-    """
-    Information about the Capacity Reservation targeting option.
-
-    If you do not
-    specify this parameter, the instance's Capacity Reservation preference defaults
-    to ``open``, which enables it to run in any open Capacity Reservation that has
-    matching attributes (instance type, platform, Availability Zone).
-    """
-
-    CapacityReservationPreference: Optional[Literal["open", "none"]] = None
-    """
-    Indicates the instance's Capacity Reservation preferences.
-
-    Possible preferences
-    include:
-    """
-    CapacityReservationTarget: Optional[EC2CapacityReservationTarget] = None
-    """
-    Information about the target Capacity Reservation or Capacity Reservation
-    group.
-    """
-
-
-class HibernationOptionsRequest(Boto3Model):
-    """Indicates whether an instance is enabled for hibernation. This parameter is
-    valid only if the instance meets the `hibernation
-    prerequisites <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/hibernating-
-    prerequisites.html>`_. For more information, see `Hibernate your Amazon EC2
-    instance <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/Hibernate.html>`_
-    in the *Amazon EC2 User Guide*.
-
-    You can't enable hibernation and Amazon Web Services Nitro Enclaves on the same
-    instance.
-
-    """
-
-    Configured: Optional[bool] = None
-    """
-    Set to ``true`` to enable your instance for hibernation.
-    """
-
-
-class InstanceMetadataOptionsRequest(Boto3Model):
-    """
-    The metadata options for the instance.
-
-    For more information, see
-    `Instance metadata and user data <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-instance-
-    metadata.html>`_.
-    """
-
-    HttpTokens: Optional[Literal["optional", "required"]] = None
-    """
-    Indicates whether IMDSv2 is required.
-    """
-    HttpPutResponseHopLimit: Optional[int] = None
-    """
-    The maximum number of hops that the metadata token can travel.
-    """
-    HttpEndpoint: Optional[Literal["disabled", "enabled"]] = None
-    """
-    Enables or disables the HTTP metadata endpoint on your instances.
-    """
-    HttpProtocolIpv6: Optional[Literal["disabled", "enabled"]] = None
-    """
-    Enables or disables the IPv6 endpoint for the instance metadata service.
-    """
-    InstanceMetadataTags: Optional[Literal["disabled", "enabled"]] = None
-    """
-    Set to ``enabled`` to allow access to instance tags from the instance
-    metadata.
-
-    Set to ``disabled`` to turn off access to instance tags from the instance
-    metadata. For more information, see `Work with instance tags using the instance
-    metadata <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/Using_Tags.html#w
-    ork-with-tags-in-IMDS>`_.
-    """
-
-
-class EnclaveOptionsRequest(Boto3Model):
-    """Indicates whether the instance is enabled for Amazon Web Services Nitro
-    Enclaves. For more information, see `What is Amazon Web Services Nitro
-    Enclaves? <https://docs.aws.amazon.com/enclaves/latest/user/nitro-enclave.html>`_
-    in the *Amazon Web Services Nitro Enclaves User Guide*.
-
-    You can't enable Amazon Web Services Nitro Enclaves and hibernation on the same
-    instance.
-
-    """
-
-    Enabled: Optional[bool] = None
-    """
-    To enable the instance for Amazon Web Services Nitro Enclaves, set this
-    parameter to ``true``.
-    """
-
-
-class PrivateDnsNameOptionsRequest(Boto3Model):
-    """
-    The options for the instance hostname.
-
-    The default values are inherited from the subnet. Applies only if creating
-    a network interface, not attaching an existing one.
-    """
-
-    HostnameType: Optional[Literal["ip-name", "resource-name"]] = None
-    """
-    The type of hostname for EC2 instances.
-
-    For IPv4 only subnets, an instance DNS name must be based on the instance
-    IPv4 address. For IPv6 only subnets, an instance DNS name must be based on
-    the instance ID. For dual-stack subnets, you can specify whether DNS names
-    use the instance IPv4 address or the instance ID.
-    """
-    EnableResourceNameDnsARecord: Optional[bool] = None
-    """
-    Indicates whether to respond to DNS queries for instance hostnames with DNS
-    A records.
-    """
-    EnableResourceNameDnsAAAARecord: Optional[bool] = None
-    """
-    Indicates whether to respond to DNS queries for instance hostnames with DNS
-    AAAA records.
-    """
-
-
-class InstanceMaintenanceOptionsRequest(Boto3Model):
-    """
-    The maintenance and recovery options for the instance.
-    """
-
-    AutoRecovery: Optional[Literal["disabled", "default"]] = None
-    """
-    Disables the automatic recovery behavior of your instance or sets it to
-    default.
-
-    For more information, see
-    `Simplified automatic recovery <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-instance-
-    recover.html#instance-configuration-recovery>`_.
+    The name of the instance profile.
     """
 
 
@@ -8029,13 +8101,9 @@ class Reservation(Boto3Model):
     the launch request.
     """
 
-    Groups: Optional[List["GroupIdentifier"]] = None
+    ReservationId: Optional[str] = None
     """
-    Not supported.
-    """
-    Instances: Optional[List["Instance"]] = None
-    """
-    The instances.
+    The ID of the reservation.
     """
     OwnerId: Optional[str] = None
     """
@@ -8046,23 +8114,27 @@ class Reservation(Boto3Model):
     The ID of the requester that launched the instances on your behalf (for
     example, Amazon Web Services Management Console or Auto Scaling).
     """
-    ReservationId: Optional[str] = None
+    Groups: Optional[List["GroupIdentifier"]] = None
     """
-    The ID of the reservation.
+    Not supported.
+    """
+    Instances: Optional[List["Instance"]] = None
+    """
+    The instances.
     """
 
 
 class DescribeInstancesResult(Boto3Model):
-    Reservations: Optional[List["Reservation"]] = None
-    """
-    Information about the reservations.
-    """
     NextToken: Optional[str] = None
     """
     The token to include in another request to get the next page of items.
 
     This
     value is ``null`` when there are no more items to return.
+    """
+    Reservations: Optional[List["Reservation"]] = None
+    """
+    Information about the reservations.
     """
 
 
@@ -8071,13 +8143,13 @@ class InstanceStateChange(Boto3Model):
     Describes an instance state change.
     """
 
-    CurrentState: Optional[InstanceState] = None
-    """
-    The current state of the instance.
-    """
     InstanceId: Optional[str] = None
     """
     The ID of the instance.
+    """
+    CurrentState: Optional[InstanceState] = None
+    """
+    The current state of the instance.
     """
     PreviousState: Optional[InstanceState] = None
     """
@@ -8151,8 +8223,8 @@ class LaunchTemplateEbsBlockDeviceRequest(Boto3Model):
     """
     KmsKeyId: Optional[str] = None
     """
-    The ARN of the symmetric Key Management Service (KMS) CMK used for
-    encryption.
+    Identifier (key ID, key alias, key ARN, or alias ARN) of the customer
+    managed KMS key to use for EBS encryption.
     """
     SnapshotId: Optional[str] = None
     """
@@ -8545,6 +8617,8 @@ class LaunchTemplateTagSpecificationRequest(TagsDictMixin, Boto3Model):
 
 class LaunchTemplateElasticInferenceAccelerator(Boto3Model):
     """
+    Amazon Elastic Inference is no longer available.
+
     Describes an elastic inference accelerator.
     """
 
@@ -8986,11 +9060,10 @@ class InstanceRequirementsRequest(Boto3Model):
     ec2-instance.html>`_ Amazon Web Services CloudFormation resource, you can't
     specify ``InstanceRequirements``.
 
-    For more information, see `Attribute-based instance type selection for EC2
+    For more information, see `Specify attributes for instance type selection for
+    EC2 Fleet or Spot
     Fleet <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-fleet-attribute-
-    based-instance-type-selection.html>`_, `Attribute-based instance type selection
-    for Spot Fleet <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/spot-fleet-
-    attribute-based-instance-type-selection.html>`_, and `Spot placement
+    based-instance-type-selection.html>`_ and `Spot placement
     score <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/spot-placement-
     score.html>`_ in the *Amazon EC2 User Guide*.
     """
@@ -10088,6 +10161,42 @@ class RequestLaunchTemplateData(Boto3Model):
             "g6e.16xlarge",
             "g6e.24xlarge",
             "g6e.48xlarge",
+            "c8g.medium",
+            "c8g.large",
+            "c8g.xlarge",
+            "c8g.2xlarge",
+            "c8g.4xlarge",
+            "c8g.8xlarge",
+            "c8g.12xlarge",
+            "c8g.16xlarge",
+            "c8g.24xlarge",
+            "c8g.48xlarge",
+            "c8g.metal-24xl",
+            "c8g.metal-48xl",
+            "m8g.medium",
+            "m8g.large",
+            "m8g.xlarge",
+            "m8g.2xlarge",
+            "m8g.4xlarge",
+            "m8g.8xlarge",
+            "m8g.12xlarge",
+            "m8g.16xlarge",
+            "m8g.24xlarge",
+            "m8g.48xlarge",
+            "m8g.metal-24xl",
+            "m8g.metal-48xl",
+            "x8g.medium",
+            "x8g.large",
+            "x8g.xlarge",
+            "x8g.2xlarge",
+            "x8g.4xlarge",
+            "x8g.8xlarge",
+            "x8g.12xlarge",
+            "x8g.16xlarge",
+            "x8g.24xlarge",
+            "x8g.48xlarge",
+            "x8g.metal-24xl",
+            "x8g.metal-48xl",
         ]
     ] = None
     """
@@ -10159,10 +10268,7 @@ class RequestLaunchTemplateData(Boto3Model):
         List["LaunchTemplateElasticInferenceAccelerator"]
     ] = None
     """
-    An elastic inference accelerator to associate with the instance.
-
-    Elastic inference accelerators are a resource you can attach to your Amazon
-    EC2 instances to accelerate your Deep Learning (DL) inference workloads.
+    Amazon Elastic Inference is no longer available.
     """
     SecurityGroupIds: Optional[List[str]] = None
     """

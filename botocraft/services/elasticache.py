@@ -9,27 +9,16 @@ from typing import Any, ClassVar, Dict, List, Literal, Optional, Type, cast
 
 from pydantic import Field
 
-from botocraft.mixins.elasticache import (
-    CacheClusterModelMixin,
-    ReplicationGroupModelMixin,
-)
+from botocraft.mixins.elasticache import (CacheClusterModelMixin,
+                                          ReplicationGroupModelMixin)
 from botocraft.mixins.tags import TagsDictMixin
 from botocraft.services.common import Tag
-from botocraft.services.ec2 import (
-    SecurityGroup,
-    SecurityGroupManager,
-    Subnet,
-    SubnetManager,
-)
+from botocraft.services.ec2 import (SecurityGroup, SecurityGroupManager,
+                                    Subnet, SubnetManager)
 
-from .abstract import (
-    Boto3Model,
-    Boto3ModelManager,
-    PrimaryBoto3Model,
-    ReadonlyBoto3Model,
-    ReadonlyBoto3ModelManager,
-    ReadonlyPrimaryBoto3Model,
-)
+from .abstract import (Boto3Model, Boto3ModelManager, PrimaryBoto3Model,
+                       ReadonlyBoto3Model, ReadonlyBoto3ModelManager,
+                       ReadonlyPrimaryBoto3Model)
 
 # ===============
 # Managers
@@ -37,6 +26,7 @@ from .abstract import (
 
 
 class CacheClusterManager(Boto3ModelManager):
+
     service_name: str = "elasticache"
 
     def create(
@@ -261,7 +251,7 @@ class CacheClusterManager(Boto3ModelManager):
         CacheClusterId: str,
         *,
         ShowCacheNodeInfo: bool = True,
-        ShowCacheClustersNotInReplicationGroups: Optional[bool] = None,
+        ShowCacheClustersNotInReplicationGroups: Optional[bool] = None
     ) -> Optional["CacheCluster"]:
         """
         Returns information about all provisioned clusters if no cluster
@@ -305,7 +295,7 @@ class CacheClusterManager(Boto3ModelManager):
         *,
         CacheClusterId: Optional[str] = None,
         ShowCacheNodeInfo: bool = True,
-        ShowCacheClustersNotInReplicationGroups: Optional[bool] = None,
+        ShowCacheClustersNotInReplicationGroups: Optional[bool] = None
     ) -> List["CacheCluster"]:
         """
         Returns information about all provisioned clusters if no cluster
@@ -348,6 +338,7 @@ class CacheClusterManager(Boto3ModelManager):
 
 
 class CacheParameterGroupManager(Boto3ModelManager):
+
     service_name: str = "elasticache"
 
     def create(
@@ -477,7 +468,7 @@ class CacheParameterGroupManager(Boto3ModelManager):
         CacheParameterGroupName: str,
         *,
         ResetAllParameters: Optional[bool] = None,
-        ParameterNameValues: Optional[List["ParameterNameValue"]] = None,
+        ParameterNameValues: Optional[List["ParameterNameValue"]] = None
     ) -> str:
         """
         Modifies the parameters of a cache parameter group to the engine or
@@ -552,6 +543,7 @@ class CacheParameterGroupManager(Boto3ModelManager):
 
 
 class CacheSubnetGroupManager(Boto3ModelManager):
+
     service_name: str = "elasticache"
 
     def create(
@@ -679,6 +671,7 @@ class CacheSubnetGroupManager(Boto3ModelManager):
 
 
 class CacheSecurityGroupManager(Boto3ModelManager):
+
     service_name: str = "elasticache"
 
     def create(
@@ -856,6 +849,7 @@ class CacheSecurityGroupManager(Boto3ModelManager):
 
 
 class ReplicationGroupManager(Boto3ModelManager):
+
     service_name: str = "elasticache"
 
     def create(
@@ -1142,7 +1136,7 @@ class ReplicationGroupManager(Boto3ModelManager):
         ReplicationGroupId: str,
         *,
         RetainPrimaryCluster: Optional[bool] = None,
-        FinalSnapshotIdentifier: str = "None",
+        FinalSnapshotIdentifier: str = "None"
     ) -> "ReplicationGroup":
         """
         Deletes an existing replication group. By default, this operation
@@ -1229,6 +1223,7 @@ class ReplicationGroupManager(Boto3ModelManager):
 
 
 class CacheParameterManager(ReadonlyBoto3ModelManager):
+
     service_name: str = "elasticache"
 
     def get(

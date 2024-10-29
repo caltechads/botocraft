@@ -116,7 +116,7 @@ class KMSKeyManager(Boto3ModelManager):
         return None
 
     @kms_keys_only
-    def list(self, *, Limit: Optional[int] = None) -> List["str"]:
+    def list(self, *, Limit: Optional[int] = None) -> List["KeyListEntry"]:
         """
         Gets a list of all KMS keys in the caller's Amazon Web Services account
         and Region.
@@ -131,7 +131,7 @@ class KMSKeyManager(Boto3ModelManager):
         response_iterator = paginator.paginate(
             **{k: v for k, v in args.items() if v is not None}
         )
-        results: List["str"] = []
+        results: List["KeyListEntry"] = []
         for _response in response_iterator:
             response = ListKeysResponse(**_response)
             if response.Keys:
