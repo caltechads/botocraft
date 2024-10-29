@@ -2164,6 +2164,39 @@ class AnomalyDetectionInfo(Boto3Model):
     """
 
 
+class ElbV2AdministrativeOverride(Boto3Model):
+    """
+    The administrative override information for the target.
+    """
+
+    State: Optional[
+        Literal[
+            "unknown",
+            "no_override",
+            "zonal_shift_active",
+            "zonal_shift_delegated_to_dns",
+        ]
+    ] = None
+    """
+    The state of the override.
+    """
+    Reason: Optional[
+        Literal[
+            "AdministrativeOverride.Unknown",
+            "AdministrativeOverride.NoOverride",
+            "AdministrativeOverride.ZonalShiftActive",
+            "AdministrativeOverride.ZonalShiftDelegatedToDns",
+        ]
+    ] = None
+    """
+    The reason code for the state.
+    """
+    Description: Optional[str] = None
+    """
+    A description of the override state that provides additional details.
+    """
+
+
 class TargetHealthDescription(Boto3Model):
     """
     Information about the health of a target.
@@ -2184,6 +2217,10 @@ class TargetHealthDescription(Boto3Model):
     AnomalyDetection: Optional[AnomalyDetectionInfo] = None
     """
     The anomaly detection result for the target.
+    """
+    AdministrativeOverride: Optional[ElbV2AdministrativeOverride] = None
+    """
+    The administrative override information for the target.
     """
 
 

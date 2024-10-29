@@ -189,3 +189,5 @@ secondary:
     fields:
       Type:
         rename: ActionType
+  AdministrativeOverride:
+    alternate_name: ElbV2AdministrativeOverride
