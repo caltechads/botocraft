@@ -165,7 +165,7 @@ wheels = [
 
 [[package]]
 name = "botocraft"
-version = "0.7.0"
+version = "0.8.0"
 source = { editable = "." }
 dependencies = [
     { name = "autoflake" },
@@ -210,8 +210,8 @@ requires-dist = [
     { name = "autodoc-pydantic", marker = "extra == 'docs'", specifier = ">=2.0.0" },
     { name = "autoflake", specifier = ">=2.3.1" },
     { name = "black", specifier = ">=24.8.0" },
-    { name = "boto3", specifier = ">=1.35.32" },
-    { name = "botocore", specifier = ">=1.35.32" },
+    { name = "boto3", specifier = ">=1.35.50" },
+    { name = "botocore", specifier = ">=1.35.50" },
     { name = "build", marker = "extra == 'build'", specifier = ">=1.2.2" },
     { name = "click", specifier = ">=8.0" },
     { name = "diagrams", marker = "extra == 'docs'", specifier = ">=0.23.3" },
