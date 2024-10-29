@@ -58,6 +58,10 @@ class ListMethodGenerator(ManagerMethodGenerator):
         response_iterator = paginator.paginate(**{{k: v for k, v in args.items() if v is not None}})
         results: {self.return_type} = []
         for _response in response_iterator:
+            if list(_response.keys()) == ['ResponseMetadata']:
+                break
+            if 'ResponseMetadata' in _response:
+                del _response['ResponseMetadata']
             response = {self.response_class}(**_response)
             if response.{self.response_attr}:
                 results.extend(response.{self.response_attr})
