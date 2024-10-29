@@ -190,7 +190,7 @@ class Boto3ModelManager(TransformMixin):
                 else:
                     # This is an iterable
                     if hasattr(response[0], "set_session"):
-                        [obj.set_session(self.session) or obj for obj in response]
+                        [self.sessionize(obj) or obj for obj in response]  # type: ignore[func-returns-value]
 
     def get(self, *args, **kwargs):
         raise NotImplementedError
