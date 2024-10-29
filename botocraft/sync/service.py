@@ -575,9 +575,10 @@ class ModelGenerator(AbstractGenerator):
                 # :py:meth:`fields`.
                 field_shape = field_def.botocore_shape
                 # Whether this field is required
-                required: bool = (
-                    field_name in model_shape.required_members
-                ) or field_def.required
+                if field_def.required is None:
+                    required: bool = field_name in model_shape.required_members
+                else:
+                    required = field_def.required
                 docstring = field_def.docstring
                 # Deterimine the python type for this field
                 if field_shape:
