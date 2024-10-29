@@ -19,8 +19,6 @@ KeyMetadata:
       decorators:
         - name: kms_keys_only
           import_path: botocraft.mixins.kms
-      return_type: >-
-        List["str"]
       response_attr: Keys
     delete:
       boto3_name: schedule_key_deletion

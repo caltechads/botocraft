@@ -20,6 +20,6 @@ def kms_keys_only(func: Callable[..., List[str]]) -> Callable[..., List["KMSKey"
 
     def wrapper(self, *args, **kwargs) -> List["KMSKey"]:
         _ids = func(self, *args, **kwargs)
-        return [self.get(KeyId=_id) for _id in _ids]
+        return [self.get(KeyId=_id.KeyId) for _id in _ids]  # typ: ignore[attr-defined]
 
     return wrapper
