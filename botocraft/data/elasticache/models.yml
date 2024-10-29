@@ -1,0 +1,224 @@
+---
+primary:
+  CacheCluster:
+    primary_key: ARN
+    arn_key: ARN
+    name_key: CacheClusterId
+    input_shapes:
+      - CreateCacheClusterMessage
+      - ModifyCacheClusterMessage
+    mixins:
+      - name: CacheClusterModelMixin
+        import_path: botocraft.mixins.elasticache
+    fields:
+      NumCacheNodes:
+        default: 1
+    relations:
+      parameter_group:
+        primary_model_name: CacheParameterGroup
+        docstring: >-
+          Return the cache parameter group associated with this cluster.
+        transformer:
+          mapping:
+            CacheParameterGroupName: CacheParameterGroup.CacheParameterGroupName
+      subnet_group:
+        primary_model_name: CacheSubnetGroup
+        docstring: >-
+          Return the cache subnet group associated with this cluster.
+        transformer:
+          mapping:
+            CacheSubnetGroupName: CacheSubnetGroupName
+  CacheParameterGroup:
+    primary_key: ARN
+    arn_key: ARN
+    name_key: CacheParameterGroupName
+    input_shapes:
+      - CreateCacheParameterGroupMessage
+      - ModifyCacheParameterGroupMessage
+    fields:
+      IsGlobal:
+        default: false
+    manager_methods:
+      parameters:
+        docstring: >-
+          Return the parameters for the cache parameter group associated with this cluster.
+        manager_method: parameters
+        args:
+          0:
+            name: CacheParameterGroupName
+            value: >-
+              cast(str, self.CacheParameterGroupName)
+        user_keyword_args:
+          - name: Source
+            default: >-
+              "user"
+      reset:
+        docstring: >-
+          Reset the cache parameter group associated with this cluster to the default values.
+        manager_method: reset
+        args:
+          0:
+            name: CacheParameterGroupName
+            value: >-
+              cast(str, self.CacheParameterGroupName)
+        user_keyword_args:
+          - name: ResetAllParameters
+            default: false
+          - name: ParameterNameValues
+            default: >-
+              {}
+  CacheSubnetGroup:
+    primary_key: ARN
+    arn_key: ARN
+    name_key: CacheSubnetGroupName
+    input_shapes:
+      - CreateCacheSubnetGroupMessage
+      - ModifyCacheSubnetGroupMessage
+    relations:
+      ec2_subnets:
+        primary_model_name: Subnet
+        many: true
+        docstring: >-
+          Return the EC2 subnets associated with this cache subnet group.
+        transformer:
+          mapping:
+            SubnetIds: SubnetIds
+  CacheSecurityGroup:
+    primary_key: ARN
+    arn_key: ARN
+    name_key: CacheSecurityGroupName
+    input_shapes:
+      - CreateCacheSecurityGroupMessage
+    relations:
+      ec2_security_groups:
+        primary_model_name: SecurityGroup
+        many: true
+        docstring: >-
+          Return the EC2 security groups associated with this cache security group.
+        transformer:
+          mapping:
+            EC2SecurityGroups: EC2SecurityGroups
+    manager_methods:
+      authorize_ingress:
+        docstring: >-
+          Authorize ingress to the cache security group associated with this cluster.
+        manager_method: authorize_ingress
+        args:
+          0:
+            name: CacheSecurityGroupName
+            value: >-
+              cast(str, self.CacheSecurityGroupName)
+        user_args:
+          1:
+            name: EC2SecurityGroupName
+            attr_type: str
+          2:
+            name: EC2SecurityGroupOwnerId
+            attr_type: str
+      revoke_ingress:
+        docstring: >-
+          Authorize ingress to the cache security group associated with this cluster.
+        manager_method: authorize_ingress
+        args:
+          0:
+            name: CacheSecurityGroupName
+            value: >-
+              cast(str, self.CacheSecurityGroupName)
+        user_args:
+          1:
+            name: EC2SecurityGroupName
+            attr_type: str
+          2:
+            name: EC2SecurityGroupOwnerId
+            attr_type: str
+  ReplicationGroup:
+    primary_key: ARN
+    arn_key: ARN
+    name_key: ReplicationGroupId
+    input_shapes:
+      - CreateReplicationGroupMessage
+      - ModifyReplicationGroupMessage
+    mixins:
+      - name: ReplicationGroupModelMixin
+        import_path: botocraft.mixins.elasticache
+    fields:
+      MultiAZ:
+        default: false
+  Parameter:
+    alternate_name: CacheParameter
+    readonly: true
+    primary_key: ParameterName
+    name_key: ParameterName
+secondary:
+  DestinationDetails:
+    alternate_name: ElastiCacheDestinationDetails
+  PendingModifiedValues:
+    alternate_name: ElastiCachePendingModifiedValues
+  NotificationConfiguration:
+    alternate_name: ElastiCacheNotificationConfiguration
+  Endpoint:
+    alternate_name: ElastiCacheEndpoint
+  GlobalReplicationGroupInfo:
+    alternate_name: ElastiCacheGlobalReplicationGroupInfo
+  SlotMigration:
+    alternate_name: ElastiCacheSlotMigration
+  CreateCacheClusterResult:
+    fields:
+      CacheCluster:
+        rename: ElasticacheCluster
+  DeleteCacheClusterResult:
+    fields:
+      CacheCluster:
+        rename: ElasticacheCluster
+  ModifyCacheClusterResult:
+    fields:
+      CacheCluster:
+        rename: ElasticacheCluster
+  CreateReplicationGroupResult:
+    fields:
+      ReplicationGroup:
+        rename: ElasticacheReplicationGroup
+  ModifyReplicationGroupResult:
+    fields:
+      ReplicationGroup:
+        rename: ElasticacheReplicationGroup
+  DeleteReplicationGroupResult:
+    fields:
+      ReplicationGroup:
+        rename: ElasticacheReplicationGroup
+  CreateCacheSubnetGroupResult:
+    fields:
+      CacheSubnetGroup:
+        rename: ElasticacheSubnetGroup
+  DeleteCacheSubnetGroupResult:
+    fields:
+      CacheSubnetGroup:
+        rename: ElasticacheSubnetGroup
+  ModifyCacheSubnetGroupResult:
+    fields:
+      CacheSubnetGroup:
+        rename: ElasticacheSubnetGroup
+  CreateCacheParameterGroupResult:
+    fields:
+      CacheParameterGroup:
+        rename: ElasticacheParameterGroup
+  DeleteCacheParameterGroupResult:
+    fields:
+      CacheParameterGroup:
+        rename: ElasticacheParameterGroup
+  ModifyCacheParameterGroupResult:
+    fields:
+      CacheParameterGroup:
+        rename: ElasticacheParameterGroup
+  CreateCacheSecurityGroupResult:
+    fields:
+      CacheSecurityGroup:
+        rename: ElasticacheSecurityGroup
+  AuthorizeCacheSecurityGroupIngressResult:
+    fields:
+      CacheSecurityGroup:
+        rename: ElasticacheSecurityGroup
+  RevokeCacheSecurityGroupIngressResult:
+    fields:
+      CacheSecurityGroup:
+        rename: ElasticacheSecurityGroup

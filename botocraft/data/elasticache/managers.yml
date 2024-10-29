@@ -1,0 +1,204 @@
+---
+CacheCluster:
+  methods:
+    create:
+      boto3_name: create_cache_cluster
+      response_attr: ElasticacheCluster
+    update:
+      boto3_name: modify_cache_cluster
+      response_attr: ElasticacheCluster
+    delete:
+      boto3_name: delete_cache_cluster
+      response_attr: ElasticacheCluster
+      args:
+        CacheClusterId:
+          required: true
+        ShowCacheNodeInfo:
+          default: true
+    get:
+      boto3_name: describe_cache_clusters
+      response_attr: CacheClusters
+      args:
+        CacheClusterId:
+          required: true
+        ShowCacheNodeInfo:
+          default: true
+    list:
+      boto3_name: describe_cache_clusters
+      response_attr: CacheClusters
+      args:
+        ShowCacheNodeInfo:
+          default: true
+CacheParameterGroup:
+  methods:
+    create:
+      boto3_name: create_cache_parameter_group
+      response_attr: ElasticacheParameterGroup
+      args:
+        CacheParameterGroupName:
+          required: true
+    update:
+      boto3_name: modify_cache_parameter_group
+      response_attr: CacheParameterGroupName
+      return_type: str
+      args:
+        CacheParameterGroupName:
+          required: true
+        ParameterNameValues:
+          required: true
+    delete:
+      boto3_name: delete_cache_parameter_group
+      return_type: None
+      args:
+        CacheParameterGroupName:
+          required: true
+    get:
+      boto3_name: describe_cache_parameter_groups
+      args:
+        CacheParameterGroupName:
+          required: true
+    list:
+      boto3_name: describe_cache_parameter_groups
+      response_attr: CacheParameterGroups
+    reset:
+      boto3_name: reset_cache_parameter_group
+      response_attr: CacheParameterGroupName
+      return_type: str
+      args:
+        CacheParameterGroupName:
+          required: true
+    parameters:
+      boto3_name: describe_cache_parameters
+      response_attr: Parameters
+      args:
+        CacheParameterGroupName:
+          required: true
+CacheSubnetGroup:
+  methods:
+    create:
+      boto3_name: create_cache_subnet_group
+      response_attr: ElasticacheSubnetGroup
+      args:
+        CacheSubnetGroupName:
+          required: true
+        SubnetIds:
+          required: true
+    update:
+      boto3_name: modify_cache_subnet_group
+      response_attr: ElasticacheSubnetGroup
+    delete:
+      boto3_name: delete_cache_subnet_group
+      response_attr: ElasticacheSubnetGroup
+      args:
+        CacheSubnetGroupName:
+          required: true
+    get:
+      boto3_name: describe_cache_subnet_groups
+      response_attr: CacheSubnetGroups
+      args:
+        CacheSubnetGroupName:
+          required: true
+    list:
+      boto3_name: describe_cache_subnet_groups
+      response_attr: CacheSubnetGroups
+CacheSecurityGroup:
+  methods:
+    create:
+      boto3_name: create_cache_security_group
+      response_attr: ElasticacheSecurityGroup
+      args:
+        Description:
+          required: true
+    delete:
+      boto3_name: delete_cache_security_group
+      return_type: None
+      args:
+        CacheSecurityGroupName:
+          required: true
+    get:
+      boto3_name: describe_cache_security_groups
+      response_attr: CacheSecurityGroups
+      args:
+        CacheSecurityGroupName:
+          required: true
+    list:
+      boto3_name: describe_cache_security_groups
+      response_attr: CacheSecurityGroups
+    authorize_ingress:
+      boto3_name: authorize_cache_security_group_ingress
+      response_attr: ElasticacheSecurityGroup
+      args:
+        CacheSecurityGroupName:
+          required: true
+        EC2SecurityGroupName:
+          required: true
+        EC2SecurityGroupOwnerId:
+          default: >-
+            "None"
+    revoke_ingress:
+      boto3_name: revoke_cache_security_group_ingress
+      response_attr: ElasticacheSecurityGroup
+      args:
+        CacheSecurityGroupName:
+          required: true
+        EC2SecurityGroupName:
+          required: true
+        EC2SecurityGroupOwnerId:
+          default: >-
+            "None"
+ReplicationGroup:
+  methods:
+    create:
+      boto3_name: create_replication_group
+      response_attr: ElasticacheReplicationGroup
+    update:
+      boto3_name: modify_replication_group
+      response_attr: ElasticacheReplicationGroup
+    delete:
+      boto3_name: delete_replication_group
+      response_attr: ElasticacheReplicationGroup
+      args:
+        ReplicationGroupId:
+          required: true
+        RetainPrimaryCluster:
+          default: false
+        FinalSnapshotIdentifier:
+          default: >-
+            "None"
+    get:
+      boto3_name: describe_replication_groups
+      response_attr: ReplicationGroups
+      args:
+        ReplicationGroupId:
+          required: true
+    list:
+      boto3_name: describe_replication_groups
+      response_attr: ReplicationGroups
+      args:
+        ShowCacheNodeInfo:
+          default: true
+Parameter:
+  readonly: true
+  methods:
+    get:
+      boto3_name: describe_cache_parameters
+      response_attr: Parameters
+      return_type: Optional["CacheParameter"]
+      args:
+        CacheParameterGroupName:
+          required: true
+    List:
+      boto3_name: describe_cache_parameters
+      response_attr: Parameters
+      return_type: List["CacheParameter"]
+      args:
+        CacheParameterGroupName:
+          required: true
+
+
+
+
+
+
+
+
