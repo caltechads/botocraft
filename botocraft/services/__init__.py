@@ -6,4 +6,5 @@ from .autoscaling import *  # noqa: F401,F403
 from .elbv2 import *  # noqa: F401,F403
 from .elasticache import *  # noqa: F401,F403
 from .rds import *  # noqa: F401,F403
+from .route53 import *  # noqa: F401,F403
 from .ec2 import *  # noqa: F401,F403

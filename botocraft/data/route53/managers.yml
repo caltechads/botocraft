@@ -1,0 +1,182 @@
+---
+HostedZone:
+  methods:
+    create:
+      boto3_name: create_hosted_zone
+      response_attr: HostedZone
+    delete:
+      boto3_name: delete_hosted_zone
+      response_attr: ChangeInfo
+      args:
+        Id:
+          required: true
+    get:
+      boto3_name: get_hosted_zone
+      response_attr: HostedZone
+      args:
+        Id:
+          required: true
+    list:
+      boto3_name: list_hosted_zones
+      response_attr: HostedZones
+    list_records:
+      boto3_name: list_resource_record_sets
+      response_attr: ResourceRecordSets
+      args:
+        HostedZoneId:
+          required: true
+    list_by_name:
+      boto3_name: list_hosted_zones_by_name
+      response_attr: HostedZones
+    list_by_vpc:
+      boto3_name: list_hosted_zones_by_name
+      response_attr: HostedZones
+      args:
+        VPCId:
+          required: true
+        VPCRegion:
+          required: true
+    update_comment:
+      boto3_name: update_hosted_zone_comment
+      response_attr: HostedZone
+      args:
+        Id:
+          required: true
+        Comment:
+          required: true
+    count:
+      boto3_name: get_hosted_zone_count
+      response_attr: HostedZoneCount
+    limits:
+      boto3_name: get_hosted_zone_limit
+      response_attr: None
+    associate_vpc:
+      boto3_name: associate_vpc_with_hosted_zone
+      response_attr: ChangeInfo
+      args:
+        HostedZoneId:
+          required: true
+        VPC:
+          required: true
+    disassociate_vpc:
+      boto3_name: disassociate_vpc_from_hosted_zone
+      response_attr: ChangeInfo
+      args:
+        HostedZoneId:
+          required: true
+        VPC:
+          required: true
+VPC:
+  methods:
+    associate:
+      boto3_name: associate_vpc_with_hosted_zone
+      response_attr: ChangeInfo
+      args:
+        HostedZoneId:
+          required: true
+        VPC:
+          required: true
+    disassociate:
+      boto3_name: disassociate_vpc_from_hosted_zone
+      response_attr: ChangeInfo
+      args:
+        HostedZoneId:
+          required: true
+        VPC:
+          required: true
+    list_hosted_zones:
+      boto3_name: list_hosted_zones_by_vpc
+      response_attr: HostedZoneSummaries
+      args:
+        VPCId:
+          required: true
+        VPCRegion:
+          required: true
+    list_authorizations:
+      boto3_name: list_vpc_association_authorizations
+      response_attr: VPCs
+      args:
+        HostedZoneId:
+          required: true
+    create_authorization:
+      boto3_name: create_vpc_association_authorization
+      args:
+        HostedZoneId:
+          required: true
+        VPC:
+          required: true
+    delete_authorization:
+      boto3_name: delete_vpc_association_authorization
+      response_attr: None
+      args:
+        HostedZoneId:
+          required: true
+        VPC:
+          required: true
+CidrCollection:
+  methods:
+    create:
+      boto3_name: create_cidr_collection
+      response_attr: None
+      args:
+        Name:
+          required: true
+    delete:
+      boto3_name: delete_cidr_collection
+      args:
+        Id:
+          required: true
+    list:
+      boto3_name: list_cidr_collections
+      response_attr: CidrCollections
+    update:
+      boto3_name: change_cidr_collection
+      response_attr: Id
+      args:
+        Id:
+          required: true
+        Changes:
+          required: true
+CidrBlockSummary:
+  methods:
+    list:
+      boto3_name: list_cidr_blocks
+      response_attr: CidrBlocks
+QueryLoggingConfig:
+  methods:
+    create:
+      boto3_name: create_query_logging_config
+      response_attr: QueryLoggingConfig
+      args:
+        HostedZoneId:
+          required: true
+        CloudWatchLogsLogGroupArn:
+          required: true
+    delete:
+      boto3_name: delete_query_logging_config
+      response_attr: None
+      args:
+        Id:
+          required: true
+    get:
+      boto3_name: get_query_logging_config
+      response_attr: QueryLoggingConfig
+      args:
+        Id:
+          required: true
+    list:
+      boto3_name: list_query_logging_configs
+      response_attr: QueryLoggingConfigs
+ResourceRecordSet:
+  methods:
+    change:
+      boto3_name: change_resource_record_sets
+      response_attr: ChangeInfo
+      args:
+        HostedZoneId:
+          required: true
+        ChangeBatch:
+          required: true
+    list:
+      boto3_name: list_resource_record_sets
+      response_attr: ResourceRecordSets

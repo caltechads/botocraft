@@ -11,4 +11,5 @@
    api/services/elbv2
    api/services/kms
    api/services/rds
+   api/services/route53
    api/services/ssm

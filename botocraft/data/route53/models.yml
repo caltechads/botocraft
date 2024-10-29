@@ -1,0 +1,82 @@
+---
+primary:
+  HostedZone:
+    primary_key: Id
+    name_key: Name
+    input_shapes:
+      - CreateHostedZoneRequest
+    mixins:
+      - name: HostedZoneModelMixin
+        import_path: botocraft.mixins.route53
+    relations:
+      records:
+        primary_model_name: Route53ResourceRecordSet
+        many: true
+        docstring: >-
+          Return the records in the hosted zone.
+        transformer:
+          mapping:
+            HostedZoneId: Id
+    manager_methods:
+      update_comment:
+        docstring: >-
+          Update the comment for the hosted zone.
+        manager_method: update_comment
+        args:
+          0:
+            name: Id
+            value: >-
+              cast(str, self.Id)
+        user_args:
+          1:
+            name: Comment
+            attr_type: str
+  VPC:
+    alternate_name: Route53VPC
+    primary_key: VPCId
+  CidrCollection:
+    alternate_name: Route53CidrCollection
+    primary_key: Id
+    arn_key: Arn
+    name_key: Name
+    input_shapes:
+      - CreateCidrCollectionRequest
+      - ChangeCidrCollectionRequest
+  CidrBlockSummary:
+    alternate_name: CidrBlockSummary
+    primary_key: CidrBlock
+    name_key: CidrBlock
+  QueryLoggingConfig:
+    alternate_name: Route53QueryLoggingConfig
+    primary_key: Id
+    name_key: Id
+    input_shapes:
+      - CreateQueryLoggingConfigRequest
+  ResourceRecordSet:
+    alternate_name: Route53ResourceRecordSet
+    primary_key: Name
+    id_key: SetIdentifier
+    name_key: Name
+    input_shapes:
+      - ChangeResourceRecordSetsRequest
+secondary:
+  LinkedService:
+    alternate_name: Route53LinkedService
+  GeoLocation:
+    alternate_name: Route53GeoLocation
+  AliasTarget:
+    alternate_name: Route53AliasTarget
+  CidrRoutingConfig:
+    alternate_name: Route53CidrRoutingConfig
+  Coordinates:
+    alternate_name: Route53Coordinates
+  GeoProximityLocation:
+    alternate_name: Route53GeoProximityLocation
+  DelegationSet:
+    alternate_name: Route53DelegationSet
+  ListHostedZonesResponse:
+    fields:
+      Marker:
+        required: false
+        default: >-
+          None
