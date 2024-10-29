@@ -129,6 +129,10 @@ class LoadBalancerManager(Boto3ModelManager):
         )
         results: List["LoadBalancer"] = []
         for _response in response_iterator:
+            if list(_response.keys()) == ["ResponseMetadata"]:
+                break
+            if "ResponseMetadata" in _response:
+                del _response["ResponseMetadata"]
             response = DescribeLoadBalancersOutput(**_response)
             if response.LoadBalancers:
                 results.extend(response.LoadBalancers)
@@ -279,6 +283,10 @@ class ListenerManager(Boto3ModelManager):
         )
         results: List["Listener"] = []
         for _response in response_iterator:
+            if list(_response.keys()) == ["ResponseMetadata"]:
+                break
+            if "ResponseMetadata" in _response:
+                del _response["ResponseMetadata"]
             response = DescribeListenersOutput(**_response)
             if response.Listeners:
                 results.extend(response.Listeners)
@@ -393,6 +401,10 @@ class RuleManager(Boto3ModelManager):
         )
         results: List["Rule"] = []
         for _response in response_iterator:
+            if list(_response.keys()) == ["ResponseMetadata"]:
+                break
+            if "ResponseMetadata" in _response:
+                del _response["ResponseMetadata"]
             response = DescribeRulesOutput(**_response)
             if response.Rules:
                 results.extend(response.Rules)
@@ -546,6 +558,10 @@ class TargetGroupManager(Boto3ModelManager):
         )
         results: List["TargetGroup"] = []
         for _response in response_iterator:
+            if list(_response.keys()) == ["ResponseMetadata"]:
+                break
+            if "ResponseMetadata" in _response:
+                del _response["ResponseMetadata"]
             response = DescribeTargetGroupsOutput(**_response)
             if response.TargetGroups:
                 results.extend(response.TargetGroups)
@@ -1202,7 +1218,7 @@ class Action(Boto3Model):
         "authenticate-cognito",
         "redirect",
         "fixed-response",
-    ] = Field(serialization_alias="Type")
+    ] = Field(default=None, serialization_alias="Type")
     """
     The type of action.
     """

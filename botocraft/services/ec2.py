@@ -86,6 +86,10 @@ class VpcManager(ReadonlyBoto3ModelManager):
         )
         results: List["Vpc"] = []
         for _response in response_iterator:
+            if list(_response.keys()) == ["ResponseMetadata"]:
+                break
+            if "ResponseMetadata" in _response:
+                del _response["ResponseMetadata"]
             response = DescribeVpcsResult(**_response)
             if response.Vpcs:
                 results.extend(response.Vpcs)
@@ -229,6 +233,10 @@ class SubnetManager(ReadonlyBoto3ModelManager):
         )
         results: List["Subnet"] = []
         for _response in response_iterator:
+            if list(_response.keys()) == ["ResponseMetadata"]:
+                break
+            if "ResponseMetadata" in _response:
+                del _response["ResponseMetadata"]
             response = DescribeSubnetsResult(**_response)
             if response.Subnets:
                 results.extend(response.Subnets)
@@ -355,6 +363,10 @@ class SecurityGroupManager(EC2TagsManagerMixin, Boto3ModelManager):
         )
         results: List["SecurityGroup"] = []
         for _response in response_iterator:
+            if list(_response.keys()) == ["ResponseMetadata"]:
+                break
+            if "ResponseMetadata" in _response:
+                del _response["ResponseMetadata"]
             response = DescribeSecurityGroupsResult(**_response)
             if response.SecurityGroups:
                 results.extend(response.SecurityGroups)
@@ -560,6 +572,10 @@ class NetworkAclManager(EC2TagsManagerMixin, Boto3ModelManager):
         )
         results: List["NetworkAcl"] = []
         for _response in response_iterator:
+            if list(_response.keys()) == ["ResponseMetadata"]:
+                break
+            if "ResponseMetadata" in _response:
+                del _response["ResponseMetadata"]
             response = DescribeNetworkAclsResult(**_response)
             if response.NetworkAcls:
                 results.extend(response.NetworkAcls)
@@ -723,6 +739,10 @@ class AMIManager(EC2TagsManagerMixin, Boto3ModelManager):
         )
         results: List["AMI"] = []
         for _response in response_iterator:
+            if list(_response.keys()) == ["ResponseMetadata"]:
+                break
+            if "ResponseMetadata" in _response:
+                del _response["ResponseMetadata"]
             response = DescribeImagesResult(**_response)
             if response.Images:
                 results.extend(response.Images)
@@ -1042,6 +1062,10 @@ class InstanceManager(EC2TagsManagerMixin, Boto3ModelManager):
         )
         results: List["Reservation"] = []
         for _response in response_iterator:
+            if list(_response.keys()) == ["ResponseMetadata"]:
+                break
+            if "ResponseMetadata" in _response:
+                del _response["ResponseMetadata"]
             response = DescribeInstancesResult(**_response)
             if response.Reservations:
                 results.extend(response.Reservations)
@@ -1329,6 +1353,10 @@ class LaunchTemplateManager(EC2TagsManagerMixin, Boto3ModelManager):
         )
         results: List["LaunchTemplate"] = []
         for _response in response_iterator:
+            if list(_response.keys()) == ["ResponseMetadata"]:
+                break
+            if "ResponseMetadata" in _response:
+                del _response["ResponseMetadata"]
             response = DescribeLaunchTemplatesResult(**_response)
             if response.LaunchTemplates:
                 results.extend(response.LaunchTemplates)
@@ -1522,6 +1550,10 @@ class LaunchTemplateVersionManager(Boto3ModelManager):
         )
         results: List["LaunchTemplateVersion"] = []
         for _response in response_iterator:
+            if list(_response.keys()) == ["ResponseMetadata"]:
+                break
+            if "ResponseMetadata" in _response:
+                del _response["ResponseMetadata"]
             response = DescribeLaunchTemplateVersionsResult(**_response)
             if response.LaunchTemplateVersions:
                 results.extend(response.LaunchTemplateVersions)

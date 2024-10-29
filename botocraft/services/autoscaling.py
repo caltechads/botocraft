@@ -214,6 +214,10 @@ class AutoScalingGroupManager(Boto3ModelManager):
         )
         results: List["AutoScalingGroup"] = []
         for _response in response_iterator:
+            if list(_response.keys()) == ["ResponseMetadata"]:
+                break
+            if "ResponseMetadata" in _response:
+                del _response["ResponseMetadata"]
             response = AutoScalingGroupsType(**_response)
             if response.AutoScalingGroups:
                 results.extend(response.AutoScalingGroups)
@@ -403,6 +407,10 @@ class LaunchConfigurationManager(Boto3ModelManager):
         )
         results: List["LaunchConfiguration"] = []
         for _response in response_iterator:
+            if list(_response.keys()) == ["ResponseMetadata"]:
+                break
+            if "ResponseMetadata" in _response:
+                del _response["ResponseMetadata"]
             response = LaunchConfigurationsType(**_response)
             if response.LaunchConfigurations:
                 results.extend(response.LaunchConfigurations)
@@ -1201,7 +1209,7 @@ class AutoScalingGroup(TagsDictMixin, AutoScalingGroupModelMixin, PrimaryBoto3Mo
     tag_class: ClassVar[Type] = TagDescription
     manager_class: ClassVar[Type[Boto3ModelManager]] = AutoScalingGroupManager
 
-    DefaultCooldown: int
+    DefaultCooldown: Optional[int] = 300
     """
     The duration of the default cooldown period, in seconds.
     """

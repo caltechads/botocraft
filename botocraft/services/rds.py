@@ -434,6 +434,10 @@ class DBInstanceManager(Boto3ModelManager):
         )
         results: List["DBInstance"] = []
         for _response in response_iterator:
+            if list(_response.keys()) == ["ResponseMetadata"]:
+                break
+            if "ResponseMetadata" in _response:
+                del _response["ResponseMetadata"]
             response = DBInstanceMessage(**_response)
             if response.DBInstances:
                 results.extend(response.DBInstances)

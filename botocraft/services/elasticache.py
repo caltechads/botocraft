@@ -328,6 +328,10 @@ class CacheClusterManager(Boto3ModelManager):
         )
         results: List["CacheCluster"] = []
         for _response in response_iterator:
+            if list(_response.keys()) == ["ResponseMetadata"]:
+                break
+            if "ResponseMetadata" in _response:
+                del _response["ResponseMetadata"]
             response = CacheClusterMessage(**_response)
             if response.CacheClusters:
                 results.extend(response.CacheClusters)
@@ -455,6 +459,10 @@ class CacheParameterGroupManager(Boto3ModelManager):
         )
         results: List["CacheParameterGroup"] = []
         for _response in response_iterator:
+            if list(_response.keys()) == ["ResponseMetadata"]:
+                break
+            if "ResponseMetadata" in _response:
+                del _response["ResponseMetadata"]
             response = CacheParameterGroupsMessage(**_response)
             if response.CacheParameterGroups:
                 results.extend(response.CacheParameterGroups)
@@ -661,6 +669,10 @@ class CacheSubnetGroupManager(Boto3ModelManager):
         )
         results: List["CacheSubnetGroup"] = []
         for _response in response_iterator:
+            if list(_response.keys()) == ["ResponseMetadata"]:
+                break
+            if "ResponseMetadata" in _response:
+                del _response["ResponseMetadata"]
             response = CacheSubnetGroupMessage(**_response)
             if response.CacheSubnetGroups:
                 results.extend(response.CacheSubnetGroups)
@@ -763,6 +775,10 @@ class CacheSecurityGroupManager(Boto3ModelManager):
         )
         results: List["CacheSecurityGroup"] = []
         for _response in response_iterator:
+            if list(_response.keys()) == ["ResponseMetadata"]:
+                break
+            if "ResponseMetadata" in _response:
+                del _response["ResponseMetadata"]
             response = CacheSecurityGroupMessage(**_response)
             if response.CacheSecurityGroups:
                 results.extend(response.CacheSecurityGroups)
@@ -1213,6 +1229,10 @@ class ReplicationGroupManager(Boto3ModelManager):
         )
         results: List["ReplicationGroup"] = []
         for _response in response_iterator:
+            if list(_response.keys()) == ["ResponseMetadata"]:
+                break
+            if "ResponseMetadata" in _response:
+                del _response["ResponseMetadata"]
             response = ReplicationGroupMessage(**_response)
             if response.ReplicationGroups:
                 results.extend(response.ReplicationGroups)

@@ -226,6 +226,10 @@ class ParameterManager(Boto3ModelManager):
         )
         results: List["ParameterMetadata"] = []
         for _response in response_iterator:
+            if list(_response.keys()) == ["ResponseMetadata"]:
+                break
+            if "ResponseMetadata" in _response:
+                del _response["ResponseMetadata"]
             response = DescribeParametersResult(**_response)
             if response.Parameters:
                 results.extend(response.Parameters)

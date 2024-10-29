@@ -146,6 +146,10 @@ class RepositoryManager(Boto3ModelManager):
         )
         results: List["Repository"] = []
         for _response in response_iterator:
+            if list(_response.keys()) == ["ResponseMetadata"]:
+                break
+            if "ResponseMetadata" in _response:
+                del _response["ResponseMetadata"]
             response = DescribeRepositoriesResponse(**_response)
             if response.repositories:
                 results.extend(response.repositories)
@@ -374,6 +378,10 @@ class ECRImageManager(Boto3ModelManager):
         )
         results: List["ImageIdentifier"] = []
         for _response in response_iterator:
+            if list(_response.keys()) == ["ResponseMetadata"]:
+                break
+            if "ResponseMetadata" in _response:
+                del _response["ResponseMetadata"]
             response = ListImagesResponse(**_response)
             if response.imageIds:
                 results.extend(response.imageIds)

@@ -133,6 +133,10 @@ class KMSKeyManager(Boto3ModelManager):
         )
         results: List["KeyListEntry"] = []
         for _response in response_iterator:
+            if list(_response.keys()) == ["ResponseMetadata"]:
+                break
+            if "ResponseMetadata" in _response:
+                del _response["ResponseMetadata"]
             response = ListKeysResponse(**_response)
             if response.Keys:
                 results.extend(response.Keys)

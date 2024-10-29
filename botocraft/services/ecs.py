@@ -228,6 +228,10 @@ class ServiceManager(Boto3ModelManager):
         )
         results: List[str] = []
         for _response in response_iterator:
+            if list(_response.keys()) == ["ResponseMetadata"]:
+                break
+            if "ResponseMetadata" in _response:
+                del _response["ResponseMetadata"]
             response = ListServicesResponse(**_response)
             if response.serviceArns:
                 results.extend(response.serviceArns)
@@ -563,6 +567,10 @@ class ClusterManager(Boto3ModelManager):
         )
         results: List[str] = []
         for _response in response_iterator:
+            if list(_response.keys()) == ["ResponseMetadata"]:
+                break
+            if "ResponseMetadata" in _response:
+                del _response["ResponseMetadata"]
             response = ListClustersResponse(**_response)
             if response.clusterArns:
                 results.extend(response.clusterArns)
@@ -784,6 +792,10 @@ class TaskDefinitionManager(Boto3ModelManager):
         )
         results: List[str] = []
         for _response in response_iterator:
+            if list(_response.keys()) == ["ResponseMetadata"]:
+                break
+            if "ResponseMetadata" in _response:
+                del _response["ResponseMetadata"]
             response = ListTaskDefinitionsResponse(**_response)
             if response.taskDefinitionArns:
                 results.extend(response.taskDefinitionArns)
@@ -987,6 +999,10 @@ class ContainerInstanceManager(ReadonlyBoto3ModelManager):
         )
         results: List[str] = []
         for _response in response_iterator:
+            if list(_response.keys()) == ["ResponseMetadata"]:
+                break
+            if "ResponseMetadata" in _response:
+                del _response["ResponseMetadata"]
             response = ListContainerInstancesResponse(**_response)
             if response.containerInstanceArns:
                 results.extend(response.containerInstanceArns)
@@ -1207,6 +1223,10 @@ class TaskManager(Boto3ModelManager):
         )
         results: List[str] = []
         for _response in response_iterator:
+            if list(_response.keys()) == ["ResponseMetadata"]:
+                break
+            if "ResponseMetadata" in _response:
+                del _response["ResponseMetadata"]
             response = ListTasksResponse(**_response)
             if response.taskArns:
                 results.extend(response.taskArns)
