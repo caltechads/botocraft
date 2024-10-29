@@ -201,9 +201,15 @@ class CreateMethodGenerator(ManagerMethodGenerator):
         {self.operation_call}
 """
         if self.return_type != "None":
-            code += f"""
+            if response_attr:
+                code += f"""
         self.sessionize(response.{response_attr})
         return cast({self.return_type}, response.{response_attr})
+"""
+            else:
+                code += f"""
+        self.sessionize(response)
+        return cast({self.return_type}, response)
 """
         return code
 
