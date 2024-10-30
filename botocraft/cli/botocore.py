@@ -3,15 +3,15 @@ from collections import OrderedDict
 from textwrap import (
     indent as add_prefix,
 )
-from textwrap import (
-    wrap,
-)
-from typing import Dict, List, Optional
+from typing import Dict, Final, List, Literal, Optional, cast
 
+import botocore.model
 import botocore.session
 import click
 
 from .cli import cli
+
+IntType = Literal["int", "long", "double", "float", "timestamp", "boolean"]
 
 
 def camel_to_snake(camel_str: str) -> str:
@@ -28,12 +28,273 @@ def camel_to_snake(camel_str: str) -> str:
     return re.sub(r"(?<=[a-z])(?=[A-Z])", "_", camel_str).lower()
 
 
+class ShapePrinter:
+    #: The number of spaces to indent substructures in a shape
+    SHAPE_INDENT: Final[int] = 2
+
+    def render_string(
+        self,
+        shape: botocore.model.StringShape,
+        indent: int = 0,
+        prefix: Optional[str] = None,
+    ) -> List[str]:
+        """
+        Render a string shape as a descriptive string.
+
+        Args:
+            shape: the botocore shape object
+
+        Keyword Args:
+            indent: the number of spaces to indent the output
+            prefix: a prefix to add to the shape name
+
+        """
+        output = []
+        constraints = ""
+        if "min" in shape.metadata and shape.metadata["min"] is not None:
+            constraints += f"minlength: {shape.metadata['min']} "
+        if "max" in shape.metadata and shape.metadata["min"] is not None:
+            constraints += f"maxlength: {shape.metadata['max']} "
+        if "pattern" in shape.metadata and shape.metadata["pattern"] is not None:
+            constraints += f"""pattern: "{shape.metadata['pattern']}" """
+        if prefix is not None:
+            output.append(
+                f"{click.style(prefix, fg='cyan')}: string -> "
+                f"{click.style(shape.name, fg='blue')}"
+            )
+        else:
+            output.append(
+                f"{click.style(shape.name, fg='red')}: string -> {click.style(shape.name, fg='blue')}"  # noqa: E501
+            )
+        if constraints:
+            output.append(f"    Constraints: {click.style(constraints, fg='yellow')}")
+        if shape.enum:
+            values = ", ".join([f'"{v}"' for v in shape.enum])
+            output.append(f"    Enum: {click.style(values, fg='yellow')}")
+        if indent:
+            output = [add_prefix(line, " " * indent) for line in output]
+        # purge empty lines
+        return [line for line in output if line.strip()]
+
+    def render_integer(
+        self,
+        shape: botocore.model.Shape,
+        indent: int = 0,
+        prefix: Optional[str] = None,
+        int_type: IntType = "int",
+    ) -> List[str]:
+        """
+        Render a integer shape as a descriptive string.
+
+        Args:
+            shape: the botocore shape object
+
+        Keyword Args:
+            indent: the number of spaces to indent the output
+            prefix: a prefix to add to the shape name
+            int_type: the type of integer (int or long)
+
+        """
+        output = []
+        constraints = ""
+        if "min" in shape.metadata and shape.metadata["min"] is not None:
+            constraints += f"min: {shape.metadata['min']} "
+        if "max" in shape.metadata and shape.metadata["min"] is not None:
+            constraints += f"max: {shape.metadata['max']} "
+        if prefix is not None:
+            output.append(
+                f"{click.style(prefix, fg='cyan')}: {int_type} -> "
+                f"{click.style(shape.name, fg='blue')}"
+            )
+        else:
+            output.append(
+                f"{click.style(shape.name, fg='red')}: {int_type} -> {click.style(shape.name, fg='blue')}"  # noqa: E501
+            )
+        if constraints:
+            output.append(f"    Constraints: {click.style(constraints, fg='yellow')}")
+        if indent:
+            output = [add_prefix(line, " " * indent) for line in output]
+        # purge empty lines
+        return [line for line in output if line.strip()]
+
+    def render_list(
+        self,
+        shape: botocore.model.ListShape,
+        indent: int = 0,
+        prefix: Optional[str] = None,
+    ) -> List[str]:
+        """
+        Render a list shape as a descriptive string.
+
+        Args:
+            shape: the botocore shape object
+
+        Keyword Args:
+            indent: the number of spaces to indent the output
+            prefix: a prefix to add to the shape name
+
+        """
+        output = []
+        member = shape.member
+        if prefix is not None:
+            output.append(
+                f"{click.style(prefix, fg='cyan')}: list -> "
+                f"{click.style(shape.name, fg='blue')} (List[{member.name}])"
+            )
+        else:
+            output.append(
+                f"{click.style(shape.name, fg='red')}: list -> {click.style(shape.name, fg='blue')} (List[{member.name}])"  # noqa: E501
+            )
+        output.extend(self.render(member, indent=self.SHAPE_INDENT))
+        if indent:
+            output = [add_prefix(line, " " * indent) for line in output]
+        return [line for line in output if line.strip()]
+
+    def render_map(
+        self,
+        shape: botocore.model.MapShape,
+        indent: int = 0,
+        prefix: Optional[str] = None,
+    ) -> List[str]:
+        """
+        Render a map shape as a descriptive string.
+
+        Args:
+            shape: the botocore shape object
+
+        Keyword Args:
+            indent: the number of spaces to indent the output
+            prefix: a prefix to add to the shape name
+
+        """
+        output = []
+        key = shape.key
+        value = shape.value
+        if prefix is not None:
+            output.append(
+                f"{click.style(prefix, fg='cyan')}: map -> "
+                f"{click.style(shape.name, fg='blue')} (Map[{key.name}, {value.name}])"
+            )
+        else:
+            output.append(
+                f"{click.style(shape.name, fg='red')}: map -> {click.style(shape.name, fg='blue')} (Map[{key.name}, {value.name}])"  # noqa: E501
+            )
+        output.extend(self.render(key, indent=self.SHAPE_INDENT, prefix="Key"))
+        output.extend(self.render(value, indent=self.SHAPE_INDENT, prefix="Value"))
+        if indent:
+            output = [add_prefix(line, " " * indent) for line in output]
+        return [line for line in output if line.strip()]
+
+    def render_structure(
+        self,
+        shape: botocore.model.StructureShape,
+        indent: int = 0,
+        prefix: Optional[str] = None,
+    ) -> List[str]:
+        """
+        Render a structure shape as a string.
+
+        Args:
+            shape: the botocore shape object
+
+        Keyword Args:
+            indent: the number of spaces to indent the output
+            prefix: a prefix to add to the shape name
+
+        """
+        output = []
+        if prefix is not None:
+            output.append(
+                f"{click.style(prefix, fg='cyan')}: structure -> "
+                f"{click.style(shape.name, fg='red')}"
+            )
+        else:
+            output.append(f"{click.style(shape.name, fg='red')}: structure")
+        if hasattr(shape, "members") and shape.members:
+            for member_name, member_shape in shape.members.items():
+                required = ""
+                if member_name in shape.required_members:
+                    required = click.style(" [required]", fg="magenta")
+                output.extend(
+                    self.render(
+                        member_shape,
+                        indent=self.SHAPE_INDENT,
+                        prefix=f"{member_name}{required}",
+                    )
+                )
+        else:
+            output.append("    No members")
+        if indent:
+            output = [add_prefix(line, " " * indent) for line in output]
+        return [line for line in output if line.strip()]
+
+    def render(
+        self,
+        shape: botocore.model.Shape,
+        indent: int = 0,
+        prefix: Optional[str] = None,
+    ) -> str:
+        """
+        Render a shape as a string.
+
+        Args:
+            shape: the botocore shape object
+
+        Keyword Args:
+            indent: the number of spaces to indent the output
+            prefix: a prefix to add to the shape name
+
+        """
+        output = []
+        if shape.type_name == "structure":
+            output = self.render_structure(
+                cast(botocore.model.StructureShape, shape),
+                indent=indent,
+                prefix=prefix,
+            )
+        elif shape.type_name == "list":
+            output = self.render_list(
+                cast(botocore.model.ListShape, shape),
+                indent=indent,
+                prefix=prefix,
+            )
+        elif shape.type_name == "map":
+            output = self.render_map(
+                cast(botocore.model.ListShape, shape),
+                indent=indent,
+                prefix=prefix,
+            )
+        elif shape.type_name == "string":
+            output = self.render_string(
+                cast(botocore.model.StringShape, shape),
+                indent=indent,
+                prefix=prefix,
+            )
+        elif shape.type_name in [
+            "integer",
+            "long",
+            "double",
+            "float",
+            "timestamp",
+            "boolean",
+        ]:
+            output = self.render_integer(
+                cast(botocore.model.StringShape, shape),
+                indent=indent,
+                prefix=prefix,
+                int_type=cast(IntType, shape.type_name),
+            )
+        else:
+            msg = f"Shape type {shape.type_name} not implemented"
+            raise NotImplementedError(msg)
+        return output
+
+
 def print_shape(
     service_model: botocore.model.ServiceModel,
     shape_name: str,
     indent: int = 0,
-    label: Optional[str] = None,
-    documentation: bool = False,
+    prefix: Optional[str] = None,
 ) -> None:
     """
     Print the name and members of a shape.
@@ -44,47 +305,17 @@ def print_shape(
 
     Keyword Args:
         indent: the number of spaces to indent the output
-        label: a label to print before the shape name
-        documentation: whether to print the shape documentation
+        prefix: a label to print before the shape name
 
     """
     shape = service_model._shape_resolver.get_shape_by_name(shape_name)  # type: ignore[attr-defined]  # noqa: SLF001
-    output = []
-    if shape.type_name == "structure":
-        if label is not None:
-            output.append(
-                f"{click.style(label, fg='cyan')}: {click.style(shape_name, fg='red')}"
-            )
-        else:
-            output.append(click.style(f"{shape_name}:", fg="red"))
-        if documentation and hasattr(shape, "documentation") and shape.documentation:
-            docs = wrap(shape.documentation)
-            output.append(f"    {click.style(docs, fg='green')}")
-        if hasattr(shape, "members") and shape.members:
-            for member_name, member_shape in shape.members.items():
-                output.append(
-                    f"    {click.style(member_name, fg='cyan')}: {member_shape.type_name} -> "  # noqa: E501
-                    f"{click.style(member_shape.name, fg='blue')}"
-                )
-        else:
-            output.append("    No members")
-    elif shape.type_name == "list":
-        output.append(
-            f"{click.style(shape_name, fg='red')}: List -> {click.style(shape.member.name, fg='blue')}"  # noqa: E501
-        )
-    elif shape.type_name == "string":
-        output.append(
-            f"{click.style(shape_name, fg='red')}: String -> {click.style(shape.name, fg='blue')}"  # noqa: E501
-        )
-        if shape.enum:
-            values = ", ".join(shape.enum)
-            output.append(f"    Enum: {click.style(values, fg='blue')}")
-    # purge empty lines
-    output = [line for line in output if line.strip()]
-    _output = "\n".join(output)
-    if indent:
-        _output = add_prefix(_output, " " * indent)
-    print(_output)
+    renderer = ShapePrinter()
+    output = renderer.render(
+        shape,
+        indent=indent,
+        prefix=prefix,
+    )
+    print("\n".join(output))
 
 
 def print_operation(service_model: botocore.model.ServiceModel, name: str) -> None:
@@ -102,10 +333,10 @@ def print_operation(service_model: botocore.model.ServiceModel, name: str) -> No
     print(f"    boto3 name: {boto3_name}")
     input_shape = operation_model.input_shape
     if input_shape is not None:
-        print_shape(service_model, input_shape.name, indent=4, label="Input")
+        print_shape(service_model, input_shape.name, indent=4, prefix="Input")
     output_shape = operation_model.output_shape
     if output_shape is not None:
-        print_shape(service_model, output_shape.name, indent=4, label="Output")
+        print_shape(service_model, output_shape.name, indent=4, prefix="Output")
 
 
 @cli.group(short_help="Inspect botocore definitions", name="botocore")
@@ -151,7 +382,6 @@ def botocore_list_shapes(service: str, names_only: bool):
 @botocore_group.command("model", short_help="List all available shapes for a service")
 @click.option("--dependencies", is_flag=True, help="List dependencies for the model")
 @click.option("--operations", is_flag=True, help="List operations for the model")
-@click.option("--documentation", is_flag=True, help="Show documentation for the model")
 @click.argument("service")
 @click.argument("model")
 def botocore_list_shape(
@@ -159,13 +389,12 @@ def botocore_list_shape(
     model: str,
     dependencies: bool,
     operations: bool,
-    documentation: bool,
 ):
     session = botocore.session.get_session()
     service_model = session.get_service_model(service)
     if model not in list(service_model.shape_names):
         click.secho(f"Model {model} not found in service {service}", fg="red")
-    print_shape(service_model, model, documentation=documentation)
+    print_shape(service_model, model)
     if operations:
         _operations = [op for op in list(service_model.operation_names) if model in op]
         if _operations:
