@@ -53,7 +53,7 @@ class ShapePrinter:
         constraints = ""
         if "min" in shape.metadata and shape.metadata["min"] is not None:
             constraints += f"minlength: {shape.metadata['min']} "
-        if "max" in shape.metadata and shape.metadata["min"] is not None:
+        if "max" in shape.metadata and shape.metadata["max"] is not None:
             constraints += f"maxlength: {shape.metadata['max']} "
         if "pattern" in shape.metadata and shape.metadata["pattern"] is not None:
             constraints += f"""pattern: "{shape.metadata['pattern']}" """
@@ -99,7 +99,7 @@ class ShapePrinter:
         constraints = ""
         if "min" in shape.metadata and shape.metadata["min"] is not None:
             constraints += f"min: {shape.metadata['min']} "
-        if "max" in shape.metadata and shape.metadata["min"] is not None:
+        if "max" in shape.metadata and shape.metadata["max"] is not None:
             constraints += f"max: {shape.metadata['max']} "
         if prefix is not None:
             output.append(
@@ -214,7 +214,7 @@ class ShapePrinter:
             for member_name, member_shape in shape.members.items():
                 required = ""
                 if member_name in shape.required_members:
-                    required = click.style(" [required]", fg="magenta")
+                    required = click.style(" [required]", fg="red")
                 output.extend(
                     self.render(
                         member_shape,
