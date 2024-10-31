@@ -420,6 +420,10 @@ class ManagerMethodGenerator:
         if self.output_shape is None:
             return "None"
         model_name = self.output_shape.name
+        # See if we have an alternate name for the model
+        response_model_def = self.model_generator.get_model_def(model_name)
+        if response_model_def.alternate_name:
+            model_name = response_model_def.alternate_name
         self.model_generator.generate_model(
             model_name, model_shape=self.operation_model.output_shape
         )
