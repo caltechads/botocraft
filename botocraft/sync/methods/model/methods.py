@@ -54,7 +54,7 @@ class ModelManagerMethodGenerator:
         #: The name of the model we're generating the property for.
         self.model_name = model_name
         #: The definition of the model we're generating the property for.
-        self.model_def = self.generator.model_generator.get_model_def(model_name)
+        self.model_def = self.model_generator.get_model_def(model_name)
         #: The name of the method_name we're generating.
         self.method_name = method_name
         #: The definition of the method we're generating.
@@ -62,7 +62,7 @@ class ModelManagerMethodGenerator:
         #: The definition of the manager whose method we're accessing
         self.manager_def = self.generator.service_def.managers[model_name]
 
-        # Validate that the manager method is valid
+        # Validate that the manager method exists on the manager
         if self.method_def.manager_method not in self.manager_def.methods:
             msg = (
                 f"{self.model_name}.{self.method_name}: The manager method "
@@ -71,6 +71,7 @@ class ModelManagerMethodGenerator:
             )
             raise ValueError(msg)
         # Validate that the manager method is not one that we've already implemented
+        # in our base class
         if self.method_def.manager_method in ["create", "update"]:
             msg = (
                 f"{self.model_name}.{self.method_name}: The model method "

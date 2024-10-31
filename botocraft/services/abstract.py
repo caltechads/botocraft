@@ -390,7 +390,7 @@ class PrimaryBoto3Model(  # pylint: disable=abstract-method
             The model instance.
 
         """
-        if self.model_config["frozen"]:
+        if self.model_config.get("frozen"):
             self.model_config["frozen"] = False
             self.session = session
             self.model_config["frozen"] = True
