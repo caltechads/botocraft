@@ -14,7 +14,6 @@ from botocraft.mixins.tags import TagsDictMixin
 from botocraft.services.common import Filter, Tag
 from botocraft.services.ec2 import (LaunchTemplateVersion,
                                     LaunchTemplateVersionManager)
-from botocraft.services.elb import TagDescription
 
 from .abstract import (Boto3Model, Boto3ModelManager, PrimaryBoto3Model,
                        ReadonlyBoto3Model, ReadonlyBoto3ModelManager,
@@ -1089,6 +1088,36 @@ One of the following metrics:
     """
 
 
+class AutoScalingTagDescription(Boto3Model):
+    """
+    Describes a tag for an Auto Scaling group.
+    """
+
+    ResourceId: Optional[str] = None
+    """
+    The name of the group.
+    """
+    ResourceType: Optional[str] = None
+    """
+    The type of resource.
+
+    The only supported value is ``auto-scaling-group``.
+    """
+    Key: Optional[str] = None
+    """
+    The tag key.
+    """
+    Value: Optional[str] = None
+    """
+    The tag value.
+    """
+    PropagateAtLaunch: Optional[bool] = None
+    """
+    Determines whether the tag is added to new instances as they are launched
+    in the group.
+    """
+
+
 class AutoScalingInstanceReusePolicy(Boto3Model):
     """
     The instance reuse policy.
@@ -1177,7 +1206,7 @@ class AutoScalingGroup(TagsDictMixin, AutoScalingGroupModelMixin, PrimaryBoto3Mo
     Describes an Auto Scaling group.
     """
 
-    tag_class: ClassVar[Type] = TagDescription
+    tag_class: ClassVar[Type] = AutoScalingTagDescription
     manager_class: ClassVar[Type[Boto3ModelManager]] = AutoScalingGroupManager
 
     DefaultCooldown: Optional[int] = 300
@@ -1273,7 +1302,7 @@ The current state of the group when the `DeleteAutoScalingGroup <https://docs.a
 ws.amazon.com/autoscaling/ec2/APIReference/API_DeleteAutoScalingGroup.html>`_
 operation is in progress.
     """
-    Tags: Optional[List[TagDescription]] = None
+    Tags: Optional[List["AutoScalingTagDescription"]] = None
     """
     The tags for the group.
     """

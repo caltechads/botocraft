@@ -277,3 +277,5 @@ secondary:
     alternate_name: DescribeClassicELBAttributesResponse
   InstanceState:
     alternate_name: ClassicELBInstanceState
+  TagDescription:
+    alternate_name: ClassicELBTagDescription

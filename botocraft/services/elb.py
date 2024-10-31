@@ -114,7 +114,9 @@ class ClassicELBManager(ClassicELBManagerMixin, Boto3ModelManager):
         )
         self.client.add_tags(**{k: v for k, v in args.items() if v is not None})
 
-    def describe_tags(self, LoadBalancerNames: List[str]) -> List["TagDescription"]:
+    def describe_tags(
+        self, LoadBalancerNames: List[str]
+    ) -> List["ClassicELBTagDescription"]:
         """
         Describes the tags associated with the specified load balancers.
 
@@ -127,12 +129,12 @@ class ClassicELBManager(ClassicELBManagerMixin, Boto3ModelManager):
         )
         response = DescribeTagsOutput(**_response)
 
-        results: List["TagDescription"] = None
+        results: List["ClassicELBTagDescription"] = None
         if response is not None:
             results = response.TagDescriptions
 
         self.sessionize(results)
-        return cast(List["TagDescription"], results)
+        return cast(List["ClassicELBTagDescription"], results)
 
     def remove_tags(
         self, LoadBalancerNames: List[str], Tags: List["TagKeyOnly"]
@@ -1323,7 +1325,7 @@ class AddTagsOutput(Boto3Model):
     pass
 
 
-class TagDescription(TagsDictMixin, Boto3Model):
+class ClassicELBTagDescription(TagsDictMixin, Boto3Model):
     """
     The tags associated with a load balancer.
     """
@@ -1344,7 +1346,7 @@ class DescribeTagsOutput(Boto3Model):
     Contains the output for DescribeTags.
     """
 
-    TagDescriptions: Optional[List["TagDescription"]] = None
+    TagDescriptions: Optional[List["ClassicELBTagDescription"]] = None
     """
     Information about the tags.
     """

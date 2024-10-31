@@ -84,3 +84,5 @@ secondary:
     alternate_name: AutoScalingInstanceMaintenancePolicy
   Activity:
     alternate_name: AutoScalingActivity
+  TagDescription:
+    alternate_name: AutoScalingTagDescription
