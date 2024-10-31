@@ -304,7 +304,9 @@ class ECSServiceModelMixin:
             waiter_config["delay"] = delay
         if waiter_config:
             waiter_config["operation"] = "DescribeServices"  # type: ignore[assignment]
-        waiter = self.objects.get_waiter("services_stable", WaiterConfig=waiter_config)  # type: ignore[attr-defined]
+        waiter = self.objects.using(self.session).get_waiter(
+            "services_stable", WaiterConfig=waiter_config
+        )  # type: ignore[attr-defined]
         waiter.wait(cluster=self.clusterArn, services=[self.serviceName])  # type: ignore[attr-defined]
 
     def scale(
@@ -324,12 +326,12 @@ class ECSServiceModelMixin:
             wait: If True, wait for the service to reach the desired count.
 
         """
-        self.objects.partial_update(  # type: ignore[attr-defined]
+        self.objects.using(self.session).partial_update(  # type: ignore[attr-defined]
             self.serviceName,  # type: ignore[attr-defined]
             cluster=self.clusterArn,  # type: ignore[attr-defined]
             desiredCount=desired_count,
         )
-        waiter = self.objects.get_waiter("services_stable")  # type: ignore[attr-defined]
+        waiter = self.objects.using(self.session).get_waiter("services_stable")  # type: ignore[attr-defined]
         if wait:
             waiter.wait(
                 cluster=self.clusterArn,  # type: ignore[attr-defined]
@@ -349,7 +351,9 @@ class ECSServiceModelMixin:
             for arn in tg.LoadBalancerArns:
                 arns.add(arn)
         if arns:
-            return LoadBalancer.objects.list(LoadBalancerArns=list(arns))
+            return LoadBalancer.objects.using(self.session).list(
+                LoadBalancerArns=list(arns)
+            )
         return []
 
 

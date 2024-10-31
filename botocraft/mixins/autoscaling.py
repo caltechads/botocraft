@@ -2,6 +2,7 @@ import time
 from collections import OrderedDict
 from typing import TYPE_CHECKING, ClassVar, List
 
+import boto3
 from botocore.exceptions import WaiterError
 
 if TYPE_CHECKING:
@@ -32,6 +33,7 @@ class AutoScalingGroupModelMixin:
 
     objects: ClassVar["AutoScalingGroupManager"]
 
+    session: boto3.session.Session
     AutoScalingGroupName: str
     MinSize: int
     MaxSize: int
@@ -55,7 +57,7 @@ class AutoScalingGroupModelMixin:
                     {"Name": "instance-state-name", "Values": ["running"]},
                 ]
             )
-            return Instance.objects.list(**pk)
+            return Instance.objects.using(self.session).list(**pk)
         return []
 
     @property
@@ -70,7 +72,9 @@ class AutoScalingGroupModelMixin:
         if len(ec2_instances) == self.DesiredCapacity:  # type: ignore[attr-defined]
             # check if all instances are in service
             instance_ids = [instance.InstanceId for instance in ec2_instances]
-            details = self.objects.instance_status(InstanceIds=instance_ids)
+            details = self.objects.using(self.session).instance_status(
+                InstanceIds=instance_ids
+            )
             if all(detail.HealthStatus == "HEALTHY" for detail in details):
                 return True
         return False
@@ -96,7 +100,9 @@ class AutoScalingGroupModelMixin:
         # There is no waiter for this, so we'll just poll until the desired
         # count is reached, or we reach max_attempts.
         while True:
-            asg = self.objects.get(AutoScalingGroupName=self.AutoScalingGroupName)
+            asg = self.objects.using(self.session).get(
+                AutoScalingGroupName=self.AutoScalingGroupName
+            )
             assert (
                 asg is not None
             ), "AutoScalingGroup.wait_until_stable(): Autoscaling group not found."
@@ -143,7 +149,7 @@ class AutoScalingGroupModelMixin:
                 f"which is {self.MaxSize}."
             )
             raise ValueError(msg)
-        self.objects.scale(self.AutoScalingGroupName, desired_count)
+        self.objects.using(self.session).scale(self.AutoScalingGroupName, desired_count)
         time.sleep(10)
         if wait:
             wait_count: int = 0

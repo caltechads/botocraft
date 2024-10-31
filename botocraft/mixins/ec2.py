@@ -155,16 +155,18 @@ class SecurityGroupModelMixin:
         # TODO: this needs to be enhanced to handle egress rules as well.
         if not self.pk:
             group_id = self.objects.create(self, **kwargs)
-            self.objects.authorize_ingress(group_id, self.IpPermissions, **kwargs)
+            self.objects.using(self.session).authorize_ingress(
+                group_id, self.IpPermissions, **kwargs
+            )
         else:
-            old_obj = self.objects.get(self.pk)
+            old_obj = self.objects.using(self.session).get(self.pk)
             if self.IpPermissions != old_obj.IpPermissions:
                 if old_obj.IpPermissions:
-                    self.objects.revoke_ingress(
+                    self.objects.using(self.session).revoke_ingress(
                         self.pk, old_obj.IpPermissions, **kwargs
                     )
                 if self.IpPermissions:
-                    self.objects.authorize_ingress(
+                    self.objects.using(self.session).authorize_ingress(
                         self.pk, self.IpPermissions, **kwargs
                     )
 

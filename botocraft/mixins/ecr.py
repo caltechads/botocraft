@@ -148,7 +148,9 @@ class RepositoryMixin:
         """
         Get a list of images for a given repository.
         """
-        return self.objects.list_images(repositoryName=self.repositoryName)  # type: ignore[attr-defined]
+        return self.objects.using(self.session).list_images(
+            repositoryName=self.repositoryName
+        )  # type: ignore[attr-defined]
 
     # methods
 
@@ -161,7 +163,7 @@ class RepositoryMixin:
                 reference is ``imageTag=tag`` or ``imageDigest=digest``
 
         """
-        return self.objects.get_image(
+        return self.objects.using(self.session).get_image(
             self.repositoryName,  # type: ignore[attr-defined]
             imageId=imageId,
         )
