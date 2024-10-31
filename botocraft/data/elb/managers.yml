@@ -1,0 +1,166 @@
+---
+LoadBalancerDescription:
+  mixins:
+    - name: ClassicELBManagerMixin
+      import_path: botocraft.mixins.elb
+  methods:
+    delete:
+      boto3_name: delete_load_balancer
+      return_type: None
+    get:
+      boto3_name: describe_load_balancers
+      args:
+        LoadBalancerNames:
+          rename: LoadBalancerName
+          required: true
+          python_type: str
+          source_arg: "[LoadBalancerName]"
+          docstring: >-
+            The name of the classic load balancer.
+    list:
+      boto3_name: describe_load_balancers
+      response_attr: LoadBalancerDescriptions
+    register_instances:
+      boto3_name: register_instances_with_load_balancer
+      response_attr: Instances
+      args:
+        LoadBalancerName:
+          required: true
+        Instances:
+          required: true
+    instance_health:
+      boto3_name: describe_instance_health
+      response_attr: InstanceStates
+      args:
+        LoadBalancerName:
+          required: true
+    deregister_instances:
+      boto3_name: deregister_instances_from_load_balancer
+      response_attr: Instances
+      args:
+        LoadBalancerName:
+          required: true
+        Instances:
+          required: true
+    add_listeners:
+      boto3_name: create_load_balancer_listeners
+      return_type: None
+      args:
+        LoadBalancerName:
+          required: true
+        Listeners:
+          required: true
+    remove_listeners:
+      boto3_name: delete_load_balancer_listeners
+      return_type: None
+      args:
+        LoadBalancerName:
+          required: true
+        LoadBalancerPorts:
+          required: true
+    describe_attributes:
+      boto3_name: describe_load_balancer_attributes
+      response_attr: LoadBalancerAttributes
+      args:
+        LoadBalancerName:
+          required: true
+    modify_attributes:
+      boto3_name: modify_load_balancer_attributes
+      response_attr: LoadBalancerAttributes
+      args:
+        LoadBalancerName:
+          required: true
+        LoadBalancerAttributes:
+          required: true
+    detach_from_subnets:
+      boto3_name: detach_load_balancer_from_subnets
+      response_attr: Subnets
+      args:
+        LoadBalancerName:
+          required: true
+        Subnets:
+          required: true
+    attach_to_subnets:
+      boto3_name: attach_load_balancer_to_subnets
+      response_attr: Subnets
+      args:
+        LoadBalancerName:
+          required: true
+        Subnets:
+          required: true
+    apply_security_groups:
+      boto3_name: apply_security_groups_to_load_balancer
+      response_attr: SecurityGroups
+      args:
+        LoadBalancerName:
+          required: true
+        SecurityGroups:
+          required: true
+    attach_to_subnets:
+      boto3_name: attach_load_balancer_to_subnets
+      response_attr: Subnets
+      args:
+        LoadBalancerName:
+          required: true
+        Subnets:
+          required: true
+    set_ssl_certificate:
+      boto3_name: set_load_balancer_listener_ssl_certificate
+      return_type: None
+      args:
+        LoadBalancerName:
+          required: true
+        LoadBalancerPort:
+          required: true
+        SSLCertificateId:
+          required: true
+    set_listener_policies:
+      boto3_name: set_load_balancer_policies_of_listener
+      return_type: None
+      args:
+        LoadBalancerName:
+          required: true
+        LoadBalancerPort:
+          required: true
+        PolicyNames:
+          required: true
+    set_backend_policies:
+      boto3_name: set_load_balancer_policies_for_backend_server
+      return_type: None
+      args:
+        LoadBalancerName:
+          required: true
+        InstancePort:
+          required: true
+        PolicyNames:
+          required: true
+    add_policy:
+      boto3_name: create_load_balancer_policy
+      return_type: None
+      args:
+        LoadBalancerName:
+          required: true
+        PolicyName:
+          required: true
+        PolicyTypeName:
+          required: true
+    describe_policies:
+      boto3_name: describe_load_balancer_policies
+      response_attr: PolicyDescriptions
+      args:
+        LoadBalancerName:
+          required: true
+    delete_policy:
+      boto3_name: delete_load_balancer_policy
+      return_type: None
+      args:
+        LoadBalancerName:
+          required: true
+        PolicyName:
+          required: true
+    describe_policy_types:
+      boto3_name: describe_load_balancer_policy_types
+      response_attr: PolicyTypeDescriptions
+      args:
+        PolicyTypeNames:
+          required: true

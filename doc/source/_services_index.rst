@@ -8,6 +8,7 @@
    api/services/ecr
    api/services/ecs
    api/services/elasticache
+   api/services/elb
    api/services/elbv2
    api/services/kms
    api/services/rds
