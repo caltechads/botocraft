@@ -27,6 +27,11 @@ primary:
       ListenerDescriptions:
         rename: Listeners
         readonly: true
+    extra_fields:
+      Tags:
+        python_type: Dict[str, str]
+        docstring: >-
+          The tags associated with the load balancer.
     relations:
       vpc:
         primary_model_name: Vpc

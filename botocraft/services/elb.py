@@ -9,7 +9,8 @@ from typing import Any, ClassVar, Dict, List, Literal, Optional, Type, cast
 
 from pydantic import Field
 
-from botocraft.mixins.elb import ClassicELBManagerMixin
+from botocraft.mixins.elb import (ClassicELBManagerMixin, add_tags_for_get,
+                                  add_tags_for_list)
 from botocraft.mixins.tags import TagsDictMixin
 from botocraft.services.ec2 import (Instance, InstanceManager, SecurityGroup,
                                     SecurityGroupManager, Subnet,
@@ -40,6 +41,7 @@ class ClassicELBManager(ClassicELBManagerMixin, Boto3ModelManager):
             **{k: v for k, v in args.items() if v is not None}
         )
 
+    @add_tags_for_get
     def get(self, LoadBalancerName: str) -> Optional["ClassicELB"]:
         """
         Describes the specified the load balancers. If no load balancers are
@@ -61,6 +63,7 @@ class ClassicELBManager(ClassicELBManagerMixin, Boto3ModelManager):
             return response.LoadBalancerDescriptions[0]
         return None
 
+    @add_tags_for_list
     def list(
         self, *, LoadBalancerNames: Optional[List[str]] = None
     ) -> List["ClassicELB"]:
@@ -868,11 +871,12 @@ class ClassicELBLoadBalancerAttributes(Boto3Model):
     """
 
 
-class ClassicELB(PrimaryBoto3Model):
+class ClassicELB(TagsDictMixin, PrimaryBoto3Model):
     """
     Information about a load balancer.
     """
 
+    tag_class: ClassVar[Type] = Dict[str, str]
     manager_class: ClassVar[Type[Boto3ModelManager]] = ClassicELBManager
 
     LoadBalancerName: str
@@ -948,6 +952,10 @@ class ClassicELB(PrimaryBoto3Model):
     The security groups for the load balancer.
 
     Valid only for load balancers in a VPC.
+    """
+    Tags: Optional[Dict[str, str]] = None
+    """
+    The tags associated with the load balancer.
     """
 
     @property

@@ -9,6 +9,9 @@ LoadBalancerDescription:
       return_type: None
     get:
       boto3_name: describe_load_balancers
+      decorators:
+        - name: add_tags_for_get
+          import_path: botocraft.mixins.elb
       args:
         LoadBalancerNames:
           rename: LoadBalancerName
@@ -20,6 +23,9 @@ LoadBalancerDescription:
     list:
       boto3_name: describe_load_balancers
       response_attr: LoadBalancerDescriptions
+      decorators:
+        - name: add_tags_for_list
+          import_path: botocraft.mixins.elb
     register_instances:
       boto3_name: register_instances_with_load_balancer
       response_attr: Instances
