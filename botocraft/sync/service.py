@@ -396,6 +396,8 @@ class ModelGenerator(AbstractGenerator):
         for method_name in model_def.manager_methods:
             if not properties:
                 properties = ""
+            # This acutally needs to be the official name of the model from our
+            # botocraft model definition, not the alternate_name if it has one
             properties += ModelManagerMethodGenerator(
                 self.service_generator, model_def.name, method_name
             ).code
