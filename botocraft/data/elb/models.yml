@@ -27,11 +27,46 @@ primary:
       ListenerDescriptions:
         rename: Listeners
         readonly: true
+      SourceSecurityGroup:
+        readonly: true
     extra_fields:
       Tags:
         python_type: Dict[str, str]
         docstring: >-
           The tags associated with the load balancer.
+      CrossZoneLoadBalancing:
+        docstring: >-
+          Whether cross-zone load balancing is enabled for the load balancer.
+        python_type: bool
+        default: >-
+          False
+      AccessLog:
+        docstring: >-
+          The access log settings for the load balancer.
+        python_type: >-
+          "ClassicELBAccessLog"
+        default: >-
+          None
+      ConnectionDraining:
+        docstring: >-
+          The connection draining settings for the load balancer.
+        python_type: >-
+          "ClassicELBConnectionDraining"
+        default: >-
+          None
+      ConnectionSettings:
+        docstring: >-
+          The connection settings for the load balancer.
+        python_type: >-
+          "ClassicELBConnectionSettings"
+        default: >-
+          None
+      AdditionalAttributes:
+        docstring: >-
+          Additional attributes for the load balancer.
+        python_type: "Dict[str, str]"
+        default: >-
+          None
     relations:
       vpc:
         primary_model_name: Vpc
@@ -67,183 +102,148 @@ primary:
             InstanceIds: >-
               [instance.InstanceId for instance in self.Instances]
     manager_methods:
-        apply_security_groups:
-          docstring: >-
-            Apply security groups to the load balancer.
-          manager_method: apply_security_groups
-          args:
-            0:
-              name: LoadBalancerName
-              value: >-
-                cast(str, self.LoadBalancerName)
-          user_args:
-            1:
-              name: SecurityGroups
-              attr_type: list
-        attach_to_subnets:
-          docstring: >-
-            Attach this Classic Load Balancer to subnets.
-          manager_method: attach_to_subnets
-          args:
-            0:
-              name: LoadBalancerName
-              value: >-
-                cast(str, self.LoadBalancerName)
-          user_args:
-            1:
-              name: Subnets
-              attr_type: list
-        detach_from_subnets:
-          docstring: >-
-            Detach this Classic Load Balancer from subnets.
-          manager_method: detach_from_subnets
-          args:
-            0:
-              name: LoadBalancerName
-              value: >-
-                cast(str, self.LoadBalancerName)
-          user_args:
-            1:
-              name: Subnets
-              attr_type: List[str]
-        set_ssl_certificate:
-          docstring: >-
-            Set the SSL certificate for a listener on the load balancer.
-          manager_method: set_ssl_certificate
-          args:
-            0:
-              name: LoadBalancerName
-              value: >-
-                cast(str, self.LoadBalancerName)
-          user_args:
-            1:
-              name: LoadBalancerPort
-              attr_type: int
-            2:
-              name: SSLCertificateId
-              attr_type: str
-        set_listener_policies:
-          docstring: >-
-            Set the policies for a listener on the load balancer.
-          manager_method: set_listener_policies
-          args:
-            0:
-              name: LoadBalancerName
-              value: >-
-                cast(str, self.LoadBalancerName)
-          user_args:
-            1:
-              name: LoadBalancerPort
-              attr_type: int
-            2:
-              name: PolicyNames
-              attr_type: List[str]
-        set_backend_policies:
-          docstring: >-
-            Set the policies for a backend server on the load balancer.
-          manager_method: set_backend_policies
-          args:
-            0:
-              name: LoadBalancerName
-              value: >-
-                cast(str, self.LoadBalancerName)
-          user_args:
-            1:
-              name: InstancePort
-              attr_type: int
-            2:
-              name: PolicyNames
-              attr_type: List[str]
-        add_policy:
-          docstring: >-
-            Add a policy to the load balancer.
-          manager_method: add_policy
-          args:
-            0:
-              name: LoadBalancerName
-              value: >-
-                cast(str, self.LoadBalancerName)
-          user_args:
-            1:
-              name: PolicyName
-              attr_type: str
-            2:
-              name: PolicyTypeName
-              attr_type: str
-          user_keyword_args:
-            - name: PolicyAttributes
-              attr_type: List["PolicyAttribute"]
-        policies:
-          docstring: >-
-            Return the policies associated with this load balancer.  This is excludes
-            the StickinessPolicy and the LBCookieStickinessPolicy.  You can look directly
-            on this object for those policies.
-          manager_method: describe_policies
-          transformer:
-            mapping:
-              PolicyNames: >-
-                [PolicyName for policy in self.Policies.OtherPolicies]
-        delete_policy:
-          docstring: >-
-            Delete a policy from the load balancer.
-          manager_method: delete_policy
-          args:
-            0:
-              name: LoadBalancerName
-              value: >-
-                cast(str, self.LoadBalancerName)
-          user_args:
-            1:
-              name: PolicyName
-              attr_type: str
-        attributes:
-          docstring: >-
-            Return the attributes for the load balancer.
-          manager_method: describe_attributes
-          args:
-            0:
-              name: LoadBalancerName
-              value: >-
-                cast(str, self.LoadBalancerName)
-        modify_attributes:
-          docstring: >-
-            Modify the attributes for the load balancer.
-          manager_method: modify_attributes
-          args:
-            0:
-              name: LoadBalancerName
-              value: >-
-                cast(str, self.LoadBalancerName)
-          user_args:
-            1:
-              name: LoadBalancerAttributes
-              attr_type: ClassicELBLoadBalancerAttributes
-        add_instances:
-          docstring: >-
-            Add instances to the load balancer.
-          manager_method: register_instances
-          args:
-            0:
-              name: LoadBalancerName
-              value: >-
-                cast(str, self.LoadBalancerName)
-          user_args:
-            1:
-              name: Instances
-              attr_type: List["ClassicELBInstance"]
-        remove_instances:
-          docstring: >-
-            Remove instances from the load balancer.
-          manager_method: deregister_instances
-          args:
-            0:
-              name: LoadBalancerName
-              value: >-
-                cast(str, self.LoadBalancerName)
-          user_args:
-            1:
-              name: Instances
-              attr_type: List["ClassicELBInstance"]
+      add_listeners:
+        docstring: >-
+          Add listeners to the load balancer.
+        manager_method: add_listeners
+        args:
+          0:
+            name: LoadBalancerName
+            value: >-
+              cast(str, self.LoadBalancerName)
+        user_args:
+          1:
+            name: Listeners
+            attr_type: List["ClassicELBListener"]
+      remove_listeners:
+        docstring: >-
+          Remove listeners from the load balancer.
+        manager_method: remove_listeners
+        args:
+          0:
+            name: LoadBalancerName
+            value: >-
+              cast(str, self.LoadBalancerName)
+        user_args:
+          1:
+            name: LoadBalancerPorts
+            attr_type: List[int]
+      set_ssl_certificate:
+        docstring: >-
+          Set the SSL certificate for a listener on the load balancer.
+        manager_method: set_ssl_certificate
+        args:
+          0:
+            name: LoadBalancerName
+            value: >-
+              cast(str, self.LoadBalancerName)
+        user_args:
+          1:
+            name: LoadBalancerPort
+            attr_type: int
+          2:
+            name: SSLCertificateId
+            attr_type: str
+      set_listener_policies:
+        docstring: >-
+          Set the policies for a listener on the load balancer.
+        manager_method: set_listener_policies
+        args:
+          0:
+            name: LoadBalancerName
+            value: >-
+              cast(str, self.LoadBalancerName)
+        user_args:
+          1:
+            name: LoadBalancerPort
+            attr_type: int
+          2:
+            name: PolicyNames
+            attr_type: List[str]
+      set_backend_policies:
+        docstring: >-
+          Set the policies for a backend server on the load balancer.
+        manager_method: set_backend_policies
+        args:
+          0:
+            name: LoadBalancerName
+            value: >-
+              cast(str, self.LoadBalancerName)
+        user_args:
+          1:
+            name: InstancePort
+            attr_type: int
+          2:
+            name: PolicyNames
+            attr_type: List[str]
+      add_policy:
+        docstring: >-
+          Add a policy to the load balancer.
+        manager_method: add_policy
+        args:
+          0:
+            name: LoadBalancerName
+            value: >-
+              cast(str, self.LoadBalancerName)
+        user_args:
+          1:
+            name: PolicyName
+            attr_type: str
+          2:
+            name: PolicyTypeName
+            attr_type: str
+        user_keyword_args:
+          - name: PolicyAttributes
+            attr_type: Optional[List["PolicyAttribute"]]
+      policies:
+        docstring: >-
+          Return the policies associated with this load balancer.  This is excludes
+          the StickinessPolicy and the LBCookieStickinessPolicy.  You can look directly
+          on this object for those policies.
+        manager_method: describe_policies
+        transformer:
+          mapping:
+            PolicyNames: >-
+              [PolicyName for policy in self.Policies.OtherPolicies]
+      delete_policy:
+        docstring: >-
+          Delete a policy from the load balancer.
+        manager_method: delete_policy
+        args:
+          0:
+            name: LoadBalancerName
+            value: >-
+              cast(str, self.LoadBalancerName)
+        user_args:
+          1:
+            name: PolicyName
+            attr_type: str
+      add_instances:
+        docstring: >-
+          Add instances to the load balancer.
+        manager_method: register_instances
+        args:
+          0:
+            name: LoadBalancerName
+            value: >-
+              cast(str, self.LoadBalancerName)
+        user_args:
+          1:
+            name: Instances
+            attr_type: List["ClassicELBInstance"]
+      remove_instances:
+        docstring: >-
+          Remove instances from the load balancer.
+        manager_method: deregister_instances
+        args:
+          0:
+            name: LoadBalancerName
+            value: >-
+              cast(str, self.LoadBalancerName)
+        user_args:
+          1:
+            name: Instances
+            attr_type: List["ClassicELBInstance"]
 secondary:
   Listener:
     alternate_name: ClassicELBListener

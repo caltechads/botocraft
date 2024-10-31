@@ -1,6 +1,6 @@
 # mypy: disable-error-code="attr-defined"
 import warnings
-from typing import TYPE_CHECKING, Callable, Dict, List, Optional
+from typing import TYPE_CHECKING, Callable, Dict, List, Optional, cast
 
 import boto3
 
@@ -13,6 +13,66 @@ if TYPE_CHECKING:
 # ----------
 
 
+def add_attributes_for_get(
+    func: Callable[..., "ClassicELB"],
+) -> Callable[..., "ClassicELB"]:
+    """
+    Wraps :py:meth:`botocraft.services.elb.ClassicELBManager.get` to add the
+    load balancer attributes to the :py:class:`ClassicELB` object.
+    """
+
+    def wrapper(self, *args, **kwargs) -> "ClassicELB":
+        elb = func(self, *args, **kwargs)
+        if elb:
+            attrs = self.describe_attributes(LoadBalancerName=elb.LoadBalancerName)
+            if attrs.CrossZoneLoadBalancing:
+                elb.CrossZoneLoadBalancing = attrs.CrossZoneLoadBalancing.Enabled
+            if attrs.ConnectionDraining:
+                elb.ConnectionDraining = attrs.ConnectionDraining
+            if attrs.AccessLog:
+                elb.AccessLog = attrs.AccessLog
+            if attrs.ConnectionSettings:
+                elb.ConnectionSettings = attrs.ConnectionSettings
+            if attrs.AdditionalAttributes:
+                elb.AdditionalAttributes = {
+                    attr.Key: attr.Value for attr in attrs.AdditionalAttributes
+                }
+        return elb
+
+    return wrapper
+
+
+def add_attributes_for_list(
+    func: Callable[..., List["ClassicELB"]],
+) -> Callable[..., List["ClassicELB"]]:
+    """
+    Wraps :py:meth:`botocraft.services.elb.ClassicELBManager.list` to add the
+    load balancer attributes to the :py:class:`ClassicELB` objects.
+
+    """
+
+    def wrapper(self, *args, **kwargs) -> List["ClassicELB"]:
+        elbs = func(self, *args, **kwargs)
+        if elbs:
+            for elb in elbs:
+                attrs = self.describe_attributes(LoadBalancerName=elb.LoadBalancerName)
+                if attrs.CrossZoneLoadBalancing:
+                    elb.CrossZoneLoadBalancing = attrs.CrossZoneLoadBalancing.Enabled
+                if attrs.ConnectionDraining:
+                    elb.ConnectionDraining = attrs.ConnectionDraining
+                if attrs.AccessLog:
+                    elb.AccessLog = attrs.AccessLog
+                if attrs.ConnectionSettings:
+                    elb.ConnectionSettings = attrs.ConnectionSettings
+                if attrs.AdditionalAttributes:
+                    elb.AdditionalAttributes = {
+                        attr.Key: attr.Value for attr in attrs.AdditionalAttributes
+                    }
+        return elbs
+
+    return wrapper
+
+
 def add_tags_for_get(func: Callable[..., "ClassicELB"]) -> Callable[..., "ClassicELB"]:
     """
     Wraps :py:meth:`botocraft.services.ecs.ServiceManager.list` to return a list of
@@ -23,10 +83,11 @@ def add_tags_for_get(func: Callable[..., "ClassicELB"]) -> Callable[..., "Classi
     def wrapper(self, *args, **kwargs) -> "ClassicELB":
         elb = func(self, *args, **kwargs)
         if elb:
-            tags = self.client.describe_tags(LoadBalancerNames=[elb.LoadBalancerName])[
-                "TagDescriptions"
-            ][0]["Tags"]
-            elb.Tags = {tag["Key"]: tag["Value"] for tag in tags}
+            tags = elb.objects.using(self.session).describe_tags(
+                LoadBalancerNames=[elb.LoadBalancerName]
+            )
+            tags = tags[0].Tags
+            elb.Tags = {tag.Key: tag.Value for tag in tags}
         return elb
 
     return wrapper
@@ -45,13 +106,13 @@ def add_tags_for_list(
         elbs = func(self, *args, **kwargs)
         if elbs:
             elb_names = [elb.LoadBalancerName for elb in elbs]
-            tag_descriptions = self.client.describe_tags(LoadBalancerNames=elb_names)[
-                "TagDescriptions"
-            ]
+            tags = ClassicELB.objects.using(self.session).describe_tags(
+                LoadBalancerNames=[elb_names]
+            )
             for elb in elbs:
-                for tag in tag_descriptions:
+                for tag in tags:
                     if tag["LoadBalancerName"] == elb.LoadBalancerName:
-                        elb.Tags = {tag["Key"]: tag["Value"] for tag in tag["Tags"]}
+                        elb.Tags = {tag.Key: tag.Value for tag in tag.Tags}
         return elbs
 
     return wrapper
@@ -93,9 +154,6 @@ class ClassicELBManagerMixin:
         Args:
             elb: The :py:class:`ClassicELB` object to create
 
-        Keyword Args:
-            Tags: A dictionary of tags to apply to the ELB
-
         Returns:
             The newly created :py:class:`ClassicELB` object
 
@@ -103,6 +161,8 @@ class ClassicELBManagerMixin:
         tags: Optional[List[Dict[str, str]]] = None
         if elb.Tags:
             tags = [{"Key": key, "Value": value} for key, value in elb.Tags.items()]
+        # Since we use .create() directly on the manager, any .using(session) should
+        # have taken place already, so we can just use self.client
         self.client.create_load_balancer(
             LoadBalancerName=elb.LoadBalancerName,
             Listeners=self.serialize(
@@ -116,7 +176,7 @@ class ClassicELBManagerMixin:
         )
 
         if elb.HealthCheck:
-            self.client.configure_health_check(
+            self.configure_health_check(
                 LoadBalancerName=elb.LoadBalancerName,
                 HealthCheck=self.serialize(elb.HealthCheck),
             )
@@ -154,4 +214,317 @@ class ClassicELBManagerMixin:
                         UserWarning,
                         stacklevel=2,
                     )
-        return self.objects.using(self.session).get(elb.LoadBalancerName)
+
+        # Attributes
+        self.update_attributes(elb)
+        return self.get(elb.LoadBalancerName)
+
+    def update_attributes(self, elb: "ClassicELB") -> None:
+        """
+        Update the attributes on an existing :py:class:`ClassicELB` object.
+
+        Args:
+            elb: The existing :py:class:`ClassicELB`
+
+        """
+        from botocraft.services import (
+            AdditionalAttribute,
+            ClassicELBCrossZoneLoadBalancing,
+            LoadBalancerAttributes,
+        )
+
+        additional_attributes = None
+        if elb.AdditionalAttributes:
+            additional_attributes = [
+                AdditionalAttribute(Key=key, Value=value)
+                for key, value in elb.AdditionalAttributes.items()
+            ]
+        attrs = LoadBalancerAttributes(
+            CrossZoneLoadBalancing=ClassicELBCrossZoneLoadBalancing(
+                Enabled=elb.CrossZoneLoadBalancing
+            ),
+            ConnectionDraining=elb.ConnectionDraining,
+            AccessLog=elb.AccessLog,
+            ConnectionSettings=elb.ConnectionSettings,
+            AdditionalAttributes=additional_attributes,
+        )
+        self.modify_attributes(
+            LoadBalancerName=elb.LoadBalancerName,
+            LoadBalancerAttributes=self.serialize(attrs),
+        )
+
+    def update_tags(self, old_elb: "ClassicELB", new_elb: "ClassicELB") -> None:
+        """
+        Update the tags on an existing :py:class:`ClassicELB` object.
+
+        Args:
+            old_elb: The existing :py:class:`ClassicELB
+            new_elb: The new :py:class:`ClassicELB` object
+
+        """
+        manager = self.using(new_elb.session)
+        if old_elb.Tags != new_elb.Tags:
+            if not old_elb.Tags and new_elb.Tags:
+                # Just add all the tags
+                manager.add_tags(
+                    LoadBalancerNames=[new_elb.LoadBalancerName],
+                    Tags=[
+                        {"Key": key, "Value": new_elb.Tags[key]} for key in new_elb.Tags
+                    ],
+                )
+            elif old_elb.Tags and not new_elb.Tags:
+                # Just remove all the tags
+                manager.remove_tags(
+                    LoadBalancerNames=[new_elb.LoadBalancerName],
+                    Tags=[{"Key": key} for key in old_elb.Tags],
+                )
+            else:
+                old_tags = cast(Dict[str, str], old_elb.Tags)
+                new_tags = cast(Dict[str, str], new_elb.Tags)
+                # First get the tags that need to be deleted by finding keys that
+                # are in old_elb.Tags but not in new_elb.Tags
+                keys_to_delete = set(old_tags.keys()) - set(new_tags.keys())
+                if keys_to_delete:
+                    manager.remove_tags(
+                        LoadBalancerNames=[new_elb.LoadBalancerName],
+                        Tags=[{"Key": key} for key in keys_to_delete],
+                    )
+                # Now get the tags that need to be added by finding keys that
+                # are in new_elb.Tags but not in old_elb.Tags
+                keys_to_add = set(new_tags.keys()) - set(old_tags.keys())
+                if keys_to_add:
+                    manager.add_tags(
+                        LoadBalancerNames=[new_elb.LoadBalancerName],
+                        Tags=[
+                            {"Key": key, "Value": new_tags[key]} for key in keys_to_add
+                        ],
+                    )
+                # Now find the tags that need to be updated by finding keys that
+                # are in both new_elb.Tags and old_elb.Tags but have different values
+                keys_to_update = set(new_tags.keys()) & set(old_tags.keys())
+                keys_to_update = {
+                    key for key in keys_to_update if new_tags[key] != old_tags.Tags[key]
+                }
+                if keys_to_update:
+                    # There is no update_tags, so we have to remove and re-add
+                    manager.remove_tags(
+                        LoadBalancerNames=[new_elb.LoadBalancerName],
+                        Tags=[{"Key": key} for key in keys_to_update],
+                    )
+                    manager.add_tags(
+                        LoadBalancerNames=[new_elb.LoadBalancerName],
+                        Tags=[
+                            {"Key": key, "Value": new_tags[key]}
+                            for key in keys_to_update
+                        ],
+                    )
+
+    def update_subnets(self, old_elb: "ClassicELB", new_elb: "ClassicELB") -> None:
+        """
+        Update the subnets on an existing :py:class:`ClassicELB` object.
+
+        Args:
+            old_elb: The existing :py:class:`ClassicELB
+            new_elb: The new :py:class:`ClassicELB` object
+
+        """
+        manager = self.using(old_elb.session)
+        old_subnets = set()
+        if old_elb.Subnets:
+            old_subnets = set(old_elb.Subnets)
+        new_subnets = set()
+        if new_elb.Subnets:
+            new_subnets = set(new_elb.Subnets)
+        subnets_to_add = new_subnets - old_subnets
+        subnets_to_remove = old_subnets - new_subnets
+        if subnets_to_add:
+            manager.attach_to_subnets(
+                LoadBalancerName=new_elb.LoadBalancerName, Subnets=list(subnets_to_add)
+            )
+        if subnets_to_remove:
+            manager.detach_from_subnets(
+                LoadBalancerName=new_elb.LoadBalancerName,
+                Subnets=list(subnets_to_remove),
+            )
+
+    def update_availability_zones(
+        self, old_elb: "ClassicELB", new_elb: "ClassicELB"
+    ) -> None:
+        """
+        Update the availability zones on an existing :py:class:`ClassicELB` object.
+
+        Args:
+            old_elb: The existing :py:class:`ClassicELB
+            new_elb: The new :py:class:`ClassicELB` object
+
+        """
+        manager = self.using(old_elb.session)
+        old_azs = set()
+        if old_elb.AvailabilityZones:
+            old_azs = set(old_elb.AvailabilityZones)
+        new_azs = set()
+        if new_elb.AvailabilityZones:
+            new_azs = set(new_elb.AvailabilityZones)
+        azs_to_add = new_azs - old_azs
+        azs_to_remove = old_azs - new_azs
+        if azs_to_add:
+            manager.enable_availability_zones(
+                LoadBalancerName=new_elb.LoadBalancerName,
+                AvailabilityZones=list(azs_to_add),
+            )
+        if azs_to_remove:
+            manager.disable_availability_zones(
+                LoadBalancerName=new_elb.LoadBalancerName,
+                AvailabilityZones=list(azs_to_remove),
+            )
+
+    def update_health_check(self, old_elb: "ClassicELB", new_elb: "ClassicELB") -> None:
+        """
+        Update the health check on an existing :py:class:`ClassicELB` object.
+
+        Args:
+            old_elb: The existing :py:class:`ClassicELB
+            new_elb: The new :py:class:`ClassicELB` object
+
+        """
+        if old_elb.HealthCheck != new_elb.HealthCheck:
+            if old_elb.HealthCheck and not new_elb.HealthCheck:
+                self.client.configure_health_check(
+                    LoadBalancerName=new_elb.LoadBalancerName, HealthCheck={}
+                )
+            elif (
+                not old_elb.HealthCheck
+                and new_elb.HealthCheck
+                or old_elb.HealthCheck != new_elb.HealthCheck
+            ):
+                self.configure_health_check(
+                    LoadBalancerName=new_elb.LoadBalancerName,
+                    HealthCheck=self.serialize(new_elb.HealthCheck),
+                )
+
+    def warn_about_policy_updates(
+        self, old_elb: "ClassicELB", new_elb: "ClassicELB"
+    ) -> None:
+        """
+        Warn about the fact that:
+
+        * AppCookieStickinessPolicies cannot be updated
+        * LBCookieStickinessPolicies cannot be updated
+        * OtherPolicies must be updated via :py:meth:`ClassicELB.add_policy` or
+          :py:meth:`ClassicELB.delete_policy`.
+
+        Args:
+            old_elb: The existing :py:class:`ClassicELB
+            new_elb: The new :py:class:`ClassicELB` object
+
+        """
+        old_app_has_stickiness = (
+            old_elb.Policies and old_elb.Policies.AppCookieStickinessPolicies
+        )
+        new_app_has_stickiness = (
+            new_elb.Policies and new_elb.Policies.AppCookieStickinessPolicies
+        )
+        if (
+            (old_app_has_stickiness and not new_app_has_stickiness)
+            or (not old_app_has_stickiness and new_app_has_stickiness)
+            or (
+                old_app_has_stickiness
+                and new_app_has_stickiness
+                and old_elb.Policies.AppCookieStickinessPolicies  # type: ignore[union-attr]
+                != new_elb.Policies.AppCookieStickinessPolicies  # type: ignore[union-attr]
+            )
+        ):
+            warnings.warn(
+                f"ClassicELB(LoadBalancerName='{new_elb.LoadBalancerName}'): "
+                "AppCookieStickinessPolicies cannot be updated.  You must delete "
+                "and recreate the ELB.",
+                UserWarning,
+                stacklevel=2,
+            )
+
+        old_lb_has_stickiness = (
+            old_elb.Policies and old_elb.Policies.LBCookieStickinessPolicies
+        )
+        new_lb_has_stickiness = (
+            new_elb.Policies and new_elb.Policies.LBCookieStickinessPolicies
+        )
+        if (
+            (old_lb_has_stickiness and not new_lb_has_stickiness)
+            or (not old_lb_has_stickiness and new_lb_has_stickiness)
+            or (
+                old_lb_has_stickiness
+                and new_lb_has_stickiness
+                and old_elb.Policies.LBCookieStickinessPolicies  # type: ignore[union-attr]
+                != new_elb.Policies.LBCookieStickinessPolicies  # type: ignore[union-attr]
+            )
+        ):
+            warnings.warn(
+                f"ClassicELB(LoadBalancerName='{new_elb.LoadBalancerName}'): "
+                "AppCookieStickinessPolicies cannot be updated.  You must delete "
+                "and recreate the ELB.",
+                UserWarning,
+                stacklevel=2,
+            )
+
+        old_other_policies = old_elb.Policies.OtherPolicies if old_elb.Policies else []
+        new_other_policies = new_elb.Policies.OtherPolicies if new_elb.Policies else []
+        if old_other_policies != new_other_policies:
+            warnings.warn(
+                f"ClassicELB(LoadBalancerName='{new_elb.LoadBalancerName}'): "
+                "To change elb.Policies.OtherPolicies, you must use elb.add_policy() "
+                "or elb.delete_policy().",
+                UserWarning,
+                stacklevel=2,
+            )
+
+    def update(
+        self,
+        elb: "ClassicELB",
+    ) -> "ClassicELB":
+        """
+        Update an existing :py:class:`ClassicELB` object.  The reason we have to
+        do this in a mixin instead of having this as a usual ``.create()``
+        method automatically generated is because Classic ELBs are fragmented
+        across multiple API calls.
+
+        We want to pretend that the Classic ELB is a single object, so we have to
+        deal with the fragmentation here.
+
+        Args:
+            elb: The :py:class:`ClassicELB` object to create
+
+        Returns:
+            The newly created :py:class:`ClassicELB` object
+
+        """
+        # First get what we have in AWS
+        _elb = self.get(elb.LoadBalancerName)
+
+        self.update_tags(_elb, elb)
+        self.update_subnets(_elb, elb)
+        self.update_availability_zones(_elb, elb)
+        self.update_health_check(_elb, elb)
+        self.update_attributes(elb)
+
+        # Deal with security groups
+        if _elb.SecurityGroups != elb.SecurityGroups:
+            security_groups = elb.SecurityGroups if elb.SecurityGroups else []
+            elb.apply_security_groups(security_groups)
+
+        # Scheme
+        if _elb.Scheme != elb.Scheme:
+            warnings.warn(
+                f"ClassicELB(LoadBalancerName='{elb.LoadBalancerName}'): "
+                "The Scheme cannot be updated.  You must delete and recreate the ELB.",
+                UserWarning,
+                stacklevel=2,
+            )
+
+        self.warn_about_policy_updates(_elb, elb)
+
+        # Listeners are frozen, so we don't have to worry about them
+        # Instances are frozen, so we don't have to worry about them
+        # SourceSecurityGroup is frozen, so we don't have to worry about it
+        # VPCId is frozen so we don't have to worry about it
+
+        return self.get(elb.LoadBalancerName)

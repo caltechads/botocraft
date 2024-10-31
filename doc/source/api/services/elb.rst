@@ -44,12 +44,6 @@ structure of the fields in the primary models or other secondary models.
 
 
 
-.. autopydantic_model:: botocraft.services.elb.AdditionalAttribute
-    :show-inheritance:
-    :inherited-members:
-    :exclude-members: update_forward_refs, model_extra, model_fields_set, validate, schema_json, model_rebuild, model_post_init, model_parametrized_name, model_json_schema, copy, from_orm, dict, json, schema, schema_json
-
-
 .. autopydantic_model:: botocraft.services.elb.AppCookieStickinessPolicy
     :show-inheritance:
     :inherited-members:
@@ -57,30 +51,6 @@ structure of the fields in the primary models or other secondary models.
 
 
 .. autopydantic_model:: botocraft.services.elb.BackendServerDescription
-    :show-inheritance:
-    :inherited-members:
-    :exclude-members: update_forward_refs, model_extra, model_fields_set, validate, schema_json, model_rebuild, model_post_init, model_parametrized_name, model_json_schema, copy, from_orm, dict, json, schema, schema_json
-
-
-.. autopydantic_model:: botocraft.services.elb.ClassicELBAccessLog
-    :show-inheritance:
-    :inherited-members:
-    :exclude-members: update_forward_refs, model_extra, model_fields_set, validate, schema_json, model_rebuild, model_post_init, model_parametrized_name, model_json_schema, copy, from_orm, dict, json, schema, schema_json
-
-
-.. autopydantic_model:: botocraft.services.elb.ClassicELBConnectionDraining
-    :show-inheritance:
-    :inherited-members:
-    :exclude-members: update_forward_refs, model_extra, model_fields_set, validate, schema_json, model_rebuild, model_post_init, model_parametrized_name, model_json_schema, copy, from_orm, dict, json, schema, schema_json
-
-
-.. autopydantic_model:: botocraft.services.elb.ClassicELBConnectionSettings
-    :show-inheritance:
-    :inherited-members:
-    :exclude-members: update_forward_refs, model_extra, model_fields_set, validate, schema_json, model_rebuild, model_post_init, model_parametrized_name, model_json_schema, copy, from_orm, dict, json, schema, schema_json
-
-
-.. autopydantic_model:: botocraft.services.elb.ClassicELBCrossZoneLoadBalancing
     :show-inheritance:
     :inherited-members:
     :exclude-members: update_forward_refs, model_extra, model_fields_set, validate, schema_json, model_rebuild, model_post_init, model_parametrized_name, model_json_schema, copy, from_orm, dict, json, schema, schema_json
@@ -99,12 +69,6 @@ structure of the fields in the primary models or other secondary models.
 
 
 .. autopydantic_model:: botocraft.services.elb.ClassicELBListener
-    :show-inheritance:
-    :inherited-members:
-    :exclude-members: update_forward_refs, model_extra, model_fields_set, validate, schema_json, model_rebuild, model_post_init, model_parametrized_name, model_json_schema, copy, from_orm, dict, json, schema, schema_json
-
-
-.. autopydantic_model:: botocraft.services.elb.ClassicELBLoadBalancerAttributes
     :show-inheritance:
     :inherited-members:
     :exclude-members: update_forward_refs, model_extra, model_fields_set, validate, schema_json, model_rebuild, model_post_init, model_parametrized_name, model_json_schema, copy, from_orm, dict, json, schema, schema_json
@@ -156,6 +120,24 @@ because they have some useful additional information.
 
 
 
+.. autopydantic_model:: botocraft.services.elb.AddAvailabilityZonesOutput
+    :show-inheritance:
+    :inherited-members:
+    :exclude-members: update_forward_refs, model_extra, model_fields_set, validate, schema_json, model_rebuild, model_post_init, model_parametrized_name, model_json_schema, copy, from_orm, dict, json, schema, schema_json
+
+
+.. autopydantic_model:: botocraft.services.elb.AddTagsOutput
+    :show-inheritance:
+    :inherited-members:
+    :exclude-members: update_forward_refs, model_extra, model_fields_set, validate, schema_json, model_rebuild, model_post_init, model_parametrized_name, model_json_schema, copy, from_orm, dict, json, schema, schema_json
+
+
+.. autopydantic_model:: botocraft.services.elb.AdditionalAttribute
+    :show-inheritance:
+    :inherited-members:
+    :exclude-members: update_forward_refs, model_extra, model_fields_set, validate, schema_json, model_rebuild, model_post_init, model_parametrized_name, model_json_schema, copy, from_orm, dict, json, schema, schema_json
+
+
 .. autopydantic_model:: botocraft.services.elb.ApplySecurityGroupsToLoadBalancerOutput
     :show-inheritance:
     :inherited-members:
@@ -168,7 +150,43 @@ because they have some useful additional information.
     :exclude-members: update_forward_refs, model_extra, model_fields_set, validate, schema_json, model_rebuild, model_post_init, model_parametrized_name, model_json_schema, copy, from_orm, dict, json, schema, schema_json
 
 
+.. autopydantic_model:: botocraft.services.elb.ClassicELBAccessLog
+    :show-inheritance:
+    :inherited-members:
+    :exclude-members: update_forward_refs, model_extra, model_fields_set, validate, schema_json, model_rebuild, model_post_init, model_parametrized_name, model_json_schema, copy, from_orm, dict, json, schema, schema_json
+
+
+.. autopydantic_model:: botocraft.services.elb.ClassicELBConnectionDraining
+    :show-inheritance:
+    :inherited-members:
+    :exclude-members: update_forward_refs, model_extra, model_fields_set, validate, schema_json, model_rebuild, model_post_init, model_parametrized_name, model_json_schema, copy, from_orm, dict, json, schema, schema_json
+
+
+.. autopydantic_model:: botocraft.services.elb.ClassicELBConnectionSettings
+    :show-inheritance:
+    :inherited-members:
+    :exclude-members: update_forward_refs, model_extra, model_fields_set, validate, schema_json, model_rebuild, model_post_init, model_parametrized_name, model_json_schema, copy, from_orm, dict, json, schema, schema_json
+
+
+.. autopydantic_model:: botocraft.services.elb.ClassicELBCrossZoneLoadBalancing
+    :show-inheritance:
+    :inherited-members:
+    :exclude-members: update_forward_refs, model_extra, model_fields_set, validate, schema_json, model_rebuild, model_post_init, model_parametrized_name, model_json_schema, copy, from_orm, dict, json, schema, schema_json
+
+
 .. autopydantic_model:: botocraft.services.elb.ClassicELBInstanceState
+    :show-inheritance:
+    :inherited-members:
+    :exclude-members: update_forward_refs, model_extra, model_fields_set, validate, schema_json, model_rebuild, model_post_init, model_parametrized_name, model_json_schema, copy, from_orm, dict, json, schema, schema_json
+
+
+.. autopydantic_model:: botocraft.services.elb.ClassicELBLoadBalancerAttributes
+    :show-inheritance:
+    :inherited-members:
+    :exclude-members: update_forward_refs, model_extra, model_fields_set, validate, schema_json, model_rebuild, model_post_init, model_parametrized_name, model_json_schema, copy, from_orm, dict, json, schema, schema_json
+
+
+.. autopydantic_model:: botocraft.services.elb.ConfigureHealthCheckOutput
     :show-inheritance:
     :inherited-members:
     :exclude-members: update_forward_refs, model_extra, model_fields_set, validate, schema_json, model_rebuild, model_post_init, model_parametrized_name, model_json_schema, copy, from_orm, dict, json, schema, schema_json
@@ -240,6 +258,12 @@ because they have some useful additional information.
     :exclude-members: update_forward_refs, model_extra, model_fields_set, validate, schema_json, model_rebuild, model_post_init, model_parametrized_name, model_json_schema, copy, from_orm, dict, json, schema, schema_json
 
 
+.. autopydantic_model:: botocraft.services.elb.DescribeTagsOutput
+    :show-inheritance:
+    :inherited-members:
+    :exclude-members: update_forward_refs, model_extra, model_fields_set, validate, schema_json, model_rebuild, model_post_init, model_parametrized_name, model_json_schema, copy, from_orm, dict, json, schema, schema_json
+
+
 .. autopydantic_model:: botocraft.services.elb.DetachLoadBalancerFromSubnetsOutput
     :show-inheritance:
     :inherited-members:
@@ -282,6 +306,18 @@ because they have some useful additional information.
     :exclude-members: update_forward_refs, model_extra, model_fields_set, validate, schema_json, model_rebuild, model_post_init, model_parametrized_name, model_json_schema, copy, from_orm, dict, json, schema, schema_json
 
 
+.. autopydantic_model:: botocraft.services.elb.RemoveAvailabilityZonesOutput
+    :show-inheritance:
+    :inherited-members:
+    :exclude-members: update_forward_refs, model_extra, model_fields_set, validate, schema_json, model_rebuild, model_post_init, model_parametrized_name, model_json_schema, copy, from_orm, dict, json, schema, schema_json
+
+
+.. autopydantic_model:: botocraft.services.elb.RemoveTagsOutput
+    :show-inheritance:
+    :inherited-members:
+    :exclude-members: update_forward_refs, model_extra, model_fields_set, validate, schema_json, model_rebuild, model_post_init, model_parametrized_name, model_json_schema, copy, from_orm, dict, json, schema, schema_json
+
+
 .. autopydantic_model:: botocraft.services.elb.SetLoadBalancerListenerSSLCertificateOutput
     :show-inheritance:
     :inherited-members:
@@ -295,6 +331,18 @@ because they have some useful additional information.
 
 
 .. autopydantic_model:: botocraft.services.elb.SetLoadBalancerPoliciesOfListenerOutput
+    :show-inheritance:
+    :inherited-members:
+    :exclude-members: update_forward_refs, model_extra, model_fields_set, validate, schema_json, model_rebuild, model_post_init, model_parametrized_name, model_json_schema, copy, from_orm, dict, json, schema, schema_json
+
+
+.. autopydantic_model:: botocraft.services.elb.TagDescription
+    :show-inheritance:
+    :inherited-members:
+    :exclude-members: update_forward_refs, model_extra, model_fields_set, validate, schema_json, model_rebuild, model_post_init, model_parametrized_name, model_json_schema, copy, from_orm, dict, json, schema, schema_json
+
+
+.. autopydantic_model:: botocraft.services.elb.TagKeyOnly
     :show-inheritance:
     :inherited-members:
     :exclude-members: update_forward_refs, model_extra, model_fields_set, validate, schema_json, model_rebuild, model_post_init, model_parametrized_name, model_json_schema, copy, from_orm, dict, json, schema, schema_json

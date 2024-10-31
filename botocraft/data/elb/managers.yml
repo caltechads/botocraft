@@ -10,6 +10,8 @@ LoadBalancerDescription:
     get:
       boto3_name: describe_load_balancers
       decorators:
+        - name: add_attributes_for_get
+          import_path: botocraft.mixins.elb
         - name: add_tags_for_get
           import_path: botocraft.mixins.elb
       args:
@@ -24,8 +26,56 @@ LoadBalancerDescription:
       boto3_name: describe_load_balancers
       response_attr: LoadBalancerDescriptions
       decorators:
+        - name: add_attributes_for_list
+          import_path: botocraft.mixins.elb
         - name: add_tags_for_list
           import_path: botocraft.mixins.elb
+    add_tags:
+      boto3_name: add_tags
+      return_type: None
+      args:
+        LoadBalancerNames:
+          required: true
+        Tags:
+          required: true
+    describe_tags:
+      boto3_name: describe_tags
+      response_attr: TagDescriptions
+      args:
+        LoadBalancerNames:
+          required: true
+    remove_tags:
+      boto3_name: remove_tags
+      return_type: None
+      args:
+        LoadBalancerNames:
+          required: true
+        TagKeys:
+          required: true
+    enable_availability_zones:
+      boto3_name: enable_availability_zones_for_load_balancer
+      response_attr: AvailabilityZones
+      args:
+        LoadBalancerName:
+          required: true
+        AvailabilityZones:
+          required: true
+    disable_availability_zones:
+      boto3_name: disable_availability_zones_for_load_balancer
+      response_attr: AvailabilityZones
+      args:
+        LoadBalancerName:
+          required: true
+        AvailabilityZones:
+          required: true
+    configure_health_check:
+      boto3_name: configure_health_check
+      return_type: None
+      args:
+        LoadBalancerName:
+          required: true
+        HealthCheck:
+          required: true
     register_instances:
       boto3_name: register_instances_with_load_balancer
       response_attr: Instances
