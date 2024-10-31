@@ -18,7 +18,37 @@ represent resources in the AWS service, and are acted on by the managers.
     :exclude-members: update_forward_refs, model_extra, model_fields_set, validate, schema_json, model_rebuild, model_post_init, model_parametrized_name, model_json_schema, copy, from_orm, dict, json, schema, schema_json
 
 
+.. autopydantic_model:: botocraft.services.route53.CidrBlockSummary
+    :show-inheritance:
+    :inherited-members:
+    :exclude-members: update_forward_refs, model_extra, model_fields_set, validate, schema_json, model_rebuild, model_post_init, model_parametrized_name, model_json_schema, copy, from_orm, dict, json, schema, schema_json
+
+
 .. autopydantic_model:: botocraft.services.route53.HostedZone
+    :show-inheritance:
+    :inherited-members:
+    :exclude-members: update_forward_refs, model_extra, model_fields_set, validate, schema_json, model_rebuild, model_post_init, model_parametrized_name, model_json_schema, copy, from_orm, dict, json, schema, schema_json
+
+
+.. autopydantic_model:: botocraft.services.route53.Route53CidrCollection
+    :show-inheritance:
+    :inherited-members:
+    :exclude-members: update_forward_refs, model_extra, model_fields_set, validate, schema_json, model_rebuild, model_post_init, model_parametrized_name, model_json_schema, copy, from_orm, dict, json, schema, schema_json
+
+
+.. autopydantic_model:: botocraft.services.route53.Route53QueryLoggingConfig
+    :show-inheritance:
+    :inherited-members:
+    :exclude-members: update_forward_refs, model_extra, model_fields_set, validate, schema_json, model_rebuild, model_post_init, model_parametrized_name, model_json_schema, copy, from_orm, dict, json, schema, schema_json
+
+
+.. autopydantic_model:: botocraft.services.route53.Route53ResourceRecordSet
+    :show-inheritance:
+    :inherited-members:
+    :exclude-members: update_forward_refs, model_extra, model_fields_set, validate, schema_json, model_rebuild, model_post_init, model_parametrized_name, model_json_schema, copy, from_orm, dict, json, schema, schema_json
+
+
+.. autopydantic_model:: botocraft.services.route53.Route53VPC
     :show-inheritance:
     :inherited-members:
     :exclude-members: update_forward_refs, model_extra, model_fields_set, validate, schema_json, model_rebuild, model_post_init, model_parametrized_name, model_json_schema, copy, from_orm, dict, json, schema, schema_json
@@ -88,12 +118,6 @@ structure of the fields in the primary models or other secondary models.
     :exclude-members: update_forward_refs, model_extra, model_fields_set, validate, schema_json, model_rebuild, model_post_init, model_parametrized_name, model_json_schema, copy, from_orm, dict, json, schema, schema_json
 
 
-.. autopydantic_model:: botocraft.services.route53.Route53CidrCollection
-    :show-inheritance:
-    :inherited-members:
-    :exclude-members: update_forward_refs, model_extra, model_fields_set, validate, schema_json, model_rebuild, model_post_init, model_parametrized_name, model_json_schema, copy, from_orm, dict, json, schema, schema_json
-
-
 .. autopydantic_model:: botocraft.services.route53.Route53CidrRoutingConfig
     :show-inheritance:
     :inherited-members:
@@ -119,24 +143,6 @@ structure of the fields in the primary models or other secondary models.
 
 
 .. autopydantic_model:: botocraft.services.route53.Route53LinkedService
-    :show-inheritance:
-    :inherited-members:
-    :exclude-members: update_forward_refs, model_extra, model_fields_set, validate, schema_json, model_rebuild, model_post_init, model_parametrized_name, model_json_schema, copy, from_orm, dict, json, schema, schema_json
-
-
-.. autopydantic_model:: botocraft.services.route53.Route53QueryLoggingConfig
-    :show-inheritance:
-    :inherited-members:
-    :exclude-members: update_forward_refs, model_extra, model_fields_set, validate, schema_json, model_rebuild, model_post_init, model_parametrized_name, model_json_schema, copy, from_orm, dict, json, schema, schema_json
-
-
-.. autopydantic_model:: botocraft.services.route53.Route53ResourceRecordSet
-    :show-inheritance:
-    :inherited-members:
-    :exclude-members: update_forward_refs, model_extra, model_fields_set, validate, schema_json, model_rebuild, model_post_init, model_parametrized_name, model_json_schema, copy, from_orm, dict, json, schema, schema_json
-
-
-.. autopydantic_model:: botocraft.services.route53.Route53VPC
     :show-inheritance:
     :inherited-members:
     :exclude-members: update_forward_refs, model_extra, model_fields_set, validate, schema_json, model_rebuild, model_post_init, model_parametrized_name, model_json_schema, copy, from_orm, dict, json, schema, schema_json
