@@ -131,7 +131,7 @@ class Boto3ModelManager(TransformMixin):
             return [self.serialize(a) for a in arg]
         return arg
 
-    def sessionize(self, response: Any) -> None:  # noqa: PLR0912
+    def sessionize(self, response: Any) -> None:
         """
         Look through ``response`` for any object with ``set_session`` as
         an attribute and set the session on that object.
@@ -163,33 +163,22 @@ class Boto3ModelManager(TransformMixin):
                 for attr in attrs:
                     _attr = getattr(response, attr)
                     if _attr is not None:
-                        if isinstance(
-                            _attr, (PrimaryBoto3Model, ReadonlyPrimaryBoto3Model)
-                        ):
-                            if hasattr(_attr, "set_session"):
-                                _attr.set_session(self.session)
-                        else:
-                            try:
-                                iter(_attr)
-                            except TypeError:
-                                if hasattr(_attr, "set_session"):
-                                    _attr.set_session(self.session)
-                            else:
-                                if _attr:
-                                    if hasattr(_attr[0], "set_session"):
-                                        for obj in _attr:
-                                            obj.set_session(self.session)  # type: ignore[attr-defined]
+                        self.sessionize(_attr)
             else:
-                # This is NOT a pydantic model, now we test for iterability
+                # This is NOT a pydantic model, now we test for iterability, because
+                # it could be a list of pydantic models.
                 try:
                     iter(response)
                 except TypeError:
-                    # This is not an iterable
-                    if hasattr(response, "set_session"):
-                        response.set_session(self.session)  # type: ignore[attr-defined]
+                    # This is not iterable, so we can't sessionize it.
+                    pass
                 else:
-                    # This is an iterable
-                    if hasattr(response[0], "set_session"):
+                    # Test for a dict
+                    if isinstance(response, dict):
+                        for value in response.values():
+                            self.sessionize(value)
+                    # This is a list or tuple
+                    elif hasattr(response[0], "set_session"):
                         [self.sessionize(obj) or obj for obj in response]  # type: ignore[func-returns-value]
 
     def get(self, *args, **kwargs):
