@@ -7,8 +7,6 @@ from datetime import datetime
 from functools import cached_property
 from typing import Any, ClassVar, Dict, List, Literal, Optional, Type, cast
 
-from pydantic import Field
-
 from botocraft.mixins.ecs import (ECSContainerInstanceModelMixin,
                                   ECSServiceModelMixin, ecs_clusters_only,
                                   ecs_container_instances_only,
@@ -17,8 +15,9 @@ from botocraft.mixins.ecs import (ECSContainerInstanceModelMixin,
                                   ecs_task_populate_taskDefinitions,
                                   ecs_tasks_only)
 from botocraft.mixins.tags import TagsDictMixin
-from botocraft.services.ec2 import Instance, InstanceManager
+from botocraft.services.ec2 import Instance, InstanceManager, NetworkInterface
 from botocraft.services.elbv2 import TargetGroup, TargetGroupManager
+from pydantic import Field
 
 from .abstract import (Boto3Model, Boto3ModelManager, PrimaryBoto3Model,
                        ReadonlyBoto3Model, ReadonlyBoto3ModelManager,
@@ -47,15 +46,12 @@ class ServiceManager(Boto3ModelManager):
             model: The :py:class:``Service`` to create.
 
         Keyword Args:
-            clientToken: An identifier that you provide to ensure the idempotency of
-                the request. It must be unique and is case sensitive. Up to 36 ASCII
-                characters in the range of 33-126 (inclusive) are allowed.
-            serviceConnectConfiguration: The configuration for this service to discover
-                and connect to services, and be discovered by, and connected from, other
-                services within a namespace.
-            volumeConfigurations: The configuration for a volume specified in the task
-                definition as a volume that is configured at launch time. Currently, the
-                only supported volume type is an Amazon EBS volume.
+            clientToken: An identifier that you provide to ensure the idempotency of the request. It must be unique and is case
+                sensitive. Up to 36 ASCII characters in the range of 33-126 (inclusive) are allowed.
+            serviceConnectConfiguration: The configuration for this service to discover and connect to services, and be
+                discovered by, and connected from, other services within a namespace.
+            volumeConfigurations: The configuration for a volume specified in the task definition as a volume that is configured
+                at launch time. Currently, the only supported volume type is an Amazon EBS volume.
         """
         data = model.model_dump(exclude_none=True, by_alias=True)
         args = dict(
@@ -102,12 +98,10 @@ class ServiceManager(Boto3ModelManager):
             service: The name of the service to delete.
 
         Keyword Args:
-            cluster: The short name or full Amazon Resource Name (ARN) of the cluster
-                that hosts the service to delete. If you do not specify a cluster, the
-                default cluster is assumed.
-            force: If ``true``, allows you to delete a service even if it wasn't scaled
-                down to zero tasks. It's only necessary to use this if the service uses the
-                ``REPLICA`` scheduling strategy.
+            cluster: The short name or full Amazon Resource Name (ARN) of the cluster that hosts the service to delete. If you
+                do not specify a cluster, the default cluster is assumed.
+            force: If ``true``, allows you to delete a service even if it wasn't scaled down to zero tasks. It's only necessary
+                to use this if the service uses the ``REPLICA`` scheduling strategy.
         """
         args: Dict[str, Any] = dict(
             service=self.serialize(service),
@@ -131,18 +125,14 @@ class ServiceManager(Boto3ModelManager):
         Describes the specified services running in your cluster.
 
         Args:
-            service: The name or full Amazon Resource Name (ARN) of the service to
-                describe.
+            service: The name or full Amazon Resource Name (ARN) of the service to describe.
 
         Keyword Args:
-            cluster: The short name or full Amazon Resource Name (ARN)the cluster that
-                hosts the service to describe. If you do not specify a cluster, the default
-                cluster is assumed. This parameter is required if the service or services
-                you are describing were launched in any cluster other than the default
-                cluster.
-            include: Determines whether you want to see the resource tags for the
-                service. If ``TAGS`` is specified, the tags are included in the response.
-                If this field is omitted, tags aren't included in the response.
+            cluster: The short name or full Amazon Resource Name (ARN)the cluster that hosts the service to describe. If you do
+                not specify a cluster, the default cluster is assumed. This parameter is required if the service or services you are
+                describing were launched in any cluster other than the default cluster.
+            include: Determines whether you want to see the resource tags for the service. If ``TAGS`` is specified, the tags
+                are included in the response. If this field is omitted, tags aren't included in the response.
         """
         args: Dict[str, Any] = dict(
             services=self.serialize([service]),
@@ -170,18 +160,14 @@ class ServiceManager(Boto3ModelManager):
         Describes the specified services running in your cluster.
 
         Args:
-            services: A list of services to describe. You may specify up to 10 services
-                to describe in a single operation.
+            services: A list of services to describe. You may specify up to 10 services to describe in a single operation.
 
         Keyword Args:
-            cluster: The short name or full Amazon Resource Name (ARN)the cluster that
-                hosts the service to describe. If you do not specify a cluster, the default
-                cluster is assumed. This parameter is required if the service or services
-                you are describing were launched in any cluster other than the default
-                cluster.
-            include: Determines whether you want to see the resource tags for the
-                service. If ``TAGS`` is specified, the tags are included in the response.
-                If this field is omitted, tags aren't included in the response.
+            cluster: The short name or full Amazon Resource Name (ARN)the cluster that hosts the service to describe. If you do
+                not specify a cluster, the default cluster is assumed. This parameter is required if the service or services you are
+                describing were launched in any cluster other than the default cluster.
+            include: Determines whether you want to see the resource tags for the service. If ``TAGS`` is specified, the tags
+                are included in the response. If this field is omitted, tags aren't included in the response.
         """
         args: Dict[str, Any] = dict(
             services=self.serialize(services),
@@ -205,17 +191,13 @@ class ServiceManager(Boto3ModelManager):
         schedulingStrategy: Optional[Literal["REPLICA", "DAEMON"]] = None
     ) -> List[str]:
         """
-        Returns a list of services. You can filter the results by cluster,
-        launch type, and scheduling strategy.
+        Returns a list of services. You can filter the results by cluster, launch type, and scheduling strategy.
 
         Keyword Args:
-            cluster: The short name or full Amazon Resource Name (ARN) of the cluster
-                to use when filtering the ``ListServices`` results. If you do not specify a
-                cluster, the default cluster is assumed.
-            launchType: The launch type to use when filtering the ``ListServices``
-                results.
-            schedulingStrategy: The scheduling strategy to use when filtering the
-                ``ListServices`` results.
+            cluster: The short name or full Amazon Resource Name (ARN) of the cluster to use when filtering the ``ListServices``
+                results. If you do not specify a cluster, the default cluster is assumed.
+            launchType: The launch type to use when filtering the ``ListServices`` results.
+            schedulingStrategy: The scheduling strategy to use when filtering the ``ListServices`` results.
         """
         paginator = self.client.get_paginator("list_services")
         args: Dict[str, Any] = dict(
@@ -254,24 +236,17 @@ class ServiceManager(Boto3ModelManager):
             model: The :py:class:``Service`` to update.
 
         Keyword Args:
-            forceNewDeployment: Determines whether to force a new deployment of the
-                service. By default, deployments aren't forced. You can use this option to
-                start a new deployment with no service definition changes. For example, you
-                can update a service's tasks to use a newer Docker image with the same
-                image/tag combination (``my_image:latest``) or to roll Fargate tasks onto a
-                newer platform version.
-            serviceConnectConfiguration: The configuration for this service to discover
-                and connect to services, and be discovered by, and connected from, other
-                services within a namespace.
-            volumeConfigurations: The details of the volume that was
-                ``configuredAtLaunch``. You can configure the size, volumeType, IOPS,
-                throughput, snapshot and encryption in `ServiceMana
-                gedEBSVolumeConfiguration
-                <https://docs.aws.amazon.com/AmazonECS/latest/APIRefe
-                rence/API_ServiceManagedEBSVolumeConfiguration.html>`_. The ``name`` of the
-                volume must match the ``name`` from the task definition. If set to null, no
-                new deployment is triggered. Otherwise, if this configuration differs from
-                the existing one, it triggers a new deployment.
+            forceNewDeployment: Determines whether to force a new deployment of the service. By default, deployments aren't
+                forced. You can use this option to start a new deployment with no service definition changes. For example, you can
+                update a service's tasks to use a newer Docker image with the same image/tag combination (``my_image:latest``) or to
+                roll Fargate tasks onto a newer platform version.
+            serviceConnectConfiguration: The configuration for this service to discover and connect to services, and be
+                discovered by, and connected from, other services within a namespace.
+            volumeConfigurations: The details of the volume that was ``configuredAtLaunch``. You can configure the size,
+                volumeType, IOPS, throughput, snapshot and encryption in `ServiceManagedEBSVolumeConfiguration
+                <https://docs.aws.amazon.com/AmazonECS/latest/APIRefere nce/API_ServiceManagedEBSVolumeConfiguration.html>`_. The
+                ``name`` of the volume must match the ``name`` from the task definition. If set to null, no new deployment is
+                triggered. Otherwise, if this configuration differs from the existing one, it triggers a new deployment.
         """
         data = model.model_dump(exclude_none=True, by_alias=True)
         args = dict(
@@ -333,88 +308,60 @@ class ServiceManager(Boto3ModelManager):
             service: The name of the service to update.
 
         Keyword Args:
-            cluster: The short name or full Amazon Resource Name (ARN) of the cluster
-                that your service runs on. If you do not specify a cluster, the default
-                cluster is assumed.
-            desiredCount: The number of instantiations of the task to place and keep
-                running in your service.
-            taskDefinition: The ``family`` and ``revision`` (``family:revision``) or
-                full ARN of the task definition to run in your service. If a ``revision``
-                is not specified, the latest ``ACTIVE`` revision is used. If you modify the
-                task definition with ``UpdateService``, Amazon ECS spawns a task with the
-                new version of the task definition and then stops an old task after the new
-                version is running.
-            capacityProviderStrategy: The capacity provider strategy to update the
-                service to use.
-            deploymentConfiguration: Optional deployment parameters that control how
-                many tasks run during the deployment and the ordering of stopping and
-                starting tasks.
-            networkConfiguration: An object representing the network configuration for
-                the service.
-            placementConstraints: An array of task placement constraint objects to
-                update the service to use. If no value is specified, the existing placement
-                constraints for the service will remain unchanged. If this value is
-                specified, it will override any existing placement constraints defined for
-                the service. To remove all existing placement constraints, specify an empty
-                array.
-            placementStrategy: The task placement strategy objects to update the
-                service to use. If no value is specified, the existing placement strategy
-                for the service will remain unchanged. If this value is specified, it will
-                override the existing placement strategy defined for the service. To remove
-                an existing placement strategy, specify an empty object.
-            platformVersion: The platform version that your tasks in the service run
-                on. A platform version is only specified for tasks using the Fargate launch
-                type. If a platform version is not specified, the ``LATEST`` platform
-                version is used. For more information, see `Fargate Platform Versions
-                <https://docs.aws.amazon.com/Amazon
-                ECS/latest/developerguide/platform_versions.html>`_ in the *Amazon Elastic
+            cluster: The short name or full Amazon Resource Name (ARN) of the cluster that your service runs on. If you do not
+                specify a cluster, the default cluster is assumed.
+            desiredCount: The number of instantiations of the task to place and keep running in your service.
+            taskDefinition: The ``family`` and ``revision`` (``family:revision``) or full ARN of the task definition to run in
+                your service. If a ``revision`` is not specified, the latest ``ACTIVE`` revision is used. If you modify the task
+                definition with ``UpdateService``, Amazon ECS spawns a task with the new version of the task definition and then
+                stops an old task after the new version is running.
+            capacityProviderStrategy: The capacity provider strategy to update the service to use.
+            deploymentConfiguration: Optional deployment parameters that control how many tasks run during the deployment and
+                the failure detection methods.
+            networkConfiguration: An object representing the network configuration for the service.
+            placementConstraints: An array of task placement constraint objects to update the service to use. If no value is
+                specified, the existing placement constraints for the service will remain unchanged. If this value is specified, it
+                will override any existing placement constraints defined for the service. To remove all existing placement
+                constraints, specify an empty array.
+            placementStrategy: The task placement strategy objects to update the service to use. If no value is specified, the
+                existing placement strategy for the service will remain unchanged. If this value is specified, it will override the
+                existing placement strategy defined for the service. To remove an existing placement strategy, specify an empty
+                object.
+            platformVersion: The platform version that your tasks in the service run on. A platform version is only specified
+                for tasks using the Fargate launch type. If a platform version is not specified, the ``LATEST`` platform version is
+                used. For more information, see `Fargate Platform Versions
+                <https://docs.aws.amazon.com/AmazonECS/latest/developerguide/platform_versions.html>`_ in the *Amazon Elastic
                 Container Service Developer Guide*.
-            forceNewDeployment: Determines whether to force a new deployment of the
-                service. By default, deployments aren't forced. You can use this option to
-                start a new deployment with no service definition changes. For example, you
-                can update a service's tasks to use a newer Docker image with the same
-                image/tag combination (``my_image:latest``) or to roll Fargate tasks onto a
-                newer platform version.
-            healthCheckGracePeriodSeconds: The period of time, in seconds, that the
-                Amazon ECS service scheduler ignores unhealthy Elastic Load Balancing
-                target health checks after a task has first started. This is only valid if
-                your service is configured to use a load balancer. If your service's tasks
-                take a while to start and respond to Elastic Load Balancing health checks,
-                you can specify a health check grace period of up to 2,147,483,647 seconds.
-                During that time, the Amazon ECS service scheduler ignores the Elastic Load
-                Balancing health check status. This grace period can prevent the ECS
-                service scheduler from marking tasks as unhealthy and stopping them before
-                they have time to come up.
-            enableExecuteCommand: If ``true``, this enables execute command
-                functionality on all task containers.
-            enableECSManagedTags: Determines whether to turn on Amazon ECS managed tags
-                for the tasks in the service. For more information, see `Tagging Your
-                Amazon ECS Resources
-                <https://docs.aws.amazon.com/AmazonECS/latest/developerguide/ecs- using-
-                tags.html>`_ in the *Amazon Elastic Container Service Developer Guide*.
-            loadBalancers: A list of Elastic Load Balancing load balancer objects. It
-                contains the load balancer name, the container name, and the container port
-                to access from the load balancer. The container name is as it appears in a
+            forceNewDeployment: Determines whether to force a new deployment of the service. By default, deployments aren't
+                forced. You can use this option to start a new deployment with no service definition changes. For example, you can
+                update a service's tasks to use a newer Docker image with the same image/tag combination (``my_image:latest``) or to
+                roll Fargate tasks onto a newer platform version.
+            healthCheckGracePeriodSeconds: The period of time, in seconds, that the Amazon ECS service scheduler ignores
+                unhealthy Elastic Load Balancing target health checks after a task has first started. This is only valid if your
+                service is configured to use a load balancer. If your service's tasks take a while to start and respond to Elastic
+                Load Balancing health checks, you can specify a health check grace period of up to 2,147,483,647 seconds. During
+                that time, the Amazon ECS service scheduler ignores the Elastic Load Balancing health check status. This grace
+                period can prevent the ECS service scheduler from marking tasks as unhealthy and stopping them before they have time
+                to come up.
+            enableExecuteCommand: If ``true``, this enables execute command functionality on all task containers.
+            enableECSManagedTags: Determines whether to turn on Amazon ECS managed tags for the tasks in the service. For more
+                information, see `Tagging Your Amazon ECS Resources
+                <https://docs.aws.amazon.com/AmazonECS/latest/developerguide/ecs-using-tags.html>`_ in the *Amazon Elastic Container
+                Service Developer Guide*.
+            loadBalancers: A list of Elastic Load Balancing load balancer objects. It contains the load balancer name, the
+                container name, and the container port to access from the load balancer. The container name is as it appears in a
                 container definition.
-            propagateTags: Determines whether to propagate the tags from the task
-                definition or the service to the task. If no value is specified, the tags
-                aren't propagated.
-            serviceRegistries: The details for the service discovery registries to
-                assign to this service. For more information, see `Service Discovery
-                <https://docs.aws.amazon.com/AmazonECS/latest/developerguide/service-
-                discovery.html>`_.
-            serviceConnectConfiguration: The configuration for this service to discover
-                and connect to services, and be discovered by, and connected from, other
-                services within a namespace.
-            volumeConfigurations: The details of the volume that was
-                ``configuredAtLaunch``. You can configure the size, volumeType, IOPS,
-                throughput, snapshot and encryption in `ServiceMana
-                gedEBSVolumeConfiguration
-                <https://docs.aws.amazon.com/AmazonECS/latest/APIRefe
-                rence/API_ServiceManagedEBSVolumeConfiguration.html>`_. The ``name`` of the
-                volume must match the ``name`` from the task definition. If set to null, no
-                new deployment is triggered. Otherwise, if this configuration differs from
-                the existing one, it triggers a new deployment.
+            propagateTags: Determines whether to propagate the tags from the task definition or the service to the task. If no
+                value is specified, the tags aren't propagated.
+            serviceRegistries: The details for the service discovery registries to assign to this service. For more information,
+                see `Service Discovery <https://docs.aws.amazon.com/AmazonECS/latest/developerguide/service-discovery.html>`_.
+            serviceConnectConfiguration: The configuration for this service to discover and connect to services, and be
+                discovered by, and connected from, other services within a namespace.
+            volumeConfigurations: The details of the volume that was ``configuredAtLaunch``. You can configure the size,
+                volumeType, IOPS, throughput, snapshot and encryption in `ServiceManagedEBSVolumeConfiguration
+                <https://docs.aws.amazon.com/AmazonECS/latest/APIRefere nce/API_ServiceManagedEBSVolumeConfiguration.html>`_. The
+                ``name`` of the volume must match the ``name`` from the task definition. If set to null, no new deployment is
+                triggered. Otherwise, if this configuration differs from the existing one, it triggers a new deployment.
         """
         args: Dict[str, Any] = dict(
             service=self.serialize(service),
@@ -480,8 +427,7 @@ class ClusterManager(Boto3ModelManager):
         Delete an ECS cluster.
 
         Args:
-            cluster: The short name or full Amazon Resource Name (ARN) of the cluster
-                to delete.
+            cluster: The short name or full Amazon Resource Name (ARN) of the cluster to delete.
         """
         args: Dict[str, Any] = dict(cluster=self.serialize(cluster))
         _response = self.client.delete_cluster(
@@ -502,13 +448,11 @@ class ClusterManager(Boto3ModelManager):
         Describes one or more of your clusters.
 
         Args:
-            cluster: The name or full Amazon Resource Name (ARN) of the cluster to
-                describe.
+            cluster: The name or full Amazon Resource Name (ARN) of the cluster to describe.
 
         Keyword Args:
-            include: Determines whether to include additional information about the
-                clusters in the response. If this field is omitted, this information isn't
-                included.
+            include: Determines whether to include additional information about the clusters in the response. If this field is
+                omitted, this information isn't included.
         """
         args: Dict[str, Any] = dict(
             clusters=self.serialize([cluster]), include=self.serialize(include)
@@ -535,12 +479,10 @@ class ClusterManager(Boto3ModelManager):
         Describes one or more of your clusters.
 
         Keyword Args:
-            clusters: A list of up to 100 cluster names or full cluster Amazon Resource
-                Name (ARN) entries. If you do not specify a cluster, the default cluster is
-                assumed.
-            include: Determines whether to include additional information about the
-                clusters in the response. If this field is omitted, this information isn't
-                included.
+            clusters: A list of up to 100 cluster names or full cluster Amazon Resource Name (ARN) entries. If you do not
+                specify a cluster, the default cluster is assumed.
+            include: Determines whether to include additional information about the clusters in the response. If this field is
+                omitted, this information isn't included.
         """
         args: Dict[str, Any] = dict(
             clusters=self.serialize(clusters), include=self.serialize(include)
@@ -618,14 +560,11 @@ class ClusterManager(Boto3ModelManager):
         Keyword Args:
             settings: The cluster settings for your cluster.
             configuration: The execute command configuration for the cluster.
-            serviceConnectDefaults: Use this parameter to set a default Service Connect
-                namespace. After you set a default Service Connect namespace, any new
-                services with Service Connect turned on that are created in the cluster are
-                added as client services in the namespace. This setting only applies to new
-                services that set the ``enabled`` parameter to ``true`` in the
-                ``ServiceConnectConfiguration``. You can set the namespace of each service
-                individually in the ``ServiceConnectConfiguration`` to override this
-                default parameter.
+            serviceConnectDefaults: Use this parameter to set a default Service Connect namespace. After you set a default
+                Service Connect namespace, any new services with Service Connect turned on that are created in the cluster are added
+                as client services in the namespace. This setting only applies to new services that set the ``enabled`` parameter to
+                ``true`` in the ``ServiceConnectConfiguration``. You can set the namespace of each service individually in the
+                ``ServiceConnectConfiguration`` to override this default parameter.
         """
         args: Dict[str, Any] = dict(
             cluster=self.serialize(cluster),
@@ -650,20 +589,18 @@ class TaskDefinitionManager(Boto3ModelManager):
         self, model: "TaskDefinition", tags: Optional[List["ECSTag"]] = None
     ) -> "TaskDefinition":
         """
-        Registers a new task definition from the supplied ``family`` and
-        ``containerDefinitions``. Optionally, you can add data volumes to your
-        containers with the ``volumes`` parameter. For more information about task
-        definition parameters and defaults, see `Amazon ECS Task Definitions <https://d
-        ocs.aws.amazon.com/AmazonECS/latest/developerguide/task_defintions.html>`_ in the
-        *Amazon Elastic Container Service Developer Guide*.
+        Registers a new task definition from the supplied ``family`` and ``containerDefinitions``. Optionally, you can add data
+        volumes to your containers with the ``volumes`` parameter. For more information about task definition parameters and
+        defaults, see `Amazon ECS Task
+        Definitions <https://docs.aws.amazon.com/AmazonECS/latest/developerguide/task_defintions.html>`_ in the *Amazon Elastic
+        Container Service Developer Guide*.
 
         Args:
             model: The :py:class:``TaskDefinition`` to create.
 
         Keyword Args:
-            tags: The metadata that you apply to the task definition to help you
-                categorize and organize them. Each tag consists of a key and an optional
-                value. You define both of them.
+            tags: The metadata that you apply to the task definition to help you categorize and organize them. Each tag consists
+                of a key and an optional value. You define both of them.
 
         """
         data = model.model_dump(exclude_none=True, by_alias=True)
@@ -696,18 +633,15 @@ class TaskDefinitionManager(Boto3ModelManager):
 
     def delete(self, taskDefinition: str) -> "TaskDefinition":
         """
-        Deregisters the specified task definition by family and revision. Upon
-        deregistration, the task definition is marked as ``INACTIVE``. Existing
-        tasks and services that reference an ``INACTIVE`` task definition
-        continue to run without disruption. Existing services that reference an
-        ``INACTIVE`` task definition can still scale up or down by modifying
-        the service's desired count. If you want to delete a task definition
-        revision, you must first deregister the task definition revision.
+        Deregisters the specified task definition by family and revision. Upon deregistration, the task definition is
+        marked as ``INACTIVE``. Existing tasks and services that reference an ``INACTIVE`` task definition continue to
+        run without disruption. Existing services that reference an ``INACTIVE`` task definition can still scale up or
+        down by modifying the service's desired count. If you want to delete a task definition revision, you must first
+        deregister the task definition revision.
 
         Args:
-            taskDefinition: The ``family`` and ``revision`` (``family:revision``) or
-                full Amazon Resource Name (ARN) of the task definition to deregister. You
-                must specify a ``revision``.
+            taskDefinition: The ``family`` and ``revision`` (``family:revision``) or full Amazon Resource Name (ARN) of the task
+                definition to deregister. You must specify a ``revision``.
         """
         args: Dict[str, Any] = dict(taskDefinition=self.serialize(taskDefinition))
         _response = self.client.deregister_task_definition(
@@ -720,21 +654,16 @@ class TaskDefinitionManager(Boto3ModelManager):
         self, taskDefinition: str, *, include: Optional[List[Literal["TAGS"]]] = None
     ) -> Optional["TaskDefinition"]:
         """
-        Describes a task definition. You can specify a ``family`` and
-        ``revision`` to find information about a specific task definition, or
-        you can simply specify the family to find the latest ``ACTIVE``
-        revision in that family.
+        Describes a task definition. You can specify a ``family`` and ``revision`` to find information about a specific
+        task definition, or you can simply specify the family to find the latest ``ACTIVE`` revision in that family.
 
         Args:
-            taskDefinition: The ``family`` for the latest ``ACTIVE`` revision,
-                ``family`` and ``revision`` (``family:revision``) for a specific revision
-                in the family, or full Amazon Resource Name (ARN) of the task definition to
-                describe.
+            taskDefinition: The ``family`` for the latest ``ACTIVE`` revision, ``family`` and ``revision`` (``family:revision``)
+                for a specific revision in the family, or full Amazon Resource Name (ARN) of the task definition to describe.
 
         Keyword Args:
-            include: Determines whether to see the resource tags for the task
-                definition. If ``TAGS`` is specified, the tags are included in the
-                response. If this field is omitted, tags aren't included in the response.
+            include: Determines whether to see the resource tags for the task definition. If ``TAGS`` is specified, the tags are
+                included in the response. If this field is omitted, tags aren't included in the response.
         """
         args: Dict[str, Any] = dict(
             taskDefinition=self.serialize(taskDefinition),
@@ -759,27 +688,20 @@ class TaskDefinitionManager(Boto3ModelManager):
         sort: Optional[Literal["ASC", "DESC"]] = None
     ) -> List[str]:
         """
-        Returns a list of task definitions that are registered to your account.
-        You can filter the results by family name with the ``familyPrefix``
-        parameter or by status with the ``status`` parameter.
+        Returns a list of task definitions that are registered to your account. You can filter the results by family
+        name with the ``familyPrefix`` parameter or by status with the ``status`` parameter.
 
         Keyword Args:
-            familyPrefix: The full family name to filter the ``ListTaskDefinitions``
-                results with. Specifying a ``familyPrefix`` limits the listed task
-                definitions to task definition revisions that belong to that family.
-            status: The task definition status to filter the ``ListTaskDefinitions``
-                results with. By default, only ``ACTIVE`` task definitions are listed. By
-                setting this parameter to ``INACTIVE``, you can view task definitions that
-                are ``INACTIVE`` as long as an active task or service still references
-                them. If you paginate the resulting output, be sure to keep the ``status``
-                value constant in each subsequent request.
-            sort: The order to sort the results in. Valid values are ``ASC`` and
-                ``DESC``. By default, (``ASC``) task definitions are listed
-                lexicographically by family name and in ascending numerical order by
-                revision so that the newest task definitions in a family are listed last.
-                Setting this parameter to ``DESC`` reverses the sort order on family name
-                and revision. This is so that the newest task definitions in a family are
-                listed first.
+            familyPrefix: The full family name to filter the ``ListTaskDefinitions`` results with. Specifying a ``familyPrefix``
+                limits the listed task definitions to task definition revisions that belong to that family.
+            status: The task definition status to filter the ``ListTaskDefinitions`` results with. By default, only ``ACTIVE``
+                task definitions are listed. By setting this parameter to ``INACTIVE``, you can view task definitions that are
+                ``INACTIVE`` as long as an active task or service still references them. If you paginate the resulting output, be
+                sure to keep the ``status`` value constant in each subsequent request.
+            sort: The order to sort the results in. Valid values are ``ASC`` and ``DESC``. By default, (``ASC``) task
+                definitions are listed lexicographically by family name and in ascending numerical order by revision so that the
+                newest task definitions in a family are listed last. Setting this parameter to ``DESC`` reverses the sort order on
+                family name and revision. This is so that the newest task definitions in a family are listed first.
         """
         paginator = self.client.get_paginator("list_task_definitions")
         args: Dict[str, Any] = dict(
@@ -808,20 +730,18 @@ class TaskDefinitionManager(Boto3ModelManager):
         self, model: "TaskDefinition", tags: Optional[List["ECSTag"]] = None
     ) -> "TaskDefinition":
         """
-        Registers a new task definition from the supplied ``family`` and
-        ``containerDefinitions``. Optionally, you can add data volumes to your
-        containers with the ``volumes`` parameter. For more information about task
-        definition parameters and defaults, see `Amazon ECS Task Definitions <https://d
-        ocs.aws.amazon.com/AmazonECS/latest/developerguide/task_defintions.html>`_ in the
-        *Amazon Elastic Container Service Developer Guide*.
+        Registers a new task definition from the supplied ``family`` and ``containerDefinitions``. Optionally, you can add data
+        volumes to your containers with the ``volumes`` parameter. For more information about task definition parameters and
+        defaults, see `Amazon ECS Task
+        Definitions <https://docs.aws.amazon.com/AmazonECS/latest/developerguide/task_defintions.html>`_ in the *Amazon Elastic
+        Container Service Developer Guide*.
 
         Args:
             model: The :py:class:``TaskDefinition`` to update.
 
         Keyword Args:
-            tags: The metadata that you apply to the task definition to help you
-                categorize and organize them. Each tag consists of a key and an optional
-                value. You define both of them.
+            tags: The metadata that you apply to the task definition to help you categorize and organize them. Each tag consists
+                of a key and an optional value. You define both of them.
 
         """
         data = model.model_dump(exclude_none=True, by_alias=True)
@@ -868,24 +788,21 @@ class ContainerInstanceManager(ReadonlyBoto3ModelManager):
         ]
     ) -> Optional["ContainerInstance"]:
         """
-        Describes one or more container instances. Returns metadata about each
-        container instance requested.
+        Describes one or more container instances. Returns metadata about each container instance requested.
 
         Args:
-            containerInstance: The container instance ID or full Amazon Resource Name
-                (ARN) entry for the container instance you want to describe.
+            containerInstance: The container instance ID or full Amazon Resource Name (ARN) entry for the container instance you
+                want to describe.
 
         Keyword Args:
-            cluster: The short name or full Amazon Resource Name (ARN) of the cluster
-                that hosts the container instances to describe. If you do not specify a
-                cluster, the default cluster is assumed. This parameter is required if the
-                container instance or container instances you are describing were launched
-                in any cluster other than the default cluster.
-            include: Specifies whether you want to see the resource tags for the
-                container instance. If ``TAGS`` is specified, the tags are included in the
-                response. If ``CONTAINER_INSTANCE_HEALTH`` is specified, the container
-                instance health is included in the response. If this field is omitted, tags
-                and container instance health status aren't included in the response.
+            cluster: The short name or full Amazon Resource Name (ARN) of the cluster that hosts the container instances to
+                describe. If you do not specify a cluster, the default cluster is assumed. This parameter is required if the
+                container instance or container instances you are describing were launched in any cluster other than the default
+                cluster.
+            include: Specifies whether you want to see the resource tags for the container instance. If ``TAGS`` is specified,
+                the tags are included in the response. If ``CONTAINER_INSTANCE_HEALTH`` is specified, the container instance health
+                is included in the response. If this field is omitted, tags and container instance health status aren't included in
+                the response.
         """
         args: Dict[str, Any] = dict(
             containerInstances=self.serialize([containerInstance]),
@@ -913,24 +830,20 @@ class ContainerInstanceManager(ReadonlyBoto3ModelManager):
         ]
     ) -> List["ContainerInstance"]:
         """
-        Describes one or more container instances. Returns metadata about each
-        container instance requested.
+        Describes one or more container instances. Returns metadata about each container instance requested.
 
         Args:
-            containerInstances: A list of up to 100 container instance IDs or full
-                Amazon Resource Name (ARN) entries.
+            containerInstances: A list of up to 100 container instance IDs or full Amazon Resource Name (ARN) entries.
 
         Keyword Args:
-            cluster: The short name or full Amazon Resource Name (ARN) of the cluster
-                that hosts the container instances to describe. If you do not specify a
-                cluster, the default cluster is assumed. This parameter is required if the
-                container instance or container instances you are describing were launched
-                in any cluster other than the default cluster.
-            include: Specifies whether you want to see the resource tags for the
-                container instance. If ``TAGS`` is specified, the tags are included in the
-                response. If ``CONTAINER_INSTANCE_HEALTH`` is specified, the container
-                instance health is included in the response. If this field is omitted, tags
-                and container instance health status aren't included in the response.
+            cluster: The short name or full Amazon Resource Name (ARN) of the cluster that hosts the container instances to
+                describe. If you do not specify a cluster, the default cluster is assumed. This parameter is required if the
+                container instance or container instances you are describing were launched in any cluster other than the default
+                cluster.
+            include: Specifies whether you want to see the resource tags for the container instance. If ``TAGS`` is specified,
+                the tags are included in the response. If ``CONTAINER_INSTANCE_HEALTH`` is specified, the container instance health
+                is included in the response. If this field is omitted, tags and container instance health status aren't included in
+                the response.
         """
         args: Dict[str, Any] = dict(
             containerInstances=self.serialize(containerInstances),
@@ -962,30 +875,22 @@ class ContainerInstanceManager(ReadonlyBoto3ModelManager):
         ] = None
     ) -> List[str]:
         """
-        Returns a list of container instances in a specified cluster. You can filter
-        the results of a ``ListContainerInstances`` operation with cluster query
-        language statements inside the ``filter`` parameter. For more information, see
-        `Cluster Query
-        Language <https://docs.aws.amazon.com/AmazonECS/latest/developerguide/cluster-
-        query-language.html>`_ in the *Amazon Elastic Container Service Developer Guide*.
+        Returns a list of container instances in a specified cluster. You can filter the results of a ``ListContainerInstances``
+        operation with cluster query language statements inside the ``filter`` parameter. For more information, see `Cluster
+        Query Language <https://docs.aws.amazon.com/AmazonECS/latest/developerguide/cluster-query-language.html>`_ in the *Amazon
+        Elastic Container Service Developer Guide*.
 
         Keyword Args:
-            cluster: The short name or full Amazon Resource Name (ARN) of the cluster
-                that hosts the container instances to list. If you do not specify a
-                cluster, the default cluster is assumed.
-            filter: You can filter the results of a ``ListContainerInstances``
-                operation with cluster query language statements. For more information, see
-                `Cluster Query Language
-                <https://docs.aws.amazon.com/AmazonECS/latest/developerguide/cluster-
-                query-language.html>`_ in the *Amazon Elastic Container Service Developer
-                Guide*.
-            status: Filters the container instances by status. For example, if you
-                specify the ``DRAINING`` status, the results include only container
-                instances that have been set to ``DRAINING`` using
-                `UpdateContainerInstancesState <https://docs.aws .amazon.com/AmazonECS/late
-                st/APIReference/API_UpdateContainerInstancesState.htm l>`_. If you don't
-                specify this parameter, the default is to include container instances set
-                to all states other than ``INACTIVE``.
+            cluster: The short name or full Amazon Resource Name (ARN) of the cluster that hosts the container instances to
+                list. If you do not specify a cluster, the default cluster is assumed.
+            filter: You can filter the results of a ``ListContainerInstances`` operation with cluster query language statements.
+                For more information, see `Cluster Query Language
+                <https://docs.aws.amazon.com/AmazonECS/latest/developerguide/cluster-query- language.html>`_ in the *Amazon Elastic
+                Container Service Developer Guide*.
+            status: Filters the container instances by status. For example, if you specify the ``DRAINING`` status, the results
+                include only container instances that have been set to ``DRAINING`` using `UpdateContainerInstancesState
+                <https://docs.aws.amazon.com /AmazonECS/latest/APIReference/API_UpdateContainerInstancesState.html>`_. If you don't
+                specify this parameter, the default is to include container instances set to all states other than ``INACTIVE``.
 
         """
         paginator = self.client.get_paginator("list_container_instances")
@@ -1023,38 +928,28 @@ class ContainerInstanceManager(ReadonlyBoto3ModelManager):
         launchType: Optional[Literal["EC2", "FARGATE", "EXTERNAL"]] = None
     ) -> List[str]:
         """
-        Returns a list of tasks. You can filter the results by cluster, task
-        definition family, container instance, launch type, what IAM principal
-        started the task, or by the desired status of the task.
+        Returns a list of tasks. You can filter the results by cluster, task definition family, container instance,
+        launch type, what IAM principal started the task, or by the desired status of the task.
 
         Args:
-            containerInstance: The container instance ID or full ARN of the container
-                instance to use when filtering the ``ListTasks`` results. Specifying a
-                ``containerInstance`` limits the results to tasks that belong to that
-                container instance.
+            containerInstance: The container instance ID or full ARN of the container instance to use when filtering the
+                ``ListTasks`` results. Specifying a ``containerInstance`` limits the results to tasks that belong to that container
+                instance.
 
         Keyword Args:
-            cluster: The short name or full Amazon Resource Name (ARN) of the cluster
-                to use when filtering the ``ListTasks`` results. If you do not specify a
-                cluster, the default cluster is assumed.
-            family: The name of the task definition family to use when filtering the
-                ``ListTasks`` results. Specifying a ``family`` limits the results to tasks
-                that belong to that family.
-            startedBy: The ``startedBy`` value to filter the task results with.
-                Specifying a ``startedBy`` value limits the results to tasks that were
-                started with that value.
-            serviceName: The name of the service to use when filtering the
-                ``ListTasks`` results. Specifying a ``serviceName`` limits the results to
-                tasks that belong to that service.
-            desiredStatus: The task desired status to use when filtering the
-                ``ListTasks`` results. Specifying a ``desiredStatus`` of ``STOPPED`` limits
-                the results to tasks that Amazon ECS has set the desired status to
-                ``STOPPED``. This can be useful for debugging tasks that aren't starting
-                properly or have died or finished. The default status filter is
-                ``RUNNING``, which shows tasks that Amazon ECS has set the desired status
-                to ``RUNNING``.
-            launchType: The launch type to use when filtering the ``ListTasks``
-                results.
+            cluster: The short name or full Amazon Resource Name (ARN) of the cluster to use when filtering the ``ListTasks``
+                results. If you do not specify a cluster, the default cluster is assumed.
+            family: The name of the task definition family to use when filtering the ``ListTasks`` results. Specifying a
+                ``family`` limits the results to tasks that belong to that family.
+            startedBy: The ``startedBy`` value to filter the task results with. Specifying a ``startedBy`` value limits the
+                results to tasks that were started with that value.
+            serviceName: The name of the service to use when filtering the ``ListTasks`` results. Specifying a ``serviceName``
+                limits the results to tasks that belong to that service.
+            desiredStatus: The task desired status to use when filtering the ``ListTasks`` results. Specifying a
+                ``desiredStatus`` of ``STOPPED`` limits the results to tasks that Amazon ECS has set the desired status to
+                ``STOPPED``. This can be useful for debugging tasks that aren't starting properly or have died or finished. The
+                default status filter is ``RUNNING``, which shows tasks that Amazon ECS has set the desired status to ``RUNNING``.
+            launchType: The launch type to use when filtering the ``ListTasks`` results.
         """
         paginator = self.client.get_paginator("list_tasks")
         args: Dict[str, Any] = dict(
@@ -1099,18 +994,14 @@ class TaskManager(Boto3ModelManager):
         Describes a specified task or tasks.
 
         Args:
-            task: The task ID or full Amazon Resource Name (ARN) entry of the task that
-                you want to describe.
+            task: The task ID or full Amazon Resource Name (ARN) entry of the task that you want to describe.
 
         Keyword Args:
-            cluster: The short name or full Amazon Resource Name (ARN) of the cluster
-                that hosts the task or tasks to describe. If you do not specify a cluster,
-                the default cluster is assumed. This parameter is required if the task or
-                tasks you are describing were launched in any cluster other than the
-                default cluster.
-            include: Specifies whether you want to see the resource tags for the task.
-                If ``TAGS`` is specified, the tags are included in the response. If this
-                field is omitted, tags aren't included in the response.
+            cluster: The short name or full Amazon Resource Name (ARN) of the cluster that hosts the task or tasks to describe.
+                If you do not specify a cluster, the default cluster is assumed. This parameter is required if the task or tasks you
+                are describing were launched in any cluster other than the default cluster.
+            include: Specifies whether you want to see the resource tags for the task. If ``TAGS`` is specified, the tags are
+                included in the response. If this field is omitted, tags aren't included in the response.
         """
         args: Dict[str, Any] = dict(
             tasks=self.serialize([task]),
@@ -1142,14 +1033,11 @@ class TaskManager(Boto3ModelManager):
             tasks: A list of up to 100 task IDs or full ARN entries.
 
         Keyword Args:
-            cluster: The short name or full Amazon Resource Name (ARN) of the cluster
-                that hosts the task or tasks to describe. If you do not specify a cluster,
-                the default cluster is assumed. This parameter is required if the task or
-                tasks you are describing were launched in any cluster other than the
-                default cluster.
-            include: Specifies whether you want to see the resource tags for the task.
-                If ``TAGS`` is specified, the tags are included in the response. If this
-                field is omitted, tags aren't included in the response.
+            cluster: The short name or full Amazon Resource Name (ARN) of the cluster that hosts the task or tasks to describe.
+                If you do not specify a cluster, the default cluster is assumed. This parameter is required if the task or tasks you
+                are describing were launched in any cluster other than the default cluster.
+            include: Specifies whether you want to see the resource tags for the task. If ``TAGS`` is specified, the tags are
+                included in the response. If this field is omitted, tags aren't included in the response.
         """
         args: Dict[str, Any] = dict(
             tasks=self.serialize(tasks),
@@ -1177,36 +1065,26 @@ class TaskManager(Boto3ModelManager):
         launchType: Optional[Literal["EC2", "FARGATE", "EXTERNAL"]] = None
     ) -> List[str]:
         """
-        Returns a list of tasks. You can filter the results by cluster, task
-        definition family, container instance, launch type, what IAM principal
-        started the task, or by the desired status of the task.
+        Returns a list of tasks. You can filter the results by cluster, task definition family, container instance,
+        launch type, what IAM principal started the task, or by the desired status of the task.
 
         Keyword Args:
-            cluster: The short name or full Amazon Resource Name (ARN) of the cluster
-                to use when filtering the ``ListTasks`` results. If you do not specify a
-                cluster, the default cluster is assumed.
-            containerInstance: The container instance ID or full ARN of the container
-                instance to use when filtering the ``ListTasks`` results. Specifying a
-                ``containerInstance`` limits the results to tasks that belong to that
-                container instance.
-            family: The name of the task definition family to use when filtering the
-                ``ListTasks`` results. Specifying a ``family`` limits the results to tasks
-                that belong to that family.
-            startedBy: The ``startedBy`` value to filter the task results with.
-                Specifying a ``startedBy`` value limits the results to tasks that were
-                started with that value.
-            serviceName: The name of the service to use when filtering the
-                ``ListTasks`` results. Specifying a ``serviceName`` limits the results to
-                tasks that belong to that service.
-            desiredStatus: The task desired status to use when filtering the
-                ``ListTasks`` results. Specifying a ``desiredStatus`` of ``STOPPED`` limits
-                the results to tasks that Amazon ECS has set the desired status to
-                ``STOPPED``. This can be useful for debugging tasks that aren't starting
-                properly or have died or finished. The default status filter is
-                ``RUNNING``, which shows tasks that Amazon ECS has set the desired status
-                to ``RUNNING``.
-            launchType: The launch type to use when filtering the ``ListTasks``
-                results.
+            cluster: The short name or full Amazon Resource Name (ARN) of the cluster to use when filtering the ``ListTasks``
+                results. If you do not specify a cluster, the default cluster is assumed.
+            containerInstance: The container instance ID or full ARN of the container instance to use when filtering the
+                ``ListTasks`` results. Specifying a ``containerInstance`` limits the results to tasks that belong to that container
+                instance.
+            family: The name of the task definition family to use when filtering the ``ListTasks`` results. Specifying a
+                ``family`` limits the results to tasks that belong to that family.
+            startedBy: The ``startedBy`` value to filter the task results with. Specifying a ``startedBy`` value limits the
+                results to tasks that were started with that value.
+            serviceName: The name of the service to use when filtering the ``ListTasks`` results. Specifying a ``serviceName``
+                limits the results to tasks that belong to that service.
+            desiredStatus: The task desired status to use when filtering the ``ListTasks`` results. Specifying a
+                ``desiredStatus`` of ``STOPPED`` limits the results to tasks that Amazon ECS has set the desired status to
+                ``STOPPED``. This can be useful for debugging tasks that aren't starting properly or have died or finished. The
+                default status filter is ``RUNNING``, which shows tasks that Amazon ECS has set the desired status to ``RUNNING``.
+            launchType: The launch type to use when filtering the ``ListTasks`` results.
         """
         paginator = self.client.get_paginator("list_tasks")
         args: Dict[str, Any] = dict(
@@ -1256,47 +1134,34 @@ class TaskManager(Boto3ModelManager):
             model: The :py:class:``Task`` to create.
 
         Keyword Args:
-            capacityProviderStrategy: The capacity provider strategy to use for the
-                task.
-            count: The number of instantiations of the specified task to place on your
-                cluster. You can specify up to 10 tasks for each call.
-            enableECSManagedTags: Specifies whether to use Amazon ECS managed tags for
-                the task. For more information, see `Tagging Your Amazon ECS Resources
-                <https://docs.aws.amazon.com/AmazonECS/latest/developerguide/ecs- using-
+            capacityProviderStrategy: The capacity provider strategy to use for the task.
+            count: The number of instantiations of the specified task to place on your cluster. You can specify up to 10 tasks
+                for each call.
+            enableECSManagedTags: Specifies whether to use Amazon ECS managed tags for the task. For more information, see
+                `Tagging Your Amazon ECS Resources <https://docs.aws.amazon.com/AmazonECS/latest/developerguide/ecs-using-
                 tags.html>`_ in the *Amazon Elastic Container Service Developer Guide*.
-            networkConfiguration: The network configuration for the task. This
-                parameter is required for task definitions that use the ``awsvpc`` network
-                mode to receive their own elastic network interface, and it isn't supported
-                for other network modes. For more information, see `Task networking
-                <https://docs.aws.amazon.com/AmazonECS/latest/developerguide/task-
-                networking.html>`_ in the *Amazon Elastic Container Service Developer
-                Guide*.
-            placementConstraints: An array of placement constraint objects to use for
-                the task. You can specify up to 10 constraints for each task (including
-                constraints in the task definition and those specified at runtime).
-            placementStrategy: The placement strategy objects to use for the task. You
-                can specify a maximum of 5 strategy rules for each task.
-            propagateTags: Specifies whether to propagate the tags from the task
-                definition to the task. If no value is specified, the tags aren't
-                propagated. Tags can only be propagated to the task during task creation.
-                To add tags to a task after task creation, use the`TagResource
-                <https://docs.aws.amazon.com/AmazonECS/latest/API
-                Reference/API_TagResource.html>`_ API action.
-            referenceId: This parameter is only used by Amazon ECS. It is not intended
-                for use by customers.
-            clientToken: An identifier that you provide to ensure the idempotency of
-                the request. It must be unique and is case sensitive. Up to 64 characters
-                are allowed. The valid characters are characters in the range of 33-126,
-                inclusive. For more information, see `Ensuring idempotency
-                <https://docs.aws.amazon.com/AmazonECS/l
-                atest/APIReference/ECS_Idempotency.html>`_.
-            volumeConfigurations: The details of the volume that was
-                ``configuredAtLaunch``. You can configure the size, volumeType, IOPS,
-                throughput, snapshot and encryption in in `TaskMana
-                gedEBSVolumeConfiguration
-                <https://docs.aws.amazon.com/AmazonECS/latest/APIRefe
-                rence/API_TaskManagedEBSVolumeConfiguration.html>`_. The ``name`` of the
-                volume must match the ``name`` from the task definition.
+            networkConfiguration: The network configuration for the task. This parameter is required for task definitions that
+                use the ``awsvpc`` network mode to receive their own elastic network interface, and it isn't supported for other
+                network modes. For more information, see `Task networking
+                <https://docs.aws.amazon.com/AmazonECS/latest/developerguide/task-networking.html>`_ in the *Amazon Elastic
+                Container Service Developer Guide*.
+            placementConstraints: An array of placement constraint objects to use for the task. You can specify up to 10
+                constraints for each task (including constraints in the task definition and those specified at runtime).
+            placementStrategy: The placement strategy objects to use for the task. You can specify a maximum of 5 strategy rules
+                for each task.
+            propagateTags: Specifies whether to propagate the tags from the task definition to the task. If no value is
+                specified, the tags aren't propagated. Tags can only be propagated to the task during task creation. To add tags to
+                a task after task creation, use the`TagResource
+                <https://docs.aws.amazon.com/AmazonECS/latest/APIReference/API_TagResource.html>`_ API action.
+            referenceId: This parameter is only used by Amazon ECS. It is not intended for use by customers.
+            clientToken: An identifier that you provide to ensure the idempotency of the request. It must be unique and is case
+                sensitive. Up to 64 characters are allowed. The valid characters are characters in the range of 33-126, inclusive.
+                For more information, see `Ensuring idempotency
+                <https://docs.aws.amazon.com/AmazonECS/latest/APIReference/ECS_Idempotency.html>`_.
+            volumeConfigurations: The details of the volume that was ``configuredAtLaunch``. You can configure the size,
+                volumeType, IOPS, throughput, snapshot and encryption in in `TaskManagedEBSVolumeConfiguration
+                <https://docs.aws.amazon.com/AmazonECS/latest/APIRefere nce/API_TaskManagedEBSVolumeConfiguration.html>`_. The
+                ``name`` of the volume must match the ``name`` from the task definition.
         """
         data = model.model_dump(exclude_none=True, by_alias=True)
         args = dict(
@@ -1332,21 +1197,18 @@ class TaskManager(Boto3ModelManager):
         self, task: str, *, cluster: Optional[str] = None, reason: Optional[str] = None
     ) -> "Task":
         """
-        Stops a running task. Any tags associated with the task will be
-        deleted.
+        Stops a running task. Any tags associated with the task will be deleted.
 
         Args:
             task: The task ID of the task to stop.
 
         Keyword Args:
-            cluster: The short name or full Amazon Resource Name (ARN) of the cluster
-                that hosts the task to stop. If you do not specify a cluster, the default
-                cluster is assumed.
-            reason: An optional message specified when a task is stopped. For example,
-                if you're using a custom scheduler, you can use this parameter to specify
-                the reason for stopping the task here, and the message appears in
-                subsequent `DescribeTasks <h ttps://docs.aws.amazon.com/AmazonECS/latest/AP
-                IReference/API_DescribeTasks.html >`_> API operations on this task.
+            cluster: The short name or full Amazon Resource Name (ARN) of the cluster that hosts the task to stop. If you do not
+                specify a cluster, the default cluster is assumed.
+            reason: An optional message specified when a task is stopped. For example, if you're using a custom scheduler, you
+                can use this parameter to specify the reason for stopping the task here, and the message appears in subsequent
+                `DescribeTasks <https://docs.aws.amazon.com/AmazonECS/latest/APIReference/API_DescribeTasks.html>`_> API operations
+                on this task.
         """
         args: Dict[str, Any] = dict(
             task=self.serialize(task),
@@ -1367,25 +1229,21 @@ class TaskManager(Boto3ModelManager):
 
 class ECSTag(Boto3Model):
     """
-    The metadata that you apply to a resource to help you categorize and
-    organize them. Each tag consists of a key and an optional value. You define
-    them.
+    The metadata that you apply to a resource to help you categorize and organize them. Each tag consists of a key and
+    an optional value. You define them.
 
     The following basic restrictions apply to tags:
 
     * Maximum number of tags per resource - 50
-    * For each resource, each tag key must be unique, and each tag key can have
-      only one value.
+    * For each resource, each tag key must be unique, and each tag key can have only one value.
     * Maximum key length - 128 Unicode characters in UTF-8
     * Maximum value length - 256 Unicode characters in UTF-8
-    * If your tagging schema is used across multiple services and resources,
-      remember that other services may have restrictions on allowed characters.
-      Generally allowed characters are: letters, numbers, and spaces representable in
+    * If your tagging schema is used across multiple services and resources, remember that other services may have
+      restrictions on allowed characters. Generally allowed characters are: letters, numbers, and spaces representable in
       UTF-8, and the following characters: + - = . _ : / @.
     * Tag keys and values are case-sensitive.
-    * Do not use ``aws:``, ``AWS:``, or any upper or lowercase combination of such
-      as a prefix for either keys or values as it is reserved for Amazon Web Services
-      use. You cannot edit or delete tag keys or values with this prefix. Tags with
+    * Do not use ``aws:``, ``AWS:``, or any upper or lowercase combination of such as a prefix for either keys or values as
+      it is reserved for Amazon Web Services use. You cannot edit or delete tag keys or values with this prefix. Tags with
       this prefix do not count against your tags per resource limit.
     """
 
@@ -1393,15 +1251,14 @@ class ECSTag(Boto3Model):
     """
     One part of a key-value pair that make up a tag.
 
-    A ``key`` is a general label
-    that acts like a category for more specific tag values.
+    A ``key`` is a general label that acts like a category for more
+    specific tag values.
     """
     value: Optional[str] = None
     """
     The optional part of a key-value pair that make up a tag.
 
-    A ``value`` acts as
-    a descriptor within a tag category (key).
+    A ``value`` acts as a descriptor within a tag category (key).
     """
 
 
@@ -1409,44 +1266,36 @@ class LoadBalancerConfiguration(Boto3Model):
     """
     The load balancer configuration to use with a service or task set.
 
-    When you add, update, or remove a load balancer configuration, Amazon ECS
-    starts a new deployment with the updated Elastic Load Balancing configuration.
-    This causes tasks to register to and deregister from load balancers.
+    When you add, update, or remove a load balancer configuration, Amazon ECS starts a new deployment with the updated
+    Elastic Load Balancing configuration. This causes tasks to register to and deregister from load balancers.
 
-    We recommend that you verify this on a test environment before you update the
-    Elastic Load Balancing configuration.
+    We recommend that you verify this on a test environment before you update the Elastic Load Balancing configuration.
 
-    A service-linked role is required for services that use multiple target
-    groups. For more information, see `Using service-linked
-    roles <https://docs.aws.amazon.com/AmazonECS/latest/developerguide/using-
-    service-linked-roles.html>`_ in the *Amazon Elastic Container Service Developer
-    Guide*.
+    A service-linked role is required for services that use multiple target groups. For more information, see `Using
+    service-linked roles <https://docs.aws.amazon.com/AmazonECS/latest/developerguide/using-service-linked-roles.html>`_ in
+    the *Amazon Elastic Container Service Developer Guide*.
     """
 
     targetGroupArn: Optional[str] = None
     """
-    The full Amazon Resource Name (ARN) of the Elastic Load Balancing target
-    group or groups associated with a service or task set.
+    The full Amazon Resource Name (ARN) of the Elastic Load Balancing target group or groups associated with a service
+    or task set.
     """
     loadBalancerName: Optional[str] = None
     """
-    The name of the load balancer to associate with the Amazon ECS service or
-    task set.
+    The name of the load balancer to associate with the service or task set.
     """
     containerName: Optional[str] = None
     """
-    The name of the container (as it appears in a container definition) to
-    associate with the load balancer.
+    The name of the container (as it appears in a container definition) to associate with the load balancer.
     """
     containerPort: Optional[int] = None
     """
     The port on the container to associate with the load balancer.
 
-    This port must
-    correspond to a ``containerPort`` in the task definition the tasks in the
-    service are using. For tasks that use the EC2 launch type, the container
-    instance they're launched on must allow ingress traffic on the ``hostPort`` of
-    the port mapping.
+    This port must correspond to a ``containerPort`` in the
+    task definition the tasks in the service are using. For tasks that use the EC2 launch type, the container instance
+    they're launched on must allow ingress traffic on the ``hostPort`` of the port mapping.
     """
 
 
@@ -1454,90 +1303,72 @@ class ServiceRegistry(Boto3Model):
     """
     The details for the service registry.
 
-    Each service may be associated with one service registry. Multiple service
-    registries for each service are not supported.
+    Each service may be associated with one service registry. Multiple service registries for each service are not
+    supported.
 
-    When you add, update, or remove the service registries configuration,
-    Amazon ECS starts a new deployment. New tasks are registered and
-    deregistered to the updated service registry configuration.
+    When you add, update, or remove the service registries configuration, Amazon ECS starts a new deployment. New tasks
+    are registered and deregistered to the updated service registry configuration.
     """
 
     registryArn: Optional[str] = None
     """
     The Amazon Resource Name (ARN) of the service registry.
 
-    The currently supported service registry is Cloud Map. For more
-    information, see
-    `CreateService <https://docs.aws.amazon.com/cloud-
-    map/latest/api/API_CreateService.html>`_.
+    The currently supported service registry is Cloud Map. For more information, see
+    `CreateService <https://docs.aws.amazon.com/cloud-map/latest/api/API_CreateService.html>`_.
     """
     port: Optional[int] = None
     """
-    The port value used if your service discovery service specified an SRV
-    record.
+    The port value used if your service discovery service specified an SRV record.
 
-    This field might be used if both the ``awsvpc`` network mode and SRV records
-    are used.
+    This field might be used if both the
+    ``awsvpc`` network mode and SRV records are used.
     """
     containerName: Optional[str] = None
     """
     The container name value to be used for your service discovery service.
 
-    It's
-    already specified in the task definition. If the task definition that your
-    service task specifies uses the ``bridge`` or ``host`` network mode, you must
-    specify a ``containerName`` and ``containerPort`` combination from the task
-    definition. If the task definition that your service task specifies uses the
-    ``awsvpc`` network mode and a type SRV DNS record is used, you must specify
-    either a ``containerName`` and ``containerPort`` combination or a ``port``
-    value. However, you can't specify both.
+    It's already specified in the task definition.
+    If the task definition that your service task specifies uses the ``bridge`` or ``host`` network mode, you must specify a
+    ``containerName`` and ``containerPort`` combination from the task definition. If the task definition that your service
+    task specifies uses the ``awsvpc`` network mode and a type SRV DNS record is used, you must specify either a
+    ``containerName`` and ``containerPort`` combination or a ``port`` value. However, you can't specify both.
     """
     containerPort: Optional[int] = None
     """
     The port value to be used for your service discovery service.
 
-    It's already
-    specified in the task definition. If the task definition your service task
-    specifies uses the ``bridge`` or ``host`` network mode, you must specify a
-    ``containerName`` and ``containerPort`` combination from the task definition.
-    If the task definition your service task specifies uses the ``awsvpc`` network
-    mode and a type SRV DNS record is used, you must specify either a
-    ``containerName`` and ``containerPort`` combination or a ``port`` value.
-    However, you can't specify both.
+    It's already specified in the task definition. If the task
+    definition your service task specifies uses the ``bridge`` or ``host`` network mode, you must specify a
+    ``containerName`` and ``containerPort`` combination from the task definition. If the task definition your service task
+    specifies uses the ``awsvpc`` network mode and a type SRV DNS record is used, you must specify either a
+    ``containerName`` and ``containerPort`` combination or a ``port`` value. However, you can't specify both.
     """
 
 
 class CapacityProviderStrategyItem(Boto3Model):
-    """The details of a capacity provider strategy. A capacity provider strategy can
-    be set when using the `RunTask <https://docs.aws.amazon.com/AmazonECS/latest/AP
-    IReference/API_RunTask.html>`_or `CreateCluster <https://docs.aws.amazon.com/Amaz
-    onECS/latest/APIReference/API_CreateCluster.html>`_ APIs or as the default
+    """The details of a capacity provider strategy. A capacity provider strategy can be set when using the
+    `RunTask <https://docs.aws.amazon.com/AmazonECS/latest/APIReference/API_RunTask.html>`_or
+    `CreateCluster <https://docs.aws.amazon.com/AmazonECS/latest/APIReference/API_CreateCluster.html>`_ APIs or as the default
     capacity provider strategy for a cluster with the ``CreateCluster`` API.
 
-    Only capacity providers that are already associated with a cluster and have an
-    ``ACTIVE`` or ``UPDATING`` status can be used in a capacity provider strategy.
-    The `PutClusterCapacityProviders <https://docs.aws.amazon.com/AmazonECS/latest/
-    APIReference/API_PutClusterCapacityProviders.html>`_ API is used to associate a
-    capacity provider with a cluster.
+    Only capacity providers that are already associated with a cluster and have an ``ACTIVE`` or ``UPDATING`` status can be
+    used in a capacity provider strategy. The `PutClusterCapacityProviders <https://docs.aws.amazon.com/AmazonECS/latest/API
+    Reference/API_PutClusterCapacityProviders.html>`_ API is used to associate a capacity provider with a cluster.
 
-    If specifying a capacity provider that uses an Auto Scaling group, the capacity
-    provider must already be created. New Auto Scaling group capacity providers can
-    be created with the `CreateClusterCapacityProvider <https://docs.aws.amazon.com
-    /AmazonECS/latest/APIReference/API_CreateClusterCapacityProvider.html>`_ API
-    operation.
+    If specifying a capacity provider that uses an Auto Scaling group, the capacity provider must already be created. New
+    Auto Scaling group capacity providers can be created with the `CreateClusterCapacityProvider <https://docs.aws.amazon.co
+    m/AmazonECS/latest/APIReference/API_CreateClusterCapacityProvider.html>`_ API operation.
 
-    To use a Fargate capacity provider, specify either the ``FARGATE`` or
-    ``FARGATE_SPOT`` capacity providers. The Fargate capacity providers are
-    available to all accounts and only need to be associated with a cluster to be
-    used in a capacity provider strategy.
+    To use a Fargate capacity provider, specify either the ``FARGATE`` or ``FARGATE_SPOT`` capacity providers. The Fargate
+    capacity providers are available to all accounts and only need to be associated with a cluster to be used in a capacity
+    provider strategy.
 
-    With ``FARGATE_SPOT``, you can run interruption tolerant tasks at a rate that's
-    discounted compared to the ``FARGATE`` price. ``FARGATE_SPOT`` runs tasks on
-    spare compute capacity. When Amazon Web Services needs the capacity back, your
-    tasks are interrupted with a two-minute warning. ``FARGATE_SPOT`` supports
-    Linux tasks with the X86_64 architecture on platform version 1.3.0 or later.
-    ``FARGATE_SPOT`` supports Linux tasks with the ARM64 architecture on platform
-    version 1.4.0 or later.
+    With ``FARGATE_SPOT``, you can run interruption tolerant tasks at a rate that's discounted compared to the ``FARGATE``
+    price. ``FARGATE_SPOT`` runs tasks on spare compute capacity. When Amazon Web Services needs the capacity back, your
+    tasks are interrupted with a two-minute warning. ``FARGATE_SPOT`` supports Linux tasks with the X86_64 architecture on
+    platform version 1.3.0 or later. ``FARGATE_SPOT`` supports Linux tasks with the ARM64 architecture on platform version
+    1.4.0 or later.
 
     A capacity provider strategy may contain a maximum of 6 capacity providers.
 
@@ -1549,51 +1380,45 @@ class CapacityProviderStrategyItem(Boto3Model):
     """
     weight: Optional[int] = None
     """
-    The *weight* value designates the relative percentage of the total number
-    of tasks launched that should use the specified capacity provider.
+    The *weight* value designates the relative percentage of the total number of tasks launched that should use the
+    specified capacity provider.
 
-    The ``weight``
-    value is taken into consideration after the ``base`` value, if defined, is
+    The ``weight`` value is taken into consideration after the ``base`` value, if defined, is
     satisfied.
     """
     base: Optional[int] = None
     """
-    The *base* value designates how many tasks, at a minimum, to run on the
-    specified capacity provider.
+    The *base* value designates how many tasks, at a minimum, to run on the specified capacity provider.
 
-    Only one capacity provider in a capacity provider
-    strategy can have a *base* defined. If no value is specified, the default value
-    of ``0`` is used.
+    Only one capacity
+    provider in a capacity provider strategy can have a *base* defined. If no value is specified, the default value of ``0``
+    is used.
     """
 
 
 class DeploymentCircuitBreaker(Boto3Model):
     """
-    The deployment circuit breaker can only be used for services using the
-    rolling update (``ECS``) deployment type.
+    The deployment circuit breaker can only be used for services using the rolling update (``ECS``) deployment type.
 
-    The **deployment circuit breaker** determines whether a service deployment
-    will fail if the service can't reach a steady state. If you use the
-    deployment circuit breaker, a service deployment will transition to a
-    failed state and stop launching new tasks. If you use the rollback option,
-    when a service deployment fails, the service is rolled back to the last
-    deployment that completed successfully. For more information, see
-    `Rolling update <https://docs.aws.amazon.com/AmazonECS/latest/developerguide/deployment-
-    type-ecs.html>`_ in the *Amazon Elastic Container Service Developer Guide*
+    The **deployment circuit breaker** determines whether a service deployment will fail if the service can't reach a
+    steady state. If you use the deployment circuit breaker, a service deployment will transition to a failed state and
+    stop launching new tasks. If you use the rollback option, when a service deployment fails, the service is rolled
+    back to the last deployment that completed successfully. For more information, see
+    `Rolling update <https://docs.aws.amazon.com/AmazonECS/latest/developerguide/deployment-type-ecs.html>`_
+    in the *Amazon Elastic
+    Container Service Developer Guide*
     """
 
     enable: bool
     """
-    Determines whether to use the deployment circuit breaker logic for the
-    service.
+    Determines whether to use the deployment circuit breaker logic for the service.
     """
     rollback: bool
     """
-    Determines whether to configure Amazon ECS to roll back the service if a
-    service deployment fails.
+    Determines whether to configure Amazon ECS to roll back the service if a service deployment fails.
 
-    If rollback is on, when a service deployment fails, the service is rolled
-    back to the last deployment that completed successfully.
+    If rollback is on, when a service deployment fails, the service is rolled back to the last deployment that completed
+    successfully.
     """
 
 
@@ -1608,60 +1433,51 @@ class DeploymentAlarms(Boto3Model):
 
     Use a "," to separate the alarms.
     """
-    enable: bool
-    """
-    Determines whether to use the CloudWatch alarm option in the service
-    deployment process.
-    """
     rollback: bool
     """
-    Determines whether to configure Amazon ECS to roll back the service if a
-    service deployment fails.
+    Determines whether to configure Amazon ECS to roll back the service if a service deployment fails.
 
-    If rollback is used, when a service deployment fails, the service is rolled
-    back to the last deployment that completed successfully.
+    If rollback is used, when a service deployment fails, the service is rolled back to the last deployment that
+    completed successfully.
+    """
+    enable: bool
+    """
+    Determines whether to use the CloudWatch alarm option in the service deployment process.
     """
 
 
 class DeploymentConfiguration(Boto3Model):
     """
-    Optional deployment parameters that control how many tasks run during the
-    deployment and the ordering of stopping and starting tasks.
+    Optional deployment parameters that control how many tasks run during the deployment and the ordering of stopping
+    and starting tasks.
     """
 
     deploymentCircuitBreaker: Optional[DeploymentCircuitBreaker] = None
     """
-    The deployment circuit breaker can only be used for services using the
-    rolling update (``ECS``) deployment type.
+    The deployment circuit breaker can only be used for services using the rolling update (``ECS``) deployment type.
     """
     maximumPercent: Optional[int] = None
     """
-    If a service is using the rolling update (``ECS``) deployment type, the
-    ``maximumPercent`` parameter represents an upper limit on the number of
-    your service's tasks that are allowed in the ``RUNNING`` or ``PENDING``
-    state during a deployment, as a percentage of the ``desiredCount`` (rounded
-    down to the nearest integer).
+    If a service is using the rolling update (``ECS``) deployment type, the ``maximumPercent`` parameter represents an
+    upper limit on the number of your service's tasks that are allowed in the ``RUNNING`` or ``PENDING`` state during a
+    deployment, as a percentage of the ``desiredCount`` (rounded down to the nearest integer).
 
-    This parameter enables you to define the deployment batch
-    size. For example, if your service is using the ``REPLICA`` service scheduler
-    and has a ``desiredCount`` of four tasks and a ``maximumPercent`` value of
-    200%, the scheduler may start four new tasks before stopping the four older
-    tasks (provided that the cluster resources required to do this are available).
-    The default ``maximumPercent`` value for a service using the ``REPLICA``
-    service scheduler is 200%.
+    This parameter enables you to
+    define the deployment batch size. For example, if your service is using the ``REPLICA`` service scheduler and has a
+    ``desiredCount`` of four tasks and a ``maximumPercent`` value of 200%, the scheduler may start four new tasks before
+    stopping the four older tasks (provided that the cluster resources required to do this are available). The default
+    ``maximumPercent`` value for a service using the ``REPLICA`` service scheduler is 200%.
     """
     minimumHealthyPercent: Optional[int] = None
     """
-    If a service is using the rolling update (``ECS``) deployment type, the
-    ``minimumHealthyPercent`` represents a lower limit on the number of your
-    service's tasks that must remain in the ``RUNNING`` state during a
-    deployment, as a percentage of the ``desiredCount`` (rounded up to the
-    nearest integer).
+    If a service is using the rolling update (``ECS``) deployment type, the ``minimumHealthyPercent`` represents a lower
+    limit on the number of your service's tasks that must remain in the ``RUNNING`` state during a deployment, as a
+    percentage of the ``desiredCount`` (rounded up to the nearest integer).
 
-    This parameter enables you to deploy without using additional cluster capacity.
-    For example, if your service has a ``desiredCount`` of four tasks and a
-    ``minimumHealthyPercent`` of 50%, the service scheduler may stop two existing
-    tasks to free up cluster capacity before starting two new tasks.
+    This parameter enables you to deploy without
+    using additional cluster capacity. For example, if your service has a ``desiredCount`` of four tasks and a
+    ``minimumHealthyPercent`` of 50%, the service scheduler may stop two existing tasks to free up cluster capacity before
+    starting two new tasks.
     """
     alarms: Optional[DeploymentAlarms] = None
     """
@@ -1680,24 +1496,22 @@ class AwsVpcConfiguration(Boto3Model):
     """
     The IDs of the subnets associated with the task or service.
 
-    There's a limit of
-    16 subnets that can be specified per ``awsvpcConfiguration``.
+    There's a limit of 16 subnets that can be specified per
+    ``awsvpcConfiguration``.
     """
     securityGroups: Optional[List[str]] = None
     """
     The IDs of the security groups associated with the task or service.
 
-    If you
-    don't specify a security group, the default security group for the VPC is used.
-    There's a limit of 5 security groups that can be specified per
+    If you don't specify a security group, the default
+    security group for the VPC is used. There's a limit of 5 security groups that can be specified per
     ``awsvpcConfiguration``.
     """
     assignPublicIp: Optional[Literal["ENABLED", "DISABLED"]] = None
     """
     Whether the task's elastic network interface receives a public IP address.
 
-    The
-    default value is ``DISABLED``.
+    The default value is ``DISABLED``.
     """
 
 
@@ -1714,14 +1528,12 @@ class NetworkConfiguration(Boto3Model):
 
 class Scale(Boto3Model):
     """
-    A floating-point percentage of your desired number of tasks to place and
-    keep running in the task set.
+    A floating-point percentage of your desired number of tasks to place and keep running in the task set.
     """
 
     value: Optional[float] = None
     """
-    The value, specified as a percent total of a service's ``desiredCount``, to
-    scale the task set.
+    The value, specified as a percent total of a service's ``desiredCount``, to scale the task set.
 
     Accepted values are numbers between 0 and 100.
     """
@@ -1738,26 +1550,22 @@ class DeploymentEphemeralStorage(Boto3Model):
 
     kmsKeyId: Optional[str] = None
     """
-    Specify an Key Management Service key ID to encrypt the ephemeral storage
-    for deployment.
+    Specify an Amazon Web Services Key Management Service key ID to encrypt the ephemeral storage for deployment.
     """
 
 
 class TaskSet(TagsDictMixin, Boto3Model):
     """
-    Information about a set of Amazon ECS tasks in either an CodeDeploy or an
-    ``EXTERNAL`` deployment.
+    Information about a set of Amazon ECS tasks in either an CodeDeploy or an ``EXTERNAL`` deployment.
 
-    An Amazon ECS task set includes details such as the desired number of
-    tasks, how many tasks are running, and whether the task set serves
-    production traffic.
+    An Amazon ECS task set includes details such as the desired number of tasks, how many tasks are running, and whether
+    the task set serves production traffic.
     """
 
     tag_class: ClassVar[Type] = ECSTag
     Tags: List["ECSTag"] = Field(default=None, serialization_alias="tags")
     """
-    The metadata that you apply to the task set to help you categorize and
-    organize them.
+    The metadata that you apply to the task set to help you categorize and organize them.
 
     Each tag consists of a key and an optional value. You define both.
     """
@@ -1775,16 +1583,14 @@ class TaskSet(TagsDictMixin, Boto3Model):
     """
     clusterArn: Optional[str] = None
     """
-    The Amazon Resource Name (ARN) of the cluster that the service that hosts
-    the task set exists in.
+    The Amazon Resource Name (ARN) of the cluster that the service that hosts the task set exists in.
     """
     startedBy: Optional[str] = None
     """
     The tag specified when a task set is started.
 
-    If an CodeDeploy deployment
-    created the task set, the ``startedBy`` parameter is ``CODE_DEPLOY``. If an
-    external deployment created the task set, the ``startedBy`` field isn't used.
+    If an CodeDeploy deployment created the task set, the ``startedBy``
+    parameter is ``CODE_DEPLOY``. If an external deployment created the task set, the ``startedBy`` field isn't used.
     """
     externalId: Optional[str] = None
     """
@@ -1804,26 +1610,24 @@ class TaskSet(TagsDictMixin, Boto3Model):
     """
     The computed desired count for the task set.
 
-    This is calculated by multiplying
-    the service's ``desiredCount`` by the task set's ``scale`` percentage. The
-    result is always rounded up. For example, if the computed desired count is
-    1.2, it rounds up to 2 tasks.
+    This is calculated by multiplying the service's ``desiredCount`` by the
+    task set's ``scale`` percentage. The result is always rounded up. For example, if the computed desired count is 1.2, it
+    rounds up to 2 tasks.
     """
     pendingCount: Optional[int] = None
     """
-    The number of tasks in the task set that are in the ``PENDING`` status
-    during a deployment.
+    The number of tasks in the task set that are in the ``PENDING`` status during a deployment.
 
-    A task in the ``PENDING`` state is preparing to enter the
-    ``RUNNING`` state. A task set enters the ``PENDING`` status when it launches
-    for the first time or when it's restarted after being in the ``STOPPED`` state.
+    A task in the ``PENDING``
+    state is preparing to enter the ``RUNNING`` state. A task set enters the ``PENDING`` status when it launches for the
+    first time or when it's restarted after being in the ``STOPPED`` state.
     """
     runningCount: Optional[int] = None
     """
-    The number of tasks in the task set that are in the ``RUNNING`` status
-    during a deployment.
+    The number of tasks in the task set that are in the ``RUNNING`` status during a deployment.
 
-    A task in the ``RUNNING`` state is running and ready for use.
+    A task in the ``RUNNING``
+    state is running and ready for use.
     """
     createdAt: Optional[datetime] = None
     """
@@ -1838,9 +1642,9 @@ class TaskSet(TagsDictMixin, Boto3Model):
     The launch type the tasks in the task set are using.
 
     For more information, see
-    `Amazon ECS launch types <https://docs.aws.amazon.com/AmazonECS/latest/develope
-    rguide/launch_types.html>`_ in the *Amazon Elastic Container Service Developer
-    Guide*.
+    `Amazon ECS launch types <https://docs.aws.amazon.com/AmazonECS/latest/developerguide/launch_types.html>`_
+    in the *Amazon Elastic Container
+    Service Developer Guide*.
     """
     capacityProviderStrategy: Optional[List["CapacityProviderStrategyItem"]] = None
     """
@@ -1850,18 +1654,16 @@ class TaskSet(TagsDictMixin, Boto3Model):
     """
     The Fargate platform version where the tasks in the task set are running.
 
-    A
-    platform version is only specified for tasks run on Fargate. For more
-    information, see `Fargate platform versions <https://docs.aws.amazon.com/Amazon
-    ECS/latest/developerguide/platform_versions.html>`_ in the *Amazon Elastic
+    A platform version is only specified for tasks run on Fargate. For more information, see
+    `Fargate platform versions <https://docs.aws.amazon.com/AmazonECS/latest/developerguide/platform_versions.html>`_
+    in the *Amazon Elastic
     Container Service Developer Guide*.
     """
     platformFamily: Optional[str] = None
     """
     The operating system that your tasks in the set are running on.
 
-    A platform family is specified only for tasks that use the Fargate launch
-    type.
+    A platform family is specified only for tasks that use the Fargate launch type.
     """
     networkConfiguration: Optional[NetworkConfiguration] = None
     """
@@ -1873,30 +1675,25 @@ class TaskSet(TagsDictMixin, Boto3Model):
     """
     serviceRegistries: Optional[List["ServiceRegistry"]] = None
     """
-    The details for the service discovery registries to assign to this task
-    set.
+    The details for the service discovery registries to assign to this task set.
 
     For more information, see
-    `Service discovery <https://docs.aws.amazon.com/AmazonECS/latest/developerguide/service-
-    discovery.html>`_.
+    `Service discovery <https://docs.aws.amazon.com/AmazonECS/latest/developerguide/service-discovery.html>`_.
     """
     scale: Optional[Scale] = None
     """
-    A floating-point percentage of your desired number of tasks to place and
-    keep running in the task set.
+    A floating-point percentage of your desired number of tasks to place and keep running in the task set.
     """
     stabilityStatus: Optional[Literal["STEADY_STATE", "STABILIZING"]] = None
     """
     The stability status.
 
-    This indicates whether the task set has reached a steady
-    state. If the following conditions are met, the task set are in
-    ``STEADY_STATE``:
+    This indicates whether the task set has reached a steady state. If the following conditions are
+    met, the task set are in ``STEADY_STATE``:
     """
     stabilityStatusAt: Optional[datetime] = None
     """
-    The Unix timestamp for the time when the task set stability status was
-    retrieved.
+    The Unix timestamp for the time when the task set stability status was retrieved.
     """
     fargateEphemeralStorage: Optional[DeploymentEphemeralStorage] = None
     """
@@ -1906,17 +1703,15 @@ class TaskSet(TagsDictMixin, Boto3Model):
 
 class ServiceConnectClientAlias(Boto3Model):
     """
-    Each alias ("endpoint") is a fully-qualified name and port number that
-    other tasks ("clients") can use to connect to this service.
+    Each alias ("endpoint") is a fully-qualified name and port number that other tasks ("clients") can use to connect to
+    this service.
 
     Each name and port mapping must be unique within the namespace.
 
-    Tasks that run in a namespace can use short names to connect to services in
-    the namespace. Tasks can connect to services across all of the clusters in
-    the namespace. Tasks connect through a managed proxy container that
-    collects logs and metrics for increased visibility. Only the tasks that
-    Amazon ECS services create are supported with Service Connect. For more
-    information, see
+    Tasks that run in a namespace can use short names to connect to services in the namespace. Tasks can connect to
+    services across all of the clusters in the namespace. Tasks connect through a managed proxy container that collects
+    logs and metrics for increased visibility. Only the tasks that Amazon ECS services create are supported with Service
+    Connect. For more information, see
     `Service Connect <https://docs.aws.amazon.com/AmazonECS/latest/developerguide/service-
     connect.html>`_ in the *Amazon Elastic Container Service Developer Guide*.
     """
@@ -1925,41 +1720,36 @@ class ServiceConnectClientAlias(Boto3Model):
     """
     The listening port number for the Service Connect proxy.
 
-    This port is available inside of all of the tasks within the same
-    namespace.
+    This port is available inside of all of the tasks within the same namespace.
     """
     dnsName: Optional[str] = None
     """
-    The ``dnsName`` is the name that you use in the applications of client
-    tasks to connect to this service.
+    The ``dnsName`` is the name that you use in the applications of client tasks to connect to this service.
 
-    The name must be a valid DNS name but doesn't need to be fully-qualified.
-    The name can include up to 127 characters. The name can include lowercase
-    letters, numbers, underscores (_), hyphens (-), and periods (.). The name
-    can't start with a hyphen.
+    The name must be a valid DNS name but doesn't need to be fully-qualified. The name can include up to 127 characters.
+    The name can include lowercase letters, numbers, underscores (_), hyphens (-), and periods (.). The name can't start
+    with a hyphen.
     """
 
 
 class TimeoutConfiguration(Boto3Model):
     """
-    A reference to an object that represents the configured timeouts for
-    Service Connect.
+    A reference to an object that represents the configured timeouts for Service Connect.
     """
 
     idleTimeoutSeconds: Optional[int] = None
     """
     The amount of time in seconds a connection will stay active while idle.
 
-    A value
-    of ``0`` can be set to disable ``idleTimeout``.
+    A value of ``0`` can be set to disable
+    ``idleTimeout``.
     """
     perRequestTimeoutSeconds: Optional[int] = None
     """
-    The amount of time waiting for the upstream to respond with a complete
-    response per request.
+    The amount of time waiting for the upstream to respond with a complete response per request.
 
-    A value of ``0`` can be set to disable ``perRequestTimeout``.
-    ``perRequestTimeout`` can only be set if Service Connect ``appProtocol`` isn't
+    A value of ``0`` can be set
+    to disable ``perRequestTimeout``. ``perRequestTimeout`` can only be set if Service Connect ``appProtocol`` isn't
     ``TCP``. Only ``idleTimeout`` is allowed for ``TCP`` ``appProtocol``.
     """
 
@@ -1971,15 +1761,13 @@ class ServiceConnectTlsCertificateAuthority(Boto3Model):
 
     awsPcaAuthorityArn: Optional[str] = None
     """
-    The ARN of the Amazon Web Services Private Certificate Authority
-    certificate.
+    The ARN of the Amazon Web Services Private Certificate Authority certificate.
     """
 
 
 class ServiceConnectTlsConfiguration(Boto3Model):
     """
-    A reference to an object that represents a Transport Layer Security (TLS)
-    configuration.
+    A reference to an object that represents a Transport Layer Security (TLS) configuration.
     """
 
     issuerCertificateAuthority: ServiceConnectTlsCertificateAuthority
@@ -1992,8 +1780,7 @@ class ServiceConnectTlsConfiguration(Boto3Model):
     """
     roleArn: Optional[str] = None
     """
-    The Amazon Resource Name (ARN) of the IAM role that's associated with the
-    Service Connect TLS.
+    The Amazon Resource Name (ARN) of the IAM role that's associated with the Service Connect TLS.
     """
 
 
@@ -2002,30 +1789,29 @@ class ServiceConnectService(Boto3Model):
     The Service Connect service object configuration.
 
     For more information, see
-    `Service Connect <https://docs.aws.amazon.com/AmazonECS/latest/developerguide/service-
-    connect.html>`_ in the *Amazon Elastic Container Service Developer Guide*.
+    `Service Connect <https://docs.aws.amazon.com/AmazonECS/latest/developerguide/service-connect.html>`_
+    in the *Amazon Elastic
+    Container Service Developer Guide*.
     """
 
     portName: str
     """
-    The ``portName`` must match the name of one of the ``portMappings`` from
-    all the containers in the task definition of this Amazon ECS service.
+    The ``portName`` must match the name of one of the ``portMappings`` from all the containers in the task definition
+    of this Amazon ECS service.
     """
     discoveryName: Optional[str] = None
     """
-    The ``discoveryName`` is the name of the new Cloud Map service that Amazon
-    ECS creates for this Amazon ECS service.
+    The ``discoveryName`` is the name of the new Cloud Map service that Amazon ECS creates for this Amazon ECS service.
 
-    This must be unique within the Cloud Map namespace. The name can contain up
-    to 64 characters. The name can include lowercase letters, numbers,
-    underscores (_), and hyphens (-). The name can't start with a hyphen.
+    This must be unique within the Cloud Map namespace. The name can contain up to 64 characters. The name can include
+    lowercase letters, numbers, underscores (_), and hyphens (-). The name can't start with a hyphen.
     """
     clientAliases: Optional[List["ServiceConnectClientAlias"]] = None
     """
     The list of client aliases for this Service Connect service.
 
-    You use these to assign names that can be used by client applications. The
-    maximum number of client aliases that you can have in this list is 1.
+    You use these to assign names that can be used by client applications. The maximum number of client aliases that you
+    can have in this list is 1.
     """
     ingressPortOverride: Optional[int] = None
     """
@@ -2033,28 +1819,26 @@ class ServiceConnectService(Boto3Model):
     """
     timeout: Optional[TimeoutConfiguration] = None
     """
-    A reference to an object that represents the configured timeouts for
-    Service Connect.
+    A reference to an object that represents the configured timeouts for Service Connect.
     """
     tls: Optional[ServiceConnectTlsConfiguration] = None
     """
-    A reference to an object that represents a Transport Layer Security (TLS)
-    configuration.
+    A reference to an object that represents a Transport Layer Security (TLS) configuration.
     """
 
 
 class Secret(Boto3Model):
-    """An object representing the secret to expose to your container. Secrets can be
-    exposed to a container in the following ways:
+    """An object representing the secret to expose to your container. Secrets can be exposed to a container in the following
+    ways:
 
-    * To inject sensitive data into your containers as environment variables, use
-      the ``secrets`` container definition parameter.
-    * To reference sensitive information in the log configuration of a container,
-      use the ``secretOptions`` container definition parameter.
+    * To inject sensitive data into your containers as environment variables, use the ``secrets`` container definition
+      parameter.
+    * To reference sensitive information in the log configuration of a container, use the ``secretOptions`` container
+      definition parameter.
 
     For more information, see `Specifying sensitive
-    data <https://docs.aws.amazon.com/AmazonECS/latest/developerguide/specifying-
-    sensitive-data.html>`_ in the *Amazon Elastic Container Service Developer Guide*.
+    data <https://docs.aws.amazon.com/AmazonECS/latest/developerguide/specifying-sensitive-data.html>`_ in the *Amazon Elastic
+    Container Service Developer Guide*.
 
     """
 
@@ -2066,48 +1850,38 @@ class Secret(Boto3Model):
     """
     The secret to expose to the container.
 
-    The supported values are either the full ARN of the Secrets Manager secret
-    or the full ARN of the parameter in the SSM Parameter Store.
+    The supported values are either the full ARN of the Secrets Manager secret or the full ARN of the parameter in the
+    SSM Parameter Store.
     """
 
 
 class LogConfiguration(Boto3Model):
     """
-    The log configuration for the container. This parameter maps to
-    ``LogConfig`` in the docker container create command and the ``--log-
-    driver`` option to docker run.
+    The log configuration for the container. This parameter maps to ``LogConfig`` in the docker container create command
+    and the ``--log-driver`` option to docker run.
 
-    By default, containers use the same logging driver that the Docker daemon uses.
-    However, the container might use a different logging driver than the Docker
-    daemon by specifying a log driver configuration in the container definition.
+    By default, containers use the same logging driver that the Docker daemon uses. However, the container might use a
+    different logging driver than the Docker daemon by specifying a log driver configuration in the container definition.
 
-    Understand the following when specifying a log configuration for your
-    containers.
+    Understand the following when specifying a log configuration for your containers.
 
-    * Amazon ECS currently supports a subset of the logging drivers available to
-      the Docker daemon. Additional log drivers may be available in future releases
-      of the Amazon ECS container agent.
+    * Amazon ECS currently supports a subset of the logging drivers available to the Docker daemon. Additional log drivers
+      may be available in future releases of the Amazon ECS container agent.
 
-    For tasks on Fargate, the supported log drivers are ``awslogs``, ``splunk``,
-    and ``awsfirelens``.
+    For tasks on Fargate, the supported log drivers are ``awslogs``, ``splunk``, and ``awsfirelens``.
 
-    For tasks hosted on Amazon EC2 instances, the supported log drivers are
-    ``awslogs``, ``fluentd``, ``gelf``, ``json-file``, ``journald``,``syslog``,
-    ``splunk``, and ``awsfirelens``.
+    For tasks hosted on Amazon EC2 instances, the supported log drivers are ``awslogs``, ``fluentd``, ``gelf``, ``json-
+    file``, ``journald``,``syslog``, ``splunk``, and ``awsfirelens``.
 
-    * This parameter requires version 1.18 of the Docker Remote API or greater on
-      your container instance.
-    * For tasks that are hosted on Amazon EC2 instances, the Amazon ECS container
-      agent must register the available logging drivers with the
-      ``ECS_AVAILABLE_LOGGING_DRIVERS`` environment variable before containers placed
-      on that instance can use these log configuration options. For more information,
-      see `Amazon ECS container agent
-      configuration <https://docs.aws.amazon.com/AmazonECS/latest/developerguide/ecs-
-    agent-config.html>`_ in the *Amazon Elastic Container Service Developer Guide*.
-    * For tasks that are on Fargate, because you don't have access to the
-      underlying infrastructure your tasks are hosted on, any additional software
-      needed must be installed outside of the task. For example, the Fluentd output
-      aggregators or a remote host running Logstash to send Gelf logs to.
+    * This parameter requires version 1.18 of the Docker Remote API or greater on your container instance.
+    * For tasks that are hosted on Amazon EC2 instances, the Amazon ECS container agent must register the available logging
+      drivers with the ``ECS_AVAILABLE_LOGGING_DRIVERS`` environment variable before containers placed on that instance can
+      use these log configuration options. For more information, see `Amazon ECS container agent
+      configuration <https://docs.aws.amazon.com/AmazonECS/latest/developerguide/ecs-agent-config.html>`_ in the *Amazon Elastic
+      Container Service Developer Guide*.
+    * For tasks that are on Fargate, because you don't have access to the underlying infrastructure your tasks are hosted
+      on, any additional software needed must be installed outside of the task. For example, the Fluentd output aggregators or
+      a remote host running Logstash to send Gelf logs to.
     """
 
     logDriver: Literal[
@@ -2132,26 +1906,24 @@ class LogConfiguration(Boto3Model):
     The secrets to pass to the log configuration.
 
     For more information, see
-    `Specifying sensitive data <https://docs.aws.amazon.com/AmazonECS/latest/developerguide/specifying-
-    sensitive-data.html>`_ in the *Amazon Elastic Container Service Developer Guide*.
+    `Specifying sensitive data <https://docs.aws.amazon.com/AmazonECS/latest/developerguide/specifying-sensitive-data.html>`_
+    in the *Amazon Elastic
+    Container Service Developer Guide*.
     """
 
 
 class ServiceConnectConfiguration(Boto3Model):
     """
-    The details of the Service Connect configuration that's used by this
-    deployment. Compare the configuration between multiple deployments when
-    troubleshooting issues with new deployments.
+    The details of the Service Connect configuration that's used by this deployment. Compare the configuration between
+    multiple deployments when troubleshooting issues with new deployments.
 
-    The configuration for this service to discover and connect to services, and
-    be discovered by, and connected from, other services within a namespace.
+    The configuration for this service to discover and connect to services, and be discovered by, and connected from,
+    other services within a namespace.
 
-    Tasks that run in a namespace can use short names to connect to services in
-    the namespace. Tasks can connect to services across all of the clusters in
-    the namespace. Tasks connect through a managed proxy container that
-    collects logs and metrics for increased visibility. Only the tasks that
-    Amazon ECS services create are supported with Service Connect. For more
-    information, see
+    Tasks that run in a namespace can use short names to connect to services in the namespace. Tasks can connect to
+    services across all of the clusters in the namespace. Tasks connect through a managed proxy container that collects
+    logs and metrics for increased visibility. Only the tasks that Amazon ECS services create are supported with Service
+    Connect. For more information, see
     `Service Connect <https://docs.aws.amazon.com/AmazonECS/latest/developerguide/service-
     connect.html>`_ in the *Amazon Elastic Container Service Developer Guide*.
     """
@@ -2162,43 +1934,38 @@ class ServiceConnectConfiguration(Boto3Model):
     """
     namespace: Optional[str] = None
     """
-    The namespace name or full Amazon Resource Name (ARN) of the Cloud Map
-    namespace for use with Service Connect.
+    The namespace name or full Amazon Resource Name (ARN) of the Cloud Map namespace for use with Service Connect.
 
-    The namespace must be in the same Amazon Web Services Region as the Amazon
-    ECS service and cluster. The type of namespace doesn't affect Service
-    Connect. For more information about Cloud Map, see
-    `Working with Services <https://docs.aws.amazon.com/cloud-
-    map/latest/dg/working-with-services.html>`_ in the *Cloud Map Developer Guide*.
+    The namespace must be in the same Amazon Web Services Region as the Amazon ECS service and cluster. The type of
+    namespace doesn't affect Service Connect. For more information about Cloud Map, see
+    `Working with Services <https://docs.aws.amazon.com/cloud-map/latest/dg/working-with-services.html>`_
+    in the *Cloud Map Developer
+    Guide*.
     """
     services: Optional[List["ServiceConnectService"]] = None
     """
     The list of Service Connect service objects.
 
-    These are names and aliases (also known as endpoints) that are used by
-    other Amazon ECS services to connect to this service.
+    These are names and aliases (also known as endpoints) that are used by other Amazon ECS services to connect to this
+    service.
     """
     logConfiguration: Optional[LogConfiguration] = None
     """
     The log configuration for the container.
 
-    This parameter maps to ``LogConfig``
-    in the docker container create command and the ``--log-driver`` option to
-    docker run.
+    This parameter maps to ``LogConfig`` in the docker container create command and
+    the ``--log-driver`` option to docker run.
     """
 
 
 class ServiceConnectServiceResource(Boto3Model):
     """
-    The Service Connect resource. Each configuration maps a discovery name to a
-    Cloud Map service name. The data is stored in Cloud Map as part of the
-    Service Connect configuration for each discovery name of this Amazon ECS
-    service.
+    The Service Connect resource. Each configuration maps a discovery name to a Cloud Map service name. The data is
+    stored in Cloud Map as part of the Service Connect configuration for each discovery name of this Amazon ECS service.
 
-    A task can resolve the ``dnsName`` for each of the ``clientAliases`` of a
-    service. However a task can't resolve the discovery names. If you want to
-    connect to a service, refer to the ``ServiceConnectConfiguration`` of that
-    service for the list of ``clientAliases`` that you can use.
+    A task can resolve the ``dnsName`` for each of the ``clientAliases`` of a service. However a task can't resolve the
+    discovery names. If you want to connect to a service, refer to the ``ServiceConnectConfiguration`` of that service for
+    the list of ``clientAliases`` that you can use.
     """
 
     discoveryName: Optional[str] = None
@@ -2207,11 +1974,11 @@ class ServiceConnectServiceResource(Boto3Model):
     """
     discoveryArn: Optional[str] = None
     """
-    The Amazon Resource Name (ARN) for the namespace in Cloud Map that matches
-    the discovery name for this Service Connect resource.
+    The Amazon Resource Name (ARN) for the namespace in Cloud Map that matches the discovery name for this Service
+    Connect resource.
 
-    You can use this ARN in other integrations with Cloud Map. However, Service
-    Connect can't ensure connectivity outside of Amazon ECS.
+    You can use this ARN in other integrations with Cloud Map. However, Service Connect can't ensure connectivity
+    outside of Amazon ECS.
     """
 
 
@@ -2225,8 +1992,8 @@ class EBSTagSpecification(TagsDictMixin, Boto3Model):
     """
     The tags applied to this Amazon EBS volume.
 
-    ``AmazonECSCreated`` and
-    ``AmazonECSManaged`` are reserved tags that can't be used.
+    ``AmazonECSCreated`` and ``AmazonECSManaged`` are reserved tags that can't
+    be used.
     """
     resourceType: Literal["volume"]
     """
@@ -2234,132 +2001,113 @@ class EBSTagSpecification(TagsDictMixin, Boto3Model):
     """
     propagateTags: Optional[Literal["TASK_DEFINITION", "SERVICE", "NONE"]] = None
     """
-    Determines whether to propagate the tags from the task definition to the
-    Amazon EBS volume. Tags can only propagate to a ``SERVICE`` specified in.
+    Determines whether to propagate the tags from the task definition to  the Amazon EBS volume.
 
+    Tags can only propagate to
+    a ``SERVICE`` specified in
     ``ServiceVolumeConfiguration``. If no value is specified, the tags aren't
-
     propagated.
     """
 
 
 class ServiceManagedEBSVolumeConfiguration(Boto3Model):
     """
-    The configuration for the Amazon EBS volume that Amazon ECS creates and
-    manages on your behalf.
+    The configuration for the Amazon EBS volume that Amazon ECS creates and manages on your behalf.
 
-    These settings are used to create each Amazon EBS volume, with one volume
-    created for each task in the service. The Amazon EBS volumes are visible in
-    your account in the Amazon EC2 console once they are created.
+    These settings are used to create each Amazon EBS volume, with one volume created for each task in the service. The
+    Amazon EBS volumes are visible in your account in the Amazon EC2 console once they are created.
     """
 
     encrypted: Optional[bool] = None
     """
     Indicates whether the volume should be encrypted.
 
-    If no value is specified,
-    encryption is turned on by default. This parameter maps 1:1 with the
-    ``Encrypted`` parameter of the `CreateVolume API <https://docs.aws.amazon.com/A
-    WSEC2/latest/APIReference/API_CreateVolume.html>`_ in the *Amazon EC2 API
-    Reference*.
+    If no value is specified, encryption is turned on by default. This
+    parameter maps 1:1 with the ``Encrypted`` parameter of the `CreateVolume
+    API <https://docs.aws.amazon.com/AWSEC2/latest/APIReference/API_CreateVolume.html>`_ in the *Amazon EC2 API Reference*.
     """
     kmsKeyId: Optional[str] = None
     """
-    The Amazon Resource Name (ARN) identifier of the Amazon Web Services Key
-    Management Service key to use for Amazon EBS encryption.
+    The Amazon Resource Name (ARN) identifier of the Amazon Web Services Key Management Service key to use for Amazon
+    EBS encryption.
 
-    When encryption is
-    turned on and no Amazon Web Services Key Management Service key is specified,
-    the default Amazon Web Services managed key for Amazon EBS volumes is used.
-    This parameter maps 1:1 with the ``KmsKeyId`` parameter of the `CreateVolume AP
-    I <https://docs.aws.amazon.com/AWSEC2/latest/APIReference/API_CreateVolume.html
-    >`_ in the *Amazon EC2 API Reference*.
+    When encryption is turned on and no Amazon Web Services Key Management Service key is specified, the default
+    Amazon Web Services managed key for Amazon EBS volumes is used. This parameter maps 1:1 with the ``KmsKeyId`` parameter
+    of the `CreateVolume API <https://docs.aws.amazon.com/AWSEC2/latest/APIReference/API_CreateVolume.html>`_ in the *Amazon
+    EC2 API Reference*.
     """
     volumeType: Optional[str] = None
     """
     The volume type.
 
-    This parameter maps 1:1 with the ``VolumeType`` parameter of
-    the `CreateVolume API <https://docs.aws.amazon.com/AWSEC2/latest/APIReference/A
-    PI_CreateVolume.html>`_ in the *Amazon EC2 API Reference*. For more information,
-    see `Amazon EBS volume
-    types <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ebs-volume-
+    This parameter maps 1:1 with the ``VolumeType`` parameter of the `CreateVolume
+    API <https://docs.aws.amazon.com/AWSEC2/latest/APIReference/API_CreateVolume.html>`_ in the *Amazon EC2 API Reference*.
+    For more information, see `Amazon EBS volume types <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ebs-volume-
     types.html>`_ in the *Amazon EC2 User Guide*.
     """
     sizeInGiB: Optional[int] = None
     """
     The size of the volume in GiB.
 
-    You must specify either a volume size or a
-    snapshot ID. If you specify a snapshot ID, the snapshot size is used for the
-    volume size by default. You can optionally specify a volume size greater than
-    or equal to the snapshot size. This parameter maps 1:1 with the ``Size``
-    parameter of the `CreateVolume API <https://docs.aws.amazon.com/AWSEC2/latest/A
-    PIReference/API_CreateVolume.html>`_ in the *Amazon EC2 API Reference*.
+    You must specify either a volume size or a snapshot ID. If you specify a snapshot ID, the
+    snapshot size is used for the volume size by default. You can optionally specify a volume size greater than or equal to
+    the snapshot size. This parameter maps 1:1 with the ``Size`` parameter of the `CreateVolume
+    API <https://docs.aws.amazon.com/AWSEC2/latest/APIReference/API_CreateVolume.html>`_ in the *Amazon EC2 API Reference*.
     """
     snapshotId: Optional[str] = None
     """
     The snapshot that Amazon ECS uses to create the volume.
 
-    You must specify either
-    a snapshot ID or a volume size. This parameter maps 1:1 with the ``SnapshotId``
-    parameter of the `CreateVolume API <https://docs.aws.amazon.com/AWSEC2/latest/A
-    PIReference/API_CreateVolume.html>`_ in the *Amazon EC2 API Reference*.
+    You must specify either a snapshot ID or a volume size. This
+    parameter maps 1:1 with the ``SnapshotId`` parameter of the `CreateVolume
+    API <https://docs.aws.amazon.com/AWSEC2/latest/APIReference/API_CreateVolume.html>`_ in the *Amazon EC2 API Reference*.
     """
     iops: Optional[int] = None
     """
     The number of I/O operations per second (IOPS).
 
-    For ``gp3``, ``io1``, and
-    ``io2`` volumes, this represents the number of IOPS that are provisioned for
-    the volume. For ``gp2`` volumes, this represents the baseline performance of
-    the volume and the rate at which the volume accumulates I/O credits for
-    bursting.
+    For ``gp3``, ``io1``, and ``io2`` volumes, this represents the number of
+    IOPS that are provisioned for the volume. For ``gp2`` volumes, this represents the baseline performance of the volume
+    and the rate at which the volume accumulates I/O credits for bursting.
     """
     throughput: Optional[int] = None
     """
-    The throughput to provision for a volume, in MiB/s, with a maximum of 1,000
-    MiB/s.
+    The throughput to provision for a volume, in MiB/s, with a maximum of 1,000 MiB/s.
 
-    This parameter maps 1:1 with the ``Throughput`` parameter of the
-    `CreateVolume API <https://docs.aws.amazon.com/AWSEC2/latest/APIReference/API_C
-    reateVolume.html>`_ in the *Amazon EC2 API Reference*.
+    This parameter maps 1:1 with the
+    ``Throughput`` parameter of the `CreateVolume
+    API <https://docs.aws.amazon.com/AWSEC2/latest/APIReference/API_CreateVolume.html>`_ in the *Amazon EC2 API Reference*.
     """
     tagSpecifications: Optional[List["EBSTagSpecification"]] = None
     """
     The tags to apply to the volume.
 
-    Amazon ECS applies service-managed tags by
-    default. This parameter maps 1:1 with the ``TagSpecifications.N`` parameter of
-    the `CreateVolume API <https://docs.aws.amazon.com/AWSEC2/latest/APIReference/A
-    PI_CreateVolume.html>`_ in the *Amazon EC2 API Reference*.
+    Amazon ECS applies service-managed tags by default. This parameter maps 1:1 with the
+    ``TagSpecifications.N`` parameter of the `CreateVolume
+    API <https://docs.aws.amazon.com/AWSEC2/latest/APIReference/API_CreateVolume.html>`_ in the *Amazon EC2 API Reference*.
     """
     roleArn: str
     """
     The ARN of the IAM role to associate with this volume.
 
-    This is the Amazon ECS
-    infrastructure IAM role that is used to manage your Amazon Web Services
-    infrastructure. We recommend using the Amazon ECS-managed
-    ``AmazonECSInfrastructureRolePolicyForVolumes`` IAM policy with this role. For
-    more information, see `Amazon ECS infrastructure IAM role <https://docs.aws.ama
-    zon.com/AmazonECS/latest/developerguide/infrastructure_IAM_role.html>`_ in the
-    *Amazon ECS Developer Guide*.
+    This is the Amazon ECS infrastructure IAM role that is used to
+    manage your Amazon Web Services infrastructure. We recommend using the Amazon ECS-managed
+    ``AmazonECSInfrastructureRolePolicyForVolumes`` IAM policy with this role. For more information, see `Amazon ECS
+    infrastructure IAM role <https://docs.aws.amazon.com/AmazonECS/latest/developerguide/infrastructure_IAM_role.html>`_ in
+    the *Amazon ECS Developer Guide*.
     """
     filesystemType: Optional[Literal["ext3", "ext4", "xfs", "ntfs"]] = None
     """
     The filesystem type for the volume.
 
-    For volumes created from a snapshot, you must specify the same filesystem
-    type that the volume was using when the snapshot was created. If there is a
-    filesystem type mismatch, the task will fail to start.
+    For volumes created from a snapshot, you must specify the same filesystem type that the volume was using when the
+    snapshot was created. If there is a filesystem type mismatch, the task will fail to start.
     """
 
 
 class ServiceVolumeConfiguration(Boto3Model):
     """
-    The configuration for a volume specified in the task definition as a volume
-    that is configured at launch time.
+    The configuration for a volume specified in the task definition as a volume that is configured at launch time.
 
     Currently, the only supported volume type is an Amazon EBS volume.
     """
@@ -2368,17 +2116,14 @@ class ServiceVolumeConfiguration(Boto3Model):
     """
     The name of the volume.
 
-    This value must match the volume name from the
-    ``Volume`` object in the task definition.
+    This value must match the volume name from the ``Volume`` object in the task definition.
     """
     managedEBSVolume: Optional[ServiceManagedEBSVolumeConfiguration] = None
     """
-    The configuration for the Amazon EBS volume that Amazon ECS creates and
-    manages on your behalf.
+    The configuration for the Amazon EBS volume that Amazon ECS creates and manages on your behalf.
 
-    These settings are used to create each Amazon EBS volume, with one volume
-    created for each task in the service. The Amazon EBS volumes are visible in
-    your account in the Amazon EC2 console once they are created.
+    These settings are used to create each Amazon EBS volume, with one volume created for each task in the service. The
+    Amazon EBS volumes are visible in your account in the Amazon EC2 console once they are created.
     """
 
 
@@ -2386,8 +2131,8 @@ class Deployment(ReadonlyBoto3Model):
     """
     The details of an Amazon ECS service deployment.
 
-    This is used only when a
-    service uses the ``ECS`` deployment controller type.
+    This is used only when a service uses the ``ECS`` deployment controller
+    type.
     """
 
     id: Optional[str] = None
@@ -2402,13 +2147,11 @@ class Deployment(ReadonlyBoto3Model):
     """
     taskDefinition: Optional[str] = None
     """
-    The most recent task definition that was specified for the tasks in the
-    service to use.
+    The most recent task definition that was specified for the tasks in the service to use.
     """
     desiredCount: Optional[int] = None
     """
-    The most recent desired count of tasks that was specified for the service
-    to deploy or maintain.
+    The most recent desired count of tasks that was specified for the service to deploy or maintain.
     """
     pendingCount: Optional[int] = None
     """
@@ -2422,10 +2165,9 @@ class Deployment(ReadonlyBoto3Model):
     """
     The number of consecutively failed tasks in the deployment.
 
-    A task is
-    considered a failure if the service scheduler can't launch the task, the task
-    doesn't transition to a ``RUNNING`` state, or if it fails any of its defined
-    health checks and is stopped.
+    A task is considered a failure if the service scheduler
+    can't launch the task, the task doesn't transition to a ``RUNNING`` state, or if it fails any of its defined health
+    checks and is stopped.
     """
     createdAt: Optional[datetime] = None
     """
@@ -2433,8 +2175,7 @@ class Deployment(ReadonlyBoto3Model):
     """
     updatedAt: Optional[datetime] = None
     """
-    The Unix timestamp for the time when the service deployment was last
-    updated.
+    The Unix timestamp for the time when the service deployment was last updated.
     """
     capacityProviderStrategy: Optional[List["CapacityProviderStrategyItem"]] = None
     """
@@ -2445,40 +2186,34 @@ class Deployment(ReadonlyBoto3Model):
     The launch type the tasks in the service are using.
 
     For more information, see
-    `Amazon ECS Launch Types <https://docs.aws.amazon.com/AmazonECS/latest/develope
-    rguide/launch_types.html>`_ in the *Amazon Elastic Container Service Developer
-    Guide*.
+    `Amazon ECS Launch Types <https://docs.aws.amazon.com/AmazonECS/latest/developerguide/launch_types.html>`_
+    in the *Amazon Elastic Container
+    Service Developer Guide*.
     """
     platformVersion: Optional[str] = None
     """
     The platform version that your tasks in the service run on.
 
-    A platform version
-    is only specified for tasks using the Fargate launch type. If one isn't
-    specified, the ``LATEST`` platform version is used. For more information, see
-    `Fargate Platform Versions <https://docs.aws.amazon.com/AmazonECS/latest/develo
-    perguide/platform_versions.html>`_ in the *Amazon Elastic Container Service
-    Developer Guide*.
+    A platform version is only specified for tasks using the
+    Fargate launch type. If one isn't specified, the ``LATEST`` platform version is used. For more information, see `Fargate
+    Platform Versions <https://docs.aws.amazon.com/AmazonECS/latest/developerguide/platform_versions.html>`_ in the *Amazon
+    Elastic Container Service Developer Guide*.
     """
     platformFamily: Optional[str] = None
     """
-    The operating system that your tasks in the service, or tasks are running
-    on.
+    The operating system that your tasks in the service, or tasks are running on.
 
-    A platform family is specified only for tasks using the Fargate launch
-    type.
+    A platform family is specified only for tasks using the Fargate launch type.
     """
     networkConfiguration: Optional[NetworkConfiguration] = None
     """
-    The VPC subnet and security group configuration for tasks that receive
-    their own elastic network interface by using the ``awsvpc`` networking
-    mode.
+    The VPC subnet and security group configuration for tasks that receive their own elastic network interface by using
+    the ``awsvpc`` networking mode.
     """
     rolloutState: Optional[Literal["COMPLETED", "FAILED", "IN_PROGRESS"]] = None
     """
-    The ``rolloutState`` of a service is only returned for services that use
-    the rolling update (``ECS``) deployment type that aren't behind a Classic
-    Load Balancer.
+    The ``rolloutState`` of a service is only returned for services that use the rolling update (``ECS``) deployment
+    type that aren't behind a Classic Load Balancer.
     """
     rolloutStateReason: Optional[str] = None
     """
@@ -2486,16 +2221,13 @@ class Deployment(ReadonlyBoto3Model):
     """
     serviceConnectConfiguration: Optional[ServiceConnectConfiguration] = None
     """
-    The details of the Service Connect configuration that's used by this
-    deployment.
+    The details of the Service Connect configuration that's used by this deployment.
 
-    Compare the configuration between multiple deployments when troubleshooting
-    issues with new deployments.
+    Compare the configuration between multiple deployments when troubleshooting issues with new deployments.
     """
     serviceConnectResources: Optional[List["ServiceConnectServiceResource"]] = None
     """
-    The list of Service Connect resources that are associated with this
-    deployment.
+    The list of Service Connect resources that are associated with this deployment.
 
     Each list entry maps a discovery name to a Cloud Map service name.
     """
@@ -2503,11 +2235,10 @@ class Deployment(ReadonlyBoto3Model):
     """
     The details of the volume that was ``configuredAtLaunch``.
 
-    You can configure
-    different settings like the size, throughput, volumeType, and ecryption in `Ser
-    viceManagedEBSVolumeConfiguration <https://docs.aws.amazon.com/AmazonECS/latest
-    /APIReference/API_ServiceManagedEBSVolumeConfiguration.html>`_. The ``name`` of
-    the volume must match the ``name`` from the task definition.
+    You can configure different settings like the size,
+    throughput, volumeType, and ecryption in `ServiceManagedEBSVolumeConfiguration <https://docs.aws.amazon.com/AmazonECS/la
+    test/APIReference/API_ServiceManagedEBSVolumeConfiguration.html>`_. The ``name`` of the volume must match the ``name``
+    from the task definition.
     """
     fargateEphemeralStorage: Optional[DeploymentEphemeralStorage] = None
     """
@@ -2535,14 +2266,11 @@ class ServiceEvent(Boto3Model):
 
 
 class PlacementConstraint(Boto3Model):
-    """An object representing a constraint on task placement. For more information,
-    see `Task placement
-    constraints <https://docs.aws.amazon.com/AmazonECS/latest/developerguide/task-
-    placement-constraints.html>`_ in the *Amazon Elastic Container Service Developer
-    Guide*.
+    """An object representing a constraint on task placement. For more information, see `Task placement
+    constraints <https://docs.aws.amazon.com/AmazonECS/latest/developerguide/task-placement-constraints.html>`_ in the *Amazon
+    Elastic Container Service Developer Guide*.
 
-    If you're using the Fargate launch type, task placement constraints aren't
-    supported.
+    If you're using the Fargate launch type, task placement constraints aren't supported.
 
     """
 
@@ -2550,20 +2278,17 @@ class PlacementConstraint(Boto3Model):
     """
     The type of constraint.
 
-    Use ``distinctInstance`` to ensure that each task in a
-    particular group is running on a different container instance. Use ``memberOf``
-    to restrict the selection to a group of valid candidates.
+    Use ``distinctInstance`` to ensure that each task in a particular group is running on a
+    different container instance. Use ``memberOf`` to restrict the selection to a group of valid candidates.
     """
     expression: Optional[str] = None
     """
     A cluster query language expression to apply to the constraint.
 
-    The expression
-    can have a maximum length of 2000 characters. You can't specify an expression
-    if the constraint type is ``distinctInstance``. For more information, see
-    `Cluster query
-    language <https://docs.aws.amazon.com/AmazonECS/latest/developerguide/cluster-
-    query-language.html>`_ in the *Amazon Elastic Container Service Developer Guide*.
+    The expression can have a maximum length of 2000
+    characters. You can't specify an expression if the constraint type is ``distinctInstance``. For more information, see
+    `Cluster query language <https://docs.aws.amazon.com/AmazonECS/latest/developerguide/cluster-query-language.html>`_ in the
+    *Amazon Elastic Container Service Developer Guide*.
     """
 
 
@@ -2572,34 +2297,29 @@ class PlacementStrategy(Boto3Model):
     The task placement strategy for a task or service.
 
     For more information, see
-    `Task placement strategies <https://docs.aws.amazon.com/AmazonECS/latest/developerguide/task-
-    placement-strategies.html>`_ in the *Amazon Elastic Container Service Developer
-    Guide*.
+    `Task placement strategies <https://docs.aws.amazon.com/AmazonECS/latest/developerguide/task-placement-strategies.html>`_
+    in the *Amazon
+    Elastic Container Service Developer Guide*.
     """
 
     type: Optional[Literal["random", "spread", "binpack"]] = None
     """
     The type of placement strategy.
 
-    The ``random`` placement strategy randomly
-    places tasks on available candidates. The ``spread`` placement strategy spreads
-    placement across available candidates evenly based on the ``field`` parameter.
-    The ``binpack`` strategy places tasks on available candidates that have the
-    least available amount of the resource that's specified with the ``field``
-    parameter. For example, if you binpack on memory, a task is placed on the
-    instance with the least amount of remaining memory but still enough to run the
-    task.
+    The ``random`` placement strategy randomly places tasks on available candidates. The
+    ``spread`` placement strategy spreads placement across available candidates evenly based on the ``field`` parameter. The
+    ``binpack`` strategy places tasks on available candidates that have the least available amount of the resource that's
+    specified with the ``field`` parameter. For example, if you binpack on memory, a task is placed on the instance with the
+    least amount of remaining memory but still enough to run the task.
     """
     field: Optional[str] = None
     """
     The field to apply the placement strategy against.
 
-    For the ``spread`` placement
-    strategy, valid values are ``instanceId`` (or ``host``, which has the same
-    effect), or any platform or custom attribute that's applied to a container
-    instance, such as ``attribute:ecs.availability-zone``. For the ``binpack``
-    placement strategy, valid values are ``cpu`` and ``memory``. For the ``random``
-    placement strategy, this field is not used.
+    For the ``spread`` placement strategy, valid values are
+    ``instanceId`` (or ``host``, which has the same effect), or any platform or custom attribute that's applied to a
+    container instance, such as ``attribute:ecs.availability-zone``. For the ``binpack`` placement strategy, valid values
+    are ``cpu`` and ``memory``. For the ``random`` placement strategy, this field is not used.
     """
 
 
@@ -2626,20 +2346,18 @@ class Service(TagsDictMixin, ECSServiceModelMixin, PrimaryBoto3Model):
     """
     The name of your service.
 
-    Up to 255 letters (uppercase and lowercase), numbers, underscores, and
-    hyphens are allowed. Service names must be unique within a cluster.
-    However, you can have similarly named services in multiple clusters within
-    a Region or across multiple Regions.
+    Up to 255 letters (uppercase and lowercase), numbers, underscores, and hyphens are allowed. Service names must be
+    unique within a cluster. However, you can have similarly named services in multiple clusters within a Region or
+    across multiple Regions.
     """
     taskDefinition: str
     """
     The task definition to use for tasks in the service.
 
-    This value is specified
-    when the service is created with `CreateService <https://docs.aws.amazon.com/Am
-    azonECS/latest/APIReference/API_CreateService.html>`_, and it can be modified
-    with `UpdateService <https://docs.aws.amazon.com/AmazonECS/latest/APIReference/
-    API_UpdateService.html>`_.
+    This value is specified when the service is created with
+    `CreateService <https://docs.aws.amazon.com/AmazonECS/latest/APIReference/API_CreateService.html>`_,
+    and it can be    modified with
+    `UpdateService <https://docs.aws.amazon.com/AmazonECS/latest/APIReference/API_UpdateService.html>`_.
     """
     clusterArn: str
     """
@@ -2647,68 +2365,60 @@ class Service(TagsDictMixin, ECSServiceModelMixin, PrimaryBoto3Model):
     """
     desiredCount: int
     """
-    The desired number of instantiations of the task definition to keep running
-    on the service.
+    The desired number of instantiations of the task definition to keep running on the service.
 
-    This value is specified when the service is created with `CreateSe
-    rvice <https://docs.aws.amazon.com/AmazonECS/latest/APIReference/API_CreateServ
-    ice.html>`_ , and it can be modified with `UpdateService <https://docs.aws.amazon
-    .com/AmazonECS/latest/APIReference/API_UpdateService.html>`_.
+    This value is specified when the service is created with
+    `CreateService <https://docs.aws.amazon.com/AmazonECS/latest/APIReference/API_CreateService.html>`_
+    , and it can be    modified with
+    `UpdateService <https://docs.aws.amazon.com/AmazonECS/latest/APIReference/API_UpdateService.html>`_.
     """
     launchType: Literal["EC2", "FARGATE", "EXTERNAL"]
     """
     The launch type the service is using.
 
-    When using the DescribeServices API, this field is omitted if the service
-    was created using a capacity provider strategy.
+    When using the DescribeServices API, this field is omitted if the service was created using a capacity provider
+    strategy.
     """
     schedulingStrategy: Literal["REPLICA", "DAEMON"]
     """
     The scheduling strategy to use for the service.
 
     For more information, see
-    `Serv ices <https://docs.aws.amazon.com/AmazonECS/latest/developerguide/ecs_services.
-    html>`_.
+    `Services <https://docs.aws.amazon.com/AmazonECS/latest/developerguide/ecs_services.html>`_.
     """
     Tags: List["ECSTag"] = Field(default=None, serialization_alias="tags")
     """
-    The metadata that you apply to the service to help you categorize and
-    organize them.
+    The metadata that you apply to the service to help you categorize and organize them.
 
-    Each tag consists of a key and an optional value. You define bot the key
-    and value.
+    Each tag consists of a key and an optional value. You define both the key and value.
     """
     serviceArn: str = Field(default=None, frozen=True)
     """
     The ARN that identifies the service.
 
-    For more information about the ARN format,
-    see `Amazon Resource Name
-    (ARN) <https://docs.aws.amazon.com/AmazonECS/latest/developerguide/ecs-account-
-    settings.html#ecs-resource-ids>`_ in the *Amazon ECS Developer Guide*.
+    For more information about the ARN format, see `Amazon Resource Name
+    (ARN) <https://docs.aws.amazon.com/AmazonECS/latest/developerguide/ecs-account-settings.html#ecs-resource-ids>`_ in the
+    *Amazon ECS Developer Guide*.
     """
     loadBalancers: Optional[List["LoadBalancerConfiguration"]] = None
     """
     A list of Elastic Load Balancing load balancer objects.
 
-    It contains the load balancer name, the container name, and the container
-    port to access from the load balancer. The container name is as it appears
-    in a container definition.
+    It contains the load balancer name, the container name, and the container port to access from the load balancer. The
+    container name is as it appears in a container definition.
     """
     serviceRegistries: Optional[List["ServiceRegistry"]] = None
     """
     The details for the service discovery registries to assign to this service.
 
     For more information, see
-    `Service Discovery <https://docs.aws.amazon.com/AmazonECS/latest/developerguide/service-
-    discovery.html>`_.
+    `Service Discovery <https://docs.aws.amazon.com/AmazonECS/latest/developerguide/service-discovery.html>`_.
     """
     status: str = Field(default=None, frozen=True)
     """
     The status of the service.
 
-    The valid values are ``ACTIVE``, ``DRAINING``, or
-    ``INACTIVE``.
+    The valid values are ``ACTIVE``, ``DRAINING``, or ``INACTIVE``.
     """
     runningCount: int = Field(default=None, frozen=True)
     """
@@ -2722,40 +2432,35 @@ class Service(TagsDictMixin, ECSServiceModelMixin, PrimaryBoto3Model):
     """
     The capacity provider strategy the service uses.
 
-    When using the DescribeServices API, this field is omitted if the service
+    When using ``DescribeServices``, this field is omitted if the service
     was created using a launch type.
     """
     platformVersion: Optional[str] = None
     """
     The platform version to run your service on.
 
-    A platform version is only
-    specified for tasks that are hosted on Fargate. If one isn't specified, the
-    ``LATEST`` platform version is used. For more information, see `Fargate
-    Platform Versions <https://docs.aws.amazon.com/AmazonECS/latest/developerguide/
-    platform_versions.html>`_ in the *Amazon Elastic Container Service Developer
-    Guide*.
+    A platform version is only specified for tasks that are hosted on Fargate.
+    If one isn't specified, the ``LATEST`` platform version is used. For more information, see `Fargate Platform
+    Versions <https://docs.aws.amazon.com/AmazonECS/latest/developerguide/platform_versions.html>`_ in the *Amazon Elastic
+    Container Service Developer Guide*.
     """
     platformFamily: str = Field(default=None, frozen=True)
     """
     The operating system that your tasks in the service run on.
 
-    A platform family is specified only for tasks using the Fargate launch
-    type.
+    A platform family is specified only for tasks using the Fargate launch type.
     """
     deploymentConfiguration: Optional[DeploymentConfiguration] = None
     """
-    Optional deployment parameters that control how many tasks run during the
-    deployment and the ordering of stopping and starting tasks.
+    Optional deployment parameters that control how many tasks run during the deployment and the ordering of stopping
+    and starting tasks.
     """
     taskSets: List["TaskSet"] = Field(default=None, frozen=True)
     """
-    Information about a set of Amazon ECS tasks in either an CodeDeploy or an
-    ``EXTERNAL`` deployment.
+    Information about a set of Amazon ECS tasks in either an CodeDeploy or an ``EXTERNAL`` deployment.
 
-    An Amazon ECS task set includes details such as the desired number of
-    tasks, how many tasks are running, and whether the task set serves
-    production traffic.
+    An Amazon ECS task set includes details such as the desired number of tasks, how many tasks are running, and whether
+    the task set serves production traffic.
     """
     deployments: List["Deployment"] = Field(default=None, frozen=True)
     """
@@ -2765,8 +2470,8 @@ class Service(TagsDictMixin, ECSServiceModelMixin, PrimaryBoto3Model):
     """
     The ARN of the IAM role that's associated with the service.
 
-    It allows the Amazon ECS container agent to register container instances
-    with an Elastic Load Balancing load balancer.
+    It allows the Amazon ECS container agent to register container instances with an Elastic Load Balancing load
+    balancer.
     """
     events: List["ServiceEvent"] = Field(default=None, frozen=True)
     """
@@ -2784,20 +2489,17 @@ class Service(TagsDictMixin, ECSServiceModelMixin, PrimaryBoto3Model):
     """
     placementStrategy: Optional[List["PlacementStrategy"]] = None
     """
-    The placement strategy that determines how tasks for the service are
-    placed.
+    The placement strategy that determines how tasks for the service are placed.
     """
     networkConfiguration: Optional[NetworkConfiguration] = None
     """
-    The VPC subnet and security group configuration for tasks that receive
-    their own elastic network interface by using the ``awsvpc`` networking
-    mode.
+    The VPC subnet and security group configuration for tasks that receive their own elastic network interface by using
+    the ``awsvpc`` networking mode.
     """
     healthCheckGracePeriodSeconds: Optional[int] = None
     """
-    The period of time, in seconds, that the Amazon ECS service scheduler
-    ignores unhealthy Elastic Load Balancing target health checks after a task
-    has first started.
+    The period of time, in seconds, that the Amazon ECS service scheduler ignores unhealthy Elastic Load Balancing
+    target health checks after a task has first started.
     """
     deploymentController: Optional[DeploymentController] = None
     """
@@ -2809,34 +2511,31 @@ class Service(TagsDictMixin, ECSServiceModelMixin, PrimaryBoto3Model):
     """
     enableECSManagedTags: Optional[bool] = None
     """
-    Determines whether to use Amazon ECS managed tags for the tasks in the
-    service.
+    Determines whether to use Amazon ECS managed tags for the tasks in the service.
 
     For more information, see
-    `Tagging Your Amazon ECS Resources <https://docs.aws.amazon.com/AmazonECS/latest/developerguide/ecs-
-    using-tags.html>`_ in the *Amazon Elastic Container Service Developer Guide*.
+    `Tagging Your Amazon ECS Resources <https://docs.aws.amazon.com/AmazonECS/latest/developerguide/ecs-using-tags.html>`_
+    in the *Amazon
+    Elastic Container Service Developer Guide*.
     """
     propagateTags: Optional[Literal["TASK_DEFINITION", "SERVICE", "NONE"]] = None
     """
-    Determines whether to propagate the tags from the task definition or the
-    service to the task.
+    Determines whether to propagate the tags from the task definition or the service to the task.
 
     If no value is specified, the tags aren't propagated.
     """
     enableExecuteCommand: Optional[bool] = None
     """
-    Determines whether the execute command functionality is turned on for the
-    service.
+    Determines whether the execute command functionality is turned on for the service.
 
-    If ``true``, the execute command functionality is turned on for all
-    containers in tasks as part of the service.
+    If ``true``, the execute command
+    functionality is turned on for all containers in tasks as part of the service.
     """
 
     @property
     def arn(self) -> Optional[str]:
         """
-        Return the ARN of the model.   This is the value of the
-        :py:attr:`serviceArn` attribute.
+        Return the ARN of the model.   This is the value of the :py:attr:`serviceArn` attribute.
 
         Returns:
             The ARN of the model instance.
@@ -2846,8 +2545,7 @@ class Service(TagsDictMixin, ECSServiceModelMixin, PrimaryBoto3Model):
     @property
     def name(self) -> Optional[str]:
         """
-        Return the name of the model.   This is the value of the
-        :py:attr:`serviceName` attribute.
+        Return the name of the model.   This is the value of the :py:attr:`serviceName` attribute.
 
         Returns:
             The name of the model instance.
@@ -2872,8 +2570,7 @@ class Service(TagsDictMixin, ECSServiceModelMixin, PrimaryBoto3Model):
     @cached_property
     def cluster(self) -> Optional["Cluster"]:
         """
-        Return the :py:class:`Cluster` object that this service belongs to, if
-        any.
+        Return the :py:class:`Cluster` object that this service belongs to, if any.
 
         .. note::
 
@@ -2896,8 +2593,7 @@ class Service(TagsDictMixin, ECSServiceModelMixin, PrimaryBoto3Model):
     @cached_property
     def task_definition(self) -> Optional["TaskDefinition"]:
         """
-        Return the :py:class:`TaskDefinition` object that this service uses, if
-        any.
+        Return the :py:class:`TaskDefinition` object that this service uses, if any.
 
         .. note::
 
@@ -2920,8 +2616,7 @@ class Service(TagsDictMixin, ECSServiceModelMixin, PrimaryBoto3Model):
     @property
     def tasks(self) -> Optional[List["Task"]]:
         """
-        Return the ARNs of :py:class:`Task` objects that run in this service,
-        if any.
+        Return the ARNs of :py:class:`Task` objects that run in this service, if any.
         """
 
         try:
@@ -2967,9 +2662,8 @@ class ExecuteCommandLogConfiguration(Boto3Model):
     """
     The log configuration for the results of the execute command actions.
 
-    The logs
-    can be sent to CloudWatch Logs or an Amazon S3 bucket. When
-    ``logging=OVERRIDE`` is specified, a ``logConfiguration`` must be provided.
+    The logs can be sent to CloudWatch Logs or an
+    Amazon S3 bucket. When ``logging=OVERRIDE`` is specified, a ``logConfiguration`` must be provided.
     """
 
     cloudWatchLogGroupName: Optional[str] = None
@@ -3005,13 +2699,11 @@ class ExecuteCommandConfiguration(Boto3Model):
 
     kmsKeyId: Optional[str] = None
     """
-    Specify an Key Management Service key ID to encrypt the data between the
-    local client and the container.
+    Specify an Key Management Service key ID to encrypt the data between the local client and the container.
     """
     logging: Optional[Literal["NONE", "DEFAULT", "OVERRIDE"]] = None
     """
-    The log setting to use for redirecting logs for your execute command
-    results.
+    The log setting to use for redirecting logs for your execute command results.
 
     The following log settings are available.
     """
@@ -3019,9 +2711,8 @@ class ExecuteCommandConfiguration(Boto3Model):
     """
     The log configuration for the results of the execute command actions.
 
-    The logs
-    can be sent to CloudWatch Logs or an Amazon S3 bucket. When
-    ``logging=OVERRIDE`` is specified, a ``logConfiguration`` must be provided.
+    The logs can be sent to CloudWatch Logs or an
+    Amazon S3 bucket. When ``logging=OVERRIDE`` is specified, a ``logConfiguration`` must be provided.
     """
 
 
@@ -3032,12 +2723,11 @@ class ManagedStorageConfiguration(Boto3Model):
 
     kmsKeyId: Optional[str] = None
     """
-    Specify a Key Management Service key ID to encrypt the managed storage.
+    Specify a Amazon Web Services Key Management Service key ID to encrypt the managed storage.
     """
     fargateEphemeralStorageKmsKeyId: Optional[str] = None
     """
-    Specify the Key Management Service key ID for the Fargate ephemeral
-    storage.
+    Specify the Key Management Service key ID for the Fargate ephemeral storage.
     """
 
 
@@ -3079,8 +2769,7 @@ class ClusterSetting(Boto3Model):
     """
     The settings to use when creating a cluster.
 
-    This parameter is used to turn on CloudWatch Container Insights for a
-    cluster.
+    This parameter is used to turn on CloudWatch Container Insights for a cluster.
     """
 
     name: Optional[Literal["containerInsights"]] = None
@@ -3093,8 +2782,7 @@ class ClusterSetting(Boto3Model):
     """
     The value to set for the cluster setting.
 
-    The supported values are ``enabled``
-    and ``disabled``.
+    The supported values are ``enabled`` and ``disabled``.
     """
 
 
@@ -3109,16 +2797,15 @@ class Attachment(Boto3Model):
     """
     type: Optional[str] = None
     """
-    The type of the attachment, such as ``ElasticNetworkInterface``, ``Service
-    Connect``, and ``AmazonElasticBlockStorage``.
+    The type of the attachment, such as ``ElasticNetworkInterface``, ``Service Connect``, and
+    ``AmazonElasticBlockStorage``.
     """
     status: Optional[str] = None
     """
     The status of the attachment.
 
-    Valid values are ``PRECREATED``, ``CREATED``,
-    ``ATTACHING``, ``ATTACHED``, ``DETACHING``, ``DETACHED``, ``DELETED``, and
-    ``FAILED``.
+    Valid values are ``PRECREATED``, ``CREATED``, ``ATTACHING``, ``ATTACHED``, ``DETACHING``,
+    ``DETACHED``, ``DELETED``, and ``FAILED``.
     """
     details: Optional[List["KeyValuePair"]] = None
     """
@@ -3128,43 +2815,34 @@ class Attachment(Boto3Model):
 
 class ClusterServiceConnectDefaults(Boto3Model):
     """
-    Use this parameter to set a default Service Connect namespace. After you
-    set a default Service Connect namespace, any new services with Service
-    Connect turned on that are created in the cluster are added as client
-    services in the namespace. This setting only applies to new services that
-    set the ``enabled`` parameter to ``true`` in the
-    ``ServiceConnectConfiguration``. You can set the namespace of each service
-    individually in the ``ServiceConnectConfiguration`` to override this
-    default parameter.
+    Use this parameter to set a default Service Connect namespace. After you set a default Service Connect namespace,
+    any new services with Service Connect turned on that are created in the cluster are added as client services in the
+    namespace. This setting only applies to new services that set the ``enabled`` parameter to ``true`` in the
+    ``ServiceConnectConfiguration``. You can set the namespace of each service individually in the
+    ``ServiceConnectConfiguration`` to override this default parameter.
 
-    Tasks that run in a namespace can use short names to connect to services in
-    the namespace. Tasks can connect to services across all of the clusters in
-    the namespace. Tasks connect through a managed proxy container that
-    collects logs and metrics for increased visibility. Only the tasks that
-    Amazon ECS services create are supported with Service Connect. For more
-    information, see
+    Tasks that run in a namespace can use short names to connect to services in the namespace. Tasks can connect to
+    services across all of the clusters in the namespace. Tasks connect through a managed proxy container that collects
+    logs and metrics for increased visibility. Only the tasks that Amazon ECS services create are supported with Service
+    Connect. For more information, see
     `Service Connect <https://docs.aws.amazon.com/AmazonECS/latest/developerguide/service-
     connect.html>`_ in the *Amazon Elastic Container Service Developer Guide*.
     """
 
     namespace: Optional[str] = None
     """
-    The namespace name or full Amazon Resource Name (ARN) of the Cloud Map
-    namespace.
+    The namespace name or full Amazon Resource Name (ARN) of the Cloud Map namespace.
 
-    When you create a service and don't specify a Service Connect
-    configuration, this namespace is used.
+    When you create a service and don't specify a Service Connect configuration, this namespace is used.
     """
 
 
 class Cluster(TagsDictMixin, PrimaryBoto3Model):
     """
-    A regional grouping of one or more container instances where you can run
-    task requests.
+    A regional grouping of one or more container instances where you can run task requests.
 
-    Each account receives a default cluster the first time you use the Amazon
-    ECS service, but you may also create other clusters. Clusters may contain
-    more than one instance type simultaneously.
+    Each account receives a default cluster the first time you use the Amazon ECS service, but you may also create other
+    clusters. Clusters may contain more than one instance type simultaneously.
     """
 
     tag_class: ClassVar[Type] = ECSTag
@@ -3176,8 +2854,7 @@ class Cluster(TagsDictMixin, PrimaryBoto3Model):
     """
     Tags: List["ECSTag"] = Field(default=None, serialization_alias="tags")
     """
-    The metadata that you apply to the cluster to help you categorize and
-    organize them.
+    The metadata that you apply to the cluster to help you categorize and organize them.
 
     Each tag consists of a key and an optional value. You define both.
     """
@@ -3185,10 +2862,9 @@ class Cluster(TagsDictMixin, PrimaryBoto3Model):
     """
     The Amazon Resource Name (ARN) that identifies the cluster.
 
-    For more
-    information about the ARN format, see `Amazon Resource Name
-    (ARN) <https://docs.aws.amazon.com/AmazonECS/latest/developerguide/ecs-account-
-    settings.html#ecs-resource-ids>`_ in the *Amazon ECS Developer Guide*.
+    For more information about the ARN format, see `Amazon
+    Resource Name (ARN) <https://docs.aws.amazon.com/AmazonECS/latest/developerguide/ecs-account-settings.html#ecs-resource-
+    ids>`_ in the *Amazon ECS Developer Guide*.
     """
     configuration: Optional[ClusterConfiguration] = None
     """
@@ -3204,8 +2880,8 @@ class Cluster(TagsDictMixin, PrimaryBoto3Model):
     """
     The number of container instances registered into the cluster.
 
-    This includes
-    container instances in both ``ACTIVE`` and ``DRAINING`` status.
+    This includes container instances in both ``ACTIVE`` and
+    ``DRAINING`` status.
     """
     runningTasksCount: int = Field(default=None, frozen=True)
     """
@@ -3217,16 +2893,14 @@ class Cluster(TagsDictMixin, PrimaryBoto3Model):
     """
     activeServicesCount: int = Field(default=None, frozen=True)
     """
-    The number of services that are running on the cluster in an ``ACTIVE``
-    state.
+    The number of services that are running on the cluster in an ``ACTIVE`` state.
 
-    You can view these services with `PListServices <https://docs.aws.amazon.com/Am
-    azonECS/latest/APIReference/API_ListServices.html>`_.
+    You can view these services with
+    `PListServices <https://docs.aws.amazon.com/AmazonECS/latest/APIReference/API_ListServices.html>`_.
     """
     statistics: List["KeyValuePair"] = Field(default=None, frozen=True)
     """
-    Additional information about your clusters that are separated by launch
-    type.
+    Additional information about your clusters that are separated by launch type.
 
     They include the following:
     """
@@ -3234,8 +2908,7 @@ class Cluster(TagsDictMixin, PrimaryBoto3Model):
     """
     The settings for the cluster.
 
-    This parameter indicates whether CloudWatch Container Insights is on or off
-    for a cluster.
+    This parameter indicates whether CloudWatch Container Insights is on or off for a cluster.
     """
     capacityProviders: Optional[List[str]] = None
     """
@@ -3247,16 +2920,15 @@ class Cluster(TagsDictMixin, PrimaryBoto3Model):
     """
     The default capacity provider strategy for the cluster.
 
-    When services or tasks are run in the cluster with no launch type or
-    capacity provider strategy specified, the default capacity provider
-    strategy is used.
+    When services or tasks are run in the cluster with no launch type or capacity provider strategy specified, the
+    default capacity provider strategy is used.
     """
     attachments: List["Attachment"] = Field(default=None, frozen=True)
     """
     The resources attached to a cluster.
 
-    When using a capacity provider with a cluster, the capacity provider and
-    associated resources are returned as cluster attachments.
+    When using a capacity provider with a cluster, the capacity provider and associated resources are returned as
+    cluster attachments.
     """
     attachmentsStatus: str = Field(default=None, frozen=True)
     """
@@ -3268,20 +2940,17 @@ class Cluster(TagsDictMixin, PrimaryBoto3Model):
     """
     Use this parameter to set a default Service Connect namespace.
 
-    After you set a
-    default Service Connect namespace, any new services with Service Connect turned
-    on that are created in the cluster are added as client services in the
-    namespace. This setting only applies to new services that set the ``enabled``
-    parameter to ``true`` in the ``ServiceConnectConfiguration``. You can set the
-    namespace of each service individually in the ``ServiceConnectConfiguration``
-    to override this default parameter.
+    After you set a default Service Connect namespace, any
+    new services with Service Connect turned on that are created in the cluster are added as client services in the
+    namespace. This setting only applies to new services that set the ``enabled`` parameter to ``true`` in the
+    ``ServiceConnectConfiguration``. You can set the namespace of each service individually in the
+    ``ServiceConnectConfiguration`` to override this default parameter.
     """
 
     @property
     def pk(self) -> Optional[str]:
         """
-        Return the primary key of the model.   This is the value of the
-        :py:attr:`clusterArn` attribute.
+        Return the primary key of the model.   This is the value of the :py:attr:`clusterArn` attribute.
 
         Returns:
             The primary key of the model instance.
@@ -3291,8 +2960,7 @@ class Cluster(TagsDictMixin, PrimaryBoto3Model):
     @property
     def arn(self) -> Optional[str]:
         """
-        Return the ARN of the model.   This is the value of the
-        :py:attr:`clusterArn` attribute.
+        Return the ARN of the model.   This is the value of the :py:attr:`clusterArn` attribute.
 
         Returns:
             The ARN of the model instance.
@@ -3302,8 +2970,7 @@ class Cluster(TagsDictMixin, PrimaryBoto3Model):
     @property
     def name(self) -> Optional[str]:
         """
-        Return the name of the model.   This is the value of the
-        :py:attr:`clusterName` attribute.
+        Return the name of the model.   This is the value of the :py:attr:`clusterName` attribute.
 
         Returns:
             The name of the model instance.
@@ -3313,8 +2980,7 @@ class Cluster(TagsDictMixin, PrimaryBoto3Model):
     @cached_property
     def services(self) -> Optional[List["Service"]]:
         """
-        Return the ARNs of :py:class:`Service` objects that run in this
-        cluster, if any.
+        Return the ARNs of :py:class:`Service` objects that run in this cluster, if any.
 
         .. note::
 
@@ -3337,8 +3003,7 @@ class Cluster(TagsDictMixin, PrimaryBoto3Model):
     @cached_property
     def container_instances(self) -> Optional[List["ContainerInstance"]]:
         """
-        Return the ARNs of :py:class:`ContainerInstance` objects that run in
-        this cluster, if any.
+        Return the ARNs of :py:class:`ContainerInstance` objects that run in this cluster, if any.
 
         .. note::
 
@@ -3366,40 +3031,33 @@ class RepositoryCredentials(Boto3Model):
 
     credentialsParameter: str
     """
-    The Amazon Resource Name (ARN) of the secret containing the private
-    repository credentials.
+    The Amazon Resource Name (ARN) of the secret containing the private repository credentials.
     """
 
 
 class PortMapping(Boto3Model):
     """
-    Port mappings allow containers to access ports on the host container
-    instance to send or receive traffic. Port mappings are specified as part of
-    the container definition.
+    Port mappings expose your container's network ports to the outside world. this allows clients to access your
+    application. It's also used for inter-container communication within the same task.
 
-    If you use containers in a task with the ``awsvpc`` or ``host`` network mode,
-    specify the exposed ports using ``containerPort``. The ``hostPort`` can be left
-    blank or it must be the same value as the ``containerPort``.
+    For task definitions (both the Fargate and EC2 launch type) that use the ``awsvpc`` network mode, only specify the
+    ``containerPort``. The ``hostPort`` is always ignored, and the container port is automatically mapped to a random
+    high-numbered port on the host.
 
-    Most fields of this parameter (``containerPort``, ``hostPort``, ``protocol``)
-    maps to ``PortBindings`` in the docker container create command and the
-    ``--publish`` option to ``docker run``. If the network mode of a task
-    definition is set to ``host``, host ports must either be undefined or match the
-    container port in the port mapping.
+    Most fields of this parameter (``containerPort``, ``hostPort``, ``protocol``) maps to ``PortBindings`` in the docker
+    container create command and the ``--publish`` option to ``docker run``. If the network mode of a task definition is set
+    to ``host``, host ports must either be undefined or match the container port in the port mapping.
 
-    You can't expose the same container port for multiple protocols. If you attempt
-    this, an error is returned.
+    You can't expose the same container port for multiple protocols. If you attempt this, an error is returned.
 
-    After a task reaches the ``RUNNING`` status, manual and automatic host and
-    container port assignments are visible in the ``networkBindings`` section of `D
-    escribeTasks <https://docs.aws.amazon.com/AmazonECS/latest/APIReference/API_Des
-    cribeTasks.html>`_ API responses.
+    After a task reaches the ``RUNNING`` status, manual and automatic host and container port assignments are visible in the
+    ``networkBindings`` section of
+    `DescribeTasks <https://docs.aws.amazon.com/AmazonECS/latest/APIReference/API_DescribeTasks.html>`_ API responses.
     """
 
     containerPort: Optional[int] = None
     """
-    The port number on the container that's bound to the user-specified or
-    automatically assigned host port.
+    The port number on the container that's bound to the user-specified or automatically assigned host port.
     """
     hostPort: Optional[int] = None
     """
@@ -3409,35 +3067,30 @@ class PortMapping(Boto3Model):
     """
     The protocol used for the port mapping.
 
-    Valid values are ``tcp`` and ``udp``.
-    The default is ``tcp``. ``protocol`` is immutable in a Service Connect service.
-    Updating this field requires a service deletion and redeployment.
+    Valid values are ``tcp`` and ``udp``. The default is ``tcp``. ``protocol`` is
+    immutable in a Service Connect service. Updating this field requires a service deletion and redeployment.
     """
     name: Optional[str] = None
     """
     The name that's used for the port mapping.
 
-    This parameter only applies to
-    Service Connect. This parameter is the name that you use in the
-    ``serviceConnectConfiguration`` of a service. The name can include up to 64
-    characters. The characters can include lowercase letters, numbers, underscores
-    (_), and hyphens (-). The name can't start with a hyphen.
+    This parameter only applies to Service Connect. This parameter is the name
+    that you use in the ``serviceConnectConfiguration`` of a service. The name can include up to 64 characters. The
+    characters can include lowercase letters, numbers, underscores (_), and hyphens (-). The name can't start with a
+    hyphen.
     """
     appProtocol: Optional[Literal["http", "http2", "grpc"]] = None
     """
     The application protocol that's used for the port mapping.
 
-    This parameter only applies to Service Connect. We recommend that you set
-    this parameter to be consistent with the protocol that your application
-    uses. If you set this parameter, Amazon ECS adds protocol-specific
-    connection handling to the Service Connect proxy. If you set this
-    parameter, Amazon ECS adds protocol-specific telemetry in the Amazon ECS
-    console and CloudWatch.
+    This parameter only applies to Service Connect. We recommend that you set this parameter to be consistent with the
+    protocol that your application uses. If you set this parameter, Amazon ECS adds protocol-specific connection
+    handling to the Service Connect proxy. If you set this parameter, Amazon ECS adds protocol-specific telemetry in the
+    Amazon ECS console and CloudWatch.
     """
     containerPortRange: Optional[str] = None
     """
-    The port number range on the container that's bound to the dynamically
-    mapped host port range.
+    The port number range on the container that's bound to the dynamically mapped host port range.
     """
 
 
@@ -3445,11 +3098,11 @@ class ContainerRestartPolicy(Boto3Model):
     """
     The restart policy for a container.
 
-    When you set up a restart policy, Amazon ECS can restart the container
-    without needing to replace the task. For more information, see
-    `Restart individual containers in Amazon ECS tasks with container restart policies <https://docs.aws.amazon.com/AmazonECS/latest/develo
-    perguide/container-restart-policy.html>`_ in the *Amazon Elastic Container
-    Service Developer Guide*.
+    When you set up a restart policy, Amazon ECS can restart the container without needing to replace the task. For more
+    information, see
+    `Restart individual containers in Amazon ECS tasks with container restart policies <https://docs.aws.amazon.com/AmazonECS/latest/developerguide/container-restart-policy.html>`_
+    in the
+    *Amazon Elastic Container Service Developer Guide*.
     """
 
     enabled: bool
@@ -3458,46 +3111,35 @@ class ContainerRestartPolicy(Boto3Model):
     """
     ignoredExitCodes: Optional[List[int]] = None
     """
-    A list of exit codes that Amazon ECS will ignore and not attempt a restart
-    on.
+    A list of exit codes that Amazon ECS will ignore and not attempt a restart on.
 
-    You can specify a maximum of 50 container exit codes. By default, Amazon
-    ECS does not ignore any exit codes.
+    You can specify a maximum of 50 container exit codes. By default, Amazon ECS does not ignore any exit codes.
     """
     restartAttemptPeriod: Optional[int] = None
     """
-    A period of time (in seconds) that the container must run for before a
-    restart can be attempted.
+    A period of time (in seconds) that the container must run for before a restart can be attempted.
 
-    A container can be restarted only once every
-    ``restartAttemptPeriod`` seconds. If a container isn't able to run for this
-    time period and exits early, it will not be restarted. You can set a minimum
-    ``restartAttemptPeriod`` of 60 seconds and a maximum ``restartAttemptPeriod``
-    of 1800 seconds. By default, a container must run for 300 seconds before it can
-    be restarted.
+    A container can be
+    restarted only once every ``restartAttemptPeriod`` seconds. If a container isn't able to run for this time period and
+    exits early, it will not be restarted. You can set a minimum ``restartAttemptPeriod`` of 60 seconds and a maximum
+    ``restartAttemptPeriod`` of 1800 seconds. By default, a container must run for 300 seconds before it can be restarted.
     """
 
 
 class EnvironmentFile(Boto3Model):
     """
-    A list of files containing the environment variables to pass to a
-    container. You can specify up to ten environment files. The file must have
-    a ``.env`` file extension. Each line in an environment file should contain
-    an environment variable in ``VARIABLE=VALUE`` format. Lines beginning with
-    ``#`` are treated as comments and are ignored.
+    A list of files containing the environment variables to pass to a container. You can specify up to ten environment
+    files. The file must have a ``.env`` file extension. Each line in an environment file should contain an environment
+    variable in ``VARIABLE=VALUE`` format. Lines beginning with ``#`` are treated as comments and are ignored.
 
-    If there are environment variables specified using the ``environment``
-    parameter in a container definition, they take precedence over the variables
-    contained within an environment file. If multiple environment files are
-    specified that contain the same variable, they're processed from the top down.
-    We recommend that you use unique variable names. For more information, see `Use
-    a file to pass environment variables to a
-    container <https://docs.aws.amazon.com/AmazonECS/latest/developerguide/use-
-    environment-file.html>`_ in the *Amazon Elastic Container Service Developer
-    Guide*.
+    If there are environment variables specified using the ``environment`` parameter in a container definition, they take
+    precedence over the variables contained within an environment file. If multiple environment files are specified that
+    contain the same variable, they're processed from the top down. We recommend that you use unique variable names. For
+    more information, see `Use a file to pass environment variables to a
+    container <https://docs.aws.amazon.com/AmazonECS/latest/developerguide/use-environment-file.html>`_ in the *Amazon Elastic
+    Container Service Developer Guide*.
 
-    Environment variable files are objects in Amazon S3 and all Amazon S3 security
-    considerations apply.
+    Environment variable files are objects in Amazon S3 and all Amazon S3 security considerations apply.
 
     You must use the following platforms for the Fargate launch type:
 
@@ -3513,15 +3155,13 @@ class EnvironmentFile(Boto3Model):
 
     value: str
     """
-    The Amazon Resource Name (ARN) of the Amazon S3 object containing the
-    environment variable file.
+    The Amazon Resource Name (ARN) of the Amazon S3 object containing the environment variable file.
     """
     type: Literal["s3"]
     """
     The file type to use.
 
-    Environment files are objects in Amazon S3. The only
-    supported value is ``s3``.
+    Environment files are objects in Amazon S3. The only supported value is ``s3``.
     """
 
 
@@ -3534,8 +3174,8 @@ class MountPoint(Boto3Model):
     """
     The name of the volume to mount.
 
-    Must be a volume name referenced in the
-    ``name`` parameter of task definition ``volume``.
+    Must be a volume name referenced in the ``name`` parameter of task definition
+    ``volume``.
     """
     containerPath: Optional[str] = None
     """
@@ -3543,61 +3183,53 @@ class MountPoint(Boto3Model):
     """
     readOnly: Optional[bool] = None
     """
-    If this value is ``true``, the container has read-only access to the
-    volume.
+    If this value is ``true``, the container has read-only access to the volume.
 
-    If this value is ``false``, then the container can write to the volume. The
-    default value is ``false``.
+    If this value is ``false``, then the
+    container can write to the volume. The default value is ``false``.
     """
 
 
 class VolumeFrom(Boto3Model):
     """
-    Details on a data volume from another container in the same task
-    definition.
+    Details on a data volume from another container in the same task definition.
     """
 
     sourceContainer: Optional[str] = None
     """
-    The name of another container within the same task definition to mount
-    volumes from.
+    The name of another container within the same task definition to mount volumes from.
     """
     readOnly: Optional[bool] = None
     """
-    If this value is ``true``, the container has read-only access to the
-    volume.
+    If this value is ``true``, the container has read-only access to the volume.
 
-    If this value is ``false``, then the container can write to the volume. The
-    default value is ``false``.
+    If this value is ``false``, then the
+    container can write to the volume. The default value is ``false``.
     """
 
 
 class KernelCapabilities(Boto3Model):
     """
-    The Linux capabilities for the container that are added to or dropped from
-    the default configuration provided by Docker.
+    The Linux capabilities for the container that are added to or dropped from the default configuration provided by
+    Docker.
 
-    For tasks that use the Fargate launch type, ``capabilities`` is supported for
-    all platform versions but the ``add`` parameter is only supported if using
-    platform version 1.4.0 or later.
+    For tasks that use the Fargate launch type, ``capabilities`` is supported for all platform versions but the ``add``
+    parameter is only supported if using platform version 1.4.0 or later.
     """
 
     add: Optional[List[str]] = None
     """
-    The Linux capabilities for the container that have been added to the
-    default configuration provided by Docker.
+    The Linux capabilities for the container that have been added to the default configuration provided by Docker.
 
-    This parameter maps to ``CapAdd`` in the
-    docker container create command and the ``--cap-add`` option to docker run.
+    This
+    parameter maps to ``CapAdd`` in the docker container create command and the ``--cap-add`` option to docker run.
     """
     drop: Optional[List[str]] = None
     """
-    The Linux capabilities for the container that have been removed from the
-    default configuration provided by Docker.
+    The Linux capabilities for the container that have been removed from the default configuration provided by Docker.
 
-    This parameter maps to ``CapDrop`` in
-    the docker container create command and the ``--cap-drop`` option to docker
-    run.
+    This
+    parameter maps to ``CapDrop`` in the docker container create command and the ``--cap-drop`` option to docker run.
     """
 
 
@@ -3618,9 +3250,8 @@ class Device(Boto3Model):
     """
     The explicit permissions to provide to the container for the device.
 
-    By
-    default, the container has permissions for ``read``, ``write``, and ``mknod``
-    for the device.
+    By default, the container has permissions for
+    ``read``, ``write``, and ``mknod`` for the device.
     """
 
 
@@ -3644,9 +3275,8 @@ class Tmpfs(Boto3Model):
 
 
 class LinuxParameters(Boto3Model):
-    """Linux-specific modifications that are applied to the container, such as Linux
-    kernel capabilities. For more information see `KernelCapabilities <https://docs
-    .aws.amazon.com/AmazonECS/latest/APIReference/API_KernelCapabilities.html>`_.
+    """Linux-specific modifications that are applied to the container, such as Linux kernel capabilities. For more information
+    see `KernelCapabilities <https://docs.aws.amazon.com/AmazonECS/latest/APIReference/API_KernelCapabilities.html>`_.
 
     This parameter is not supported for Windows containers.
 
@@ -3654,95 +3284,80 @@ class LinuxParameters(Boto3Model):
 
     capabilities: Optional[KernelCapabilities] = None
     """
-    The Linux capabilities for the container that are added to or dropped from
-    the default configuration provided by Docker.
+    The Linux capabilities for the container that are added to or dropped from the default configuration provided by
+    Docker.
     """
     devices: Optional[List["Device"]] = None
     """
     Any host devices to expose to the container.
 
-    This parameter maps to ``Devices``
-    in the docker container create command and the ``--device`` option to docker
-    run.
+    This parameter maps to ``Devices`` in the docker container create command
+    and the ``--device`` option to docker run.
     """
     initProcessEnabled: Optional[bool] = None
     """
-    Run an ``init`` process inside the container that forwards signals and
-    reaps processes.
+    Run an ``init`` process inside the container that forwards signals and reaps processes.
 
-    This parameter maps to the ``--init`` option to docker run. This
-    parameter requires version 1.25 of the Docker Remote API or greater on your
-    container instance. To check the Docker Remote API version on your container
-    instance, log in to your container instance and run the following command:
-    ``sudo docker version --format '{{.Server.APIVersion}}'``
+    This parameter maps to the
+    ``--init`` option to docker run. This parameter requires version 1.25 of the Docker Remote API or greater on your
+    container instance. To check the Docker Remote API version on your container instance, log in to your container instance
+    and run the following command: ``sudo docker version --format '{{.Server.APIVersion}}'``
     """
     sharedMemorySize: Optional[int] = None
     """
     The value for the size (in MiB) of the ``/dev/shm`` volume.
 
-    This parameter maps
-    to the ``--shm-size`` option to docker run.
+    This parameter maps to the ``--shm-size`` option to docker
+    run.
     """
     tmpfs: Optional[List["Tmpfs"]] = None
     """
     The container path, mount options, and size (in MiB) of the tmpfs mount.
 
-    This
-    parameter maps to the ``--tmpfs`` option to docker run.
+    This parameter maps to the ``--tmpfs`` option
+    to docker run.
     """
     maxSwap: Optional[int] = None
     """
     The total amount of swap memory (in MiB) a container can use.
 
-    This parameter
-    will be translated to the ``--memory-swap`` option to docker run where the
-    value would be the sum of the container memory plus the ``maxSwap`` value.
+    This parameter will be translated to the ``--memory-swap``
+    option to docker run where the value would be the sum of the container memory plus the ``maxSwap`` value.
     """
     swappiness: Optional[int] = None
     """
     This allows you to tune a container's memory swappiness behavior.
 
-    A
-    ``swappiness`` value of ``0`` will cause swapping to not happen unless
-    absolutely necessary. A ``swappiness`` value of ``100`` will cause pages to be
-    swapped very aggressively. Accepted values are whole numbers between ``0`` and
-    ``100``. If the ``swappiness`` parameter is not specified, a default value of
-    ``60`` is used. If a value is not specified for ``maxSwap`` then this parameter
-    is ignored. This parameter maps to the ``--memory-swappiness`` option to docker
-    run.
+    A ``swappiness`` value of ``0`` will cause swapping to
+    not happen unless absolutely necessary. A ``swappiness`` value of ``100`` will cause pages to be swapped very
+    aggressively. Accepted values are whole numbers between ``0`` and ``100``. If the ``swappiness`` parameter is not
+    specified, a default value of ``60`` is used. If a value is not specified for ``maxSwap`` then this parameter is
+    ignored. This parameter maps to the ``--memory-swappiness`` option to docker run.
     """
 
 
 class ContainerDependency(Boto3Model):
     """
-    The dependencies defined for container startup and shutdown. A container
-    can contain multiple dependencies. When a dependency is defined for
-    container startup, for container shutdown it is reversed.
+    The dependencies defined for container startup and shutdown. A container can contain multiple dependencies. When a
+    dependency is defined for container startup, for container shutdown it is reversed.
 
-    Your Amazon ECS container instances require at least version 1.26.0 of the
-    container agent to use container dependencies. However, we recommend using the
-    latest container agent version. For information about checking your agent
-    version and updating to the latest version, see `Updating the Amazon ECS
-    Container
-    Agent <https://docs.aws.amazon.com/AmazonECS/latest/developerguide/ecs-agent-
-    update.html>`_ in the *Amazon Elastic Container Service Developer Guide*. If
-    you're using an Amazon ECS-optimized Linux AMI, your instance needs at least
-    version 1.26.0-1 of the ``ecs-init`` package. If your container instances
-    are launched from version ``20190301`` or later, then they contain the required
-    versions of the container agent and ``ecs-init``. For more information, see
-    `Amazon ECS-optimized Linux
-    AMI <https://docs.aws.amazon.com/AmazonECS/latest/developerguide/ecs-
-    optimized_AMI.html>`_ in the *Amazon Elastic Container Service Developer Guide*.
+    Your Amazon ECS container instances require at least version 1.26.0 of the container agent to use container
+    dependencies. However, we recommend using the latest container agent version. For information about checking your agent
+    version and updating to the latest version, see `Updating the Amazon ECS Container
+    Agent <https://docs.aws.amazon.com/AmazonECS/latest/developerguide/ecs-agent-update.html>`_ in the *Amazon Elastic
+    Container Service Developer Guide*. If you're using an Amazon ECS-optimized Linux AMI, your instance needs at least
+    version 1.26.0-1 of the ``ecs-init`` package. If your container instances are launched from version ``20190301`` or
+    later, then they contain the required versions of the container agent and ``ecs-init``. For more information, see
+    `Amazon ECS-optimized Linux AMI <https://docs.aws.amazon.com/AmazonECS/latest/developerguide/ecs-optimized_AMI.html>`_ in
+    the *Amazon Elastic Container Service Developer Guide*.
 
-    For tasks that use the Fargate launch type, the task or service requires the
-    following platforms:
+    For tasks that use the Fargate launch type, the task or service requires the following platforms:
 
     * Linux platform version ``1.3.0`` or later.
     * Windows platform version ``1.0.0`` or later.
 
-    For more information about how to create a container dependency, see `Container
-    dependency <https://docs.aws.amazon.com/AmazonECS/latest/developerguide/example
-    _task_definitions.html#example_task_definition-containerdependency>`_ in the
+    For more information about how to create a container dependency, see `Container dependency <https://docs.aws.amazon.com/
+    AmazonECS/latest/developerguide/example_task_definitions.html#example_task_definition-containerdependency>`_ in the
     *Amazon Elastic Container Service Developer Guide*.
     """
 
@@ -3754,16 +3369,14 @@ class ContainerDependency(Boto3Model):
     """
     The dependency condition of the container.
 
-    The following are the available
-    conditions and their behavior:
+    The following are the available conditions and their behavior:
     """
 
 
 class HostEntry(Boto3Model):
-    """Hostnames and IP address entries that are added to the ``/etc/hosts`` file of a
-    container via the ``extraHosts`` parameter of its `ContainerDefinition <https:/
-    /docs.aws.amazon.com/AmazonECS/latest/APIReference/API_ContainerDefinition.html
-    >`_.
+    """Hostnames and IP address entries that are added to the ``/etc/hosts`` file of a container via the ``extraHosts``
+    parameter of its
+    `ContainerDefinition <https://docs.aws.amazon.com/AmazonECS/latest/APIReference/API_ContainerDefinition.html>`_.
 
     """
 
@@ -3781,11 +3394,10 @@ class Ulimit(Boto3Model):
     """
     The ``ulimit`` settings to pass to the container.
 
-    Amazon ECS tasks hosted on Fargate use the default resource limit values set by
-    the operating system with the exception of the ``nofile`` resource limit
-    parameter which Fargate overrides. The ``nofile`` resource limit sets a
-    restriction on the number of open files that a container can use. The default
-    ``nofile`` soft limit is  ``65535`` and the default hard limit is ``65535``.
+    Amazon ECS tasks hosted on Fargate use the default resource limit values set by the operating system with the exception
+    of the ``nofile`` resource limit parameter which Fargate overrides. The ``nofile`` resource limit sets a restriction on
+    the number of open files that a container can use. The default ``nofile`` soft limit is  ``65535`` and the default hard
+    limit is ``65535``.
 
     You can specify the ``ulimit`` settings for a container in a task definition.
     """
@@ -3814,34 +3426,32 @@ class Ulimit(Boto3Model):
     """
     The soft limit for the ``ulimit`` type.
 
-    The value can be specified in bytes,
-    seconds, or as a count, depending on the ``type`` of the ``ulimit``.
+    The value can be specified in bytes, seconds, or as a count, depending on the
+    ``type`` of the ``ulimit``.
     """
     hardLimit: int
     """
     The hard limit for the ``ulimit`` type.
 
-    The value can be specified in bytes,
-    seconds, or as a count, depending on the ``type`` of the ``ulimit``.
+    The value can be specified in bytes, seconds, or as a count, depending on the
+    ``type`` of the ``ulimit``.
     """
 
 
 class HealthCheck(Boto3Model):
     """
-    The container health check command and associated configuration parameters
-    for the container.
+    The container health check command and associated configuration parameters for the container.
 
-    This parameter maps to ``HealthCheck`` in the docker container
-    create command and the ``HEALTHCHECK`` parameter of docker run.
+    This parameter maps to
+    ``HealthCheck`` in the docker container create command and the ``HEALTHCHECK`` parameter of docker run.
     """
 
     command: List[str]
     """
-    A string array representing the command that the container runs to
-    determine if it is healthy.
+    A string array representing the command that the container runs to determine if it is healthy.
 
-    The string array must start with ``CMD`` to run the command
-    arguments directly, or ``CMD-SHELL`` to run the command with the container's
+    The string array must
+    start with ``CMD`` to run the command arguments directly, or ``CMD-SHELL`` to run the command with the container's
     default shell.
     """
     interval: Optional[int] = None
@@ -3852,64 +3462,51 @@ class HealthCheck(Boto3Model):
     """
     timeout: Optional[int] = None
     """
-    The time period in seconds to wait for a health check to succeed before it
-    is considered a failure.
+    The time period in seconds to wait for a health check to succeed before it is considered a failure.
 
     You may specify between 2 and 60 seconds. The default value is 5.
     """
     retries: Optional[int] = None
     """
-    The number of times to retry a failed health check before the container is
-    considered unhealthy.
+    The number of times to retry a failed health check before the container is considered unhealthy.
 
     You may specify between 1 and 10 retries. The default value is 3.
     """
     startPeriod: Optional[int] = None
     """
-    The optional grace period to provide containers time to bootstrap before
-    failed health checks count towards the maximum number of retries.
+    The optional grace period to provide containers time to bootstrap before failed health checks count towards the
+    maximum number of retries.
 
-    You can specify
-    between 0 and 300 seconds. By default, the ``startPeriod`` is off.
+    You can specify between 0 and 300 seconds. By default, the ``startPeriod`` is off.
     """
 
 
 class SystemControl(Boto3Model):
     """
-    A list of namespaced kernel parameters to set in the container. This
-    parameter maps to ``Sysctls`` in the docker container create command and
-    the ``--sysctl`` option to docker run. For example, you can configure
-    ``net.ipv4.tcp_keepalive_time`` setting to maintain longer lived
-    connections.
+    A list of namespaced kernel parameters to set in the container. This parameter maps to ``Sysctls`` in the docker
+    container create command and the ``--sysctl`` option to docker run. For example, you can configure
+    ``net.ipv4.tcp_keepalive_time`` setting to maintain longer lived connections.
 
-    We don't recommend that you specify network-related ``systemControls``
-    parameters for multiple containers in a single task that also uses either the
-    ``awsvpc`` or ``host`` network mode. Doing this has the following
-    disadvantages:
+    We don't recommend that you specify network-related ``systemControls`` parameters for multiple containers in a single
+    task that also uses either the ``awsvpc`` or ``host`` network mode. Doing this has the following disadvantages:
 
-    * For tasks that use the ``awsvpc`` network mode including Fargate, if you set
-      ``systemControls`` for any container, it applies to all containers in the task.
-      If you set different ``systemControls`` for multiple containers in a single
-      task, the container that's started last determines which ``systemControls``
-      take effect.
-    * For tasks that use the ``host`` network mode, the network namespace
-      ``systemControls`` aren't supported.
+    * For tasks that use the ``awsvpc`` network mode including Fargate, if you set ``systemControls`` for any container, it
+      applies to all containers in the task. If you set different ``systemControls`` for multiple containers in a single task,
+      the container that's started last determines which ``systemControls`` take effect.
+    * For tasks that use the ``host`` network mode, the network namespace ``systemControls`` aren't supported.
 
-    If you're setting an IPC resource namespace to use for the containers in the
-    task, the following conditions apply to your system controls. For more
-    information, see `IPC mode <https://docs.aws.amazon.com/AmazonECS/latest/develo
-    perguide/task_definition_parameters.html#task_definition_ipcmode>`_.
+    If you're setting an IPC resource namespace to use for the containers in the task, the following conditions apply to
+    your system controls. For more information, see `IPC mode <https://docs.aws.amazon.com/AmazonECS/latest/developerguide/t
+    ask_definition_parameters.html#task_definition_ipcmode>`_.
 
-    * For tasks that use the ``host`` IPC mode, IPC namespace ``systemControls``
-      aren't supported.
-    * For tasks that use the ``task`` IPC mode, IPC namespace ``systemControls``
-      values apply to all containers within a task.
+    * For tasks that use the ``host`` IPC mode, IPC namespace ``systemControls`` aren't supported.
+    * For tasks that use the ``task`` IPC mode, IPC namespace ``systemControls`` values apply to all containers within a
+      task.
 
     This parameter is not supported for Windows containers.
 
-    This parameter is only supported for tasks that are hosted on Fargate if the
-    tasks are using platform version ``1.4.0`` or later (Linux). This isn't
-    supported for Windows containers on Fargate.
+    This parameter is only supported for tasks that are hosted on Fargate if the tasks are using platform version ``1.4.0``
+    or later (Linux). This isn't supported for Windows containers on Fargate.
     """
 
     namespace: Optional[str] = None
@@ -3926,12 +3523,12 @@ class ResourceRequirement(Boto3Model):
     """
     The type and amount of a resource to assign to a container.
 
-    The supported resource types are GPUs and Elastic Inference accelerators.
-    For more information, see
+    The supported resource types are GPUs and Elastic Inference accelerators. For more information, see
     `Working with GPUs on Amazon ECS <https://docs.aws.amazon.com/AmazonECS/latest/developerguide/ecs-gpu.html>`_
-     or
-    `Working with Amazon Elastic Inference on Amazon ECS <https://docs.aws.amazon.com/AmazonECS/latest/developerguide/ecs-
-    inference.html>`_ in the *Amazon Elastic Container Service Developer Guide*
+    or
+    `Working with Amazon Elastic Inference on Amazon ECS <https://docs.aws.amazon.com/AmazonECS/latest/developerguide/ecs-inference.html>`_
+    in the *Amazon Elastic
+    Container Service Developer Guide*
     """
 
     value: str
@@ -3948,10 +3545,10 @@ class FirelensConfiguration(Boto3Model):
     """
     The FireLens configuration for the container.
 
-    This is used to specify and configure a log router for container logs. For
-    more information, see
-    `Custom Log Routing <https://docs.aws.amazon.com/AmazonECS/latest/developerguide/using_
-    firelens.html>`_ in the *Amazon Elastic Container Service Developer Guide*.
+    This is used to specify and configure a log router for container logs. For more information, see
+    `Custom Log Routing <https://docs.aws.amazon.com/AmazonECS/latest/developerguide/using_firelens.html>`_
+    in the *Amazon Elastic
+    Container Service Developer Guide*.
     """
 
     type: Literal["fluentd", "fluentbit"]
@@ -3964,57 +3561,49 @@ class FirelensConfiguration(Boto3Model):
     """
     The options to use when configuring the log router.
 
-    This field is optional and
-    can be used to specify a custom configuration file or to add additional
-    metadata, such as the task, task definition, cluster, and container instance
-    details to the log event. If specified, the syntax to use is
-    ``"options":{"enable-ecs-log-metadata":"true|false","config-file-
-    type:"s3|file","config-file-
-    value":"arn:aws:s3:::mybucket/fluent.conf|filepath"}``. For more information,
-    see `Creating a task definition that uses a FireLens configuration <https://doc
-    s.aws.amazon.com/AmazonECS/latest/developerguide/using_firelens.html#firelens-
-    taskdef>`_ in the *Amazon Elastic Container Service Developer Guide*.
+    This field is optional and can be used to specify a custom
+    configuration file or to add additional metadata, such as the task, task definition, cluster, and container instance
+    details to the log event. If specified, the syntax to use is ``"options":{"enable-ecs-log-
+    metadata":"true|false","config-file-type:"s3|file","config-file-value":"arn:aws:s3:::mybucket/fluent.conf|filepath"}``.
+    For more information, see `Creating a task definition that uses a FireLens
+    configuration <https://docs.aws.amazon.com/AmazonECS/latest/developerguide/using_firelens.html#firelens-taskdef>`_ in the
+    *Amazon Elastic Container Service Developer Guide*.
     """
 
 
 class ContainerDefinition(Boto3Model):
     """
-    Container definitions are used in task definitions to describe the
-    different containers that are launched as part of a task.
+    Container definitions are used in task definitions to describe the different containers that are launched as part of
+    a task.
     """
 
     name: str
     """
     The name of a container.
 
-    If you're linking multiple containers together in a
-    task definition, the ``name`` of one container can be entered in the ``links``
-    of another container to connect the containers. Up to 255 letters (uppercase
-    and lowercase), numbers, underscores, and hyphens are allowed. This parameter
-    maps to ``name`` in the docker container create command and the ``--name``
-    option to docker run.
+    If you're linking multiple containers together in a task definition, the ``name`` of one
+    container can be entered in the ``links`` of another container to connect the containers. Up to 255 letters (uppercase
+    and lowercase), numbers, underscores, and hyphens are allowed. This parameter maps to ``name`` in the docker container
+    create command and the ``--name`` option to docker run.
     """
     image: str
     """
     The image used to start a container.
 
-    This string is passed directly to the
-    Docker daemon. By default, images in the Docker Hub registry are available.
-    Other repositories are specified with either  ``repository-url/image:tag``  or
-    ``repository-url/image@digest`` . Up to 255 letters (uppercase and lowercase),
-    numbers, hyphens, underscores, colons, periods, forward slashes, and number
-    signs are allowed. This parameter maps to ``Image`` in the docker container
-    create command and the ``IMAGE`` parameter of docker run.
+    This string is passed directly to the Docker daemon. By default, images in the
+    Docker Hub registry are available. Other repositories are specified with either  ``repository-url/image:tag``  or
+    ``repository-url/image@digest`` . Up to 255 letters (uppercase and lowercase), numbers, hyphens, underscores, colons,
+    periods, forward slashes, and number signs are allowed. This parameter maps to ``Image`` in the docker container create
+    command and the ``IMAGE`` parameter of docker run.
     """
     essential: bool
     """
-    If the ``essential`` parameter of a container is marked as ``true``, and
-    that container fails or stops for any reason, all other containers that are
-    part of the task are stopped.
+    If the ``essential`` parameter of a container is marked as ``true``, and that container fails or stops for any
+    reason, all other containers that are part of the task are stopped.
 
-    If the ``essential`` parameter of a container is marked
-    as ``false``, its failure doesn't affect the rest of the containers in a task.
-    If this parameter is omitted, a container is assumed to be essential.
+    If the ``essential`` parameter of a container is marked as
+    ``false``, its failure doesn't affect the rest of the containers in a task. If this parameter is omitted, a container is
+    assumed to be essential.
     """
     repositoryCredentials: Optional[RepositoryCredentials] = None
     """
@@ -4024,95 +3613,83 @@ class ContainerDefinition(Boto3Model):
     """
     The number of ``cpu`` units reserved for the container.
 
-    This parameter maps to
-    ``CpuShares`` in the docker container create commandand the ``--cpu-shares``
-    option to docker run.
+    This parameter maps to ``CpuShares`` in the docker container
+    create commandand the ``--cpu-shares`` option to docker run.
     """
     memory: Optional[int] = None
     """
     The amount (in MiB) of memory to present to the container.
 
-    If your container
-    attempts to exceed the memory specified here, the container is killed. The
-    total amount of memory reserved for all containers within a task must be lower
-    than the task ``memory`` value, if one is specified. This parameter maps to
-    ``Memory`` in the docker container create command and the ``--memory`` option
-    to docker run.
+    If your container attempts to exceed the memory specified
+    here, the container is killed. The total amount of memory reserved for all containers within a task must be lower than
+    the task ``memory`` value, if one is specified. This parameter maps to ``Memory`` in the docker container create command
+    and the ``--memory`` option to docker run.
     """
     memoryReservation: Optional[int] = None
     """
     The soft limit (in MiB) of memory to reserve for the container.
 
-    When system
-    memory is under heavy contention, Docker attempts to keep the container memory
-    to this soft limit. However, your container can consume more memory when it
-    needs to, up to either the hard limit specified with the ``memory`` parameter
-    (if applicable), or all of the available memory on the container instance,
-    whichever comes first. This parameter maps to ``MemoryReservation`` in the
-    docker container create command and the ``--memory-reservation`` option to
-    docker run.
+    When system memory is under heavy contention, Docker
+    attempts to keep the container memory to this soft limit. However, your container can consume more memory when it needs
+    to, up to either the hard limit specified with the ``memory`` parameter (if applicable), or all of the available memory
+    on the container instance, whichever comes first. This parameter maps to ``MemoryReservation`` in the docker container
+    create command and the ``--memory-reservation`` option to docker run.
     """
     links: Optional[List[str]] = None
     """
-    The ``links`` parameter allows containers to communicate with each other
-    without the need for port mappings.
+    The ``links`` parameter allows containers to communicate with each other without the need for port mappings.
 
-    This parameter is only supported if the
-    network mode of a task definition is ``bridge``. The ``name:internalName``
-    construct is analogous to ``name:alias`` in Docker links. Up to 255 letters
-    (uppercase and lowercase), numbers, underscores, and hyphens are allowed.. This
-    parameter maps to ``Links`` in the docker container create command and the
-    ``--link`` option to docker run.
+    This
+    parameter is only supported if the network mode of a task definition is ``bridge``. The ``name:internalName`` construct
+    is analogous to ``name:alias`` in Docker links. Up to 255 letters (uppercase and lowercase), numbers, underscores, and
+    hyphens are allowed.. This parameter maps to ``Links`` in the docker container create command and the ``--link`` option
+    to docker run.
     """
     portMappings: Optional[List["PortMapping"]] = None
     """
     The list of port mappings for the container.
 
-    Port mappings allow containers to access ports on the host container
-    instance to send or receive traffic.
+    Port mappings allow containers to access ports on the host container instance to send or receive traffic.
     """
     restartPolicy: Optional[ContainerRestartPolicy] = None
     """
     The restart policy for a container.
 
-    When you set up a restart policy, Amazon ECS can restart the container
-    without needing to replace the task. For more information, see
-    `Restart individual containers in Amazon ECS tasks with container restart policies <https://docs.aws.amazon.com/AmazonECS/latest/develo
-    perguide/container-restart-policy.html>`_ in the *Amazon Elastic Container
-    Service Developer Guide*.
+    When you set up a restart policy, Amazon ECS can restart the container without needing to replace the task. For more
+    information, see
+    `Restart individual containers in Amazon ECS tasks with container restart policies <https://docs.aws.amazon.com/AmazonECS/latest/developerguide/container-restart-policy.html>`_
+    in the
+    *Amazon Elastic Container Service Developer Guide*.
     """
     entryPoint: Optional[List[str]] = None
     """
-    Early versions of the Amazon ECS container agent don't properly handle
-    ``entryPoint`` parameters.
+    Early versions of the Amazon ECS container agent don't properly handle ``entryPoint`` parameters.
 
-    If you have problems using ``entryPoint``, update
-    your container agent or enter your commands and arguments as ``command`` array
-    items instead.
+    If you have problems
+    using ``entryPoint``, update your container agent or enter your commands and arguments as ``command`` array items
+    instead.
     """
     command: Optional[List[str]] = None
     """
     The command that's passed to the container.
 
-    This parameter maps to ``Cmd`` in
-    the docker container create command and the ``COMMAND`` parameter to docker
-    run. If there are multiple arguments, each argument is a separated string in
-    the array.
+    This parameter maps to ``Cmd`` in the docker container create command and
+    the ``COMMAND`` parameter to docker run. If there are multiple arguments, each argument is a separated string in the
+    array.
     """
     environment: Optional[List["KeyValuePair"]] = None
     """
     The environment variables to pass to a container.
 
-    This parameter maps to
-    ``Env`` in the docker container create command and the ``--env`` option to
-    docker run.
+    This parameter maps to ``Env`` in the docker container create command
+    and the ``--env`` option to docker run.
     """
     environmentFiles: Optional[List["EnvironmentFile"]] = None
     """
-    A list of files containing the environment variables to pass to a
-    container.
+    A list of files containing the environment variables to pass to a container.
 
-    This parameter maps to the ``--env-file`` option to docker run.
+    This parameter maps to the ``--env-file``
+    option to docker run.
     """
     mountPoints: Optional[List["MountPoint"]] = None
     """
@@ -4122,168 +3699,148 @@ class ContainerDefinition(Boto3Model):
     """
     Data volumes to mount from another container.
 
-    This parameter maps to
-    ``VolumesFrom`` in the docker container create command and the ``--volumes-
-    from`` option to docker run.
+    This parameter maps to ``VolumesFrom`` in the docker container create
+    command and the ``--volumes-from`` option to docker run.
     """
     linuxParameters: Optional[LinuxParameters] = None
     """
-    Linux-specific modifications that are applied to the container, such as
-    Linux kernel capabilities.
+    Linux-specific modifications that are applied to the container, such as Linux kernel capabilities.
 
-    For more information see `KernelCapabilities <https://docs
-    .aws.amazon.com/AmazonECS/latest/APIReference/API_KernelCapabilities.html>`_.
+    For more information see
+    `KernelCapabilities <https://docs.aws.amazon.com/AmazonECS/latest/APIReference/API_KernelCapabilities.html>`_.
     """
     secrets: Optional[List["Secret"]] = None
     """
     The secrets to pass to the container.
 
     For more information, see
-    `Specifying Sensitive Data <https://docs.aws.amazon.com/AmazonECS/latest/developerguide/specifying-
-    sensitive-data.html>`_ in the *Amazon Elastic Container Service Developer Guide*.
+    `Specifying Sensitive Data <https://docs.aws.amazon.com/AmazonECS/latest/developerguide/specifying-sensitive-data.html>`_
+    in the *Amazon Elastic
+    Container Service Developer Guide*.
     """
     dependsOn: Optional[List["ContainerDependency"]] = None
     """
     The dependencies defined for container startup and shutdown.
 
-    A container can contain multiple dependencies on other containers in a task
-    definition. When a dependency is defined for container startup, for
-    container shutdown it is reversed.
+    A container can contain multiple dependencies on other containers in a task definition. When a dependency is defined
+    for container startup, for container shutdown it is reversed.
     """
     startTimeout: Optional[int] = None
     """
-    Time duration (in seconds) to wait before giving up on resolving
-    dependencies for a container.
+    Time duration (in seconds) to wait before giving up on resolving dependencies for a container.
 
-    For example, you specify two containers in a task definition
-    with containerA having a dependency on containerB reaching a ``COMPLETE``,
-    ``SUCCESS``, or ``HEALTHY`` status. If a ``startTimeout`` value is specified
-    for containerB and it doesn't reach the desired status within that time then
-    containerA gives up and not start. This results in the task transitioning to a
+    For example, you specify
+    two containers in a task definition with containerA having a dependency on containerB reaching a ``COMPLETE``,
+    ``SUCCESS``, or ``HEALTHY`` status. If a ``startTimeout`` value is specified for containerB and it doesn't reach the
+    desired status within that time then containerA gives up and not start. This results in the task transitioning to a
     ``STOPPED`` state.
     """
     stopTimeout: Optional[int] = None
     """
-    Time duration (in seconds) to wait before the container is forcefully
-    killed if it doesn't exit normally on its own.
+    Time duration (in seconds) to wait before the container is forcefully killed if it doesn't exit normally on its own.
     """
     hostname: Optional[str] = None
     """
     The hostname to use for your container.
 
-    This parameter maps to ``Hostname`` in
-    the docker container create command and the ``--hostname`` option to docker
-    run.
+    This parameter maps to ``Hostname`` in the docker container create command and
+    the ``--hostname`` option to docker run.
     """
     user: Optional[str] = None
     """
     The user to use inside the container.
 
-    This parameter maps to ``User`` in the
-    docker container create command and the ``--user`` option to docker run.
+    This parameter maps to ``User`` in the docker container create command and the
+    ``--user`` option to docker run.
     """
     workingDirectory: Optional[str] = None
     """
     The working directory to run commands inside the container in.
 
-    This parameter
-    maps to ``WorkingDir`` in the docker container create command and the
-    ``--workdir`` option to docker run.
+    This parameter maps to ``WorkingDir`` in the docker
+    container create command and the ``--workdir`` option to docker run.
     """
     disableNetworking: Optional[bool] = None
     """
     When this parameter is true, networking is off within the container.
 
-    This
-    parameter maps to ``NetworkDisabled`` in the docker container create command.
+    This parameter maps to ``NetworkDisabled`` in the
+    docker container create command.
     """
     privileged: Optional[bool] = None
     """
-    When this parameter is true, the container is given elevated privileges on
-    the host container instance (similar to the ``root`` user).
+    When this parameter is true, the container is given elevated privileges on the host container instance (similar to
+    the ``root`` user).
 
-    This parameter maps to
-    ``Privileged`` in the docker container create command and the ``--privileged``
+    This parameter maps to ``Privileged`` in the docker container create command and the ``--privileged``
     option to docker run
     """
     readonlyRootFilesystem: Optional[bool] = None
     """
-    When this parameter is true, the container is given read-only access to its
-    root file system.
+    When this parameter is true, the container is given read-only access to its root file system.
 
-    This parameter maps to ``ReadonlyRootfs`` in the docker
-    container create command and the ``--read-only`` option to docker run.
+    This parameter maps to
+    ``ReadonlyRootfs`` in the docker container create command and the ``--read-only`` option to docker run.
     """
     dnsServers: Optional[List[str]] = None
     """
     A list of DNS servers that are presented to the container.
 
-    This parameter maps
-    to ``Dns`` in the docker container create command and the ``--dns`` option to
-    docker run.
+    This parameter maps to ``Dns`` in the docker container create
+    command and the ``--dns`` option to docker run.
     """
     dnsSearchDomains: Optional[List[str]] = None
     """
     A list of DNS search domains that are presented to the container.
 
-    This
-    parameter maps to ``DnsSearch`` in the docker container create command and the
-    ``--dns-search`` option to docker run.
+    This parameter maps to ``DnsSearch`` in the docker
+    container create command and the ``--dns-search`` option to docker run.
     """
     extraHosts: Optional[List["HostEntry"]] = None
     """
-    A list of hostnames and IP address mappings to append to the ``/etc/hosts``
-    file on the container.
+    A list of hostnames and IP address mappings to append to the ``/etc/hosts`` file on the container.
 
-    This parameter maps to ``ExtraHosts`` in the docker
-    container create command and the ``--add-host`` option to docker run.
+    This parameter maps
+    to ``ExtraHosts`` in the docker container create command and the ``--add-host`` option to docker run.
     """
     dockerSecurityOptions: Optional[List[str]] = None
     """
-    A list of strings to provide custom configuration for multiple security
-    systems.
+    A list of strings to provide custom configuration for multiple security systems.
 
-    This field isn't valid for containers in tasks using the Fargate launch
-    type.
+    This field isn't valid for containers in tasks using the Fargate launch type.
     """
     interactive: Optional[bool] = None
     """
-    When this parameter is ``true``, you can deploy containerized applications
-    that require ``stdin`` or a ``tty`` to be allocated.
+    When this parameter is ``true``, you can deploy containerized applications that require ``stdin`` or a ``tty`` to be
+    allocated.
 
-    This parameter maps to
-    ``OpenStdin`` in the docker container create command and the ``--interactive``
-    option to docker run.
+    This parameter maps to ``OpenStdin`` in the docker container create command and the ``--interactive`` option
+    to docker run.
     """
     pseudoTerminal: Optional[bool] = None
     """
     When this parameter is ``true``, a TTY is allocated.
 
-    This parameter maps to
-    ``Tty`` in the docker container create command and the ``--tty`` option to
-    docker run.
+    This parameter maps to ``Tty`` in the docker container create
+    command and the ``--tty`` option to docker run.
     """
     dockerLabels: Optional[Dict[str, str]] = None
     """
     A key/value map of labels to add to the container.
 
-    This parameter maps to
-    ``Labels`` in the docker container create command and the ``--label`` option to
-    docker run. This parameter requires version 1.18 of the Docker Remote API or
-    greater on your container instance. To check the Docker Remote API version on
-    your container instance, log in to your container instance and run the
-    following command: ``sudo docker version --format '{{.Server.APIVersion}}'``
+    This parameter maps to ``Labels`` in the docker container create
+    command and the ``--label`` option to docker run. This parameter requires version 1.18 of the Docker Remote API or
+    greater on your container instance. To check the Docker Remote API version on your container instance, log in to your
+    container instance and run the following command: ``sudo docker version --format '{{.Server.APIVersion}}'``
     """
     ulimits: Optional[List["Ulimit"]] = None
     """
     A list of ``ulimits`` to set in the container.
 
-    If a ``ulimit`` value is
-    specified in a task definition, it overrides the default values set by Docker.
-    This parameter maps to ``Ulimits`` in the docker container create command and
-    the ``--ulimit`` option to docker run. Valid naming values are displayed in the
-    `Ulimit <https://docs.aws.amazon.com/AmazonECS/latest/APIReference/API_Ulimit.h
-    tml>`_ data type.
+    If a ``ulimit`` value is specified in a task definition, it overrides the
+    default values set by Docker. This parameter maps to ``Ulimits`` in the docker container create command and the
+    ``--ulimit`` option to docker run. Valid naming values are displayed in the
+    `Ulimit <https://docs.aws.amazon.com/AmazonECS/latest/APIReference/API_Ulimit.html>`_ data type.
     """
     logConfiguration: Optional[LogConfiguration] = None
     """
@@ -4291,19 +3848,17 @@ class ContainerDefinition(Boto3Model):
     """
     healthCheck: Optional[HealthCheck] = None
     """
-    The container health check command and associated configuration parameters
-    for the container.
+    The container health check command and associated configuration parameters for the container.
 
-    This parameter maps to ``HealthCheck`` in the docker container
-    create command and the ``HEALTHCHECK`` parameter of docker run.
+    This parameter maps to
+    ``HealthCheck`` in the docker container create command and the ``HEALTHCHECK`` parameter of docker run.
     """
     systemControls: Optional[List["SystemControl"]] = None
     """
     A list of namespaced kernel parameters to set in the container.
 
-    This parameter
-    maps to ``Sysctls`` in the docker container create command and the ``--sysctl``
-    option to docker run. For example, you can configure
+    This parameter maps to ``Sysctls`` in the docker
+    container create command and the ``--sysctl`` option to docker run. For example, you can configure
     ``net.ipv4.tcp_keepalive_time`` setting to maintain longer lived connections.
     """
     resourceRequirements: Optional[List["ResourceRequirement"]] = None
@@ -4316,50 +3871,43 @@ class ContainerDefinition(Boto3Model):
     """
     The FireLens configuration for the container.
 
-    This is used to specify and configure a log router for container logs. For
-    more information, see
-    `Custom Log Routing <https://docs.aws.amazon.com/AmazonECS/latest/developerguide/using_
-    firelens.html>`_ in the *Amazon Elastic Container Service Developer Guide*.
+    This is used to specify and configure a log router for container logs. For more information, see
+    `Custom Log Routing <https://docs.aws.amazon.com/AmazonECS/latest/developerguide/using_firelens.html>`_
+    in the *Amazon Elastic
+    Container Service Developer Guide*.
     """
     credentialSpecs: Optional[List[str]] = None
     """
-    A list of ARNs in SSM or Amazon S3 to a credential spec (``CredSpec``) file
-    that configures the container for Active Directory authentication.
+    A list of ARNs in SSM or Amazon S3 to a credential spec (``CredSpec``) file that configures the container for Active
+    Directory authentication.
 
-    We recommend
-    that you use this parameter instead of the ``dockerSecurityOptions``. The
-    maximum number of ARNs is 1.
+    We recommend that you use this parameter instead of the ``dockerSecurityOptions``. The maximum
+    number of ARNs is 1.
     """
 
 
 class HostVolumeProperties(Boto3Model):
     """
-    This parameter is specified when you use bind mount host volumes. The
-    contents of the ``host`` parameter determine whether your bind mount host
-    volume persists on the host container instance and where it's stored. If
-    the ``host`` parameter is empty, then the Docker daemon assigns a host path
-    for your data volume. However, the data isn't guaranteed to persist after
-    the containers that are associated with it stop running.
+    This parameter is specified when you use bind mount host volumes. The contents of the ``host`` parameter determine
+    whether your bind mount host volume persists on the host container instance and where it's stored. If the ``host``
+    parameter is empty, then the Docker daemon assigns a host path for your data volume. However, the data isn't
+    guaranteed to persist after the containers that are associated with it stop running.
 
-    Windows containers can mount whole directories on the same drive as
-    ``$env:ProgramData``. Windows containers can't mount directories on a different
-    drive, and mount point can't be across drives. For example, you can mount
-    ``C:mypath:C:mypath`` and ``D::D:``, but not ``D:mypath:C:mypath`` or
-    ``D::C:mypath``.
+    Windows containers can mount whole directories on the same drive as ``$env:ProgramData``. Windows containers can't mount
+    directories on a different drive, and mount point can't be across drives. For example, you can mount
+    ``C:mypath:C:mypath`` and ``D::D:``, but not ``D:mypath:C:mypath`` or ``D::C:mypath``.
     """
 
     sourcePath: Optional[str] = None
     """
-    When the ``host`` parameter is used, specify a ``sourcePath`` to declare
-    the path on the host container instance that's presented to the container.
+    When the ``host`` parameter is used, specify a ``sourcePath`` to declare the path on the host container instance
+    that's presented to the container.
 
-    If this
-    parameter is empty, then the Docker daemon has assigned a host path for you. If
-    the ``host`` parameter contains a ``sourcePath`` file location, then the data
-    volume persists at the specified location on the host container instance until
-    you delete it manually. If the ``sourcePath`` value doesn't exist on the host
-    container instance, the Docker daemon creates it. If the location does exist,
-    the contents of the source path folder are exported.
+    If this parameter is empty, then the Docker daemon has assigned a host path for you. If the
+    ``host`` parameter contains a ``sourcePath`` file location, then the data volume persists at the specified location on
+    the host container instance until you delete it manually. If the ``sourcePath`` value doesn't exist on the host
+    container instance, the Docker daemon creates it. If the location does exist, the contents of the source path folder are
+    exported.
     """
 
 
@@ -4367,8 +3915,8 @@ class DockerVolumeConfiguration(Boto3Model):
     """
     This parameter is specified when you use Docker volumes.
 
-    Windows containers only support the use of the ``local`` driver. To use bind
-    mounts, specify the ``host`` parameter instead.
+    Windows containers only support the use of the ``local`` driver. To use bind mounts, specify the ``host`` parameter
+    instead.
 
     Docker volumes aren't supported by tasks run on Fargate.
     """
@@ -4377,43 +3925,37 @@ class DockerVolumeConfiguration(Boto3Model):
     """
     The scope for the Docker volume that determines its lifecycle.
 
-    Docker volumes
-    that are scoped to a ``task`` are automatically provisioned when the task
-    starts and destroyed when the task stops. Docker volumes that are scoped as
+    Docker volumes that are scoped to a ``task`` are
+    automatically provisioned when the task starts and destroyed when the task stops. Docker volumes that are scoped as
     ``shared`` persist after the task stops.
     """
     autoprovision: Optional[bool] = None
     """
-    If this value is ``true``, the Docker volume is created if it doesn't
-    already exist.
+    If this value is ``true``, the Docker volume is created if it doesn't already exist.
     """
     driver: Optional[str] = None
     """
     The Docker volume driver to use.
 
-    The driver value must match the driver name
-    provided by Docker because it is used for task placement. If the driver was
-    installed using the Docker plugin CLI, use ``docker plugin ls`` to retrieve the
-    driver name from your container instance. If the driver was installed using
-    another method, use Docker plugin discovery to retrieve the driver name. This
-    parameter maps to ``Driver`` in the docker container create command and the
-    ``xxdriver`` option to docker volume create.
+    The driver value must match the driver name provided by Docker because it is used for
+    task placement. If the driver was installed using the Docker plugin CLI, use ``docker plugin ls`` to retrieve the driver
+    name from your container instance. If the driver was installed using another method, use Docker plugin discovery to
+    retrieve the driver name. This parameter maps to ``Driver`` in the docker container create command and the ``xxdriver``
+    option to docker volume create.
     """
     driverOpts: Optional[Dict[str, str]] = None
     """
     A map of Docker driver-specific options passed through.
 
-    This parameter maps to
-    ``DriverOpts`` in the docker create-volume command and the ``xxopt`` option to
-    docker volume create.
+    This parameter maps to ``DriverOpts`` in the docker
+    create-volume command and the ``xxopt`` option to docker volume create.
     """
     labels: Optional[Dict[str, str]] = None
     """
     Custom metadata to add to your Docker volume.
 
-    This parameter maps to ``Labels``
-    in the docker container create command and the ``xxlabel`` option to docker
-    volume create.
+    This parameter maps to ``Labels`` in the docker container create command
+    and the ``xxlabel`` option to docker volume create.
     """
 
 
@@ -4426,33 +3968,27 @@ class EFSAuthorizationConfig(Boto3Model):
     """
     The Amazon EFS access point ID to use.
 
-    If an access point is specified, the
-    root directory value specified in the ``EFSVolumeConfiguration`` must either be
-    omitted or set to ``/`` which will enforce the path set on the EFS access
-    point. If an access point is used, transit encryption must be on in the
-    ``EFSVolumeConfiguration``. For more information, see `Working with Amazon EFS
-    access points <https://docs.aws.amazon.com/efs/latest/ug/efs-access-
+    If an access point is specified, the root directory value specified in the
+    ``EFSVolumeConfiguration`` must either be omitted or set to ``/`` which will enforce the path set on the EFS access
+    point. If an access point is used, transit encryption must be on in the ``EFSVolumeConfiguration``. For more
+    information, see `Working with Amazon EFS access points <https://docs.aws.amazon.com/efs/latest/ug/efs-access-
     points.html>`_ in the *Amazon Elastic File System User Guide*.
     """
     iam: Optional[Literal["ENABLED", "DISABLED"]] = None
     """
-    Determines whether to use the Amazon ECS task role defined in a task
-    definition when mounting the Amazon EFS file system.
+    Determines whether to use the Amazon ECS task role defined in a task definition when mounting the Amazon EFS file
+    system.
 
-    If it is turned on, transit
-    encryption must be turned on in the ``EFSVolumeConfiguration``. If this
-    parameter is omitted, the default value of ``DISABLED`` is used. For more
-    information, see `Using Amazon EFS access
-    points <https://docs.aws.amazon.com/AmazonECS/latest/developerguide/efs-
-    volumes.html#efs-volume-accesspoints>`_ in the *Amazon Elastic Container Service
-    Developer Guide*.
+    If it is turned on, transit encryption must be turned on in the ``EFSVolumeConfiguration``. If this parameter is
+    omitted, the default value of ``DISABLED`` is used. For more information, see `Using Amazon EFS access
+    points <https://docs.aws.amazon.com/AmazonECS/latest/developerguide/efs-volumes.html#efs-volume-accesspoints>`_ in the
+    *Amazon Elastic Container Service Developer Guide*.
     """
 
 
 class EFSVolumeConfiguration(Boto3Model):
     """
-    This parameter is specified when you use an Amazon Elastic File System file
-    system for task storage.
+    This parameter is specified when you use an Amazon Elastic File System file system for task storage.
     """
 
     fileSystemId: str
@@ -4461,35 +3997,31 @@ class EFSVolumeConfiguration(Boto3Model):
     """
     rootDirectory: Optional[str] = None
     """
-    The directory within the Amazon EFS file system to mount as the root
-    directory inside the host.
+    The directory within the Amazon EFS file system to mount as the root directory inside the host.
 
-    If this parameter is omitted, the root of the Amazon EFS
-    volume will be used. Specifying ``/`` will have the same effect as omitting
-    this parameter.
+    If this parameter is
+    omitted, the root of the Amazon EFS volume will be used. Specifying ``/`` will have the same effect as omitting this
+    parameter.
     """
     transitEncryption: Optional[Literal["ENABLED", "DISABLED"]] = None
     """
-    Determines whether to use encryption for Amazon EFS data in transit between
-    the Amazon ECS host and the Amazon EFS server.
+    Determines whether to use encryption for Amazon EFS data in transit between the Amazon ECS host and the Amazon EFS
+    server.
 
-    Transit encryption must be turned on
-    if Amazon EFS IAM authorization is used. If this parameter is omitted, the
-    default value of ``DISABLED`` is used. For more information, see `Encrypting
-    data in transit <https://docs.aws.amazon.com/efs/latest/ug/encryption-in-
-    transit.html>`_ in the *Amazon Elastic File System User Guide*.
+    Transit encryption must be turned on if Amazon EFS IAM authorization is used. If this parameter is omitted, the
+    default value of ``DISABLED`` is used. For more information, see `Encrypting data in
+    transit <https://docs.aws.amazon.com/efs/latest/ug/encryption-in-transit.html>`_ in the *Amazon Elastic File System User
+    Guide*.
     """
     transitEncryptionPort: Optional[int] = None
     """
-    The port to use when sending encrypted data between the Amazon ECS host and
-    the Amazon EFS server.
+    The port to use when sending encrypted data between the Amazon ECS host and the Amazon EFS server.
 
-    If you do not specify a transit encryption port, it will use the port
-    selection strategy that the Amazon EFS mount helper uses. For more
-    information, see
+    If you do not specify a transit encryption port, it will use the port selection strategy that the Amazon EFS mount
+    helper uses. For more information, see
     `EFS mount helper <https://docs.aws.amazon.com/efs/latest/ug/efs-mount-helper.html>`_
-    in the
-    *Amazon Elastic File System User Guide*.
+    in the *Amazon
+    Elastic File System User Guide*.
     """
     authorizationConfig: Optional[EFSAuthorizationConfig] = None
     """
@@ -4499,31 +4031,27 @@ class EFSVolumeConfiguration(Boto3Model):
 
 class FSxWindowsFileServerAuthorizationConfig(Boto3Model):
     """
-    The authorization configuration details for the Amazon FSx for Windows File
-    Server file system.
+    The authorization configuration details for the Amazon FSx for Windows File Server file system.
     """
 
     credentialsParameter: str
     """
     The authorization credential option to use.
 
-    The authorization credential options can be provided using either the
-    Amazon Resource Name (ARN) of an Secrets Manager secret or SSM Parameter
-    Store parameter. The ARN refers to the stored credentials.
+    The authorization credential options can be provided using either the Amazon Resource Name (ARN) of an Secrets
+    Manager secret or SSM Parameter Store parameter. The ARN refers to the stored credentials.
     """
     domain: str
     """
 A fully qualified domain name hosted by an `Directory
-Service <https://docs.aws.amazon.com/directoryservice/latest/admin-
-guide/directory_microsoft_ad.html>`_ Managed Microsoft AD (Active Directory) or
-self-hosted AD on Amazon EC2.
+Service <https://docs.aws.amazon.com/directoryservice/latest/admin-guide/directory_microsoft_ad.html>`_ Managed Microsoft
+AD (Active Directory) or self-hosted AD on Amazon EC2.
     """
 
 
 class FSxWindowsFileServerVolumeConfiguration(Boto3Model):
     """
-    This parameter is specified when you use Amazon FSx for Windows File Server
-    file system for task storage.
+    This parameter is specified when you use Amazon FSx for Windows File Server file system for task storage.
     """
 
     fileSystemId: str
@@ -4532,49 +4060,42 @@ class FSxWindowsFileServerVolumeConfiguration(Boto3Model):
     """
     rootDirectory: str
     """
-    The directory within the Amazon FSx for Windows File Server file system to
-    mount as the root directory inside the host.
+    The directory within the Amazon FSx for Windows File Server file system to mount as the root directory inside the
+    host.
     """
     authorizationConfig: FSxWindowsFileServerAuthorizationConfig
     """
-    The authorization configuration details for the Amazon FSx for Windows File
-    Server file system.
+    The authorization configuration details for the Amazon FSx for Windows File Server file system.
     """
 
 
 class Volume(Boto3Model):
     """
-    The data volume configuration for tasks launched using this task
-    definition.
+    The data volume configuration for tasks launched using this task definition.
 
-    Specifying a volume configuration in a task definition is optional. The volume
-    configuration may contain multiple volumes but only one volume configured at
-    launch is supported. Each volume defined in the volume configuration may only
-    specify a ``name`` and one of either ``configuredAtLaunch``,
-    ``dockerVolumeConfiguration``, ``efsVolumeConfiguration``,
-    ``fsxWindowsFileServerVolumeConfiguration``, or ``host``. If an empty volume
-    configuration is specified, by default Amazon ECS uses a host volume. For more
-    information, see `Using data volumes in tasks <https://docs.aws.amazon.com/Amaz
-    onECS/latest/developerguide/using_data_volumes.html>`_.
+    Specifying a volume configuration in a task
+    definition is optional. The volume configuration may contain multiple volumes but only one volume configured at launch
+    is supported. Each volume defined in the volume configuration may only specify a ``name`` and one of either
+    ``configuredAtLaunch``, ``dockerVolumeConfiguration``, ``efsVolumeConfiguration``,
+    ``fsxWindowsFileServerVolumeConfiguration``, or ``host``. If an empty volume configuration is specified, by default
+    Amazon ECS uses a host volume. For more information, see `Using data volumes in
+    tasks <https://docs.aws.amazon.com/AmazonECS/latest/developerguide/using_data_volumes.html>`_.
     """
 
     name: Optional[str] = None
     """
     The name of the volume.
 
-    Up to 255 letters (uppercase and lowercase), numbers, underscores, and
-    hyphens are allowed.
+    Up to 255 letters (uppercase and lowercase), numbers, underscores, and hyphens are allowed.
     """
     host: Optional[HostVolumeProperties] = None
     """
     This parameter is specified when you use bind mount host volumes.
 
-    The contents
-    of the ``host`` parameter determine whether your bind mount host volume
-    persists on the host container instance and where it's stored. If the ``host``
-    parameter is empty, then the Docker daemon assigns a host path for your data
-    volume. However, the data isn't guaranteed to persist after the containers that
-    are associated with it stop running.
+    The contents of the ``host`` parameter determine
+    whether your bind mount host volume persists on the host container instance and where it's stored. If the ``host``
+    parameter is empty, then the Docker daemon assigns a host path for your data volume. However, the data isn't guaranteed
+    to persist after the containers that are associated with it stop running.
     """
     dockerVolumeConfiguration: Optional[DockerVolumeConfiguration] = None
     """
@@ -4582,78 +4103,68 @@ class Volume(Boto3Model):
     """
     efsVolumeConfiguration: Optional[EFSVolumeConfiguration] = None
     """
-    This parameter is specified when you use an Amazon Elastic File System file
-    system for task storage.
+    This parameter is specified when you use an Amazon Elastic File System file system for task storage.
     """
     fsxWindowsFileServerVolumeConfiguration: Optional[
         FSxWindowsFileServerVolumeConfiguration
     ] = None
     """
-    This parameter is specified when you use Amazon FSx for Windows File Server
-    file system for task storage.
+    This parameter is specified when you use Amazon FSx for Windows File Server file system for task storage.
     """
     configuredAtLaunch: Optional[bool] = None
     """
     Indicates whether the volume should be configured at launch time.
 
-    This is used to create Amazon EBS volumes for standalone tasks or tasks
-    created as part of a service. Each task definition revision may only have
-    one volume configured at launch in the volume configuration.
+    This is used to create Amazon EBS volumes for standalone tasks or tasks created as part of a service. Each task
+    definition revision may only have one volume configured at launch in the volume configuration.
     """
 
 
 class Attribute(Boto3Model):
     """
-    An attribute is a name-value pair that's associated with an Amazon ECS
-    object.
+    An attribute is a name-value pair that's associated with an Amazon ECS object.
 
-    Use attributes to extend the Amazon ECS data model by adding custom
-    metadata to your resources. For more information, see
-    `Attributes <https://docs.aws.amazon.com/AmazonECS/latest/developerguide/task-
-    placement-constraints.html#attributes>`_ in the *Amazon Elastic Container Service
-    Developer Guide*.
+    Use attributes to extend the Amazon ECS data model by adding custom metadata to your resources. For more
+    information, see
+    `Attributes <https://docs.aws.amazon.com/AmazonECS/latest/developerguide/task-placement-constraints.html#attributes>`_
+    in
+    the *Amazon Elastic Container Service Developer Guide*.
     """
 
     name: str
     """
     The name of the attribute.
 
-    The ``name`` must contain between 1 and 128
-    characters. The name may contain letters (uppercase and lowercase), numbers,
-    hyphens (-), underscores (_), forward slashes (/), back slashes (), or
-    periods (.).
+    The ``name`` must contain between 1 and 128 characters. The name may contain letters
+    (uppercase and lowercase), numbers, hyphens (-), underscores (_), forward slashes (/), back slashes (), or periods
+    (.).
     """
     value: Optional[str] = None
     """
     The value of the attribute.
 
-    The ``value`` must contain between 1 and 128
-    characters. It can contain letters (uppercase and lowercase), numbers, hyphens
-    (-), underscores (_), periods (.), at signs (@), forward slashes (/), back
-    slashes (), colons (:), or spaces. The value can't start or end with a space.
+    The ``value`` must contain between 1 and 128 characters. It can contain letters (uppercase
+    and lowercase), numbers, hyphens (-), underscores (_), periods (.), at signs (@), forward slashes (/), back slashes
+    (), colons (:), or spaces. The value can't start or end with a space.
     """
     targetType: Optional[Literal["container-instance"]] = None
     """
     The type of the target to attach the attribute with.
 
-    This parameter is required if you use the short form ID for a resource
-    instead of the full ARN.
+    This parameter is required if you use the short form ID for a resource instead of the full ARN.
     """
     targetId: Optional[str] = None
     """
     The ID of the target.
 
-    You can specify the short form ID for a resource or the full Amazon
-    Resource Name (ARN).
+    You can specify the short form ID for a resource or the full Amazon Resource Name (ARN).
     """
 
 
 class TaskDefinitionPlacementConstraint(Boto3Model):
-    """The constraint on task placement in the task definition. For more information,
-    see `Task placement
-    constraints <https://docs.aws.amazon.com/AmazonECS/latest/developerguide/task-
-    placement-constraints.html>`_ in the *Amazon Elastic Container Service Developer
-    Guide*.
+    """The constraint on task placement in the task definition. For more information, see `Task placement
+    constraints <https://docs.aws.amazon.com/AmazonECS/latest/developerguide/task-placement-constraints.html>`_ in the *Amazon
+    Elastic Container Service Developer Guide*.
 
     Task placement constraints aren't supported for tasks run on Fargate.
 
@@ -4663,26 +4174,25 @@ class TaskDefinitionPlacementConstraint(Boto3Model):
     """
     The type of constraint.
 
-    The ``MemberOf`` constraint restricts selection to be
-    from a group of valid candidates.
+    The ``MemberOf`` constraint restricts selection to be from a group of valid candidates.
     """
     expression: Optional[str] = None
     """
     A cluster query language expression to apply to the constraint.
 
     For more information, see
-    `Cluster query language <https://docs.aws.amazon.com/AmazonECS/latest/developerguide/cluster-
-    query-language.html>`_ in the *Amazon Elastic Container Service Developer Guide*.
+    `Cluster query language <https://docs.aws.amazon.com/AmazonECS/latest/developerguide/cluster-query-language.html>`_
+    in the *Amazon
+    Elastic Container Service Developer Guide*.
     """
 
 
 class RuntimePlatform(Boto3Model):
     """
-    The operating system that your task definitions are running on. A platform
-    family is specified only for tasks using the Fargate launch type.
+    The operating system that your task definitions are running on. A platform family is specified only for tasks using
+    the Fargate launch type.
 
-    When you specify a task in a service, this value must match the
-    ``runtimePlatform`` value of the service.
+    When you specify a task in a service, this value must match the ``runtimePlatform`` value of the service.
     """
 
     cpuArchitecture: Optional[Literal["X86_64", "ARM64"]] = None
@@ -4711,17 +4221,17 @@ class InferenceAccelerator(Boto3Model):
     Details on an Elastic Inference accelerator.
 
     For more information, see
-    `Working with Amazon Elastic Inference on Amazon ECS <https://docs.aws.amazon.com/AmazonECS/latest/developerguide/ecs-
-    inference.html>`_ in the *Amazon Elastic Container Service Developer Guide*.
+    `Working with Amazon Elastic Inference on Amazon ECS <https://docs.aws.amazon.com/AmazonECS/latest/developerguide/ecs-inference.html>`_
+    in the *Amazon Elastic Container
+    Service Developer Guide*.
     """
 
     deviceName: str
     """
     The Elastic Inference accelerator device name.
 
-    The ``deviceName`` must also be
-    referenced in a container definition as a `ResourceRequirement <https://docs.aw
-    s.amazon.com/AmazonECS/latest/APIReference/API_ResourceRequirement.html>`_.
+    The ``deviceName`` must also be referenced in a container definition as a
+    `ResourceRequirement <https://docs.aws.amazon.com/AmazonECS/latest/APIReference/API_ResourceRequirement.html>`_.
     """
     deviceType: str
     """
@@ -4733,14 +4243,12 @@ class ProxyConfiguration(Boto3Model):
     """
     The configuration details for the App Mesh proxy.
 
-    Your Amazon ECS container instances require at least version 1.26.0 of the
-    container agent and at least version 1.26.0-1 of the ``ecs-init`` package to
-    use a proxy configuration. If your container instances are launched from the
-    Amazon ECS optimized AMI version ``20190301`` or later, they contain the
-    required versions of the container agent and ``ecs-init``. For more
-    information, see `Amazon ECS-optimized Linux
-    AMI <https://docs.aws.amazon.com/AmazonECS/latest/developerguide/ecs-
-    optimized_AMI.html>`_ in the *Amazon Elastic Container Service Developer Guide*.
+    Your Amazon ECS container instances require at least version 1.26.0 of the container agent and at least version
+    1.26.0-1 of the ``ecs-init`` package to use a proxy configuration. If your container instances are launched from the
+    Amazon ECS optimized AMI version ``20190301`` or later, they contain the required versions of the container agent and
+    ``ecs-init``. For more information, see `Amazon ECS-optimized Linux
+    AMI <https://docs.aws.amazon.com/AmazonECS/latest/developerguide/ecs-optimized_AMI.html>`_ in the *Amazon Elastic
+    Container Service Developer Guide*.
     """
 
     type: Optional[Literal["APPMESH"]] = None
@@ -4755,34 +4263,32 @@ class ProxyConfiguration(Boto3Model):
     """
     properties: Optional[List["KeyValuePair"]] = None
     """
-    The set of network configuration parameters to provide the Container
-    Network Interface (CNI) plugin, specified as key-value pairs.
+    The set of network configuration parameters to provide the Container Network Interface (CNI) plugin, specified as
+    key-value pairs.
     """
 
 
 class EphemeralStorage(Boto3Model):
     """
-    The ephemeral storage settings to use for tasks run with the task
-    definition.
+    The ephemeral storage settings to use for tasks run with the task definition.
     """
 
     sizeInGiB: int
     """
     The total amount, in GiB, of ephemeral storage to set for the task.
 
-    The minimum
-    supported value is ``20`` GiB and the maximum supported value is ``200`` GiB.
+    The minimum supported value is ``20`` GiB and the
+    maximum supported value is ``200`` GiB.
     """
 
 
 class TaskDefinition(TagsDictMixin, PrimaryBoto3Model):
     """
-    The details of a task definition which describes the container and volume
-    definitions of an Amazon Elastic Container Service task.
+    The details of a task definition which describes the container and volume definitions of an Amazon Elastic Container
+    Service task.
 
-    You can specify which Docker images to use, the required resources, and
-    other configurations related to launching the task definition through an
-    Amazon ECS service or task.
+    You can specify which Docker images to use, the required resources, and other configurations related to launching
+    the task definition through an Amazon ECS service or task.
     """
 
     tag_class: ClassVar[Type] = ECSTag
@@ -4792,26 +4298,24 @@ class TaskDefinition(TagsDictMixin, PrimaryBoto3Model):
     """
     The name of a family that this task definition is registered to.
 
-    Up to 255 characters are allowed. Letters (both uppercase and lowercase
-    letters), numbers, hyphens (-), and underscores (_) are allowed.
+    Up to 255 characters are allowed. Letters (both uppercase and lowercase letters), numbers, hyphens (-), and
+    underscores (_) are allowed.
     """
     containerDefinitions: List["ContainerDefinition"]
     """
-    A list of container definitions in JSON format that describe the different
-    containers that make up your task.
+    A list of container definitions in JSON format that describe the different containers that make up your task.
 
-    For more information about container
-    definition parameters and defaults, see `Amazon ECS Task Definitions <https://d
-    ocs.aws.amazon.com/AmazonECS/latest/developerguide/task_defintions.html>`_ in the
-    *Amazon Elastic Container Service Developer Guide*.
+    For more information about container definition parameters and defaults, see
+    `Amazon ECS Task Definitions <https://docs.aws.amazon.com/AmazonECS/latest/developerguide/task_defintions.html>`_
+    in the *Amazon Elastic
+    Container Service Developer Guide*.
     """
     networkMode: Optional[Literal["bridge", "host", "awsvpc", "none"]] = "awsvpc"
     """
     The Docker networking mode to use for the containers in the task.
 
-    The valid
-    values are ``none``, ``bridge``, ``awsvpc``, and ``host``. If no network mode
-    is specified, the default is ``bridge``.
+    The valid values are ``none``, ``bridge``, ``awsvpc``,
+    and ``host``. If no network mode is specified, the default is ``bridge``.
     """
     taskDefinitionArn: str = Field(default=None, frozen=True)
     """
@@ -4819,45 +4323,40 @@ class TaskDefinition(TagsDictMixin, PrimaryBoto3Model):
     """
     taskRoleArn: Optional[str] = None
     """
-    The short name or full Amazon Resource Name (ARN) of the Identity and
-    Access Management role that grants containers in the task permission to
-    call Amazon Web Services APIs on your behalf.
+    The short name or full Amazon Resource Name (ARN) of the Identity and Access Management role that grants containers
+    in the task permission to call Amazon Web Services APIs on your behalf.
 
     For informationabout the required IAM roles for Amazon ECS, see
-    `IAM roles for Amazon ECS <https://docs.aws.amazon.com/AmazonECS/latest/developerguide/security-ecs-
-    iam-role-overview.html>`_ in the *Amazon Elastic Container Service Developer
-    Guide*.
+    `IAM roles for Amazon ECS <https://docs.aws.amazon.com/AmazonECS/latest/developerguide/security-ecs-iam-
+    role-overview.html>`_ in the *Amazon Elastic Container Service Developer Guide*.
     """
     executionRoleArn: Optional[str] = None
     """
-    The Amazon Resource Name (ARN) of the task execution role that grants the
-    Amazon ECS container agent permission to make Amazon Web Services API calls
-    on your behalf.
+    The Amazon Resource Name (ARN) of the task execution role that grants the Amazon ECS container agent permission to
+    make Amazon Web Services API calls on your behalf.
 
     For informationabout the required IAM roles for Amazon ECS, see
-    `IAM roles for Amazon ECS <https://docs.aws.amazon.com/AmazonECS/latest/developerguide/security-ecs-
-    iam-role-overview.html>`_ in the *Amazon Elastic Container Service Developer
-    Guide*.
+    `IAM roles for Amazon ECS <https://docs.aws.amazon.com/AmazonECS/latest/developerguide/security-ecs-iam-role-overview.html>`_
+    in the
+    *Amazon Elastic Container Service Developer Guide*.
     """
     revision: int = Field(default=None, frozen=True)
     """
     The revision of the task in a particular family.
 
-    The revision is a version
-    number of a task definition in a family. When you register a task definition
-    for the first time, the revision is ``1``. Each time that you register a new
-    revision of a task definition in the same family, the revision value always
-    increases by one. This is even if you deregistered previous revisions in this
-    family.
+    The revision is a version number of a task definition in a family. When
+    you register a task definition for the first time, the revision is ``1``. Each time that you register a new revision of
+    a task definition in the same family, the revision value always increases by one. This is even if you deregistered
+    previous revisions in this family.
     """
     volumes: Optional[List["Volume"]] = None
     """
     The list of data volume definitions for the task.
 
     For more information, see
-    `Using data volumes in tasks <https://docs.aws.amazon.com/AmazonECS/latest/deve
-    loperguide/using_data_volumes.html>`_ in the *Amazon Elastic Container Service
-    Developer Guide*.
+    `Using data volumes in tasks <https://docs.aws.amazon.com/AmazonECS/latest/developerguide/using_data_volumes.html>`_
+    in the *Amazon Elastic
+    Container Service Developer Guide*.
     """
     status: Literal["ACTIVE", "INACTIVE", "DELETE_IN_PROGRESS"] = Field(
         default=None, frozen=True
@@ -4869,17 +4368,15 @@ class TaskDefinition(TagsDictMixin, PrimaryBoto3Model):
     """
     The container instance attributes required by your task.
 
-    When an Amazon EC2 instance is registered to your cluster, the Amazon ECS
-    container agent assigns some standard attributes to the instance. You can
-    apply custom attributes. These are specified as key-value pairs using the
-    Amazon ECS console or the
-    `Pu tAttributes <https://docs.aws.amazon.com/AmazonECS/latest/APIReference/API_PutA
-     ttributes.html>`_ API. These attributes are used when determining task
-    placement for tasks hosted on Amazon EC2 instances. For more information,
-    see
-    `Attributes <https://docs.aws.amazon.com/AmazonECS/latest/developerguide/task-
-    placement-constraints.html#attributes>`_ in the *Amazon Elastic Container Service
-    Developer Guide*.
+    When an Amazon EC2 instance is registered to your cluster, the Amazon ECS container agent assigns some standard
+    attributes to the instance. You can apply custom attributes. These are specified as key-value pairs using the Amazon
+    ECS console or the
+    `PutAttributes <https://docs.aws.amazon.com/AmazonECS/latest/APIReference/API_PutAttributes.html>`_
+    API. These attributes    are used when determining task placement for tasks hosted on Amazon EC2 instances. For more
+    information, see
+    `Attributes <https://docs.aws.amazon.com/AmazonECS/latest/developerguide/task-placement-constraints.html#attributes>`_
+    in
+    the *Amazon Elastic Container Service Developer Guide*.
     """
     placementConstraints: Optional[List["TaskDefinitionPlacementConstraint"]] = None
     """
@@ -4889,19 +4386,18 @@ class TaskDefinition(TagsDictMixin, PrimaryBoto3Model):
         default=None, frozen=True
     )
     """
-    Amazon ECS validates the task definition parameters with those supported by
-    the launch type.
+    Amazon ECS validates the task definition parameters with those supported by the launch type.
 
-    For more information, see `Amazon ECS launch types <https://docs.a
-    ws.amazon.com/AmazonECS/latest/developerguide/launch_types.html>`_ in the *Amazon
+    For more information, see
+    `Amazon ECS launch types <https://docs.aws.amazon.com/AmazonECS/latest/developerguide/launch_types.html>`_
+    in the *Amazon
     Elastic Container Service Developer Guide*.
     """
     runtimePlatform: Optional[RuntimePlatform] = None
     """
     The operating system that your task definitions are running on.
 
-    A platform family is specified only for tasks using the Fargate launch
-    type.
+    A platform family is specified only for tasks using the Fargate launch type.
     """
     requiresCompatibilities: Optional[List[Literal["EC2", "FARGATE", "EXTERNAL"]]] = (
         None
@@ -4909,21 +4405,18 @@ class TaskDefinition(TagsDictMixin, PrimaryBoto3Model):
     """
     The task launch types the task definition was validated against.
 
-    The valid
-    values are ``EC2``, ``FARGATE``, and ``EXTERNAL``. For more information, see
-    `Amazon ECS launch types <https://docs.aws.amazon.com/AmazonECS/latest/develope
-    rguide/launch_types.html>`_ in the *Amazon Elastic Container Service Developer
-    Guide*.
+    The valid values are ``EC2``, ``FARGATE``, and
+    ``EXTERNAL``. For more information, see `Amazon ECS launch
+    types <https://docs.aws.amazon.com/AmazonECS/latest/developerguide/launch_types.html>`_ in the *Amazon Elastic Container
+    Service Developer Guide*.
     """
     cpu: Optional[str] = None
     """
     The number of ``cpu`` units used by the task.
 
-    If you use the EC2 launch type,
-    this field is optional. Any value can be used. If you use the Fargate launch
-    type, this field is required. You must use one of the following values. The
-    value that you choose determines your range of valid values for the ``memory``
-    parameter.
+    If you use the EC2 launch type, this field is optional. Any value can be
+    used. If you use the Fargate launch type, this field is required. You must use one of the following values. The value
+    that you choose determines your range of valid values for the ``memory`` parameter.
     """
     memory: Optional[str] = None
     """
@@ -4937,25 +4430,22 @@ class TaskDefinition(TagsDictMixin, PrimaryBoto3Model):
     """
     The process namespace to use for the containers in the task.
 
-    The valid values
-    are ``host`` or ``task``. On Fargate for Linux containers, the only valid value
-    is ``task``. For example, monitoring sidecars might need ``pidMode`` to access
+    The valid values are ``host`` or ``task``. On Fargate for
+    Linux containers, the only valid value is ``task``. For example, monitoring sidecars might need ``pidMode`` to access
     information about other containers running in the same task.
     """
     ipcMode: Optional[Literal["host", "task", "none"]] = None
     """
     The IPC resource namespace to use for the containers in the task.
 
-    The valid
-    values are ``host``, ``task``, or ``none``. If ``host`` is specified, then all
-    containers within the tasks that specified the ``host`` IPC mode on the same
-    container instance share the same IPC resources with the host Amazon EC2
-    instance. If ``task`` is specified, all containers within the specified task
-    share the same IPC resources. If ``none`` is specified, then IPC resources
-    within the containers of a task are private and not shared with other
-    containers in a task or on the container instance. If no value is specified,
-    then the IPC resource namespace sharing depends on the Docker daemon setting on
-    the container instance.
+    The valid values are ``host``, ``task``, or ``none``.
+    If ``host`` is specified, then all containers within the tasks that specified the ``host`` IPC mode on the same
+    container instance share the same IPC resources with the host Amazon EC2 instance. If ``task`` is specified, all
+    containers within the specified task share the same IPC resources. If ``none`` is specified, then IPC resources within
+    the containers of a task are private and not shared with other containers in a task or on the container instance. If no
+    value is specified, then the IPC resource namespace sharing depends on the Docker daemon setting on the container
+    instance. For more information, see `IPC settings <https://docs.docker.com/engine/reference/run/#ipc-settings---ipc>`_ in
+    the *Docker run reference*.
     """
     proxyConfiguration: Optional[ProxyConfiguration] = None
     """
@@ -4975,8 +4465,7 @@ class TaskDefinition(TagsDictMixin, PrimaryBoto3Model):
     """
     ephemeralStorage: Optional[EphemeralStorage] = None
     """
-    The ephemeral storage settings to use for tasks run with the task
-    definition.
+    The ephemeral storage settings to use for tasks run with the task definition.
     """
     Tags: Optional[List["ECSTag"]] = None
     """
@@ -4986,8 +4475,7 @@ class TaskDefinition(TagsDictMixin, PrimaryBoto3Model):
     @property
     def pk(self) -> Optional[str]:
         """
-        Return the primary key of the model.   This is the value of the
-        :py:attr:`taskDefinitionArn` attribute.
+        Return the primary key of the model.   This is the value of the :py:attr:`taskDefinitionArn` attribute.
 
         Returns:
             The primary key of the model instance.
@@ -4997,8 +4485,7 @@ class TaskDefinition(TagsDictMixin, PrimaryBoto3Model):
     @property
     def arn(self) -> Optional[str]:
         """
-        Return the ARN of the model.   This is the value of the
-        :py:attr:`taskDefinitionArn` attribute.
+        Return the ARN of the model.   This is the value of the :py:attr:`taskDefinitionArn` attribute.
 
         Returns:
             The ARN of the model instance.
@@ -5008,13 +4495,12 @@ class TaskDefinition(TagsDictMixin, PrimaryBoto3Model):
 
 class NetworkBinding(Boto3Model):
     """
-    Details on the network bindings between a container and its host container
-    instance.
+    Details on the network bindings between a container and its host container instance.
 
-    After a task reaches the ``RUNNING`` status, manual and automatic
-    host and container port assignments are visible in the ``networkBindings``
-    section of `DescribeTasks <https://docs.aws.amazon.com/AmazonECS/latest/APIRefe
-    rence/API_DescribeTasks.html>`_ API responses.
+    After a task reaches the
+    ``RUNNING`` status, manual and automatic host and container port assignments are visible in the ``networkBindings``
+    section of `DescribeTasks <https://docs.aws.amazon.com/AmazonECS/latest/APIReference/API_DescribeTasks.html>`_ API
+    responses.
     """
 
     bindIP: Optional[str] = None
@@ -5035,35 +4521,13 @@ class NetworkBinding(Boto3Model):
     """
     containerPortRange: Optional[str] = None
     """
-    The port number range on the container that's bound to the dynamically
-    mapped host port range.
+    The port number range on the container that's bound to the dynamically mapped host port range.
     """
     hostPortRange: Optional[str] = None
     """
     The port number range on the host that's used with the network binding.
 
-    This is assigned is assigned by Docker and delivered by the Amazon ECS
-    agent.
-    """
-
-
-class NetworkInterface(Boto3Model):
-    """
-    An object representing the elastic network interface for tasks that use the
-    ``awsvpc`` network mode.
-    """
-
-    attachmentId: Optional[str] = None
-    """
-    The attachment ID for the network interface.
-    """
-    privateIpv4Address: Optional[str] = None
-    """
-    The private IPv4 address for the network interface.
-    """
-    ipv6Address: Optional[str] = None
-    """
-    The private IPv6 address for the network interface.
+    This is assigned is assigned by Docker and delivered by the Amazon ECS agent.
     """
 
 
@@ -5080,8 +4544,8 @@ class ManagedAgent(Boto3Model):
     """
     The name of the managed agent.
 
-    When the execute command feature is turned on,
-    the managed agent name is ``ExecuteCommandAgent``.
+    When the execute command feature is turned on, the managed agent name is
+    ``ExecuteCommandAgent``.
     """
     reason: Optional[str] = None
     """
@@ -5132,14 +4596,14 @@ class Container(Boto3Model):
     """
     reason: Optional[str] = None
     """
-    A short (255 max characters) human-readable string to provide additional
-    details about a running or stopped container.
+    A short (255 max characters) human-readable string to provide additional details about a running or stopped
+    container.
     """
     networkBindings: Optional[List["NetworkBinding"]] = None
     """
     The network bindings associated with the container.
     """
-    networkInterfaces: Optional[List["NetworkInterface"]] = None
+    networkInterfaces: Optional[List[NetworkInterface]] = None
     """
     The network interfaces associated with the container.
     """
@@ -5147,9 +4611,8 @@ class Container(Boto3Model):
     """
     The health status of the container.
 
-    If health checks aren't configured for this
-    container in its task definition, then it reports the health status as
-    ``UNKNOWN``.
+    If health checks aren't configured for this container in its task definition, then
+    it reports the health status as ``UNKNOWN``.
     """
     managedAgents: Optional[List["ManagedAgent"]] = None
     """
@@ -5159,9 +4622,8 @@ class Container(Boto3Model):
     """
     The number of CPU units set for the container.
 
-    The value is ``0`` if no value
-    was specified in the container definition when the task definition was
-    registered.
+    The value is ``0`` if no value was specified in the container definition
+    when the task definition was registered.
     """
     memory: Optional[str] = None
     """
@@ -5179,16 +4641,14 @@ class Container(Boto3Model):
 
 class ContainerOverride(Boto3Model):
     """
-    The overrides that are sent to a container. An empty container override can
-    be passed in. An example of an empty container override is
-    ``{"containerOverrides": ` ] }``. If a non-empty container override is
-    specified, the ``name`` parameter must be included.
+    The overrides that are sent to a container. An empty container override can be passed in. An example of an empty
+    container override is ``{"containerOverrides": ` ] }``. If a non-empty container override is specified, the ``name``
+    parameter must be included.
 
-    You can use Secrets Manager or Amazon Web Services Systems Manager Parameter
-    Store to store the sensitive data. For more information, see [Retrieve secrets
-    through environment
-    variables <https://docs.aws.amazon.com/AmazonECS/latest/developerguide/secrets-
-    envvar.html>`_ in the Amazon ECS Developer Guide.
+    You can use Secrets Manager or Amazon Web Services Systems Manager Parameter Store to store the sensitive data. For more
+    information, see [Retrieve secrets through environment
+    variables <https://docs.aws.amazon.com/AmazonECS/latest/developerguide/secrets-envvar.html>`_ in the Amazon ECS Developer
+    Guide.
     """
 
     name: Optional[str] = None
@@ -5199,8 +4659,8 @@ class ContainerOverride(Boto3Model):
     """
     command: Optional[List[str]] = None
     """
-    The command to send to the container that overrides the default command
-    from the Docker image or the task definition.
+    The command to send to the container that overrides the default command from the Docker image or the task
+    definition.
 
     You must also specify a container name.
     """
@@ -5208,42 +4668,38 @@ class ContainerOverride(Boto3Model):
     """
     The environment variables to send to the container.
 
-    You can add new environment variables, which are added to the container at
-    launch, or you can override the existing environment variables from the
-    Docker image or the task definition. You must also specify a container
-    name.
+    You can add new environment variables, which are added to the container at launch, or you can override the existing
+    environment variables from the Docker image or the task definition. You must also specify a container name.
     """
     environmentFiles: Optional[List["EnvironmentFile"]] = None
     """
-    A list of files containing the environment variables to pass to a
-    container, instead of the value from the container definition.
+    A list of files containing the environment variables to pass to a container, instead of the value from the container
+    definition.
     """
     cpu: Optional[int] = None
     """
-    The number of ``cpu`` units reserved for the container, instead of the
-    default value from the task definition.
+    The number of ``cpu`` units reserved for the container, instead of the default value from the task definition.
 
     You must also specify a container name.
     """
     memory: Optional[int] = None
     """
-    The hard limit (in MiB) of memory to present to the container, instead of
-    the default value from the task definition.
+    The hard limit (in MiB) of memory to present to the container, instead of the default value from the task
+    definition.
 
-    If your container attempts to exceed the memory specified here, the
-    container is killed. You must also specify a container name.
+    If your container attempts to exceed the memory specified here, the container is killed. You must also specify a
+    container name.
     """
     memoryReservation: Optional[int] = None
     """
-    The soft limit (in MiB) of memory to reserve for the container, instead of
-    the default value from the task definition.
+    The soft limit (in MiB) of memory to reserve for the container, instead of the default value from the task
+    definition.
 
     You must also specify a container name.
     """
     resourceRequirements: Optional[List["ResourceRequirement"]] = None
     """
-    The type and amount of a resource to assign to a container, instead of the
-    default value from the task definition.
+    The type and amount of a resource to assign to a container, instead of the default value from the task definition.
 
     The only supported resource is a GPU.
     """
@@ -5253,18 +4709,19 @@ class InferenceAcceleratorOverride(Boto3Model):
     """
     Details on an Elastic Inference accelerator task override.
 
-    This parameter is used to override the Elastic Inference accelerator
-    specified in the task definition. For more information, see
-    `Working with Amazon Elastic Inference on Amazon ECS <https://docs.aws.amazon.com/AmazonECS/latest/developerguide/ecs-
-    inference.html>`_ in the *Amazon Elastic Container Service Developer Guide*.
+    This parameter is used to override the Elastic Inference accelerator specified in the task definition. For more
+    information, see
+    `Working with Amazon Elastic Inference on Amazon ECS <https://docs.aws.amazon.com/AmazonECS/latest/developerguide/ecs-inference.html>`_
+    in the *Amazon Elastic Container
+    Service Developer Guide*.
     """
 
     deviceName: Optional[str] = None
     """
     The Elastic Inference accelerator device name to override for the task.
 
-    This
-    parameter must match a ``deviceName`` specified in the task definition.
+    This parameter must match a ``deviceName``
+    specified in the task definition.
     """
     deviceType: Optional[str] = None
     """
@@ -5291,12 +4748,12 @@ class TaskOverride(Boto3Model):
     """
     executionRoleArn: Optional[str] = None
     """
-    The Amazon Resource Name (ARN) of the task execution role override for the
-    task.
+    The Amazon Resource Name (ARN) of the task execution role override for the task.
 
-    For more information, see `Amazon ECS task execution IAM role <https://do
-    cs.aws.amazon.com/AmazonECS/latest/developerguide/task_execution_IAM_role.html>`_
-    in the *Amazon Elastic Container Service Developer Guide*.
+    For more information, see
+    `Amazon ECS task execution IAM role <https://docs.aws.amazon.com/AmazonECS/latest/developerguide/task_execution_IAM_role.html>`_
+    in
+    the *Amazon Elastic Container Service Developer Guide*.
     """
     memory: Optional[str] = None
     """
@@ -5304,13 +4761,12 @@ class TaskOverride(Boto3Model):
     """
     taskRoleArn: Optional[str] = None
     """
-    The Amazon Resource Name (ARN) of the role that containers in this task can
-    assume.
+    The Amazon Resource Name (ARN) of the role that containers in this task can assume.
 
-    All containers in this task are granted the permissions that are specified
-    in this role. For more information, see
-    `IAM Role for Tasks <https://docs.aws.amazon.com/AmazonECS/latest/developerguide/task-iam-
-    roles.html>`_ in the *Amazon Elastic Container Service Developer Guide*.
+    All containers in this task are granted the permissions that are specified in this role. For more information, see
+    `IAM Role for Tasks <https://docs.aws.amazon.com/AmazonECS/latest/developerguide/task-iam-roles.html>`_
+    in the *Amazon Elastic Container
+    Service Developer Guide*.
     """
     ephemeralStorage: Optional[EphemeralStorage] = None
     """
@@ -5325,15 +4781,15 @@ class TaskEphemeralStorage(Boto3Model):
 
     sizeInGiB: Optional[int] = None
     """
-    The total amount, in GiB, of the ephemeral storage to set for the task. The
-    minimum supported value is ``20`` GiB and the maximum supported value is.
+    The total amount, in GiB, of the ephemeral storage to set for the task.
 
-    ``200`` GiB.
+    The minimum supported value is ``20`` GiB and
+    the maximum supported value is
+     ``200`` GiB.
     """
     kmsKeyId: Optional[str] = None
     """
-    Specify an Key Management Service key ID to encrypt the ephemeral storage
-    for the task.
+    Specify an Amazon Web Services Key Management Service key ID to encrypt the ephemeral storage for the task.
     """
 
 
@@ -5347,11 +4803,9 @@ class Task(TagsDictMixin, PrimaryBoto3Model):
 
     Tags: List["ECSTag"] = Field(default=None, serialization_alias="tags")
     """
-    The metadata that you apply to the task to help you categorize and organize
-    the task.
+    The metadata that you apply to the task to help you categorize and organize the task.
 
-    Each tag consists of a key and an optional value. You define both the key
-    and value.
+    Each tag consists of a key and an optional value. You define both the key and value.
     """
     clusterArn: str
     """
@@ -5361,25 +4815,23 @@ class Task(TagsDictMixin, PrimaryBoto3Model):
     """
     The platform version where your task runs on.
 
-    A platform version is only
-    specified for tasks that use the Fargate launch type. If you didn't specify
-    one, the ``LATEST`` platform version is used. For more information, see
-    `Fargate Platform Versions <https://docs.aws.amazon.com/AmazonECS/latest/develo
-    perguide/platform_versions.html>`_ in the *Amazon Elastic Container Service
-    Developer Guide*.
+    A platform version is only specified for tasks that use the Fargate launch
+    type. If you didn't specify one, the ``LATEST`` platform version is used. For more information, see `Fargate Platform
+    Versions <https://docs.aws.amazon.com/AmazonECS/latest/developerguide/platform_versions.html>`_ in the *Amazon Elastic
+    Container Service Developer Guide*.
     """
     launchType: Optional[Literal["EC2", "FARGATE", "EXTERNAL"]] = "FARGATE"
     """
     The infrastructure where your task runs on.
 
     For more information, see
-    `Amazon ECS launch types <https://docs.aws.amazon.com/AmazonECS/latest/developerguide/l
-    aunch_types.html>`_ in the *Amazon Elastic Container Service Developer Guide*.
+    `Amazon ECS launch types <https://docs.aws.amazon.com/AmazonECS/latest/developerguide/launch_types.html>`_
+    in the *Amazon Elastic Container
+    Service Developer Guide*.
     """
     attachments: List["Attachment"] = Field(default=None, frozen=True)
     """
-    The Elastic Network Adapter that's associated with the task if the task
-    uses the ``awsvpc`` network mode.
+    The Elastic Network Adapter that's associated with the task if the task uses the ``awsvpc`` network mode.
     """
     attributes: List["Attribute"] = Field(default=None, frozen=True)
     """
@@ -5401,8 +4853,7 @@ class Task(TagsDictMixin, PrimaryBoto3Model):
     """
     connectivityAt: datetime = Field(default=None, frozen=True)
     """
-    The Unix timestamp for the time when the task last went into ``CONNECTED``
-    status.
+    The Unix timestamp for the time when the task last went into ``CONNECTED`` status.
     """
     containerInstanceArn: str = Field(default=None, frozen=True)
     """
@@ -5416,35 +4867,30 @@ class Task(TagsDictMixin, PrimaryBoto3Model):
     """
     The number of CPU units used by the task as expressed in a task definition.
 
-    It
-    can be expressed as an integer using CPU units (for example, ``1024``). It can
-    also be expressed as a string using vCPUs (for example, ``1 vCPU`` or ``1
-    vcpu``). String values are converted to an integer that indicates the CPU units
-    when the task definition is registered.
+    It can be expressed as an integer using CPU
+    units (for example, ``1024``). It can also be expressed as a string using vCPUs (for example, ``1 vCPU`` or ``1 vcpu``).
+    String values are converted to an integer that indicates the CPU units when the task definition is registered.
     """
     createdAt: datetime = Field(default=None, frozen=True)
     """
     The Unix timestamp for the time when the task was created.
 
-    More specifically,
-    it's for the time when the task entered the ``PENDING`` state.
+    More specifically, it's for the time when the task entered
+    the ``PENDING`` state.
     """
     desiredStatus: str = Field(default=None, frozen=True)
     """
     The desired status of the task.
 
     For more information, see
-    `Task Lifecycle <https://docs.aws.amazon.com/AmazonECS/latest/developerguide/task-
-    lifecycle.html>`_.
+    `Task Lifecycle <https://docs.aws.amazon.com/AmazonECS/latest/developerguide/task-lifecycle.html>`_.
     """
     enableExecuteCommand: Optional[bool] = None
     """
-    Determines whether execute command functionality is turned on for this
-    task.
+    Determines whether execute command functionality is turned on for this task.
 
-    If
-    ``true``, execute command functionality is turned on all the containers in the
-    task.
+    If ``true``, execute command functionality
+    is turned on all the containers in the task.
     """
     executionStoppedAt: datetime = Field(default=None, frozen=True)
     """
@@ -5460,11 +4906,10 @@ class Task(TagsDictMixin, PrimaryBoto3Model):
     """
     The health status for the task.
 
-    It's determined by the health of the essential
-    containers in the task. If all essential containers in the task are reporting
-    as ``HEALTHY``, the task status also reports as ``HEALTHY``. If any essential
-    containers in the task are reporting as ``UNHEALTHY`` or ``UNKNOWN``, the task
-    status also reports as ``UNHEALTHY`` or ``UNKNOWN``.
+    It's determined by the health of the essential containers in the task. If all essential
+    containers in the task are reporting as ``HEALTHY``, the task status also reports as ``HEALTHY``. If any essential
+    containers in the task are reporting as ``UNHEALTHY`` or ``UNKNOWN``, the task status also reports as ``UNHEALTHY`` or
+    ``UNKNOWN``.
     """
     inferenceAccelerators: List["InferenceAccelerator"] = Field(
         default=None, frozen=True
@@ -5477,18 +4922,15 @@ class Task(TagsDictMixin, PrimaryBoto3Model):
     The last known status for the task.
 
     For more information, see
-    `Task Lifecycle <https://docs.aws.amazon.com/AmazonECS/latest/developerguide/task-
-    lifecycle.html>`_.
+    `Task Lifecycle <https://docs.aws.amazon.com/AmazonECS/latest/developerguide/task-lifecycle.html>`_.
     """
     memory: str = Field(default=None, frozen=True)
     """
-    The amount of memory (in MiB) that the task uses as expressed in a task
-    definition.
+    The amount of memory (in MiB) that the task uses as expressed in a task definition.
 
-    It can be expressed as an integer using MiB (for example,
-    ``1024``). If it's expressed as a string using GB (for example, ``1GB`` or ``1
-    GB``), it's converted to an integer indicating the MiB when the task definition
-    is registered.
+    It can be expressed as an integer
+    using MiB (for example, ``1024``). If it's expressed as a string using GB (for example, ``1GB`` or ``1 GB``), it's
+    converted to an integer indicating the MiB when the task definition is registered.
     """
     overrides: Optional[TaskOverride] = None
     """
@@ -5498,8 +4940,7 @@ class Task(TagsDictMixin, PrimaryBoto3Model):
     """
     The operating system that your tasks are running on.
 
-    A platform family is specified only for tasks that use the Fargate launch
-    type.
+    A platform family is specified only for tasks that use the Fargate launch type.
     """
     pullStartedAt: datetime = Field(default=None, frozen=True)
     """
@@ -5513,16 +4954,15 @@ class Task(TagsDictMixin, PrimaryBoto3Model):
     """
     The Unix timestamp for the time when the task started.
 
-    More specifically, it's
-    for the time when the task transitioned from the ``PENDING`` state to the
-    ``RUNNING`` state.
+    More specifically, it's for the time when the task transitioned
+    from the ``PENDING`` state to the ``RUNNING`` state.
     """
     startedBy: Optional[str] = None
     """
     The tag specified when a task is started.
 
-    If an Amazon ECS service started the
-    task, the ``startedBy`` parameter contains the deployment ID of that service.
+    If an Amazon ECS service started the task, the ``startedBy`` parameter
+    contains the deployment ID of that service.
     """
     stopCode: Literal[
         "TaskFailedToStart",
@@ -5535,16 +4975,14 @@ class Task(TagsDictMixin, PrimaryBoto3Model):
     """
     The stop code indicating why a task was stopped.
 
-    The ``stoppedReason`` might
-    contain additional details.
+    The ``stoppedReason`` might contain additional details.
     """
     stoppedAt: datetime = Field(default=None, frozen=True)
     """
     The Unix timestamp for the time when the task was stopped.
 
-    More specifically,
-    it's for the time when the task transitioned from the ``RUNNING`` state to the
-    ``STOPPED`` state.
+    More specifically, it's for the time when the task
+    transitioned from the ``RUNNING`` state to the ``STOPPED`` state.
     """
     stoppedReason: str = Field(default=None, frozen=True)
     """
@@ -5554,9 +4992,8 @@ class Task(TagsDictMixin, PrimaryBoto3Model):
     """
     The Unix timestamp for the time when the task stops.
 
-    More specifically, it's
-    for the time when the task transitions from the ``RUNNING`` state to
-    ``STOPPING``.
+    More specifically, it's for the time when the task transitions from
+    the ``RUNNING`` state to ``STOPPING``.
     """
     taskArn: str = Field(default=None, frozen=True)
     """
@@ -5570,12 +5007,10 @@ class Task(TagsDictMixin, PrimaryBoto3Model):
     """
     The version counter for the task.
 
-    Every time a task experiences a change that
-    starts a CloudWatch event, the version counter is incremented. If you replicate
-    your Amazon ECS task state with CloudWatch Events, you can compare the version
-    of a task reported by the Amazon ECS API actions with the version reported in
-    CloudWatch Events for the task (inside the ``detail`` object) to verify that
-    the version in your event stream is current.
+    Every time a task experiences a change that starts a CloudWatch event, the version
+    counter is incremented. If you replicate your Amazon ECS task state with CloudWatch Events, you can compare the version
+    of a task reported by the Amazon ECS API actions with the version reported in CloudWatch Events for the task (inside the
+    ``detail`` object) to verify that the version in your event stream is current.
     """
     ephemeralStorage: EphemeralStorage = Field(default=None, frozen=True)
     """
@@ -5587,18 +5022,16 @@ class Task(TagsDictMixin, PrimaryBoto3Model):
     """
     taskDefinition: Optional[str] = None
     """
-    The ``family`` and ``revision`` (``family:revision``) or full ARN of the
-    task definition to run.
+    The ``family`` and ``revision`` (``family:revision``) or full ARN of the task definition to run.
 
-    If a ``revision`` isn't specified, the latest
-    ``ACTIVE`` revision is used.
+    If a
+    ``revision`` isn't specified, the latest ``ACTIVE`` revision is used.
     """
 
     @property
     def pk(self) -> Optional[str]:
         """
-        Return the primary key of the model.   This is the value of the
-        :py:attr:`taskArn` attribute.
+        Return the primary key of the model.   This is the value of the :py:attr:`taskArn` attribute.
 
         Returns:
             The primary key of the model instance.
@@ -5608,8 +5041,7 @@ class Task(TagsDictMixin, PrimaryBoto3Model):
     @property
     def arn(self) -> Optional[str]:
         """
-        Return the ARN of the model.   This is the value of the
-        :py:attr:`taskArn` attribute.
+        Return the ARN of the model.   This is the value of the :py:attr:`taskArn` attribute.
 
         Returns:
             The ARN of the model instance.
@@ -5627,8 +5059,7 @@ class Task(TagsDictMixin, PrimaryBoto3Model):
     @cached_property
     def cluster(self) -> Optional["Cluster"]:
         """
-        Return the :py:class:`Cluster` object that this task belongs to, if
-        any.
+        Return the :py:class:`Cluster` object that this task belongs to, if any.
 
         .. note::
 
@@ -5651,8 +5082,7 @@ class Task(TagsDictMixin, PrimaryBoto3Model):
     @cached_property
     def task_definition(self) -> Optional["TaskDefinition"]:
         """
-        Return the :py:class:`TaskDefinition` object that this task uses, if
-        any.
+        Return the :py:class:`TaskDefinition` object that this task uses, if any.
 
         .. note::
 
@@ -5675,8 +5105,7 @@ class Task(TagsDictMixin, PrimaryBoto3Model):
     @cached_property
     def container_instance(self) -> Optional["ContainerInstance"]:
         """
-        Return the :py:class:`ContainerInstance` object that runs this task, if
-        any.
+        Return the :py:class:`ContainerInstance` object that runs this task, if any.
 
         .. note::
 
@@ -5724,8 +5153,7 @@ class Task(TagsDictMixin, PrimaryBoto3Model):
 
 class VersionInfo(Boto3Model):
     """
-    The version information for the Amazon ECS container agent and Docker
-    daemon running on the container instance.
+    The version information for the Amazon ECS container agent and Docker daemon running on the container instance.
     """
 
     agentVersion: Optional[str] = None
@@ -5734,9 +5162,8 @@ class VersionInfo(Boto3Model):
     """
     agentHash: Optional[str] = None
     """
-The Git commit hash for the Amazon ECS container agent build on the
-`amazon-ecs-agent <https://github.com/aws/amazon-ecs-agent/commits/master>`_
-GitHub repository.
+The Git commit hash for the Amazon ECS container agent build on the `amazon-ecs-agent <https://github.com/aws/amazon-
+ecs-agent/commits/master>`_  GitHub repository.
     """
     dockerVersion: Optional[str] = None
     """
@@ -5751,42 +5178,35 @@ class ContainerInstanceResource(Boto3Model):
 
     name: Optional[str] = None
     """
-    The name of the resource, such as ``CPU``, ``MEMORY``, ``PORTS``,
-    ``PORTS_UDP``, or a user-defined resource.
+    The name of the resource, such as ``CPU``, ``MEMORY``, ``PORTS``, ``PORTS_UDP``, or a user-defined resource.
     """
     type: Optional[str] = None
     """
     The type of the resource.
 
-    Valid values: ``INTEGER``, ``DOUBLE``, ``LONG``, or
-    ``STRINGSET``.
+    Valid values: ``INTEGER``, ``DOUBLE``, ``LONG``, or ``STRINGSET``.
     """
     doubleValue: Optional[float] = None
     """
-    When the ``doubleValue`` type is set, the value of the resource must be a
-    double precision floating-point type.
+    When the ``doubleValue`` type is set, the value of the resource must be a double precision floating-point type.
     """
     longValue: Optional[int] = None
     """
-    When the ``longValue`` type is set, the value of the resource must be an
-    extended precision floating-point type.
+    When the ``longValue`` type is set, the value of the resource must be an extended precision floating-point type.
     """
     integerValue: Optional[int] = None
     """
-    When the ``integerValue`` type is set, the value of the resource must be an
-    integer.
+    When the ``integerValue`` type is set, the value of the resource must be an integer.
     """
     stringSetValue: Optional[List[str]] = None
     """
-    When the ``stringSetValue`` type is set, the value of the resource must be
-    a string type.
+    When the ``stringSetValue`` type is set, the value of the resource must be a string type.
     """
 
 
 class InstanceHealthCheckResult(Boto3Model):
     """
-    An object representing the result of a container instance health status
-    check.
+    An object representing the result of a container instance health status check.
     """
 
     type: Optional[Literal["CONTAINER_RUNTIME"]] = None
@@ -5801,13 +5221,11 @@ class InstanceHealthCheckResult(Boto3Model):
     """
     lastUpdated: Optional[datetime] = None
     """
-    The Unix timestamp for when the container instance health status was last
-    updated.
+    The Unix timestamp for when the container instance health status was last updated.
     """
     lastStatusChange: Optional[datetime] = None
     """
-    The Unix timestamp for when the container instance health status last
-    changed.
+    The Unix timestamp for when the container instance health status last changed.
     """
 
 
@@ -5826,8 +5244,7 @@ class ContainerInstanceHealthStatus(Boto3Model):
     """
     details: Optional[List["InstanceHealthCheckResult"]] = None
     """
-    An array of objects representing the details of the container instance
-    health status.
+    An array of objects representing the details of the container instance health status.
     """
 
 
@@ -5835,8 +5252,7 @@ class ContainerInstance(
     TagsDictMixin, ECSContainerInstanceModelMixin, ReadonlyPrimaryBoto3Model
 ):
     """
-    An Amazon EC2 or External instance that's running the Amazon ECS agent and
-    has been registered with a cluster.
+    An Amazon EC2 or External instance that's running the Amazon ECS agent and has been registered with a cluster.
     """
 
     tag_class: ClassVar[Type] = ECSTag
@@ -5844,8 +5260,7 @@ class ContainerInstance(
 
     Tags: List["ECSTag"] = Field(default=None, serialization_alias="tags")
     """
-    The metadata that you apply to the container instance to help you
-    categorize and organize them.
+    The metadata that you apply to the container instance to help you categorize and organize them.
 
     Each tag consists of a key and an optional value. You define both.
     """
@@ -5853,18 +5268,16 @@ class ContainerInstance(
     """
     The Amazon Resource Name (ARN) of the container instance.
 
-    For more information
-    about the ARN format, see `Amazon Resource Name
-    (ARN) <https://docs.aws.amazon.com/AmazonECS/latest/developerguide/ecs-account-
-    settings.html#ecs-resource-ids>`_ in the *Amazon ECS Developer Guide*.
+    For more information about the ARN format, see `Amazon
+    Resource Name (ARN) <https://docs.aws.amazon.com/AmazonECS/latest/developerguide/ecs-account-settings.html#ecs-resource-
+    ids>`_ in the *Amazon ECS Developer Guide*.
     """
     ec2InstanceId: Optional[str] = None
     """
     The ID of the container instance.
 
-    For Amazon EC2 instances, this value is the Amazon EC2 instance ID. For
-    external instances, this value is the Amazon Web Services Systems Manager
-    managed instance ID.
+    For Amazon EC2 instances, this value is the Amazon EC2 instance ID. For external instances, this value is the Amazon
+    Web Services Systems Manager managed instance ID.
     """
     capacityProviderName: Optional[str] = None
     """
@@ -5874,49 +5287,41 @@ class ContainerInstance(
     """
     The version counter for the container instance.
 
-    Every time a container instance
-    experiences a change that triggers a CloudWatch event, the version counter is
-    incremented. If you're replicating your Amazon ECS container instance state
-    with CloudWatch Events, you can compare the version of a container instance
-    reported by the Amazon ECS APIs with the version reported in CloudWatch Events
-    for the container instance (inside the ``detail`` object) to verify that the
+    Every time a container instance experiences a change that triggers a
+    CloudWatch event, the version counter is incremented. If you're replicating your Amazon ECS container instance state
+    with CloudWatch Events, you can compare the version of a container instance reported by the Amazon ECS APIs with the
+    version reported in CloudWatch Events for the container instance (inside the ``detail`` object) to verify that the
     version in your event stream is current.
     """
     versionInfo: Optional[VersionInfo] = None
     """
-    The version information for the Amazon ECS container agent and Docker
-    daemon running on the container instance.
+    The version information for the Amazon ECS container agent and Docker daemon running on the container instance.
     """
     remainingResources: Optional[List["ContainerInstanceResource"]] = None
     """
-    For CPU and memory resource types, this parameter describes the remaining
-    CPU and memory that wasn't already allocated to tasks and is therefore
-    available for new tasks.
+    For CPU and memory resource types, this parameter describes the remaining CPU and memory that wasn't already
+    allocated to tasks and is therefore available for new tasks.
 
-    For port resource types, this parameter describes the ports that
-    were reserved by the Amazon ECS container agent (at instance registration time)
-    and any task containers that have reserved port mappings on the host (with the
-    ``host`` or ``bridge`` network mode). Any port that's not specified here is
+    For port resource types, this parameter describes the ports that were
+    reserved by the Amazon ECS container agent (at instance registration time) and any task containers that have reserved
+    port mappings on the host (with the ``host`` or ``bridge`` network mode). Any port that's not specified here is
     available for new tasks.
     """
     registeredResources: Optional[List["ContainerInstanceResource"]] = None
     """
-    For CPU and memory resource types, this parameter describes the amount of
-    each resource that was available on the container instance when the
-    container agent registered it with Amazon ECS.
+    For CPU and memory resource types, this parameter describes the amount of each resource that was available on the
+    container instance when the container agent registered it with Amazon ECS.
 
-    This value represents the total amount of CPU and memory that can be
-    allocated on this container instance to tasks. For port resource types,
-    this parameter describes the ports that were reserved by the Amazon ECS
-    container agent when it registered the container instance with Amazon ECS.
+    This value represents the total amount of CPU and memory that can be allocated on this container instance to tasks.
+    For port resource types, this parameter describes the ports that were reserved by the Amazon ECS container agent
+    when it registered the container instance with Amazon ECS.
     """
     status: Optional[str] = None
     """
     The status of the container instance.
 
-    The valid values are ``REGISTERING``,
-    ``REGISTRATION_FAILED``, ``ACTIVE``, ``INACTIVE``, ``DEREGISTERING``, or
-    ``DRAINING``.
+    The valid values are ``REGISTERING``, ``REGISTRATION_FAILED``, ``ACTIVE``,
+    ``INACTIVE``, ``DEREGISTERING``, or ``DRAINING``.
     """
     statusReason: Optional[str] = None
     """
@@ -5926,19 +5331,16 @@ class ContainerInstance(
     """
     This parameter returns ``true`` if the agent is connected to Amazon ECS.
 
-    An
-    instance with an agent that may be unhealthy or stopped return ``false``. Only
-    instances connected to an agent can accept task placement requests.
+    An instance with an agent that may be unhealthy
+    or stopped return ``false``. Only instances connected to an agent can accept task placement requests.
     """
     runningTasksCount: Optional[int] = None
     """
-    The number of tasks on the container instance that have a desired status
-    (``desiredStatus``) of ``RUNNING``.
+    The number of tasks on the container instance that have a desired status (``desiredStatus``) of ``RUNNING``.
     """
     pendingTasksCount: Optional[int] = None
     """
-    The number of tasks on the container instance that are in the ``PENDING``
-    status.
+    The number of tasks on the container instance that are in the ``PENDING`` status.
     """
     agentUpdateStatus: Optional[
         Literal["PENDING", "STAGING", "STAGED", "UPDATING", "UPDATED", "FAILED"]
@@ -5946,15 +5348,13 @@ class ContainerInstance(
     """
     The status of the most recent agent update.
 
-    If an update wasn't ever requested,
-    this value is ``NULL``.
+    If an update wasn't ever requested, this value is ``NULL``.
     """
     attributes: Optional[List["Attribute"]] = None
     """
-    The attributes set for the container instance, either by the Amazon ECS
-    container agent at instance registration or manually with the
-    `PutAttributes <h ttps://docs.aws.amazon.com/AmazonECS/latest/APIReference/
-    API_PutAttributes.html >`_ operation.
+The attributes set for the container instance, either by the Amazon ECS container agent at instance registration or
+manually with the `PutAttributes <https://docs.aws.amazon.com/AmazonECS/latest/APIReference/API_PutAttributes.html>`_
+operation.
     """
     registeredAt: Optional[datetime] = None
     """
@@ -5962,8 +5362,7 @@ class ContainerInstance(
     """
     attachments: Optional[List["Attachment"]] = None
     """
-    The resources attached to a container instance, such as an elastic network
-    interface.
+    The resources attached to a container instance, such as an elastic network interface.
     """
     healthStatus: Optional[ContainerInstanceHealthStatus] = None
     """
@@ -5973,8 +5372,7 @@ class ContainerInstance(
     @property
     def pk(self) -> Optional[str]:
         """
-        Return the primary key of the model.   This is the value of the
-        :py:attr:`containerInstanceArn` attribute.
+        Return the primary key of the model.   This is the value of the :py:attr:`containerInstanceArn` attribute.
 
         Returns:
             The primary key of the model instance.
@@ -5984,8 +5382,7 @@ class ContainerInstance(
     @property
     def arn(self) -> Optional[str]:
         """
-        Return the ARN of the model.   This is the value of the
-        :py:attr:`containerInstanceArn` attribute.
+        Return the ARN of the model.   This is the value of the :py:attr:`containerInstanceArn` attribute.
 
         Returns:
             The ARN of the model instance.
@@ -6015,8 +5412,7 @@ class ContainerInstance(
     @cached_property
     def instance(self) -> Optional["Instance"]:
         """
-        Return the :py:class:`Instance` object that this container instance
-        represents, if any.
+        Return the :py:class:`Instance` object that this container instance represents, if any.
 
         .. note::
 
@@ -6039,8 +5435,7 @@ class ContainerInstance(
     @property
     def tasks(self) -> Optional[List["Task"]]:
         """
-        Return the ARNs of :py:class:`Task` objects that run on this container
-        instance, if any.
+        Return the ARNs of :py:class:`Task` objects that run on this container instance, if any.
         """
 
         try:
@@ -6079,9 +5474,10 @@ class Failure(Boto3Model):
     """
     A failed resource.
 
-    For a list of common causes, see `API failure reasons <https
-    ://docs.aws.amazon.com/AmazonECS/latest/developerguide/api_failures_messages.ht
-    ml>`_ in the *Amazon Elastic Container Service Developer Guide*.
+    For a list of common causes, see
+    `API failure reasons <https://docs.aws.amazon.com/AmazonECS/latest/developerguide/api_failures_messages.html>`_
+    in the *Amazon Elastic
+    Container Service Developer Guide*.
     """
 
     arn: Optional[str] = None
@@ -6112,16 +5508,14 @@ class DescribeServicesResponse(Boto3Model):
 class ListServicesResponse(Boto3Model):
     serviceArns: Optional[List[str]] = None
     """
-    The list of full ARN entries for each service that's associated with the
-    specified cluster.
+    The list of full ARN entries for each service that's associated with the specified cluster.
     """
     nextToken: Optional[str] = None
     """
     The ``nextToken`` value to include in a future ``ListServices`` request.
 
-    When
-    the results of a ``ListServices`` request exceed ``maxResults``, this value can
-    be used to retrieve the next page of results. This value is ``null`` when there
+    When the results of a ``ListServices`` request
+    exceed ``maxResults``, this value can be used to retrieve the next page of results. This value is ``null`` when there
     are no more results to return.
     """
 
@@ -6135,34 +5529,27 @@ class UpdateServiceResponse(Boto3Model):
 
 class ClusterServiceConnectDefaultsRequest(Boto3Model):
     """
-    Use this parameter to set a default Service Connect namespace. After you
-    set a default Service Connect namespace, any new services with Service
-    Connect turned on that are created in the cluster are added as client
-    services in the namespace. This setting only applies to new services that
-    set the ``enabled`` parameter to ``true`` in the
-    ``ServiceConnectConfiguration``. You can set the namespace of each service
-    individually in the ``ServiceConnectConfiguration`` to override this
-    default parameter.
+    Use this parameter to set a default Service Connect namespace. After you set a default Service Connect namespace,
+    any new services with Service Connect turned on that are created in the cluster are added as client services in the
+    namespace. This setting only applies to new services that set the ``enabled`` parameter to ``true`` in the
+    ``ServiceConnectConfiguration``. You can set the namespace of each service individually in the
+    ``ServiceConnectConfiguration`` to override this default parameter.
 
-    Tasks that run in a namespace can use short names to connect to services in
-    the namespace. Tasks can connect to services across all of the clusters in
-    the namespace. Tasks connect through a managed proxy container that
-    collects logs and metrics for increased visibility. Only the tasks that
-    Amazon ECS services create are supported with Service Connect. For more
-    information, see
+    Tasks that run in a namespace can use short names to connect to services in the namespace. Tasks can connect to
+    services across all of the clusters in the namespace. Tasks connect through a managed proxy container that collects
+    logs and metrics for increased visibility. Only the tasks that Amazon ECS services create are supported with Service
+    Connect. For more information, see
     `Service Connect <https://docs.aws.amazon.com/AmazonECS/latest/developerguide/service-
     connect.html>`_ in the *Amazon Elastic Container Service Developer Guide*.
     """
 
     namespace: str
     """
-    The namespace name or full Amazon Resource Name (ARN) of the Cloud Map
-    namespace that's used when you create a service and don't specify a Service
-    Connect configuration.
+    The namespace name or full Amazon Resource Name (ARN) of the Cloud Map namespace that's used when you create a
+    service and don't specify a Service Connect configuration.
 
-    The namespace name can include up to 1024 characters. The name is case-
-    sensitive. The name can't include hyphens (-), tilde (~), greater than (>),
-    less than (<), or slash (/).
+    The namespace name can include up to 1024 characters. The name is case-sensitive. The name can't include hyphens
+    (-), tilde (~), greater than (>), less than (<), or slash (/).
     """
 
 
@@ -6194,16 +5581,14 @@ class DescribeClustersResponse(Boto3Model):
 class ListClustersResponse(Boto3Model):
     clusterArns: Optional[List[str]] = None
     """
-    The list of full Amazon Resource Name (ARN) entries for each cluster that's
-    associated with your account.
+    The list of full Amazon Resource Name (ARN) entries for each cluster that's associated with your account.
     """
     nextToken: Optional[str] = None
     """
     The ``nextToken`` value to include in a future ``ListClusters`` request.
 
-    When
-    the results of a ``ListClusters`` request exceed ``maxResults``, this value can
-    be used to retrieve the next page of results. This value is ``null`` when there
+    When the results of a ``ListClusters`` request
+    exceed ``maxResults``, this value can be used to retrieve the next page of results. This value is ``null`` when there
     are no more results to return.
     """
 
@@ -6238,8 +5623,7 @@ class DescribeTaskDefinitionResponse(TagsDictMixin, Boto3Model):
     tag_class: ClassVar[Type] = ECSTag
     Tags: List["ECSTag"] = Field(default=None, serialization_alias="tags")
     """
-    The metadata that's applied to the task definition to help you categorize
-    and organize them.
+    The metadata that's applied to the task definition to help you categorize and organize them.
 
     Each tag consists of a key and an optional value. You define both.
     """
@@ -6252,17 +5636,15 @@ class DescribeTaskDefinitionResponse(TagsDictMixin, Boto3Model):
 class ListTaskDefinitionsResponse(Boto3Model):
     taskDefinitionArns: Optional[List[str]] = None
     """
-    The list of task definition Amazon Resource Name (ARN) entries for the
-    ``ListTaskDefinitions`` request.
+    The list of task definition Amazon Resource Name (ARN) entries for the ``ListTaskDefinitions`` request.
     """
     nextToken: Optional[str] = None
     """
-    The ``nextToken`` value to include in a future ``ListTaskDefinitions``
-    request.
+    The ``nextToken`` value to include in a future ``ListTaskDefinitions`` request.
 
-    When the results of a ``ListTaskDefinitions`` request exceed ``maxResults``,
-    this value can be used to retrieve the next page of results. This value is
-    ``null`` when there are no more results to return.
+    When the results of a
+    ``ListTaskDefinitions`` request exceed ``maxResults``, this value can be used to retrieve the next page of results. This
+    value is ``null`` when there are no more results to return.
     """
 
 
@@ -6280,16 +5662,15 @@ class DescribeContainerInstancesResponse(Boto3Model):
 class ListContainerInstancesResponse(Boto3Model):
     containerInstanceArns: Optional[List[str]] = None
     """
-    The list of container instances with full ARN entries for each container
-    instance associated with the specified cluster.
+    The list of container instances with full ARN entries for each container instance associated with the specified
+    cluster.
     """
     nextToken: Optional[str] = None
     """
-    The ``nextToken`` value to include in a future ``ListContainerInstances``
-    request.
+    The ``nextToken`` value to include in a future ``ListContainerInstances`` request.
 
-    When the results of a ``ListContainerInstances`` request exceed
-    ``maxResults``, this value can be used to retrieve the next page of results.
+    When the results of a
+    ``ListContainerInstances`` request exceed ``maxResults``, this value can be used to retrieve the next page of results.
     This value is ``null`` when there are no more results to return.
     """
 
@@ -6303,10 +5684,9 @@ class ListTasksResponse(Boto3Model):
     """
     The ``nextToken`` value to include in a future ``ListTasks`` request.
 
-    When the
-    results of a ``ListTasks`` request exceed ``maxResults``, this value can be
-    used to retrieve the next page of results. This value is ``null`` when there
-    are no more results to return.
+    When the results of a ``ListTasks`` request exceed
+    ``maxResults``, this value can be used to retrieve the next page of results. This value is ``null`` when there are no
+    more results to return.
     """
 
 
@@ -6325,166 +5705,141 @@ class TaskManagedEBSVolumeTerminationPolicy(Boto3Model):
     """
     The termination policy for the volume when the task exits.
 
-    This provides a way to control whether Amazon ECS terminates the Amazon EBS
-    volume when the task stops.
+    This provides a way to control whether Amazon ECS terminates the Amazon EBS volume when the task stops.
     """
 
     deleteOnTermination: bool
     """
     Indicates whether the volume should be deleted on when the task stops.
 
-    If a
-    value of ``true`` is specified,
-    Amazon ECS deletes the Amazon EBS volume on
-    your behalf when the task goes into the ``STOPPED`` state. If no value is
-    specified, the
-    default value is ``true`` is used. When set to ``false``,
-    Amazon ECS leaves the volume in your
+    If a value of ``true`` is specified,
+    Amazon ECS
+    deletes the Amazon EBS volume on your behalf when the task goes into the ``STOPPED`` state. If no value is specified,
+    the
+    default value is ``true`` is used. When set to ``false``, Amazon ECS leaves the volume in your
     account.
     """
 
 
 class TaskManagedEBSVolumeConfiguration(Boto3Model):
     """
-    The configuration for the Amazon EBS volume that Amazon ECS creates and
-    manages on your behalf.
+    The configuration for the Amazon EBS volume that Amazon ECS creates and manages on your behalf.
 
-    These settings are used to create each Amazon EBS volume, with one volume
-    created for each task. The Amazon EBS volumes are visible in your account
-    in the Amazon EC2 console once they are created.
+    These settings are used to create each Amazon EBS volume, with one volume created for each task. The Amazon EBS
+    volumes are visible in your account in the Amazon EC2 console once they are created.
     """
 
     encrypted: Optional[bool] = None
     """
     Indicates whether the volume should be encrypted.
 
-    If no value is specified,
-    encryption is turned on by default. This parameter maps 1:1 with the
-    ``Encrypted`` parameter of the `CreateVolume API <https://docs.aws.amazon.com/A
-    WSEC2/latest/APIReference/API_CreateVolume.html>`_ in the *Amazon EC2 API
-    Reference*.
+    If no value is specified, encryption is turned on by default. This
+    parameter maps 1:1 with the ``Encrypted`` parameter of the `CreateVolume
+    API <https://docs.aws.amazon.com/AWSEC2/latest/APIReference/API_CreateVolume.html>`_ in the *Amazon EC2 API Reference*.
     """
     kmsKeyId: Optional[str] = None
     """
-    The Amazon Resource Name (ARN) identifier of the Amazon Web Services Key
-    Management Service key to use for Amazon EBS encryption.
+    The Amazon Resource Name (ARN) identifier of the Amazon Web Services Key Management Service key to use for Amazon
+    EBS encryption.
 
-    When encryption is
-    turned on and no Amazon Web Services Key Management Service key is specified,
-    the default Amazon Web Services managed key for Amazon EBS volumes is used.
-    This parameter maps 1:1 with the ``KmsKeyId`` parameter of the `CreateVolume AP
-    I <https://docs.aws.amazon.com/AWSEC2/latest/APIReference/API_CreateVolume.html
-    >`_ in the *Amazon EC2 API Reference*.
+    When encryption is turned on and no Amazon Web Services Key Management Service key is specified, the default
+    Amazon Web Services managed key for Amazon EBS volumes is used. This parameter maps 1:1 with the ``KmsKeyId`` parameter
+    of the `CreateVolume API <https://docs.aws.amazon.com/AWSEC2/latest/APIReference/API_CreateVolume.html>`_ in the *Amazon
+    EC2 API Reference*.
     """
     volumeType: Optional[str] = None
     """
     The volume type.
 
-    This parameter maps 1:1 with the ``VolumeType`` parameter of
-    the `CreateVolume API <https://docs.aws.amazon.com/AWSEC2/latest/APIReference/A
-    PI_CreateVolume.html>`_ in the *Amazon EC2 API Reference*. For more information,
-    see `Amazon EBS volume
-    types <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ebs-volume-
+    This parameter maps 1:1 with the ``VolumeType`` parameter of the `CreateVolume
+    API <https://docs.aws.amazon.com/AWSEC2/latest/APIReference/API_CreateVolume.html>`_ in the *Amazon EC2 API Reference*.
+    For more information, see `Amazon EBS volume types <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ebs-volume-
     types.html>`_ in the *Amazon EC2 User Guide*.
     """
     sizeInGiB: Optional[int] = None
     """
     The size of the volume in GiB.
 
-    You must specify either a volume size or a
-    snapshot ID. If you specify a snapshot ID, the snapshot size is used for the
-    volume size by default. You can optionally specify a volume size greater than
-    or equal to the snapshot size. This parameter maps 1:1 with the ``Size``
-    parameter of the `CreateVolume API <https://docs.aws.amazon.com/AWSEC2/latest/A
-    PIReference/API_CreateVolume.html>`_ in the *Amazon EC2 API Reference*.
+    You must specify either a volume size or a snapshot ID. If you specify a snapshot ID, the
+    snapshot size is used for the volume size by default. You can optionally specify a volume size greater than or equal to
+    the snapshot size. This parameter maps 1:1 with the ``Size`` parameter of the `CreateVolume
+    API <https://docs.aws.amazon.com/AWSEC2/latest/APIReference/API_CreateVolume.html>`_ in the *Amazon EC2 API Reference*.
     """
     snapshotId: Optional[str] = None
     """
     The snapshot that Amazon ECS uses to create the volume.
 
-    You must specify either
-    a snapshot ID or a volume size. This parameter maps 1:1 with the ``SnapshotId``
-    parameter of the `CreateVolume API <https://docs.aws.amazon.com/AWSEC2/latest/A
-    PIReference/API_CreateVolume.html>`_ in the *Amazon EC2 API Reference*.
+    You must specify either a snapshot ID or a volume size. This
+    parameter maps 1:1 with the ``SnapshotId`` parameter of the `CreateVolume
+    API <https://docs.aws.amazon.com/AWSEC2/latest/APIReference/API_CreateVolume.html>`_ in the *Amazon EC2 API Reference*.
     """
     iops: Optional[int] = None
     """
     The number of I/O operations per second (IOPS).
 
-    For ``gp3``, ``io1``, and
-    ``io2`` volumes, this represents the number of IOPS that are provisioned for
-    the volume. For ``gp2`` volumes, this represents the baseline performance of
-    the volume and the rate at which the volume accumulates I/O credits for
-    bursting.
+    For ``gp3``, ``io1``, and ``io2`` volumes, this represents the number of
+    IOPS that are provisioned for the volume. For ``gp2`` volumes, this represents the baseline performance of the volume
+    and the rate at which the volume accumulates I/O credits for bursting.
     """
     throughput: Optional[int] = None
     """
-    The throughput to provision for a volume, in MiB/s, with a maximum of 1,000
-    MiB/s.
+    The throughput to provision for a volume, in MiB/s, with a maximum of 1,000 MiB/s.
 
-    This parameter maps 1:1 with the ``Throughput`` parameter of the
-    `CreateVolume API <https://docs.aws.amazon.com/AWSEC2/latest/APIReference/API_C
-    reateVolume.html>`_ in the *Amazon EC2 API Reference*.
+    This parameter maps 1:1 with the
+    ``Throughput`` parameter of the `CreateVolume
+    API <https://docs.aws.amazon.com/AWSEC2/latest/APIReference/API_CreateVolume.html>`_ in the *Amazon EC2 API Reference*.
     """
     tagSpecifications: Optional[List["EBSTagSpecification"]] = None
     """
     The tags to apply to the volume.
 
-    Amazon ECS applies service-managed tags by
-    default. This parameter maps 1:1 with the ``TagSpecifications.N`` parameter of
-    the `CreateVolume API <https://docs.aws.amazon.com/AWSEC2/latest/APIReference/A
-    PI_CreateVolume.html>`_ in the *Amazon EC2 API Reference*.
+    Amazon ECS applies service-managed tags by default. This parameter maps 1:1 with the
+    ``TagSpecifications.N`` parameter of the `CreateVolume
+    API <https://docs.aws.amazon.com/AWSEC2/latest/APIReference/API_CreateVolume.html>`_ in the *Amazon EC2 API Reference*.
     """
     roleArn: str
     """
     The ARN of the IAM role to associate with this volume.
 
-    This is the Amazon ECS
-    infrastructure IAM role that is used to manage your Amazon Web Services
-    infrastructure. We recommend using the Amazon ECS-managed
-    ``AmazonECSInfrastructureRolePolicyForVolumes`` IAM policy with this role. For
-    more information, see `Amazon ECS infrastructure IAM role <https://docs.aws.ama
-    zon.com/AmazonECS/latest/developerguide/infrastructure_IAM_role.html>`_ in the
-    *Amazon ECS Developer Guide*.
+    This is the Amazon ECS infrastructure IAM role that is used to
+    manage your Amazon Web Services infrastructure. We recommend using the Amazon ECS-managed
+    ``AmazonECSInfrastructureRolePolicyForVolumes`` IAM policy with this role. For more information, see `Amazon ECS
+    infrastructure IAM role <https://docs.aws.amazon.com/AmazonECS/latest/developerguide/infrastructure_IAM_role.html>`_ in
+    the *Amazon ECS Developer Guide*.
     """
     terminationPolicy: Optional[TaskManagedEBSVolumeTerminationPolicy] = None
     """
     The termination policy for the volume when the task exits.
 
-    This provides a way to control whether Amazon ECS terminates the Amazon EBS
-    volume when the task stops.
+    This provides a way to control whether Amazon ECS terminates the Amazon EBS volume when the task stops.
     """
     filesystemType: Optional[Literal["ext3", "ext4", "xfs", "ntfs"]] = None
     """
     The Linux filesystem type for the volume.
 
-    For volumes created from a snapshot, you must specify the same filesystem
-    type that the volume was using when the snapshot was created. If there is a
-    filesystem type mismatch, the task will fail to start.
+    For volumes created from a snapshot, you must specify the same filesystem type that the volume was using when the
+    snapshot was created. If there is a filesystem type mismatch, the task will fail to start.
     """
 
 
 class TaskVolumeConfiguration(Boto3Model):
     """
-    Configuration settings for the task volume that was ``configuredAtLaunch``
-    that weren't set during ``RegisterTaskDef``.
+    Configuration settings for the task volume that was ``configuredAtLaunch`` that weren't set during
+    ``RegisterTaskDef``.
     """
 
     name: str
     """
     The name of the volume.
 
-    This value must match the volume name from the
-    ``Volume`` object in the task definition.
+    This value must match the volume name from the ``Volume`` object in the task definition.
     """
     managedEBSVolume: Optional[TaskManagedEBSVolumeConfiguration] = None
     """
-    The configuration for the Amazon EBS volume that Amazon ECS creates and
-    manages on your behalf.
+    The configuration for the Amazon EBS volume that Amazon ECS creates and manages on your behalf.
 
-    These settings are used to create each Amazon EBS volume, with one volume
-    created for each task. The Amazon EBS volumes are visible in your account
-    in the Amazon EC2 console once they are created.
+    These settings are used to create each Amazon EBS volume, with one volume created for each task. The Amazon EBS
+    volumes are visible in your account in the Amazon EC2 console once they are created.
     """
 
 

@@ -21,8 +21,8 @@ class FormatterArgs:
     non_strict: bool = False
     rest_section_adorns: str = r"""[!\"#$%&'()*+,-./\\:;<=>?@[]^_`{|}~]{4,}"""
     tab_width: int = 4
-    wrap_summaries: int = 79
-    wrap_descriptions: int = 79
+    wrap_summaries: int = 120
+    wrap_descriptions: int = 120
     non_cap: List[str] = field(default_factory=list)
 
 
@@ -32,7 +32,7 @@ class DocumentationFormatter:
     )
     PY_OBJECT_RE = re.compile(r"py:(.*?):``(.*?)``", re.MULTILINE | re.DOTALL)
 
-    def __init__(self, max_length: int = 79):
+    def __init__(self, max_length: int = 120):
         #: Wrap lines at this length.
         self.max_length = max_length
 
@@ -136,7 +136,7 @@ class DocumentationFormatter:
         documentation = self._clean_uls(documentation)
         documentation = self._clean_links(documentation)
         documentation = self._undo_double_backticks(documentation)
-        # remove any double backticks
+        # remove any double backslashes
         documentation = re.sub(r"\\{1}", "", documentation)
         # Change en-dashes to hyphens
         documentation = documentation.replace("–", "-")  # noqa: RUF001

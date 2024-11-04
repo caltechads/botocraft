@@ -5,11 +5,10 @@
 from datetime import datetime
 from typing import Any, ClassVar, Dict, List, Literal, Optional, Type, cast
 
-from pydantic import Field
-
 from botocraft.mixins.kms import kms_keys_only
 from botocraft.mixins.tags import TagsDictMixin
 from botocraft.services.common import Tag
+from pydantic import Field
 
 from .abstract import (Boto3Model, Boto3ModelManager, PrimaryBoto3Model,
                        ReadonlyBoto3Model, ReadonlyBoto3ModelManager,
@@ -33,11 +32,9 @@ class KMSKeyManager(Boto3ModelManager):
         XksKeyId: Optional[str] = None,
     ) -> "KMSKey":
         """
-        Creates a unique customer managed `KMS
-        key <https://docs.aws.amazon.com/kms/latest/developerguide/concepts.html#kms-
-        keys>`_ in your Amazon Web Services account and Region. You can use a KMS key in
-        cryptographic operations, such as encryption and signing. Some Amazon Web
-        Services services let you use KMS keys that you create and manage to protect
+        Creates a unique customer managed `KMS key <https://docs.aws.amazon.com/kms/latest/developerguide/concepts.html#kms-
+        keys>`_ in your Amazon Web Services account and Region. You can use a KMS key in cryptographic operations, such as
+        encryption and signing. Some Amazon Web Services services let you use KMS keys that you create and manage to protect
         your service resources.
 
         Args:
@@ -45,20 +42,14 @@ class KMSKeyManager(Boto3ModelManager):
 
         Keyword Args:
             Policy: The key policy to attach to the KMS key.
-            BypassPolicyLockoutSafetyCheck: Skips ("bypasses") the key policy lockout
-                safety check. The default value is false.
-            Tags: Assigns one or more tags to the KMS key. Use this parameter to tag
-                the KMS key when it is created. To tag an existing KMS key, use the
-                TagResource operation.
-            XksKeyId: Identifies the `external key
-                <https://docs.aws.amazon.com/kms/latest/developerguide/keystore-
-                external.html#concept-external-key>`_ that serves as key material for the
-                KMS key in an `external key store
-                <https://docs.aws.amazon.com/kms/latest/developerguide/keystore-
-                external.html>`_. Specify the ID that the `external key store proxy
-                <https://docs.aws.amazon.com/kms/latest/developerguide/keystore-
-                external.html#concept-xks-proxy>`_ uses to refer to the external key. For
-                help, see the documentation for your external key store proxy.
+            BypassPolicyLockoutSafetyCheck: Skips ("bypasses") the key policy lockout safety check. The default value is false.
+            Tags: Assigns one or more tags to the KMS key. Use this parameter to tag the KMS key when it is created. To tag an
+                existing KMS key, use the TagResource operation.
+            XksKeyId: Identifies the `external key <https://docs.aws.amazon.com/kms/latest/developerguide/keystore-
+                external.html#concept- external-key>`_ that serves as key material for the KMS key in an `external key store
+                <https://docs.aws.amazon.com/kms/latest/developerguide/keystore-external.html>`_. Specify the ID that the `external
+                key store proxy <https://docs.aws.amazon.com/kms/latest/developerguide/keystore-external.html#concept-xks-proxy>`_
+                uses to refer to the external key. For help, see the documentation for your external key store proxy.
 
         """
         data = model.model_dump(exclude_none=True, by_alias=True)
@@ -89,11 +80,9 @@ class KMSKeyManager(Boto3ModelManager):
         self, KeyId: str, *, GrantTokens: Optional[List[str]] = None
     ) -> Optional["KMSKey"]:
         """
-        Provides detailed information about a KMS key. You can run ``DescribeKey`` on a
-        `customer managed key <https://docs.aws.amazon.com/kms/latest/developerguide/co
-        ncepts.html#customer-cmk>`_ or an `Amazon Web Services managed
-        key <https://docs.aws.amazon.com/kms/latest/developerguide/concepts.html#aws-
-        managed-cmk>`_.
+        Provides detailed information about a KMS key. You can run ``DescribeKey`` on a `customer managed
+        key <https://docs.aws.amazon.com/kms/latest/developerguide/concepts.html#customer-cmk>`_ or an `Amazon Web Services
+        managed key <https://docs.aws.amazon.com/kms/latest/developerguide/concepts.html#aws-managed-cmk>`_.
 
         Args:
             KeyId: Describes the specified KMS key.
@@ -118,13 +107,11 @@ class KMSKeyManager(Boto3ModelManager):
     @kms_keys_only
     def list(self, *, Limit: Optional[int] = None) -> List["KeyListEntry"]:
         """
-        Gets a list of all KMS keys in the caller's Amazon Web Services account
-        and Region.
+        Gets a list of all KMS keys in the caller's Amazon Web Services account and Region.
 
         Keyword Args:
-            Limit: Use this parameter to specify the maximum number of items to return.
-                When this value is present, KMS does not return more than the specified
-                number of items, but it might return fewer.
+            Limit: Use this parameter to specify the maximum number of items to return. When this value is present, KMS does not
+                return more than the specified number of items, but it might return fewer.
         """
         paginator = self.client.get_paginator("list_keys")
         args: Dict[str, Any] = dict(Limit=self.serialize(Limit))
@@ -149,22 +136,19 @@ class KMSKeyManager(Boto3ModelManager):
         self, KeyId: str, *, PendingWindowInDays: int = 7
     ) -> "ScheduleKeyDeletionResponse":
         """
-        Schedules the deletion of a KMS key. By default, KMS applies a waiting
-        period of 30 days, but you can specify a waiting period of 7-30 days.
-        When this operation is successful, the key state of the KMS key changes
-        to ``PendingDeletion`` and the key can't be used in any cryptographic
-        operations. It remains in this state for the duration of the waiting
-        period. Before the waiting period ends, you can use CancelKeyDeletion
-        to cancel the deletion of the KMS key. After the waiting period ends,
-        KMS deletes the KMS key, its key material, and all KMS data associated
-        with it, including all aliases that refer to it.
+        Schedules the deletion of a KMS key. By default, KMS applies a waiting period of 30 days, but you can specify a
+        waiting period of 7-30 days. When this operation is successful, the key state of the KMS key changes to
+        ``PendingDeletion`` and the key can't be used in any cryptographic operations. It remains in this state for the
+        duration of the waiting period. Before the waiting period ends, you can use CancelKeyDeletion to cancel the
+        deletion of the KMS key. After the waiting period ends, KMS deletes the KMS key, its key material, and all KMS
+        data associated with it, including all aliases that refer to it.
 
         Args:
             KeyId: The unique identifier of the KMS key to delete.
 
         Keyword Args:
-            PendingWindowInDays: The waiting period, specified in number of days. After
-                the waiting period ends, KMS deletes the KMS key.
+            PendingWindowInDays: The waiting period, specified in number of days. After the waiting period ends, KMS deletes the
+                KMS key.
         """
         args: Dict[str, Any] = dict(
             KeyId=self.serialize(KeyId),
@@ -178,9 +162,8 @@ class KMSKeyManager(Boto3ModelManager):
 
     def enable(self, KeyId: str) -> None:
         """
-        Sets the key state of a KMS key to enabled. This allows you to use the KMS key
-        for `cryptographic operations <https://docs.aws.amazon.com/kms/latest/developer
-        guide/concepts.html#cryptographic-operations>`_.
+        Sets the key state of a KMS key to enabled. This allows you to use the KMS key for `cryptographic
+        operations <https://docs.aws.amazon.com/kms/latest/developerguide/concepts.html#cryptographic-operations>`_.
 
         Args:
             KeyId: Identifies the KMS key to enable.
@@ -191,9 +174,8 @@ class KMSKeyManager(Boto3ModelManager):
 
     def disable(self, KeyId: str) -> None:
         """
-        Sets the state of a KMS key to disabled. This change temporarily prevents use
-        of the KMS key for `cryptographic operations <https://docs.aws.amazon.com/kms/l
-        atest/developerguide/concepts.html#cryptographic-operations>`_.
+        Sets the state of a KMS key to disabled. This change temporarily prevents use of the KMS key for `cryptographic
+        operations <https://docs.aws.amazon.com/kms/latest/developerguide/concepts.html#cryptographic-operations>`_.
 
         Args:
             KeyId: Identifies the KMS key to disable.
@@ -204,9 +186,8 @@ class KMSKeyManager(Boto3ModelManager):
 
     def cancel_deletion(self, KeyId: str) -> str:
         """
-        Cancels the deletion of a KMS key. When this operation succeeds, the
-        key state of the KMS key is ``Disabled``. To enable the KMS key, use
-        EnableKey.
+        Cancels the deletion of a KMS key. When this operation succeeds, the key state of the KMS key is ``Disabled``.
+        To enable the KMS key, use EnableKey.
 
         Args:
             KeyId: Identifies the KMS key whose deletion is being canceled.
@@ -229,12 +210,11 @@ class KMSKeyManager(Boto3ModelManager):
         Creates a friendly name for a KMS key.
 
         Args:
-            AliasName: Specifies the alias name. This value must begin with ``alias/``
-                followed by a name, such as ``alias/ExampleAlias``.
+            AliasName: Specifies the alias name. This value must begin with ``alias/`` followed by a name, such as
+                ``alias/ExampleAlias``.
             TargetKeyId: Associates the alias with the specified `customer managed key
-                <https://docs.aws
-                .amazon.com/kms/latest/developerguide/concepts.html#customer-cmk>`_. The
-                KMS key must be in the same Amazon Web Services Region.
+                <https://docs.aws.amazon.com/kms/latest/developerguide/concepts.html#customer-cmk>`_. The KMS key must be in the
+                same Amazon Web Services Region.
         """
         args: Dict[str, Any] = dict(
             AliasName=self.serialize(AliasName), TargetKeyId=self.serialize(TargetKeyId)
@@ -243,23 +223,17 @@ class KMSKeyManager(Boto3ModelManager):
 
     def update_alias(self, AliasName: str, TargetKeyId: str) -> "None":
         """
-        Associates an existing KMS alias with a different KMS key. Each alias
-        is associated with only one KMS key at a time, although a KMS key can
-        have multiple aliases. The alias and the KMS key must be in the same
-        Amazon Web Services account and Region.
+        Associates an existing KMS alias with a different KMS key. Each alias is associated with only one KMS key at a
+        time, although a KMS key can have multiple aliases. The alias and the KMS key must be in the same Amazon Web
+        Services account and Region.
 
         Args:
-            AliasName: Identifies the alias that is changing its KMS key. This value
-                must begin with ``alias/`` followed by the alias name, such as
-                ``alias/ExampleAlias``. You cannot use ``UpdateAlias`` to change the alias
-                name.
+            AliasName: Identifies the alias that is changing its KMS key. This value must begin with ``alias/`` followed by the
+                alias name, such as ``alias/ExampleAlias``. You cannot use ``UpdateAlias`` to change the alias name.
             TargetKeyId: Identifies the `customer managed key
-                <https://docs.aws.amazon.com/kms/latest/de
-                veloperguide/concepts.html#customer-cmk>`_ to associate with the alias. You
-                don't have permission to associate an alias with an `Amazon Web Services
-                managed key
-                <https://docs.aws.amazon.com/kms/latest/developerguide/concepts.html#aws-
-                managed-cmk>`_.
+                <https://docs.aws.amazon.com/kms/latest/developerguide/concepts.html#customer-cmk>`_ to associate with the alias.
+                You don't have permission to associate an alias with an `Amazon Web Services managed key
+                <https://docs.aws.amazon.com/kms/latest/developerguide/concepts.html#aws-managed-cmk>`_.
         """
         args: Dict[str, Any] = dict(
             AliasName=self.serialize(AliasName), TargetKeyId=self.serialize(TargetKeyId)
@@ -285,24 +259,22 @@ class MultiRegionKey(Boto3Model):
     """
     Region: Optional[str] = None
     """
-    Displays the Amazon Web Services Region of a primary or replica key in a
-    multi-Region key.
+    Displays the Amazon Web Services Region of a primary or replica key in a multi-Region key.
     """
 
 
 class KMSMultiRegionConfiguration(Boto3Model):
     """
-    Lists the primary and replica keys in same multi-Region key. This field is
-    present only when the value of the ``MultiRegion`` field is ``True``.
+    Lists the primary and replica keys in same multi-Region key. This field is present only when the value of the
+    ``MultiRegion`` field is ``True``.
 
     For more information about any listed KMS key, use the DescribeKey operation.
 
-    * ``MultiRegionKeyType`` indicates whether the KMS key is a ``PRIMARY`` or
-      ``REPLICA`` key.
-    * ``PrimaryKey`` displays the key ARN and Region of the primary key. This field
-      displays the current KMS key if it is the primary key.
-    * ``ReplicaKeys`` displays the key ARNs and Regions of all replica keys. This
-      field includes the current KMS key if it is a replica key.
+    * ``MultiRegionKeyType`` indicates whether the KMS key is a ``PRIMARY`` or ``REPLICA`` key.
+    * ``PrimaryKey`` displays the key ARN and Region of the primary key. This field displays the current KMS key if it is
+      the primary key.
+    * ``ReplicaKeys`` displays the key ARNs and Regions of all replica keys. This field includes the current KMS key if it
+      is a replica key.
     """
 
     MultiRegionKeyType: Optional[Literal["PRIMARY", "REPLICA"]] = None
@@ -325,21 +297,17 @@ class KMSMultiRegionConfiguration(Boto3Model):
 
 class XksKeyConfigurationType(Boto3Model):
     """
-    Information about the external key that is associated with a KMS key in an
-    external key store.
+    Information about the external key that is associated with a KMS key in an external key store.
 
-    For more information, see
-    `External key <https://docs.aws.amazon.com/kms/latest/developerguide/keystore-
-    external.html#concept-external-key>`_ in the *Key Management Service Developer
-    Guide*.
+    For more information, see `External key <https://docs.aws.amazon.com/kms/latest/developerguide/keystore-
+    external.html#concept-external-key>`_ in the *Key Management Service Developer Guide*.
     """
 
     Id: Optional[str] = None
     """
     The ID of the external key in its external key manager.
 
-    This is the ID that the external key store proxy uses to identify the
-    external key.
+    This is the ID that the external key store proxy uses to identify the external key.
     """
 
 
@@ -347,8 +315,7 @@ class KMSKey(PrimaryBoto3Model):
     """
     Contains metadata about a KMS key.
 
-    This data type is used as a response element for the CreateKey,
-    DescribeKey, and ReplicateKey operations.
+    This data type is used as a response element for the CreateKey, DescribeKey, and ReplicateKey operations.
     """
 
     manager_class: ClassVar[Type[Boto3ModelManager]] = KMSKeyManager
@@ -357,8 +324,7 @@ class KMSKey(PrimaryBoto3Model):
     """
     Specifies whether the KMS key is enabled.
 
-    When ``KeyState`` is ``Enabled`` this
-    value is true, otherwise it is false.
+    When ``KeyState`` is ``Enabled`` this value is true, otherwise it is false.
     """
     KeyUsage: Optional[
         Literal[
@@ -366,9 +332,8 @@ class KMSKey(PrimaryBoto3Model):
         ]
     ] = "ENCRYPT_DECRYPT"
     """
-The `cryptographic operations <https://docs.aws.amazon.com/kms/latest/developer
-guide/concepts.html#cryptographic-operations>`_ for which you can use the KMS
-key.
+The `cryptographic operations <https://docs.aws.amazon.com/kms/latest/developerguide/concepts.html#cryptographic-
+operations>`_ for which you can use the KMS key.
     """
     KeySpec: Optional[
         Literal[
@@ -392,8 +357,7 @@ key.
     """
     AWSAccountId: str = Field(default=None, frozen=True)
     """
-    The twelve-digit account ID of the Amazon Web Services account that owns
-    the KMS key.
+    The twelve-digit account ID of the Amazon Web Services account that owns the KMS key.
     """
     KeyId: str = Field(frozen=True)
     """
@@ -403,10 +367,9 @@ key.
     """
     The Amazon Resource Name (ARN) of the KMS key.
 
-    For examples, see `Key
-    Management Service (KMS) <https://docs.aws.amazon.com/general/latest/gr/aws-
-    arns-and-namespaces.html#arn-syntax-kms>`_ in the Example ARNs section of the
-    *Amazon Web Services General Reference*.
+    For examples, see `Key Management Service
+    (KMS) <https://docs.aws.amazon.com/general/latest/gr/aws-arns-and-namespaces.html#arn-syntax-kms>`_ in the Example ARNs
+    section of the *Amazon Web Services General Reference*.
     """
     CreationDate: datetime = Field(default=None, frozen=True)
     """
@@ -433,19 +396,16 @@ key.
     """
     The date and time after which KMS deletes this KMS key.
 
-    This value is present
-    only when the KMS key is scheduled for deletion, that is, when its ``KeyState``
-    is ``PendingDeletion``.
+    This value is present only when the KMS key is scheduled for
+    deletion, that is, when its ``KeyState`` is ``PendingDeletion``.
     """
     ValidTo: datetime = Field(default=None, frozen=True)
     """
     The time at which the imported key material expires.
 
-    When the key material
-    expires, KMS deletes the key material and the KMS key becomes unusable. This
-    value is present only for KMS keys whose ``Origin`` is ``EXTERNAL`` and whose
-    ``ExpirationModel`` is ``KEY_MATERIAL_EXPIRES``, otherwise this value is
-    omitted.
+    When the key material expires, KMS deletes the key material and the
+    KMS key becomes unusable. This value is present only for KMS keys whose ``Origin`` is ``EXTERNAL`` and whose
+    ``ExpirationModel`` is ``KEY_MATERIAL_EXPIRES``, otherwise this value is omitted.
     """
     Origin: Optional[
         Literal["AWS_KMS", "EXTERNAL", "AWS_CLOUDHSM", "EXTERNAL_KEY_STORE"]
@@ -453,29 +413,24 @@ key.
     """
     The source of the key material for the KMS key.
 
-    When this value is ``AWS_KMS``,
-    KMS created the key material. When this value is ``EXTERNAL``, the key material
-    was imported or the KMS key doesn't have any key material. When this value is
-    ``AWS_CLOUDHSM``, the key material was created in the CloudHSM cluster
-    associated with a custom key store.
+    When this value is ``AWS_KMS``, KMS created the key material. When this
+    value is ``EXTERNAL``, the key material was imported or the KMS key doesn't have any key material. When this value is
+    ``AWS_CLOUDHSM``, the key material was created in the CloudHSM cluster associated with a custom key store.
     """
     CustomKeyStoreId: Optional[str] = None
     """
-A unique identifier for the `custom key
-store <https://docs.aws.amazon.com/kms/latest/developerguide/custom-key-store-
-overview.html>`_ that contains the KMS key. This field is present only when the
-KMS key is created in a custom key store.
+A unique identifier for the `custom key store <https://docs.aws.amazon.com/kms/latest/developerguide/custom-key-store-
+overview.html>`_ that contains the KMS key. This field is present only when the KMS key is created in a custom key store.
     """
     CloudHsmClusterId: str = Field(default=None, frozen=True)
     """
-    The cluster ID of the CloudHSM cluster that contains the key material for
-    the KMS key.
+    The cluster ID of the CloudHSM cluster that contains the key material for the KMS key.
 
     When you create a KMS key in an CloudHSM
-    `custom key store <https://docs.aws.amazon.com/kms/latest/developerguide/custom-key-store-
-    overview.html>`_, KMS creates the key material for the KMS key in the associated
-    CloudHSM cluster. This field is present only when the KMS key is created in an
-    CloudHSM key store.
+    `custom key store <https://docs.aws.amazon.com/kms/latest/developerguide/custom-key-store-overview.html>`_,
+    KMS
+    creates the key material for the KMS key in the associated CloudHSM cluster. This field is present only when the KMS key
+    is created in an CloudHSM key store.
     """
     ExpirationModel: Literal["KEY_MATERIAL_EXPIRES", "KEY_MATERIAL_DOES_NOT_EXPIRE"] = (
         Field(default=None, frozen=True)
@@ -483,18 +438,18 @@ KMS key is created in a custom key store.
     """
     Specifies whether the KMS key's key material expires.
 
-    This value is present
-    only when ``Origin`` is ``EXTERNAL``, otherwise this value is omitted.
+    This value is present only when ``Origin`` is ``EXTERNAL``,
+    otherwise this value is omitted.
     """
     KeyManager: Literal["AWS", "CUSTOMER"] = Field(default=None, frozen=True)
     """
     The manager of the KMS key.
 
-    KMS keys in your Amazon Web Services account are either customer managed or
-    Amazon Web Services managed. For more information about the difference, see
-    `KMS keys <https://docs.aws.amazon.com/kms/latest/dev
-    eloperguide/concepts.html#kms_keys>`_ in the *Key Management Service Developer
-    Guide*.
+    KMS keys in your Amazon Web Services account are either customer managed or Amazon Web Services managed. For more
+    information about the difference, see
+    `KMS keys <https://docs.aws.amazon.com/kms/latest/developerguide/concepts.html#kms_keys>`_
+    in the *Key Management Service
+    Developer Guide*.
     """
     CustomerMasterKeySpec: Optional[
         Literal[
@@ -549,11 +504,10 @@ KMS key is created in a custom key store.
     """
     MultiRegion: Optional[bool] = None
     """
-    Indicates whether the KMS key is a multi-Region (``True``) or regional
-    (``False``) key.
+    Indicates whether the KMS key is a multi-Region (``True``) or regional (``False``) key.
 
-    This value is ``True`` for multi-Region primary and replica
-    keys and ``False`` for regional KMS keys.
+    This value is ``True`` for
+    multi-Region primary and replica keys and ``False`` for regional KMS keys.
     """
     MultiRegionConfiguration: KMSMultiRegionConfiguration = Field(
         default=None, frozen=True
@@ -561,37 +515,33 @@ KMS key is created in a custom key store.
     """
     Lists the primary and replica keys in same multi-Region key.
 
-    This field is
-    present only when the value of the ``MultiRegion`` field is ``True``.
+    This field is present only when the value of the
+    ``MultiRegion`` field is ``True``.
     """
     PendingDeletionWindowInDays: int = Field(default=None, frozen=True)
     """
     The waiting period before the primary key in a multi-Region key is deleted.
 
-    This waiting period begins when the last of its replica keys is deleted. This
-    value is present only when the ``KeyState`` of the KMS key is
-    ``PendingReplicaDeletion``. That indicates that the KMS key is the primary key
-    in a multi-Region key, it is scheduled for deletion, and it still has existing
-    replica keys.
+    This waiting period begins when the last of
+    its replica keys is deleted. This value is present only when the ``KeyState`` of the KMS key is
+    ``PendingReplicaDeletion``. That indicates that the KMS key is the primary key in a multi-Region key, it is scheduled
+    for deletion, and it still has existing replica keys.
     """
     MacAlgorithms: List[
         Literal["HMAC_SHA_224", "HMAC_SHA_256", "HMAC_SHA_384", "HMAC_SHA_512"]
     ] = Field(default=None, frozen=True)
     """
-    The message authentication code (MAC) algorithm that the HMAC KMS key
-    supports.
+    The message authentication code (MAC) algorithm that the HMAC KMS key supports.
     """
     XksKeyConfiguration: XksKeyConfigurationType = Field(default=None, frozen=True)
     """
-    Information about the external key that is associated with a KMS key in an
-    external key store.
+    Information about the external key that is associated with a KMS key in an external key store.
     """
 
     @property
     def pk(self) -> Optional[str]:
         """
-        Return the primary key of the model.   This is the value of the
-        :py:attr:`KeyId` attribute.
+        Return the primary key of the model.   This is the value of the :py:attr:`KeyId` attribute.
 
         Returns:
             The primary key of the model instance.
@@ -601,8 +551,7 @@ KMS key is created in a custom key store.
     @property
     def arn(self) -> Optional[str]:
         """
-        Return the ARN of the model.   This is the value of the :py:attr:`Arn`
-        attribute.
+        Return the ARN of the model.   This is the value of the :py:attr:`Arn` attribute.
 
         Returns:
             The ARN of the model instance.
@@ -651,26 +600,24 @@ class ListKeysResponse(Boto3Model):
     """
     NextMarker: Optional[str] = None
     """
-    When ``Truncated`` is true, this element is present and contains the value
-    to use for the ``Marker`` parameter in a subsequent request.
+    When ``Truncated`` is true, this element is present and contains the value to use for the ``Marker`` parameter in a
+    subsequent request.
     """
     Truncated: Optional[bool] = None
     """
     A flag that indicates whether there are more items in the list.
 
-    When this value
-    is true, the list in this response is truncated. To get more items, pass the
-    value of the ``NextMarker`` element in this response to the ``Marker``
-    parameter in a subsequent request.
+    When this value is true, the list in this response is
+    truncated. To get more items, pass the value of the ``NextMarker`` element in this response to the ``Marker`` parameter
+    in a subsequent request.
     """
 
 
 class ScheduleKeyDeletionResponse(Boto3Model):
     KeyId: Optional[str] = None
     """
-The Amazon Resource Name (`key
-ARN <https://docs.aws.amazon.com/kms/latest/developerguide/concepts.html#key-
-id-key-ARN>`_) of the KMS key whose deletion is scheduled.
+The Amazon Resource Name (`key ARN <https://docs.aws.amazon.com/kms/latest/developerguide/concepts.html#key-id-key-ARN>`_)
+of the KMS key whose deletion is scheduled.
     """
     DeletionDate: Optional[datetime] = None
     """
@@ -700,7 +647,6 @@ id-key-ARN>`_) of the KMS key whose deletion is scheduled.
 class CancelKeyDeletionResponse(Boto3Model):
     KeyId: Optional[str] = None
     """
-The Amazon Resource Name (`key
-ARN <https://docs.aws.amazon.com/kms/latest/developerguide/concepts.html#key-
-id-key-ARN>`_) of the KMS key whose deletion is canceled.
+The Amazon Resource Name (`key ARN <https://docs.aws.amazon.com/kms/latest/developerguide/concepts.html#key-id-key-ARN>`_)
+of the KMS key whose deletion is canceled.
     """

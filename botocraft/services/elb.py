@@ -7,9 +7,7 @@ from datetime import datetime
 from functools import cached_property
 from typing import Any, ClassVar, Dict, List, Literal, Optional, Type, cast
 
-from pydantic import Field
-
-from botocraft.mixins.elb import (ClassicELBManagerMixin,
+from botocraft.mixins.elb import (ClassicELBManagerMixin, ClassicELBModelMixin,
                                   add_attributes_for_get,
                                   add_attributes_for_list, add_tags_for_get,
                                   add_tags_for_list)
@@ -18,6 +16,7 @@ from botocraft.services.common import Tag
 from botocraft.services.ec2 import (Instance, InstanceManager, SecurityGroup,
                                     SecurityGroupManager, Subnet,
                                     SubnetManager, Vpc, VpcManager)
+from pydantic import Field
 
 from .abstract import (Boto3Model, Boto3ModelManager, PrimaryBoto3Model,
                        ReadonlyBoto3Model, ReadonlyBoto3ModelManager,
@@ -48,8 +47,8 @@ class ClassicELBManager(ClassicELBManagerMixin, Boto3ModelManager):
     @add_tags_for_get
     def get(self, LoadBalancerName: str) -> Optional["ClassicELB"]:
         """
-        Describes the specified the load balancers. If no load balancers are
-        specified, the call describes all of your load balancers.
+        Describes the specified the load balancers. If no load balancers are specified, the call describes all of your
+        load balancers.
 
         Args:
             LoadBalancerName: The name of the classic load balancer.
@@ -73,8 +72,8 @@ class ClassicELBManager(ClassicELBManagerMixin, Boto3ModelManager):
         self, *, LoadBalancerNames: Optional[List[str]] = None
     ) -> List["ClassicELB"]:
         """
-        Describes the specified the load balancers. If no load balancers are
-        specified, the call describes all of your load balancers.
+        Describes the specified the load balancers. If no load balancers are specified, the call describes all of your
+        load balancers.
 
         Keyword Args:
             LoadBalancerNames: The names of the load balancers.
@@ -100,12 +99,10 @@ class ClassicELBManager(ClassicELBManagerMixin, Boto3ModelManager):
 
     def add_tags(self, LoadBalancerNames: List[str], Tags: List[Tag]) -> None:
         """
-        Adds the specified tags to the specified load balancer. Each load
-        balancer can have a maximum of 10 tags.
+        Adds the specified tags to the specified load balancer. Each load balancer can have a maximum of 10 tags.
 
         Args:
-            LoadBalancerNames: The name of the load balancer. You can specify one load
-                balancer only.
+            LoadBalancerNames: The name of the load balancer. You can specify one load balancer only.
             Tags: The tags.
         """
         args: Dict[str, Any] = dict(
@@ -143,8 +140,7 @@ class ClassicELBManager(ClassicELBManagerMixin, Boto3ModelManager):
         Removes one or more tags from the specified load balancer.
 
         Args:
-            LoadBalancerNames: The name of the load balancer. You can specify a maximum
-                of one load balancer name.
+            LoadBalancerNames: The name of the load balancer. You can specify a maximum of one load balancer name.
             Tags: The list of tag keys to remove.
         """
         args: Dict[str, Any] = dict(
@@ -157,13 +153,12 @@ class ClassicELBManager(ClassicELBManagerMixin, Boto3ModelManager):
         self, LoadBalancerName: str, AvailabilityZones: List[str]
     ) -> List[str]:
         """
-        Adds the specified Availability Zones to the set of Availability Zones
-        for the specified load balancer in EC2-Classic or a default VPC.
+        Adds the specified Availability Zones to the set of Availability Zones for the specified load balancer in
+        EC2-Classic or a default VPC.
 
         Args:
             LoadBalancerName: The name of the load balancer.
-            AvailabilityZones: The Availability Zones. These must be in the same region
-                as the load balancer.
+            AvailabilityZones: The Availability Zones. These must be in the same region as the load balancer.
         """
         args: Dict[str, Any] = dict(
             LoadBalancerName=self.serialize(LoadBalancerName),
@@ -185,8 +180,8 @@ class ClassicELBManager(ClassicELBManagerMixin, Boto3ModelManager):
         self, LoadBalancerName: str, AvailabilityZones: List[str]
     ) -> List[str]:
         """
-        Removes the specified Availability Zones from the set of Availability
-        Zones for the specified load balancer in EC2-Classic or a default VPC.
+        Removes the specified Availability Zones from the set of Availability Zones for the specified load balancer in
+        EC2-Classic or a default VPC.
 
         Args:
             LoadBalancerName: The name of the load balancer.
@@ -212,8 +207,7 @@ class ClassicELBManager(ClassicELBManagerMixin, Boto3ModelManager):
         self, LoadBalancerName: str, HealthCheck: "ClassicELBHealthCheck"
     ) -> None:
         """
-        Specifies the health check settings to use when evaluating the health
-        state of your EC2 instances.
+        Specifies the health check settings to use when evaluating the health state of your EC2 instances.
 
         Args:
             LoadBalancerName: The name of the load balancer.
@@ -260,12 +254,10 @@ class ClassicELBManager(ClassicELBManagerMixin, Boto3ModelManager):
         Instances: Optional[List["ClassicELBInstance"]] = None
     ) -> List["ClassicELBInstanceState"]:
         """
-        Describes the state of the specified instances with respect to the
-        specified load balancer. If no instances are specified, the call
-        describes the state of all instances that are currently registered with
-        the load balancer. If instances are specified, their state is returned
-        even if they are no longer registered with the load balancer. The state
-        of terminated instances is not returned.
+        Describes the state of the specified instances with respect to the specified load balancer. If no instances are
+        specified, the call describes the state of all instances that are currently registered with the load balancer.
+        If instances are specified, their state is returned even if they are no longer registered with the load
+        balancer. The state of terminated instances is not returned.
 
         Args:
             LoadBalancerName: The name of the load balancer.
@@ -293,9 +285,8 @@ class ClassicELBManager(ClassicELBManagerMixin, Boto3ModelManager):
         self, LoadBalancerName: str, Instances: List["ClassicELBInstance"]
     ) -> List["ClassicELBInstance"]:
         """
-        Deregisters the specified instances from the specified load balancer.
-        After the instance is deregistered, it no longer receives traffic from
-        the load balancer.
+        Deregisters the specified instances from the specified load balancer. After the instance is deregistered, it no
+        longer receives traffic from the load balancer.
 
         Args:
             LoadBalancerName: The name of the load balancer.
@@ -321,10 +312,9 @@ class ClassicELBManager(ClassicELBManagerMixin, Boto3ModelManager):
         self, LoadBalancerName: str, Listeners: List["ClassicELBListener"]
     ) -> None:
         """
-        Creates one or more listeners for the specified load balancer. If a
-        listener with the specified port does not already exist, it is created;
-        otherwise, the properties of the new listener must match the properties
-        of the existing listener.
+        Creates one or more listeners for the specified load balancer. If a listener with the specified port does not
+        already exist, it is created; otherwise, the properties of the new listener must match the properties of the
+        existing listener.
 
         Args:
             LoadBalancerName: The name of the load balancer.
@@ -410,8 +400,7 @@ class ClassicELBManager(ClassicELBManagerMixin, Boto3ModelManager):
         self, LoadBalancerName: str, Subnets: List[str]
     ) -> List[str]:
         """
-        Removes the specified subnets from the set of configured subnets for
-        the load balancer.
+        Removes the specified subnets from the set of configured subnets for the load balancer.
 
         Args:
             LoadBalancerName: The name of the load balancer.
@@ -435,13 +424,11 @@ class ClassicELBManager(ClassicELBManagerMixin, Boto3ModelManager):
 
     def attach_to_subnets(self, LoadBalancerName: str, Subnets: List[str]) -> List[str]:
         """
-        Adds one or more subnets to the set of configured subnets for the
-        specified load balancer.
+        Adds one or more subnets to the set of configured subnets for the specified load balancer.
 
         Args:
             LoadBalancerName: The name of the load balancer.
-            Subnets: The IDs of the subnets to add. You can add only one subnet per
-                Availability Zone.
+            Subnets: The IDs of the subnets to add. You can add only one subnet per Availability Zone.
         """
         args: Dict[str, Any] = dict(
             LoadBalancerName=self.serialize(LoadBalancerName),
@@ -463,14 +450,13 @@ class ClassicELBManager(ClassicELBManagerMixin, Boto3ModelManager):
         self, LoadBalancerName: str, SecurityGroups: List[str]
     ) -> List[str]:
         """
-        Associates one or more security groups with your load balancer in a
-        virtual private cloud (VPC). The specified security groups override the
-        previously associated security groups.
+        Associates one or more security groups with your load balancer in a virtual private cloud (VPC). The specified
+        security groups override the previously associated security groups.
 
         Args:
             LoadBalancerName: The name of the load balancer.
-            SecurityGroups: The IDs of the security groups to associate with the load
-                balancer. Note that you cannot specify the name of the security group.
+            SecurityGroups: The IDs of the security groups to associate with the load balancer. Note that you cannot specify the
+                name of the security group.
         """
         args: Dict[str, Any] = dict(
             LoadBalancerName=self.serialize(LoadBalancerName),
@@ -492,9 +478,8 @@ class ClassicELBManager(ClassicELBManagerMixin, Boto3ModelManager):
         self, LoadBalancerName: str, LoadBalancerPort: int, SSLCertificateId: str
     ) -> None:
         """
-        Sets the certificate that terminates the specified listener's SSL
-        connections. The specified certificate replaces any prior certificate
-        that was used on the same load balancer and port.
+        Sets the certificate that terminates the specified listener's SSL connections. The specified certificate
+        replaces any prior certificate that was used on the same load balancer and port.
 
         Args:
             LoadBalancerName: The name of the load balancer.
@@ -514,15 +499,13 @@ class ClassicELBManager(ClassicELBManagerMixin, Boto3ModelManager):
         self, LoadBalancerName: str, LoadBalancerPort: int, PolicyNames: List[str]
     ) -> None:
         """
-        Replaces the current set of policies for the specified load balancer
-        port with the specified set of policies.
+        Replaces the current set of policies for the specified load balancer port with the specified set of policies.
 
         Args:
             LoadBalancerName: The name of the load balancer.
             LoadBalancerPort: The external port of the load balancer.
-            PolicyNames: The names of the policies. This list must include all policies
-                to be enabled. If you omit a policy that is currently enabled, it is
-                disabled. If the list is empty, all current policies are disabled.
+            PolicyNames: The names of the policies. This list must include all policies to be enabled. If you omit a policy that
+                is currently enabled, it is disabled. If the list is empty, all current policies are disabled.
         """
         args: Dict[str, Any] = dict(
             LoadBalancerName=self.serialize(LoadBalancerName),
@@ -537,17 +520,15 @@ class ClassicELBManager(ClassicELBManagerMixin, Boto3ModelManager):
         self, LoadBalancerName: str, InstancePort: int, PolicyNames: List[str]
     ) -> None:
         """
-        Replaces the set of policies associated with the specified port on
-        which the EC2 instance is listening with a new set of policies. At this
-        time, only the back-end server authentication policy type can be
-        applied to the instance ports; this policy type is composed of multiple
-        public key policies.
+        Replaces the set of policies associated with the specified port on which the EC2 instance is listening with a
+        new set of policies. At this time, only the back-end server authentication policy type can be applied to the
+        instance ports; this policy type is composed of multiple public key policies.
 
         Args:
             LoadBalancerName: The name of the load balancer.
             InstancePort: The port number associated with the EC2 instance.
-            PolicyNames: The names of the policies. If the list is empty, then all
-                current polices are removed from the EC2 instance.
+            PolicyNames: The names of the policies. If the list is empty, then all current polices are removed from the EC2
+                instance.
         """
         args: Dict[str, Any] = dict(
             LoadBalancerName=self.serialize(LoadBalancerName),
@@ -567,15 +548,14 @@ class ClassicELBManager(ClassicELBManagerMixin, Boto3ModelManager):
         PolicyAttributes: Optional[List["PolicyAttribute"]] = None
     ) -> None:
         """
-        Creates a policy with the specified attributes for the specified load
-        balancer.
+        Creates a policy with the specified attributes for the specified load balancer.
 
         Args:
             LoadBalancerName: The name of the load balancer.
-            PolicyName: The name of the load balancer policy to be created. This name
-                must be unique within the set of policies for this load balancer.
-            PolicyTypeName: The name of the base policy type. To get the list of policy
-                types, use DescribeLoadBalancerPolicyTypes.
+            PolicyName: The name of the load balancer policy to be created. This name must be unique within the set of policies
+                for this load balancer.
+            PolicyTypeName: The name of the base policy type. To get the list of policy types, use
+                DescribeLoadBalancerPolicyTypes.
 
         Keyword Args:
             PolicyAttributes: The policy attributes.
@@ -620,8 +600,8 @@ class ClassicELBManager(ClassicELBManagerMixin, Boto3ModelManager):
 
     def delete_policy(self, LoadBalancerName: str, PolicyName: str) -> None:
         """
-        Deletes the specified policy from the specified load balancer. This
-        policy must not be enabled for any listeners.
+        Deletes the specified policy from the specified load balancer. This policy must not be enabled for any
+        listeners.
 
         Args:
             LoadBalancerName: The name of the load balancer.
@@ -639,12 +619,11 @@ class ClassicELBManager(ClassicELBManagerMixin, Boto3ModelManager):
         self, PolicyTypeNames: List[str]
     ) -> List["PolicyTypeDescription"]:
         """
-        Describes the specified load balancer policy types or all load balancer
-        policy types.
+        Describes the specified load balancer policy types or all load balancer policy types.
 
         Args:
-            PolicyTypeNames: The names of the policy types. If no names are specified,
-                describes all policy types defined by Elastic Load Balancing.
+            PolicyTypeNames: The names of the policy types. If no names are specified, describes all policy types defined by
+                Elastic Load Balancing.
         """
         args: Dict[str, Any] = dict(PolicyTypeNames=self.serialize(PolicyTypeNames))
         _response = self.client.describe_load_balancer_policy_types(
@@ -683,16 +662,14 @@ class ClassicELBListener(Boto3Model):
 
     Protocol: str
     """
-The load balancer transport protocol to use for routing: HTTP, HTTPS, TCP, or
-SSL.
+The load balancer transport protocol to use for routing: HTTP, HTTPS, TCP, or SSL.
     """
     LoadBalancerPort: int
     """
     The port on which the load balancer is listening.
 
-    On EC2-VPC, you can specify
-    any port from the range 1-65535. On EC2-Classic, you can specify any port
-    from the following list: 25, 80, 443, 465, 587, 1024-65535.
+    On EC2-VPC, you can specify any port from the range 1-65535. On EC2-Classic, you can specify any port from the
+    following list: 25, 80, 443, 465, 587, 1024-65535.
     """
     InstanceProtocol: Optional[str] = None
     """
@@ -727,11 +704,11 @@ class ListenerDescription(Boto3Model):
 
 class ClassicELBSourceSecurityGroup(Boto3Model):
     """
-    The security group for the load balancer, which you can use as part of your
-    inbound rules for your registered instances.
+    The security group for the load balancer, which you can use as part of your inbound rules for your registered
+    instances.
 
-    To only allow traffic from load balancers, add a security group rule that
-    specifies this source security group as the inbound source.
+    To only allow traffic from load balancers, add a security group rule that specifies this source security group as
+    the inbound source.
     """
 
     OwnerAlias: Optional[str] = None
@@ -774,11 +751,9 @@ class LBCookieStickinessPolicy(Boto3Model):
     """
     CookieExpirationPeriod: Optional[int] = None
     """
-    The time period, in seconds, after which the cookie should be considered
-    stale.
+    The time period, in seconds, after which the cookie should be considered stale.
 
-    If this parameter is not specified, the stickiness session lasts for the
-    duration of the browser session.
+    If this parameter is not specified, the stickiness session lasts for the duration of the browser session.
     """
 
 
@@ -825,28 +800,23 @@ class ClassicELBHealthCheck(Boto3Model):
     """
     The instance being checked.
 
-    The protocol is either TCP, HTTP, HTTPS, or SSL. The range of valid ports
-    is one (1) through 65535.
+    The protocol is either TCP, HTTP, HTTPS, or SSL. The range of valid ports is one (1) through 65535.
     """
     Interval: int
     """
-    The approximate interval, in seconds, between health checks of an
-    individual instance.
+    The approximate interval, in seconds, between health checks of an individual instance.
     """
     Timeout: int
     """
-    The amount of time, in seconds, during which no response means a failed
-    health check.
+    The amount of time, in seconds, during which no response means a failed health check.
     """
     UnhealthyThreshold: int
     """
-    The number of consecutive health check failures required before moving the
-    instance to the ``Unhealthy`` state.
+    The number of consecutive health check failures required before moving the instance to the ``Unhealthy`` state.
     """
     HealthyThreshold: int
     """
-    The number of consecutive health checks successes required before moving
-    the instance to the ``Healthy`` state.
+    The number of consecutive health checks successes required before moving the instance to the ``Healthy`` state.
     """
 
 
@@ -865,7 +835,7 @@ class PolicyAttribute(Boto3Model):
     """
 
 
-class ClassicELB(TagsDictMixin, PrimaryBoto3Model):
+class ClassicELB(TagsDictMixin, ClassicELBModelMixin, PrimaryBoto3Model):
     """
     Information about a load balancer.
     """
@@ -921,11 +891,11 @@ class ClassicELB(TagsDictMixin, PrimaryBoto3Model):
         default=None, frozen=True
     )
     """
-    The security group for the load balancer, which you can use as part of your
-    inbound rules for your registered instances.
+    The security group for the load balancer, which you can use as part of your inbound rules for your registered
+    instances.
 
-    To only allow traffic from load balancers, add a security group rule that
-    specifies this source security group as the inbound source.
+    To only allow traffic from load balancers, add a security group rule that specifies this source security group as
+    the inbound source.
     """
     Policies: Optional[ClassicELBPolicies] = None
     """
@@ -977,8 +947,7 @@ class ClassicELB(TagsDictMixin, PrimaryBoto3Model):
     @property
     def pk(self) -> Optional[str]:
         """
-        Return the primary key of the model.   This is the value of the
-        :py:attr:`LoadBalancerName` attribute.
+        Return the primary key of the model.   This is the value of the :py:attr:`LoadBalancerName` attribute.
 
         Returns:
             The primary key of the model instance.
@@ -988,8 +957,7 @@ class ClassicELB(TagsDictMixin, PrimaryBoto3Model):
     @property
     def name(self) -> Optional[str]:
         """
-        Return the name of the model.   This is the value of the
-        :py:attr:`LoadBalancerName` attribute.
+        Return the name of the model.   This is the value of the :py:attr:`LoadBalancerName` attribute.
 
         Returns:
             The name of the model instance.
@@ -999,8 +967,7 @@ class ClassicELB(TagsDictMixin, PrimaryBoto3Model):
     @cached_property
     def vpc(self) -> Optional["Vpc"]:
         """
-        Return the :py:class:`Vpc` object that this load balancer is associated
-        with.
+        Return the :py:class:`Vpc` object that this load balancer is associated with.
 
         .. note::
 
@@ -1152,9 +1119,8 @@ class ClassicELB(TagsDictMixin, PrimaryBoto3Model):
 
         Args:
             LoadBalancerPort: The external port of the load balancer.
-            PolicyNames: The names of the policies. This list must include all policies
-                to be enabled. If you omit a policy that is currently enabled, it is
-                disabled. If the list is empty, all current policies are disabled.
+            PolicyNames: The names of the policies. This list must include all policies to be enabled. If you omit a policy that
+                is currently enabled, it is disabled. If the list is empty, all current policies are disabled.
         """
 
         return (
@@ -1173,8 +1139,8 @@ class ClassicELB(TagsDictMixin, PrimaryBoto3Model):
 
         Args:
             InstancePort: The port number associated with the EC2 instance.
-            PolicyNames: The names of the policies. If the list is empty, then all
-                current polices are removed from the EC2 instance.
+            PolicyNames: The names of the policies. If the list is empty, then all current polices are removed from the EC2
+                instance.
         """
 
         return (
@@ -1197,10 +1163,10 @@ class ClassicELB(TagsDictMixin, PrimaryBoto3Model):
         Add a policy to the load balancer.
 
         Args:
-            PolicyName: The name of the load balancer policy to be created. This name
-                must be unique within the set of policies for this load balancer.
-            PolicyTypeName: The name of the base policy type. To get the list of policy
-                types, use DescribeLoadBalancerPolicyTypes.
+            PolicyName: The name of the load balancer policy to be created. This name must be unique within the set of policies
+                for this load balancer.
+            PolicyTypeName: The name of the base policy type. To get the list of policy types, use
+                DescribeLoadBalancerPolicyTypes.
 
         Keyword Args:
             PolicyAttributes: The policy attributes.
@@ -1221,8 +1187,8 @@ class ClassicELB(TagsDictMixin, PrimaryBoto3Model):
         """
         Return the policies associated with this load balancer.
 
-        This is excludes the StickinessPolicy and the LBCookieStickinessPolicy.
-        You can look directly on this object for those policies.
+        This is excludes the StickinessPolicy and the LBCookieStickinessPolicy. You can look directly on this object for
+        those policies.
         """
 
         return (
@@ -1482,25 +1448,24 @@ class DeleteLoadBalancerListenerOutput(Boto3Model):
 
 class ClassicELBCrossZoneLoadBalancing(Boto3Model):
     """
-    If enabled, the load balancer routes the request traffic evenly across all
-    instances regardless of the Availability Zones.
+    If enabled, the load balancer routes the request traffic evenly across all instances regardless of the Availability
+    Zones.
 
-    For more information, see `Configure Cross-Zone Load Balancing <https://docs.a
-    ws.amazon.com/elasticloadbalancing/latest/classic/enable-disable-crosszone-
-    lb.html>`_ in the *Classic Load Balancers Guide*.
+    For more information, see `Configure Cross-Zone Load
+    Balancing <https://docs.aws.amazon.com/elasticloadbalancing/latest/classic/enable-disable-crosszone-lb.html>`_ in the
+    *Classic Load Balancers Guide*.
     """
 
     Enabled: bool
     """
-    Specifies whether cross-zone load balancing is enabled for the load
-    balancer.
+    Specifies whether cross-zone load balancing is enabled for the load balancer.
     """
 
 
 class ClassicELBAccessLog(Boto3Model):
     """
-    If enabled, the load balancer captures detailed information of all requests
-    and delivers the information to the Amazon S3 bucket that you specify.
+    If enabled, the load balancer captures detailed information of all requests and delivers the information to the
+    Amazon S3 bucket that you specify.
 
     For more information, see
     `Enable Access Logs <https://docs.aws.amazon.com/elasticloadbalancing/latest/classic/enable-
@@ -1523,23 +1488,21 @@ class ClassicELBAccessLog(Boto3Model):
     """
     S3BucketPrefix: Optional[str] = None
     """
-    The logical hierarchy you created for your Amazon S3 bucket, for example
-    ``my- bucket-prefix/prod``.
+    The logical hierarchy you created for your Amazon S3 bucket, for example ``my-bucket-prefix/prod``.
 
-    If the prefix is not provided, the log is placed at the root level of the
-    bucket.
+    If the prefix is not provided, the log is placed at the root level of the bucket.
     """
 
 
 class ClassicELBConnectionDraining(Boto3Model):
     """
-    If enabled, the load balancer allows existing requests to complete before
-    the load balancer shifts traffic away from a deregistered or unhealthy
-    instance.
+    If enabled, the load balancer allows existing requests to complete before the load balancer shifts traffic away from
+    a deregistered or unhealthy instance.
 
-    For more information, see `Configure Connection Draining <https://docs.aws.amaz
-    on.com/elasticloadbalancing/latest/classic/config-conn-drain.html>`_ in the
-    *Classic Load Balancers Guide*.
+    For more information, see
+    `Configure Connection Draining <https://docs.aws.amazon.com/elasticloadbalancing/latest/classic/config-conn-drain.html>`_
+    in the *Classic Load
+    Balancers Guide*.
     """
 
     Enabled: bool
@@ -1548,28 +1511,26 @@ class ClassicELBConnectionDraining(Boto3Model):
     """
     Timeout: Optional[int] = None
     """
-    The maximum time, in seconds, to keep the existing connections open before
-    deregistering the instances.
+    The maximum time, in seconds, to keep the existing connections open before deregistering the instances.
     """
 
 
 class ClassicELBConnectionSettings(Boto3Model):
     """
-    If enabled, the load balancer allows the connections to remain idle (no
-    data is sent over the connection) for the specified duration.
+    If enabled, the load balancer allows the connections to remain idle (no data is sent over the connection) for the
+    specified duration.
 
-    By default, Elastic Load Balancing maintains a 60-second idle connection
-    timeout for both front-end and back-end connections of your load balancer.
-    For more information, see `Configure Idle Connection Timeout <https://docs.aws.
-    amazon.com/elasticloadbalancing/latest/classic/config-idle-timeout.html>`_ in the
-    *Classic Load Balancers Guide*.
+    By default, Elastic Load Balancing maintains a 60-second idle connection timeout for both front-end and back-end
+    connections of your load balancer. For more information, see
+    `Configure Idle Connection Timeout <https://docs.aws.amazon.com/elasticloadbalancing/latest/classic/config-idle-timeout.html>`_
+    in the *Classic Load
+    Balancers Guide*.
     """
 
     IdleTimeout: int
     """
-    The time, in seconds, that the connection is allowed to be idle (no data
-    has been sent over the connection) before it is closed by the load
-    balancer.
+    The time, in seconds, that the connection is allowed to be idle (no data has been sent over the connection) before
+    it is closed by the load balancer.
     """
 
 
@@ -1595,24 +1556,23 @@ class ClassicELBLoadBalancerAttributes(Boto3Model):
 
     CrossZoneLoadBalancing: Optional[ClassicELBCrossZoneLoadBalancing] = None
     """
-    If enabled, the load balancer routes the request traffic evenly across all
-    instances regardless of the Availability Zones.
+    If enabled, the load balancer routes the request traffic evenly across all instances regardless of the Availability
+    Zones.
     """
     AccessLog: Optional[ClassicELBAccessLog] = None
     """
-    If enabled, the load balancer captures detailed information of all requests
-    and delivers the information to the Amazon S3 bucket that you specify.
+    If enabled, the load balancer captures detailed information of all requests and delivers the information to the
+    Amazon S3 bucket that you specify.
     """
     ConnectionDraining: Optional[ClassicELBConnectionDraining] = None
     """
-    If enabled, the load balancer allows existing requests to complete before
-    the load balancer shifts traffic away from a deregistered or unhealthy
-    instance.
+    If enabled, the load balancer allows existing requests to complete before the load balancer shifts traffic away from
+    a deregistered or unhealthy instance.
     """
     ConnectionSettings: Optional[ClassicELBConnectionSettings] = None
     """
-    If enabled, the load balancer allows the connections to remain idle (no
-    data is sent over the connection) for the specified duration.
+    If enabled, the load balancer allows the connections to remain idle (no data is sent over the connection) for the
+    specified duration.
     """
     AdditionalAttributes: Optional[List["AdditionalAttribute"]] = None
     """
@@ -1810,8 +1770,7 @@ class PolicyTypeDescription(Boto3Model):
         List["PolicyAttributeTypeDescription"]
     ] = None
     """
-    The description of the policy attributes associated with the policies
-    defined by Elastic Load Balancing.
+    The description of the policy attributes associated with the policies defined by Elastic Load Balancing.
     """
 
 

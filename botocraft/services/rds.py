@@ -5,10 +5,9 @@
 from datetime import datetime
 from typing import Any, ClassVar, Dict, List, Literal, Optional, Type, cast
 
-from pydantic import Field
-
 from botocraft.mixins.tags import TagsDictMixin
 from botocraft.services.common import Filter, Tag
+from pydantic import Field
 
 from .abstract import (Boto3Model, Boto3ModelManager, PrimaryBoto3Model,
                        ReadonlyBoto3Model, ReadonlyBoto3ModelManager,
@@ -49,33 +48,23 @@ class DBInstanceManager(Boto3ModelManager):
 
         Keyword Args:
             MasterUserPassword: The password for the master user.
-            VpcSecurityGroupIds: A list of Amazon EC2 VPC security groups to associate
-                with this DB instance.
+            VpcSecurityGroupIds: A list of Amazon EC2 VPC security groups to associate with this DB instance.
             DBSubnetGroupName: A DB subnet group to associate with this DB instance.
-            DBParameterGroupName: The name of the DB parameter group to associate with
-                this DB instance. If you don't specify a value, then Amazon RDS uses the
-                default DB parameter group for the specified DB engine and version.
+            DBParameterGroupName: The name of the DB parameter group to associate with this DB instance. If you don't specify a
+                value, then Amazon RDS uses the default DB parameter group for the specified DB engine and version.
             OptionGroupName: The option group to associate the DB instance with.
-            TdeCredentialPassword: The password for the given ARN from the key store in
-                order to access the device.
-            Domain: The Active Directory directory ID to create the DB instance in.
-                Currently, you can create only Db2, MySQL, Microsoft SQL Server, Oracle,
-                and PostgreSQL DB instances in an Active Directory Domain.
-            DomainFqdn: The fully qualified domain name (FQDN) of an Active Directory
-                domain.
-            DomainOu: The Active Directory organizational unit for your DB instance to
-                join.
-            DomainAuthSecretArn: The ARN for the Secrets Manager secret with the
-                credentials for the user joining the domain.
-            DomainDnsIps: The IPv4 DNS IP addresses of your primary and secondary
-                Active Directory domain controllers.
-            DomainIAMRoleName: The name of the IAM role to use when making API calls to
-                the Directory Service.
-            ManageMasterUserPassword: Specifies whether to manage the master user
-                password with Amazon Web Services Secrets Manager.
-            MasterUserSecretKmsKeyId: The Amazon Web Services KMS key identifier to
-                encrypt a secret that is automatically generated and managed in Amazon Web
-                Services Secrets Manager.
+            TdeCredentialPassword: The password for the given ARN from the key store in order to access the device.
+            Domain: The Active Directory directory ID to create the DB instance in. Currently, you can create only Db2, MySQL,
+                Microsoft SQL Server, Oracle, and PostgreSQL DB instances in an Active Directory Domain.
+            DomainFqdn: The fully qualified domain name (FQDN) of an Active Directory domain.
+            DomainOu: The Active Directory organizational unit for your DB instance to join.
+            DomainAuthSecretArn: The ARN for the Secrets Manager secret with the credentials for the user joining the domain.
+            DomainDnsIps: The IPv4 DNS IP addresses of your primary and secondary Active Directory domain controllers.
+            DomainIAMRoleName: The name of the IAM role to use when making API calls to the Directory Service.
+            ManageMasterUserPassword: Specifies whether to manage the master user password with Amazon Web Services Secrets
+                Manager.
+            MasterUserSecretKmsKeyId: The Amazon Web Services KMS key identifier to encrypt a secret that is automatically
+                generated and managed in Amazon Web Services Secrets Manager.
         """
         data = model.model_dump(exclude_none=True, by_alias=True)
         args = dict(
@@ -185,77 +174,56 @@ class DBInstanceManager(Boto3ModelManager):
         MasterUserSecretKmsKeyId: Optional[str] = None,
     ) -> "DBInstance":
         """
-        Modifies settings for a DB instance. You can change one or more
-        database configuration parameters by specifying these parameters and
-        the new values in the request. To learn what modifications you can make
-        to your DB instance, call ``DescribeValidDBInstanceModifications``
-        before you call ``ModifyDBInstance``.
+        Modifies settings for a DB instance. You can change one or more database configuration parameters by specifying
+        these parameters and the new values in the request. To learn what modifications you can make to your DB
+        instance, call ``DescribeValidDBInstanceModifications`` before you call ``ModifyDBInstance``.
 
         Args:
             model: The :py:class:``DBInstance`` to update.
 
         Keyword Args:
-            DBSubnetGroupName: The new DB subnet group for the DB instance. You can use
-                this parameter to move your DB instance to a different VPC. If your DB
-                instance isn't in a VPC, you can also use this parameter to move your DB
-                instance into a VPC. For more information, see `Working with a DB instance
-                in a VPC <https://docs.aws.amazon. com/AmazonRDS/latest/UserGuide/USER_VPC.
-                WorkingWithRDSInstanceinaVPC.html#USER_ VPC.Non-VPC2VPC>`_ in the *Amazon
-                RDS User Guide*.
-            VpcSecurityGroupIds: A list of Amazon EC2 VPC security groups to associate
-                with this DB instance. This change is asynchronously applied as soon as
-                possible.
-            ApplyImmediately: Specifies whether the modifications in this request and
-                any pending modifications are asynchronously applied as soon as possible,
-                regardless of the ``PreferredMaintenanceWindow`` setting for the DB
+            DBSubnetGroupName: The new DB subnet group for the DB instance. You can use this parameter to move your DB instance
+                to a different VPC. If your DB instance isn't in a VPC, you can also use this parameter to move your DB instance
+                into a VPC. For more information, see `Working with a DB instance in a VPC
+                <https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/USER_VPC.WorkingWithRDSInstanceinaVPC.html#USER_VPC.Non-
+                VPC2VPC>`_ in the *Amazon RDS User Guide*.
+            VpcSecurityGroupIds: A list of Amazon EC2 VPC security groups to associate with this DB instance. This change is
+                asynchronously applied as soon as possible.
+            ApplyImmediately: Specifies whether the modifications in this request and any pending modifications are
+                asynchronously applied as soon as possible, regardless of the ``PreferredMaintenanceWindow`` setting for the DB
                 instance. By default, this parameter is disabled.
             MasterUserPassword: The new password for the master user.
-            DBParameterGroupName: The name of the DB parameter group to apply to the DB
-                instance.
-            AllowMajorVersionUpgrade: Specifies whether major version upgrades are
-                allowed. Changing this parameter doesn't result in an outage and the change
-                is asynchronously applied as soon as possible.
+            DBParameterGroupName: The name of the DB parameter group to apply to the DB instance.
+            AllowMajorVersionUpgrade: Specifies whether major version upgrades are allowed. Changing this parameter doesn't
+                result in an outage and the change is asynchronously applied as soon as possible.
             OptionGroupName: The option group to associate the DB instance with.
-            NewDBInstanceIdentifier: The new identifier for the DB instance when
-                renaming a DB instance. When you change the DB instance identifier, an
-                instance reboot occurs immediately if you enable ``ApplyImmediately``, or
-                will occur during the next maintenance window if you disable
-                ``ApplyImmediately``. This value is stored as a lowercase string.
-            TdeCredentialPassword: The password for the given ARN from the key store in
-                order to access the device.
-            Domain: The Active Directory directory ID to move the DB instance to.
-                Specify ``none`` to remove the instance from its current domain. You must
-                create the domain before this operation. Currently, you can create only
-                Db2, MySQL, Microsoft SQL Server, Oracle, and PostgreSQL DB instances in an
-                Active Directory Domain.
-            DomainFqdn: The fully qualified domain name (FQDN) of an Active Directory
-                domain.
-            DomainOu: The Active Directory organizational unit for your DB instance to
-                join.
-            DomainAuthSecretArn: The ARN for the Secrets Manager secret with the
-                credentials for the user joining the domain.
-            DomainDnsIps: The IPv4 DNS IP addresses of your primary and secondary
-                Active Directory domain controllers.
+            NewDBInstanceIdentifier: The new identifier for the DB instance when renaming a DB instance. When you change the DB
+                instance identifier, an instance reboot occurs immediately if you enable ``ApplyImmediately``, or will occur during
+                the next maintenance window if you disable ``ApplyImmediately``. This value is stored as a lowercase string.
+            TdeCredentialPassword: The password for the given ARN from the key store in order to access the device.
+            Domain: The Active Directory directory ID to move the DB instance to. Specify ``none`` to remove the instance from
+                its current domain. You must create the domain before this operation. Currently, you can create only Db2, MySQL,
+                Microsoft SQL Server, Oracle, and PostgreSQL DB instances in an Active Directory Domain.
+            DomainFqdn: The fully qualified domain name (FQDN) of an Active Directory domain.
+            DomainOu: The Active Directory organizational unit for your DB instance to join.
+            DomainAuthSecretArn: The ARN for the Secrets Manager secret with the credentials for the user joining the domain.
+            DomainDnsIps: The IPv4 DNS IP addresses of your primary and secondary Active Directory domain controllers.
             DBPortNumber: The port number on which the database accepts connections.
-            DomainIAMRoleName: The name of the IAM role to use when making API calls to
-                the Directory Service.
-            DisableDomain: Specifies whether to remove the DB instance from the Active
-                Directory domain.
-            CloudwatchLogsExportConfiguration: The log types to be enabled for export
-                to CloudWatch Logs for a specific DB instance.
-            UseDefaultProcessorFeatures: Specifies whether the DB instance class of the
-                DB instance uses its default processor features.
-            CertificateRotationRestart: Specifies whether the DB instance is restarted
-                when you rotate your SSL/TLS certificate.
-            ResumeFullAutomationModeMinutes: The number of minutes to pause the
-                automation. When the time period ends, RDS Custom resumes full automation.
-            ManageMasterUserPassword: Specifies whether to manage the master user
-                password with Amazon Web Services Secrets Manager.
-            RotateMasterUserPassword: Specifies whether to rotate the secret managed by
-                Amazon Web Services Secrets Manager for the master user password.
-            MasterUserSecretKmsKeyId: The Amazon Web Services KMS key identifier to
-                encrypt a secret that is automatically generated and managed in Amazon Web
-                Services Secrets Manager.
+            DomainIAMRoleName: The name of the IAM role to use when making API calls to the Directory Service.
+            DisableDomain: Specifies whether to remove the DB instance from the Active Directory domain.
+            CloudwatchLogsExportConfiguration: The log types to be enabled for export to CloudWatch Logs for a specific DB
+                instance.
+            UseDefaultProcessorFeatures: Specifies whether the DB instance class of the DB instance uses its default processor
+                features.
+            CertificateRotationRestart: Specifies whether the DB instance is restarted when you rotate your SSL/TLS certificate.
+            ResumeFullAutomationModeMinutes: The number of minutes to pause the automation. When the time period ends, RDS
+                Custom resumes full automation.
+            ManageMasterUserPassword: Specifies whether to manage the master user password with Amazon Web Services Secrets
+                Manager.
+            RotateMasterUserPassword: Specifies whether to rotate the secret managed by Amazon Web Services Secrets Manager for
+                the master user password.
+            MasterUserSecretKmsKeyId: The Amazon Web Services KMS key identifier to encrypt a secret that is automatically
+                generated and managed in Amazon Web Services Secrets Manager.
         """
         data = model.model_dump(exclude_none=True, by_alias=True)
         args = dict(
@@ -344,28 +312,22 @@ class DBInstanceManager(Boto3ModelManager):
         DeleteAutomatedBackups: Optional[bool] = None
     ) -> "DBInstance":
         """
-        Deletes a previously provisioned DB instance. When you delete a DB
-        instance, all automated backups for that instance are deleted and can't
-        be recovered. However, manual DB snapshots of the DB instance aren't
-        deleted.
+        Deletes a previously provisioned DB instance. When you delete a DB instance, all automated backups for that
+        instance are deleted and can't be recovered. However, manual DB snapshots of the DB instance aren't deleted.
 
         Args:
-            DBInstanceIdentifier: The DB instance identifier for the DB instance to be
-                deleted. This parameter isn't case-sensitive.
+            DBInstanceIdentifier: The DB instance identifier for the DB instance to be deleted. This parameter isn't case-
+                sensitive.
 
         Keyword Args:
-            SkipFinalSnapshot: Specifies whether to skip the creation of a final DB
-                snapshot before deleting the instance. If you enable this parameter, RDS
-                doesn't create a DB snapshot. If you don't enable this parameter, RDS
-                creates a DB snapshot before the DB instance is deleted. By default, skip
-                isn't enabled, and the DB snapshot is created.
-            FinalDBSnapshotIdentifier: The ``DBSnapshotIdentifier`` of the new
-                ``DBSnapshot`` created when the ``SkipFinalSnapshot`` parameter is
-                disabled.
-            DeleteAutomatedBackups: Specifies whether to remove automated backups
-                immediately after the DB instance is deleted. This parameter isn't case-
-                sensitive. The default is to remove automated backups immediately after the
-                DB instance is deleted.
+            SkipFinalSnapshot: Specifies whether to skip the creation of a final DB snapshot before deleting the instance. If
+                you enable this parameter, RDS doesn't create a DB snapshot. If you don't enable this parameter, RDS creates a DB
+                snapshot before the DB instance is deleted. By default, skip isn't enabled, and the DB snapshot is created.
+            FinalDBSnapshotIdentifier: The ``DBSnapshotIdentifier`` of the new ``DBSnapshot`` created when the
+                ``SkipFinalSnapshot`` parameter is disabled.
+            DeleteAutomatedBackups: Specifies whether to remove automated backups immediately after the DB instance is deleted.
+                This parameter isn't case-sensitive. The default is to remove automated backups immediately after the DB instance is
+                deleted.
         """
         args: Dict[str, Any] = dict(
             DBInstanceIdentifier=self.serialize(DBInstanceIdentifier),
@@ -386,10 +348,9 @@ class DBInstanceManager(Boto3ModelManager):
         Describes provisioned RDS instances. This API supports pagination.
 
         Args:
-            DBInstanceIdentifier: The user-supplied instance identifier or the Amazon
-                Resource Name (ARN) of the DB instance. If this parameter is specified,
-                information from only the specific DB instance is returned. This parameter
-                isn't case-sensitive.
+            DBInstanceIdentifier: The user-supplied instance identifier or the Amazon Resource Name (ARN) of the DB instance. If
+                this parameter is specified, information from only the specific DB instance is returned. This parameter isn't case-
+                sensitive.
 
         Keyword Args:
             Filters: A filter that specifies one or more DB instances to describe.
@@ -418,10 +379,9 @@ class DBInstanceManager(Boto3ModelManager):
         Describes provisioned RDS instances. This API supports pagination.
 
         Keyword Args:
-            DBInstanceIdentifier: The user-supplied instance identifier or the Amazon
-                Resource Name (ARN) of the DB instance. If this parameter is specified,
-                information from only the specific DB instance is returned. This parameter
-                isn't case-sensitive.
+            DBInstanceIdentifier: The user-supplied instance identifier or the Amazon Resource Name (ARN) of the DB instance. If
+                this parameter is specified, information from only the specific DB instance is returned. This parameter isn't case-
+                sensitive.
             Filters: A filter that specifies one or more DB instances to describe.
         """
         paginator = self.client.get_paginator("describe_db_instances")
@@ -469,8 +429,7 @@ class RDSEndpoint(Boto3Model):
     """
     HostedZoneId: Optional[str] = None
     """
-    Specifies the ID that Amazon Route 53 assigns when you create a hosted
-    zone.
+    Specifies the ID that Amazon Route 53 assigns when you create a hosted zone.
     """
 
 
@@ -495,8 +454,7 @@ class DBSecurityGroupMembership(Boto3Model):
 
 class VpcSecurityGroupMembership(Boto3Model):
     """
-    This data type is used as a response element for queries on VPC security
-    group membership.
+    This data type is used as a response element for queries on VPC security group membership.
     """
 
     VpcSecurityGroupId: Optional[str] = None
@@ -539,8 +497,7 @@ class RDSAvailabilityZone(Boto3Model):
     """
     Contains Availability Zone information.
 
-    This data type is used as an element in the ``OrderableDBInstanceOption`` data
-    type.
+    This data type is used as an element in the ``OrderableDBInstanceOption`` data type.
     """
 
     Name: Optional[str] = None
@@ -551,12 +508,11 @@ class RDSAvailabilityZone(Boto3Model):
 
 class Outpost(Boto3Model):
     """
-    If the subnet is associated with an Outpost, this value specifies the
-    Outpost.
+    If the subnet is associated with an Outpost, this value specifies the Outpost.
 
     For more information about RDS on Outposts, see
-    `Amazon RDS on Amazon Web Services Outposts <https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/rds-
-    on-outposts.html>`_ in the *Amazon RDS User Guide.*
+    `Amazon RDS on Amazon Web Services Outposts <https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/rds-on-outposts.html>`_
+    in the *Amazon RDS User Guide.*
     """
 
     Arn: Optional[str] = None
@@ -567,8 +523,7 @@ class Outpost(Boto3Model):
 
 class RDSSubnet(Boto3Model):
     """
-    This data type is used as a response element for the
-    ``DescribeDBSubnetGroups`` operation.
+    This data type is used as a response element for the ``DescribeDBSubnetGroups`` operation.
     """
 
     SubnetIdentifier: Optional[str] = None
@@ -581,8 +536,7 @@ class RDSSubnet(Boto3Model):
     """
     SubnetOutpost: Optional[Outpost] = None
     """
-    If the subnet is associated with an Outpost, this value specifies the
-    Outpost.
+    If the subnet is associated with an Outpost, this value specifies the Outpost.
     """
     SubnetStatus: Optional[str] = None
     """
@@ -592,8 +546,8 @@ class RDSSubnet(Boto3Model):
 
 class RDSDBSubnetGroup(Boto3Model):
     """
-    Information about the subnet group associated with the DB instance,
-    including the name, description, and subnets in the subnet group.
+    Information about the subnet group associated with the DB instance, including the name, description, and subnets in
+    the subnet group.
     """
 
     DBSubnetGroupName: Optional[str] = None
@@ -630,16 +584,14 @@ class RDSPendingCloudwatchLogsExports(Boto3Model):
     """
     A list of the log types whose configuration is still pending.
 
-    In other words, these log types are in the process of being activated or
-    deactivated.
+    In other words, these log types are in the process of being activated or deactivated.
     """
 
     LogTypesToEnable: Optional[List[str]] = None
     """
     Log types that are in the process of being deactivated.
 
-    After they are deactivated, these log types aren't exported to CloudWatch
-    Logs.
+    After they are deactivated, these log types aren't exported to CloudWatch Logs.
     """
     LogTypesToDisable: Optional[List[str]] = None
     """
@@ -653,12 +605,11 @@ class ProcessorFeature(Boto3Model):
     """
     Contains the processor features of a DB instance class.
 
-    To specify the number of CPU cores, use the ``coreCount`` feature name for the
-    ``Name`` parameter. To specify the number of threads per core, use the
-    ``threadsPerCore`` feature name for the ``Name`` parameter.
+    To specify the number of CPU cores, use the ``coreCount`` feature name for the ``Name`` parameter. To specify the number
+    of threads per core, use the ``threadsPerCore`` feature name for the ``Name`` parameter.
 
-    You can set the processor features of the DB instance class for a DB instance
-    when you call one of the following actions:
+    You can set the processor features of the DB instance class for a DB instance when you call one of the following
+    actions:
 
     * ``CreateDBInstance``
     * ``ModifyDBInstance``
@@ -666,37 +617,32 @@ class ProcessorFeature(Boto3Model):
     * ``RestoreDBInstanceFromS3``
     * ``RestoreDBInstanceToPointInTime``
 
-    You can view the valid processor values for a particular instance class by
-    calling the ``DescribeOrderableDBInstanceOptions`` action and specifying the
-    instance class for the ``DBInstanceClass`` parameter.
+    You can view the valid processor values for a particular instance class by calling the
+    ``DescribeOrderableDBInstanceOptions`` action and specifying the instance class for the ``DBInstanceClass`` parameter.
 
-    In addition, you can use the following actions for DB instance class processor
-    information:
+    In addition, you can use the following actions for DB instance class processor information:
 
     * ``DescribeDBInstances``
     * ``DescribeDBSnapshots``
     * ``DescribeValidDBInstanceModifications``
 
-    If you call ``DescribeDBInstances``, ``ProcessorFeature`` returns non-null
-    values only if the following conditions are met:
+    If you call ``DescribeDBInstances``, ``ProcessorFeature`` returns non-null values only if the following conditions are
+    met:
 
     * You are accessing an Oracle DB instance.
-    * Your Oracle DB instance class supports configuring the number of CPU cores
-      and threads per core.
+    * Your Oracle DB instance class supports configuring the number of CPU cores and threads per core.
     * The current number CPU cores and threads is set to a non-default value.
 
-    For more information, see  `Configuring the processor for a DB instance class
-    in RDS for Oracle <https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/Conce
-    pts.DBInstanceClass.html#USER_ConfigureProcessor>`_ in the *Amazon RDS User
-    Guide.*
+    For more information, see  `Configuring the processor for a DB instance class in RDS for
+    Oracle <https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/Concepts.DBInstanceClass.html#USER_ConfigureProcessor>`_ in
+    the *Amazon RDS User Guide.*
     """
 
     Name: Optional[str] = None
     """
     The name of the processor feature.
 
-    Valid names are ``coreCount`` and
-    ``threadsPerCore``.
+    Valid names are ``coreCount`` and ``threadsPerCore``.
     """
     Value: Optional[str] = None
     """
@@ -708,8 +654,7 @@ class RDSPendingModifiedValues(Boto3Model):
     """
     Information about pending changes to the DB instance.
 
-    This information is returned only when there are pending changes. Specific
-    changes are identified by subelements.
+    This information is returned only when there are pending changes. Specific changes are identified by subelements.
     """
 
     DBInstanceClass: Optional[str] = None
@@ -718,8 +663,7 @@ class RDSPendingModifiedValues(Boto3Model):
     """
     AllocatedStorage: Optional[int] = None
     """
-    The allocated storage size for the DB instance specified in gibibytes
-    (GiB).
+    The allocated storage size for the DB instance specified in gibibytes (GiB).
     """
     MasterUserPassword: Optional[str] = None
     """
@@ -735,8 +679,7 @@ class RDSPendingModifiedValues(Boto3Model):
     """
     MultiAZ: Optional[bool] = None
     """
-    Indicates whether the Single-AZ DB instance will change to a Multi-AZ
-    deployment.
+    Indicates whether the Single-AZ DB instance will change to a Multi-AZ deployment.
     """
     EngineVersion: Optional[str] = None
     """
@@ -770,32 +713,29 @@ class RDSPendingModifiedValues(Boto3Model):
     """
     A list of the log types whose configuration is still pending.
 
-    In other words, these log types are in the process of being activated or
-    deactivated.
+    In other words, these log types are in the process of being activated or deactivated.
     """
     ProcessorFeatures: Optional[List["ProcessorFeature"]] = None
     """
-    The number of CPU cores and the number of threads per core for the DB
-    instance class of the DB instance.
+    The number of CPU cores and the number of threads per core for the DB instance class of the DB instance.
     """
     IAMDatabaseAuthenticationEnabled: Optional[bool] = None
     """
-    Indicates whether mapping of Amazon Web Services Identity and Access
-    Management (IAM) accounts to database accounts is enabled.
+    Indicates whether mapping of Amazon Web Services Identity and Access Management (IAM) accounts to database accounts
+    is enabled.
     """
     AutomationMode: Optional[Literal["full", "all-paused"]] = None
     """
-The automation mode of the RDS Custom DB instance: ``full`` or ``all-paused``.
-If ``full``, the DB instance automates monitoring and instance recovery. If
-``all-paused``, the instance pauses automation for the duration set by
-``--resume-full-automation-mode-minutes``.
+The automation mode of the RDS Custom DB instance: ``full`` or ``all-paused``. If ``full``, the DB instance automates
+monitoring and instance recovery. If ``all-paused``, the instance pauses automation for the duration set by ``--resume-
+full-automation-mode-minutes``.
     """
     ResumeFullAutomationModeTime: Optional[datetime] = None
     """
     The number of minutes to pause the automation.
 
-    When the time period ends, RDS Custom resumes full automation. The minimum
-    value is 60 (default). The maximum value is 1,440.
+    When the time period ends, RDS Custom resumes full automation. The minimum value is 60 (default). The maximum value
+    is 1,440.
     """
     StorageThroughput: Optional[int] = None
     """
@@ -807,13 +747,12 @@ If ``full``, the DB instance automates monitoring and instance recovery. If
     """
     DedicatedLogVolume: Optional[bool] = None
     """
-    Indicates whether the DB instance has a dedicated log volume (DLV)
-    enabled.>
+    Indicates whether the DB instance has a dedicated log volume (DLV) enabled.>
     """
     MultiTenant: Optional[bool] = None
     """
-    Indicates whether the DB instance will change to the multi-tenant
-    configuration (TRUE) or the single-tenant configuration (FALSE).
+    Indicates whether the DB instance will change to the multi-tenant configuration (TRUE) or the single-tenant
+    configuration (FALSE).
     """
 
 
@@ -830,10 +769,8 @@ class OptionGroupMembership(Boto3Model):
     """
     The status of the DB instance's option group membership.
 
-    Valid values are:
-    ``in-sync``, ``pending-apply``, ``pending-removal``, ``pending-maintenance-
-    apply``, ``pending-maintenance-removal``, ``applying``, ``removing``, and
-    ``failed``.
+    Valid values are: ``in-sync``, ``pending-apply``, ``pending-
+    removal``, ``pending-maintenance-apply``, ``pending-maintenance-removal``, ``applying``, ``removing``, and ``failed``.
     """
 
 
@@ -848,16 +785,14 @@ class DBInstanceStatusInfo(Boto3Model):
     """
     Normal: Optional[bool] = None
     """
-    Indicates whether the instance is operating normally (TRUE) or is in an
-    error state (FALSE).
+    Indicates whether the instance is operating normally (TRUE) or is in an error state (FALSE).
     """
     Status: Optional[str] = None
     """
     The status of the DB instance.
 
-    For a StatusType of read replica, the values can be replicating,
-    replication stop point set, replication stop point reached, error, stopped,
-    or terminated.
+    For a StatusType of read replica, the values can be replicating, replication stop point set, replication stop point
+    reached, error, stopped, or terminated.
     """
     Message: Optional[str] = None
     """
@@ -869,8 +804,7 @@ class DBInstanceStatusInfo(Boto3Model):
 
 class DomainMembership(Boto3Model):
     """
-    An Active Directory Domain membership record associated with the DB
-    instance or cluster.
+    An Active Directory Domain membership record associated with the DB instance or cluster.
     """
 
     Domain: Optional[str] = None
@@ -879,10 +813,10 @@ class DomainMembership(Boto3Model):
     """
     Status: Optional[str] = None
     """
-    The status of the Active Directory Domain membership for the DB instance or
-    cluster.
+    The status of the Active Directory Domain membership for the DB instance or cluster.
 
-    Values include ``joined``, ``pending-join``, ``failed``, and so on.
+    Values include ``joined``,
+    ``pending-join``, ``failed``, and so on.
     """
     FQDN: Optional[str] = None
     """
@@ -890,8 +824,7 @@ class DomainMembership(Boto3Model):
     """
     IAMRoleName: Optional[str] = None
     """
-    The name of the IAM role used when making API calls to the Directory
-    Service.
+    The name of the IAM role used when making API calls to the Directory Service.
     """
     OU: Optional[str] = None
     """
@@ -899,51 +832,45 @@ class DomainMembership(Boto3Model):
     """
     AuthSecretArn: Optional[str] = None
     """
-    The ARN for the Secrets Manager secret with the credentials for the user
-    that's a member of the domain.
+    The ARN for the Secrets Manager secret with the credentials for the user that's a member of the domain.
     """
     DnsIps: Optional[List[str]] = None
     """
-    The IPv4 DNS IP addresses of the primary and secondary Active Directory
-    domain controllers.
+    The IPv4 DNS IP addresses of the primary and secondary Active Directory domain controllers.
     """
 
 
 class DBInstanceRole(Boto3Model):
     """
-    Information about an Amazon Web Services Identity and Access Management
-    (IAM) role that is associated with a DB instance.
+    Information about an Amazon Web Services Identity and Access Management (IAM) role that is associated with a DB
+    instance.
     """
 
     RoleArn: Optional[str] = None
     """
-    The Amazon Resource Name (ARN) of the IAM role that is associated with the
-    DB instance.
+    The Amazon Resource Name (ARN) of the IAM role that is associated with the DB instance.
     """
     FeatureName: Optional[str] = None
     """
-    The name of the feature associated with the Amazon Web Services Identity
-    and Access Management (IAM) role.
+    The name of the feature associated with the Amazon Web Services Identity and Access Management (IAM) role.
 
-    For information about supported feature names,
-    see ``DBEngineVersion``.
+    For
+    information about supported feature names, see ``DBEngineVersion``.
     """
     Status: Optional[str] = None
     """
-    Information about the state of association between the IAM role and the DB
-    instance.
+    Information about the state of association between the IAM role and the DB instance.
 
-    The Status property returns one of the following values:
+    The Status property returns one of
+    the following values:
     """
 
 
 class DBInstanceAutomatedBackupsReplication(Boto3Model):
     """
-    Automated backups of a DB instance replicated to another Amazon Web
-    Services Region.
+    Automated backups of a DB instance replicated to another Amazon Web Services Region.
 
-    They consist of system backups, transaction logs, and database instance
-    properties.
+    They consist of system backups, transaction logs, and database instance properties.
     """
 
     DBInstanceAutomatedBackupsArn: Optional[str] = None
@@ -954,12 +881,12 @@ class DBInstanceAutomatedBackupsReplication(Boto3Model):
 
 class RDSMasterUserSecret(Boto3Model):
     """
-    The secret managed by RDS in Amazon Web Services Secrets Manager for the
-    master user password.
+    The secret managed by RDS in Amazon Web Services Secrets Manager for the master user password.
 
     For more information, see
-    `Password management with Amazon Web Services Secrets Manager <https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/rds-secrets-
-    manager.html>`_ in the *Amazon RDS User Guide.*
+    `Password management with Amazon Web Services Secrets Manager <https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/rds-secrets-manager.html>`_
+    in the *Amazon RDS User
+    Guide.*
     """
 
     SecretArn: Optional[str] = None
@@ -972,8 +899,7 @@ class RDSMasterUserSecret(Boto3Model):
     """
     KmsKeyId: Optional[str] = None
     """
-    The Amazon Web Services KMS key identifier that is used to encrypt the
-    secret.
+    The Amazon Web Services KMS key identifier that is used to encrypt the secret.
     """
 
 
@@ -984,8 +910,7 @@ class RDSCertificateDetails(Boto3Model):
 
     CAIdentifier: Optional[str] = None
     """
-    The CA identifier of the CA certificate used for the DB instance's server
-    certificate.
+    The CA identifier of the CA certificate used for the DB instance's server certificate.
     """
     ValidTill: Optional[datetime] = None
     """
@@ -997,11 +922,9 @@ class DBInstance(PrimaryBoto3Model):
     """
     Contains the details of an Amazon RDS DB instance.
 
-    This data type is used as a response element in the operations
-    ``CreateDBInstance``, ``CreateDBInstanceReadReplica``, ``DeleteDBInstance``,
-    ``DescribeDBInstances``, ``ModifyDBInstance``, ``PromoteReadReplica``,
-    ``RebootDBInstance``, ``RestoreDBInstanceFromDBSnapshot``,
-    ``RestoreDBInstanceFromS3``, ``RestoreDBInstanceToPointInTime``,
+    This data type is used as a response element in the operations ``CreateDBInstance``, ``CreateDBInstanceReadReplica``,
+    ``DeleteDBInstance``, ``DescribeDBInstances``, ``ModifyDBInstance``, ``PromoteReadReplica``, ``RebootDBInstance``,
+    ``RestoreDBInstanceFromDBSnapshot``, ``RestoreDBInstanceFromS3``, ``RestoreDBInstanceToPointInTime``,
     ``StartDBInstance``, and ``StopDBInstance``.
     """
 
@@ -1051,19 +974,16 @@ class DBInstance(PrimaryBoto3Model):
     """
     The port that the DB instance listens on.
 
-    If the DB instance is part of a DB cluster, this can be a different port
-    than the DB cluster port.
+    If the DB instance is part of a DB cluster, this can be a different port than the DB cluster port.
     """
     IAMDatabaseAuthenticationEnabled: Optional[bool] = None
     """
-    Indicates whether mapping of Amazon Web Services Identity and Access
-    Management (IAM) accounts to database accounts is enabled for the DB
-    instance.
+    Indicates whether mapping of Amazon Web Services Identity and Access Management (IAM) accounts to database accounts
+    is enabled for the DB instance.
     """
     EnabledCloudwatchLogsExports: Optional[List[str]] = None
     """
-    A list of log types that this DB instance is configured to export to
-    CloudWatch Logs.
+    A list of log types that this DB instance is configured to export to CloudWatch Logs.
     """
     TagList: Optional[List[Tag]] = None
     """
@@ -1071,8 +991,7 @@ class DBInstance(PrimaryBoto3Model):
     """
     CustomerOwnedIpEnabled: Optional[bool] = None
     """
-    Indicates whether a customer-owned IP address (CoIP) is enabled for an RDS
-    on Outposts DB instance.
+    Indicates whether a customer-owned IP address (CoIP) is enabled for an RDS on Outposts DB instance.
     """
     PerformanceInsightsEnabled: Optional[bool] = None
     """
@@ -1092,11 +1011,10 @@ class DBInstance(PrimaryBoto3Model):
     """
     DBName: Optional[str] = None
     """
-    The initial database name that you provided (if required) when you created
-    the DB instance.
+    The initial database name that you provided (if required) when you created the DB instance.
 
-    This name is returned for the life of your DB instance. For an RDS for
-    Oracle CDB instance, the name identifies the PDB rather than the CDB.
+    This name is returned for the life of your DB instance. For an RDS for Oracle CDB instance, the name identifies the
+    PDB rather than the CDB.
     """
     Endpoint: RDSEndpoint = Field(default=None, frozen=True)
     """
@@ -1112,14 +1030,12 @@ class DBInstance(PrimaryBoto3Model):
     """
     PreferredBackupWindow: Optional[str] = None
     """
-    The daily time range during which automated backups are created if
-    automated backups are enabled, as determined by the
-    ``BackupRetentionPeriod``.
+    The daily time range during which automated backups are created if automated backups are enabled, as determined by
+    the ``BackupRetentionPeriod``.
     """
     DBSecurityGroups: Optional[List["DBSecurityGroupMembership"]] = None
     """
-    A list of DB security group elements containing ``DBSecurityGroup.Name``
-    and ``DBSecurityGroup.Status`` subelements.
+    A list of DB security group elements containing ``DBSecurityGroup.Name`` and ``DBSecurityGroup.Status`` subelements.
     """
     VpcSecurityGroups: List["VpcSecurityGroupMembership"] = Field(
         default=None, frozen=True
@@ -1137,30 +1053,26 @@ class DBInstance(PrimaryBoto3Model):
     """
     DBSubnetGroup: RDSDBSubnetGroup = Field(default=None, frozen=True)
     """
-    Information about the subnet group associated with the DB instance,
-    including the name, description, and subnets in the subnet group.
+    Information about the subnet group associated with the DB instance, including the name, description, and subnets in
+    the subnet group.
     """
     PreferredMaintenanceWindow: Optional[str] = None
     """
-    The weekly time range during which system maintenance can occur, in
-    Universal Coordinated Time (UTC).
+    The weekly time range during which system maintenance can occur, in Universal Coordinated Time (UTC).
     """
     PendingModifiedValues: RDSPendingModifiedValues = Field(default=None, frozen=True)
     """
     Information about pending changes to the DB instance.
 
-    This information is returned only when there are pending changes. Specific
-    changes are identified by subelements.
+    This information is returned only when there are pending changes. Specific changes are identified by subelements.
     """
     LatestRestorableTime: datetime = Field(default=None, frozen=True)
     """
-    The latest time to which a database in this DB instance can be restored
-    with point-in-time restore.
+    The latest time to which a database in this DB instance can be restored with point-in-time restore.
     """
     ReadReplicaSourceDBInstanceIdentifier: str = Field(default=None, frozen=True)
     """
-    The identifier of the source DB instance if this DB instance is a read
-    replica.
+    The identifier of the source DB instance if this DB instance is a read replica.
     """
     ReadReplicaDBInstanceIdentifiers: List[str] = Field(default=None, frozen=True)
     """
@@ -1168,22 +1080,18 @@ class DBInstance(PrimaryBoto3Model):
     """
     ReadReplicaDBClusterIdentifiers: List[str] = Field(default=None, frozen=True)
     """
-    The identifiers of Aurora DB clusters to which the RDS DB instance is
-    replicated as a read replica.
+    The identifiers of Aurora DB clusters to which the RDS DB instance is replicated as a read replica.
 
-    For example, when you create an Aurora read replica of an RDS for MySQL DB
-    instance, the Aurora MySQL DB cluster for the Aurora read replica is shown.
-    This output doesn't contain information about cross-Region Aurora read
-    replicas.
+    For example, when you create an Aurora read replica of an RDS for MySQL DB instance, the Aurora MySQL DB cluster for
+    the Aurora read replica is shown. This output doesn't contain information about cross-Region Aurora read replicas.
     """
     ReplicaMode: Optional[Literal["open-read-only", "mounted"]] = None
     """
     The open mode of an Oracle read replica.
 
-    The default is ``open-read-only``. For
-    more information, see `Working with Oracle Read Replicas for Amazon
-    RDS <https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/oracle-read-
-    replicas.html>`_ in the *Amazon RDS User Guide*.
+    The default is ``open-read-only``. For more information, see `Working with
+    Oracle Read Replicas for Amazon RDS <https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/oracle-read-replicas.html>`_
+    in the *Amazon RDS User Guide*.
     """
     LicenseModel: Optional[str] = None
     """
@@ -1203,20 +1111,18 @@ class DBInstance(PrimaryBoto3Model):
     """
     CharacterSetName: Optional[str] = None
     """
-    If present, specifies the name of the character set that this instance is
-    associated with.
+    If present, specifies the name of the character set that this instance is associated with.
     """
     NcharCharacterSetName: Optional[str] = None
     """
     The name of the NCHAR character set for the Oracle DB instance.
 
-    This character set specifies the Unicode encoding for data stored in table
-    columns of type NCHAR, NCLOB, or NVARCHAR2.
+    This character set specifies the Unicode encoding for data stored in table columns of type NCHAR, NCLOB, or
+    NVARCHAR2.
     """
     SecondaryAvailabilityZone: str = Field(default=None, frozen=True)
     """
-    If present, specifies the name of the secondary Availability Zone for a DB
-    instance with multi-AZ support.
+    If present, specifies the name of the secondary Availability Zone for a DB instance with multi-AZ support.
     """
     StatusInfos: List["DBInstanceStatusInfo"] = Field(default=None, frozen=True)
     """
@@ -1230,26 +1136,23 @@ class DBInstance(PrimaryBoto3Model):
     """
     TdeCredentialArn: Optional[str] = None
     """
-    The ARN from the key store with which the instance is associated for TDE
-    encryption.
+    The ARN from the key store with which the instance is associated for TDE encryption.
     """
     DBClusterIdentifier: Optional[str] = None
     """
-    If the DB instance is a member of a DB cluster, indicates the name of the
-    DB cluster that the DB instance is a member of.
+    If the DB instance is a member of a DB cluster, indicates the name of the DB cluster that the DB instance is a
+    member of.
     """
     KmsKeyId: Optional[str] = None
     """
-    If ``StorageEncrypted`` is enabled, the Amazon Web Services KMS key
-    identifier for the encrypted DB instance.
+    If ``StorageEncrypted`` is enabled, the Amazon Web Services KMS key identifier for the encrypted DB instance.
     """
     DbiResourceId: str = Field(default=None, frozen=True)
     """
-    The Amazon Web Services Region-unique, immutable identifier for the DB
-    instance.
+    The Amazon Web Services Region-unique, immutable identifier for the DB instance.
 
-    This identifier is found in Amazon Web Services CloudTrail log entries
-    whenever the Amazon Web Services KMS key for the DB instance is accessed.
+    This identifier is found in Amazon Web Services CloudTrail log entries whenever the Amazon Web Services KMS key for
+    the DB instance is accessed.
     """
     CACertificateIdentifier: Optional[str] = None
     """
@@ -1257,38 +1160,33 @@ class DBInstance(PrimaryBoto3Model):
     """
     DomainMemberships: List["DomainMembership"] = Field(default=None, frozen=True)
     """
-    The Active Directory Domain membership records associated with the DB
-    instance.
+    The Active Directory Domain membership records associated with the DB instance.
     """
     CopyTagsToSnapshot: Optional[bool] = None
     """
-    Indicates whether tags are copied from the DB instance to snapshots of the
-    DB instance.
+    Indicates whether tags are copied from the DB instance to snapshots of the DB instance.
     """
     MonitoringInterval: Optional[int] = None
     """
-    The interval, in seconds, between points when Enhanced Monitoring metrics
-    are collected for the DB instance.
+    The interval, in seconds, between points when Enhanced Monitoring metrics are collected for the DB instance.
     """
     EnhancedMonitoringResourceArn: str = Field(default=None, frozen=True)
     """
-    The Amazon Resource Name (ARN) of the Amazon CloudWatch Logs log stream
-    that receives the Enhanced Monitoring metrics data for the DB instance.
+    The Amazon Resource Name (ARN) of the Amazon CloudWatch Logs log stream that receives the Enhanced Monitoring
+    metrics data for the DB instance.
     """
     MonitoringRoleArn: Optional[str] = None
     """
-    The ARN for the IAM role that permits RDS to send Enhanced Monitoring
-    metrics to Amazon CloudWatch Logs.
+    The ARN for the IAM role that permits RDS to send Enhanced Monitoring metrics to Amazon CloudWatch Logs.
     """
     PromotionTier: Optional[int] = None
     """
-    The order of priority in which an Aurora Replica is promoted to the primary
-    instance after a failure of the existing primary instance.
+    The order of priority in which an Aurora Replica is promoted to the primary instance after a failure of the existing
+    primary instance.
 
-    For more
-    information, see  `Fault Tolerance for an Aurora DB Cluster <https://docs.aws.a
-    mazon.com/AmazonRDS/latest/AuroraUserGuide/Concepts.AuroraHighAvailability.html
-    #Aurora.Managing.FaultTolerance>`_ in the *Amazon Aurora User Guide*.
+    For more information, see  `Fault Tolerance for an Aurora DB Cluster <https://docs.aws.amazon.com/Amaz
+    onRDS/latest/AuroraUserGuide/Concepts.AuroraHighAvailability.html#Aurora.Managing.FaultTolerance>`_ in the *Amazon Aurora
+    User Guide*.
     """
     DBInstanceArn: str = Field(default=None, frozen=True)
     """
@@ -1298,14 +1196,12 @@ class DBInstance(PrimaryBoto3Model):
     """
     The time zone of the DB instance.
 
-    In most cases, the ``Timezone`` element is
-    empty. ``Timezone`` content appears only for RDS for Db2 and RDS for SQL Server
-    DB instances that were created with a time zone specified.
+    In most cases, the ``Timezone`` element is empty. ``Timezone`` content appears only
+    for RDS for Db2 and RDS for SQL Server DB instances that were created with a time zone specified.
     """
     PerformanceInsightsKMSKeyId: Optional[str] = None
     """
-    The Amazon Web Services KMS key identifier for encryption of Performance
-    Insights data.
+    The Amazon Web Services KMS key identifier for encryption of Performance Insights data.
     """
     PerformanceInsightsRetentionPeriod: Optional[int] = None
     """
@@ -1313,22 +1209,18 @@ class DBInstance(PrimaryBoto3Model):
     """
     ProcessorFeatures: Optional[List["ProcessorFeature"]] = None
     """
-    The number of CPU cores and the number of threads per core for the DB
-    instance class of the DB instance.
+    The number of CPU cores and the number of threads per core for the DB instance class of the DB instance.
     """
     DeletionProtection: Optional[bool] = None
     """
     Indicates whether the DB instance has deletion protection enabled.
 
-    The database can't be deleted when deletion protection is enabled. For more
-    information, see
-    `Deleting a DB Instance <https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide
-    /USER_DeleteInstance.html>`_.
+    The database can't be deleted when deletion protection is enabled. For more information, see
+    `Deleting a DB Instance <https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/USER_DeleteInstance.html>`_.
     """
     AssociatedRoles: List["DBInstanceRole"] = Field(default=None, frozen=True)
     """
-    The Amazon Web Services Identity and Access Management (IAM) roles
-    associated with the DB instance.
+    The Amazon Web Services Identity and Access Management (IAM) roles associated with the DB instance.
     """
     ListenerEndpoint: RDSEndpoint = Field(default=None, frozen=True)
     """
@@ -1336,8 +1228,7 @@ class DBInstance(PrimaryBoto3Model):
     """
     MaxAllocatedStorage: Optional[int] = None
     """
-    The upper limit in gibibytes (GiB) to which Amazon RDS can automatically
-    scale the storage of the DB instance.
+    The upper limit in gibibytes (GiB) to which Amazon RDS can automatically scale the storage of the DB instance.
     """
     DBInstanceAutomatedBackupsReplications: List[
         "DBInstanceAutomatedBackupsReplication"
@@ -1347,8 +1238,7 @@ class DBInstance(PrimaryBoto3Model):
     """
     AwsBackupRecoveryPointArn: Optional[str] = None
     """
-    The Amazon Resource Name (ARN) of the recovery point in Amazon Web Services
-    Backup.
+    The Amazon Resource Name (ARN) of the recovery point in Amazon Web Services Backup.
     """
     ActivityStreamStatus: Literal["stopped", "starting", "started", "stopping"] = Field(
         default=None, frozen=True
@@ -1358,57 +1248,51 @@ class DBInstance(PrimaryBoto3Model):
     """
     ActivityStreamKmsKeyId: str = Field(default=None, frozen=True)
     """
-    The Amazon Web Services KMS key identifier used for encrypting messages in
-    the database activity stream.
+    The Amazon Web Services KMS key identifier used for encrypting messages in the database activity stream.
 
-    The Amazon Web Services KMS key identifier is the key ARN, key ID, alias
-    ARN, or alias name for the KMS key.
+    The Amazon Web Services KMS key identifier is the key ARN, key ID, alias ARN, or alias name for the KMS key.
     """
     ActivityStreamKinesisStreamName: str = Field(default=None, frozen=True)
     """
-    The name of the Amazon Kinesis data stream used for the database activity
-    stream.
+    The name of the Amazon Kinesis data stream used for the database activity stream.
     """
     ActivityStreamMode: Literal["sync", "async"] = Field(default=None, frozen=True)
     """
     The mode of the database activity stream.
 
-    Database events such as a change or access generate an activity stream
-    event. RDS for Oracle always handles these events asynchronously.
+    Database events such as a change or access generate an activity stream event. RDS for Oracle always handles these
+    events asynchronously.
     """
     ActivityStreamEngineNativeAuditFieldsIncluded: bool = Field(
         default=None, frozen=True
     )
     """
-    Indicates whether engine-native audit fields are included in the database
-    activity stream.
+    Indicates whether engine-native audit fields are included in the database activity stream.
     """
     AutomationMode: Optional[Literal["full", "all-paused"]] = None
     """
-The automation mode of the RDS Custom DB instance: ``full`` or ``all paused``.
-If ``full``, the DB instance automates monitoring and instance recovery. If
-``all paused``, the instance pauses automation for the duration set by
-``--resume-full-automation-mode-minutes``.
+The automation mode of the RDS Custom DB instance: ``full`` or ``all paused``. If ``full``, the DB instance automates
+monitoring and instance recovery. If ``all paused``, the instance pauses automation for the duration set by ``--resume-
+full-automation-mode-minutes``.
     """
     ResumeFullAutomationModeTime: datetime = Field(default=None, frozen=True)
     """
     The number of minutes to pause the automation.
 
-    When the time period ends, RDS Custom resumes full automation. The minimum
-    value is 60 (default). The maximum value is 1,440.
+    When the time period ends, RDS Custom resumes full automation. The minimum value is 60 (default). The maximum value
+    is 1,440.
     """
     CustomIamInstanceProfile: Optional[str] = None
     """
-    The instance profile associated with the underlying Amazon EC2 instance of
-    an RDS Custom DB instance.
+    The instance profile associated with the underlying Amazon EC2 instance of an RDS Custom DB instance.
 
-    The instance profile must meet the following
-    requirements:
+    The instance
+    profile must meet the following requirements:
     """
     BackupTarget: Optional[str] = None
     """
-The location where automated backups and manual snapshots are stored: Amazon
-Web Services Outposts or the Amazon Web Services Region.
+The location where automated backups and manual snapshots are stored: Amazon Web Services Outposts or the Amazon Web
+Services Region.
     """
     NetworkType: Optional[str] = None
     """
@@ -1428,13 +1312,11 @@ Web Services Outposts or the Amazon Web Services Region.
     """
     The Oracle system ID (Oracle SID) for a container database (CDB).
 
-    The Oracle SID is also the name of the CDB. This setting is only valid for
-    RDS Custom DB instances.
+    The Oracle SID is also the name of the CDB. This setting is only valid for RDS Custom DB instances.
     """
     MasterUserSecret: RDSMasterUserSecret = Field(default=None, frozen=True)
     """
-    The secret managed by RDS in Amazon Web Services Secrets Manager for the
-    master user password.
+    The secret managed by RDS in Amazon Web Services Secrets Manager for the master user password.
     """
     CertificateDetails: RDSCertificateDetails = Field(default=None, frozen=True)
     """
@@ -1442,8 +1324,7 @@ Web Services Outposts or the Amazon Web Services Region.
     """
     ReadReplicaSourceDBClusterIdentifier: str = Field(default=None, frozen=True)
     """
-    The identifier of the source DB cluster if this DB instance is a read
-    replica.
+    The identifier of the source DB cluster if this DB instance is a read replica.
     """
     PercentProgress: str = Field(default=None, frozen=True)
     """
@@ -1455,19 +1336,17 @@ Web Services Outposts or the Amazon Web Services Region.
     """
     IsStorageConfigUpgradeAvailable: bool = Field(default=None, frozen=True)
     """
-    Indicates whether an upgrade is recommended for the storage file system
-    configuration on the DB instance.
+    Indicates whether an upgrade is recommended for the storage file system configuration on the DB instance.
 
-    To migrate to the preferred configuration,
-    you can either create a blue/green deployment, or create a read replica from
-    the DB instance. For more information, see `Upgrading the storage file system
-    for a DB instance <https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/USER_
-    PIOPS.StorageTypes.html#USER_PIOPS.UpgradeFileSystem>`_.
+    To migrate to
+    the preferred configuration, you can either create a blue/green deployment, or create a read replica from the DB
+    instance. For more information, see `Upgrading the storage file system for a DB instance <https://docs.aws.amazon.com/Am
+    azonRDS/latest/UserGuide/USER_PIOPS.StorageTypes.html#USER_PIOPS.UpgradeFileSystem>`_.
     """
     MultiTenant: Optional[bool] = None
     """
-    Specifies whether the DB instance is in the multi-tenant configuration
-    (TRUE) or the single-tenant configuration (FALSE).
+    Specifies whether the DB instance is in the multi-tenant configuration (TRUE) or the single-tenant configuration
+    (FALSE).
     """
     EngineLifecycleSupport: Optional[str] = None
     """
@@ -1477,8 +1356,7 @@ Web Services Outposts or the Amazon Web Services Region.
     @property
     def pk(self) -> Optional[str]:
         """
-        Return the primary key of the model.   This is the value of the
-        :py:attr:`DBInstanceArn` attribute.
+        Return the primary key of the model.   This is the value of the :py:attr:`DBInstanceArn` attribute.
 
         Returns:
             The primary key of the model instance.
@@ -1488,8 +1366,7 @@ Web Services Outposts or the Amazon Web Services Region.
     @property
     def arn(self) -> Optional[str]:
         """
-        Return the ARN of the model.   This is the value of the
-        :py:attr:`DBInstanceArn` attribute.
+        Return the ARN of the model.   This is the value of the :py:attr:`DBInstanceArn` attribute.
 
         Returns:
             The ARN of the model instance.
@@ -1499,8 +1376,7 @@ Web Services Outposts or the Amazon Web Services Region.
     @property
     def name(self) -> Optional[str]:
         """
-        Return the name of the model.   This is the value of the
-        :py:attr:`DBInstanceIdentifier` attribute.
+        Return the name of the model.   This is the value of the :py:attr:`DBInstanceIdentifier` attribute.
 
         Returns:
             The name of the model instance.
@@ -1522,12 +1398,10 @@ class CreateDBInstanceResult(Boto3Model):
 
 class CloudwatchLogsExportConfiguration(Boto3Model):
     """
-    The log types to be enabled for export to CloudWatch Logs for a specific DB
-    instance.
+    The log types to be enabled for export to CloudWatch Logs for a specific DB instance.
 
-    A change to the ``CloudwatchLogsExportConfiguration`` parameter is always
-    applied to the DB instance immediately. Therefore, the ``ApplyImmediately``
-    parameter has no effect.
+    A change to the ``CloudwatchLogsExportConfiguration`` parameter is always applied to the DB instance immediately.
+    Therefore, the ``ApplyImmediately`` parameter has no effect.
 
     This setting doesn't apply to RDS Custom DB instances.
     """
@@ -1558,17 +1432,15 @@ class DeleteDBInstanceResult(Boto3Model):
 
 class DBInstanceMessage(Boto3Model):
     """
-    Contains the result of a successful invocation of the
-    ``DescribeDBInstances`` action.
+    Contains the result of a successful invocation of the ``DescribeDBInstances`` action.
     """
 
     Marker: Optional[str] = None
     """
     An optional pagination token provided by a previous request.
 
-    If this parameter
-    is specified, the response includes only records beyond the marker, up to the
-    value specified by ``MaxRecords`` .
+    If this parameter is specified, the response includes only
+    records beyond the marker, up to the value specified by ``MaxRecords`` .
     """
     DBInstances: Optional[List["DBInstance"]] = None
     """

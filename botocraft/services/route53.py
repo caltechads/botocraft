@@ -7,10 +7,9 @@ from datetime import datetime
 from functools import cached_property
 from typing import Any, ClassVar, Dict, List, Literal, Optional, Type, cast
 
-from pydantic import Field
-
 from botocraft.mixins.route53 import HostedZoneModelMixin
 from botocraft.mixins.tags import TagsDictMixin
+from pydantic import Field
 
 from .abstract import (Boto3Model, Boto3ModelManager, PrimaryBoto3Model,
                        ReadonlyBoto3Model, ReadonlyBoto3ModelManager,
@@ -33,28 +32,22 @@ class HostedZoneManager(Boto3ModelManager):
         DelegationSetId: Optional[str] = None,
     ) -> "HostedZone":
         """
-        Creates a new public or private hosted zone. You create records in a
-        public hosted zone to define how you want to route traffic on the
-        internet for a domain, such as example.com, and its subdomains
-        (apex.example.com, acme.example.com). You create records in a private
-        hosted zone to define how you want to route traffic for a domain and
-        its subdomains within one or more Amazon Virtual Private Clouds (Amazon
-        VPCs).
+        Creates a new public or private hosted zone. You create records in a public hosted zone to define how you want
+        to route traffic on the internet for a domain, such as example.com, and its subdomains (apex.example.com,
+        acme.example.com). You create records in a private hosted zone to define how you want to route traffic for a
+        domain and its subdomains within one or more Amazon Virtual Private Clouds (Amazon VPCs).
 
         Args:
             model: The :py:class:``HostedZone`` to create.
 
         Keyword Args:
-            VPC: (Private hosted zones only) A complex type that contains information
-                about the Amazon VPC that you're associating with this hosted zone.
-            HostedZoneConfig: (Optional) A complex type that contains the following
-                optional values:
-            DelegationSetId: If you want to associate a reusable delegation set with
-                this hosted zone, the ID that Amazon Route 53 assigned to the reusable
-                delegation set when you created it. For more information about reusable
-                delegation sets, see `CreateReu sableDelegationSet
-                <https://docs.aws.amazon.com/Route53/latest/APIReference/API
-                _CreateReusableDelegationSet.html>`_.
+            VPC: (Private hosted zones only) A complex type that contains information about the Amazon VPC that you're
+                associating with this hosted zone.
+            HostedZoneConfig: (Optional) A complex type that contains the following optional values:
+            DelegationSetId: If you want to associate a reusable delegation set with this hosted zone, the ID that Amazon
+                Route 53 assigned to the reusable delegation set when you created it. For more information about reusable delegation
+                sets, see `CreateReusableDel egationSet
+                <https://docs.aws.amazon.com/Route53/latest/APIReference/API_CreateReusableDelegationSet.html>`_.
         """
         data = model.model_dump(exclude_none=True, by_alias=True)
         args = dict(
@@ -88,8 +81,7 @@ class HostedZoneManager(Boto3ModelManager):
 
     def get(self, Id: str) -> Optional["HostedZone"]:
         """
-        Gets information about a specified hosted zone including the four name
-        servers assigned to the hosted zone.
+        Gets information about a specified hosted zone including the four name servers assigned to the hosted zone.
 
         Args:
             Id: The ID of the hosted zone that you want to get information about.
@@ -113,19 +105,16 @@ class HostedZoneManager(Boto3ModelManager):
         HostedZoneType: Optional[Literal["PrivateHostedZone"]] = None
     ) -> List["HostedZone"]:
         """
-        Retrieves a list of the public and private hosted zones that are
-        associated with the current Amazon Web Services account. The response
-        includes a ``HostedZones`` child element for each hosted zone.
+        Retrieves a list of the public and private hosted zones that are associated with the current Amazon Web Services
+        account. The response includes a ``HostedZones`` child element for each hosted zone.
 
         Keyword Args:
-            MaxItems: (Optional) The maximum number of hosted zones that you want
-                Amazon Route 53 to return. If you have more than ``maxitems`` hosted zones,
-                the value of ``IsTruncated`` in the response is ``true``, and the value of
-                ``NextMarker`` is the hosted zone ID of the first hosted zone that Route 53
-                will return if you submit another request.
-            DelegationSetId: If you're using reusable delegation sets and you want to
-                list all of the hosted zones that are associated with a reusable delegation
-                set, specify the ID of that reusable delegation set.
+            MaxItems: (Optional) The maximum number of hosted zones that you want Amazon Route 53 to return. If you have more
+                than ``maxitems`` hosted zones, the value of ``IsTruncated`` in the response is ``true``, and the value of
+                ``NextMarker`` is the hosted zone ID of the first hosted zone that Route 53 will return if you submit another
+                request.
+            DelegationSetId: If you're using reusable delegation sets and you want to list all of the hosted zones that are
+                associated with a reusable delegation set, specify the ID of that reusable delegation set.
             HostedZoneType:  (Optional) Specifies if the hosted zone is private.
         """
         paginator = self.client.get_paginator("list_hosted_zones")
@@ -171,6 +160,10 @@ class HostedZoneManager(Boto3ModelManager):
                 "AAAA",
                 "CAA",
                 "DS",
+                "TLSA",
+                "SSHFP",
+                "SVCB",
+                "HTTPS",
             ]
         ] = None,
         StartRecordIdentifier: Optional[str] = None,
@@ -180,27 +173,20 @@ class HostedZoneManager(Boto3ModelManager):
         Lists the resource record sets in a specified hosted zone.
 
         Args:
-            HostedZoneId: The ID of the hosted zone that contains the resource record
-                sets that you want to list.
+            HostedZoneId: The ID of the hosted zone that contains the resource record sets that you want to list.
 
         Keyword Args:
-            StartRecordName: The first name in the lexicographic ordering of resource
-                record sets that you want to list. If the specified record name doesn't
-                exist, the results begin with the first resource record set that has a name
-                greater than the value of ``name``.
-            StartRecordType: The type of resource record set to begin the record
-                listing from.
-            StartRecordIdentifier:  *Resource record sets that have a routing policy
-                other than simple:* If results were truncated for a given DNS name and
-                type, specify the value of ``NextRecordIdentifier`` from the previous
-                response to get the next resource record set that has the current DNS name
-                and type.
-            MaxItems: (Optional) The maximum number of resource records sets to include
-                in the response body for this request. If the response includes more than
-                ``maxitems`` resource record sets, the value of the ``IsTruncated`` element
-                in the response is ``true``, and the values of the ``NextRecordName`` and
-                ``NextRecordType`` elements in the response identify the first resource
-                record set in the next group of ``maxitems`` resource record sets.
+            StartRecordName: The first name in the lexicographic ordering of resource record sets that you want to list. If the
+                specified record name doesn't exist, the results begin with the first resource record set that has a name greater
+                than the value of ``name``.
+            StartRecordType: The type of resource record set to begin the record listing from.
+            StartRecordIdentifier:  *Resource record sets that have a routing policy other than simple:* If results were
+                truncated for a given DNS name and type, specify the value of ``NextRecordIdentifier`` from the previous response to
+                get the next resource record set that has the current DNS name and type.
+            MaxItems: (Optional) The maximum number of resource records sets to include in the response body for this request.
+                If the response includes more than ``maxitems`` resource record sets, the value of the ``IsTruncated`` element in
+                the response is ``true``, and the values of the ``NextRecordName`` and ``NextRecordType`` elements in the response
+                identify the first resource record set in the next group of ``maxitems`` resource record sets.
         """
         paginator = self.client.get_paginator("list_resource_record_sets")
         args: Dict[str, Any] = dict(
@@ -234,26 +220,21 @@ class HostedZoneManager(Boto3ModelManager):
         MaxItems: Optional[str] = None
     ) -> List["HostedZone"]:
         """
-        Retrieves a list of your hosted zones in lexicographic order. The
-        response includes a ``HostedZones`` child element for each hosted zone
-        created by the current Amazon Web Services account.
+        Retrieves a list of your hosted zones in lexicographic order. The response includes a ``HostedZones`` child
+        element for each hosted zone created by the current Amazon Web Services account.
 
         Keyword Args:
-            DNSName: (Optional) For your first request to ``ListHostedZonesByName``,
-                include the ``dnsname`` parameter only if you want to specify the name of
-                the first hosted zone in the response. If you don't include the ``dnsname``
-                parameter, Amazon Route 53 returns all of the hosted zones that were
-                created by the current Amazon Web Services account, in ASCII order. For
-                subsequent requests, include both ``dnsname`` and ``hostedzoneid``
-                parameters. For ``dnsname``, specify the value of ``NextDNSName`` from the
-                previous response.
-            HostedZoneId: (Optional) For your first request to
-                ``ListHostedZonesByName``, do not include the ``hostedzoneid`` parameter.
-            MaxItems: The maximum number of hosted zones to be included in the response
-                body for this request. If you have more than ``maxitems`` hosted zones,
-                then the value of the ``IsTruncated`` element in the response is true, and
-                the values of ``NextDNSName`` and ``NextHostedZoneId`` specify the first
-                hosted zone in the next group of ``maxitems`` hosted zones.
+            DNSName: (Optional) For your first request to ``ListHostedZonesByName``, include the ``dnsname`` parameter only if
+                you want to specify the name of the first hosted zone in the response. If you don't include the ``dnsname``
+                parameter, Amazon Route 53 returns all of the hosted zones that were created by the current Amazon Web Services
+                account, in ASCII order. For subsequent requests, include both ``dnsname`` and ``hostedzoneid`` parameters. For
+                ``dnsname``, specify the value of ``NextDNSName`` from the previous response.
+            HostedZoneId: (Optional) For your first request to ``ListHostedZonesByName``, do not include the ``hostedzoneid``
+                parameter.
+            MaxItems: The maximum number of hosted zones to be included in the response body for this request. If you have more
+                than ``maxitems`` hosted zones, then the value of the ``IsTruncated`` element in the response is true, and the
+                values of ``NextDNSName`` and ``NextHostedZoneId`` specify the first hosted zone in the next group of ``maxitems``
+                hosted zones.
         """
         args: Dict[str, Any] = dict(
             DNSName=self.serialize(DNSName),
@@ -280,26 +261,21 @@ class HostedZoneManager(Boto3ModelManager):
         MaxItems: Optional[str] = None
     ) -> List["HostedZone"]:
         """
-        Retrieves a list of your hosted zones in lexicographic order. The
-        response includes a ``HostedZones`` child element for each hosted zone
-        created by the current Amazon Web Services account.
+        Retrieves a list of your hosted zones in lexicographic order. The response includes a ``HostedZones`` child
+        element for each hosted zone created by the current Amazon Web Services account.
 
         Keyword Args:
-            DNSName: (Optional) For your first request to ``ListHostedZonesByName``,
-                include the ``dnsname`` parameter only if you want to specify the name of
-                the first hosted zone in the response. If you don't include the ``dnsname``
-                parameter, Amazon Route 53 returns all of the hosted zones that were
-                created by the current Amazon Web Services account, in ASCII order. For
-                subsequent requests, include both ``dnsname`` and ``hostedzoneid``
-                parameters. For ``dnsname``, specify the value of ``NextDNSName`` from the
-                previous response.
-            HostedZoneId: (Optional) For your first request to
-                ``ListHostedZonesByName``, do not include the ``hostedzoneid`` parameter.
-            MaxItems: The maximum number of hosted zones to be included in the response
-                body for this request. If you have more than ``maxitems`` hosted zones,
-                then the value of the ``IsTruncated`` element in the response is true, and
-                the values of ``NextDNSName`` and ``NextHostedZoneId`` specify the first
-                hosted zone in the next group of ``maxitems`` hosted zones.
+            DNSName: (Optional) For your first request to ``ListHostedZonesByName``, include the ``dnsname`` parameter only if
+                you want to specify the name of the first hosted zone in the response. If you don't include the ``dnsname``
+                parameter, Amazon Route 53 returns all of the hosted zones that were created by the current Amazon Web Services
+                account, in ASCII order. For subsequent requests, include both ``dnsname`` and ``hostedzoneid`` parameters. For
+                ``dnsname``, specify the value of ``NextDNSName`` from the previous response.
+            HostedZoneId: (Optional) For your first request to ``ListHostedZonesByName``, do not include the ``hostedzoneid``
+                parameter.
+            MaxItems: The maximum number of hosted zones to be included in the response body for this request. If you have more
+                than ``maxitems`` hosted zones, then the value of the ``IsTruncated`` element in the response is true, and the
+                values of ``NextDNSName`` and ``NextHostedZoneId`` specify the first hosted zone in the next group of ``maxitems``
+                hosted zones.
         """
         args: Dict[str, Any] = dict(
             DNSName=self.serialize(DNSName),
@@ -324,9 +300,8 @@ class HostedZoneManager(Boto3ModelManager):
 
         Args:
             Id: The ID for the hosted zone that you want to update the comment for.
-            Comment: The new comment for the hosted zone. If you don't specify a value
-                for ``Comment``, Amazon Route 53 deletes the existing value of the
-                ``Comment`` element, if any.
+            Comment: The new comment for the hosted zone. If you don't specify a value for ``Comment``, Amazon Route 53 deletes
+                the existing value of the ``Comment`` element, if any.
         """
         args: Dict[str, Any] = dict(
             Id=self.serialize(Id), Comment=self.serialize(Comment)
@@ -347,8 +322,7 @@ class HostedZoneManager(Boto3ModelManager):
         self,
     ) -> int:
         """
-        Retrieves the number of hosted zones that are associated with the
-        current Amazon Web Services account.
+        Retrieves the number of hosted zones that are associated with the current Amazon Web Services account.
         """
         args: Dict[str, Any] = dict()
         _response = self.client.get_hosted_zone_count(
@@ -369,8 +343,8 @@ class HostedZoneManager(Boto3ModelManager):
         HostedZoneId: str,
     ) -> "GetHostedZoneLimitResponse":
         """
-        Gets the specified limit for a specified hosted zone, for example, the
-        maximum number of records that you can create in the hosted zone.
+        Gets the specified limit for a specified hosted zone, for example, the maximum number of records that you can
+        create in the hosted zone.
 
         Args:
             Type: The limit that you want to get. Valid values include the following:
@@ -398,10 +372,8 @@ class HostedZoneManager(Boto3ModelManager):
         Associates an Amazon VPC with a private hosted zone.
 
         Args:
-            HostedZoneId: The ID of the private hosted zone that you want to associate
-                an Amazon VPC with.
-            VPC: A complex type that contains information about the VPC that you want
-                to associate with a private hosted zone.
+            HostedZoneId: The ID of the private hosted zone that you want to associate an Amazon VPC with.
+            VPC: A complex type that contains information about the VPC that you want to associate with a private hosted zone.
 
         Keyword Args:
             Comment:  *Optional:* A comment about the association request.
@@ -427,17 +399,17 @@ class HostedZoneManager(Boto3ModelManager):
         self, HostedZoneId: str, VPC: "Route53VPC", *, Comment: Optional[str] = None
     ) -> "ChangeInfo":
         """
-        Disassociates an Amazon Virtual Private Cloud (Amazon VPC) from an
-        Amazon Route 53 private hosted zone. Note the following:
+        Disassociates an Amazon Virtual Private Cloud (Amazon VPC) from an Amazon Route 53 private hosted zone. Note the
+        following:
 
         Args:
-            HostedZoneId: The ID of the private hosted zone that you want to
-                disassociate a VPC from.
-            VPC: A complex type that contains information about the VPC that you're
-                disassociating from the specified hosted zone.
+            HostedZoneId: The ID of the private hosted zone that you want to disassociate a VPC from.
+            VPC: A complex type that contains information about the VPC that you're disassociating from the specified hosted
+                zone.
 
         Keyword Args:
             Comment:  *Optional:* A comment about the disassociation request.
+
         """
         args: Dict[str, Any] = dict(
             HostedZoneId=self.serialize(HostedZoneId),
@@ -468,10 +440,8 @@ class Route53VPCManager(Boto3ModelManager):
         Associates an Amazon VPC with a private hosted zone.
 
         Args:
-            HostedZoneId: The ID of the private hosted zone that you want to associate
-                an Amazon VPC with.
-            VPC: A complex type that contains information about the VPC that you want
-                to associate with a private hosted zone.
+            HostedZoneId: The ID of the private hosted zone that you want to associate an Amazon VPC with.
+            VPC: A complex type that contains information about the VPC that you want to associate with a private hosted zone.
 
         Keyword Args:
             Comment:  *Optional:* A comment about the association request.
@@ -497,17 +467,17 @@ class Route53VPCManager(Boto3ModelManager):
         self, HostedZoneId: str, VPC: "Route53VPC", *, Comment: Optional[str] = None
     ) -> "ChangeInfo":
         """
-        Disassociates an Amazon Virtual Private Cloud (Amazon VPC) from an
-        Amazon Route 53 private hosted zone. Note the following:
+        Disassociates an Amazon Virtual Private Cloud (Amazon VPC) from an Amazon Route 53 private hosted zone. Note the
+        following:
 
         Args:
-            HostedZoneId: The ID of the private hosted zone that you want to
-                disassociate a VPC from.
-            VPC: A complex type that contains information about the VPC that you're
-                disassociating from the specified hosted zone.
+            HostedZoneId: The ID of the private hosted zone that you want to disassociate a VPC from.
+            VPC: A complex type that contains information about the VPC that you're disassociating from the specified hosted
+                zone.
 
         Keyword Args:
             Comment:  *Optional:* A comment about the disassociation request.
+
         """
         args: Dict[str, Any] = dict(
             HostedZoneId=self.serialize(HostedZoneId),
@@ -559,6 +529,7 @@ class Route53VPCManager(Boto3ModelManager):
             "sa-east-1",
             "ca-central-1",
             "cn-north-1",
+            "cn-northwest-1",
             "af-south-1",
             "eu-south-1",
             "eu-south-2",
@@ -572,25 +543,22 @@ class Route53VPCManager(Boto3ModelManager):
         NextToken: Optional[str] = None
     ) -> List["HostedZoneSummary"]:
         """
-        Lists all the private hosted zones that a specified VPC is associated with,
-        regardless of which Amazon Web Services account or Amazon Web Services service
-        owns the hosted zones. The ``HostedZoneOwner`` structure in the response
-        contains one of the following values:
+        Lists all the private hosted zones that a specified VPC is associated with, regardless of which Amazon Web Services
+        account or Amazon Web Services service owns the hosted zones. The ``HostedZoneOwner`` structure in the response contains
+        one of the following values:
 
         Args:
             VPCId: The ID of the Amazon VPC that you want to list hosted zones for.
-            VPCRegion: For the Amazon VPC that you specified for ``VPCId``, the Amazon
-                Web Services Region that you created the VPC in.
+            VPCRegion: For the Amazon VPC that you specified for ``VPCId``, the Amazon Web Services Region that you created the
+                VPC in.
 
         Keyword Args:
-            MaxItems: (Optional) The maximum number of hosted zones that you want
-                Amazon Route 53 to return. If the specified VPC is associated with more
-                than ``MaxItems`` hosted zones, the response includes a ``NextToken``
-                element. ``NextToken`` contains an encrypted token that identifies the
-                first hosted zone that Route 53 will return if you submit another request.
-            NextToken: If the previous response included a ``NextToken`` element, the
-                specified VPC is associated with more hosted zones. To get more hosted
-                zones, submit another ``ListHostedZonesByVPC`` request.
+            MaxItems: (Optional) The maximum number of hosted zones that you want Amazon Route 53 to return. If the specified
+                VPC is associated with more than ``MaxItems`` hosted zones, the response includes a ``NextToken`` element.
+                ``NextToken`` contains an encrypted token that identifies the first hosted zone that Route 53 will return if you
+                submit another request.
+            NextToken: If the previous response included a ``NextToken`` element, the specified VPC is associated with more
+                hosted zones. To get more hosted zones, submit another ``ListHostedZonesByVPC`` request.
 
         """
         args: Dict[str, Any] = dict(
@@ -613,13 +581,12 @@ class Route53VPCManager(Boto3ModelManager):
 
     def list_authorizations(self, HostedZoneId: str) -> List["Route53VPC"]:
         """
-        Gets a list of the VPCs that were created by other accounts and that
-        can be associated with a specified hosted zone because you've submitted
-        one or more ``CreateVPCAssociationAuthorization`` requests.
+        Gets a list of the VPCs that were created by other accounts and that can be associated with a specified hosted
+        zone because you've submitted one or more ``CreateVPCAssociationAuthorization`` requests.
 
         Args:
-            HostedZoneId: The ID of the hosted zone for which you want a list of VPCs
-                that can be associated with the hosted zone.
+            HostedZoneId: The ID of the hosted zone for which you want a list of VPCs that can be associated with the hosted
+                zone.
         """
         paginator = self.client.get_paginator("list_vpc_association_authorizations")
         args: Dict[str, Any] = dict(HostedZoneId=self.serialize(HostedZoneId))
@@ -643,19 +610,16 @@ class Route53VPCManager(Boto3ModelManager):
         self, HostedZoneId: str, VPC: "Route53VPC"
     ) -> "Route53VPC":
         """
-        Authorizes the Amazon Web Services account that created a specified VPC
-        to submit an ``AssociateVPCWithHostedZone`` request to associate the
-        VPC with a specified hosted zone that was created by a different
-        account. To submit a ``CreateVPCAssociationAuthorization`` request, you
-        must use the account that created the hosted zone. After you authorize
-        the association, use the account that created the VPC to submit an
+        Authorizes the Amazon Web Services account that created a specified VPC to submit an
+        ``AssociateVPCWithHostedZone`` request to associate the VPC with a specified hosted zone that was created by a
+        different account. To submit a ``CreateVPCAssociationAuthorization`` request, you must use the account that
+        created the hosted zone. After you authorize the association, use the account that created the VPC to submit an
         ``AssociateVPCWithHostedZone`` request.
 
         Args:
-            HostedZoneId: The ID of the private hosted zone that you want to authorize
-                associating a VPC with.
-            VPC: A complex type that contains the VPC ID and region for the VPC that
-                you want to authorize associating with your hosted zone.
+            HostedZoneId: The ID of the private hosted zone that you want to authorize associating a VPC with.
+            VPC: A complex type that contains the VPC ID and region for the VPC that you want to authorize associating with your
+                hosted zone.
         """
         args: Dict[str, Any] = dict(
             HostedZoneId=self.serialize(HostedZoneId), VPC=self.serialize(VPC)
@@ -676,21 +640,16 @@ class Route53VPCManager(Boto3ModelManager):
         self, HostedZoneId: str, VPC: "Route53VPC"
     ) -> "DeleteVPCAssociationAuthorizationResponse":
         """
-        Removes authorization to submit an ``AssociateVPCWithHostedZone``
-        request to associate a specified VPC with a hosted zone that was
-        created by a different account. You must use the account that created
-        the hosted zone to submit a ``DeleteVPCAssociationAuthorization``
-        request.
+        Removes authorization to submit an ``AssociateVPCWithHostedZone`` request to associate a specified VPC with a
+        hosted zone that was created by a different account. You must use the account that created the hosted zone to
+        submit a ``DeleteVPCAssociationAuthorization`` request.
 
         Args:
-            HostedZoneId: When removing authorization to associate a VPC that was
-                created by one Amazon Web Services account with a hosted zone that was
-                created with a different Amazon Web Services account, the ID of the hosted
-                zone.
-            VPC: When removing authorization to associate a VPC that was created by one
-                Amazon Web Services account with a hosted zone that was created with a
-                different Amazon Web Services account, a complex type that includes the ID
-                and region of the VPC.
+            HostedZoneId: When removing authorization to associate a VPC that was created by one Amazon Web Services account
+                with a hosted zone that was created with a different Amazon Web Services account, the ID of the hosted zone.
+            VPC: When removing authorization to associate a VPC that was created by one Amazon Web Services account with a
+                hosted zone that was created with a different Amazon Web Services account, a complex type that includes the ID and
+                region of the VPC.
         """
         args: Dict[str, Any] = dict(
             HostedZoneId=self.serialize(HostedZoneId), VPC=self.serialize(VPC)
@@ -720,10 +679,8 @@ class Route53CidrCollectionManager(Boto3ModelManager):
 
         Args:
             model: The :py:class:``CidrCollection`` to create.
-            CallerReference: A client-specific token that allows requests to be
-                securely retried so that the intended outcome will only occur once, retries
-                receive a similar response, and there are no additional edge cases to
-                handle.
+            CallerReference: A client-specific token that allows requests to be securely retried so that the intended outcome
+                will only occur once, retries receive a similar response, and there are no additional edge cases to handle.
         """
         data = model.model_dump(exclude_none=True, by_alias=True)
         args = dict(
@@ -739,8 +696,8 @@ class Route53CidrCollectionManager(Boto3ModelManager):
 
     def delete(self, Id: str) -> None:
         """
-        Deletes a CIDR collection in the current Amazon Web Services account.
-        The collection must be empty before it can be deleted.
+        Deletes a CIDR collection in the current Amazon Web Services account. The collection must be empty before it can
+        be deleted.
 
         Args:
             Id: The UUID of the collection to delete.
@@ -754,8 +711,7 @@ class Route53CidrCollectionManager(Boto3ModelManager):
         self,
     ) -> List["CollectionSummary"]:
         """
-        Returns a paginated list of CIDR collections in the Amazon Web Services
-        account (metadata only).
+        Returns a paginated list of CIDR collections in the Amazon Web Services account (metadata only).
         """
         paginator = self.client.get_paginator("list_cidr_collections")
         args: Dict[str, Any] = dict()
@@ -780,17 +736,15 @@ class Route53CidrCollectionManager(Boto3ModelManager):
         self, model: "Route53CidrCollection", CollectionVersion: Optional[int] = None
     ) -> str:
         """
-        Creates, changes, or deletes CIDR blocks within a collection. Contains
-        authoritative IP information mapping blocks to one or multiple
-        locations.
+        Creates, changes, or deletes CIDR blocks within a collection. Contains authoritative IP information mapping
+        blocks to one or multiple locations.
 
         Args:
             model: The :py:class:``CidrCollection`` to update.
 
         Keyword Args:
-            CollectionVersion: A sequential counter that Amazon Route 53 sets to 1 when
-                you create a collection and increments it by 1 each time you update the
-                collection.
+            CollectionVersion: A sequential counter that Amazon Route 53 sets to 1 when you create a collection and increments
+                it by 1 each time you update the collection.
         """
         data = model.model_dump(exclude_none=True, by_alias=True)
         args = dict(
@@ -852,9 +806,8 @@ class Route53QueryLoggingConfigManager(Boto3ModelManager):
 
     def create(self, model: "Route53QueryLoggingConfig") -> "Route53QueryLoggingConfig":
         """
-        Creates a configuration for DNS query logging. After you create a query
-        logging configuration, Amazon Route 53 begins to publish log data to an
-        Amazon CloudWatch Logs log group.
+        Creates a configuration for DNS query logging. After you create a query logging configuration, Amazon Route 53
+        begins to publish log data to an Amazon CloudWatch Logs log group.
 
         Args:
             model: The :py:class:``QueryLoggingConfig`` to create.
@@ -874,10 +827,8 @@ class Route53QueryLoggingConfigManager(Boto3ModelManager):
 
     def delete(self, Id: str) -> None:
         """
-        Deletes a configuration for DNS query logging. If you delete a
-        configuration, Amazon Route 53 stops sending query logs to CloudWatch
-        Logs. Route 53 doesn't delete any logs that are already in CloudWatch
-        Logs.
+        Deletes a configuration for DNS query logging. If you delete a configuration, Amazon Route 53 stops sending
+        query logs to CloudWatch Logs. Route 53 doesn't delete any logs that are already in CloudWatch Logs.
 
         Args:
             Id: The ID of the configuration that you want to delete.
@@ -892,8 +843,7 @@ class Route53QueryLoggingConfigManager(Boto3ModelManager):
         Gets information about a specified configuration for DNS query logging.
 
         Args:
-            Id: The ID of the configuration for DNS query logging that you want to get
-                information about.
+            Id: The ID of the configuration for DNS query logging that you want to get information about.
         """
         args: Dict[str, Any] = dict(Id=self.serialize(Id))
         _response = self.client.get_query_logging_config(
@@ -910,14 +860,12 @@ class Route53QueryLoggingConfigManager(Boto3ModelManager):
         self, *, HostedZoneId: Optional[str] = None
     ) -> List["Route53QueryLoggingConfig"]:
         """
-        Lists the configurations for DNS query logging that are associated with
-        the current Amazon Web Services account or the configuration that is
-        associated with a specified hosted zone.
+        Lists the configurations for DNS query logging that are associated with the current Amazon Web Services account
+        or the configuration that is associated with a specified hosted zone.
 
         Keyword Args:
-            HostedZoneId: (Optional) If you want to list the query logging
-                configuration that is associated with a hosted zone, specify the ID in
-                ``HostedZoneId``.
+            HostedZoneId: (Optional) If you want to list the query logging configuration that is associated with a hosted zone,
+                specify the ID in ``HostedZoneId``.
         """
         paginator = self.client.get_paginator("list_query_logging_configs")
         args: Dict[str, Any] = dict(HostedZoneId=self.serialize(HostedZoneId))
@@ -945,17 +893,13 @@ class Route53ResourceRecordSetManager(Boto3ModelManager):
 
     def change(self, HostedZoneId: str, ChangeBatch: "ChangeBatch") -> "ChangeInfo":
         """
-        Creates, changes, or deletes a resource record set, which contains
-        authoritative DNS information for a specified domain name or subdomain
-        name. For example, you can use ``ChangeResourceRecordSets`` to create a
-        resource record set that routes traffic for test.example.com to a web
-        server that has an IP address of 192.0.2.44.
+        Creates, changes, or deletes a resource record set, which contains authoritative DNS information for a specified
+        domain name or subdomain name. For example, you can use ``ChangeResourceRecordSets`` to create a resource record
+        set that routes traffic for test.example.com to a web server that has an IP address of 192.0.2.44.
 
         Args:
-            HostedZoneId: The ID of the hosted zone that contains the resource record
-                sets that you want to change.
-            ChangeBatch: A complex type that contains an optional comment and the
-                ``Changes`` element.
+            HostedZoneId: The ID of the hosted zone that contains the resource record sets that you want to change.
+            ChangeBatch: A complex type that contains an optional comment and the ``Changes`` element.
         """
         args: Dict[str, Any] = dict(
             HostedZoneId=self.serialize(HostedZoneId),
@@ -993,6 +937,10 @@ class Route53ResourceRecordSetManager(Boto3ModelManager):
                 "AAAA",
                 "CAA",
                 "DS",
+                "TLSA",
+                "SSHFP",
+                "SVCB",
+                "HTTPS",
             ]
         ] = None,
         StartRecordIdentifier: Optional[str] = None,
@@ -1002,27 +950,20 @@ class Route53ResourceRecordSetManager(Boto3ModelManager):
         Lists the resource record sets in a specified hosted zone.
 
         Args:
-            HostedZoneId: The ID of the hosted zone that contains the resource record
-                sets that you want to list.
+            HostedZoneId: The ID of the hosted zone that contains the resource record sets that you want to list.
 
         Keyword Args:
-            StartRecordName: The first name in the lexicographic ordering of resource
-                record sets that you want to list. If the specified record name doesn't
-                exist, the results begin with the first resource record set that has a name
-                greater than the value of ``name``.
-            StartRecordType: The type of resource record set to begin the record
-                listing from.
-            StartRecordIdentifier:  *Resource record sets that have a routing policy
-                other than simple:* If results were truncated for a given DNS name and
-                type, specify the value of ``NextRecordIdentifier`` from the previous
-                response to get the next resource record set that has the current DNS name
-                and type.
-            MaxItems: (Optional) The maximum number of resource records sets to include
-                in the response body for this request. If the response includes more than
-                ``maxitems`` resource record sets, the value of the ``IsTruncated`` element
-                in the response is ``true``, and the values of the ``NextRecordName`` and
-                ``NextRecordType`` elements in the response identify the first resource
-                record set in the next group of ``maxitems`` resource record sets.
+            StartRecordName: The first name in the lexicographic ordering of resource record sets that you want to list. If the
+                specified record name doesn't exist, the results begin with the first resource record set that has a name greater
+                than the value of ``name``.
+            StartRecordType: The type of resource record set to begin the record listing from.
+            StartRecordIdentifier:  *Resource record sets that have a routing policy other than simple:* If results were
+                truncated for a given DNS name and type, specify the value of ``NextRecordIdentifier`` from the previous response to
+                get the next resource record set that has the current DNS name and type.
+            MaxItems: (Optional) The maximum number of resource records sets to include in the response body for this request.
+                If the response includes more than ``maxitems`` resource record sets, the value of the ``IsTruncated`` element in
+                the response is ``true``, and the values of the ``NextRecordName`` and ``NextRecordType`` elements in the response
+                identify the first resource record set in the next group of ``maxitems`` resource record sets.
         """
         paginator = self.client.get_paginator("list_resource_record_sets")
         args: Dict[str, Any] = dict(
@@ -1059,9 +1000,8 @@ class HostedZoneConfig(Boto3Model):
     """
     A complex type that includes the ``Comment`` and ``PrivateZone`` elements.
 
-    If
-    you omitted the ``HostedZoneConfig`` and ``Comment`` elements from the request,
-    the ``Config`` and ``Comment`` elements don't appear in the response.
+    If you omitted the ``HostedZoneConfig`` and
+    ``Comment`` elements from the request, the ``Config`` and ``Comment`` elements don't appear in the response.
     """
 
     Comment: Optional[str] = None
@@ -1076,28 +1016,23 @@ class HostedZoneConfig(Boto3Model):
 
 class Route53LinkedService(Boto3Model):
     """
-    If the hosted zone was created by another service, the service that created
-    the hosted zone.
+    If the hosted zone was created by another service, the service that created the hosted zone.
 
-    When a hosted zone is created by another service, you can't edit or delete
-    it using Route 53.
+    When a hosted zone is created by another service, you can't edit or delete it using Route 53.
     """
 
     ServicePrincipal: Optional[str] = None
     """
-    If the health check or hosted zone was created by another service, the
-    service that created the resource.
+    If the health check or hosted zone was created by another service, the service that created the resource.
 
-    When a resource is created by another service, you can't edit or delete it
-    using Amazon Route 53.
+    When a resource is created by another service, you can't edit or delete it using Amazon Route 53.
     """
     Description: Optional[str] = None
     """
-    If the health check or hosted zone was created by another service, an
-    optional description that can be provided by the other service.
+    If the health check or hosted zone was created by another service, an optional description that can be provided by
+    the other service.
 
-    When a resource is created by another service, you can't edit or delete it
-    using Amazon Route 53.
+    When a resource is created by another service, you can't edit or delete it using Amazon Route 53.
     """
 
 
@@ -1110,28 +1045,24 @@ class HostedZone(HostedZoneModelMixin, PrimaryBoto3Model):
 
     Id: str = Field(frozen=True)
     """
-    The ID that Amazon Route 53 assigned to the hosted zone when you created
-    it.
+    The ID that Amazon Route 53 assigned to the hosted zone when you created it.
     """
     Name: str
     """
     The name of the domain.
 
-    For public hosted zones, this is the name that you have registered with
-    your DNS registrar.
+    For public hosted zones, this is the name that you have registered with your DNS registrar.
     """
     CallerReference: str
     """
-    The value that you specified for ``CallerReference`` when you created the
-    hosted zone.
+    The value that you specified for ``CallerReference`` when you created the hosted zone.
     """
     Config: HostedZoneConfig = Field(default=None, frozen=True)
     """
     A complex type that includes the ``Comment`` and ``PrivateZone`` elements.
 
-    If
-    you omitted the ``HostedZoneConfig`` and ``Comment`` elements from the request,
-    the ``Config`` and ``Comment`` elements don't appear in the response.
+    If you omitted the ``HostedZoneConfig`` and
+    ``Comment`` elements from the request, the ``Config`` and ``Comment`` elements don't appear in the response.
     """
     ResourceRecordSetCount: int = Field(default=None, frozen=True)
     """
@@ -1139,18 +1070,15 @@ class HostedZone(HostedZoneModelMixin, PrimaryBoto3Model):
     """
     LinkedService: Route53LinkedService = Field(default=None, frozen=True)
     """
-    If the hosted zone was created by another service, the service that created
-    the hosted zone.
+    If the hosted zone was created by another service, the service that created the hosted zone.
 
-    When a hosted zone is created by another service, you can't edit or delete
-    it using Route 53.
+    When a hosted zone is created by another service, you can't edit or delete it using Route 53.
     """
 
     @property
     def pk(self) -> Optional[str]:
         """
-        Return the primary key of the model.   This is the value of the
-        :py:attr:`Id` attribute.
+        Return the primary key of the model.   This is the value of the :py:attr:`Id` attribute.
 
         Returns:
             The primary key of the model instance.
@@ -1160,8 +1088,7 @@ class HostedZone(HostedZoneModelMixin, PrimaryBoto3Model):
     @property
     def name(self) -> Optional[str]:
         """
-        Return the name of the model.   This is the value of the
-        :py:attr:`Name` attribute.
+        Return the name of the model.   This is the value of the :py:attr:`Name` attribute.
 
         Returns:
             The name of the model instance.
@@ -1196,9 +1123,8 @@ class HostedZone(HostedZoneModelMixin, PrimaryBoto3Model):
         Update the comment for the hosted zone.
 
         Args:
-            Comment: The new comment for the hosted zone. If you don't specify a value
-                for ``Comment``, Amazon Route 53 deletes the existing value of the
-                ``Comment`` element, if any.
+            Comment: The new comment for the hosted zone. If you don't specify a value for ``Comment``, Amazon Route 53 deletes
+                the existing value of the ``Comment`` element, if any.
         """
 
         return (
@@ -1213,12 +1139,12 @@ class HostedZone(HostedZoneModelMixin, PrimaryBoto3Model):
 
 class Route53VPC(PrimaryBoto3Model):
     """
-    (Private hosted zones only) A complex type that contains information about
-    an Amazon VPC.
+    (Private hosted zones only) A complex type that contains information about an Amazon VPC.
 
     If you associate a private hosted zone with an Amazon VPC when you make a
-    `Crea teHostedZone <https://docs.aws.amazon.com/Route53/latest/APIReference/API_Creat
-    eHostedZone.html>`_ request, the following parameters are also required.
+    `CreateHostedZone <https://docs.aws.amazon.com/Route53/latest/APIReference/API_CreateHostedZone.html>`_
+    request, the
+    following parameters are also required.
     """
 
     manager_class: ClassVar[Type[Boto3ModelManager]] = Route53VPCManager
@@ -1254,6 +1180,7 @@ class Route53VPC(PrimaryBoto3Model):
             "sa-east-1",
             "ca-central-1",
             "cn-north-1",
+            "cn-northwest-1",
             "af-south-1",
             "eu-south-1",
             "eu-south-2",
@@ -1274,8 +1201,7 @@ class Route53VPC(PrimaryBoto3Model):
     @property
     def pk(self) -> Optional[str]:
         """
-        Return the primary key of the model.   This is the value of the
-        :py:attr:`VPCId` attribute.
+        Return the primary key of the model.   This is the value of the :py:attr:`VPCId` attribute.
 
         Returns:
             The primary key of the model instance.
@@ -1294,8 +1220,7 @@ class Route53CidrCollection(PrimaryBoto3Model):
     """
     The ARN of the collection.
 
-    Can be used to reference the collection in IAM policy or in another Amazon
-    Web Services account.
+    Can be used to reference the collection in IAM policy or in another Amazon Web Services account.
     """
     Id: Optional[str] = None
     """
@@ -1307,16 +1232,14 @@ class Route53CidrCollection(PrimaryBoto3Model):
     """
     Version: int = Field(default=None, frozen=True)
     """
-    A sequential counter that Route 53 sets to 1 when you create a CIDR
-    collection and increments by 1 each time you update settings for the CIDR
-    collection.
+    A sequential counter that Route 53 sets to 1 when you create a CIDR collection and increments by 1 each time you
+    update settings for the CIDR collection.
     """
 
     @property
     def pk(self) -> Optional[str]:
         """
-        Return the primary key of the model.   This is the value of the
-        :py:attr:`Id` attribute.
+        Return the primary key of the model.   This is the value of the :py:attr:`Id` attribute.
 
         Returns:
             The primary key of the model instance.
@@ -1326,8 +1249,7 @@ class Route53CidrCollection(PrimaryBoto3Model):
     @property
     def arn(self) -> Optional[str]:
         """
-        Return the ARN of the model.   This is the value of the :py:attr:`Arn`
-        attribute.
+        Return the ARN of the model.   This is the value of the :py:attr:`Arn` attribute.
 
         Returns:
             The ARN of the model instance.
@@ -1337,8 +1259,7 @@ class Route53CidrCollection(PrimaryBoto3Model):
     @property
     def name(self) -> Optional[str]:
         """
-        Return the name of the model.   This is the value of the
-        :py:attr:`Name` attribute.
+        Return the name of the model.   This is the value of the :py:attr:`Name` attribute.
 
         Returns:
             The name of the model instance.
@@ -1365,8 +1286,7 @@ class CidrBlockSummary(PrimaryBoto3Model):
     @property
     def pk(self) -> Optional[str]:
         """
-        Return the primary key of the model.   This is the value of the
-        :py:attr:`CidrBlock` attribute.
+        Return the primary key of the model.   This is the value of the :py:attr:`CidrBlock` attribute.
 
         Returns:
             The primary key of the model instance.
@@ -1376,8 +1296,7 @@ class CidrBlockSummary(PrimaryBoto3Model):
     @property
     def name(self) -> Optional[str]:
         """
-        Return the name of the model.   This is the value of the
-        :py:attr:`CidrBlock` attribute.
+        Return the name of the model.   This is the value of the :py:attr:`CidrBlock` attribute.
 
         Returns:
             The name of the model instance.
@@ -1387,8 +1306,7 @@ class CidrBlockSummary(PrimaryBoto3Model):
 
 class Route53QueryLoggingConfig(PrimaryBoto3Model):
     """
-    A complex type that contains information about a configuration for DNS
-    query logging.
+    A complex type that contains information about a configuration for DNS query logging.
     """
 
     manager_class: ClassVar[Type[Boto3ModelManager]] = Route53QueryLoggingConfigManager
@@ -1403,15 +1321,13 @@ class Route53QueryLoggingConfig(PrimaryBoto3Model):
     """
     CloudWatchLogsLogGroupArn: str
     """
-    The Amazon Resource Name (ARN) of the CloudWatch Logs log group that Amazon
-    Route 53 is publishing logs to.
+    The Amazon Resource Name (ARN) of the CloudWatch Logs log group that Amazon Route 53 is publishing logs to.
     """
 
     @property
     def pk(self) -> Optional[str]:
         """
-        Return the primary key of the model.   This is the value of the
-        :py:attr:`Id` attribute.
+        Return the primary key of the model.   This is the value of the :py:attr:`Id` attribute.
 
         Returns:
             The primary key of the model instance.
@@ -1421,8 +1337,7 @@ class Route53QueryLoggingConfig(PrimaryBoto3Model):
     @property
     def name(self) -> Optional[str]:
         """
-        Return the name of the model.   This is the value of the :py:attr:`Id`
-        attribute.
+        Return the name of the model.   This is the value of the :py:attr:`Id` attribute.
 
         Returns:
             The name of the model instance.
@@ -1432,40 +1347,31 @@ class Route53QueryLoggingConfig(PrimaryBoto3Model):
 
 class Route53GeoLocation(Boto3Model):
     """
-    *Geolocation resource record sets only:* A complex type that lets you
-    control how Amazon Route 53 responds to DNS queries based on the geographic
-    origin of the query. For example, if you want all queries from Africa to be
-    routed to a web server with an IP address of ``192.0.2.111``, create a
-    resource record set with a ``Type`` of ``A`` and a ``ContinentCode`` of
-    ``AF``.
+    *Geolocation resource record sets only:* A complex type that lets you control how Amazon Route 53 responds to DNS
+    queries based on the geographic origin of the query. For example, if you want all queries from Africa to be routed
+    to a web server with an IP address of ``192.0.2.111``, create a resource record set with a ``Type`` of ``A`` and a
+    ``ContinentCode`` of ``AF``.
 
-    If you create separate resource record sets for overlapping geographic regions
-    (for example, one resource record set for a continent and one for a country on
-    the same continent), priority goes to the smallest geographic region. This
-    allows you to route most queries for a continent to one resource and to route
-    queries for a country on that continent to a different resource.
+    If you create separate resource record sets for overlapping geographic regions (for example, one resource record set for
+    a continent and one for a country on the same continent), priority goes to the smallest geographic region. This allows
+    you to route most queries for a continent to one resource and to route queries for a country on that continent to a
+    different resource.
 
-    You can't create two geolocation resource record sets that specify the same
-    geographic location.
+    You can't create two geolocation resource record sets that specify the same geographic location.
 
-    The value ``*`` in the ``CountryCode`` element matches all geographic locations
-    that aren't specified in other geolocation resource record sets that have the
-    same values for the ``Name`` and ``Type`` elements.
+    The value ``*`` in the ``CountryCode`` element matches all geographic locations that aren't specified in other
+    geolocation resource record sets that have the same values for the ``Name`` and ``Type`` elements.
 
-    Geolocation works by mapping IP addresses to locations. However, some IP
-    addresses aren't mapped to geographic locations, so even if you create
-    geolocation resource record sets that cover all seven continents, Route 53 will
-    receive some DNS queries from locations that it can't identify. We recommend
-    that you create a resource record set for which the value of ``CountryCode`` is
-    ``*``. Two groups of queries are routed to the resource that you specify in
-    this record: queries that come from locations for which you haven't created
-    geolocation resource record sets and queries from IP addresses that aren't
-    mapped to a location. If you don't create a ``*`` resource record set, Route 53
-    returns a "no answer" response for queries from those locations.
+    Geolocation works by mapping IP addresses to locations. However, some IP addresses aren't mapped to geographic
+    locations, so even if you create geolocation resource record sets that cover all seven continents, Route 53 will receive
+    some DNS queries from locations that it can't identify. We recommend that you create a resource record set for which the
+    value of ``CountryCode`` is ``*``. Two groups of queries are routed to the resource that you specify in this record:
+    queries that come from locations for which you haven't created geolocation resource record sets and queries from IP
+    addresses that aren't mapped to a location. If you don't create a ``*`` resource record set, Route 53 returns a "no
+    answer" response for queries from those locations.
 
-    You can't create non-geolocation resource record sets that have the same
-    values for the ``Name`` and ``Type`` elements as geolocation resource record
-    sets.
+    You can't create non-geolocation resource record sets that have the same values for the ``Name`` and ``Type`` elements
+    as geolocation resource record sets.
     """
 
     ContinentCode: Optional[str] = None
@@ -1478,14 +1384,11 @@ class Route53GeoLocation(Boto3Model):
     """
     SubdivisionCode: Optional[str] = None
     """
-    For geolocation resource record sets, the two-letter code for a state of
-    the United States.
+    For geolocation resource record sets, the two-letter code for a state of the United States.
 
-    Route 53 doesn't support any other values for
-    ``SubdivisionCode``. For a list of state abbreviations, see `Appendix B:
-    Two-Letter State and Possession
-    Abbreviations <https://pe.usps.com/text/pub28/28apb.htm>`_ on the United States
-    Postal Service website.
+    Route 53 doesn't support
+    any other values for ``SubdivisionCode``. For a list of state abbreviations, see `Appendix B: Two-Letter State and
+    Possession Abbreviations <https://pe.usps.com/text/pub28/28apb.htm>`_ on the United States Postal Service website.
     """
 
 
@@ -1500,59 +1403,50 @@ class ResourceRecord(Boto3Model):
     """
     The current or new DNS record value, not to exceed 4,000 characters.
 
-    In the
-    case of a ``DELETE`` action, if the current value does not match the actual
-    value, an error is returned. For descriptions about how to format ``Value`` for
-    different record types, see `Supported DNS Resource Record Types <https://docs.
-    aws.amazon.com/Route53/latest/DeveloperGuide/ResourceRecordTypes.html>`_ in the
-    *Amazon Route 53 Developer Guide*.
+    In the case of a ``DELETE`` action, if the current
+    value does not match the actual value, an error is returned. For descriptions about how to format ``Value`` for
+    different record types, see `Supported DNS Resource Record
+    Types <https://docs.aws.amazon.com/Route53/latest/DeveloperGuide/ResourceRecordTypes.html>`_ in the *Amazon Route 53
+    Developer Guide*.
     """
 
 
 class Route53AliasTarget(Boto3Model):
     """
-    *Alias resource record sets only:* Information about the Amazon Web
-    Services resource, such as a CloudFront distribution or an Amazon S3
-    bucket, that you want to route traffic to.
+    *Alias resource record sets only:* Information about the Amazon Web Services resource, such as a CloudFront
+    distribution or an Amazon S3 bucket, that you want to route traffic to.
 
-    If you're creating resource records sets for a private hosted zone, note the
-    following:
+    If you're creating resource records sets for a private hosted zone, note the following:
 
-    * You can't create an alias resource record set in a private hosted zone to
-      route traffic to a CloudFront distribution.
-    * For information about creating failover resource record sets in a private
-      hosted zone, see `Configuring Failover in a Private Hosted
-      Zone <https://docs.aws.amazon.com/Route53/latest/DeveloperGuide/dns-failover-
-    private-hosted-zones.html>`_ in the *Amazon Route 53 Developer Guide*.
+    * You can't create an alias resource record set in a private hosted zone to route traffic to a CloudFront distribution.
+    * For information about creating failover resource record sets in a private hosted zone, see `Configuring Failover in a
+      Private Hosted Zone <https://docs.aws.amazon.com/Route53/latest/DeveloperGuide/dns-failover-private-hosted-zones.html>`_
+      in the *Amazon Route 53 Developer Guide*.
     """
 
     HostedZoneId: str
     """
- *Alias resource records sets only*: The value used depends on where you want
-to route traffic:
+    *Alias resource records sets only*: The value used depends on where you want to route traffic:
     """
     DNSName: str
     """
- *Alias resource record sets only:* The value that you specify depends on where
-you want to route queries:
+    *Alias resource record sets only:* The value that you specify depends on where you want to route queries:
     """
     EvaluateTargetHealth: bool
     """
-    *Applies only to alias, failover alias, geolocation alias, latency alias,
-    and weighted alias resource record sets:* When ``EvaluateTargetHealth`` is
-    ``true``, an alias resource record set inherits the health of the
-    referenced Amazon Web Services resource, such as an ELB load balancer or
-    another resource record set in the hosted zone.
+    *Applies only to alias, failover alias, geolocation alias, latency alias, and weighted alias resource record sets:*
+    When ``EvaluateTargetHealth`` is ``true``, an alias resource record set inherits the health of the referenced Amazon
+    Web Services resource, such as an ELB load balancer or another resource record set in the hosted zone.
     """
 
 
 class Route53CidrRoutingConfig(Boto3Model):
     """
-    The object that is specified in resource record set object when you are
-    linking a resource record set to a CIDR location.
+    The object that is specified in resource record set object when you are linking a resource record set to a CIDR
+    location.
 
-    A ``LocationName`` with an asterisk “*” can be used to create a default CIDR
-    record. ``CollectionId`` is still required for default record.
+    A ``LocationName`` with an asterisk “*” can be used to create a default CIDR record. ``CollectionId`` is still required
+    for default record.
     """
 
     CollectionId: str
@@ -1572,27 +1466,23 @@ class Route53Coordinates(Boto3Model):
 
     Latitude: str
     """
- Specifies a coordinate of the north-south position of a geographic point on
-the surface of the Earth (-90 - 90).
+ Specifies a coordinate of the north-south position of a geographic point on the surface of the Earth (-90 - 90). 
     """
     Longitude: str
     """
- Specifies a coordinate of the east-west position of a geographic point on the
-surface of the Earth (-180 - 180).
+ Specifies a coordinate of the east-west position of a geographic point on the surface of the Earth (-180 - 180). 
     """
 
 
 class Route53GeoProximityLocation(Boto3Model):
     """
-    *GeoproximityLocation resource record sets only:* A complex type that lets
-    you control how Route 53 responds to DNS queries based on the geographic
-    origin of the query and your resources.
+    *GeoproximityLocation resource record sets only:* A complex type that lets you control how Route 53 responds to DNS
+    queries based on the geographic origin of the query and your resources.
     """
 
     AWSRegion: Optional[str] = None
     """
-    The Amazon Web Services Region the resource you are directing DNS traffic
-    to, is in.
+    The Amazon Web Services Region the resource you are directing DNS traffic to, is in.
     """
     LocalZoneGroup: Optional[str] = None
     """
@@ -1604,8 +1494,7 @@ class Route53GeoProximityLocation(Boto3Model):
     """
     Bias: Optional[int] = None
     """
-    The bias increases or decreases the size of the geographic region from
-    which Route 53 routes traffic to a resource.
+    The bias increases or decreases the size of the geographic region from which Route 53 routes traffic to a resource.
     """
 
 
@@ -1618,11 +1507,10 @@ class Route53ResourceRecordSet(PrimaryBoto3Model):
 
     Name: str = Field(frozen=True)
     """
-    For ``ChangeResourceRecordSets`` requests, the name of the record that you
-    want to create, update, or delete.
+    For ``ChangeResourceRecordSets`` requests, the name of the record that you want to create, update, or delete.
 
-    For ``ListResourceRecordSets`` responses, the
-    name of a record in the specified hosted zone.
+    For
+    ``ListResourceRecordSets`` responses, the name of a record in the specified hosted zone.
     """
     Type: Literal[
         "SOA",
@@ -1638,37 +1526,37 @@ class Route53ResourceRecordSet(PrimaryBoto3Model):
         "AAAA",
         "CAA",
         "DS",
+        "TLSA",
+        "SSHFP",
+        "SVCB",
+        "HTTPS",
     ] = Field(frozen=True)
     """
     The DNS record type.
 
-    For information about different record types and how data
-    is encoded for them, see `Supported DNS Resource Record Types <https://docs.aws
-    .amazon.com/Route53/latest/DeveloperGuide/ResourceRecordTypes.html>`_ in the
+    For information about different record types and how data is encoded for them, see
+    `Supported DNS Resource Record Types <https://docs.aws.amazon.com/Route53/latest/DeveloperGuide/ResourceRecordTypes.html>`_
+    in the
     *Amazon Route 53 Developer Guide*.
     """
     SetIdentifier: str = Field(default=None, frozen=True)
     """
-    *Resource record sets that have a routing policy other than simple:* An
-    identifier that differentiates among multiple resource record sets that
-    have the same combination of name and type, such as multiple weighted
-    resource record sets named acme.example.com that have a type of A.
+    *Resource record sets that have a routing policy other than simple:* An identifier that differentiates among
+    multiple resource record sets that have the same combination of name and type, such as multiple weighted resource
+    record sets named acme.example.com that have a type of A.
 
-    In a group of
-    resource record sets that have the same name and type, the value of
-    ``SetIdentifier`` must be unique for each resource record set.
+    In a group of resource record sets that have the same name and type, the
+    value of ``SetIdentifier`` must be unique for each resource record set.
     """
     Weight: int = Field(default=None, frozen=True)
     """
-    *Weighted resource record sets only:* Among resource record sets that have
-    the same combination of DNS name and type, a value that determines the
-    proportion of DNS queries that Amazon Route 53 responds to using the
-    current resource record set.
+    *Weighted resource record sets only:* Among resource record sets that have the same combination of DNS name and
+    type, a value that determines the proportion of DNS queries that Amazon Route 53 responds to using the current
+    resource record set.
 
-    Route 53 calculates the sum of the weights for the resource record
-    sets that have the same combination of DNS name and type. Route 53 then
-    responds to queries based on the ratio of a resource's weight to the total.
-    Note the following:
+    Route 53 calculates the sum of the weights for the resource record sets that have the same combination of DNS name
+    and type. Route 53 then responds to queries based on the ratio of a resource's weight to the total. Note the
+    following:
     """
     Region: Literal[
         "us-east-1",
@@ -1705,42 +1593,37 @@ class Route53ResourceRecordSet(PrimaryBoto3Model):
         "ap-southeast-5",
     ] = Field(default=None, frozen=True)
     """
-    *Latency-based resource record sets only:* The Amazon EC2 Region where you
-    created the resource that this resource record set refers to.
+    *Latency-based resource record sets only:* The Amazon EC2 Region where you created the resource that this resource
+    record set refers to.
 
-    The resource typically is an Amazon Web Services resource, such as an EC2
-    instance or an ELB load balancer, and is referred to by an IP address or a
-    DNS domain name, depending on the record type.
+    The resource typically is an Amazon Web Services resource, such as an EC2 instance or an ELB load balancer, and is
+    referred to by an IP address or a DNS domain name, depending on the record type.
     """
     GeoLocation: Route53GeoLocation = Field(default=None, frozen=True)
     """
-    *Geolocation resource record sets only:* A complex type that lets you
-    control how Amazon Route 53 responds to DNS queries based on the geographic
-    origin of the query.
+    *Geolocation resource record sets only:* A complex type that lets you control how Amazon Route 53 responds to DNS
+    queries based on the geographic origin of the query.
 
     For example, if you want all queries from Africa to be routed to a
-    web server with an IP address of ``192.0.2.111``, create a resource record set
-    with a ``Type`` of ``A`` and a ``ContinentCode`` of ``AF``.
+    web server with an IP address of ``192.0.2.111``, create a resource record set with a ``Type`` of ``A`` and a
+    ``ContinentCode`` of ``AF``.
     """
     Failover: Literal["PRIMARY", "SECONDARY"] = Field(default=None, frozen=True)
     """
-    *Failover resource record sets only:* To configure failover, you add the
-    ``Failover`` element to two resource record sets.
+    *Failover resource record sets only:* To configure failover, you add the ``Failover`` element to two resource record
+    sets.
 
-    For one resource record set,
-    you specify ``PRIMARY`` as the value for ``Failover``; for the other resource
-    record set, you specify ``SECONDARY``. In addition, you include the
-    ``HealthCheckId`` element and specify the health check that you want Amazon
-    Route 53 to perform for each resource record set.
+    For one resource record set, you specify ``PRIMARY`` as the value for ``Failover``; for the other resource record
+    set, you specify ``SECONDARY``. In addition, you include the ``HealthCheckId`` element and specify the health check that
+    you want Amazon Route 53 to perform for each resource record set.
     """
     MultiValueAnswer: bool = Field(default=None, frozen=True)
     """
-    *Multivalue answer resource record sets only*: To route traffic
-    approximately randomly to multiple resources, such as web servers, create
-    one multivalue answer record for each resource and specify ``true`` for
-    ``MultiValueAnswer``.
+    *Multivalue answer resource record sets only*: To route traffic approximately randomly to multiple resources, such
+    as web servers, create one multivalue answer record for each resource and specify ``true`` for ``MultiValueAnswer``.
 
-    Note the following:
+    Note
+    the following:
     """
     TTL: int = Field(default=None, frozen=True)
     """
@@ -1754,42 +1637,35 @@ class Route53ResourceRecordSet(PrimaryBoto3Model):
     """
     AliasTarget: Route53AliasTarget = Field(default=None, frozen=True)
     """
-    *Alias resource record sets only:* Information about the Amazon Web
-    Services resource, such as a CloudFront distribution or an Amazon S3
-    bucket, that you want to route traffic to.
+    *Alias resource record sets only:* Information about the Amazon Web Services resource, such as a CloudFront
+    distribution or an Amazon S3 bucket, that you want to route traffic to.
     """
     HealthCheckId: str = Field(default=None, frozen=True)
     """
-    If you want Amazon Route 53 to return this resource record set in response
-    to a DNS query only when the status of a health check is healthy, include
-    the ``HealthCheckId`` element and specify the ID of the applicable health
-    check.
+    If you want Amazon Route 53 to return this resource record set in response to a DNS query only when the status of a
+    health check is healthy, include the ``HealthCheckId`` element and specify the ID of the applicable health check.
     """
     TrafficPolicyInstanceId: str = Field(default=None, frozen=True)
     """
-    When you create a traffic policy instance, Amazon Route 53 automatically
-    creates a resource record set.
+    When you create a traffic policy instance, Amazon Route 53 automatically creates a resource record set.
 
-    ``TrafficPolicyInstanceId`` is the ID of the
-    traffic policy instance that Route 53 created this resource record set for.
+    ``TrafficPolicyInstanceId`` is the ID of the traffic policy instance that Route 53 created this resource record set for.
     """
     CidrRoutingConfig: Route53CidrRoutingConfig = Field(default=None, frozen=True)
     """
-    The object that is specified in resource record set object when you are
-    linking a resource record set to a CIDR location.
+    The object that is specified in resource record set object when you are linking a resource record set to a CIDR
+    location.
     """
     GeoProximityLocation: Route53GeoProximityLocation = Field(default=None, frozen=True)
     """
-    *GeoproximityLocation resource record sets only:* A complex type that lets
-    you control how Route 53 responds to DNS queries based on the geographic
-    origin of the query and your resources.
+    *GeoproximityLocation resource record sets only:* A complex type that lets you control how Route 53 responds to DNS
+    queries based on the geographic origin of the query and your resources.
     """
 
     @property
     def pk(self) -> Optional[str]:
         """
-        Return the primary key of the model.   This is the value of the
-        :py:attr:`Name` attribute.
+        Return the primary key of the model.   This is the value of the :py:attr:`Name` attribute.
 
         Returns:
             The primary key of the model instance.
@@ -1799,8 +1675,7 @@ class Route53ResourceRecordSet(PrimaryBoto3Model):
     @property
     def name(self) -> Optional[str]:
         """
-        Return the name of the model.   This is the value of the
-        :py:attr:`Name` attribute.
+        Return the name of the model.   This is the value of the :py:attr:`Name` attribute.
 
         Returns:
             The name of the model instance.
@@ -1815,29 +1690,27 @@ class Route53ResourceRecordSet(PrimaryBoto3Model):
 
 class ChangeInfo(Boto3Model):
     """
-    A complex type that contains information about the ``CreateHostedZone``
-    request.
+    A complex type that contains information about the ``CreateHostedZone`` request.
     """
 
     Id: str
     """
-This element contains an ID that you use when performing a `GetChange <https://
-docs.aws.amazon.com/Route53/latest/APIReference/API_GetChange.html>`_ action to
-get detailed information about the change.
+This element contains an ID that you use when performing a
+`GetChange <https://docs.aws.amazon.com/Route53/latest/APIReference/API_GetChange.html>`_ action to get detailed
+information about the change.
     """
     Status: Literal["PENDING", "INSYNC"]
     """
     The current state of the request.
 
-    ``PENDING`` indicates that this request has
-    not yet been applied to all Amazon Route 53 DNS servers.
+    ``PENDING`` indicates that this request has not yet been applied to all Amazon Route
+    53 DNS servers.
     """
     SubmittedAt: datetime
     """
-The date and time that the change request was submitted in `ISO 8601
-format <https://en.wikipedia.org/wiki/ISO_8601>`_ and Coordinated Universal Time
-(UTC). For example, the value ``2017-03-27T17:48:16.751Z`` represents March 27,
-2017 at 17:48:16.751 UTC.
+The date and time that the change request was submitted in `ISO 8601 format <https://en.wikipedia.org/wiki/ISO_8601>`_ and
+Coordinated Universal Time (UTC). For example, the value ``2017-03-27T17:48:16.751Z`` represents March 27, 2017 at
+17:48:16.751 UTC.
     """
     Comment: Optional[str] = None
     """
@@ -1856,13 +1729,12 @@ class Route53DelegationSet(Boto3Model):
     """
     CallerReference: Optional[str] = None
     """
-    The value that you specified for ``CallerReference`` when you created the
-    reusable delegation set.
+    The value that you specified for ``CallerReference`` when you created the reusable delegation set.
     """
     NameServers: List[str]
     """
-    A complex type that contains a list of the authoritative name servers for a
-    hosted zone or for a reusable delegation set.
+    A complex type that contains a list of the authoritative name servers for a hosted zone or for a reusable delegation
+    set.
     """
 
 
@@ -1877,8 +1749,7 @@ class CreateHostedZoneResponse(Boto3Model):
     """
     ChangeInfo: "ChangeInfo"
     """
-    A complex type that contains information about the ``CreateHostedZone``
-    request.
+    A complex type that contains information about the ``CreateHostedZone`` request.
     """
     DelegationSet: Route53DelegationSet
     """
@@ -1886,8 +1757,7 @@ class CreateHostedZoneResponse(Boto3Model):
     """
     VPC: Optional[Route53VPC] = None
     """
-    A complex type that contains information about an Amazon VPC that you
-    associated with this hosted zone.
+    A complex type that contains information about an Amazon VPC that you associated with this hosted zone.
     """
     Location: str
     """
@@ -1897,14 +1767,12 @@ class CreateHostedZoneResponse(Boto3Model):
 
 class DeleteHostedZoneResponse(Boto3Model):
     """
-    A complex type that contains the response to a ``DeleteHostedZone``
-    request.
+    A complex type that contains the response to a ``DeleteHostedZone`` request.
     """
 
     ChangeInfo: "ChangeInfo"
     """
-    A complex type that contains the ID, the status, and the date and time of a
-    request to delete a hosted zone.
+    A complex type that contains the ID, the status, and the date and time of a request to delete a hosted zone.
     """
 
 
@@ -1915,27 +1783,23 @@ class GetHostedZoneResponse(Boto3Model):
 
     HostedZone: "HostedZone"
     """
-    A complex type that contains general information about the specified hosted
-    zone.
+    A complex type that contains general information about the specified hosted zone.
     """
     DelegationSet: Optional[Route53DelegationSet] = None
     """
-    A complex type that lists the Amazon Route 53 name servers for the
-    specified hosted zone.
+    A complex type that lists the Amazon Route 53 name servers for the specified hosted zone.
     """
     VPCs: Optional[List["Route53VPC"]] = None
     """
-    A complex type that contains information about the VPCs that are associated
-    with the specified hosted zone.
+    A complex type that contains information about the VPCs that are associated with the specified hosted zone.
     """
 
 
 class ListHostedZonesResponse(Boto3Model):
     Marker: Optional[str] = None
     """
-    For the second and subsequent calls to ``ListHostedZones``, ``Marker`` is
-    the value that you specified for the ``marker`` parameter in the request
-    that produced the current response.
+    For the second and subsequent calls to ``ListHostedZones``, ``Marker`` is the value that you specified for the
+    ``marker`` parameter in the request that produced the current response.
     """
     HostedZones: List["HostedZone"]
     """
@@ -1945,24 +1809,22 @@ class ListHostedZonesResponse(Boto3Model):
     """
     A flag indicating whether there are more hosted zones to be listed.
 
-    If the
-    response was truncated, you can get more hosted zones by submitting another
-    ``ListHostedZones`` request and specifying the value of ``NextMarker`` in the
+    If the response was truncated, you can get more
+    hosted zones by submitting another ``ListHostedZones`` request and specifying the value of ``NextMarker`` in the
     ``marker`` parameter.
     """
     NextMarker: Optional[str] = None
     """
-    If ``IsTruncated`` is ``true``, the value of ``NextMarker`` identifies the
-    first hosted zone in the next group of hosted zones.
+    If ``IsTruncated`` is ``true``, the value of ``NextMarker`` identifies the first hosted zone in the next group of
+    hosted zones.
 
-    Submit another
-    ``ListHostedZones`` request, and specify the value of ``NextMarker`` from the
-    response in the ``marker`` parameter.
+    Submit another ``ListHostedZones`` request, and specify the value of ``NextMarker`` from the response in the
+    ``marker`` parameter.
     """
     MaxItems: str
     """
-    The value that you specified for the ``maxitems`` parameter in the call to
-    ``ListHostedZones`` that produced the current response.
+    The value that you specified for the ``maxitems`` parameter in the call to ``ListHostedZones`` that produced the
+    current response.
     """
 
 
@@ -1977,12 +1839,10 @@ class ListResourceRecordSetsResponse(Boto3Model):
     """
     IsTruncated: bool
     """
-    A flag that indicates whether more resource record sets remain to be
-    listed.
+    A flag that indicates whether more resource record sets remain to be listed.
 
-    If
-    your results were truncated, you can make a follow-up pagination request by
-    using the ``NextRecordName`` element.
+    If your results were truncated, you can
+    make a follow-up pagination request by using the ``NextRecordName`` element.
     """
     NextRecordName: Optional[str] = None
     """
@@ -2003,6 +1863,10 @@ class ListResourceRecordSetsResponse(Boto3Model):
             "AAAA",
             "CAA",
             "DS",
+            "TLSA",
+            "SSHFP",
+            "SVCB",
+            "HTTPS",
         ]
     ] = None
     """
@@ -2010,10 +1874,8 @@ class ListResourceRecordSetsResponse(Boto3Model):
     """
     NextRecordIdentifier: Optional[str] = None
     """
-    *Resource record sets that have a routing policy other than simple:* If
-    results were truncated for a given DNS name and type, the value of
-    ``SetIdentifier`` for the next resource record set that has the current DNS
-    name and type.
+    *Resource record sets that have a routing policy other than simple:* If results were truncated for a given DNS name
+    and type, the value of ``SetIdentifier`` for the next resource record set that has the current DNS name and type.
     """
     MaxItems: str
     """
@@ -2032,76 +1894,64 @@ class ListHostedZonesByNameResponse(Boto3Model):
     """
     DNSName: Optional[str] = None
     """
-    For the second and subsequent calls to ``ListHostedZonesByName``,
-    ``DNSName`` is the value that you specified for the ``dnsname`` parameter
-    in the request that produced the current response.
+    For the second and subsequent calls to ``ListHostedZonesByName``, ``DNSName`` is the value that you specified for
+    the ``dnsname`` parameter in the request that produced the current response.
     """
     HostedZoneId: Optional[str] = None
     """
-    The ID that Amazon Route 53 assigned to the hosted zone when you created
-    it.
+    The ID that Amazon Route 53 assigned to the hosted zone when you created it.
     """
     IsTruncated: bool
     """
     A flag that indicates whether there are more hosted zones to be listed.
 
-    If the
-    response was truncated, you can get the next group of ``maxitems`` hosted zones
-    by calling ``ListHostedZonesByName`` again and specifying the values of
-    ``NextDNSName`` and ``NextHostedZoneId`` elements in the ``dnsname`` and
-    ``hostedzoneid`` parameters.
+    If the response was truncated, you can get the
+    next group of ``maxitems`` hosted zones by calling ``ListHostedZonesByName`` again and specifying the values of
+    ``NextDNSName`` and ``NextHostedZoneId`` elements in the ``dnsname`` and ``hostedzoneid`` parameters.
     """
     NextDNSName: Optional[str] = None
     """
-    If ``IsTruncated`` is true, the value of ``NextDNSName`` is the name of the
-    first hosted zone in the next group of ``maxitems`` hosted zones.
+    If ``IsTruncated`` is true, the value of ``NextDNSName`` is the name of the first hosted zone in the next group of
+    ``maxitems`` hosted zones.
 
-    Call
-    ``ListHostedZonesByName`` again and specify the value of ``NextDNSName`` and
-    ``NextHostedZoneId`` in the ``dnsname`` and ``hostedzoneid`` parameters,
-    respectively.
+    Call ``ListHostedZonesByName`` again and specify the value of ``NextDNSName`` and
+    ``NextHostedZoneId`` in the ``dnsname`` and ``hostedzoneid`` parameters, respectively.
     """
     NextHostedZoneId: Optional[str] = None
     """
-    If ``IsTruncated`` is ``true``, the value of ``NextHostedZoneId``
-    identifies the first hosted zone in the next group of ``maxitems`` hosted
-    zones.
+    If ``IsTruncated`` is ``true``, the value of ``NextHostedZoneId`` identifies the first hosted zone in the next group
+    of ``maxitems`` hosted zones.
 
-    Call
-    ``ListHostedZonesByName`` again and specify the value of ``NextDNSName`` and
-    ``NextHostedZoneId`` in the ``dnsname`` and ``hostedzoneid`` parameters,
-    respectively.
+    Call ``ListHostedZonesByName`` again and specify the value of ``NextDNSName`` and
+    ``NextHostedZoneId`` in the ``dnsname`` and ``hostedzoneid`` parameters, respectively.
     """
     MaxItems: str
     """
-    The value that you specified for the ``maxitems`` parameter in the call to
-    ``ListHostedZonesByName`` that produced the current response.
+    The value that you specified for the ``maxitems`` parameter in the call to ``ListHostedZonesByName`` that produced
+    the current response.
     """
 
 
 class UpdateHostedZoneCommentResponse(Boto3Model):
     """
-    A complex type that contains the response to the
-    ``UpdateHostedZoneComment`` request.
+    A complex type that contains the response to the ``UpdateHostedZoneComment`` request.
     """
 
     HostedZone: "HostedZone"
     """
-    A complex type that contains the response to the
-    ``UpdateHostedZoneComment`` request.
+    A complex type that contains the response to the ``UpdateHostedZoneComment`` request.
     """
 
 
 class GetHostedZoneCountResponse(Boto3Model):
     """
-    A complex type that contains the response to a ``GetHostedZoneCount``
-    request.
+    A complex type that contains the response to a ``GetHostedZoneCount`` request.
     """
 
     HostedZoneCount: int
     """
-    The total number of public and private hosted zones that are associated
-    with the current Amazon Web Services account.
+    The total number of public and private hosted zones that are associated with the current Amazon Web Services
+    account.
     """
 
 
@@ -2109,9 +1959,8 @@ class HostedZoneLimit(Boto3Model):
     """
     The current setting for the specified limit.
 
-    For example, if you specified
-    ``MAX_RRSETS_BY_ZONE`` for the value of ``Type`` in the request, the value of
-    ``Limit`` is the maximum number of records that you can create in the specified
+    For example, if you specified ``MAX_RRSETS_BY_ZONE`` for the value of
+    ``Type`` in the request, the value of ``Limit`` is the maximum number of records that you can create in the specified
     hosted zone.
     """
 
@@ -2136,26 +1985,23 @@ class GetHostedZoneLimitResponse(Boto3Model):
     """
     The current setting for the specified limit.
 
-    For example, if you specified
-    ``MAX_RRSETS_BY_ZONE`` for the value of ``Type`` in the request, the value of
-    ``Limit`` is the maximum number of records that you can create in the specified
+    For example, if you specified ``MAX_RRSETS_BY_ZONE`` for the value of
+    ``Type`` in the request, the value of ``Limit`` is the maximum number of records that you can create in the specified
     hosted zone.
     """
     Count: int
     """
     The current number of entities that you have created of the specified type.
 
-    For
-    example, if you specified ``MAX_RRSETS_BY_ZONE`` for the value of ``Type`` in
-    the request, the value of ``Count`` is the current number of records that you
-    have created in the specified hosted zone.
+    For example, if you specified
+    ``MAX_RRSETS_BY_ZONE`` for the value of ``Type`` in the request, the value of ``Count`` is the current number of records
+    that you have created in the specified hosted zone.
     """
 
 
 class AssociateVPCWithHostedZoneResponse(Boto3Model):
     """
-    A complex type that contains the response information for the
-    ``AssociateVPCWithHostedZone`` request.
+    A complex type that contains the response information for the ``AssociateVPCWithHostedZone`` request.
     """
 
     ChangeInfo: "ChangeInfo"
@@ -2166,63 +2012,53 @@ class AssociateVPCWithHostedZoneResponse(Boto3Model):
 
 class DisassociateVPCFromHostedZoneResponse(Boto3Model):
     """
-    A complex type that contains the response information for the disassociate
-    request.
+    A complex type that contains the response information for the disassociate request.
     """
 
     ChangeInfo: "ChangeInfo"
     """
-    A complex type that describes the changes made to the specified private
-    hosted zone.
+    A complex type that describes the changes made to the specified private hosted zone.
     """
 
 
 class HostedZoneOwner(Boto3Model):
     """
-    The owner of a private hosted zone that the specified VPC is associated
-    with.
+    The owner of a private hosted zone that the specified VPC is associated with.
 
-    The owner can be either an Amazon Web Services account or an Amazon Web
-    Services service.
+    The owner can be either an Amazon Web Services account or an Amazon Web Services service.
     """
 
     OwningAccount: Optional[str] = None
     """
-    If the hosted zone was created by an Amazon Web Services account, or was
-    created by an Amazon Web Services service that creates hosted zones using
-    the current account, ``OwningAccount`` contains the account ID of that
-    account.
+    If the hosted zone was created by an Amazon Web Services account, or was created by an Amazon Web Services service
+    that creates hosted zones using the current account, ``OwningAccount`` contains the account ID of that account.
 
-    For example, when you use Cloud Map to create a hosted zone, Cloud Map
-    creates the hosted zone using the current Amazon Web Services account.
+    For example, when you use Cloud Map to create a hosted zone, Cloud Map creates the hosted zone using the current
+    Amazon Web Services account.
     """
     OwningService: Optional[str] = None
     """
-    If an Amazon Web Services service uses its own account to create a hosted
-    zone and associate the specified VPC with that hosted zone,
-    ``OwningService`` contains an abbreviation that identifies the service.
+    If an Amazon Web Services service uses its own account to create a hosted zone and associate the specified VPC with
+    that hosted zone, ``OwningService`` contains an abbreviation that identifies the service.
 
-    For example, if Amazon
-    Elastic File System (Amazon EFS) created a hosted zone and associated a VPC
-    with the hosted zone, the value of ``OwningService`` is ``efs.amazonaws.com``.
+    For example, if Amazon Elastic File
+    System (Amazon EFS) created a hosted zone and associated a VPC with the hosted zone, the value of ``OwningService`` is
+    ``efs.amazonaws.com``.
     """
 
 
 class HostedZoneSummary(Boto3Model):
     """
-    In the response to a ``ListHostedZonesByVPC`` request, the
-    ``HostedZoneSummaries`` element contains one ``HostedZoneSummary`` element
-    for each hosted zone that the specified Amazon VPC is associated with.
+    In the response to a ``ListHostedZonesByVPC`` request, the ``HostedZoneSummaries`` element contains one
+    ``HostedZoneSummary`` element for each hosted zone that the specified Amazon VPC is associated with.
 
     Each
-    ``HostedZoneSummary`` element contains the hosted zone name and ID, and
-    information about who owns the hosted zone.
+    ``HostedZoneSummary`` element contains the hosted zone name and ID, and information about who owns the hosted zone.
     """
 
     HostedZoneId: str
     """
-    The Route 53 hosted zone ID of a private hosted zone that the specified VPC
-    is associated with.
+    The Route 53 hosted zone ID of a private hosted zone that the specified VPC is associated with.
     """
     Name: str
     """
@@ -2230,33 +2066,28 @@ class HostedZoneSummary(Boto3Model):
     """
     Owner: HostedZoneOwner
     """
-    The owner of a private hosted zone that the specified VPC is associated
-    with.
+    The owner of a private hosted zone that the specified VPC is associated with.
 
-    The owner can be either an Amazon Web Services account or an Amazon Web
-    Services service.
+    The owner can be either an Amazon Web Services account or an Amazon Web Services service.
     """
 
 
 class ListHostedZonesByVPCResponse(Boto3Model):
     HostedZoneSummaries: List["HostedZoneSummary"]
     """
-    A list that contains one ``HostedZoneSummary`` element for each hosted zone
-    that the specified Amazon VPC is associated with.
+    A list that contains one ``HostedZoneSummary`` element for each hosted zone that the specified Amazon VPC is
+    associated with.
 
-    Each ``HostedZoneSummary``
-    element contains the hosted zone name and ID, and information about who owns
-    the hosted zone.
+    Each ``HostedZoneSummary`` element contains the hosted zone name and ID, and information about who owns the hosted
+    zone.
     """
     MaxItems: str
     """
-    The value that you specified for ``MaxItems`` in the most recent
-    ``ListHostedZonesByVPC`` request.
+    The value that you specified for ``MaxItems`` in the most recent ``ListHostedZonesByVPC`` request.
     """
     NextToken: Optional[str] = None
     """
-    The value that you will use for ``NextToken`` in the next
-    ``ListHostedZonesByVPC`` request.
+    The value that you will use for ``NextToken`` in the next ``ListHostedZonesByVPC`` request.
     """
 
 
@@ -2271,25 +2102,21 @@ class ListVPCAssociationAuthorizationsResponse(Boto3Model):
     """
     NextToken: Optional[str] = None
     """
-    When the response includes a ``NextToken`` element, there are more VPCs
-    that can be associated with the specified hosted zone.
+    When the response includes a ``NextToken`` element, there are more VPCs that can be associated with the specified
+    hosted zone.
 
-    To get the next page of VPCs,
-    submit another ``ListVPCAssociationAuthorizations`` request, and include the
-    value of the ``NextToken`` element from the response in the ``nexttoken``
-    request parameter.
+    To get the next page of VPCs, submit another ``ListVPCAssociationAuthorizations`` request, and include the value
+    of the ``NextToken`` element from the response in the ``nexttoken`` request parameter.
     """
     VPCs: List["Route53VPC"]
     """
-    The list of VPCs that are authorized to be associated with the specified
-    hosted zone.
+    The list of VPCs that are authorized to be associated with the specified hosted zone.
     """
 
 
 class CreateVPCAssociationAuthorizationResponse(Boto3Model):
     """
-    A complex type that contains the response information from a
-    ``CreateVPCAssociationAuthorization`` request.
+    A complex type that contains the response information from a ``CreateVPCAssociationAuthorization`` request.
     """
 
     HostedZoneId: str
@@ -2326,8 +2153,8 @@ class DeleteCidrCollectionResponse(Boto3Model):
 
 
 class CollectionSummary(Boto3Model):
-    """A complex type that is an entry in an `CidrCollection <https://docs.aws.amazon.
-    com/Route53/latest/APIReference/API_CidrCollection.html>`_ array.
+    """A complex type that is an entry in an
+    `CidrCollection <https://docs.aws.amazon.com/Route53/latest/APIReference/API_CidrCollection.html>`_ array.
 
     """
 
@@ -2347,17 +2174,15 @@ class CollectionSummary(Boto3Model):
     """
     Version: Optional[int] = None
     """
-    A sequential counter that Route 53 sets to 1 when you create a CIDR
-    collection and increments by 1 each time you update settings for the CIDR
-    collection.
+    A sequential counter that Route 53 sets to 1 when you create a CIDR collection and increments by 1 each time you
+    update settings for the CIDR collection.
     """
 
 
 class ListCidrCollectionsResponse(Boto3Model):
     NextToken: Optional[str] = None
     """
-    An opaque pagination token to indicate where the service is to begin
-    enumerating results.
+    An opaque pagination token to indicate where the service is to begin enumerating results.
     """
     CidrCollections: Optional[List["CollectionSummary"]] = None
     """
@@ -2389,16 +2214,15 @@ class ChangeCidrCollectionResponse(Boto3Model):
     """
     The ID that is returned by ``ChangeCidrCollection``.
 
-    You can use it as input to
-    ``GetChange`` to see if a CIDR collection change has propagated or not.
+    You can use it as input to ``GetChange`` to see if a CIDR
+    collection change has propagated or not.
     """
 
 
 class ListCidrBlocksResponse(Boto3Model):
     NextToken: Optional[str] = None
     """
-    An opaque pagination token to indicate where the service is to begin
-    enumerating results.
+    An opaque pagination token to indicate where the service is to begin enumerating results.
     """
     CidrBlocks: Optional[List["CidrBlockSummary"]] = None
     """
@@ -2409,9 +2233,8 @@ class ListCidrBlocksResponse(Boto3Model):
 class CreateQueryLoggingConfigResponse(Boto3Model):
     QueryLoggingConfig: Route53QueryLoggingConfig
     """
-    A complex type that contains the ID for a query logging configuration, the
-    ID of the hosted zone that you want to log queries for, and the ARN for the
-    log group that you want Amazon Route 53 to send query logs to.
+    A complex type that contains the ID for a query logging configuration, the ID of the hosted zone that you want to
+    log queries for, and the ARN for the log group that you want Amazon Route 53 to send query logs to.
     """
     Location: str
     """
@@ -2426,25 +2249,22 @@ class DeleteQueryLoggingConfigResponse(Boto3Model):
 class GetQueryLoggingConfigResponse(Boto3Model):
     QueryLoggingConfig: Route53QueryLoggingConfig
     """
-A complex type that contains information about the query logging configuration
-that you specified in a `GetQueryLoggingConfig <https://docs.aws.amazon.com/Rou
-te53/latest/APIReference/API_GetQueryLoggingConfig.html>`_ request.
+A complex type that contains information about the query logging configuration that you specified in a
+`GetQueryLoggingConfig <https://docs.aws.amazon.com/Route53/latest/APIReference/API_GetQueryLoggingConfig.html>`_ request.
     """
 
 
 class ListQueryLoggingConfigsResponse(Boto3Model):
     QueryLoggingConfigs: List["Route53QueryLoggingConfig"]
     """
-An array that contains one `QueryLoggingConfig <https://docs.aws.amazon.com/Rou
-te53/latest/APIReference/API_QueryLoggingConfig.html>`_ element for each
-configuration for DNS query logging that is associated with the current Amazon
-Web Services account.
+An array that contains one
+`QueryLoggingConfig <https://docs.aws.amazon.com/Route53/latest/APIReference/API_QueryLoggingConfig.html>`_ element for
+each configuration for DNS query logging that is associated with the current Amazon Web Services account.
     """
     NextToken: Optional[str] = None
     """
-    If a response includes the last of the query logging configurations that
-    are associated with the current Amazon Web Services account, ``NextToken``
-    doesn't appear in the response.
+    If a response includes the last of the query logging configurations that are associated with the current Amazon Web
+    Services account, ``NextToken`` doesn't appear in the response.
     """
 
 
@@ -2465,8 +2285,7 @@ The action to perform:
 
 class ChangeBatch(Boto3Model):
     """
-    A complex type that contains an optional comment and the ``Changes``
-    element.
+    A complex type that contains an optional comment and the ``Changes`` element.
     """
 
     Comment: Optional[str] = None
@@ -2486,6 +2305,5 @@ class ChangeResourceRecordSetsResponse(Boto3Model):
 
     ChangeInfo: "ChangeInfo"
     """
-    A complex type that contains information about changes made to your hosted
-    zone.
+    A complex type that contains information about changes made to your hosted zone.
     """

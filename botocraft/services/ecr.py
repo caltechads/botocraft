@@ -7,13 +7,12 @@ from datetime import datetime
 from functools import cached_property
 from typing import Any, ClassVar, Dict, List, Literal, Optional, Type, cast
 
-from pydantic import Field
-
 from botocraft.mixins.ecr import (ECRImageMixin, RepositoryMixin,
                                   image_list_images_ecr_images_only,
                                   repo_list_images_ecr_images_only)
 from botocraft.mixins.tags import TagsDictMixin
 from botocraft.services.common import Tag
+from pydantic import Field
 
 from .abstract import (Boto3Model, Boto3ModelManager, PrimaryBoto3Model,
                        ReadonlyBoto3Model, ReadonlyBoto3ModelManager,
@@ -38,10 +37,9 @@ class RepositoryManager(Boto3ModelManager):
             model: The :py:class:``Repository`` to create.
 
         Keyword Args:
-            tags: The metadata that you apply to the repository to help you categorize
-                and organize them. Each tag consists of a key and an optional value, both
-                of which you define. Tag keys can have a maximum character length of 128
-                characters, and tag values can have a maximum length of 256 characters.
+            tags: The metadata that you apply to the repository to help you categorize and organize them. Each tag consists of a
+                key and an optional value, both of which you define. Tag keys can have a maximum character length of 128 characters,
+                and tag values can have a maximum length of 256 characters.
         """
         data = model.model_dump(exclude_none=True, by_alias=True)
         args = dict(
@@ -74,12 +72,10 @@ class RepositoryManager(Boto3ModelManager):
             repositoryName: The name of the repository to delete.
 
         Keyword Args:
-            registryId: The Amazon Web Services account ID associated with the registry
-                that contains the repository to delete. If you do not specify a registry,
-                the default registry is assumed.
-            force: If true, deleting the repository force deletes the contents of the
-                repository. If false, the repository must be empty before attempting to
-                delete it.
+            registryId: The Amazon Web Services account ID associated with the registry that contains the repository to delete.
+                If you do not specify a registry, the default registry is assumed.
+            force: If true, deleting the repository force deletes the contents of the repository. If false, the repository must
+                be empty before attempting to delete it.
         """
         args: Dict[str, Any] = dict(
             repositoryName=self.serialize(repositoryName),
@@ -102,9 +98,8 @@ class RepositoryManager(Boto3ModelManager):
             repositoryName: The name of the ECR repository to describe.
 
         Keyword Args:
-            registryId: The Amazon Web Services account ID associated with the registry
-                that contains the repositories to be described. If you do not specify a
-                registry, the default registry is assumed.
+            registryId: The Amazon Web Services account ID associated with the registry that contains the repositories to be
+                described. If you do not specify a registry, the default registry is assumed.
         """
         args: Dict[str, Any] = dict(
             registryId=self.serialize(registryId),
@@ -130,11 +125,10 @@ class RepositoryManager(Boto3ModelManager):
         Describes image repositories in a registry.
 
         Keyword Args:
-            registryId: The Amazon Web Services account ID associated with the registry
-                that contains the repositories to be described. If you do not specify a
-                registry, the default registry is assumed.
-            repositoryNames: A list of repositories to describe. If this parameter is
-                omitted, then all repositories in a registry are described.
+            registryId: The Amazon Web Services account ID associated with the registry that contains the repositories to be
+                described. If you do not specify a registry, the default registry is assumed.
+            repositoryNames: A list of repositories to describe. If this parameter is omitted, then all repositories in a
+                registry are described.
         """
         paginator = self.client.get_paginator("describe_repositories")
         args: Dict[str, Any] = dict(
@@ -173,11 +167,9 @@ class RepositoryManager(Boto3ModelManager):
             repositoryName: The repository with image IDs to be listed.
 
         Keyword Args:
-            registryId: The Amazon Web Services account ID associated with the registry
-                that contains the repository in which to list images. If you do not specify
-                a registry, the default registry is assumed.
-            filter: The filter key and value with which to filter your ``ListImages``
-                results.
+            registryId: The Amazon Web Services account ID associated with the registry that contains the repository in which to
+                list images. If you do not specify a registry, the default registry is assumed.
+            filter: The filter key and value with which to filter your ``ListImages`` results.
         """
         paginator = self.client.get_paginator("list_images")
         args: Dict[str, Any] = dict(
@@ -211,15 +203,13 @@ class RepositoryManager(Boto3ModelManager):
         ]
     ) -> Optional[List["ECRImage"]]:
         """
-        Use this method when you want to get just a few images from the
-        repository. If you want to get all images, use the ````list_images````
-        method.
+        Use this method when you want to get just a few images from the repository. If you want to get all images, use
+        the ````list_images```` method.
 
         Args:
             repositoryName: The repository that contains the images to describe.
-            imageIds: A list of image ID references that correspond to images to
-                describe. The format of the ``imageIds`` reference is ``imageTag=tag`` or
-                ``imageDigest=digest``.
+            imageIds: A list of image ID references that correspond to images to describe. The format of the ``imageIds``
+                reference is ``imageTag=tag`` or ``imageDigest=digest``.
 
         Keyword Args:
             acceptedMediaTypes: The accepted media types for the request.
@@ -251,13 +241,12 @@ class RepositoryManager(Boto3ModelManager):
         ]
     ) -> "ECRImage":
         """
-        Gets detailed information for an image. Images are specified with
-        either an ``imageTag`` or ``imageDigest``.
+        Gets detailed information for an image. Images are specified with either an ``imageTag`` or ``imageDigest``.
 
         Args:
             repositoryName: The repository that contains the images to describe.
-            imageId: The image ID or tag to describe. The format of the imageId
-                reference is ````imageTag=tag```` or ````imageDigest=digest````
+            imageId: The image ID or tag to describe. The format of the imageId reference is ````imageTag=tag```` or
+                ````imageDigest=digest````
 
         Keyword Args:
             acceptedMediaTypes: The accepted media types for the request.
@@ -294,13 +283,12 @@ class ECRImageManager(Boto3ModelManager):
         ]
     ) -> Optional["ECRImage"]:
         """
-        Gets detailed information for an image. Images are specified with
-        either an ``imageTag`` or ``imageDigest``.
+        Gets detailed information for an image. Images are specified with either an ``imageTag`` or ``imageDigest``.
 
         Args:
             repositoryName: The repository that contains the images to describe.
-            imageId: The image ID or tag to describe. The format of the imageId
-                reference is ````imageTag=tag```` or ````imageDigest=digest````
+            imageId: The image ID or tag to describe. The format of the imageId reference is ````imageTag=tag```` or
+                ````imageDigest=digest````
 
         Keyword Args:
             acceptedMediaTypes: The accepted media types for the request.
@@ -330,14 +318,12 @@ class ECRImageManager(Boto3ModelManager):
         ]
     ) -> "BatchGetImageResponse":
         """
-        Gets detailed information for an image. Images are specified with
-        either an ``imageTag`` or ``imageDigest``.
+        Gets detailed information for an image. Images are specified with either an ``imageTag`` or ``imageDigest``.
 
         Args:
             repositoryName: The repository that contains the images to describe.
-            imageIds: A list of image ID references that correspond to images to
-                describe. The format of the ``imageIds`` reference is ``imageTag=tag`` or
-                ``imageDigest=digest``.
+            imageIds: A list of image ID references that correspond to images to describe. The format of the ``imageIds``
+                reference is ``imageTag=tag`` or ``imageDigest=digest``.
 
         Keyword Args:
             acceptedMediaTypes: The accepted media types for the request.
@@ -366,8 +352,7 @@ class ECRImageManager(Boto3ModelManager):
             repositoryName: The repository with image IDs to be listed.
 
         Keyword Args:
-            filter: The filter key and value with which to filter your ``ListImages``
-                results.
+            filter: The filter key and value with which to filter your ``ListImages`` results.
         """
         paginator = self.client.get_paginator("list_images")
         args: Dict[str, Any] = dict(
@@ -394,13 +379,13 @@ class ECRImageManager(Boto3ModelManager):
         self, repositoryName: str, imageId: "ImageIdentifier"
     ) -> "BatchDeleteImageResponse":
         """
-        Deletes a list of specified images within a repository. Images are
-        specified with either an ``imageTag`` or ``imageDigest``.
+        Deletes a list of specified images within a repository. Images are specified with either an ``imageTag`` or
+        ``imageDigest``.
 
         Args:
             repositoryName: The repository that contains the image to delete.
-            imageId: The image ID or tag to delete. The format of the imageId reference
-                is ````imageTag=tag```` or ````imageDigest=digest````
+            imageId: The image ID or tag to delete. The format of the imageId reference is ````imageTag=tag```` or
+                ````imageDigest=digest````
         """
         args: Dict[str, Any] = dict(
             repositoryName=self.serialize(repositoryName),
@@ -420,8 +405,7 @@ class ECRImageManager(Boto3ModelManager):
 
         Args:
             repositoryName: The name of the repository that the image is in.
-            imageId: An object with identifying information for an image in an Amazon
-                ECR repository.
+            imageId: An object with identifying information for an image in an Amazon ECR repository.
         """
         args: Dict[str, Any] = dict(
             repositoryName=self.serialize(repositoryName),
@@ -446,10 +430,8 @@ class ECRImageManager(Boto3ModelManager):
         Returns the scan findings for the specified image.
 
         Args:
-            repositoryName: The repository for the image for which to describe the scan
-                findings.
-            imageId: An object with identifying information for an image in an Amazon
-                ECR repository.
+            repositoryName: The repository for the image for which to describe the scan findings.
+            imageId: An object with identifying information for an image in an Amazon ECR repository.
         """
         paginator = self.client.get_paginator("describe_image_scan_findings")
         args: Dict[str, Any] = dict(
@@ -482,14 +464,12 @@ class ImageScanningConfiguration(Boto3Model):
 
     scanOnPush: Optional[bool] = None
     """
-    The setting that determines whether images are scanned after being pushed
-    to a repository.
+    The setting that determines whether images are scanned after being pushed to a repository.
 
-    If set to ``true``, images will be scanned after being pushed. If
-    this parameter is not specified, it will default to ``false`` and images will
-    not be scanned unless a scan is manually started with the [API_StartImageScan]
-    (https://docs.aws.amazon.com/AmazonECR/latest/APIReference/API_StartImageScan.h
-    tml) API.
+    If set to ``true``, images
+    will be scanned after being pushed. If this parameter is not specified, it will default to ``false`` and images will not
+    be scanned unless a scan is manually started with the
+    `API_StartImageScan <https://docs.aws.amazon.com/AmazonECR/latest/APIReference/API_StartImageScan.html>`_ API.
     """
 
 
@@ -506,13 +486,10 @@ class EncryptionConfiguration(Boto3Model):
     """
     kmsKey: Optional[str] = None
     """
-    If you use the ``KMS`` encryption type, specify the KMS key to use for
-    encryption.
+    If you use the ``KMS`` encryption type, specify the KMS key to use for encryption.
 
-    The alias, key ID, or full ARN of the KMS key can be specified. The key
-    must exist in the same Region as the repository. If no key is specified,
-    the default Amazon Web Services managed KMS key for Amazon ECR will be
-    used.
+    The alias, key ID, or full ARN of the KMS key can be specified. The key must exist in the same Region as the
+    repository. If no key is specified, the default Amazon Web Services managed KMS key for Amazon ECR will be used.
     """
 
 
@@ -539,28 +516,23 @@ class Repository(RepositoryMixin, PrimaryBoto3Model):
     """
     The Amazon Resource Name (ARN) that identifies the repository.
 
-    The ARN contains
-    the ``arn:aws:ecr`` namespace, followed by the region of the repository, Amazon
-    Web Services account ID of the repository owner, repository namespace, and
-    repository name. For example, ``arn:aws:ecr:region:012345678910:repository-
-    namespace/repository-name``.
+    The ARN contains the ``arn:aws:ecr`` namespace, followed
+    by the region of the repository, Amazon Web Services account ID of the repository owner, repository namespace, and
+    repository name. For example, ``arn:aws:ecr:region:012345678910:repository-namespace/repository-name``.
     """
     registryId: Optional[str] = None
     """
-    The Amazon Web Services account ID associated with the registry that
-    contains the repository.
+    The Amazon Web Services account ID associated with the registry that contains the repository.
     """
     repositoryUri: str = Field(default=None, frozen=True)
     """
     The URI for the repository.
 
-    You can use this URI for container image ``push``
-    and ``pull`` operations.
+    You can use this URI for container image ``push`` and ``pull`` operations.
     """
     createdAt: datetime = Field(default=None, frozen=True)
     """
-    The date and time, in JavaScript date format, when the repository was
-    created.
+    The date and time, in JavaScript date format, when the repository was created.
     """
     encryptionConfiguration: Optional[EncryptionConfiguration] = None
     """
@@ -572,8 +544,7 @@ class Repository(RepositoryMixin, PrimaryBoto3Model):
     @property
     def pk(self) -> Optional[str]:
         """
-        Return the primary key of the model.   This is the value of the
-        :py:attr:`repositoryName` attribute.
+        Return the primary key of the model.   This is the value of the :py:attr:`repositoryName` attribute.
 
         Returns:
             The primary key of the model instance.
@@ -583,8 +554,7 @@ class Repository(RepositoryMixin, PrimaryBoto3Model):
     @property
     def arn(self) -> Optional[str]:
         """
-        Return the ARN of the model.   This is the value of the
-        :py:attr:`repositoryArn` attribute.
+        Return the ARN of the model.   This is the value of the :py:attr:`repositoryArn` attribute.
 
         Returns:
             The ARN of the model instance.
@@ -594,8 +564,7 @@ class Repository(RepositoryMixin, PrimaryBoto3Model):
     @property
     def name(self) -> Optional[str]:
         """
-        Return the name of the model.   This is the value of the
-        :py:attr:`repositoryName` attribute.
+        Return the name of the model.   This is the value of the :py:attr:`repositoryName` attribute.
 
         Returns:
             The name of the model instance.
@@ -605,8 +574,7 @@ class Repository(RepositoryMixin, PrimaryBoto3Model):
 
 class ImageIdentifier(Boto3Model):
     """
-    An object containing the image tag and image digest associated with an
-    image.
+    An object containing the image tag and image digest associated with an image.
     """
 
     imageDigest: Optional[str] = None
@@ -628,8 +596,7 @@ class ECRImage(ECRImageMixin, ReadonlyPrimaryBoto3Model):
 
     registryId: Optional[str] = None
     """
-    The Amazon Web Services account ID associated with the registry containing
-    the image.
+    The Amazon Web Services account ID associated with the registry containing the image.
     """
     repositoryName: Optional[str] = None
     """
@@ -637,8 +604,7 @@ class ECRImage(ECRImageMixin, ReadonlyPrimaryBoto3Model):
     """
     imageId: ImageIdentifier = Field(default=None, frozen=True)
     """
-    An object containing the image tag and image digest associated with an
-    image.
+    An object containing the image tag and image digest associated with an image.
     """
     imageManifest: str = Field(default=None, frozen=True)
     """
@@ -731,11 +697,10 @@ class DescribeRepositoriesResponse(Boto3Model):
     """
     nextToken: Optional[str] = None
     """
-    The ``nextToken`` value to include in a future ``DescribeRepositories``
-    request.
+    The ``nextToken`` value to include in a future ``DescribeRepositories`` request.
 
-    When the results of a ``DescribeRepositories`` request exceed
-    ``maxResults``, this value can be used to retrieve the next page of results.
+    When the results of a
+    ``DescribeRepositories`` request exceed ``maxResults``, this value can be used to retrieve the next page of results.
     This value is ``null`` when there are no more results to return.
     """
 
@@ -749,8 +714,8 @@ class ListImagesFilter(Boto3Model):
     """
     The tag status with which to filter your ListImages results.
 
-    You can filter
-    results based on whether they are ``TAGGED`` or ``UNTAGGED``.
+    You can filter results based on whether they are ``TAGGED``
+    or ``UNTAGGED``.
     """
 
 
@@ -763,9 +728,8 @@ class ListImagesResponse(Boto3Model):
     """
     The ``nextToken`` value to include in a future ``ListImages`` request.
 
-    When the
-    results of a ``ListImages`` request exceed ``maxResults``, this value can be
-    used to retrieve the next page of results. This value is ``null`` when there
+    When the results of a ``ListImages`` request
+    exceed ``maxResults``, this value can be used to retrieve the next page of results. This value is ``null`` when there
     are no more results to return.
     """
 
@@ -805,8 +769,7 @@ class ImageFailure(Boto3Model):
 class BatchGetImageResponse(Boto3Model):
     images: Optional[List["ECRImage"]] = None
     """
-    A list of image objects corresponding to the image references in the
-    request.
+    A list of image objects corresponding to the image references in the request.
     """
     failures: Optional[List["ImageFailure"]] = None
     """
@@ -836,8 +799,7 @@ class ImageReplicationStatus(Boto3Model):
     """
     registryId: Optional[str] = None
     """
-    The Amazon Web Services account ID associated with the registry to which
-    the image belongs.
+    The Amazon Web Services account ID associated with the registry to which the image belongs.
     """
     status: Optional[Literal["IN_PROGRESS", "COMPLETE", "FAILED"]] = None
     """
@@ -856,8 +818,7 @@ class DescribeImageReplicationStatusResponse(Boto3Model):
     """
     imageId: Optional[ImageIdentifier] = None
     """
-    An object with identifying information for an image in an Amazon ECR
-    repository.
+    An object with identifying information for an image in an Amazon ECR repository.
     """
     replicationStatuses: Optional[List["ImageReplicationStatus"]] = None
     """
@@ -1028,8 +989,7 @@ class PackageVulnerabilityDetails(Boto3Model):
     """
     vendorCreatedAt: Optional[datetime] = None
     """
-    The date and time that this vulnerability was first added to the vendor's
-    database.
+    The date and time that this vulnerability was first added to the vendor's database.
     """
     vendorSeverity: Optional[str] = None
     """
@@ -1037,8 +997,7 @@ class PackageVulnerabilityDetails(Boto3Model):
     """
     vendorUpdatedAt: Optional[datetime] = None
     """
-    The date and time the vendor last updated this vulnerability in their
-    database.
+    The date and time the vendor last updated this vulnerability in their database.
     """
     vulnerabilityId: Optional[str] = None
     """
@@ -1052,8 +1011,7 @@ class PackageVulnerabilityDetails(Boto3Model):
 
 class Recommendation(Boto3Model):
     """
-    An object that contains information about the recommended course of action
-    to remediate the finding.
+    An object that contains information about the recommended course of action to remediate the finding.
     """
 
     url: Optional[str] = None
@@ -1073,15 +1031,13 @@ class Remediation(Boto3Model):
 
     recommendation: Optional[Recommendation] = None
     """
-    An object that contains information about the recommended course of action
-    to remediate the finding.
+    An object that contains information about the recommended course of action to remediate the finding.
     """
 
 
 class AwsEcrContainerImageDetails(Boto3Model):
     """
-    An object that contains details about the Amazon ECR container image
-    involved in the finding.
+    An object that contains details about the Amazon ECR container image involved in the finding.
     """
 
     architecture: Optional[str] = None
@@ -1125,8 +1081,7 @@ class ResourceDetails(Boto3Model):
 
     awsEcrContainerImage: Optional[AwsEcrContainerImageDetails] = None
     """
-    An object that contains details about the Amazon ECR container image
-    involved in the finding.
+    An object that contains details about the Amazon ECR container image involved in the finding.
     """
 
 
@@ -1156,8 +1111,7 @@ class Resource(TagsDictMixin, Boto3Model):
 
 class CvssScoreAdjustment(Boto3Model):
     """
-    Details on adjustments Amazon Inspector made to the CVSS score for a
-    finding.
+    Details on adjustments Amazon Inspector made to the CVSS score for a finding.
     """
 
     metric: Optional[str] = None
@@ -1177,8 +1131,7 @@ class CvssScoreDetails(Boto3Model):
 
     adjustments: Optional[List["CvssScoreAdjustment"]] = None
     """
-    An object that contains details about adjustment Amazon Inspector made to
-    the CVSS score.
+    An object that contains details about adjustment Amazon Inspector made to the CVSS score.
     """
     score: Optional[float] = None
     """
@@ -1213,8 +1166,7 @@ class EnhancedImageScanFinding(Boto3Model):
     """
     The details of an enhanced image scan.
 
-    This is returned when enhanced scanning is enabled for your private
-    registry.
+    This is returned when enhanced scanning is enabled for your private registry.
     """
 
     awsAccountId: Optional[str] = None
@@ -1281,9 +1233,8 @@ class EnhancedImageScanFinding(Boto3Model):
     """
     Details on whether a fix is available through a version update.
 
-    This value can
-    be ``YES``, ``NO``, or ``PARTIAL``. A ``PARTIAL`` fix means that some, but not
-    all, of the packages identified in the finding have fixes available through
+    This value can be ``YES``, ``NO``, or ``PARTIAL``. A
+    ``PARTIAL`` fix means that some, but not all, of the packages identified in the finding have fixes available through
     updated versions.
     """
     exploitAvailable: Optional[str] = None
@@ -1345,8 +1296,7 @@ class DescribeImageScanFindingsResponse(Boto3Model):
     """
     imageId: Optional[ImageIdentifier] = None
     """
-    An object with identifying information for an image in an Amazon ECR
-    repository.
+    An object with identifying information for an image in an Amazon ECR repository.
     """
     imageScanStatus: Optional[ImageScanStatus] = None
     """
@@ -1358,10 +1308,9 @@ class DescribeImageScanFindingsResponse(Boto3Model):
     """
     nextToken: Optional[str] = None
     """
-    The ``nextToken`` value to include in a future
-    ``DescribeImageScanFindings`` request.
+    The ``nextToken`` value to include in a future ``DescribeImageScanFindings`` request.
 
-    When the results of a ``DescribeImageScanFindings`` request exceed
-    ``maxResults``, this value can be used to retrieve the next page of results.
-    This value is null when there are no more results to return.
+    When the results of a
+    ``DescribeImageScanFindings`` request exceed ``maxResults``, this value can be used to retrieve the next page of
+    results. This value is null when there are no more results to return.
     """

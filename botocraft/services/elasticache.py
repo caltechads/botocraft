@@ -7,14 +7,13 @@ from datetime import datetime
 from functools import cached_property
 from typing import Any, ClassVar, Dict, List, Literal, Optional, Type, cast
 
-from pydantic import Field
-
 from botocraft.mixins.elasticache import (CacheClusterModelMixin,
                                           ReplicationGroupModelMixin)
 from botocraft.mixins.tags import TagsDictMixin
 from botocraft.services.common import Tag
 from botocraft.services.ec2 import (SecurityGroup, SecurityGroupManager,
                                     Subnet, SubnetManager)
+from pydantic import Field
 
 from .abstract import (Boto3Model, Boto3ModelManager, PrimaryBoto3Model,
                        ReadonlyBoto3Model, ReadonlyBoto3ModelManager,
@@ -47,43 +46,34 @@ class CacheClusterManager(Boto3ModelManager):
         PreferredOutpostArns: Optional[List[str]] = None,
     ) -> "CacheCluster":
         """
-        Creates a cluster. All nodes in the cluster run the same protocol-
-        compliant cache engine software, either Memcached, Valkey or Redis OSS.
+        Creates a cluster. All nodes in the cluster run the same protocol-compliant cache engine software, either
+        Memcached, Valkey or Redis OSS.
 
         Args:
             model: The :py:class:``CacheCluster`` to create.
 
         Keyword Args:
-            AZMode: Specifies whether the nodes in this Memcached cluster are created
-                in a single Availability Zone or created across multiple Availability Zones
-                in the cluster's region.
-            PreferredAvailabilityZones: A list of the Availability Zones in which cache
-                nodes are created. The order of the zones in the list is not important.
-            CacheParameterGroupName: The name of the parameter group to associate with
-                this cluster. If this argument is omitted, the default parameter group for
-                the specified engine is used. You cannot use any parameter group which has
+            AZMode: Specifies whether the nodes in this Memcached cluster are created in a single Availability Zone or created
+                across multiple Availability Zones in the cluster's region.
+            PreferredAvailabilityZones: A list of the Availability Zones in which cache nodes are created. The order of the
+                zones in the list is not important.
+            CacheParameterGroupName: The name of the parameter group to associate with this cluster. If this argument is
+                omitted, the default parameter group for the specified engine is used. You cannot use any parameter group which has
                 ``cluster-enabled='yes'`` when creating a cluster.
-            CacheSecurityGroupNames: A list of security group names to associate with
-                this cluster.
-            SecurityGroupIds: One or more VPC security groups associated with the
-                cluster.
+            CacheSecurityGroupNames: A list of security group names to associate with this cluster.
+            SecurityGroupIds: One or more VPC security groups associated with the cluster.
             Tags: A list of tags to be added to this resource.
-            SnapshotArns: A single-element string list containing an Amazon Resource
-                Name (ARN) that uniquely identifies a Valkey or Redis OSS RDB snapshot file
-                stored in Amazon S3. The snapshot file is used to populate the node group
+            SnapshotArns: A single-element string list containing an Amazon Resource Name (ARN) that uniquely identifies a
+                Valkey or Redis OSS RDB snapshot file stored in Amazon S3. The snapshot file is used to populate the node group
                 (shard). The Amazon S3 object name in the ARN cannot contain any commas.
-            SnapshotName: The name of a Valkey or Redis OSS snapshot from which to
-                restore data into the new node group (shard). The snapshot status changes
-                to ``restoring`` while the new node group (shard) is being created.
+            SnapshotName: The name of a Valkey or Redis OSS snapshot from which to restore data into the new node group (shard).
+                The snapshot status changes to ``restoring`` while the new node group (shard) is being created.
             Port: The port number on which each of the cache nodes accepts connections.
-            NotificationTopicArn: The Amazon Resource Name (ARN) of the Amazon Simple
-                Notification Service (SNS) topic to which notifications are sent.
-            AuthToken:  **Reserved parameter.** The password used to access a password
-                protected server.
-            OutpostMode: Specifies whether the nodes in the cluster are created in a
-                single outpost or across multiple outposts.
-            PreferredOutpostArns: The outpost ARNs in which the cache cluster is
-                created.
+            NotificationTopicArn: The Amazon Resource Name (ARN) of the Amazon Simple Notification Service (SNS) topic to which
+                notifications are sent.
+            AuthToken:  **Reserved parameter.** The password used to access a password protected server.
+            OutpostMode: Specifies whether the nodes in the cluster are created in a single outpost or across multiple outposts.
+            PreferredOutpostArns: The outpost ARNs in which the cache cluster is created.
         """
         data = model.model_dump(exclude_none=True, by_alias=True)
         args = dict(
@@ -142,47 +132,36 @@ class CacheClusterManager(Boto3ModelManager):
         AuthTokenUpdateStrategy: Optional[Literal["SET", "ROTATE", "DELETE"]] = None,
     ) -> "CacheCluster":
         """
-        Modifies the settings for a cluster. You can use this operation to
-        change one or more cluster configuration parameters by specifying the
-        parameters and the new values.
+        Modifies the settings for a cluster. You can use this operation to change one or more cluster configuration
+        parameters by specifying the parameters and the new values.
 
         Args:
             model: The :py:class:``CacheCluster`` to update.
 
         Keyword Args:
-            CacheNodeIdsToRemove: A list of cache node IDs to be removed. A node ID is
-                a numeric identifier (0001, 0002, etc.). This parameter is only valid when
-                ``NumCacheNodes`` is less than the existing number of cache nodes. The
-                number of cache node IDs supplied in this parameter must match the
-                difference between the existing number of cache nodes in the cluster or
-                pending cache nodes, whichever is greater, and the value of
-                ``NumCacheNodes`` in the request.
-            AZMode: Specifies whether the new nodes in this Memcached cluster are all
-                created in a single Availability Zone or created across multiple
-                Availability Zones.
+            CacheNodeIdsToRemove: A list of cache node IDs to be removed. A node ID is a numeric identifier (0001, 0002, etc.).
+                This parameter is only valid when ``NumCacheNodes`` is less than the existing number of cache nodes. The number of
+                cache node IDs supplied in this parameter must match the difference between the existing number of cache nodes in
+                the cluster or pending cache nodes, whichever is greater, and the value of ``NumCacheNodes`` in the request.
+            AZMode: Specifies whether the new nodes in this Memcached cluster are all created in a single Availability Zone or
+                created across multiple Availability Zones.
             NewAvailabilityZones:  This option is only supported on Memcached clusters.
-            CacheSecurityGroupNames: A list of cache security group names to authorize
-                on this cluster. This change is asynchronously applied as soon as possible.
-            SecurityGroupIds: Specifies the VPC Security Groups associated with the
-                cluster.
-            NotificationTopicArn: The Amazon Resource Name (ARN) of the Amazon SNS
-                topic to which notifications are sent.
-            CacheParameterGroupName: The name of the cache parameter group to apply to
-                this cluster. This change is asynchronously applied as soon as possible for
-                parameters when the ``ApplyImmediately`` parameter is specified as ``true``
-                for this request.
-            NotificationTopicStatus: The status of the Amazon SNS notification topic.
-                Notifications are sent only if the status is ``active``.
-            ApplyImmediately: If ``true``, this parameter causes the modifications in
-                this request and any pending modifications to be applied, asynchronously
-                and as soon as possible, regardless of the ``PreferredMaintenanceWindow``
-                setting for the cluster.
-            AuthToken: Reserved parameter. The password used to access a password
-                protected server. This parameter must be specified with the ``auth-token-
-                update`` parameter. Password constraints:
-            AuthTokenUpdateStrategy: Specifies the strategy to use to update the AUTH
-                token. This parameter must be specified with the ``auth-token`` parameter.
-                Possible values:
+            CacheSecurityGroupNames: A list of cache security group names to authorize on this cluster. This change is
+                asynchronously applied as soon as possible.
+            SecurityGroupIds: Specifies the VPC Security Groups associated with the cluster.
+            NotificationTopicArn: The Amazon Resource Name (ARN) of the Amazon SNS topic to which notifications are sent.
+            CacheParameterGroupName: The name of the cache parameter group to apply to this cluster. This change is
+                asynchronously applied as soon as possible for parameters when the ``ApplyImmediately`` parameter is specified as
+                ``true`` for this request.
+            NotificationTopicStatus: The status of the Amazon SNS notification topic. Notifications are sent only if the status
+                is ``active``.
+            ApplyImmediately: If ``true``, this parameter causes the modifications in this request and any pending modifications
+                to be applied, asynchronously and as soon as possible, regardless of the ``PreferredMaintenanceWindow`` setting for
+                the cluster.
+            AuthToken: Reserved parameter. The password used to access a password protected server. This parameter must be
+                specified with the ``auth-token-update`` parameter. Password constraints:
+            AuthTokenUpdateStrategy: Specifies the strategy to use to update the AUTH token. This parameter must be specified
+                with the ``auth-token`` parameter. Possible values:
         """
         data = model.model_dump(exclude_none=True, by_alias=True)
         args = dict(
@@ -221,20 +200,16 @@ class CacheClusterManager(Boto3ModelManager):
         self, CacheClusterId: str, *, FinalSnapshotIdentifier: Optional[str] = None
     ) -> "CacheCluster":
         """
-        Deletes a previously provisioned cluster. ``DeleteCacheCluster``
-        deletes all associated cache nodes, node endpoints and the cluster
-        itself. When you receive a successful response from this operation,
-        Amazon ElastiCache immediately begins deleting the cluster; you cannot
-        cancel or revert this operation.
+        Deletes a previously provisioned cluster. ``DeleteCacheCluster`` deletes all associated cache nodes, node
+        endpoints and the cluster itself. When you receive a successful response from this operation, Amazon ElastiCache
+        immediately begins deleting the cluster; you cannot cancel or revert this operation.
 
         Args:
-            CacheClusterId: The cluster identifier for the cluster to be deleted. This
-                parameter is not case sensitive.
+            CacheClusterId: The cluster identifier for the cluster to be deleted. This parameter is not case sensitive.
 
         Keyword Args:
-            FinalSnapshotIdentifier: The user-supplied name of a final cluster
-                snapshot. This is the unique name that identifies the snapshot. ElastiCache
-                creates the snapshot, and then deletes the cluster immediately afterward.
+            FinalSnapshotIdentifier: The user-supplied name of a final cluster snapshot. This is the unique name that identifies
+                the snapshot. ElastiCache creates the snapshot, and then deletes the cluster immediately afterward.
         """
         args: Dict[str, Any] = dict(
             CacheClusterId=self.serialize(CacheClusterId),
@@ -254,24 +229,19 @@ class CacheClusterManager(Boto3ModelManager):
         ShowCacheClustersNotInReplicationGroups: Optional[bool] = None
     ) -> Optional["CacheCluster"]:
         """
-        Returns information about all provisioned clusters if no cluster
-        identifier is specified, or about a specific cache cluster if a cluster
-        identifier is supplied.
+        Returns information about all provisioned clusters if no cluster identifier is specified, or about a specific
+        cache cluster if a cluster identifier is supplied.
 
         Args:
-            CacheClusterId: The user-supplied cluster identifier. If this parameter is
-                specified, only information about that specific cluster is returned. This
-                parameter isn't case sensitive.
+            CacheClusterId: The user-supplied cluster identifier. If this parameter is specified, only information about that
+                specific cluster is returned. This parameter isn't case sensitive.
 
         Keyword Args:
-            ShowCacheNodeInfo: An optional flag that can be included in the
-                ``DescribeCacheCluster`` request to retrieve information about the
-                individual cache nodes.
-            ShowCacheClustersNotInReplicationGroups: An optional flag that can be
-                included in the ``DescribeCacheCluster`` request to show only nodes
-                (API/CLI: clusters) that are not members of a replication group. In
-                practice, this means Memcached and single node Valkey or Redis OSS
-                clusters.
+            ShowCacheNodeInfo: An optional flag that can be included in the ``DescribeCacheCluster`` request to retrieve
+                information about the individual cache nodes.
+            ShowCacheClustersNotInReplicationGroups: An optional flag that can be included in the ``DescribeCacheCluster``
+                request to show only nodes (API/CLI: clusters) that are not members of a replication group. In practice, this means
+                Memcached and single node Valkey or Redis OSS clusters.
         """
         args: Dict[str, Any] = dict(
             CacheClusterId=self.serialize(CacheClusterId),
@@ -298,22 +268,17 @@ class CacheClusterManager(Boto3ModelManager):
         ShowCacheClustersNotInReplicationGroups: Optional[bool] = None
     ) -> List["CacheCluster"]:
         """
-        Returns information about all provisioned clusters if no cluster
-        identifier is specified, or about a specific cache cluster if a cluster
-        identifier is supplied.
+        Returns information about all provisioned clusters if no cluster identifier is specified, or about a specific
+        cache cluster if a cluster identifier is supplied.
 
         Keyword Args:
-            CacheClusterId: The user-supplied cluster identifier. If this parameter is
-                specified, only information about that specific cluster is returned. This
-                parameter isn't case sensitive.
-            ShowCacheNodeInfo: An optional flag that can be included in the
-                ``DescribeCacheCluster`` request to retrieve information about the
-                individual cache nodes.
-            ShowCacheClustersNotInReplicationGroups: An optional flag that can be
-                included in the ``DescribeCacheCluster`` request to show only nodes
-                (API/CLI: clusters) that are not members of a replication group. In
-                practice, this means Memcached and single node Valkey or Redis OSS
-                clusters.
+            CacheClusterId: The user-supplied cluster identifier. If this parameter is specified, only information about that
+                specific cluster is returned. This parameter isn't case sensitive.
+            ShowCacheNodeInfo: An optional flag that can be included in the ``DescribeCacheCluster`` request to retrieve
+                information about the individual cache nodes.
+            ShowCacheClustersNotInReplicationGroups: An optional flag that can be included in the ``DescribeCacheCluster``
+                request to show only nodes (API/CLI: clusters) that are not members of a replication group. In practice, this means
+                Memcached and single node Valkey or Redis OSS clusters.
         """
         paginator = self.client.get_paginator("describe_cache_clusters")
         args: Dict[str, Any] = dict(
@@ -349,18 +314,16 @@ class CacheParameterGroupManager(Boto3ModelManager):
         self, model: "CacheParameterGroup", Tags: Optional[List[Tag]] = None
     ) -> "CacheParameterGroup":
         """
-        Creates a new Amazon ElastiCache cache parameter group. An ElastiCache
-        cache parameter group is a collection of parameters and their values
-        that are applied to all of the nodes in any cluster or replication
-        group using the CacheParameterGroup.
+        Creates a new Amazon ElastiCache cache parameter group. An ElastiCache cache parameter group is a collection of
+        parameters and their values that are applied to all of the nodes in any cluster or replication group using the
+        CacheParameterGroup.
 
         Args:
             model: The :py:class:``CacheParameterGroup`` to create.
 
         Keyword Args:
-            Tags: A list of tags to be added to this resource. A tag is a key-value
-                pair. A tag key must be accompanied by a tag value, although null is
-                accepted.
+            Tags: A list of tags to be added to this resource. A tag is a key-value pair. A tag key must be accompanied by a tag
+                value, although null is accepted.
         """
         data = model.model_dump(exclude_none=True, by_alias=True)
         args = dict(
@@ -379,9 +342,8 @@ class CacheParameterGroupManager(Boto3ModelManager):
 
     def update(self, model: "CacheParameterGroup") -> str:
         """
-        Modifies the parameters of a cache parameter group. You can modify up
-        to 20 parameters in a single request by submitting a list parameter
-        name and value pairs.
+        Modifies the parameters of a cache parameter group. You can modify up to 20 parameters in a single request by
+        submitting a list parameter name and value pairs.
 
         Args:
             model: The :py:class:``CacheParameterGroup`` to update.
@@ -401,9 +363,8 @@ class CacheParameterGroupManager(Boto3ModelManager):
 
     def delete(self, CacheParameterGroupName: str) -> None:
         """
-        Deletes the specified cache parameter group. You cannot delete a cache
-        parameter group if it is associated with any cache clusters. You cannot
-        delete the default cache parameter groups in your account.
+        Deletes the specified cache parameter group. You cannot delete a cache parameter group if it is associated with
+        any cache clusters. You cannot delete the default cache parameter groups in your account.
 
         Args:
             CacheParameterGroupName: The name of the cache parameter group to delete.
@@ -417,13 +378,11 @@ class CacheParameterGroupManager(Boto3ModelManager):
 
     def get(self, CacheParameterGroupName: str) -> Optional["CacheParameterGroup"]:
         """
-        Returns a list of cache parameter group descriptions. If a cache
-        parameter group name is specified, the list contains only the
-        descriptions for that group.
+        Returns a list of cache parameter group descriptions. If a cache parameter group name is specified, the list
+        contains only the descriptions for that group.
 
         Args:
-            CacheParameterGroupName: The name of a specific cache parameter group to
-                return details for.
+            CacheParameterGroupName: The name of a specific cache parameter group to return details for.
         """
         args: Dict[str, Any] = dict(
             CacheParameterGroupName=self.serialize(CacheParameterGroupName)
@@ -442,13 +401,11 @@ class CacheParameterGroupManager(Boto3ModelManager):
         self, *, CacheParameterGroupName: Optional[str] = None
     ) -> List["CacheParameterGroup"]:
         """
-        Returns a list of cache parameter group descriptions. If a cache
-        parameter group name is specified, the list contains only the
-        descriptions for that group.
+        Returns a list of cache parameter group descriptions. If a cache parameter group name is specified, the list
+        contains only the descriptions for that group.
 
         Keyword Args:
-            CacheParameterGroupName: The name of a specific cache parameter group to
-                return details for.
+            CacheParameterGroupName: The name of a specific cache parameter group to return details for.
         """
         paginator = self.client.get_paginator("describe_cache_parameter_groups")
         args: Dict[str, Any] = dict(
@@ -479,23 +436,19 @@ class CacheParameterGroupManager(Boto3ModelManager):
         ParameterNameValues: Optional[List["ParameterNameValue"]] = None
     ) -> str:
         """
-        Modifies the parameters of a cache parameter group to the engine or
-        system default value. You can reset specific parameters by submitting a
-        list of parameter names. To reset the entire cache parameter group,
-        specify the ``ResetAllParameters`` and ``CacheParameterGroupName``
-        parameters.
+        Modifies the parameters of a cache parameter group to the engine or system default value. You can reset specific
+        parameters by submitting a list of parameter names. To reset the entire cache parameter group, specify the
+        ``ResetAllParameters`` and ``CacheParameterGroupName`` parameters.
 
         Args:
             CacheParameterGroupName: The name of the cache parameter group to reset.
 
         Keyword Args:
-            ResetAllParameters: If ``true``, all parameters in the cache parameter
-                group are reset to their default values. If ``false``, only the parameters
-                listed by ``ParameterNameValues`` are reset to their default values.
-            ParameterNameValues: An array of parameter names to reset to their default
-                values. If ``ResetAllParameters`` is ``true``, do not use
-                ``ParameterNameValues``. If ``ResetAllParameters`` is ``false``, you must
-                specify the name of at least one parameter to reset.
+            ResetAllParameters: If ``true``, all parameters in the cache parameter group are reset to their default values. If
+                ``false``, only the parameters listed by ``ParameterNameValues`` are reset to their default values.
+            ParameterNameValues: An array of parameter names to reset to their default values. If ``ResetAllParameters`` is
+                ``true``, do not use ``ParameterNameValues``. If ``ResetAllParameters`` is ``false``, you must specify the name of
+                at least one parameter to reset.
         """
         args: Dict[str, Any] = dict(
             CacheParameterGroupName=self.serialize(CacheParameterGroupName),
@@ -518,12 +471,10 @@ class CacheParameterGroupManager(Boto3ModelManager):
         self, CacheParameterGroupName: str, *, Source: Optional[str] = None
     ) -> List["CacheParameter"]:
         """
-        Returns the detailed parameter list for a particular cache parameter
-        group.
+        Returns the detailed parameter list for a particular cache parameter group.
 
         Args:
-            CacheParameterGroupName: The name of a specific cache parameter group to
-                return details for.
+            CacheParameterGroupName: The name of a specific cache parameter group to return details for.
 
         Keyword Args:
             Source: The parameter types to return.
@@ -564,9 +515,8 @@ class CacheSubnetGroupManager(Boto3ModelManager):
             model: The :py:class:``CacheSubnetGroup`` to create.
 
         Keyword Args:
-            Tags: A list of tags to be added to this resource. A tag is a key-value
-                pair. A tag key must be accompanied by a tag value, although null is
-                accepted.
+            Tags: A list of tags to be added to this resource. A tag is a key-value pair. A tag key must be accompanied by a tag
+                value, although null is accepted.
         """
         data = model.model_dump(exclude_none=True, by_alias=True)
         args = dict(
@@ -625,14 +575,12 @@ class CacheSubnetGroupManager(Boto3ModelManager):
 
     def get(self, CacheSubnetGroupName: str) -> Optional["CacheSubnetGroup"]:
         """
-        Returns a list of cache subnet group descriptions. If a subnet group
-        name is specified, the list contains only the description of that
-        group. This is applicable only when you have ElastiCache in VPC setup.
-        All ElastiCache clusters now launch in VPC by default.
+        Returns a list of cache subnet group descriptions. If a subnet group name is specified, the list contains only
+        the description of that group. This is applicable only when you have ElastiCache in VPC setup. All ElastiCache
+        clusters now launch in VPC by default.
 
         Args:
-            CacheSubnetGroupName: The name of the cache subnet group to return details
-                for.
+            CacheSubnetGroupName: The name of the cache subnet group to return details for.
         """
         args: Dict[str, Any] = dict(
             CacheSubnetGroupName=self.serialize(CacheSubnetGroupName)
@@ -651,14 +599,12 @@ class CacheSubnetGroupManager(Boto3ModelManager):
         self, *, CacheSubnetGroupName: Optional[str] = None
     ) -> List["CacheSubnetGroup"]:
         """
-        Returns a list of cache subnet group descriptions. If a subnet group
-        name is specified, the list contains only the description of that
-        group. This is applicable only when you have ElastiCache in VPC setup.
-        All ElastiCache clusters now launch in VPC by default.
+        Returns a list of cache subnet group descriptions. If a subnet group name is specified, the list contains only
+        the description of that group. This is applicable only when you have ElastiCache in VPC setup. All ElastiCache
+        clusters now launch in VPC by default.
 
         Keyword Args:
-            CacheSubnetGroupName: The name of the cache subnet group to return details
-                for.
+            CacheSubnetGroupName: The name of the cache subnet group to return details for.
         """
         paginator = self.client.get_paginator("describe_cache_subnet_groups")
         args: Dict[str, Any] = dict(
@@ -690,16 +636,14 @@ class CacheSecurityGroupManager(Boto3ModelManager):
         self, model: "CacheSecurityGroup", Tags: Optional[List[Tag]] = None
     ) -> "CacheSecurityGroup":
         """
-        Creates a new cache security group. Use a cache security group to
-        control access to one or more clusters.
+        Creates a new cache security group. Use a cache security group to control access to one or more clusters.
 
         Args:
             model: The :py:class:``CacheSecurityGroup`` to create.
 
         Keyword Args:
-            Tags: A list of tags to be added to this resource. A tag is a key-value
-                pair. A tag key must be accompanied by a tag value, although null is
-                accepted.
+            Tags: A list of tags to be added to this resource. A tag is a key-value pair. A tag key must be accompanied by a tag
+                value, although null is accepted.
         """
         data = model.model_dump(exclude_none=True, by_alias=True)
         args = dict(
@@ -731,14 +675,11 @@ class CacheSecurityGroupManager(Boto3ModelManager):
 
     def get(self, CacheSecurityGroupName: str) -> Optional["CacheSecurityGroup"]:
         """
-        Returns a list of cache security group descriptions. If a cache
-        security group name is specified, the list contains only the
-        description of that group. This applicable only when you have
-        ElastiCache in Classic setup.
+        Returns a list of cache security group descriptions. If a cache security group name is specified, the list
+        contains only the description of that group. This applicable only when you have ElastiCache in Classic setup.
 
         Args:
-            CacheSecurityGroupName: The name of the cache security group to return
-                details for.
+            CacheSecurityGroupName: The name of the cache security group to return details for.
         """
         args: Dict[str, Any] = dict(
             CacheSecurityGroupName=self.serialize(CacheSecurityGroupName)
@@ -757,14 +698,11 @@ class CacheSecurityGroupManager(Boto3ModelManager):
         self, *, CacheSecurityGroupName: Optional[str] = None
     ) -> List["CacheSecurityGroup"]:
         """
-        Returns a list of cache security group descriptions. If a cache
-        security group name is specified, the list contains only the
-        description of that group. This applicable only when you have
-        ElastiCache in Classic setup.
+        Returns a list of cache security group descriptions. If a cache security group name is specified, the list
+        contains only the description of that group. This applicable only when you have ElastiCache in Classic setup.
 
         Keyword Args:
-            CacheSecurityGroupName: The name of the cache security group to return
-                details for.
+            CacheSecurityGroupName: The name of the cache security group to return details for.
         """
         paginator = self.client.get_paginator("describe_cache_security_groups")
         args: Dict[str, Any] = dict(
@@ -794,19 +732,14 @@ class CacheSecurityGroupManager(Boto3ModelManager):
         EC2SecurityGroupOwnerId: str,
     ) -> "CacheSecurityGroup":
         """
-        Allows network ingress to a cache security group. Applications using
-        ElastiCache must be running on Amazon EC2, and Amazon EC2 security
-        groups are used as the authorization mechanism.
+        Allows network ingress to a cache security group. Applications using ElastiCache must be running on Amazon EC2,
+        and Amazon EC2 security groups are used as the authorization mechanism.
 
         Args:
-            CacheSecurityGroupName: The cache security group that allows network
-                ingress.
-            EC2SecurityGroupName: The Amazon EC2 security group to be authorized for
-                ingress to the cache security group.
-            EC2SecurityGroupOwnerId: The Amazon account number of the Amazon EC2
-                security group owner. Note that this is not the same thing as an Amazon
-                access key ID - you must provide a valid Amazon account number for this
-                parameter.
+            CacheSecurityGroupName: The cache security group that allows network ingress.
+            EC2SecurityGroupName: The Amazon EC2 security group to be authorized for ingress to the cache security group.
+            EC2SecurityGroupOwnerId: The Amazon account number of the Amazon EC2 security group owner. Note that this is not the
+                same thing as an Amazon access key ID - you must provide a valid Amazon account number for this parameter.
         """
         args: Dict[str, Any] = dict(
             CacheSecurityGroupName=self.serialize(CacheSecurityGroupName),
@@ -832,19 +765,14 @@ class CacheSecurityGroupManager(Boto3ModelManager):
         EC2SecurityGroupOwnerId: str,
     ) -> "CacheSecurityGroup":
         """
-        Revokes ingress from a cache security group. Use this operation to
-        disallow access from an Amazon EC2 security group that had been
-        previously authorized.
+        Revokes ingress from a cache security group. Use this operation to disallow access from an Amazon EC2 security
+        group that had been previously authorized.
 
         Args:
-            CacheSecurityGroupName: The name of the cache security group to revoke
-                ingress from.
-            EC2SecurityGroupName: The name of the Amazon EC2 security group to revoke
-                access from.
-            EC2SecurityGroupOwnerId: The Amazon account number of the Amazon EC2
-                security group owner. Note that this is not the same thing as an Amazon
-                access key ID - you must provide a valid Amazon account number for this
-                parameter.
+            CacheSecurityGroupName: The name of the cache security group to revoke ingress from.
+            EC2SecurityGroupName: The name of the Amazon EC2 security group to revoke access from.
+            EC2SecurityGroupOwnerId: The Amazon account number of the Amazon EC2 security group owner. Note that this is not the
+                same thing as an Amazon access key ID - you must provide a valid Amazon account number for this parameter.
         """
         args: Dict[str, Any] = dict(
             CacheSecurityGroupName=self.serialize(CacheSecurityGroupName),
@@ -897,85 +825,62 @@ class ReplicationGroupManager(Boto3ModelManager):
         ServerlessCacheSnapshotName: Optional[str] = None,
     ) -> "ReplicationGroup":
         """
-        Creates a Valkey or Redis OSS (cluster mode disabled) or a Valkey or
-        Redis OSS (cluster mode enabled) replication group.
+        Creates a Valkey or Redis OSS (cluster mode disabled) or a Valkey or Redis OSS (cluster mode enabled)
+        replication group.
 
         Args:
             model: The :py:class:``ReplicationGroup`` to create.
-            ReplicationGroupDescription: A user-created description for the replication
-                group.
+            ReplicationGroupDescription: A user-created description for the replication group.
 
         Keyword Args:
             GlobalReplicationGroupId: The name of the Global datastore
-            PrimaryClusterId: The identifier of the cluster that serves as the primary
-                for this replication group. This cluster must already exist and have a
-                status of ``available``.
-            AutomaticFailoverEnabled: Specifies whether a read-only replica is
-                automatically promoted to read/write primary if the existing primary fails.
-            MultiAZEnabled: A flag indicating if you have Multi-AZ enabled to enhance
-                fault tolerance. For more information, see `Minimizing Downtime: Multi-AZ
-                <http://docs.aws.amazon.com/AmazonElastiCache/latest/red-
-                ug/AutoFailover.html>`_.
-            NumCacheClusters: The number of clusters this replication group initially
-                has.
-            PreferredCacheClusterAZs: A list of EC2 Availability Zones in which the
-                replication group's clusters are created. The order of the Availability
-                Zones in the list is the order in which clusters are allocated. The primary
-                cluster is created in the first AZ in the list.
-            NumNodeGroups: An optional parameter that specifies the number of node
-                groups (shards) for this Valkey or Redis OSS (cluster mode enabled)
-                replication group. For Valkey or Redis OSS (cluster mode disabled) either
-                omit this parameter or set it to 1.
-            ReplicasPerNodeGroup: An optional parameter that specifies the number of
-                replica nodes in each node group (shard). Valid values are 0 to 5.
-            NodeGroupConfiguration: A list of node group (shard) configuration options.
-                Each node group (shard) configuration has the following members:
-                ``PrimaryAvailabilityZone``, ``ReplicaAvailabilityZones``,
-                ``ReplicaCount``, and ``Slots``.
-            EngineVersion: The version number of the cache engine to be used for the
-                clusters in this replication group. To view the supported cache engine
-                versions, use the ``DescribeCacheEngineVersions`` operation.
-            CacheParameterGroupName: The name of the parameter group to associate with
-                this replication group. If this argument is omitted, the default cache
-                parameter group for the specified engine is used.
-            CacheSubnetGroupName: The name of the cache subnet group to be used for the
-                replication group.
-            CacheSecurityGroupNames: A list of cache security group names to associate
-                with this replication group.
-            SecurityGroupIds: One or more Amazon VPC security groups associated with
-                this replication group.
-            Tags: A list of tags to be added to this resource. Tags are comma-separated
-                key,value pairs (e.g. Key=``myKey``, Value=``myKeyValue``. You can include
-                multiple tags as shown following: Key=``myKey``, Value=``myKeyValue``
-                Key=``mySecondKey``, Value=``mySecondKeyValue``. Tags on replication groups
-                will be replicated to all nodes.
-            SnapshotArns: A list of Amazon Resource Names (ARN) that uniquely identify
-                the Valkey or Redis OSS RDB snapshot files stored in Amazon S3. The
-                snapshot files are used to populate the new replication group. The Amazon
-                S3 object name in the ARN cannot contain any commas. The new replication
-                group will have the number of node groups (console: shards) specified by
-                the parameter *NumNodeGroups* or the number of node groups configured by
+            PrimaryClusterId: The identifier of the cluster that serves as the primary for this replication group. This cluster
+                must already exist and have a status of ``available``.
+            AutomaticFailoverEnabled: Specifies whether a read-only replica is automatically promoted to read/write primary if
+                the existing primary fails.
+            MultiAZEnabled: A flag indicating if you have Multi-AZ enabled to enhance fault tolerance. For more information, see
+                `Minimizing Downtime: Multi-AZ <http://docs.aws.amazon.com/AmazonElastiCache/latest/red-ug/AutoFailover.html>`_.
+            NumCacheClusters: The number of clusters this replication group initially has.
+            PreferredCacheClusterAZs: A list of EC2 Availability Zones in which the replication group's clusters are created.
+                The order of the Availability Zones in the list is the order in which clusters are allocated. The primary cluster is
+                created in the first AZ in the list.
+            NumNodeGroups: An optional parameter that specifies the number of node groups (shards) for this Valkey or Redis OSS
+                (cluster mode enabled) replication group. For Valkey or Redis OSS (cluster mode disabled) either omit this parameter
+                or set it to 1.
+            ReplicasPerNodeGroup: An optional parameter that specifies the number of replica nodes in each node group (shard).
+                Valid values are 0 to 5.
+            NodeGroupConfiguration: A list of node group (shard) configuration options. Each node group (shard) configuration
+                has the following members: ``PrimaryAvailabilityZone``, ``ReplicaAvailabilityZones``, ``ReplicaCount``, and
+                ``Slots``.
+            EngineVersion: The version number of the cache engine to be used for the clusters in this replication group. To view
+                the supported cache engine versions, use the ``DescribeCacheEngineVersions`` operation.
+            CacheParameterGroupName: The name of the parameter group to associate with this replication group. If this argument
+                is omitted, the default cache parameter group for the specified engine is used.
+            CacheSubnetGroupName: The name of the cache subnet group to be used for the replication group.
+            CacheSecurityGroupNames: A list of cache security group names to associate with this replication group.
+            SecurityGroupIds: One or more Amazon VPC security groups associated with this replication group.
+            Tags: A list of tags to be added to this resource. Tags are comma-separated key,value pairs (e.g. Key=``myKey``,
+                Value=``myKeyValue``. You can include multiple tags as shown following: Key=``myKey``, Value=``myKeyValue``
+                Key=``mySecondKey``, Value=``mySecondKeyValue``. Tags on replication groups will be replicated to all nodes.
+            SnapshotArns: A list of Amazon Resource Names (ARN) that uniquely identify the Valkey or Redis OSS RDB snapshot
+                files stored in Amazon S3. The snapshot files are used to populate the new replication group. The Amazon S3 object
+                name in the ARN cannot contain any commas. The new replication group will have the number of node groups (console:
+                shards) specified by the parameter *NumNodeGroups* or the number of node groups configured by
                 *NodeGroupConfiguration* regardless of the number of ARNs specified here.
-            SnapshotName: The name of a snapshot from which to restore data into the
-                new replication group. The snapshot status changes to ``restoring`` while
-                the new replication group is being created.
-            PreferredMaintenanceWindow: Specifies the weekly time range during which
-                maintenance on the cluster is performed. It is specified as a range in the
-                format ddd:hh24:mi-ddd:hh24:mi (24H Clock UTC). The minimum maintenance
-                window is a 60 minute period.
-            Port: The port number on which each member of the replication group accepts
-                connections.
-            NotificationTopicArn: The Amazon Resource Name (ARN) of the Amazon Simple
-                Notification Service (SNS) topic to which notifications are sent.
-            AuthToken:  **Reserved parameter.** The password used to access a password
-                protected server.
-            DataTieringEnabled: Enables data tiering. Data tiering is only supported
-                for replication groups using the r6gd node type. This parameter must be set
-                to true when using r6gd nodes. For more information, see `Data tiering
-                <https://docs.aws.amazon.com/AmazonElastiCache/latest/red-ug/data-
-                tiering.html>`_.
-            ServerlessCacheSnapshotName: The name of the snapshot used to create a
-                replication group. Available for Valkey, Redis OSS only.
+            SnapshotName: The name of a snapshot from which to restore data into the new replication group. The snapshot status
+                changes to ``restoring`` while the new replication group is being created.
+            PreferredMaintenanceWindow: Specifies the weekly time range during which maintenance on the cluster is performed. It
+                is specified as a range in the format ddd:hh24:mi-ddd:hh24:mi (24H Clock UTC). The minimum maintenance window is a
+                60 minute period.
+            Port: The port number on which each member of the replication group accepts connections.
+            NotificationTopicArn: The Amazon Resource Name (ARN) of the Amazon Simple Notification Service (SNS) topic to which
+                notifications are sent.
+            AuthToken:  **Reserved parameter.** The password used to access a password protected server.
+            DataTieringEnabled: Enables data tiering. Data tiering is only supported for replication groups using the r6gd node
+                type. This parameter must be set to true when using r6gd nodes. For more information, see `Data tiering
+                <https://docs.aws.amazon.com/AmazonElastiCache/latest/red-ug/data-tiering.html>`_.
+            ServerlessCacheSnapshotName: The name of the snapshot used to create a replication group. Available for Valkey,
+                Redis OSS only.
         """
         data = model.model_dump(exclude_none=True, by_alias=True)
         args = dict(
@@ -1050,61 +955,44 @@ class ReplicationGroupManager(Boto3ModelManager):
         RemoveUserGroups: Optional[bool] = None,
     ) -> "ReplicationGroup":
         """
-        Modifies the settings for a replication group. This is limited to
-        Valkey and Redis OSS 7 and above.
+        Modifies the settings for a replication group. This is limited to Valkey and Redis OSS 7 and above.
 
         Args:
             model: The :py:class:``ReplicationGroup`` to update.
 
         Keyword Args:
-            ReplicationGroupDescription: A description for the replication group.
-                Maximum length is 255 characters.
-            PrimaryClusterId: For replication groups with a single primary, if this
-                parameter is specified, ElastiCache promotes the specified cluster in the
-                specified replication group to the primary role. The nodes of all other
-                clusters in the replication group are read replicas.
-            AutomaticFailoverEnabled: Determines whether a read replica is
-                automatically promoted to read/write primary if the existing primary
-                encounters a failure.
+            ReplicationGroupDescription: A description for the replication group. Maximum length is 255 characters.
+            PrimaryClusterId: For replication groups with a single primary, if this parameter is specified, ElastiCache promotes
+                the specified cluster in the specified replication group to the primary role. The nodes of all other clusters in the
+                replication group are read replicas.
+            AutomaticFailoverEnabled: Determines whether a read replica is automatically promoted to read/write primary if the
+                existing primary encounters a failure.
             MultiAZEnabled: A flag to indicate MultiAZ is enabled.
             NodeGroupId: Deprecated. This parameter is not used.
-            CacheSecurityGroupNames: A list of cache security group names to authorize
-                for the clusters in this replication group. This change is asynchronously
-                applied as soon as possible.
-            SecurityGroupIds: Specifies the VPC Security Groups associated with the
-                clusters in the replication group.
-            PreferredMaintenanceWindow: Specifies the weekly time range during which
-                maintenance on the cluster is performed. It is specified as a range in the
-                format ddd:hh24:mi-ddd:hh24:mi (24H Clock UTC). The minimum maintenance
-                window is a 60 minute period.
-            NotificationTopicArn: The Amazon Resource Name (ARN) of the Amazon SNS
-                topic to which notifications are sent.
-            CacheParameterGroupName: The name of the cache parameter group to apply to
-                all of the clusters in this replication group. This change is
-                asynchronously applied as soon as possible for parameters when the
-                ``ApplyImmediately`` parameter is specified as ``true`` for this request.
-            NotificationTopicStatus: The status of the Amazon SNS notification topic
-                for the replication group. Notifications are sent only if the status is
-                ``active``.
-            ApplyImmediately: If ``true``, this parameter causes the modifications in
-                this request and any pending modifications to be applied, asynchronously
-                and as soon as possible, regardless of the ``PreferredMaintenanceWindow``
-                setting for the replication group.
-            EngineVersion: The upgraded version of the cache engine to be run on the
-                clusters in the replication group.
-            AuthToken: Reserved parameter. The password used to access a password
-                protected server. This parameter must be specified with the ``auth-token-
-                update-strategy`` parameter. Password constraints:
-            AuthTokenUpdateStrategy: Specifies the strategy to use to update the AUTH
-                token. This parameter must be specified with the ``auth-token`` parameter.
-                Possible values:
-            UserGroupIdsToAdd: The ID of the user group you are associating with the
-                replication group.
-            UserGroupIdsToRemove: The ID of the user group to disassociate from the
-                replication group, meaning the users in the group no longer can access the
-                replication group.
-            RemoveUserGroups: Removes the user group associated with this replication
-                group.
+            CacheSecurityGroupNames: A list of cache security group names to authorize for the clusters in this replication
+                group. This change is asynchronously applied as soon as possible.
+            SecurityGroupIds: Specifies the VPC Security Groups associated with the clusters in the replication group.
+            PreferredMaintenanceWindow: Specifies the weekly time range during which maintenance on the cluster is performed. It
+                is specified as a range in the format ddd:hh24:mi-ddd:hh24:mi (24H Clock UTC). The minimum maintenance window is a
+                60 minute period.
+            NotificationTopicArn: The Amazon Resource Name (ARN) of the Amazon SNS topic to which notifications are sent.
+            CacheParameterGroupName: The name of the cache parameter group to apply to all of the clusters in this replication
+                group. This change is asynchronously applied as soon as possible for parameters when the ``ApplyImmediately``
+                parameter is specified as ``true`` for this request.
+            NotificationTopicStatus: The status of the Amazon SNS notification topic for the replication group. Notifications
+                are sent only if the status is ``active``.
+            ApplyImmediately: If ``true``, this parameter causes the modifications in this request and any pending modifications
+                to be applied, asynchronously and as soon as possible, regardless of the ``PreferredMaintenanceWindow`` setting for
+                the replication group.
+            EngineVersion: The upgraded version of the cache engine to be run on the clusters in the replication group.
+            AuthToken: Reserved parameter. The password used to access a password protected server. This parameter must be
+                specified with the ``auth-token-update-strategy``  parameter. Password constraints:
+            AuthTokenUpdateStrategy: Specifies the strategy to use to update the AUTH token. This parameter must be specified
+                with the ``auth-token`` parameter. Possible values:
+            UserGroupIdsToAdd: The ID of the user group you are associating with the replication group.
+            UserGroupIdsToRemove: The ID of the user group to disassociate from the replication group, meaning the users in the
+                group no longer can access the replication group.
+            RemoveUserGroups: Removes the user group associated with this replication group.
         """
         data = model.model_dump(exclude_none=True, by_alias=True)
         args = dict(
@@ -1155,24 +1043,19 @@ class ReplicationGroupManager(Boto3ModelManager):
         FinalSnapshotIdentifier: str = "None"
     ) -> "ReplicationGroup":
         """
-        Deletes an existing replication group. By default, this operation
-        deletes the entire replication group, including the primary/primaries
-        and all of the read replicas. If the replication group has only one
-        primary, you can optionally delete only the read replicas, while
-        retaining the primary by setting ``RetainPrimaryCluster=true``.
+        Deletes an existing replication group. By default, this operation deletes the entire replication group,
+        including the primary/primaries and all of the read replicas. If the replication group has only one primary, you
+        can optionally delete only the read replicas, while retaining the primary by setting
+        ``RetainPrimaryCluster=true``.
 
         Args:
-            ReplicationGroupId: The identifier for the cluster to be deleted. This
-                parameter is not case sensitive.
+            ReplicationGroupId: The identifier for the cluster to be deleted. This parameter is not case sensitive.
 
         Keyword Args:
-            RetainPrimaryCluster: If set to ``true``, all of the read replicas are
-                deleted, but the primary node is retained.
-            FinalSnapshotIdentifier: The name of a final node group (shard) snapshot.
-                ElastiCache creates the snapshot from the primary node in the cluster,
-                rather than one of the replicas; this is to ensure that it captures the
-                freshest data. After the final snapshot is taken, the replication group is
-                immediately deleted.
+            RetainPrimaryCluster: If set to ``true``, all of the read replicas are deleted, but the primary node is retained.
+            FinalSnapshotIdentifier: The name of a final node group (shard) snapshot. ElastiCache creates the snapshot from the
+                primary node in the cluster, rather than one of the replicas; this is to ensure that it captures the freshest data.
+                After the final snapshot is taken, the replication group is immediately deleted.
         """
         args: Dict[str, Any] = dict(
             ReplicationGroupId=self.serialize(ReplicationGroupId),
@@ -1187,13 +1070,11 @@ class ReplicationGroupManager(Boto3ModelManager):
 
     def get(self, ReplicationGroupId: str) -> Optional["ReplicationGroup"]:
         """
-        Returns information about a particular replication group. If no
-        identifier is specified, ``DescribeReplicationGroups`` returns
-        information about all replication groups.
+        Returns information about a particular replication group. If no identifier is specified,
+        ``DescribeReplicationGroups`` returns information about all replication groups.
 
         Args:
-            ReplicationGroupId: The identifier for the replication group to be
-                described. This parameter is not case sensitive.
+            ReplicationGroupId: The identifier for the replication group to be described. This parameter is not case sensitive.
         """
         args: Dict[str, Any] = dict(
             ReplicationGroupId=self.serialize(ReplicationGroupId)
@@ -1212,13 +1093,11 @@ class ReplicationGroupManager(Boto3ModelManager):
         self, *, ReplicationGroupId: Optional[str] = None
     ) -> List["ReplicationGroup"]:
         """
-        Returns information about a particular replication group. If no
-        identifier is specified, ``DescribeReplicationGroups`` returns
-        information about all replication groups.
+        Returns information about a particular replication group. If no identifier is specified,
+        ``DescribeReplicationGroups`` returns information about all replication groups.
 
         Keyword Args:
-            ReplicationGroupId: The identifier for the replication group to be
-                described. This parameter is not case sensitive.
+            ReplicationGroupId: The identifier for the replication group to be described. This parameter is not case sensitive.
         """
         paginator = self.client.get_paginator("describe_replication_groups")
         args: Dict[str, Any] = dict(
@@ -1250,12 +1129,10 @@ class CacheParameterManager(ReadonlyBoto3ModelManager):
         self, CacheParameterGroupName: str, *, Source: Optional[str] = None
     ) -> Optional["CacheParameter"]:
         """
-        Returns the detailed parameter list for a particular cache parameter
-        group.
+        Returns the detailed parameter list for a particular cache parameter group.
 
         Args:
-            CacheParameterGroupName: The name of a specific cache parameter group to
-                return details for.
+            CacheParameterGroupName: The name of a specific cache parameter group to return details for.
 
         Keyword Args:
             Source: The parameter types to return.
@@ -1278,12 +1155,10 @@ class CacheParameterManager(ReadonlyBoto3ModelManager):
         self, CacheParameterGroupName: str, *, Source: Optional[str] = None
     ) -> List["CacheParameter"]:
         """
-        Returns the detailed parameter list for a particular cache parameter
-        group.
+        Returns the detailed parameter list for a particular cache parameter group.
 
         Args:
-            CacheParameterGroupName: The name of a specific cache parameter group to
-                return details for.
+            CacheParameterGroupName: The name of a specific cache parameter group to return details for.
 
         Keyword Args:
             Source: The parameter types to return.
@@ -1317,9 +1192,8 @@ class CacheParameterManager(ReadonlyBoto3ModelManager):
 
 class ElastiCacheEndpoint(Boto3Model):
     """
-    Represents a Memcached cluster endpoint which can be used by an application
-    to connect to any node in the cluster. The configuration endpoint will
-    always have ``.cfg`` in it.
+    Represents a Memcached cluster endpoint which can be used by an application to connect to any node in the cluster.
+    The configuration endpoint will always have ``.cfg`` in it.
 
     Example: ``mem-3.9dvc4r.cfg.usw2.cache.amazonaws.com:11211``
     """
@@ -1358,8 +1232,7 @@ class KinesisFirehoseDestinationDetails(Boto3Model):
 
 class ElastiCacheDestinationDetails(Boto3Model):
     """
-    Configuration details of either a CloudWatch Logs destination or Kinesis
-    Data Firehose destination.
+    Configuration details of either a CloudWatch Logs destination or Kinesis Data Firehose destination.
     """
 
     CloudWatchLogsDetails: Optional[CloudWatchLogsDestinationDetails] = None
@@ -1383,13 +1256,11 @@ Refers to `slow-log <https://redis.io/commands/slowlog>`_ or engine-log..
     """
     DestinationType: Optional[Literal["cloudwatch-logs", "kinesis-firehose"]] = None
     """
-    Returns the destination type, either CloudWatch Logs or Kinesis Data
-    Firehose.
+    Returns the destination type, either CloudWatch Logs or Kinesis Data Firehose.
     """
     DestinationDetails: Optional[ElastiCacheDestinationDetails] = None
     """
-    Configuration details of either a CloudWatch Logs destination or Kinesis
-    Data Firehose destination.
+    Configuration details of either a CloudWatch Logs destination or Kinesis Data Firehose destination.
     """
     LogFormat: Optional[Literal["text", "json"]] = None
     """
@@ -1399,8 +1270,7 @@ Refers to `slow-log <https://redis.io/commands/slowlog>`_ or engine-log..
 
 class ElastiCachePendingModifiedValues(Boto3Model):
     """
-    A group of settings that are applied to the cluster in the future, or that
-    are currently being applied.
+    A group of settings that are applied to the cluster in the future, or that are currently being applied.
     """
 
     NumCacheNodes: Optional[int] = None
@@ -1409,8 +1279,7 @@ class ElastiCachePendingModifiedValues(Boto3Model):
     """
     CacheNodeIdsToRemove: Optional[List[str]] = None
     """
-    A list of cache node IDs that are being removed (or will be removed) from
-    the cluster.
+    A list of cache node IDs that are being removed (or will be removed) from the cluster.
 
     A node ID is a 4-digit numeric identifier (0001, 0002, etc.).
     """
@@ -1436,8 +1305,7 @@ class ElastiCachePendingModifiedValues(Boto3Model):
     """
     TransitEncryptionMode: Optional[Literal["preferred", "required"]] = None
     """
-    A setting that allows you to migrate your clients to use in-transit
-    encryption, with no downtime.
+    A setting that allows you to migrate your clients to use in-transit encryption, with no downtime.
     """
 
 
@@ -1445,8 +1313,8 @@ class ElastiCacheNotificationConfiguration(Boto3Model):
     """
     Describes a notification topic and its status.
 
-    Notification topics are used for publishing ElastiCache events to
-    subscribers using Amazon Simple Notification Service (SNS).
+    Notification topics are used for publishing ElastiCache events to subscribers using Amazon Simple Notification
+    Service (SNS).
     """
 
     TopicArn: Optional[str] = None
@@ -1472,8 +1340,8 @@ class CacheSecurityGroupMembership(Boto3Model):
     """
     The membership status in the cache security group.
 
-    The status changes when a cache security group is modified, or when the
-    cache security groups assigned to a cluster are modified.
+    The status changes when a cache security group is modified, or when the cache security groups assigned to a cluster
+    are modified.
     """
 
 
@@ -1492,69 +1360,59 @@ class CacheParameterGroupStatus(Boto3Model):
     """
     CacheNodeIdsToReboot: Optional[List[str]] = None
     """
-    A list of the cache node IDs which need to be rebooted for parameter
-    changes to be applied.
+    A list of the cache node IDs which need to be rebooted for parameter changes to be applied.
 
     A node ID is a numeric identifier (0001, 0002, etc.).
     """
 
 
 class CacheNode(Boto3Model):
-    """Represents an individual cache node within a cluster. Each cache node runs its
-    own instance of the cluster's protocol-compliant caching software - either
-    Memcached, Valkey or Redis OSS.
+    """Represents an individual cache node within a cluster. Each cache node runs its own instance of the cluster's
+    protocol-compliant caching software - either Memcached, Valkey or Redis OSS.
 
-    The following node types are supported by ElastiCache. Generally speaking, the
-    current generation types provide more memory and computational power at lower
-    cost when compared to their equivalent previous generation counterparts.
+    The following node types are supported by ElastiCache. Generally speaking, the current generation types provide more
+    memory and computational power at lower cost when compared to their equivalent previous generation counterparts.
 
     * General purpose:
 
 
     + Current generation:
 
-    **M7g node types**: ``cache.m7g.large``, ``cache.m7g.xlarge``,
-      ``cache.m7g.2xlarge``, ``cache.m7g.4xlarge``, ``cache.m7g.8xlarge``,
-      ``cache.m7g.12xlarge``, ``cache.m7g.16xlarge``
+    **M7g node types**: ``cache.m7g.large``, ``cache.m7g.xlarge``, ``cache.m7g.2xlarge``, ``cache.m7g.4xlarge``,
+      ``cache.m7g.8xlarge``, ``cache.m7g.12xlarge``, ``cache.m7g.16xlarge``
 
-    For region availability, see `Supported Node
-    Types <https://docs.aws.amazon.com/AmazonElastiCache/latest/red-
+    For region availability, see `Supported Node Types <https://docs.aws.amazon.com/AmazonElastiCache/latest/red-
     ug/CacheNodes.SupportedTypes.html#CacheNodes.SupportedTypesByRegion>`_
 
-    **M6g node types** (available only for Redis OSS engine version 5.0.6 onward
-      and for Memcached engine version 1.5.16 onward): ``cache.m6g.large``,
-      ``cache.m6g.xlarge``, ``cache.m6g.2xlarge``, ``cache.m6g.4xlarge``,
-      ``cache.m6g.8xlarge``, ``cache.m6g.12xlarge``, ``cache.m6g.16xlarge``
+    **M6g node types** (available only for Redis OSS engine version 5.0.6 onward and for Memcached engine version 1.5.16
+      onward): ``cache.m6g.large``, ``cache.m6g.xlarge``, ``cache.m6g.2xlarge``, ``cache.m6g.4xlarge``, ``cache.m6g.8xlarge``,
+      ``cache.m6g.12xlarge``, ``cache.m6g.16xlarge``
 
-    **M5 node types:** ``cache.m5.large``, ``cache.m5.xlarge``,
-      ``cache.m5.2xlarge``, ``cache.m5.4xlarge``, ``cache.m5.12xlarge``,
-      ``cache.m5.24xlarge``
+    **M5 node types:** ``cache.m5.large``, ``cache.m5.xlarge``, ``cache.m5.2xlarge``, ``cache.m5.4xlarge``,
+      ``cache.m5.12xlarge``, ``cache.m5.24xlarge``
 
-    **M4 node types:** ``cache.m4.large``, ``cache.m4.xlarge``,
-      ``cache.m4.2xlarge``, ``cache.m4.4xlarge``, ``cache.m4.10xlarge``
+    **M4 node types:** ``cache.m4.large``, ``cache.m4.xlarge``, ``cache.m4.2xlarge``, ``cache.m4.4xlarge``,
+      ``cache.m4.10xlarge``
 
-    **T4g node types** (available only for Redis OSS engine version 5.0.6 onward
-      and Memcached engine version 1.5.16 onward): ``cache.t4g.micro``,
-      ``cache.t4g.small``, ``cache.t4g.medium``
+    **T4g node types** (available only for Redis OSS engine version 5.0.6 onward and Memcached engine version 1.5.16
+      onward): ``cache.t4g.micro``, ``cache.t4g.small``, ``cache.t4g.medium``
 
     **T3 node types:** ``cache.t3.micro``, ``cache.t3.small``, ``cache.t3.medium``
 
     **T2 node types:** ``cache.t2.micro``, ``cache.t2.small``, ``cache.t2.medium``
-    + Previous generation: (not recommended. Existing clusters are still supported
-    but creation of new clusters is not supported for these types.)
+    + Previous generation: (not recommended. Existing clusters are still supported but creation of new clusters is not
+    supported for these types.)
 
     **T1 node types:** ``cache.t1.micro``
 
-    **M1 node types:** ``cache.m1.small``, ``cache.m1.medium``, ``cache.m1.large``,
-      ``cache.m1.xlarge``
+    **M1 node types:** ``cache.m1.small``, ``cache.m1.medium``, ``cache.m1.large``, ``cache.m1.xlarge``
 
-    **M3 node types:** ``cache.m3.medium``, ``cache.m3.large``,
-      ``cache.m3.xlarge``, ``cache.m3.2xlarge``
+    **M3 node types:** ``cache.m3.medium``, ``cache.m3.large``, ``cache.m3.xlarge``, ``cache.m3.2xlarge``
     * Compute optimized:
 
 
-    + Previous generation: (not recommended. Existing clusters are still supported
-    but creation of new clusters is not supported for these types.)
+    + Previous generation: (not recommended. Existing clusters are still supported but creation of new clusters is not
+    supported for these types.)
 
     **C1 node types:** ``cache.c1.xlarge``
     * Memory optimized:
@@ -1562,59 +1420,49 @@ class CacheNode(Boto3Model):
 
     + Current generation:
 
-    **R7g node types**: ``cache.r7g.large``, ``cache.r7g.xlarge``,
-      ``cache.r7g.2xlarge``, ``cache.r7g.4xlarge``, ``cache.r7g.8xlarge``,
-      ``cache.r7g.12xlarge``, ``cache.r7g.16xlarge``
+    **R7g node types**: ``cache.r7g.large``, ``cache.r7g.xlarge``, ``cache.r7g.2xlarge``, ``cache.r7g.4xlarge``,
+      ``cache.r7g.8xlarge``, ``cache.r7g.12xlarge``, ``cache.r7g.16xlarge``
 
-    For region availability, see `Supported Node
-    Types <https://docs.aws.amazon.com/AmazonElastiCache/latest/red-
+    For region availability, see `Supported Node Types <https://docs.aws.amazon.com/AmazonElastiCache/latest/red-
     ug/CacheNodes.SupportedTypes.html#CacheNodes.SupportedTypesByRegion>`_
 
-    **R6g node types** (available only for Redis OSS engine version 5.0.6 onward
-      and for Memcached engine version 1.5.16 onward): ``cache.r6g.large``,
-      ``cache.r6g.xlarge``, ``cache.r6g.2xlarge``, ``cache.r6g.4xlarge``,
-      ``cache.r6g.8xlarge``, ``cache.r6g.12xlarge``, ``cache.r6g.16xlarge``
+    **R6g node types** (available only for Redis OSS engine version 5.0.6 onward and for Memcached engine version 1.5.16
+      onward): ``cache.r6g.large``, ``cache.r6g.xlarge``, ``cache.r6g.2xlarge``, ``cache.r6g.4xlarge``, ``cache.r6g.8xlarge``,
+      ``cache.r6g.12xlarge``, ``cache.r6g.16xlarge``
 
-    **R5 node types:** ``cache.r5.large``, ``cache.r5.xlarge``,
-      ``cache.r5.2xlarge``, ``cache.r5.4xlarge``, ``cache.r5.12xlarge``,
-      ``cache.r5.24xlarge``
+    **R5 node types:** ``cache.r5.large``, ``cache.r5.xlarge``, ``cache.r5.2xlarge``, ``cache.r5.4xlarge``,
+      ``cache.r5.12xlarge``, ``cache.r5.24xlarge``
 
-    **R4 node types:** ``cache.r4.large``, ``cache.r4.xlarge``,
-      ``cache.r4.2xlarge``, ``cache.r4.4xlarge``, ``cache.r4.8xlarge``,
-      ``cache.r4.16xlarge``
-    + Previous generation: (not recommended. Existing clusters are still supported
-    but creation of new clusters is not supported for these types.)
+    **R4 node types:** ``cache.r4.large``, ``cache.r4.xlarge``, ``cache.r4.2xlarge``, ``cache.r4.4xlarge``,
+      ``cache.r4.8xlarge``, ``cache.r4.16xlarge``
+    + Previous generation: (not recommended. Existing clusters are still supported but creation of new clusters is not
+    supported for these types.)
 
-    **M2 node types:** ``cache.m2.xlarge``, ``cache.m2.2xlarge``,
-      ``cache.m2.4xlarge``
+    **M2 node types:** ``cache.m2.xlarge``, ``cache.m2.2xlarge``, ``cache.m2.4xlarge``
 
-    **R3 node types:** ``cache.r3.large``, ``cache.r3.xlarge``,
-      ``cache.r3.2xlarge``, ``cache.r3.4xlarge``, ``cache.r3.8xlarge``
+    **R3 node types:** ``cache.r3.large``, ``cache.r3.xlarge``, ``cache.r3.2xlarge``, ``cache.r3.4xlarge``,
+      ``cache.r3.8xlarge``
 
     **Additional node type info**
 
     * All current generation instance types are created in Amazon VPC by default.
-    * Valkey or Redis OSS append-only files (AOF) are not supported for T1 or T2
-      instances.
-    * Valkey or Redis OSS Multi-AZ with automatic failover is not supported on T1
-      instances.
-    * The configuration variables ``appendonly`` and ``appendfsync`` are not
-      supported on Valkey, or on Redis OSS version 2.8.22 and later.
+    * Valkey or Redis OSS append-only files (AOF) are not supported for T1 or T2 instances.
+    * Valkey or Redis OSS Multi-AZ with automatic failover is not supported on T1 instances.
+    * The configuration variables ``appendonly`` and ``appendfsync`` are not supported on Valkey, or on Redis OSS version
+      2.8.22 and later.
     """
 
     CacheNodeId: Optional[str] = None
     """
     The cache node identifier.
 
-    A node ID is a numeric identifier (0001, 0002, etc.). The combination of
-    cluster ID and node ID uniquely identifies every cache node used in a
-    customer's Amazon account.
+    A node ID is a numeric identifier (0001, 0002, etc.). The combination of cluster ID and node ID uniquely identifies
+    every cache node used in a customer's Amazon account.
     """
     CacheNodeStatus: Optional[str] = None
     """
-    The current state of this cache node, one of the following values:
-
-    ``available``, ``creating``, ``rebooting``, or ``deleting``.
+    The current state of this cache node, one of the following values: ``available``, ``creating``, ``rebooting``, or
+    ``deleting``.
     """
     CacheNodeCreateTime: Optional[datetime] = None
     """
@@ -1657,8 +1505,8 @@ class SecurityGroupMembership(Boto3Model):
     """
     The status of the cache security group membership.
 
-    The status changes whenever a cache security group is modified, or when the
-    cache security groups assigned to a cluster are modified.
+    The status changes whenever a cache security group is modified, or when the cache security groups assigned to a
+    cluster are modified.
     """
 
 
@@ -1673,13 +1521,11 @@ Refers to `slow-log <https://redis.io/commands/slowlog>`_ or engine-log.
     """
     DestinationType: Optional[Literal["cloudwatch-logs", "kinesis-firehose"]] = None
     """
-    Returns the destination type, either ``cloudwatch-logs`` or ``kinesis-
-    firehose``.
+    Returns the destination type, either ``cloudwatch-logs`` or ``kinesis-firehose``.
     """
     DestinationDetails: Optional[ElastiCacheDestinationDetails] = None
     """
-    Configuration details of either a CloudWatch Logs destination or Kinesis
-    Data Firehose destination.
+    Configuration details of either a CloudWatch Logs destination or Kinesis Data Firehose destination.
     """
     LogFormat: Optional[Literal["text", "json"]] = None
     """
@@ -1691,8 +1537,8 @@ Refers to `slow-log <https://redis.io/commands/slowlog>`_ or engine-log.
     """
     Returns the log delivery configuration status.
 
-    Values are one of ``enabling``
-    | ``disabling`` | ``modifying`` | ``active`` | ``error``
+    Values are one of ``enabling`` | ``disabling`` | ``modifying`` |
+    ``active`` | ``error``
     """
     Message: Optional[str] = None
     """
@@ -1719,16 +1565,14 @@ class CacheCluster(CacheClusterModelMixin, PrimaryBoto3Model):
     """
     ConfigurationEndpoint: ElastiCacheEndpoint = Field(default=None, frozen=True)
     """
-    Represents a Memcached cluster endpoint which can be used by an application
-    to connect to any node in the cluster.
+    Represents a Memcached cluster endpoint which can be used by an application to connect to any node in the cluster.
 
-    The configuration endpoint will always have
-    ``.cfg`` in it.
+    The
+    configuration endpoint will always have ``.cfg`` in it.
     """
     ClientDownloadLandingPage: str = Field(default=None, frozen=True)
     """
-    The URL of the web page where you can download the latest ElastiCache
-    client library.
+    The URL of the web page where you can download the latest ElastiCache client library.
     """
     CacheNodeType: Optional[str] = None
     """
@@ -1736,8 +1580,7 @@ class CacheCluster(CacheClusterModelMixin, PrimaryBoto3Model):
     """
     Engine: Optional[str] = None
     """
-    The name of the cache engine (``memcached`` or ``redis``) to be used for
-    this cluster.
+    The name of the cache engine (``memcached`` or ``redis``) to be used for this cluster.
     """
     EngineVersion: Optional[str] = None
     """
@@ -1745,15 +1588,14 @@ class CacheCluster(CacheClusterModelMixin, PrimaryBoto3Model):
     """
     CacheClusterStatus: str = Field(default=None, frozen=True)
     """
-    The current state of this cluster, one of the following values:
-    ``available``, ``creating``, ``deleted``, ``deleting``, ``incompatible-
-    network``, ``modifying``, ``rebooting cluster nodes``, ``restore-failed``,
-    or ``snapshotting``.
+    The current state of this cluster, one of the following values: ``available``, ``creating``, ``deleted``,
+    ``deleting``, ``incompatible-network``, ``modifying``, ``rebooting cluster nodes``, ``restore-failed``, or
+    ``snapshotting``.
     """
     PreferredAvailabilityZone: Optional[str] = None
     """
-    The name of the Availability Zone in which the cluster is located or
-    "Multiple" if the cache nodes are located in different Availability Zones.
+    The name of the Availability Zone in which the cluster is located or "Multiple" if the cache nodes are located in
+    different Availability Zones.
     """
     PreferredOutpostArn: Optional[str] = None
     """
@@ -1765,18 +1607,16 @@ class CacheCluster(CacheClusterModelMixin, PrimaryBoto3Model):
     """
     PreferredMaintenanceWindow: Optional[str] = None
     """
-    Specifies the weekly time range during which maintenance on the cluster is
-    performed.
+    Specifies the weekly time range during which maintenance on the cluster is performed.
 
-    It is specified as a range in the format ddd:hh24:mi-ddd:hh24:mi (24H Clock
-    UTC). The minimum maintenance window is a 60 minute period.
+    It is specified as a range in the format ddd:hh24:mi-ddd:hh24:mi (24H Clock UTC). The minimum maintenance window is
+    a 60 minute period.
     """
     PendingModifiedValues: ElastiCachePendingModifiedValues = Field(
         default=None, frozen=True
     )
     """
-    A group of settings that are applied to the cluster in the future, or that
-    are currently being applied.
+    A group of settings that are applied to the cluster in the future, or that are currently being applied.
     """
     NotificationConfiguration: ElastiCacheNotificationConfiguration = Field(
         default=None, frozen=True
@@ -1784,15 +1624,14 @@ class CacheCluster(CacheClusterModelMixin, PrimaryBoto3Model):
     """
     Describes a notification topic and its status.
 
-    Notification topics are used for publishing ElastiCache events to
-    subscribers using Amazon Simple Notification Service (SNS).
+    Notification topics are used for publishing ElastiCache events to subscribers using Amazon Simple Notification
+    Service (SNS).
     """
     CacheSecurityGroups: List["CacheSecurityGroupMembership"] = Field(
         default=None, frozen=True
     )
     """
-    A list of cache security group elements, composed of name and status sub-
-    elements.
+    A list of cache security group elements, composed of name and status sub-elements.
     """
     CacheParameterGroup: CacheParameterGroupStatus = Field(default=None, frozen=True)
     """
@@ -1808,9 +1647,8 @@ class CacheCluster(CacheClusterModelMixin, PrimaryBoto3Model):
     """
     AutoMinorVersionUpgrade: Optional[bool] = None
     """
-    If you are running Valkey or Redis OSS engine version 6.0 or later, set
-    this parameter to yes if you want to opt-in to the next auto minor version
-    upgrade campaign.
+    If you are running Valkey or Redis OSS engine version 6.0 or later, set this parameter to yes if you want to opt-in
+    to the next auto minor version upgrade campaign.
 
     This parameter is disabled for previous versions.
     """
@@ -1822,26 +1660,22 @@ class CacheCluster(CacheClusterModelMixin, PrimaryBoto3Model):
     """
     The replication group to which this cluster belongs.
 
-    If this field is empty, the cluster is not associated with any replication
-    group.
+    If this field is empty, the cluster is not associated with any replication group.
     """
     SnapshotRetentionLimit: Optional[int] = None
     """
-    The number of days for which ElastiCache retains automatic cluster
-    snapshots before deleting them.
+    The number of days for which ElastiCache retains automatic cluster snapshots before deleting them.
 
-    For example, if you set ``SnapshotRetentionLimit`` to 5,
-    a snapshot that was taken today is retained for 5 days before being deleted.
+    For example, if you
+    set ``SnapshotRetentionLimit`` to 5, a snapshot that was taken today is retained for 5 days before being deleted.
     """
     SnapshotWindow: Optional[str] = None
     """
-    The daily time range (in UTC) during which ElastiCache begins taking a
-    daily snapshot of your cluster.
+    The daily time range (in UTC) during which ElastiCache begins taking a daily snapshot of your cluster.
     """
     AuthTokenEnabled: bool = Field(default=None, frozen=True)
     """
-    A flag that enables using an ``AuthToken`` (password) when issuing Valkey
-    or Redis OSS commands.
+    A flag that enables using an ``AuthToken`` (password) when issuing Valkey or Redis OSS commands.
     """
     AuthTokenLastModifiedDate: datetime = Field(default=None, frozen=True)
     """
@@ -1861,8 +1695,7 @@ class CacheCluster(CacheClusterModelMixin, PrimaryBoto3Model):
     """
     ReplicationGroupLogDeliveryEnabled: bool = Field(default=None, frozen=True)
     """
-    A boolean value indicating whether log delivery is enabled for the
-    replication group.
+    A boolean value indicating whether log delivery is enabled for the replication group.
     """
     LogDeliveryConfigurations: Optional[List["LogDeliveryConfiguration"]] = None
     """
@@ -1872,33 +1705,29 @@ class CacheCluster(CacheClusterModelMixin, PrimaryBoto3Model):
     """
     Must be either ``ipv4`` | ``ipv6`` | ``dual_stack``.
 
-    IPv6 is supported for workloads using Valkey 7.2 and above, Redis OSS
-    engine version 6.2 and above or Memcached engine version 1.6.6 and above on
-    all instances built on the
+    IPv6 is supported for workloads using Valkey 7.2 and above, Redis OSS engine version 6.2 and above or Memcached
+    engine version 1.6.6 and above on all instances built on the
     `Nitro system <http://aws.amazon.com/ec2/nitro/>`_.
     """
     IpDiscovery: Optional[Literal["ipv4", "ipv6"]] = None
     """
     The network type associated with the cluster, either ``ipv4`` | ``ipv6``.
 
-    IPv6 is supported for workloads using Valkey 7.2 and above, Redis OSS
-    engine version 6.2 and above or Memcached engine version 1.6.6 and above on
-    all instances built on the
-    `Nitro system <http://aws.amazon.com/ec2/nitro/>`_.
+    IPv6 is supported for workloads using Valkey
+    7.2 and above, Redis OSS engine version 6.2 and above or Memcached engine version 1.6.6 and above on all instances
+    built on the `Nitro system <http://aws.amazon.com/ec2/nitro/>`_.
     """
     TransitEncryptionMode: Literal["preferred", "required"] = Field(
         default=None, frozen=True
     )
     """
-    A setting that allows you to migrate your clients to use in-transit
-    encryption, with no downtime.
+    A setting that allows you to migrate your clients to use in-transit encryption, with no downtime.
     """
 
     @property
     def pk(self) -> Optional[str]:
         """
-        Return the primary key of the model.   This is the value of the
-        :py:attr:`ARN` attribute.
+        Return the primary key of the model.   This is the value of the :py:attr:`ARN` attribute.
 
         Returns:
             The primary key of the model instance.
@@ -1908,8 +1737,7 @@ class CacheCluster(CacheClusterModelMixin, PrimaryBoto3Model):
     @property
     def arn(self) -> Optional[str]:
         """
-        Return the ARN of the model.   This is the value of the :py:attr:`ARN`
-        attribute.
+        Return the ARN of the model.   This is the value of the :py:attr:`ARN` attribute.
 
         Returns:
             The ARN of the model instance.
@@ -1919,8 +1747,7 @@ class CacheCluster(CacheClusterModelMixin, PrimaryBoto3Model):
     @property
     def name(self) -> Optional[str]:
         """
-        Return the name of the model.   This is the value of the
-        :py:attr:`CacheClusterId` attribute.
+        Return the name of the model.   This is the value of the :py:attr:`CacheClusterId` attribute.
 
         Returns:
             The name of the model instance.
@@ -1976,8 +1803,7 @@ class CacheCluster(CacheClusterModelMixin, PrimaryBoto3Model):
 
 class ParameterNameValue(Boto3Model):
     """
-    Describes a name-value pair that is used to update the value of a
-    parameter.
+    Describes a name-value pair that is used to update the value of a parameter.
     """
 
     ParameterName: Optional[str] = None
@@ -1999,8 +1825,7 @@ class CacheParameterGroup(PrimaryBoto3Model):
 
     IsGlobal: Optional[bool]
     """
-    Indicates whether the parameter group is associated with a Global
-    datastore.
+    Indicates whether the parameter group is associated with a Global datastore.
     """
     CacheParameterGroupName: Optional[str] = None
     """
@@ -2008,8 +1833,7 @@ class CacheParameterGroup(PrimaryBoto3Model):
     """
     CacheParameterGroupFamily: Optional[str] = None
     """
-    The name of the cache parameter group family that this cache parameter
-    group is compatible with.
+    The name of the cache parameter group family that this cache parameter group is compatible with.
     """
     Description: Optional[str] = None
     """
@@ -2023,8 +1847,7 @@ class CacheParameterGroup(PrimaryBoto3Model):
     @property
     def pk(self) -> Optional[str]:
         """
-        Return the primary key of the model.   This is the value of the
-        :py:attr:`ARN` attribute.
+        Return the primary key of the model.   This is the value of the :py:attr:`ARN` attribute.
 
         Returns:
             The primary key of the model instance.
@@ -2034,8 +1857,7 @@ class CacheParameterGroup(PrimaryBoto3Model):
     @property
     def arn(self) -> Optional[str]:
         """
-        Return the ARN of the model.   This is the value of the :py:attr:`ARN`
-        attribute.
+        Return the ARN of the model.   This is the value of the :py:attr:`ARN` attribute.
 
         Returns:
             The ARN of the model instance.
@@ -2045,8 +1867,7 @@ class CacheParameterGroup(PrimaryBoto3Model):
     @property
     def name(self) -> Optional[str]:
         """
-        Return the name of the model.   This is the value of the
-        :py:attr:`CacheParameterGroupName` attribute.
+        Return the name of the model.   This is the value of the :py:attr:`CacheParameterGroupName` attribute.
 
         Returns:
             The name of the model instance.
@@ -2057,8 +1878,7 @@ class CacheParameterGroup(PrimaryBoto3Model):
         self, Source: Optional[str] = "user"
     ) -> "CacheParameterGroupDetails":
         """
-        Return the parameters for the cache parameter group associated with
-        this cluster.
+        Return the parameters for the cache parameter group associated with this cluster.
 
         Keyword Args:
             Source: The parameter types to return.
@@ -2076,17 +1896,14 @@ class CacheParameterGroup(PrimaryBoto3Model):
         ParameterNameValues: Optional[List["ParameterNameValue"]] = {},
     ) -> "str":
         """
-        Reset the cache parameter group associated with this cluster to the
-        default values.
+        Reset the cache parameter group associated with this cluster to the default values.
 
         Keyword Args:
-            ResetAllParameters: If ``true``, all parameters in the cache parameter
-                group are reset to their default values. If ``false``, only the parameters
-                listed by ``ParameterNameValues`` are reset to their default values.
-            ParameterNameValues: An array of parameter names to reset to their default
-                values. If ``ResetAllParameters`` is ``true``, do not use
-                ``ParameterNameValues``. If ``ResetAllParameters`` is ``false``, you must
-                specify the name of at least one parameter to reset.
+            ResetAllParameters: If ``true``, all parameters in the cache parameter group are reset to their default values. If
+                ``false``, only the parameters listed by ``ParameterNameValues`` are reset to their default values.
+            ParameterNameValues: An array of parameter names to reset to their default values. If ``ResetAllParameters`` is
+                ``true``, do not use ``ParameterNameValues``. If ``ResetAllParameters`` is ``false``, you must specify the name of
+                at least one parameter to reset.
         """
 
         return (
@@ -2119,8 +1936,7 @@ class CacheSubnetGroup(PrimaryBoto3Model):
     """
     VpcId: str = Field(default=None, frozen=True)
     """
-    The Amazon Virtual Private Cloud identifier (VPC ID) of the cache subnet
-    group.
+    The Amazon Virtual Private Cloud identifier (VPC ID) of the cache subnet group.
     """
     Subnets: List[Subnet] = Field(default=None, frozen=True)
     """
@@ -2136,17 +1952,15 @@ class CacheSubnetGroup(PrimaryBoto3Model):
     """
     Either ``ipv4`` | ``ipv6`` | ``dual_stack``.
 
-    IPv6 is supported for workloads using Valkey 7.2 and above, Redis OSS
-    engine version 6.2 and above or Memcached engine version 1.6.6 and above on
-    all instances built on the
+    IPv6 is supported for workloads using Valkey 7.2 and above, Redis OSS engine version 6.2 and above or Memcached
+    engine version 1.6.6 and above on all instances built on the
     `Nitro system <http://aws.amazon.com/ec2/nitro/>`_.
     """
 
     @property
     def pk(self) -> Optional[str]:
         """
-        Return the primary key of the model.   This is the value of the
-        :py:attr:`ARN` attribute.
+        Return the primary key of the model.   This is the value of the :py:attr:`ARN` attribute.
 
         Returns:
             The primary key of the model instance.
@@ -2156,8 +1970,7 @@ class CacheSubnetGroup(PrimaryBoto3Model):
     @property
     def arn(self) -> Optional[str]:
         """
-        Return the ARN of the model.   This is the value of the :py:attr:`ARN`
-        attribute.
+        Return the ARN of the model.   This is the value of the :py:attr:`ARN` attribute.
 
         Returns:
             The ARN of the model instance.
@@ -2167,8 +1980,7 @@ class CacheSubnetGroup(PrimaryBoto3Model):
     @property
     def name(self) -> Optional[str]:
         """
-        Return the name of the model.   This is the value of the
-        :py:attr:`CacheSubnetGroupName` attribute.
+        Return the name of the model.   This is the value of the :py:attr:`CacheSubnetGroupName` attribute.
 
         Returns:
             The name of the model instance.
@@ -2242,8 +2054,7 @@ class CacheSecurityGroup(PrimaryBoto3Model):
     """
     EC2SecurityGroups: List["EC2SecurityGroup"] = Field(default=None, frozen=True)
     """
-    A list of Amazon EC2 security groups that are associated with this cache
-    security group.
+    A list of Amazon EC2 security groups that are associated with this cache security group.
     """
     ARN: str = Field(default=None, frozen=True)
     """
@@ -2253,8 +2064,7 @@ class CacheSecurityGroup(PrimaryBoto3Model):
     @property
     def pk(self) -> Optional[str]:
         """
-        Return the primary key of the model.   This is the value of the
-        :py:attr:`ARN` attribute.
+        Return the primary key of the model.   This is the value of the :py:attr:`ARN` attribute.
 
         Returns:
             The primary key of the model instance.
@@ -2264,8 +2074,7 @@ class CacheSecurityGroup(PrimaryBoto3Model):
     @property
     def arn(self) -> Optional[str]:
         """
-        Return the ARN of the model.   This is the value of the :py:attr:`ARN`
-        attribute.
+        Return the ARN of the model.   This is the value of the :py:attr:`ARN` attribute.
 
         Returns:
             The ARN of the model instance.
@@ -2275,8 +2084,7 @@ class CacheSecurityGroup(PrimaryBoto3Model):
     @property
     def name(self) -> Optional[str]:
         """
-        Return the name of the model.   This is the value of the
-        :py:attr:`CacheSecurityGroupName` attribute.
+        Return the name of the model.   This is the value of the :py:attr:`CacheSecurityGroupName` attribute.
 
         Returns:
             The name of the model instance.
@@ -2286,8 +2094,7 @@ class CacheSecurityGroup(PrimaryBoto3Model):
     @cached_property
     def ec2_security_groups(self) -> Optional[List["SecurityGroup"]]:
         """
-        Return the EC2 security groups associated with this cache security
-        group.
+        Return the EC2 security groups associated with this cache security group.
 
         .. note::
 
@@ -2311,16 +2118,12 @@ class CacheSecurityGroup(PrimaryBoto3Model):
         self, EC2SecurityGroupName: str, EC2SecurityGroupOwnerId: str
     ) -> "AuthorizeCacheSecurityGroupIngressResult":
         """
-        Authorize ingress to the cache security group associated with this
-        cluster.
+        Authorize ingress to the cache security group associated with this cluster.
 
         Args:
-            EC2SecurityGroupName: The Amazon EC2 security group to be authorized for
-                ingress to the cache security group.
-            EC2SecurityGroupOwnerId: The Amazon account number of the Amazon EC2
-                security group owner. Note that this is not the same thing as an Amazon
-                access key ID - you must provide a valid Amazon account number for this
-                parameter.
+            EC2SecurityGroupName: The Amazon EC2 security group to be authorized for ingress to the cache security group.
+            EC2SecurityGroupOwnerId: The Amazon account number of the Amazon EC2 security group owner. Note that this is not the
+                same thing as an Amazon access key ID - you must provide a valid Amazon account number for this parameter.
         """
 
         return (
@@ -2337,16 +2140,12 @@ class CacheSecurityGroup(PrimaryBoto3Model):
         self, EC2SecurityGroupName: str, EC2SecurityGroupOwnerId: str
     ) -> "AuthorizeCacheSecurityGroupIngressResult":
         """
-        Authorize ingress to the cache security group associated with this
-        cluster.
+        Authorize ingress to the cache security group associated with this cluster.
 
         Args:
-            EC2SecurityGroupName: The Amazon EC2 security group to be authorized for
-                ingress to the cache security group.
-            EC2SecurityGroupOwnerId: The Amazon account number of the Amazon EC2
-                security group owner. Note that this is not the same thing as an Amazon
-                access key ID - you must provide a valid Amazon account number for this
-                parameter.
+            EC2SecurityGroupName: The Amazon EC2 security group to be authorized for ingress to the cache security group.
+            EC2SecurityGroupOwnerId: The Amazon account number of the Amazon EC2 security group owner. Note that this is not the
+                same thing as an Amazon access key ID - you must provide a valid Amazon account number for this parameter.
         """
 
         return (
@@ -2362,8 +2161,7 @@ class CacheSecurityGroup(PrimaryBoto3Model):
 
 class ElastiCacheGlobalReplicationGroupInfo(Boto3Model):
     """
-    The name of the Global datastore and role of this replication group in the
-    Global datastore.
+    The name of the Global datastore and role of this replication group in the Global datastore.
     """
 
     GlobalReplicationGroupId: Optional[str] = None
@@ -2417,19 +2215,18 @@ class UserGroupsUpdateStatus(Boto3Model):
 
 class ReplicationGroupPendingModifiedValues(Boto3Model):
     """
-    A group of settings to be applied to the replication group, either
-    immediately or during the next maintenance window.
+    A group of settings to be applied to the replication group, either immediately or during the next maintenance
+    window.
     """
 
     PrimaryClusterId: Optional[str] = None
     """
-    The primary cluster ID that is applied immediately (if ``--apply-
-    immediately`` was specified), or during the next maintenance window.
+    The primary cluster ID that is applied immediately (if ``--apply-immediately`` was specified), or during the next
+    maintenance window.
     """
     AutomaticFailoverStatus: Optional[Literal["enabled", "disabled"]] = None
     """
-    Indicates the status of automatic failover for this Valkey or Redis OSS
-    replication group.
+    Indicates the status of automatic failover for this Valkey or Redis OSS replication group.
     """
     Resharding: Optional[ReshardingStatus] = None
     """
@@ -2453,19 +2250,16 @@ class ReplicationGroupPendingModifiedValues(Boto3Model):
     """
     TransitEncryptionMode: Optional[Literal["preferred", "required"]] = None
     """
-    A setting that allows you to migrate your clients to use in-transit
-    encryption, with no downtime.
+    A setting that allows you to migrate your clients to use in-transit encryption, with no downtime.
     """
     ClusterMode: Optional[Literal["enabled", "disabled", "compatible"]] = None
     """
     Enabled or Disabled.
 
-    To modify cluster mode from Disabled to Enabled, you must first set the
-    cluster mode to Compatible. Compatible mode allows your Valkey or Redis OSS
-    clients to connect using both cluster mode enabled and cluster mode
-    disabled. After you migrate all Valkey or Redis OSS clients to use cluster
-    mode enabled, you can then complete cluster mode configuration and set the
-    cluster mode to Enabled.
+    To modify cluster mode from Disabled to Enabled, you must first set the cluster mode to Compatible. Compatible mode
+    allows your Valkey or Redis OSS clients to connect using both cluster mode enabled and cluster mode disabled. After
+    you migrate all Valkey or Redis OSS clients to use cluster mode enabled, you can then complete cluster mode
+    configuration and set the cluster mode to Enabled.
     """
 
 
@@ -2486,11 +2280,9 @@ class NodeGroupMember(Boto3Model):
     """
     ReadEndpoint: Optional[ElastiCacheEndpoint] = None
     """
-    The information required for client programs to connect to a node for read
-    operations.
+    The information required for client programs to connect to a node for read operations.
 
-    The read endpoint is only applicable on Valkey or Redis OSS (cluster mode
-    disabled) clusters.
+    The read endpoint is only applicable on Valkey or Redis OSS (cluster mode disabled) clusters.
     """
     PreferredAvailabilityZone: Optional[str] = None
     """
@@ -2502,9 +2294,8 @@ class NodeGroupMember(Boto3Model):
     """
     CurrentRole: Optional[str] = None
     """
-The role that is currently assigned to the node - ``primary`` or ``replica``.
-This member is only applicable for Valkey or Redis OSS (cluster mode disabled)
-replication groups.
+The role that is currently assigned to the node - ``primary`` or ``replica``. This member is only applicable for Valkey
+or Redis OSS (cluster mode disabled) replication groups.
     """
 
 
@@ -2512,24 +2303,20 @@ class NodeGroup(Boto3Model):
     """
     Represents a collection of cache nodes in a replication group.
 
-    One node in the node group is the read/write primary node. All the other
-    nodes are read-only Replica nodes.
+    One node in the node group is the read/write primary node. All the other nodes are read-only Replica nodes.
     """
 
     NodeGroupId: Optional[str] = None
     """
     The identifier for the node group (shard).
 
-    A Valkey or Redis OSS (cluster mode disabled) replication group contains
-    only 1 node group; therefore, the node group ID is 0001. A Valkey or Redis
-    OSS (cluster mode enabled) replication group contains 1 to 90 node groups
-    numbered 0001 to 0090. Optionally, the user can provide the id for a node
-    group.
+    A Valkey or Redis OSS (cluster mode disabled) replication group contains only 1 node group; therefore, the node
+    group ID is 0001. A Valkey or Redis OSS (cluster mode enabled) replication group contains 1 to 90 node groups
+    numbered 0001 to 0090. Optionally, the user can provide the id for a node group.
     """
     Status: Optional[str] = None
     """
-The current state of this replication group - ``creating``, ``available``,
-``modifying``, ``deleting``.
+The current state of this replication group - ``creating``, ``available``, ``modifying``, ``deleting``.
     """
     PrimaryEndpoint: Optional[ElastiCacheEndpoint] = None
     """
@@ -2547,15 +2334,13 @@ The current state of this replication group - ``creating``, ``available``,
     """
     NodeGroupMembers: Optional[List["NodeGroupMember"]] = None
     """
-    A list containing information about individual nodes within the node group
-    (shard).
+    A list containing information about individual nodes within the node group (shard).
     """
 
 
 class ReplicationGroup(ReplicationGroupModelMixin, PrimaryBoto3Model):
     """
-    Contains all of the attributes of a specific Valkey or Redis OSS
-    replication group.
+    Contains all of the attributes of a specific Valkey or Redis OSS replication group.
     """
 
     manager_class: ClassVar[Type[Boto3ModelManager]] = ReplicationGroupManager
@@ -2564,10 +2349,8 @@ class ReplicationGroup(ReplicationGroupModelMixin, PrimaryBoto3Model):
     """
     A flag indicating if you have Multi-AZ enabled to enhance fault tolerance.
 
-    For
-    more information, see `Minimizing Downtime:
-    Multi-AZ <http://docs.aws.amazon.com/AmazonElastiCache/latest/red-
-    ug/AutoFailover.html>`_
+    For more information, see `Minimizing
+    Downtime: Multi-AZ <http://docs.aws.amazon.com/AmazonElastiCache/latest/red-ug/AutoFailover.html>`_
     """
     ReplicationGroupId: Optional[str] = None
     """
@@ -2581,45 +2364,40 @@ class ReplicationGroup(ReplicationGroupModelMixin, PrimaryBoto3Model):
         default=None, frozen=True
     )
     """
-    The name of the Global datastore and role of this replication group in the
-    Global datastore.
+    The name of the Global datastore and role of this replication group in the Global datastore.
     """
     Status: str = Field(default=None, frozen=True)
     """
-The current state of this replication group - ``creating``, ``available``,
-``modifying``, ``deleting``, ``create-failed``, ``snapshotting``.
+The current state of this replication group - ``creating``, ``available``, ``modifying``, ``deleting``, ``create-
+failed``, ``snapshotting``.
     """
     PendingModifiedValues: ReplicationGroupPendingModifiedValues = Field(
         default=None, frozen=True
     )
     """
-    A group of settings to be applied to the replication group, either
-    immediately or during the next maintenance window.
+    A group of settings to be applied to the replication group, either immediately or during the next maintenance
+    window.
     """
     MemberClusters: List[str] = Field(default=None, frozen=True)
     """
-    The names of all the cache clusters that are part of this replication
-    group.
+    The names of all the cache clusters that are part of this replication group.
     """
     NodeGroups: List["NodeGroup"] = Field(default=None, frozen=True)
     """
     A list of node groups in this replication group.
 
-    For Valkey or Redis OSS (cluster mode disabled) replication groups, this is
-    a single-element list. For Valkey or Redis OSS (cluster mode enabled)
-    replication groups, the list contains an entry for each node group (shard).
+    For Valkey or Redis OSS (cluster mode disabled) replication groups, this is a single-element list. For Valkey or
+    Redis OSS (cluster mode enabled) replication groups, the list contains an entry for each node group (shard).
     """
     SnapshottingClusterId: Optional[str] = None
     """
-    The cluster ID that is used as the daily snapshot source for the
-    replication group.
+    The cluster ID that is used as the daily snapshot source for the replication group.
     """
     AutomaticFailover: Literal["enabled", "disabled", "enabling", "disabling"] = Field(
         default=None, frozen=True
     )
     """
-    Indicates the status of automatic failover for this Valkey or Redis OSS
-    replication group.
+    Indicates the status of automatic failover for this Valkey or Redis OSS replication group.
     """
     ConfigurationEndpoint: ElastiCacheEndpoint = Field(default=None, frozen=True)
     """
@@ -2629,32 +2407,27 @@ The current state of this replication group - ``creating``, ``available``,
     """
     SnapshotRetentionLimit: Optional[int] = None
     """
-    The number of days for which ElastiCache retains automatic cluster
-    snapshots before deleting them.
+    The number of days for which ElastiCache retains automatic cluster snapshots before deleting them.
 
-    For example, if you set ``SnapshotRetentionLimit`` to 5,
-    a snapshot that was taken today is retained for 5 days before being deleted.
+    For example, if you
+    set ``SnapshotRetentionLimit`` to 5, a snapshot that was taken today is retained for 5 days before being deleted.
     """
     SnapshotWindow: Optional[str] = None
     """
-    The daily time range (in UTC) during which ElastiCache begins taking a
-    daily snapshot of your node group (shard).
+    The daily time range (in UTC) during which ElastiCache begins taking a daily snapshot of your node group (shard).
     """
     ClusterEnabled: bool = Field(default=None, frozen=True)
     """
-    A flag indicating whether or not this replication group is cluster enabled;
-    i.e., whether its data can be partitioned across multiple shards (API/CLI:
-    node groups).
+    A flag indicating whether or not this replication group is cluster enabled; i.e., whether its data can be
+    partitioned across multiple shards (API/CLI: node groups).
     """
     CacheNodeType: Optional[str] = None
     """
-    The name of the compute and memory capacity node type for each node in the
-    replication group.
+    The name of the compute and memory capacity node type for each node in the replication group.
     """
     AuthTokenEnabled: bool = Field(default=None, frozen=True)
     """
-    A flag that enables using an ``AuthToken`` (password) when issuing Valkey
-    or Redis OSS commands.
+    A flag that enables using an ``AuthToken`` (password) when issuing Valkey or Redis OSS commands.
     """
     AuthTokenLastModifiedDate: datetime = Field(default=None, frozen=True)
     """
@@ -2696,17 +2469,14 @@ The current state of this replication group - ``creating``, ``available``,
     """
     Enables data tiering.
 
-    Data tiering is only supported for replication groups using the r6gd node
-    type. This parameter must be set to true when using r6gd nodes. For more
-    information, see
-    `Data tiering <https://docs.aws.amazon.com/AmazonElastiCache/latest/red-ug/data-
-    tiering.html>`_.
+    Data tiering is only supported for replication groups using the r6gd node type. This parameter must be set to true
+    when using r6gd nodes. For more information, see
+    `Data tiering <https://docs.aws.amazon.com/AmazonElastiCache/latest/red-ug/data-tiering.html>`_.
     """
     AutoMinorVersionUpgrade: Optional[bool] = None
     """
-    If you are running Valkey 7.2 and above, or Redis OSS engine version 6.0
-    and above, set this parameter to yes if you want to opt-in to the next auto
-    minor version upgrade campaign.
+    If you are running Valkey 7.2 and above, or Redis OSS engine version 6.0 and above, set this parameter to yes if you
+    want to opt-in to the next auto minor version upgrade campaign.
 
     This parameter is disabled for previous versions.
     """
@@ -2714,36 +2484,30 @@ The current state of this replication group - ``creating``, ``available``,
     """
     Must be either ``ipv4`` | ``ipv6`` | ``dual_stack``.
 
-    IPv6 is supported for workloads using Valkey 7.2 and above, Redis OSS
-    engine version 6.2 and above or Memcached engine version 1.6.6 and above on
-    all instances built on the
+    IPv6 is supported for workloads using Valkey 7.2 and above, Redis OSS engine version 6.2 and above or Memcached
+    engine version 1.6.6 and above on all instances built on the
     `Nitro system <http://aws.amazon.com/ec2/nitro/>`_.
     """
     IpDiscovery: Optional[Literal["ipv4", "ipv6"]] = None
     """
-    The network type you choose when modifying a cluster, either ``ipv4`` |
-    ``ipv6``.
+    The network type you choose when modifying a cluster, either ``ipv4`` | ``ipv6``.
 
-    IPv6 is supported for workloads using Valkey 7.2 and above, Redis OSS
-    engine version 6.2 and above or Memcached engine version 1.6.6 and above on
-    all instances built on the
+    IPv6 is supported for workloads using Valkey 7.2 and above, Redis OSS engine version 6.2 and above or Memcached
+    engine version 1.6.6 and above on all instances built on the
     `Nitro system <http://aws.amazon.com/ec2/nitro/>`_.
     """
     TransitEncryptionMode: Optional[Literal["preferred", "required"]] = None
     """
-    A setting that allows you to migrate your clients to use in-transit
-    encryption, with no downtime.
+    A setting that allows you to migrate your clients to use in-transit encryption, with no downtime.
     """
     ClusterMode: Optional[Literal["enabled", "disabled", "compatible"]] = None
     """
     Enabled or Disabled.
 
-    To modify cluster mode from Disabled to Enabled, you must first set the
-    cluster mode to Compatible. Compatible mode allows your Valkey or Redis OSS
-    clients to connect using both cluster mode enabled and cluster mode
-    disabled. After you migrate all Valkey or Redis OSS clients to use cluster
-    mode enabled, you can then complete cluster mode configuration and set the
-    cluster mode to Enabled.
+    To modify cluster mode from Disabled to Enabled, you must first set the cluster mode to Compatible. Compatible mode
+    allows your Valkey or Redis OSS clients to connect using both cluster mode enabled and cluster mode disabled. After
+    you migrate all Valkey or Redis OSS clients to use cluster mode enabled, you can then complete cluster mode
+    configuration and set the cluster mode to Enabled.
     """
     Engine: Optional[str] = None
     """
@@ -2755,8 +2519,7 @@ The current state of this replication group - ``creating``, ``available``,
     @property
     def pk(self) -> Optional[str]:
         """
-        Return the primary key of the model.   This is the value of the
-        :py:attr:`ARN` attribute.
+        Return the primary key of the model.   This is the value of the :py:attr:`ARN` attribute.
 
         Returns:
             The primary key of the model instance.
@@ -2766,8 +2529,7 @@ The current state of this replication group - ``creating``, ``available``,
     @property
     def arn(self) -> Optional[str]:
         """
-        Return the ARN of the model.   This is the value of the :py:attr:`ARN`
-        attribute.
+        Return the ARN of the model.   This is the value of the :py:attr:`ARN` attribute.
 
         Returns:
             The ARN of the model instance.
@@ -2777,8 +2539,7 @@ The current state of this replication group - ``creating``, ``available``,
     @property
     def name(self) -> Optional[str]:
         """
-        Return the name of the model.   This is the value of the
-        :py:attr:`ReplicationGroupId` attribute.
+        Return the name of the model.   This is the value of the :py:attr:`ReplicationGroupId` attribute.
 
         Returns:
             The name of the model instance.
@@ -2788,8 +2549,7 @@ The current state of this replication group - ``creating``, ``available``,
 
 class CacheParameter(ReadonlyPrimaryBoto3Model):
     """
-    Describes an individual setting that controls some aspect of ElastiCache
-    behavior.
+    Describes an individual setting that controls some aspect of ElastiCache behavior.
     """
 
     manager_class: ClassVar[Type[Boto3ModelManager]] = CacheParameterManager
@@ -2820,11 +2580,9 @@ class CacheParameter(ReadonlyPrimaryBoto3Model):
     """
     IsModifiable: Optional[bool] = None
     """
-    Indicates whether (``true``) or not (``false``) the parameter can be
-    modified.
+    Indicates whether (``true``) or not (``false``) the parameter can be modified.
 
-    Some parameters have security or operational implications that prevent them
-    from being changed.
+    Some parameters have security or operational implications that prevent them from being changed.
     """
     MinimumEngineVersion: Optional[str] = None
     """
@@ -2832,20 +2590,17 @@ class CacheParameter(ReadonlyPrimaryBoto3Model):
     """
     ChangeType: Optional[Literal["immediate", "requires-reboot"]] = None
     """
-    Indicates whether a change to the parameter is applied immediately or
-    requires a reboot for the change to be applied.
+    Indicates whether a change to the parameter is applied immediately or requires a reboot for the change to be
+    applied.
 
-    You can force a reboot or wait until the next maintenance window's reboot.
-    For more information, see
-    `Rebooting a Cluster <https://docs.aws.amazon.com/AmazonElastiCache/latest/red-
-    ug/Clusters.Rebooting.html>`_.
+    You can force a reboot or wait until the next maintenance window's reboot. For more information, see
+    `Rebooting a Cluster <https://docs.aws.amazon.com/AmazonElastiCache/latest/red-ug/Clusters.Rebooting.html>`_.
     """
 
     @property
     def pk(self) -> Optional[str]:
         """
-        Return the primary key of the model.   This is the value of the
-        :py:attr:`ParameterName` attribute.
+        Return the primary key of the model.   This is the value of the :py:attr:`ParameterName` attribute.
 
         Returns:
             The primary key of the model instance.
@@ -2855,8 +2610,7 @@ class CacheParameter(ReadonlyPrimaryBoto3Model):
     @property
     def name(self) -> Optional[str]:
         """
-        Return the name of the model.   This is the value of the
-        :py:attr:`ParameterName` attribute.
+        Return the name of the model.   This is the value of the :py:attr:`ParameterName` attribute.
 
         Returns:
             The name of the model instance.
@@ -2880,13 +2634,11 @@ Refers to `slow-log <https://redis.io/commands/slowlog>`_ or engine-log..
     """
     DestinationType: Optional[Literal["cloudwatch-logs", "kinesis-firehose"]] = None
     """
-    Specify either ``cloudwatch-logs`` or ``kinesis-firehose`` as the
-    destination type.
+    Specify either ``cloudwatch-logs`` or ``kinesis-firehose`` as the destination type.
     """
     DestinationDetails: Optional[ElastiCacheDestinationDetails] = None
     """
-    Configuration details of either a CloudWatch Logs destination or Kinesis
-    Data Firehose destination.
+    Configuration details of either a CloudWatch Logs destination or Kinesis Data Firehose destination.
     """
     LogFormat: Optional[Literal["text", "json"]] = None
     """
@@ -2979,8 +2731,7 @@ class CacheParameterGroupsMessage(Boto3Model):
     """
     A list of cache parameter groups.
 
-    Each element in the list contains detailed information about one cache
-    parameter group.
+    Each element in the list contains detailed information about one cache parameter group.
     """
 
 
@@ -3001,12 +2752,10 @@ class CacheNodeTypeSpecificValue(Boto3Model):
 
 class CacheNodeTypeSpecificParameter(Boto3Model):
     """
-    A parameter that has a different value for each cache node type it is
-    applied to.
+    A parameter that has a different value for each cache node type it is applied to.
 
-    For example, in a Valkey or Redis OSS cluster, a ``cache.m1.large`` cache
-    node type would have a larger ``maxmemory`` value than a ``cache.m1.small``
-    type.
+    For example, in a Valkey or Redis OSS
+    cluster, a ``cache.m1.large`` cache node type would have a larger ``maxmemory`` value than a ``cache.m1.small`` type.
     """
 
     ParameterName: Optional[str] = None
@@ -3031,11 +2780,9 @@ class CacheNodeTypeSpecificParameter(Boto3Model):
     """
     IsModifiable: Optional[bool] = None
     """
-    Indicates whether (``true``) or not (``false``) the parameter can be
-    modified.
+    Indicates whether (``true``) or not (``false``) the parameter can be modified.
 
-    Some parameters have security or operational implications that prevent them
-    from being changed.
+    Some parameters have security or operational implications that prevent them from being changed.
     """
     MinimumEngineVersion: Optional[str] = None
     """
@@ -3043,18 +2790,15 @@ class CacheNodeTypeSpecificParameter(Boto3Model):
     """
     CacheNodeTypeSpecificValues: Optional[List["CacheNodeTypeSpecificValue"]] = None
     """
-    A list of cache node types and their corresponding values for this
-    parameter.
+    A list of cache node types and their corresponding values for this parameter.
     """
     ChangeType: Optional[Literal["immediate", "requires-reboot"]] = None
     """
-    Indicates whether a change to the parameter is applied immediately or
-    requires a reboot for the change to be applied.
+    Indicates whether a change to the parameter is applied immediately or requires a reboot for the change to be
+    applied.
 
-    You can force a reboot or wait until the next maintenance window's reboot.
-    For more information, see
-    `Rebooting a Cluster <https://docs.aws.amazon.com/AmazonElastiCache/latest/red-
-    ug/Clusters.Rebooting.html>`_.
+    You can force a reboot or wait until the next maintenance window's reboot. For more information, see
+    `Rebooting a Cluster <https://docs.aws.amazon.com/AmazonElastiCache/latest/red-ug/Clusters.Rebooting.html>`_.
     """
 
 
@@ -3164,22 +2908,21 @@ class NodeGroupConfiguration(Boto3Model):
     """
     Node group (shard) configuration options.
 
-    Each node group (shard) configuration
-    has the following: ``Slots``, ``PrimaryAvailabilityZone``,
-    ``ReplicaAvailabilityZones``, ``ReplicaCount``.
+    Each node group (shard) configuration has the following: ``Slots``,
+    ``PrimaryAvailabilityZone``, ``ReplicaAvailabilityZones``, ``ReplicaCount``.
     """
 
     NodeGroupId: Optional[str] = None
     """
-    Either the ElastiCache supplied 4-digit id or a user supplied id for the
-    node group these configuration values apply to.
+    Either the ElastiCache supplied 4-digit id or a user supplied id for the node group these configuration values apply
+    to.
     """
     Slots: Optional[str] = None
     """
     A string that specifies the keyspace for a particular node group.
 
-    Keyspaces
-    range from 0 to 16,383. The string is in the format ``startkey-endkey``.
+    Keyspaces range from 0 to 16,383. The string is in
+    the format ``startkey-endkey``.
     """
     ReplicaCount: Optional[int] = None
     """
@@ -3187,16 +2930,14 @@ class NodeGroupConfiguration(Boto3Model):
     """
     PrimaryAvailabilityZone: Optional[str] = None
     """
-    The Availability Zone where the primary node of this node group (shard) is
-    launched.
+    The Availability Zone where the primary node of this node group (shard) is launched.
     """
     ReplicaAvailabilityZones: Optional[List[str]] = None
     """
     A list of Availability Zones to be used for the read replicas.
 
-    The number of
-    Availability Zones in this list must match the value of ``ReplicaCount`` or
-    ``ReplicasPerNodeGroup`` if not specified.
+    The number of Availability Zones in this list must match
+    the value of ``ReplicaCount`` or ``ReplicasPerNodeGroup`` if not specified.
     """
     PrimaryOutpostArn: Optional[str] = None
     """
@@ -3213,8 +2954,7 @@ class CreateReplicationGroupResult(Boto3Model):
         default=None, serialization_alias="ReplicationGroup"
     )
     """
-    Contains all of the attributes of a specific Valkey or Redis OSS
-    replication group.
+    Contains all of the attributes of a specific Valkey or Redis OSS replication group.
     """
 
 
@@ -3223,8 +2963,7 @@ class ModifyReplicationGroupResult(Boto3Model):
         default=None, serialization_alias="ReplicationGroup"
     )
     """
-    Contains all of the attributes of a specific Valkey or Redis OSS
-    replication group.
+    Contains all of the attributes of a specific Valkey or Redis OSS replication group.
     """
 
 
@@ -3233,8 +2972,7 @@ class DeleteReplicationGroupResult(Boto3Model):
         default=None, serialization_alias="ReplicationGroup"
     )
     """
-    Contains all of the attributes of a specific Valkey or Redis OSS
-    replication group.
+    Contains all of the attributes of a specific Valkey or Redis OSS replication group.
     """
 
 
@@ -3251,6 +2989,5 @@ class ReplicationGroupMessage(Boto3Model):
     """
     A list of replication groups.
 
-    Each item in the list contains detailed information about one replication
-    group.
+    Each item in the list contains detailed information about one replication group.
     """
