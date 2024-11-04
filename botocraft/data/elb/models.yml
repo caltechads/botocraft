@@ -4,6 +4,9 @@ primary:
     alternate_name: ClassicELB
     primary_key: LoadBalancerName
     name_key: LoadBalancerName
+    mixins:
+      - name: ClassicELBModelMixin
+        import_path: botocraft.mixins.elb
     fields:
       LoadBalancerName:
         required: true

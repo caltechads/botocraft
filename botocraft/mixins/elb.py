@@ -5,7 +5,7 @@ from typing import TYPE_CHECKING, Callable, Dict, List, Optional, cast
 import boto3
 
 if TYPE_CHECKING:
-    from botocraft.services import ClassicELB
+    from botocraft.services import ClassicELB, Instance
 
 
 # ----------
@@ -103,6 +103,8 @@ def add_tags_for_list(
     """
 
     def wrapper(self, *args, **kwargs) -> List["ClassicELB"]:
+        from botocraft.services import ClassicELB
+
         elbs = func(self, *args, **kwargs)
         if elbs:
             elb_names = [elb.LoadBalancerName for elb in elbs]
@@ -528,3 +530,22 @@ class ClassicELBManagerMixin:
         # VPCId is frozen so we don't have to worry about it
 
         return self.get(elb.LoadBalancerName)
+
+
+class ClassicELBModelMixin:
+    """
+    Provide a few utility methods for building non-trivial relations.
+    """
+
+    @property
+    def ec2_instances(self) -> List["Instance"]:
+        """
+        List all the :py:class:`Instance` objects that are part of this ELB.
+        """
+        # We have to do the actual import here to avoid circular imports
+        from botocraft.services import Instance
+
+        return [
+            Instance.objects.using(self.session).get(instance_id)
+            for instance_id in self.Instances
+        ]
