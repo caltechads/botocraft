@@ -166,6 +166,16 @@ primary:
         transformer:
           mapping:
             VpcId: VpcId
+    manager_methods:
+      targets:
+        docstring: >-
+          Return the targets for the target group.
+        manager_method: targets
+        args:
+          0:
+            name: TargetGroupArn
+            value: >-
+              cast(str, self.arn)
 secondary:
   SubnetMapping:
     fields:
