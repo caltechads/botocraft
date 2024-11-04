@@ -9,9 +9,6 @@ if TYPE_CHECKING:
 # ----------
 
 
-# Service
-
-
 def load_balancer_attributes_to_dict(
     func: Callable[..., List["LoadBalancerAttribute"]],
 ) -> Callable[..., Dict[str, Any]]:

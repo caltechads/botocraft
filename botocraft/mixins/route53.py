@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, List, Literal, Optional
+from typing import TYPE_CHECKING, Literal, Optional
 
 import boto3
 

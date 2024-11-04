@@ -1,3 +1,4 @@
+# mypy: disable-error-code="attr-defined"
 import re
 from typing import TYPE_CHECKING, Callable, List, Optional, Set, cast
 

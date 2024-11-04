@@ -1,3 +1,5 @@
+# mypy: disable-error-code="attr-defined"
+
 import base64
 import datetime
 from functools import cached_property

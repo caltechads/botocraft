@@ -1,3 +1,5 @@
+# mypy: disable-error-code="attr-defined"
+
 import time
 from collections import OrderedDict
 from typing import TYPE_CHECKING, ClassVar, List
