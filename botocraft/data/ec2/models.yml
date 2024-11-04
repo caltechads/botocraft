@@ -10,6 +10,34 @@ primary:
         required: true
       Tags:
         readonly: false
+    relations:
+      subnets:
+        primary_model_name: Subnet
+        many: true
+        docstring: >-
+          Return the :py:class:`Subnet` objects that belong to this VPC, if any.
+        transformer:
+          mapping:
+            Filters: >-
+              [{"Name": "vpc-id", "Values": [self.VpcId]}]
+      security_groups:
+        primary_model_name: SecurityGroup
+        many: true
+        docstring: >-
+          Return the :py:class:`SecurityGroup` objects that belong to this VPC, if any.
+        transformer:
+          mapping:
+            Filters: >-
+              [{"Name": "vpc-id", "Values": [self.VpcId]}]
+      network_acls:
+        primary_model_name: NetworkAcl
+        many: true
+        docstring: >-
+          Return the :py:class:`NetworkAcl` objects that belong to this VPC, if any.
+        transformer:
+          mapping:
+            Filters: >-
+              [{"Name": "vpc-id", "Values": [self.VpcId]}]
   Subnet:
     primary_key: SubnetId
     arn_key: SubnetArn
