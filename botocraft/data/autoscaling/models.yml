@@ -37,6 +37,30 @@ primary:
     name_key: LaunchConfigurationName
     input_shapes:
       - CreateLaunchConfigurationType
+    relations:
+      security_groups:
+        primary_model_name: SecurityGroup
+        many: true
+        docstring: >-
+          Return the security groups that this launch configuration uses.
+        transformer:
+          mapping:
+            SecurityGroups: SecurityGroups
+      ami:
+        primary_model_name: AMI
+        docstring: >-
+          Return the :py:class:`AMI` object that this launch configuration uses.
+        transformer:
+          mapping:
+            ImageId: ImageId
+      instance_type:
+        primary_model_name: EC2InstanceType
+        docstring: >-
+          Return the :py:class:`EC2InstanceType` object that this launch configuration
+          uses.
+        transformer:
+          mapping:
+            InstanceType: InstanceType
 secondary:
   Instance:
     alternate_name: AutoScalingInstanceReference
