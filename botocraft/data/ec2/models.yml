@@ -93,6 +93,14 @@ primary:
         readonly: false
       Tags:
         readonly: false
+    relations:
+      vpc:
+        primary_model_name: Vpc
+        docstring: >-
+          Return the :py:class:`Vpc` object that this security group belongs to, if any.
+        transformer:
+          mapping:
+            VpcId: VpcId
   NetworkAcl:
     primary_key: NetworkAclId
     name_key: NetworkAclId
