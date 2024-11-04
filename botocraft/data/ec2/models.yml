@@ -55,6 +55,23 @@ primary:
         default: "False"
       Tags:
         readonly: false
+    relations:
+      vpc:
+        primary_model_name: Vpc
+        docstring: >-
+          Return the :py:class:`Vpc` object that this subnet belongs to, if any.
+        transformer:
+          mapping:
+            VpcId: VpcId
+      instances:
+        primary_model_name: Instance
+        many: true
+        docstring: >-
+          Return the :py:class:`Instance` objects that belong to this subnet, if any.
+        transformer:
+          mapping:
+            Filters: >-
+              [{"Name": "subnet-id", "Values": [self.SubnetId]}]
   SecurityGroup:
     primary_key: GroupId
     name_key: GroupName
