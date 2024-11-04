@@ -76,6 +76,49 @@ class ShapePrinter:
         # purge empty lines
         return [line for line in output if line.strip()]
 
+    def render_blob(
+        self,
+        shape: botocore.model.StringShape,
+        indent: int = 0,
+        prefix: Optional[str] = None,
+    ) -> List[str]:
+        """
+        Render a blob shape as a descriptive string.  According to the botocore
+        documentation::
+
+            [Blobs] are assumed to be binary, and if a str/unicode type is
+            passed in, it will be encoded as utf-8.
+
+        Args:
+            shape: the botocore shape object
+
+        Keyword Args:
+            indent: the number of spaces to indent the output
+            prefix: a prefix to add to the shape name
+
+        """
+        output = []
+        constraints = ""
+        if "min" in shape.metadata and shape.metadata["min"] is not None:
+            constraints += f"minlength: {shape.metadata['min']} "
+        if "max" in shape.metadata and shape.metadata["max"] is not None:
+            constraints += f"maxlength: {shape.metadata['max']} "
+        if prefix is not None:
+            output.append(
+                f"{click.style(prefix, fg='cyan')}: bytes -> "
+                f"{click.style(shape.name, fg='blue')}"
+            )
+        else:
+            output.append(
+                f"{click.style(shape.name, fg='red')}: bytes -> {click.style(shape.name, fg='blue')}"  # noqa: E501
+            )
+        if constraints:
+            output.append(f"    Constraints: {click.style(constraints, fg='yellow')}")
+        if indent:
+            output = [add_prefix(line, " " * indent) for line in output]
+        # purge empty lines
+        return [line for line in output if line.strip()]
+
     def render_integer(
         self,
         shape: botocore.model.Shape,
@@ -260,13 +303,19 @@ class ShapePrinter:
             )
         elif shape.type_name == "map":
             output = self.render_map(
-                cast(botocore.model.ListShape, shape),
+                cast(botocore.model.MapShape, shape),
                 indent=indent,
                 prefix=prefix,
             )
         elif shape.type_name == "string":
             output = self.render_string(
                 cast(botocore.model.StringShape, shape),
+                indent=indent,
+                prefix=prefix,
+            )
+        elif shape.type_name == "blob":
+            output = self.render_blob(
+                cast(botocore.model.Shape, shape),
                 indent=indent,
                 prefix=prefix,
             )
