@@ -274,8 +274,6 @@ Image:
         TagSpecifications:
           docstring: >-
             The tags to apply to the new AMI and new snapshots. You can tag the AMI, the snapshots, or both.  To tag the new AMI, the value for ``ResourceType`` must be "image" To tag the new snapshots, the value for ``ResourceType`` must be "snapshot". The same tag is applied to all the new snapshots.
-
-
 Instance:
   mixins:
     - name: EC2TagsManagerMixin
@@ -468,5 +466,108 @@ LaunchTemplateVersion:
       args:
         DryRun:
           default: "False"
+NetworkInterface:
+  mixins:
+    - name: EC2TagsManagerMixin
+      import_path: botocraft.mixins.ec2
+  methods:
+    create:
+      boto3_name: create_network_interface
+      response_attr: NetworkInterfaceInstance
+      args:
+        DryRun:
+          default: "False"
+        TagSpecifications:
+          rename: Tags
+          python_type: Optional[List["Tag"]]
+          source_arg: >-
+            self.serialize(self.convert_tags(model.Tags, 'network-interface'))
+    delete:
+      boto3_name: delete_network_interface
+      args:
+        NetworkInterfaceId:
+          required: true
+        DryRun:
+          default: "False"
+    get:
+      boto3_name: describe_network_interfaces
+      args:
+        Filters:
+          hidden: true
+        DryRun:
+          default: "False"
+        NetworkInterfaceIds:
+          required: true
+          rename: NetworkInterfaceId
+          python_type: str
+          source_arg: "[NetworkInterfaceId]"
+          docstring: >-
+            The ID of the network interface.
+    list:
+      boto3_name: describe_network_interfaces
+      args:
+        DryRun:
+          default: "False"
+    attach:
+      boto3_name: attach_network_interface
+      response_attr: None
+      args:
+        DeviceIndex:
+          required: true
+        InstanceId:
+          required: true
+        NetworkInterfaceId:
+          required: true
+        DryRun:
+          default: "False"
+    detach:
+      boto3_name: detach_network_interface
+      return_type: None
+      args:
+        AttachmentId:
+          required: true
+        Force:
+          default: "False"
+        DryRun:
+          default: "False"
+    reset:
+      boto3_name: reset_network_interface_attribute
+      return_type: None
+      args:
+        NetworkInterfaceId:
+          required: true
+        DryRun:
+          default: "False"
+    permissions:
+      boto3_name: describe_network_interface_permissions
+      response_attr: NetworkInterfacePermissions
+      args:
+        NetworkInterfaceId:
+          required: true
+        DryRun:
+          default: "False"
+InstanceTypeInfo:
+  readonly: true
+  methods:
+    get:
+      boto3_name: describe_instance_types
+      response_attr: InstanceTypes
+      args:
+        DryRun:
+          default: "False"
+        InstanceTypes:
+          required: true
+          rename: InstanceType
+          python_type: str
+          source_arg: "[InstanceType]"
+          docstring: >-
+            The instance type.
+    list:
+      boto3_name: describe_instance_types
+      response_attr: InstanceTypes
+      args:
+        DryRun:
+          default: "False"
+
 
 

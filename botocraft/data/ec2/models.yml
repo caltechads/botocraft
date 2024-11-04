@@ -243,6 +243,99 @@ primary:
         transformer:
           mapping:
             LaunchTemplateId: LaunchTemplateId
+  NetworkInterface:
+    primary_key: NetworkInterfaceId
+    input_shapes:
+      - CreateNetworkInterfaceRequest
+    fields:
+      InterfaceType:
+        python_type: Optional[str]
+    relations:
+      subnet:
+        primary_model_name: Subnet
+        docstring: >-
+          Return the :py:class:`Subnet` object that this network interface belongs to,
+          if any.
+        transformer:
+          mapping:
+            SubnetId: SubnetId
+      security_groups:
+        primary_model_name: SecurityGroup
+        many: true
+        docstring: >-
+          Return the :py:class:`SecurityGroup` objects that this network interface
+          belongs to, if any.
+        transformer:
+          mapping:
+            GroupIds: >-
+              [identifier.GroupId for identifier in cast(List["GroupIdentifier"], self.Groups)]
+    manager_methods:
+      reset:
+        docstring: >-
+          Reset the network interface.
+        manager_method: reset
+        args:
+          0:
+            name: NetworkInterfaceId
+            value: >-
+              self.NetworkInterfaceId
+        user_keyword_args:
+          - name: DryRun
+            value: "False"
+          - name: SourceDestCheck
+            value: "True"
+      attach:
+        docstring: >-
+          Attach the network interface.
+        manager_method: attach
+        args:
+          0:
+            name: NetworkInterfaceId
+            value: >-
+              self.NetworkInterfaceId
+        user_args:
+          1:
+            name: InstanceId
+            attr_type: str
+          2:
+            name: DeviceIndex
+            attr_type: int
+        user_keyword_args:
+          - name: NetworkCardIndex
+            value: "None"
+          - name: EnaSrdSpecification
+            value: "None"
+          - name: DryRun
+            value: "False"
+      detach:
+        docstring: >-
+          Detach the network interface.
+        manager_method: detach
+        args:
+          0:
+            name: AttachmentId
+            value: >-
+              self.Attachment.AttachmentId
+        user_keyword_args:
+          - name: Force
+            value: "False"
+          - name: DryRun
+            value: "False"
+  InstanceTypeInfo:
+    alternate_name: EC2InstanceType
+    primary_key: InstanceType
+    name_key: InstanceType
+    readonly: true
+    relations:
+      instances:
+        primary_model_name: Instance
+        many: true
+        docstring: >-
+          Return the :py:class:`Instance` objects that have this instance type, if any.
+        transformer:
+          mapping:
+            Filters: >-
+              [{"Name": "instance-type", "Values": [self.InstanceType]}]
 secondary:
   Monitoring:
     alternate_name: EC2DetailedMonitoring
@@ -314,4 +407,41 @@ secondary:
     alternate_name: EC2NetworkBandwidthGbpsRequest
   ConnectionTrackingSpecification:
     alternate_name: EC2ConnectionTrackingSpecification
-
+  ConnectionTrackingConfiguration:
+    alternate_name: EC2ConnectionTrackingConfiguration
+  EnaSrdUdpSpecification:
+    alternate_name: EC2EnaSrdUdpSpecification
+  CreateNetworkInterfaceResult:
+    fields:
+      NetworkInterface:
+        rename: NetworkInterfaceInstance
+  ProcessorInfo:
+    alternate_name: EC2ProcessorInfo
+  VCpuInfo:
+    alternate_name: EC2VCpuInfo
+  MemoryInfo:
+    alternate_name: EC2MemoryInfo
+  InstanceStorageInfo:
+    alternate_name: EC2InstanceStorageInfo
+  EbsOptimizedInfo:
+    alternate_name: EC2EbsOptimizedInfo
+  EbsInfo:
+    alternate_name: EC2EbsInfo
+  EfaInfo:
+    alternate_name: EC2EfaInfo
+  NetworkInfo:
+    alternate_name: EC2NetworkInfo
+  GpuInfo:
+    alternate_name: EC2GpuInfo
+  FpgaInfo:
+    alternate_name: EC2FpgaInfo
+  PlacementGroupInfo:
+    alternate_name: EC2PlacementGroupInfo
+  InferenceAcceleratorInfo:
+    alternate_name: EC2InferenceAcceleratorInfo
+  NitroTpmInfo:
+    alternate_name: EC2NitroTpmInfo
+  MediaAcceleratorInfo:
+    alternate_name: EC2MediaAcceleratorInfo
+  NeuronInfo:
+    alternate_name: EC2NeuronInfo
