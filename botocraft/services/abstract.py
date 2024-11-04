@@ -66,6 +66,31 @@ class Boto3Model(TransformMixin, BaseModel):
 
     model_config = ConfigDict(validate_assignment=True)
 
+    #: The boto3 session to use for this model.  This is set by the manager,
+    #: and is used in relationships.  We have to use ``Any`` here because we
+    #: pydantic complains vociferously if we use ``boto3.session.Session``.
+    #: We exclude it from the model dump because it's not something that should
+    #: be serialized.
+    session: Optional[Any] = Field(default=None, exclude=True)
+
+    def set_session(self, session: boto3.session.Session) -> None:
+        """
+        Set the boto3 session for this model.
+
+        Args:
+            session: The boto3 session to use.
+
+        Returns:
+            The model instance.
+
+        """
+        if self.model_config.get("frozen"):
+            self.model_config["frozen"] = False
+            self.session = session
+            self.model_config["frozen"] = True
+        else:
+            self.session = session
+
 
 class ReadonlyBoto3Model(Boto3Model):
     """
