@@ -484,19 +484,27 @@ def botocore_list_shape(
 @botocore_group.command(
     "operations", short_help="List all available operations for a service"
 )
+@click.option("--name", help="List only the operation with this name")
 @click.argument("service")
-def botocore_list_operations(service: str):
+def botocore_list_operations(service: str, name: Optional[str]):
     """
     Print all operations for a service, along with their input and output shapes.
 
     Args:
         service: the name of the service
 
+    Keyword Args:
+        name: the name of the operation to list
+
     """
     session = botocore.session.get_session()
     service_model = session.get_service_model(service)
-    for name in service_model.operation_names:  # pylint: disable=not-an-iterable
-        print_operation(service_model, name)
+    for _name in service_model.operation_names:  # pylint: disable=not-an-iterable
+        if name and name != _name:
+            continue
+        print_operation(service_model, _name)
+        if name:
+            break
 
 
 @botocore_group.command(
