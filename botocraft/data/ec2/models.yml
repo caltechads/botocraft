@@ -327,6 +327,20 @@ primary:
             LaunchTemplateId: LaunchTemplateId
             Version: VersionNumber
     relations:
+      ami:
+        primary_model_name: AMI
+        docstring: >-
+          Return the py:class:`AMI` object that this version uses, if any.
+        transformer:
+          mapping:
+            ImageId: LaunchTemplateData.ImageId
+      instance_type:
+        primary_model_name: EC2InstanceType
+        docstring: >-
+          Return the :py:class:`EC2InstanceType` object that this version uses, if any.
+        transformer:
+          mapping:
+            InstanceType: LaunchTemplateData.InstanceType
       launch_template:
         primary_model_name: LaunchTemplate
         docstring: >-
