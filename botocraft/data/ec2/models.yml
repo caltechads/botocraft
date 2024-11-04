@@ -172,7 +172,6 @@ primary:
         readonly: true
       ImdsSupport:
         readonly: true
-
   Instance:
     primary_key: InstanceId
     input_shapes:
@@ -181,6 +180,13 @@ primary:
       Tags:
         readonly: false
     relations:
+      ami:
+        primary_model_name: AMI
+        docstring: >-
+          Return the :py:class:`AMI` object that this instance is built from, if any.
+        transformer:
+          mapping:
+            ImageId: ImageId
       vpc:
         primary_model_name: Vpc
         docstring: >-
@@ -205,6 +211,22 @@ primary:
           mapping:
             GroupIds: >-
               [identifier.GroupId for identifier in cast(List["GroupIdentifier"], self.SecurityGroups)]
+      network_interfaces:
+        primary_model_name: NetworkInterface
+        many: true
+        docstring: >-
+          Return the :py:class:`NetworkInterface` objects that this instance has, if any.
+        transformer:
+          mapping:
+            Filters: >-
+              [{"Name": "attachment.instance-id", "Values": [self.InstanceId]}]
+      instance_type:
+        primary_model_name: EC2InstanceType
+        docstring: >-
+          Return the :py:class:`EC2InstanceType` object that this instance runs on.
+        transformer:
+          mapping:
+            InstanceType: InstanceType
     manager_methods:
       start:
         docstring: >-
