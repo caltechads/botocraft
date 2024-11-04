@@ -181,7 +181,7 @@ class ModelRelationGenerator:
 """
         for key, value in self.property_def.transformer.mapping.items():
             _value = value
-            if "self." not in _value and not value.startswith('"'):
+            if "self." not in _value and not _value.startswith(("'", '"', "[", "{")):
                 _value = f"self.{_value}"
             code += f"""
             "{key}": {_value},
