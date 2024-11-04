@@ -171,7 +171,7 @@ class Boto3ModelManager(TransformMixin):
         Args:
             response: The response to search.
         """
-        if response is not None:
+        if response:
             if isinstance(response, BaseModel):
                 # Pydantic models are ALWAYS iterable, so we can't use
                 # iter(response) to check if it's a list.
@@ -198,6 +198,8 @@ class Boto3ModelManager(TransformMixin):
                     # This is not iterable, so we can't sessionize it.
                     pass
                 else:
+                    if not response:
+                        return
                     # Test for a dict
                     if isinstance(response, dict):
                         for value in response.values():
