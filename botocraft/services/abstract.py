@@ -301,13 +301,6 @@ class ReadonlyPrimaryBoto3Model(  # pylint: disable=abstract-method
     #: The manager for this model
     manager_class: ClassVar[Type[Boto3ModelManager]]
 
-    #: The boto3 session to use for this model.  This is set by the manager,
-    #: and is used in relationships.  We have to use ``Any`` here because we
-    #: pydantic complains vociferously if we use ``boto3.session.Session``.
-    #: We exclude it from the model dump because it's not something that should
-    #: be serialized.
-    session: Optional[Any] = Field(default=None, exclude=True)
-
     @classproperty
     def objects(cls) -> Boto3ModelManager:  # noqa: N805
         """
@@ -333,21 +326,6 @@ class ReadonlyPrimaryBoto3Model(  # pylint: disable=abstract-method
         msg = "Cannot delete a readonly model."
         raise RuntimeError(msg)
 
-    def set_session(self, session: boto3.session.Session) -> None:
-        """
-        Set the boto3 session for this model.
-
-        Args:
-            session: The boto3 session to use.
-
-        Returns:
-            The model instance.
-
-        """
-        self.model_config["frozen"] = False
-        self.session = session  # type: ignore[misc]
-        self.model_config["frozen"] = True
-
 
 class PrimaryBoto3Model(  # pylint: disable=abstract-method
     ModelIdentityMixin, Boto3Model
@@ -359,13 +337,6 @@ class PrimaryBoto3Model(  # pylint: disable=abstract-method
 
     #: The manager for this model
     manager_class: ClassVar[Type[Boto3ModelManager]]
-
-    #: The boto3 session to use for this model.  This is set by the manager,
-    #: and is used in relationships.  We have to use ``Any`` here because we
-    #: pydantic complains vociferously if we use ``boto3.session.Session``.
-    #: We exclude it from the model dump because it's not something that should
-    #: be serialized.
-    session: Optional[Any] = Field(default=None, exclude=True, frozen=False)
 
     @classproperty
     def objects(cls) -> Boto3ModelManager:  # noqa: N805
@@ -394,21 +365,3 @@ class PrimaryBoto3Model(  # pylint: disable=abstract-method
             msg = "Cannot delete a model that has not been saved."
             raise ValueError(msg)
         return self.manager.delete(self.pk)
-
-    def set_session(self, session: boto3.session.Session) -> None:
-        """
-        Set the boto3 session for this model.
-
-        Args:
-            session: The boto3 session to use.
-
-        Returns:
-            The model instance.
-
-        """
-        if self.model_config.get("frozen"):
-            self.model_config["frozen"] = False
-            self.session = session
-            self.model_config["frozen"] = True
-        else:
-            self.session = session
