@@ -409,20 +409,26 @@ def botocore_list_services():
 
 @botocore_group.command("models", short_help="List all available shapes for a service")
 @click.option("--names-only", is_flag=True, help="List only model names, not shapes")
+@click.option("--shape-type", default=None, help="Show only this type of shape")
 @click.argument("service")
-def botocore_list_shapes(service: str, names_only: bool):
+def botocore_list_shapes(service: str, names_only: bool, shape_type: Optional[str]):
     """
     List all shapes in a botocore service model.
 
     Args:
         service: the name of the service
         names_only: whether to list only the names of the shapes
+        shape_type: the type of shape to list
 
     """
     session = botocore.session.get_session()
     service_model = session.get_service_model(service)
     for shape_name in service_model.shape_names:  # pylint: disable=not-an-iterable
         if names_only:
+            if shape_type:
+                shape = service_model._shape_resolver.get_shape_by_name(shape_name)  # type: ignore[attr-defined]  # noqa: SLF001
+                if shape.type_name != shape_type:
+                    continue
             click.secho(shape_name, fg="red")
         else:
             print_shape(service_model, shape_name)
