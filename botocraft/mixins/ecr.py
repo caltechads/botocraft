@@ -710,3 +710,54 @@ class ECRImageMixin:
             )
         return task_definitions
 
+    def services(
+        self,
+        status: Optional[Literal["ACTIVE", "INACTIVE", "ALL"]] = "ACTIVE",
+        tags: Optional[Dict[str, str]] = None,
+        verbose: bool = False,
+    ) -> List["Service"]:
+        """
+        Return a list of ECS Services that use this image.
+
+        Warning:
+            This will be quite slow if you have a lot of families and revisions,
+            because the only way to deal with this is to get all the task
+            definition families,  and then look at each revision to see if one
+            of its containers uses this image.  Then look through all our services
+            to see if there is a service that uses that task definition.
+
+        Args:
+            status: The status of the task definition to filter by.  Valid
+                values are ``ACTIVE``, ``INACTIVE``, or ``ALL``.  The default
+                is ``ACTIVE``.
+            tags: A dictionary of tags to filter task definitions and services
+                by.  The default is an empty dictionary.
+            verbose: If ``True``, print out status messages as we work.
+
+        Returns:
+            A list of ECS Services that use this image.
+
+        """
+        from botocraft.services import Cluster, Service
+
+        if not tags:
+            tags = {}
+
+        task_definitions = self.task_definitions(
+            status=status, tags=tags, verbose=verbose
+        )
+
+        # There's no way to directly list all services in an account.  We have
+        # to list all clusters, then check each service in each cluster.
+        services: List[Service] = []
+        clusters = Cluster.objects.using(self.session).list()
+        for cluster in clusters:
+            services.extend(
+                [
+                    service
+                    for service in cluster.services
+                    if service.taskDefinition in task_definitions
+                    if tags.items() <= service.tags.items()
+                ]
+            )
+        return services
