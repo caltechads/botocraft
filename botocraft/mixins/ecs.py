@@ -358,6 +358,58 @@ class ECSServiceModelMixin:
         return []
 
 
+class ECSServiceManagerMixin:
+    """
+    A mixin for :py:class:`botocraft.services.ecs.ServiceManager` that adds
+    some additional methods that we can't auto generate.
+    """
+
+    def all(
+        self,
+        launchType: Optional[Literal["EC2", "FARGATE", "EXTERNAL"]] = None,  # noqa: N803
+        schedulingStrategy: Optional[Literal["REPLICA", "DAEMON"]] = None,  # noqa: N803
+        tags: Optional[Dict[str, str]] = None,
+    ) -> List["Service"]:
+        """
+        Return all the services in the account.  This differs from
+        :py:meth:`botocraft.services.ServiceManager.list` in that it iterates
+        through all the clusters in the account and gets the services for each
+        cluster.
+
+        Normally you would expect to use
+        :py:meth:`botocraft.services.ServiceManager.list` to get all the
+        services, but ``describe_services``, on which our method is based, only
+        returns services for a single cluster, so we need to roll our own
+        method.
+
+        Args:
+            launchType: The launch type of the services to return.
+            schedulingStrategy: The scheduling strategy of the services to return.
+            tags: A dictionary of tags to filter the services
+
+        Returns:
+            A list of :py:class:`Service` objects.
+
+        """
+        from botocraft.services import Cluster, Service
+
+        if not tags:
+            tags = {}
+
+        clusters = Cluster.objects.using(self.session).list()
+        services: List["Service"] = []  # noqa: UP037
+        for cluster in clusters:
+            if tags.items() <= cluster.tags.items():
+                services.extend(
+                    Service.objects.using(self.session).list(
+                        cluster=cluster.clusterArn,
+                        launchType=launchType,
+                        schedulingStrategy=schedulingStrategy,
+                    )
+                )
+        return services
+
+
 class ECSContainerInstanceModelMixin:
     @property
     def free_cpu(self) -> int:

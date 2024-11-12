@@ -1,5 +1,8 @@
 ---
 Service:
+  mixins:
+    - name: ECSServiceManagerMixin
+      import_path: botocraft.mixins.ecs
   methods:
     create:
       boto3_name: create_service
