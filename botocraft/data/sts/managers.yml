@@ -1,0 +1,27 @@
+AssumeRoleResponse:
+  methods:
+    assume:
+      boto3_name: assume_role
+      response_attr: >-
+        None
+    assume_with_saml:
+      boto3_name: assume_role_with_saml
+      response_attr: >-
+        None
+      return_type:
+        Optional["AssumeRole"]
+      response_class: AssumeRole
+    assume_with_web_identity:
+      boto3_name: assume_role_with_web_identity
+      response_attr: >-
+        None
+      return_type:
+        Optional["AssumeRole"]
+      response_class:
+        AssumeRole
+CallerIdentity:
+  methods:
+    get:
+      boto3_name: get_caller_identity
+      response_attr: None
+

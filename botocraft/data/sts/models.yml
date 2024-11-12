@@ -1,0 +1,60 @@
+---
+primary:
+  AssumeRoleResponse:
+    alternate_name: AssumeRole
+    readonly: true
+    arn_key: AssumedRoleUser.Arn
+    primary_key: Credentials.AccessKeyId
+    extra_fields:
+      Subject:
+        docstring: >-
+          The subject of the assumed role.
+        python_type: Optional[str]
+        default: None
+      SubjectType:
+        docstring: >-
+          The type of the subject of the assumed role (SAML only).
+        python_type: Optional[str]
+        default: None
+      Issuer:
+        docstring: >-
+          The issuer of the assumed role (SAML Only).
+        python_type: Optional[str]
+        default: None
+      Provider:
+        docstring: >-
+          The provider of the assumed role (Web Identity Only).
+        python_type: Optional[str]
+        default: None
+      Audience:
+        docstring: >-
+          The audience of the assumed role (SAML Only).
+        python_type: Optional[str]
+        default: None
+      NameQualifier:
+        docstring: >-
+          The name qualifier of the assumed role (SAML Only).
+        python_type: Optional[str]
+        default: None
+      SubjectFromWebIdentityToken:
+        docstring: >-
+          The subject from the web identity token (Web Identity Only).
+        python_type: Optional[str]
+        default: None
+  GetCallerIdentityResponse:
+    alternate_name: CallerIdentity
+    readonly: true
+    name_key: UserId
+    arn_key: Arn
+    primary_key: Account
+secondary:
+  Credentials:
+    alternate_name: STSCredentials
+  AssumedRoleUser:
+    alternate_name: STSAssumedRoleUser
+  FederatedUser:
+    alternate_name: STSFederatedUser
+  ProvidedContext:
+    alternate_name: STSProvidedContext
+  PolicyDescriptorType:
+    alternate_name: STSPolicyDescriptorType
