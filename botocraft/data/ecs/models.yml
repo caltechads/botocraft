@@ -40,6 +40,15 @@ primary:
           mapping:
             service: serviceName
             cluster: clusterArn
+      cluster_name:
+        docstring: >-
+          The name of the cluster that houses this service.
+        transformer:
+          regex:
+            attribute: clusterArn
+            regex: >-
+              ^.*:cluster/(.+)$
+            cluster: clusterArn
     relations:
       cluster:
         primary_model_name: Cluster
@@ -114,6 +123,9 @@ primary:
     arn_key: taskDefinitionArn
     input_shapes:
       - RegisterTaskDefinitionRequest
+    mixins:
+      - name: TaskDefinitionModelMixin
+        import_path: botocraft.mixins.ecs
     fields:
       family:
         required: true
@@ -254,6 +266,16 @@ secondary:
         required: true
         default: >-
           True
+    properties:
+      repository_name:
+        docstring: >-
+          The name of the repository that houses the image that this container
+          definition uses.
+        transformer:
+          regex:
+            attribute: image
+            regex: >-
+              ^(.+):.+$
   LoadBalancer:
     alternate_name: LoadBalancerConfiguration
   Tag:
