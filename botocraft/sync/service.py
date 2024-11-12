@@ -55,7 +55,12 @@ class AbstractGenerator:
         self.service_model = session.get_service_model(self.service_name)
         #: The documentation formatter we will use to format docstrings.
         self.docformatter = DocumentationFormatter()
+        #: The classes we've generated for this service.  The key is the class
+        #: name, and the value is the code for the class.  We'll write this to a
+        #: file later in the order that the classes were generated.
         self.classes: OrderedDict[str, str] = OrderedDict()
+        #: A list of imports we need for our classes to function properly.  They'll
+        #: be added to the top of the file.
         self.imports: Set[str] = set()
 
     @property
@@ -552,6 +557,10 @@ class ModelGenerator(AbstractGenerator):
             The name of the model class that was generated.
 
         """
+        if model_name in self.classes:
+            # If we've already generated this model, just return it.
+            return model_name
+
         # The list of fields for this model
         fields: List[str] = []
 
@@ -923,11 +932,17 @@ class ServiceGenerator:
         self.model_generator.generate()
         self.model_classes = deepcopy(self.model_generator.classes)
         self.imports.update(self.model_generator.imports)
-        self.model_generator.clear()
 
         # Generate the service managers and request/response models
         self.manager_generator.generate()
-        self.response_classes = deepcopy(self.model_generator.classes)
+        # We have to do this because very occasionaly there are no real
+        # primary models, and we use a response model as one.  Thus we need
+        # to remove any primary models from the response classes
+        self.response_classes = {
+            k: v
+            for k, v in self.model_generator.classes.items()
+            if k not in self.model_classes
+        }
         self.manager_classes = deepcopy(self.manager_generator.classes)
         self.imports.update(self.manager_generator.imports)
         self.model_generator.clear()
