@@ -24,8 +24,8 @@ classifiers = [
     "Programming Language :: Python :: 3.11",
 ]
 dependencies = [
-  "boto3>=1.35.54",
-  "botocore>=1.35.54",
+  "boto3>=1.35.58",
+  "botocore>=1.35.58",
   "pydantic >= 2.9.0",
   "click >= 8.0",
   "pyyaml >= 6.0.2",

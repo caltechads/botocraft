@@ -110,3 +110,5 @@ secondary:
     alternate_name: AutoScalingActivity
   TagDescription:
     alternate_name: AutoScalingTagDescription
+  AvailabilityZoneDistribution:
+    alternate_name: AutoScalingAvailabilityZoneDistribution
