@@ -164,7 +164,7 @@ class TagsDictMixin:
             self.tag_class = Tag
 
     @cached_property
-    def __tag_Key(self) -> str:  # noqa: N802
+    def __tag_Key(self) -> str:
         """
         The name of the key attribute in the tag class.
         """
@@ -180,7 +180,7 @@ class TagsDictMixin:
         raise RuntimeError(msg)
 
     @cached_property
-    def __tag_Value(self) -> str:  # noqa: N802
+    def __tag_Value(self) -> str:
         """
         The name of the value attribute in the tag class.
         """

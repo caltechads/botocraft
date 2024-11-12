@@ -71,18 +71,26 @@ class GetMethodGenerator(ManagerMethodGenerator):
         response_attr = cast(str, self.response_attr)
         # Since this is a get method, we can assume that the response will
         # always be a StructureShape
-        if self.response_attr_multiplicity == "many":
-            code += f"""
+        if response_attr:
+            if self.response_attr_multiplicity == "many":
+                code += f"""
         if response and response.{response_attr}:
             self.sessionize(response.{response_attr}[0])
             return response.{response_attr}[0]
         return None
 """
-        else:
-            code += f"""
+            else:
+                code += f"""
         if response and response.{response_attr}:
             self.sessionize(response.{response_attr})
             return response.{response_attr}
+        return None
+"""
+        else:
+            code += """
+        if response:
+            self.sessionize(response)
+            return response
         return None
 """
         return code

@@ -462,7 +462,8 @@ class MethodArgumentDefinition(BaseModel):
     #: signature.  This is only useful for methods that take a model
     #: instance as an argument.
     explicit: bool = False
-    #: If ``True``, make this a postional argument.
+    #: If ``True``, make this a postional argument.  If ``False``, make
+    #: this a keyword argument.
     required: bool = False
     #: If specified, set this as the default value for the argument.
     default: Optional[Any] = None
