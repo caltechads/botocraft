@@ -129,6 +129,9 @@ primary:
     name_key: Name
     input_shapes:
       - CreateImageRequest
+    mixins:
+      - name: AMIModelMixin
+        import_path: botocraft.mixins.ec2
     fields:
       Architecture:
         readonly: true
@@ -172,6 +175,16 @@ primary:
         readonly: true
       ImdsSupport:
         readonly: true
+    relations:
+      instances:
+        primary_model_name: Instance
+        many: true
+        docstring: >-
+          Return the :py:class:`Instance` objects that are built from this image, if any.
+        transformer:
+          mapping:
+            Filters: >-
+              [{"Name": "image-id", "Values": [self.ImageId]}]
   Instance:
     primary_key: InstanceId
     input_shapes:

@@ -221,6 +221,8 @@ Image:
   mixins:
     - name: EC2TagsManagerMixin
       import_path: botocraft.mixins.ec2
+    - name: AMIManagerMixin
+      import_path: botocraft.mixins.ec2
   methods:
     create:
       boto3_name: create_image

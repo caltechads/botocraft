@@ -1,7 +1,11 @@
-from typing import TYPE_CHECKING, Callable, List, Literal, Optional, cast
+from datetime import datetime
+from functools import wraps
+from typing import TYPE_CHECKING, Callable, Dict, List, Literal, Optional, cast
+from zoneinfo import ZoneInfo
 
 if TYPE_CHECKING:
     from botocraft.services import (
+        AMI,
         Instance,
         Reservation,
         Tag,
@@ -100,6 +104,47 @@ ResourceType = Literal[
     "instance-connect-endpoint",
 ]
 
+# ----------
+# Decorators
+# ----------
+
+
+def ec2_instances_only(
+    func: Callable[..., List["Reservation"]],
+) -> Callable[..., List["Instance"]]:
+    """
+    Wraps a boto3 method that returns a list of :py:class:`Reservation` objects
+    to return a list of :py:class:`Instance` objects instead.
+    """
+
+    @wraps(func)
+    def wrapper(*args, **kwargs) -> List["Instance"]:
+        reservations = func(*args, **kwargs)
+        instances: List["Instance"] = []  # noqa: UP037
+        for reservation in reservations:
+            instances.extend(cast(List["Instance"], reservation.Instances))
+        return instances
+
+    return wrapper
+
+
+def ec2_instance_only(
+    func: Callable[..., Optional["Reservation"]],
+) -> Callable[..., Optional["Instance"]]:
+    """
+    Wraps a boto3 method that returns a list of :py:class:`Reservation` objects
+    to return a single :py:class:`Instance` object instead.
+    """
+
+    @wraps(func)
+    def wrapper(*args, **kwargs) -> Optional["Instance"]:
+        reservation = func(*args, **kwargs)
+        if not reservation:
+            return None
+        return cast(List["Instance"], reservation.Instances)[0]
+
+    return wrapper
+
 
 # -------------
 # Mixin classes
@@ -171,41 +216,68 @@ class SecurityGroupModelMixin:
                     )
 
 
-# ----------
-# Decorators
-# ----------
+class AMIManagerMixin:
+    def in_use(
+        self,
+        owners: Optional[List[str]] = None,
+        tags: Optional[Dict[str, str]] = None,
+        created_since: Optional[datetime] = None,
+    ) -> List["AMI"]:
+        """
+        Return a list of AMIs that are currently in use by a running or stopped
+        instance.
+
+        Keyword Args:
+            owners: Scopes the results to images with the specified owners. You
+                can specify a combination of Amazon Web Services account IDs,
+                ``self``, ``amazon``, and ``aws-marketplace``. If you omit this
+                parameter, the results include all images for which you have launch
+                permissions, regardless of ownership.  If not specified, the
+                default is ``self``.
+            tags: Filters the AMIs to those who match the these tags.
+            created_since: Filters the AMIs to those created since this date.
+
+        """
+        from botocraft.services import Filter, Instance
+
+        _owners = owners if owners else ["self"]
+        _filters: Optional[List[Filter]] = None
+        if tags:
+            _filters = [
+                Filter(Name=f"tag:{key}", Values=[value]) for key, value in tags.items()
+            ]
+
+        if created_since:
+            # First convert the timezone to UTC if this is a timezone-aware
+            # datetime object.
+            if created_since.tzinfo:
+                created_since = created_since.astimezone(ZoneInfo("UTC"))
+            # Now append the filter to the list of filters for the AMI listing.
+            if _filters is None:
+                _filters = []
+            _filters.append(
+                Filter(Name="creation-date", Values=[created_since.isoformat()])
+            )
+        amis = self.list(Owners=_owners, Filters=_filters)  # type: ignore[attr-defined]
+        _filters = [Filter(Name="image-id", Values=[ami.ImageId for ami in amis])]
+        instances: List[Instance] = Instance.objects.list(Filters=_filters)
+        in_use_amis: List["AMI"] = []  # noqa: UP037
+        for instance in instances:
+            for ami in amis:
+                if instance.ImageId == ami.ImageId:
+                    if ami not in in_use_amis:
+                        in_use_amis.append(ami)
+        return list(in_use_amis)
 
 
-def ec2_instances_only(
-    func: Callable[..., List["Reservation"]],
-) -> Callable[..., List["Instance"]]:
-    """
-    Wraps a boto3 method that returns a list of :py:class:`Reservation` objects
-    to return a list of :py:class:`Instance` objects instead.
-    """
+class AMIModelMixin:
+    @property
+    def in_use(self) -> bool:
+        """
+        Return ``True`` if the AMI is in use by a running or stopped instance.
+        """
+        from botocraft.services import Filter, Instance
 
-    def wrapper(*args, **kwargs) -> List["Instance"]:
-        reservations = func(*args, **kwargs)
-        instances: List["Instance"] = []  # noqa: UP037
-        for reservation in reservations:
-            instances.extend(cast(List["Instance"], reservation.Instances))
-        return instances
-
-    return wrapper
-
-
-def ec2_instance_only(
-    func: Callable[..., Optional["Reservation"]],
-) -> Callable[..., Optional["Instance"]]:
-    """
-    Wraps a boto3 method that returns a list of :py:class:`Reservation` objects
-    to return a single :py:class:`Instance` object instead.
-    """
-
-    def wrapper(*args, **kwargs) -> Optional["Instance"]:
-        reservation = func(*args, **kwargs)
-        if not reservation:
-            return None
-        return cast(List["Instance"], reservation.Instances)[0]
-
-    return wrapper
+        _filters = [Filter(Name="image-id", Values=[self.ImageId])]  # type: ignore[attr-defined]
+        instances: List[Instance] = Instance.objects.all(Filters=_filters)
+        return bool(instances)
