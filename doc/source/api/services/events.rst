@@ -1,7 +1,7 @@
 
 
-Auto Scaling (autoscaling)
-==========================
+EventBridge (events)
+====================
 
 
 Primary Models
@@ -12,13 +12,13 @@ represent resources in the AWS service, and are acted on by the managers.
 
 
 
-.. autopydantic_model:: botocraft.services.autoscaling.AutoScalingGroup
+.. autopydantic_model:: botocraft.services.events.EventRule
     :show-inheritance:
     :inherited-members:
     :exclude-members: update_forward_refs, model_extra, model_fields_set, validate, schema_json, model_rebuild, model_post_init, model_parametrized_name, model_json_schema, copy, from_orm, dict, json, schema, schema_json, model_dump
 
 
-.. autopydantic_model:: botocraft.services.autoscaling.LaunchConfiguration
+.. autopydantic_model:: botocraft.services.events.EventTarget
     :show-inheritance:
     :inherited-members:
     :exclude-members: update_forward_refs, model_extra, model_fields_set, validate, schema_json, model_rebuild, model_post_init, model_parametrized_name, model_json_schema, copy, from_orm, dict, json, schema, schema_json, model_dump
@@ -34,11 +34,11 @@ resources in the service, as well as any additional operations that are
 available for those models.
 
 
-.. autoclass:: botocraft.services.autoscaling.AutoScalingGroupManager
+.. autoclass:: botocraft.services.events.EventRuleManager
    :members:
    :show-inheritance:
 
-.. autoclass:: botocraft.services.autoscaling.LaunchConfigurationManager
+.. autoclass:: botocraft.services.events.EventTargetManager
    :members:
    :show-inheritance:
 
@@ -54,169 +54,127 @@ structure of the fields in the primary models or other secondary models.
 
 
 
-.. autopydantic_model:: botocraft.services.autoscaling.AutoScalingAcceleratorCountRequest
+.. autopydantic_model:: botocraft.services.events.BatchArrayProperties
     :show-inheritance:
     :inherited-members:
     :exclude-members: update_forward_refs, model_extra, model_fields_set, validate, schema_json, model_rebuild, model_post_init, model_parametrized_name, model_json_schema, copy, from_orm, dict, json, schema, schema_json, model_dump
 
 
-.. autopydantic_model:: botocraft.services.autoscaling.AutoScalingAcceleratorTotalMemoryMiBRequest
+.. autopydantic_model:: botocraft.services.events.BatchRetryStrategy
     :show-inheritance:
     :inherited-members:
     :exclude-members: update_forward_refs, model_extra, model_fields_set, validate, schema_json, model_rebuild, model_post_init, model_parametrized_name, model_json_schema, copy, from_orm, dict, json, schema, schema_json, model_dump
 
 
-.. autopydantic_model:: botocraft.services.autoscaling.AutoScalingAvailabilityZoneDistribution
+.. autopydantic_model:: botocraft.services.events.EventsAppSyncParameters
     :show-inheritance:
     :inherited-members:
     :exclude-members: update_forward_refs, model_extra, model_fields_set, validate, schema_json, model_rebuild, model_post_init, model_parametrized_name, model_json_schema, copy, from_orm, dict, json, schema, schema_json, model_dump
 
 
-.. autopydantic_model:: botocraft.services.autoscaling.AutoScalingBaselineEbsBandwidthMbsRequest
+.. autopydantic_model:: botocraft.services.events.EventsAwsVpcConfiguration
     :show-inheritance:
     :inherited-members:
     :exclude-members: update_forward_refs, model_extra, model_fields_set, validate, schema_json, model_rebuild, model_post_init, model_parametrized_name, model_json_schema, copy, from_orm, dict, json, schema, schema_json, model_dump
 
 
-.. autopydantic_model:: botocraft.services.autoscaling.AutoScalingBlockDeviceMapping
+.. autopydantic_model:: botocraft.services.events.EventsBatchParameters
     :show-inheritance:
     :inherited-members:
     :exclude-members: update_forward_refs, model_extra, model_fields_set, validate, schema_json, model_rebuild, model_post_init, model_parametrized_name, model_json_schema, copy, from_orm, dict, json, schema, schema_json, model_dump
 
 
-.. autopydantic_model:: botocraft.services.autoscaling.AutoScalingInstanceMaintenancePolicy
+.. autopydantic_model:: botocraft.services.events.EventsCapacityProviderStrategyItem
     :show-inheritance:
     :inherited-members:
     :exclude-members: update_forward_refs, model_extra, model_fields_set, validate, schema_json, model_rebuild, model_post_init, model_parametrized_name, model_json_schema, copy, from_orm, dict, json, schema, schema_json, model_dump
 
 
-.. autopydantic_model:: botocraft.services.autoscaling.AutoScalingInstanceMonitoring
+.. autopydantic_model:: botocraft.services.events.EventsDeadLetterConfig
     :show-inheritance:
     :inherited-members:
     :exclude-members: update_forward_refs, model_extra, model_fields_set, validate, schema_json, model_rebuild, model_post_init, model_parametrized_name, model_json_schema, copy, from_orm, dict, json, schema, schema_json, model_dump
 
 
-.. autopydantic_model:: botocraft.services.autoscaling.AutoScalingInstanceReference
+.. autopydantic_model:: botocraft.services.events.EventsEcsParameters
     :show-inheritance:
     :inherited-members:
     :exclude-members: update_forward_refs, model_extra, model_fields_set, validate, schema_json, model_rebuild, model_post_init, model_parametrized_name, model_json_schema, copy, from_orm, dict, json, schema, schema_json, model_dump
 
 
-.. autopydantic_model:: botocraft.services.autoscaling.AutoScalingInstanceRequirements
+.. autopydantic_model:: botocraft.services.events.EventsHttpParameters
     :show-inheritance:
     :inherited-members:
     :exclude-members: update_forward_refs, model_extra, model_fields_set, validate, schema_json, model_rebuild, model_post_init, model_parametrized_name, model_json_schema, copy, from_orm, dict, json, schema, schema_json, model_dump
 
 
-.. autopydantic_model:: botocraft.services.autoscaling.AutoScalingInstanceReusePolicy
+.. autopydantic_model:: botocraft.services.events.EventsInputTransformer
     :show-inheritance:
     :inherited-members:
     :exclude-members: update_forward_refs, model_extra, model_fields_set, validate, schema_json, model_rebuild, model_post_init, model_parametrized_name, model_json_schema, copy, from_orm, dict, json, schema, schema_json, model_dump
 
 
-.. autopydantic_model:: botocraft.services.autoscaling.AutoScalingInstancesDistribution
+.. autopydantic_model:: botocraft.services.events.EventsKinesisParameters
     :show-inheritance:
     :inherited-members:
     :exclude-members: update_forward_refs, model_extra, model_fields_set, validate, schema_json, model_rebuild, model_post_init, model_parametrized_name, model_json_schema, copy, from_orm, dict, json, schema, schema_json, model_dump
 
 
-.. autopydantic_model:: botocraft.services.autoscaling.AutoScalingLaunchTemplate
+.. autopydantic_model:: botocraft.services.events.EventsNetworkConfiguration
     :show-inheritance:
     :inherited-members:
     :exclude-members: update_forward_refs, model_extra, model_fields_set, validate, schema_json, model_rebuild, model_post_init, model_parametrized_name, model_json_schema, copy, from_orm, dict, json, schema, schema_json, model_dump
 
 
-.. autopydantic_model:: botocraft.services.autoscaling.AutoScalingLaunchTemplateSpecification
+.. autopydantic_model:: botocraft.services.events.EventsPlacementConstraint
     :show-inheritance:
     :inherited-members:
     :exclude-members: update_forward_refs, model_extra, model_fields_set, validate, schema_json, model_rebuild, model_post_init, model_parametrized_name, model_json_schema, copy, from_orm, dict, json, schema, schema_json, model_dump
 
 
-.. autopydantic_model:: botocraft.services.autoscaling.AutoScalingMemoryMiBRequest
+.. autopydantic_model:: botocraft.services.events.EventsPlacementStrategy
     :show-inheritance:
     :inherited-members:
     :exclude-members: update_forward_refs, model_extra, model_fields_set, validate, schema_json, model_rebuild, model_post_init, model_parametrized_name, model_json_schema, copy, from_orm, dict, json, schema, schema_json, model_dump
 
 
-.. autopydantic_model:: botocraft.services.autoscaling.AutoScalingMixedInstancesPolicy
+.. autopydantic_model:: botocraft.services.events.EventsRedshiftDataParameters
     :show-inheritance:
     :inherited-members:
     :exclude-members: update_forward_refs, model_extra, model_fields_set, validate, schema_json, model_rebuild, model_post_init, model_parametrized_name, model_json_schema, copy, from_orm, dict, json, schema, schema_json, model_dump
 
 
-.. autopydantic_model:: botocraft.services.autoscaling.AutoScalingNetworkInterfaceCountRequest
+.. autopydantic_model:: botocraft.services.events.EventsRetryPolicy
     :show-inheritance:
     :inherited-members:
     :exclude-members: update_forward_refs, model_extra, model_fields_set, validate, schema_json, model_rebuild, model_post_init, model_parametrized_name, model_json_schema, copy, from_orm, dict, json, schema, schema_json, model_dump
 
 
-.. autopydantic_model:: botocraft.services.autoscaling.AutoScalingTagDescription
+.. autopydantic_model:: botocraft.services.events.EventsRunCommandParameters
     :show-inheritance:
     :inherited-members:
     :exclude-members: update_forward_refs, model_extra, model_fields_set, validate, schema_json, model_rebuild, model_post_init, model_parametrized_name, model_json_schema, copy, from_orm, dict, json, schema, schema_json, model_dump
 
 
-.. autopydantic_model:: botocraft.services.autoscaling.AutoScalingTotalLocalStorageGBRequest
+.. autopydantic_model:: botocraft.services.events.EventsSageMakerPipelineParameters
     :show-inheritance:
     :inherited-members:
     :exclude-members: update_forward_refs, model_extra, model_fields_set, validate, schema_json, model_rebuild, model_post_init, model_parametrized_name, model_json_schema, copy, from_orm, dict, json, schema, schema_json, model_dump
 
 
-.. autopydantic_model:: botocraft.services.autoscaling.AutoScalingWarmPoolConfiguration
+.. autopydantic_model:: botocraft.services.events.EventsSqsParameters
     :show-inheritance:
     :inherited-members:
     :exclude-members: update_forward_refs, model_extra, model_fields_set, validate, schema_json, model_rebuild, model_post_init, model_parametrized_name, model_json_schema, copy, from_orm, dict, json, schema, schema_json, model_dump
 
 
-.. autopydantic_model:: botocraft.services.autoscaling.EbsMapping
+.. autopydantic_model:: botocraft.services.events.RunCommandTarget
     :show-inheritance:
     :inherited-members:
     :exclude-members: update_forward_refs, model_extra, model_fields_set, validate, schema_json, model_rebuild, model_post_init, model_parametrized_name, model_json_schema, copy, from_orm, dict, json, schema, schema_json, model_dump
 
 
-.. autopydantic_model:: botocraft.services.autoscaling.EnabledMetric
-    :show-inheritance:
-    :inherited-members:
-    :exclude-members: update_forward_refs, model_extra, model_fields_set, validate, schema_json, model_rebuild, model_post_init, model_parametrized_name, model_json_schema, copy, from_orm, dict, json, schema, schema_json, model_dump
-
-
-.. autopydantic_model:: botocraft.services.autoscaling.InstanceMetadataOptions
-    :show-inheritance:
-    :inherited-members:
-    :exclude-members: update_forward_refs, model_extra, model_fields_set, validate, schema_json, model_rebuild, model_post_init, model_parametrized_name, model_json_schema, copy, from_orm, dict, json, schema, schema_json, model_dump
-
-
-.. autopydantic_model:: botocraft.services.autoscaling.LaunchTemplateOverrides
-    :show-inheritance:
-    :inherited-members:
-    :exclude-members: update_forward_refs, model_extra, model_fields_set, validate, schema_json, model_rebuild, model_post_init, model_parametrized_name, model_json_schema, copy, from_orm, dict, json, schema, schema_json, model_dump
-
-
-.. autopydantic_model:: botocraft.services.autoscaling.MemoryGiBPerVCpuRequest
-    :show-inheritance:
-    :inherited-members:
-    :exclude-members: update_forward_refs, model_extra, model_fields_set, validate, schema_json, model_rebuild, model_post_init, model_parametrized_name, model_json_schema, copy, from_orm, dict, json, schema, schema_json, model_dump
-
-
-.. autopydantic_model:: botocraft.services.autoscaling.NetworkBandwidthGbpsRequest
-    :show-inheritance:
-    :inherited-members:
-    :exclude-members: update_forward_refs, model_extra, model_fields_set, validate, schema_json, model_rebuild, model_post_init, model_parametrized_name, model_json_schema, copy, from_orm, dict, json, schema, schema_json, model_dump
-
-
-.. autopydantic_model:: botocraft.services.autoscaling.SuspendedProcess
-    :show-inheritance:
-    :inherited-members:
-    :exclude-members: update_forward_refs, model_extra, model_fields_set, validate, schema_json, model_rebuild, model_post_init, model_parametrized_name, model_json_schema, copy, from_orm, dict, json, schema, schema_json, model_dump
-
-
-.. autopydantic_model:: botocraft.services.autoscaling.TrafficSourceIdentifier
-    :show-inheritance:
-    :inherited-members:
-    :exclude-members: update_forward_refs, model_extra, model_fields_set, validate, schema_json, model_rebuild, model_post_init, model_parametrized_name, model_json_schema, copy, from_orm, dict, json, schema, schema_json, model_dump
-
-
-.. autopydantic_model:: botocraft.services.autoscaling.VCpuCountRequest
+.. autopydantic_model:: botocraft.services.events.SageMakerPipelineParameter
     :show-inheritance:
     :inherited-members:
     :exclude-members: update_forward_refs, model_extra, model_fields_set, validate, schema_json, model_rebuild, model_post_init, model_parametrized_name, model_json_schema, copy, from_orm, dict, json, schema, schema_json, model_dump
@@ -238,43 +196,55 @@ because they have some useful additional information.
 
 
 
-.. autopydantic_model:: botocraft.services.autoscaling.ActivityType
+.. autopydantic_model:: botocraft.services.events.DescribeRuleResponse
     :show-inheritance:
     :inherited-members:
     :exclude-members: update_forward_refs, model_extra, model_fields_set, validate, schema_json, model_rebuild, model_post_init, model_parametrized_name, model_json_schema, copy, from_orm, dict, json, schema, schema_json, model_dump
 
 
-.. autopydantic_model:: botocraft.services.autoscaling.AutoScalingActivity
+.. autopydantic_model:: botocraft.services.events.ListRuleNamesByTargetResponse
     :show-inheritance:
     :inherited-members:
     :exclude-members: update_forward_refs, model_extra, model_fields_set, validate, schema_json, model_rebuild, model_post_init, model_parametrized_name, model_json_schema, copy, from_orm, dict, json, schema, schema_json, model_dump
 
 
-.. autopydantic_model:: botocraft.services.autoscaling.AutoScalingGroupsType
+.. autopydantic_model:: botocraft.services.events.ListRulesResponse
     :show-inheritance:
     :inherited-members:
     :exclude-members: update_forward_refs, model_extra, model_fields_set, validate, schema_json, model_rebuild, model_post_init, model_parametrized_name, model_json_schema, copy, from_orm, dict, json, schema, schema_json, model_dump
 
 
-.. autopydantic_model:: botocraft.services.autoscaling.AutoScalingInstanceDetails
+.. autopydantic_model:: botocraft.services.events.ListTargetsByRuleResponse
     :show-inheritance:
     :inherited-members:
     :exclude-members: update_forward_refs, model_extra, model_fields_set, validate, schema_json, model_rebuild, model_post_init, model_parametrized_name, model_json_schema, copy, from_orm, dict, json, schema, schema_json, model_dump
 
 
-.. autopydantic_model:: botocraft.services.autoscaling.AutoScalingInstancesType
+.. autopydantic_model:: botocraft.services.events.PutRuleResponse
     :show-inheritance:
     :inherited-members:
     :exclude-members: update_forward_refs, model_extra, model_fields_set, validate, schema_json, model_rebuild, model_post_init, model_parametrized_name, model_json_schema, copy, from_orm, dict, json, schema, schema_json, model_dump
 
 
-.. autopydantic_model:: botocraft.services.autoscaling.LaunchConfigurationsType
+.. autopydantic_model:: botocraft.services.events.PutTargetsResponse
     :show-inheritance:
     :inherited-members:
     :exclude-members: update_forward_refs, model_extra, model_fields_set, validate, schema_json, model_rebuild, model_post_init, model_parametrized_name, model_json_schema, copy, from_orm, dict, json, schema, schema_json, model_dump
 
 
-.. autopydantic_model:: botocraft.services.autoscaling.LifecycleHookSpecification
+.. autopydantic_model:: botocraft.services.events.PutTargetsResultEntry
+    :show-inheritance:
+    :inherited-members:
+    :exclude-members: update_forward_refs, model_extra, model_fields_set, validate, schema_json, model_rebuild, model_post_init, model_parametrized_name, model_json_schema, copy, from_orm, dict, json, schema, schema_json, model_dump
+
+
+.. autopydantic_model:: botocraft.services.events.RemoveTargetsResponse
+    :show-inheritance:
+    :inherited-members:
+    :exclude-members: update_forward_refs, model_extra, model_fields_set, validate, schema_json, model_rebuild, model_post_init, model_parametrized_name, model_json_schema, copy, from_orm, dict, json, schema, schema_json, model_dump
+
+
+.. autopydantic_model:: botocraft.services.events.RemoveTargetsResultEntry
     :show-inheritance:
     :inherited-members:
     :exclude-members: update_forward_refs, model_extra, model_fields_set, validate, schema_json, model_rebuild, model_post_init, model_parametrized_name, model_json_schema, copy, from_orm, dict, json, schema, schema_json, model_dump

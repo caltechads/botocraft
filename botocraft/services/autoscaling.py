@@ -7,6 +7,8 @@ from datetime import datetime
 from functools import cached_property
 from typing import Any, ClassVar, Dict, List, Literal, Optional, Type, cast
 
+from pydantic import Field
+
 from botocraft.mixins.autoscaling import AutoScalingGroupModelMixin
 from botocraft.mixins.tags import TagsDictMixin
 from botocraft.services.common import Filter, Tag
@@ -15,7 +17,6 @@ from botocraft.services.ec2 import (AMI, AMIManager, EC2InstanceType,
                                     LaunchTemplateVersion,
                                     LaunchTemplateVersionManager,
                                     SecurityGroup, SecurityGroupManager)
-from pydantic import Field
 
 from .abstract import (Boto3Model, Boto3ModelManager, PrimaryBoto3Model,
                        ReadonlyBoto3Model, ReadonlyBoto3ModelManager,
@@ -90,6 +91,7 @@ class AutoScalingGroupManager(Boto3ModelManager):
             DefaultInstanceWarmup=data.get("DefaultInstanceWarmup"),
             TrafficSources=data.get("TrafficSources"),
             InstanceMaintenancePolicy=data.get("InstanceMaintenancePolicy"),
+            AvailabilityZoneDistribution=data.get("AvailabilityZoneDistribution"),
         )
         self.client.create_auto_scaling_group(
             **{k: v for k, v in args.items() if v is not None}
@@ -136,6 +138,7 @@ class AutoScalingGroupManager(Boto3ModelManager):
             DesiredCapacityType=data.get("DesiredCapacityType"),
             DefaultInstanceWarmup=data.get("DefaultInstanceWarmup"),
             InstanceMaintenancePolicy=data.get("InstanceMaintenancePolicy"),
+            AvailabilityZoneDistribution=data.get("AvailabilityZoneDistribution"),
         )
         self.client.update_auto_scaling_group(
             **{k: v for k, v in args.items() if v is not None}
@@ -1123,6 +1126,22 @@ class AutoScalingInstanceMaintenancePolicy(Boto3Model):
     """
 
 
+class AutoScalingAvailabilityZoneDistribution(Boto3Model):
+    """
+    The instance capacity distribution across Availability Zones.
+    """
+
+    CapacityDistributionStrategy: Optional[
+        Literal["balanced-only", "balanced-best-effort"]
+    ] = None
+    """
+    If launches fail in an Availability Zone, the following strategies are available.
+
+    The default is ``balanced-best-
+    effort``.
+    """
+
+
 class AutoScalingGroup(TagsDictMixin, AutoScalingGroupModelMixin, PrimaryBoto3Model):
     """
     Describes an Auto Scaling group.
@@ -1279,6 +1298,12 @@ operation is in progress.
     InstanceMaintenancePolicy: Optional[AutoScalingInstanceMaintenancePolicy] = None
     """
     An instance maintenance policy.
+    """
+    AvailabilityZoneDistribution: Optional[AutoScalingAvailabilityZoneDistribution] = (
+        None
+    )
+    """
+    The instance capacity distribution across Availability Zones.
     """
 
     @property

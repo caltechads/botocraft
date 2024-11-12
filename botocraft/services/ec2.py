@@ -7,11 +7,13 @@ from datetime import datetime
 from functools import cached_property
 from typing import Any, ClassVar, Dict, List, Literal, Optional, Type, cast
 
-from botocraft.mixins.ec2 import (EC2TagsManagerMixin, SecurityGroupModelMixin,
+from pydantic import Field
+
+from botocraft.mixins.ec2 import (AMIManagerMixin, AMIModelMixin,
+                                  EC2TagsManagerMixin, SecurityGroupModelMixin,
                                   ec2_instance_only, ec2_instances_only)
 from botocraft.mixins.tags import TagsDictMixin
 from botocraft.services.common import Filter, Tag
-from pydantic import Field
 
 from .abstract import (Boto3Model, Boto3ModelManager, PrimaryBoto3Model,
                        ReadonlyBoto3Model, ReadonlyBoto3ModelManager,
@@ -555,7 +557,7 @@ class NetworkAclManager(EC2TagsManagerMixin, Boto3ModelManager):
         return results
 
 
-class AMIManager(EC2TagsManagerMixin, Boto3ModelManager):
+class AMIManager(EC2TagsManagerMixin, AMIManagerMixin, Boto3ModelManager):
 
     service_name: str = "ec2"
 
@@ -3743,7 +3745,7 @@ class EC2BlockDeviceMapping(Boto3Model):
     """
 
 
-class AMI(TagsDictMixin, PrimaryBoto3Model):
+class AMI(TagsDictMixin, AMIModelMixin, PrimaryBoto3Model):
     """
     Describes an image.
     """
@@ -3962,6 +3964,29 @@ an EC2 instance. When the AMI is used to launch an instance, there is a 24-hour 
             The name of the model instance.
         """
         return self.Name
+
+    @cached_property
+    def instances(self) -> Optional[List["Instance"]]:
+        """
+        Return the :py:class:`Instance` objects that are built from this image, if any.
+
+        .. note::
+
+            The output of this property is cached on the model instance, so
+            calling this multiple times will not result in multiple calls to the
+            AWS API.   If you need a fresh copy of the data, you can re-get the
+            model instance from the manager.
+        """
+
+        try:
+            pk = OrderedDict(
+                {
+                    "Filters": [{"Name": "image-id", "Values": [self.ImageId]}],
+                }
+            )
+        except AttributeError:
+            return []
+        return Instance.objects.using(self.session).list(**pk)  # type: ignore[arg-type]
 
 
 class EbsInstanceBlockDevice(Boto3Model):

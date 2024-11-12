@@ -7,12 +7,15 @@ from datetime import datetime
 from functools import cached_property
 from typing import Any, ClassVar, Dict, List, Literal, Optional, Type, cast
 
-from botocraft.mixins.ecr import (ECRImageMixin, RepositoryMixin,
+from pydantic import Field
+
+from botocraft.mixins.ecr import (ECRImageManagerMixin, ECRImageMixin,
+                                  RepositoryMixin,
                                   image_list_images_ecr_images_only,
+                                  repo_get_add_tags, repo_list_add_tags,
                                   repo_list_images_ecr_images_only)
 from botocraft.mixins.tags import TagsDictMixin
 from botocraft.services.common import Tag
-from pydantic import Field
 
 from .abstract import (Boto3Model, Boto3ModelManager, PrimaryBoto3Model,
                        ReadonlyBoto3Model, ReadonlyBoto3ModelManager,
@@ -27,25 +30,18 @@ class RepositoryManager(Boto3ModelManager):
 
     service_name: str = "ecr"
 
-    def create(
-        self, model: "Repository", tags: Optional[List[Tag]] = None
-    ) -> "Repository":
+    def create(self, model: "Repository") -> "Repository":
         """
         Create an ECR repository.
 
         Args:
             model: The :py:class:``Repository`` to create.
-
-        Keyword Args:
-            tags: The metadata that you apply to the repository to help you categorize and organize them. Each tag consists of a
-                key and an optional value, both of which you define. Tag keys can have a maximum character length of 128 characters,
-                and tag values can have a maximum length of 256 characters.
         """
         data = model.model_dump(exclude_none=True, by_alias=True)
         args = dict(
             repositoryName=data.get("repositoryName"),
             registryId=data.get("registryId"),
-            tags=self.serialize(tags),
+            tags=data.get("Tags"),
             imageTagMutability=data.get("imageTagMutability"),
             imageScanningConfiguration=data.get("imageScanningConfiguration"),
             encryptionConfiguration=data.get("encryptionConfiguration"),
@@ -88,8 +84,13 @@ class RepositoryManager(Boto3ModelManager):
         response = DeleteRepositoryResponse(**_response)
         return cast(Repository, response.repository)
 
+    @repo_get_add_tags
     def get(
-        self, repositoryName: str, *, registryId: Optional[str] = None
+        self,
+        repositoryName: str,
+        *,
+        registryId: Optional[str] = None,
+        include: Optional[Optional[List[Literal["TAGS"]]]] = None
     ) -> Optional["Repository"]:
         """
         Describes image repositories in a registry.
@@ -100,6 +101,7 @@ class RepositoryManager(Boto3ModelManager):
         Keyword Args:
             registryId: The Amazon Web Services account ID associated with the registry that contains the repositories to be
                 described. If you do not specify a registry, the default registry is assumed.
+            include: the value to set for include
         """
         args: Dict[str, Any] = dict(
             registryId=self.serialize(registryId),
@@ -115,11 +117,13 @@ class RepositoryManager(Boto3ModelManager):
             return response.repositories[0]
         return None
 
+    @repo_list_add_tags
     def list(
         self,
         *,
         registryId: Optional[str] = None,
-        repositoryNames: Optional[List[str]] = None
+        repositoryNames: Optional[List[str]] = None,
+        include: Optional[Optional[List[Literal["TAGS"]]]] = None
     ) -> List["Repository"]:
         """
         Describes image repositories in a registry.
@@ -129,6 +133,7 @@ class RepositoryManager(Boto3ModelManager):
                 described. If you do not specify a registry, the default registry is assumed.
             repositoryNames: A list of repositories to describe. If this parameter is omitted, then all repositories in a
                 registry are described.
+            include: the value to set for include
         """
         paginator = self.client.get_paginator("describe_repositories")
         args: Dict[str, Any] = dict(
@@ -268,8 +273,29 @@ class RepositoryManager(Boto3ModelManager):
         self.sessionize(results)
         return cast("ECRImage", results)
 
+    def get_tags(self, resourceArn: str) -> List[Tag]:
+        """
+        List the tags for an Amazon ECR resource.
 
-class ECRImageManager(Boto3ModelManager):
+        Args:
+            resourceArn: The Amazon Resource Name (ARN) that identifies the resource for which to list the tags. Currently, the
+                only supported resource is an Amazon ECR repository.
+        """
+        args: Dict[str, Any] = dict(resourceArn=self.serialize(resourceArn))
+        _response = self.client.list_tags_for_resource(
+            **{k: v for k, v in args.items() if v is not None}
+        )
+        response = ListTagsForResourceResponse(**_response)
+
+        results: List[Tag] = None
+        if response is not None:
+            results = response.tags
+
+        self.sessionize(results)
+        return cast(List[Tag], results)
+
+
+class ECRImageManager(ECRImageManagerMixin, Boto3ModelManager):
 
     service_name: str = "ecr"
 
@@ -493,11 +519,12 @@ class EncryptionConfiguration(Boto3Model):
     """
 
 
-class Repository(RepositoryMixin, PrimaryBoto3Model):
+class Repository(TagsDictMixin, RepositoryMixin, PrimaryBoto3Model):
     """
     An object representing a repository.
     """
 
+    tag_class: ClassVar[Type] = Tag
     manager_class: ClassVar[Type[Boto3ModelManager]] = RepositoryManager
 
     repositoryName: str
@@ -539,6 +566,10 @@ class Repository(RepositoryMixin, PrimaryBoto3Model):
     The encryption configuration for the repository.
 
     This determines how the contents of your repository are encrypted at rest.
+    """
+    Tags: Optional[List["Tag"]] = None
+    """
+    The AWS tags associated with the repository.
     """
 
     @property
@@ -642,6 +673,7 @@ class ECRImage(ECRImageMixin, ReadonlyPrimaryBoto3Model):
             pk = OrderedDict(
                 {
                     "repositoryName": self.repositoryName,
+                    "include": ["TAGS"],
                 }
             )
         except AttributeError:
@@ -774,6 +806,14 @@ class BatchGetImageResponse(Boto3Model):
     failures: Optional[List["ImageFailure"]] = None
     """
     Any failures associated with the call.
+    """
+
+
+class ListTagsForResourceResponse(TagsDictMixin, Boto3Model):
+    tag_class: ClassVar[Type] = Tag
+    Tags: List[Tag] = Field(default=None, serialization_alias="tags")
+    """
+    The tags for the resource.
     """
 
 

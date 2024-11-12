@@ -7,8 +7,12 @@ from datetime import datetime
 from functools import cached_property
 from typing import Any, ClassVar, Dict, List, Literal, Optional, Type, cast
 
+from pydantic import Field
+
 from botocraft.mixins.ecs import (ECSContainerInstanceModelMixin,
-                                  ECSServiceModelMixin, ecs_clusters_only,
+                                  ECSServiceManagerMixin, ECSServiceModelMixin,
+                                  TaskDefinitionManagerMixin,
+                                  TaskDefinitionModelMixin, ecs_clusters_only,
                                   ecs_container_instances_only,
                                   ecs_services_only, ecs_task_definitions_only,
                                   ecs_task_populate_taskDefinition,
@@ -17,7 +21,6 @@ from botocraft.mixins.ecs import (ECSContainerInstanceModelMixin,
 from botocraft.mixins.tags import TagsDictMixin
 from botocraft.services.ec2 import Instance, InstanceManager, NetworkInterface
 from botocraft.services.elbv2 import TargetGroup, TargetGroupManager
-from pydantic import Field
 
 from .abstract import (Boto3Model, Boto3ModelManager, PrimaryBoto3Model,
                        ReadonlyBoto3Model, ReadonlyBoto3ModelManager,
@@ -28,7 +31,7 @@ from .abstract import (Boto3Model, Boto3ModelManager, PrimaryBoto3Model,
 # ===============
 
 
-class ServiceManager(Boto3ModelManager):
+class ServiceManager(ECSServiceManagerMixin, Boto3ModelManager):
 
     service_name: str = "ecs"
 
@@ -56,7 +59,7 @@ class ServiceManager(Boto3ModelManager):
         data = model.model_dump(exclude_none=True, by_alias=True)
         args = dict(
             serviceName=data.get("serviceName"),
-            clusterArn=data.get("clusterArn"),
+            cluster=data.get("clusterArn"),
             taskDefinition=data.get("taskDefinition"),
             loadBalancers=data.get("loadBalancers"),
             serviceRegistries=data.get("serviceRegistries"),
@@ -65,7 +68,7 @@ class ServiceManager(Boto3ModelManager):
             launchType=data.get("launchType"),
             capacityProviderStrategy=data.get("capacityProviderStrategy"),
             platformVersion=data.get("platformVersion"),
-            roleArn=data.get("roleArn"),
+            role=data.get("roleArn"),
             deploymentConfiguration=data.get("deploymentConfiguration"),
             placementConstraints=data.get("placementConstraints"),
             placementStrategy=data.get("placementStrategy"),
@@ -250,8 +253,8 @@ class ServiceManager(Boto3ModelManager):
         """
         data = model.model_dump(exclude_none=True, by_alias=True)
         args = dict(
-            serviceName=data.get("serviceName"),
-            clusterArn=data.get("clusterArn"),
+            service=data.get("serviceName"),
+            cluster=data.get("clusterArn"),
             desiredCount=data.get("desiredCount"),
             taskDefinition=data.get("taskDefinition"),
             capacityProviderStrategy=data.get("capacityProviderStrategy"),
@@ -530,7 +533,7 @@ class ClusterManager(Boto3ModelManager):
         """
         data = model.model_dump(exclude_none=True, by_alias=True)
         args = dict(
-            clusterName=data.get("clusterName"),
+            cluster=data.get("clusterName"),
             settings=data.get("settings"),
             configuration=data.get("configuration"),
             serviceConnectDefaults=data.get("serviceConnectDefaults"),
@@ -581,7 +584,7 @@ class ClusterManager(Boto3ModelManager):
         return cast("Cluster", response.cluster)
 
 
-class TaskDefinitionManager(Boto3ModelManager):
+class TaskDefinitionManager(TaskDefinitionManagerMixin, Boto3ModelManager):
 
     service_name: str = "ecs"
 
@@ -771,6 +774,46 @@ class TaskDefinitionManager(Boto3ModelManager):
 
         self.sessionize(response.taskDefinition)
         return cast("TaskDefinition", response.taskDefinition)
+
+    def families(
+        self,
+        *,
+        familyPrefix: Optional[str] = None,
+        status: Optional[Literal["ACTIVE", "INACTIVE", "ALL"]] = None
+    ) -> List[str]:
+        """
+        Returns a list of task definition families that are registered to your account. This list includes task
+        definition families that no longer have any ``ACTIVE`` task definition revisions.
+
+        Keyword Args:
+            familyPrefix: The ``familyPrefix`` is a string that's used to filter the results of ``ListTaskDefinitionFamilies``.
+                If you specify a ``familyPrefix``, only task definition family names that begin with the ``familyPrefix`` string are
+                returned.
+            status: The task definition family status to filter the ``ListTaskDefinitionFamilies`` results with. By default,
+                both ``ACTIVE`` and ``INACTIVE`` task definition families are listed. If this parameter is set to ``ACTIVE``, only
+                task definition families that have an ``ACTIVE`` task definition revision are returned. If this parameter is set to
+                ``INACTIVE``, only task definition families that do not have any ``ACTIVE`` task definition revisions are returned.
+                If you paginate the resulting output, be sure to keep the ``status`` value constant in each subsequent request.
+        """
+        paginator = self.client.get_paginator("list_task_definition_families")
+        args: Dict[str, Any] = dict(
+            familyPrefix=self.serialize(familyPrefix), status=self.serialize(status)
+        )
+        response_iterator = paginator.paginate(
+            **{k: v for k, v in args.items() if v is not None}
+        )
+
+        results: List[str] = []
+
+        for _response in response_iterator:
+            response = ListTaskDefinitionFamiliesResponse(**_response)
+            if response.families is not None:
+                results.extend(response.families)
+            else:
+                break
+
+        self.sessionize(results)
+        return cast(List[str], results)
 
 
 class ContainerInstanceManager(ReadonlyBoto3ModelManager):
@@ -1167,7 +1210,7 @@ class TaskManager(Boto3ModelManager):
         args = dict(
             taskDefinition=data.get("taskDefinition"),
             capacityProviderStrategy=self.serialize(capacityProviderStrategy),
-            clusterArn=data.get("clusterArn"),
+            cluster=data.get("clusterArn"),
             count=self.serialize(count),
             enableECSManagedTags=self.serialize(enableECSManagedTags),
             enableExecuteCommand=data.get("enableExecuteCommand"),
@@ -2567,6 +2610,14 @@ class Service(TagsDictMixin, ECSServiceModelMixin, PrimaryBoto3Model):
             }
         )
 
+    @property
+    def cluster_name(self) -> Optional[str]:
+        """
+        The name of the cluster that houses this service.
+        """
+
+        return self.transform("clusterArn", r"^.*:cluster/(.+)$")
+
     @cached_property
     def cluster(self) -> Optional["Cluster"]:
         """
@@ -3885,6 +3936,14 @@ class ContainerDefinition(Boto3Model):
     number of ARNs is 1.
     """
 
+    @property
+    def repository_name(self) -> Optional[str]:
+        """
+        The name of the repository that houses the image that this container definition uses.
+        """
+
+        return self.transform("image", r"^(.+):.+$")
+
 
 class HostVolumeProperties(Boto3Model):
     """
@@ -4282,7 +4341,7 @@ class EphemeralStorage(Boto3Model):
     """
 
 
-class TaskDefinition(TagsDictMixin, PrimaryBoto3Model):
+class TaskDefinition(TagsDictMixin, TaskDefinitionModelMixin, PrimaryBoto3Model):
     """
     The details of a task definition which describes the container and volume definitions of an Amazon Elastic Container
     Service task.
@@ -5645,6 +5704,21 @@ class ListTaskDefinitionsResponse(Boto3Model):
     When the results of a
     ``ListTaskDefinitions`` request exceed ``maxResults``, this value can be used to retrieve the next page of results. This
     value is ``null`` when there are no more results to return.
+    """
+
+
+class ListTaskDefinitionFamiliesResponse(Boto3Model):
+    families: Optional[List[str]] = None
+    """
+    The list of task definition family names that match the ``ListTaskDefinitionFamilies`` request.
+    """
+    nextToken: Optional[str] = None
+    """
+    The ``nextToken`` value to include in a future ``ListTaskDefinitionFamilies`` request.
+
+    When the results of a
+    ``ListTaskDefinitionFamilies`` request exceed ``maxResults``, this value can be used to retrieve the next page of
+    results. This value is ``null`` when there are no more results to return.
     """
 
 
