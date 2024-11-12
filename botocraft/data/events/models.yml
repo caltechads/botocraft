@@ -1,0 +1,104 @@
+---
+primary:
+  Rule:
+    alternate_name: EventRule
+    name_key: Name
+    arn_key: Arn
+    primary_key: Name
+    input_shapes:
+      - PutRuleRequest
+    extra_fields:
+      CreatedBy:
+        python_type: Optional[str]
+        default: None
+    relations:
+      targets:
+        primary_model_name: EventTarget
+        many: true
+        docstring: >-
+          Return the targets that are associated with this rule, if any.
+        transformer:
+          mapping:
+            Rule: Name
+    manager_methods:
+      enable:
+        docstring: >-
+          Enable the rule.
+        manager_method: enable
+        args:
+          0:
+            name: Name
+            value: >-
+              cast(str, self.Name)
+      disable:
+        docstring: >-
+          Disable the rule.
+        manager_method: disable
+        args:
+          0:
+            name: Name
+            value: >-
+              cast(str, self.Name)
+  Target:
+    alternate_name: EventTarget
+    name_key: Id
+    arn_key: Arn
+    primary_key: Id
+    input_shapes:
+      - PutTargetsRequest
+    relations:
+      rules:
+        primary_model_name: EventRule
+        docstring: >-
+          Return the :py:class:`Rule` object that this target belongs to.
+        method: list_by_target
+        transformer:
+          mapping:
+            TargetArn: Arn
+secondary:
+  Connection:
+    alternate_name: EventsConnection
+  Condition:
+    alternate_name: EventsCondition
+  PlacementStrategy:
+    alternate_name: EventsPlacementStrategy
+  PlacementConstraint:
+    alternate_name: EventsPlacementConstraint
+  Endpoint:
+    alternate_name: EventsEndpoint
+  DeadLetterConfig:
+    alternate_name: EventsDeadLetterConfig
+  Replay:
+    alternate_name: EventsReplay
+  Primary:
+    alternate_name: EventsPrimary
+  HttpParameters:
+    alternate_name: EventsHttpParameters
+  EcsParameters:
+    alternate_name: EventsEcsParameters
+  KinesisParameters:
+    alternate_name: EventsKinesisParameters
+  InputTransformer:
+    alternate_name: EventsInputTransformer
+  RunCommandParameters:
+    alternate_name: EventsRunCommandParameters
+  NetworkConfiguration:
+    alternate_name: EventsNetworkConfiguration
+  BatchParameters:
+    alternate_name: EventsBatchParameters
+  SqsParameters:
+    alternate_name: EventsSqsParameters
+  RedshiftDataParameters:
+    alternate_name: EventsRedshiftDataParameters
+  SageMakerPipelineParameters:
+    alternate_name: EventsSageMakerPipelineParameters
+  RetryPolicy:
+    alternate_name: EventsRetryPolicy
+  AppSyncParameters:
+    alternate_name: EventsAppSyncParameters
+  AwsVpcConfiguration:
+    alternate_name: EventsAwsVpcConfiguration
+  CapacityProviderStrategyItem:
+    alternate_name: EventsCapacityProviderStrategyItem
+
+

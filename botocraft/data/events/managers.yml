@@ -1,0 +1,97 @@
+---
+Rule:
+  methods:
+    create:
+      boto3_name: put_rule
+      response_attr: RuleArn
+      decorators:
+        - name: EventRule_purge_CreatedBy_attribute
+          import_path: botocraft.mixins.events
+    update:
+      boto3_name: put_rule
+      response_attr: RuleArn
+      decorators:
+        - name: EventRule_purge_CreatedBy_attribute
+          import_path: botocraft.mixins.events
+    delete:
+      boto3_name: delete_rule
+      return_type: None
+      args:
+        Name:
+          required: true
+        Force:
+          default: >-
+            True
+    get:
+      boto3_name: describe_rule
+      response_attr: None
+      return_type: >-
+        Optional["DescribeRuleResponse"]
+      decorators:
+        - name: DescribeRuleResponse_to_EventRule
+          import_path: botocraft.mixins.events
+      args:
+        Name:
+          required: true
+    list:
+      boto3_name: list_rules
+      response_attr: Rules
+    list_by_target:
+      boto3_name: list_rule_names_by_target
+      response_attr: RuleNames
+      decorators:
+        - name: event_rules_only
+          import_path: botocraft.mixins.events
+    list_targets:
+      boto3_name: list_targets_by_rule
+      response_attr: Targets
+    enable:
+      boto3_name: enable_rule
+      return_type: None
+      args:
+        Name:
+          required: true
+    disable:
+      boto3_name: disable_rule
+      return_type: None
+      args:
+        Name:
+          required: true
+Target:
+  methods:
+    create:
+      boto3_name: put_targets
+      response_attr: None
+      args:
+        Rule:
+          required: true
+        Targets:
+          required: true
+    update:
+      boto3_name: put_targets
+      response_attr: None
+      args:
+        Rule:
+          required: true
+        Targets:
+          required: true
+    delete:
+      boto3_name: remove_targets
+      response_attr: None
+      args:
+        Rule:
+          required: true
+        Ids:
+          required: true
+    list:
+      boto3_name: list_targets_by_rule
+      response_attr: Targets
+      args:
+        Rule:
+          required: true
+    list_rules:
+      boto3_name: list_rule_names_by_target
+      response_attr: RuleNames
+      decorators:
+        - name: event_rules_only
+          import_path: botocraft.mixins.events
