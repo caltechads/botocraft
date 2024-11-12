@@ -118,6 +118,9 @@ Cluster:
         forceNewDeployment:
           default: "False"
 TaskDefinition:
+  mixins:
+    - name: TaskDefinitionManagerMixin
+      import_path: botocraft.mixins.ecs
   methods:
     create:
       boto3_name: register_task_definition

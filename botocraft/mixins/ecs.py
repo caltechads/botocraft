@@ -1,6 +1,10 @@
 # mypy: disable-error-code="attr-defined"
 import re
-from typing import TYPE_CHECKING, Callable, List, Optional, Set, cast
+import warnings
+from functools import cached_property, wraps
+from typing import TYPE_CHECKING, Callable, Dict, List, Literal, Optional, Set, cast
+
+import click
 
 if TYPE_CHECKING:
     from botocraft.services import (
@@ -53,6 +57,7 @@ def ecs_services_only(func: Callable[..., List[str]]) -> Callable[..., List["Ser
     ARNs.
     """
 
+    @wraps(func)
     def wrapper(self, *args, **kwargs) -> List["Service"]:
         arns = func(self, *args, **kwargs)
         services = []
@@ -80,6 +85,7 @@ def ecs_clusters_only(func: Callable[..., List[str]]) -> Callable[..., List["Clu
     ARNs.
     """
 
+    @wraps(func)
     def wrapper(self, *args, **kwargs) -> List["Cluster"]:
         arns = func(self, *args, **kwargs)
         clusters = []
@@ -104,6 +110,7 @@ def ecs_task_definitions_only(
     :py:class:`botocraft.services.ecs.TaskDefinition` objects.
     """
 
+    @wraps(func)
     def wrapper(self, *args, **kwargs) -> List["TaskDefinition"]:
         identifiers = func(self, *args, **kwargs)
         return [self.get(identifier, include=["TAGS"]) for identifier in identifiers]
@@ -144,6 +151,7 @@ def ecs_container_instances_tasks_only(
     :py:class:`botocraft.services.ecs.ContainerInstance` objects.
     """
 
+    @wraps(func)
     def wrapper(self, *args, **kwargs) -> List["Task"]:
         from botocraft.services.ecs import Task
 
@@ -170,6 +178,7 @@ def ecs_task_populate_taskDefinition(
     original botocore shape, but is useful for our purposes.
     """
 
+    @wraps(func)
     def wrapper(self, *args, **kwargs) -> Optional["Task"]:
         task = func(self, *args, **kwargs)
         if task:
@@ -195,6 +204,7 @@ def ecs_task_populate_taskDefinitions(
     original botocore shape, but is useful for our purposes.
     """
 
+    @wraps(func)
     def wrapper(self, *args, **kwargs) -> List["Task"]:
         tasks = func(self, *args, **kwargs)
         for task in tasks:
@@ -213,6 +223,7 @@ def ecs_tasks_only(func: Callable[..., List[str]]) -> Callable[..., List["Task"]
     ARNs.
     """
 
+    @wraps(func)
     def wrapper(self, *args, **kwargs) -> List["Task"]:
         arns = func(self, *args, **kwargs)
         tasks = []
@@ -433,3 +444,134 @@ class ECSContainerInstanceModelMixin:
             if resource.name == "MEMORY":
                 value = int(resource.integerValue)
         return value
+
+
+class TaskDefinitionManagerMixin:
+    def in_use(
+        self,
+        tags: Optional[Dict[str, str]] = None,
+        verbose: bool = False,
+    ) -> List["TaskDefinition"]:
+        """
+        Return a list of task definitions that are currently in use by a service
+        or periodic task.  A periodic task is a task that is run via a
+        :py:class:`botocraft.services.events.EventRule`.
+
+        Important:
+            If you have tasks that are run ad-hoc, then this method will not
+            return those task definitions.
+
+        Keyword Args:
+            tags: A dictionary of tags to filter the task, services and periodic
+                tasks by.  Default: None
+            verbose: If True, print out some information about what is happening.
+
+        Returns:
+            A list of :py:class:`botocraft.services.ecs.TaskDefinition` objects that
+            are currently in use.
+
+        """
+        from botocraft.services import EventRule, Service, TaskDefinition
+
+        if not tags:
+            tags = {}
+
+        task_definitions: Dict[str, TaskDefinition] = {}
+
+        click.secho("Getting all services ...", fg="green")
+        # First get all the services in the account
+        services: List[Service] = Service.objects.using(self.session).all()
+        ClientException = self.session.client("ecs").exceptions.ClientException  # noqa: N806
+
+        if verbose:
+            click.secho("Finding active Service task definitions ...", fg="green")
+        # Now iterate through each service and get the append its task definition
+        # to the list of task definitions if we have not already seen it
+        for service in services:
+            try:
+                task_definition = cast(TaskDefinition, service.task_definition)
+            except ClientException:
+                warnings.warn(
+                    f"Task definition {service.taskDefinition} used by "
+                    f"{service.cluster_name}:{service.serviceName} does not exist",
+                    UserWarning,
+                    stacklevel=2,
+                )
+                continue
+            family_revision = task_definition.family_revision
+            if family_revision not in task_definitions:
+                task_definitions[family_revision] = task_definition
+
+        if verbose:
+            click.secho("Finding active periodic task definitions ...", fg="green")
+        # Now deal with the periodc tasks
+        rules = EventRule.objects.using(self.session).list()
+        for rule in rules:
+            for target in rule.targets:
+                if target.EcsParameters is not None:
+                    try:
+                        task_definition = TaskDefinition.objects.using(
+                            self.session
+                        ).get(target.EcsParameters.taskDefinitionArn)
+                    except ClientException:
+                        warnings.warn(
+                            f"Task definition {target.EcsParameters.taskDefinitionArn} "
+                            f"used by {rule.name} does not exist",
+                            UserWarning,
+                            stacklevel=2,
+                        )
+                        continue
+                    family_revision = task_definition.family_revision
+                    if family_revision not in task_definitions:
+                        task_definitions[family_revision] = task_definition
+        return list(task_definitions.values())
+
+
+class TaskDefinitionModelMixin:
+    @property
+    def family_revision(self) -> str:
+        """
+        Return the family and revision of the task definition in the format
+        ``<family>:<revision>``.
+        """
+        return f"{self.family}:{self.revision}"
+
+    @property
+    def container_images(self) -> List[str]:
+        """
+        Return the container images as a list of strings.
+
+        Returns:
+            A list of container images.
+
+        """
+        return [container.image for container in self.containerDefinitions]  # type: ignore[attr-defined]
+
+    @cached_property
+    def services(self) -> List["Service"]:
+        """
+        Return the services that use this task definition revision.
+
+        Warning:
+            This will be quite slow because we need to all our services
+            to see if there is a service that uses that task definition.  There's
+            no way to get all the services in an account, so we have to list
+            all the clusters, then check each cluster for services, and see
+            if the service uses this task definition.
+
+        Returns:
+            A list of :py:class:`botocraft.services.ecs.Service` objects that use
+            this task definition.
+
+        """
+        from botocraft.services import Cluster, Service
+
+        clusters = Cluster.objects.using(self.session).list()
+        services: List[Service] = []
+        for cluster in clusters:
+            services.extend(
+                service
+                for service in cluster.services
+                if service.taskDefinition == self.family_revision
+            )
+        return services
