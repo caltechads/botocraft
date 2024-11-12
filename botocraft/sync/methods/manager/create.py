@@ -86,7 +86,7 @@ class CreateMethodGenerator(ManagerMethodGenerator):
                 elif arg_def.source_arg:
                     _arg = self.serialize(cast(str, arg_def.source_arg))
                 elif arg_def.attribute:
-                    _arg = f"data['{arg_def.attribute}']"
+                    _arg = f"data.get('{arg_def.attribute}')"
             _args[arg] = _arg
         return ", ".join([f"{arg}={_arg}" for arg, _arg in _args.items()])
 
@@ -130,7 +130,7 @@ class CreateMethodGenerator(ManagerMethodGenerator):
                 elif arg_def.source_arg:
                     _arg = self.serialize(cast(str, arg_def.source_arg))
                 elif arg_def.attribute:
-                    _arg = f"data['{arg_def.attribute}']"
+                    _arg = f"data.get('{arg_def.attribute}')"
             _args[arg] = _arg
         return ", ".join([f"{arg}={_arg}" for arg, _arg in _args.items()])
 
