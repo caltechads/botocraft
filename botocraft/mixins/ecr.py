@@ -651,3 +651,62 @@ class ECRImageMixin:
             if self.name not in image.tags:
                 ecr_client.client.images.remove(f"{prefix}:{image.imageTag}")
         ecr_client.client.close()
+
+    def task_definitions(
+        self,
+        status: Optional[Literal["ACTIVE", "INACTIVE", "ALL"]] = "ACTIVE",
+        tags: Optional[Dict[str, str]] = None,
+        verbose: bool = False,
+    ) -> List["TaskDefinition"]:
+        """
+        Return a list of ECS task definitions that use this image.
+
+        Warning:
+            This will be quite slow if you have a lot of families and revisions,
+            because the only way to deal with this is to get all the task
+            definition families,  and then look at each revision to see if one
+            of its containers uses this image.  There is no way to filter the
+            task definitions by image.
+
+        Args:
+            status: The status of the task definition to filter by.  Valid
+                values are ``ACTIVE``, ``INACTIVE``, or ``ALL``.  The default
+                is ``ACTIVE``.
+            tags: A dictionary of tags to filter by.  The default is an empty
+                dictionary.
+            verbose: If ``True``, print out the task definition family and
+                revision that uses this image.  The default is ``False``.
+
+        Returns:
+            A list of ECS task definitions that use this image.
+
+        """
+        from botocraft.services import TaskDefinition
+
+        if not tags:
+            tags = {}
+
+        # First get the families
+        families = TaskDefinition.objects.using(self.session).families(status=status)
+
+        task_definitions: List[TaskDefinition] = []
+
+        # Now iterate through each family and revision
+        for family in families:
+            if verbose:
+                click.secho(f"   Family: {family}", fg="cyan")
+            revisions = TaskDefinition.objects.using(self.session).list(
+                familyPrefix=family,
+                sort="DESC",
+                status=status,
+            )
+            task_definitions.extend(
+                [
+                    revision
+                    for revision in revisions
+                    if self.name in revision.container_images
+                    if tags.items() <= revision.tags.items()
+                ]
+            )
+        return task_definitions
+
