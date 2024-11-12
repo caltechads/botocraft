@@ -198,7 +198,7 @@ class ManagerMethodGenerator:
             return f"self.serialize({_arg})"
         return _arg
 
-    def _args(  # noqa: PLR0912
+    def _args(
         self,
         kind: Literal["args", "kwargs"],
         location: Literal["method", "operation"] = "method",
@@ -252,6 +252,25 @@ class ManagerMethodGenerator:
                     args[_arg_name] = f"Optional[{python_type}] = None"
                 else:
                     args[_arg_name] = f"{python_type} = {default}"
+        if location == "method":
+            for arg_name, arg_def in self.method_def.extra_args.items():
+                assert (
+                    arg_name not in args
+                ), f"{self.model_name}Manager.{self.method_name}: "
+                f"extra_args.{arg_name}: already defined"
+                assert (
+                    arg_def.python_type is not None
+                ), f"{self.model_name}Manager.{self.method_name}: "
+                f"extra_args.{arg_name}: python_type is required"
+                if kind == "args":
+                    if arg_def.required is True:
+                        args[arg_name] = arg_def.python_type
+                elif arg_def.required is False:
+                    default = arg_def.default if arg_def.default else "None"
+                    if default == "None":
+                        args[arg_name] = f"Optional[{arg_def.python_type}] = None"
+                    else:
+                        args[arg_name] = f"{arg_def.python_type} = {default}"
         return args
 
     @property
