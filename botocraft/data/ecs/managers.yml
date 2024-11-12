@@ -136,6 +136,9 @@ TaskDefinition:
           import_path: botocraft.mixins.ecs
     update:
       boto3_name: register_task_definition
+    families:
+      boto3_name: list_task_definition_families
+      response_attr: families
 ContainerInstance:
   readonly: true
   methods:
