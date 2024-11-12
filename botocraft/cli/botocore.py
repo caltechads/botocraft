@@ -276,7 +276,7 @@ class ShapePrinter:
         shape: botocore.model.Shape,
         indent: int = 0,
         prefix: Optional[str] = None,
-    ) -> str:
+    ) -> List[str]:
         """
         Render a shape as a string.
 
