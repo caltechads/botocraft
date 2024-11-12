@@ -99,7 +99,8 @@ def repo_list_images_ecr_images_only(
         # assume that there is a limit of 100 images per request.
         for i in range(0, len(identifiers), 100):
             _images = self.get_images(
-                repositoryName=args[0], imageIds=identifiers[i : i + 100]
+                repositoryName=kwargs["repositoryName"],
+                imageIds=identifiers[i : i + 100],
             )
             if _images:
                 images.extend(_images)
