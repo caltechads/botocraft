@@ -21,6 +21,12 @@ primary:
         required: true
         default: >-
           "scanOnPush"
+    extra_fields:
+      Tags:
+        docstring: >-
+          The AWS tags associated with the repository.
+        python_type: List["Tag"]
+        default: None
   Image:
     alternate_name: ECRImage
     readonly: true
@@ -43,6 +49,8 @@ primary:
         transformer:
           mapping:
             repositoryName: repositoryName
+            include: >-
+              ["TAGS"]
     manager_methods:
       replication_status:
         docstring: >-
@@ -87,4 +95,8 @@ secondary:
                 int,
             ]
           ]
+  ListTagsForResourceResponse:
+    fields:
+      tags:
+        rename: Tags
 

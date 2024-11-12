@@ -7,6 +7,8 @@ Repository:
       args:
         repositoryId:
           hidden: true
+        tags:
+          attribute: Tags
     delete:
       boto3_name: delete_repository
       docstring: >-
@@ -16,6 +18,9 @@ Repository:
           hidden: true
     get:
       boto3_name: describe_repositories
+      decorators:
+        - name: repo_get_add_tags
+          import_path: botocraft.mixins.ecr
       args:
         repositoryId:
           hidden: true
@@ -26,8 +31,29 @@ Repository:
           source_arg: "[repositoryName]"
           docstring: >-
             The name of the ECR repository to describe.
+      extra_args:
+        include:
+          python_type: Optional[List[Literal["TAGS"]]]
+          default: >-
+            None
+          docstring: >-
+            Extra things to include in the response.   Tags are expensive to
+            retrieve because they need a second, slow API call, so you have
+            to request them specifically.
     list:
       boto3_name: describe_repositories
+      decorators:
+        - name: repo_list_add_tags
+          import_path: botocraft.mixins.ecr
+      extra_args:
+        include:
+          python_type: Optional[List[Literal["TAGS"]]]
+          default: >-
+            None
+          docstring: >-
+            Extra things to include in the response.   Tags are expensive to
+            retrieve because they need a second, slow API call, so you have
+            to request them specifically.
     list_images:
       boto3_name: list_images
       response_attr: imageIds
@@ -81,6 +107,9 @@ Repository:
         acceptedMediaTypes:
           default: >-
             ["application/vnd.docker.distribution.manifest.v2+json"]
+    get_tags:
+      boto3_name: list_tags_for_resource
+      response_attr: tags
 Image:
   methods:
     get:

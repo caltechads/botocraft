@@ -109,7 +109,53 @@ def repo_list_images_ecr_images_only(
     return wrapper
 
 
-# Image
+def repo_list_add_tags(
+    func: Callable[..., List["Repository"]],
+) -> Callable[..., List["Repository"]]:
+    """
+    Add tags to all :py:class:`botocraft.services.ecr.Repository` objects returned
+    by :py:meth:`botocraft.services.ecr.RepositoryManager.list`.  This has to
+    be done in a separate call because the tags are not returned in the
+    response from the get call.
+    """
+
+    @wraps(func)
+    def wrapper(self, *args, **kwargs) -> List["Repository"]:
+        repos = func(self, *args, **kwargs)
+        extras = kwargs.get("include", [])
+        if "TAGS" in extras:
+            for repo in repos:
+                tags = self.get_tags(resourceArn=repo.arn)
+                if tags:
+                    repo.Tags = tags
+        return repos
+
+    return wrapper
+
+
+def repo_get_add_tags(
+    func: Callable[..., Optional["Repository"]],
+) -> Callable[..., Optional["Repository"]]:
+    """
+    Add tags to a :py:class:`botocraft.services.ecr.Repository` object returned
+    by :py:meth:`botocraft.services.ecr.RepositoryManager.get`.  This has to
+    be done in a separate call because the tags are not returned in the
+    response from the get call.
+    """
+
+    @wraps(func)
+    def wrapper(self, *args, **kwargs) -> Optional["Repository"]:
+        repo = func(self, *args, **kwargs)
+        if repo is None:
+            return None
+        extras = kwargs.get("include", [])
+        if "TAGS" in extras:
+            tags = self.get_tags(resourceArn=repo.arn)
+            if tags:
+                repo.Tags = tags
+        return repo
+
+    return wrapper
 
 
 def image_list_images_ecr_images_only(
@@ -121,6 +167,7 @@ def image_list_images_ecr_images_only(
     of :py:class:`botocraft.services.ecr.Image` objects.
     """
 
+    @wraps(func)
     def wrapper(self, *args, **kwargs) -> List["ECRImage"]:
         identifiers: List["ImageIdentifier"] = func(self, *args, **kwargs)  # noqa: UP037
         images: List["ECRImage"] = []  # noqa: UP037
