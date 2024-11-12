@@ -219,6 +219,218 @@ class RepositoryMixin:
         )
 
 
+class ECRImageManagerMixin:
+    @cached_property
+    def account_id(self) -> str:
+        """
+        Get the account id for the current session.
+        """
+        from botocraft.services import CallerIdentity
+
+        return CallerIdentity.objects.using(self.session).get().Account
+
+    def __filter_image(
+        self,
+        image_id: str,
+        repositoryNames: Optional[List[str]] = None,  # noqa: N803
+        repositoryPrefix: Optional[str] = None,  # noqa: N803
+        tags: Optional[Dict[str, str]] = None,
+    ) -> Optional["ECRImage"]:
+        """
+        Filter an image by repository name, prefix, or tags.   If no filters are
+        provided, then the image is returned.
+
+        Raises:
+            LookupError: If the image is not found in this account, either because its
+                from another account, it is a public-ecr image in this account,
+                or it doesn't exist.
+
+        Args:
+            image_id: the image id of the image we want to examine
+            repositoryNames: a list of repository names to filter by
+            repositoryPrefix: a prefix to filter the repositories by
+            tags: a dictionary of tags to filter the image by
+
+        Returns:
+            The :py:class:`botocraft.services.ecr.ECRImage` object if the image passes
+            the filters, otherwise None.
+
+        """
+        from botocraft.services import ImageIdentifier
+
+        if tags is None:
+            tags = {}
+        image: Optional["ECRImage"] = None  # noqa: UP037
+        # See if this is even an ECR image
+        if not image_id.startswith(self.account_id):
+            if not re.match(r"\d{12}\.dkr\.ecr\..+\.amazonaws\.com", image_id):
+                msg = f"Image {image_id} is from a different AWS account. Skipping."
+                raise LookupError(msg)
+            # TODO: we should also check our own public ECR repositories
+            msg = f"Image {image_id} is not an ECR image. Skipping."
+            raise LookupError(msg)
+
+        # break image_id into its parts: repository_name, image_tag
+        image_tag = image_id.split(":")[1]
+        repository_name = image_id.split(".com/")[1].split(":")[0]
+        _image = self.using(self.session).get(
+            repository_name,
+            imageId=ImageIdentifier(imageTag=image_tag),
+        )
+        if not _image:
+            msg = f"Image {image_id} belongs to this AWS account, but does not exist."
+            raise LookupError(msg)
+        if repositoryNames or repositoryPrefix:
+            if repositoryNames:
+                if _image.repositoryName in repositoryNames:
+                    image = _image
+            if repositoryPrefix:
+                if _image.repositoryName.startswith(repositoryPrefix):
+                    image = _image
+        elif tags:
+            if tags.items() <= _image.repository.tags.items():
+                image = _image
+        return image
+
+    def in_use(
+        self,
+        repositoryNames: Optional[List[str]] = None,  # noqa: N803
+        repositoryPrefix: Optional[str] = None,  # noqa: N803
+        tags: Optional[Dict[str, str]] = None,
+        verbose: bool = False,
+    ) -> List["ECRImage"]:
+        """
+        Return a list of :py:class:`botocraft.services.ECRImage` objects are
+        currently in use by a service or periodic task.  A periodic task is a
+        task that is run via a :py:class:`botocraft.services.events.EventRule`.
+
+        Important:
+            If you have tasks that are run ad-hoc, then this method will not
+            return those task definitions.
+
+        Keyword Args:
+            repositoryNames: Look at only the repositories with these names.  This
+                and ``repositoryPrefix`` are mutually exclusive.
+            repositoryPrefix: A prefix to filter the repositories by.
+            tags: A dictionary of tags to filter the task, services and periodic
+                tasks by.
+            verbose: If True, print out some information about what is happening.
+
+        Returns:
+            A list of :py:class:`botocraft.services.ecs.TaskDefinition` objects that
+            are currently in use.
+
+        """
+        from botocraft.services import (
+            EventRule,
+            Service,
+            TaskDefinition,
+        )
+
+        assert not (
+            repositoryNames and repositoryPrefix
+        ), "You can't use both repositoryNames and repositoryPrefix at the same time."
+
+        if not tags:
+            tags = {}
+
+        # I'd like to use a set() here, but pydantic classes are not hashable
+        # unless they are frozen, which ECRImage is not
+        used_images: Dict[str, "ECRImage"] = {}  # noqa: UP037
+        if verbose:
+            click.secho("Getting all services ...", fg="green")
+        # First get all the services in the account
+        services = Service.objects.using(self.session).all()
+        # Save the ClientException for later so that we don't have to use the
+        # long form of the exception
+        ClientException = Service.objects.using(  # noqa: N806
+            self.session
+        ).client.exceptions.ClientException
+
+        if verbose:
+            click.secho("Finding used images among the services ...", fg="green")
+        # Now iterate through each service and get the append its task definition
+        # to the list of task definitions
+        for service in services:
+            if verbose:
+                click.secho(
+                    f"   Service: {service.cluster_name}:{service.serviceName}",
+                    fg="cyan",
+                )
+            try:
+                task_definition = cast("TaskDefinition", service.task_definition)
+            except ClientException:
+                warnings.warn(
+                    f"Task definition {service.taskDefinition} in Service "
+                    f"{service.cluster_name}:{service.serviceName} does not exist",
+                    UserWarning,
+                    stacklevel=2,
+                )
+            for image_id in task_definition.container_images:
+                if image_id not in used_images:
+                    try:
+                        image = self.__filter_image(
+                            image_id,
+                            repositoryNames=repositoryNames,
+                            repositoryPrefix=repositoryPrefix,
+                            tags=tags,
+                        )
+                    except LookupError:
+                        service_name = f"{service.cluster_name}:{service.serviceName}"
+                        warnings.warn(
+                            f"Image {image_id} not found for service "
+                            f"{service_name} task definition "
+                            f"{task_definition.family_revision}",
+                            UserWarning,
+                            stacklevel=2,
+                        )
+                    else:
+                        if image:
+                            used_images[image_id] = image
+
+        if verbose:
+            click.secho("Finding images in periodic tasks...", fg="green")
+        # Now deal with the periodic tasks
+        rules = EventRule.objects.using(self.session).list()
+        for rule in rules:
+            for target in rule.targets:
+                if target.EcsParameters is not None:
+                    try:
+                        task_definition = TaskDefinition.objects.using(
+                            self.session
+                        ).get(target.EcsParameters.TaskDefinitionArn)
+                    except ClientException:
+                        warnings.warn(
+                            f"Task definition {target.EcsParameters.TaskDefinitionArn} "
+                            f"for periodic EventRule {rule.arn} does not exist",
+                            UserWarning,
+                            stacklevel=2,
+                        )
+                        continue
+                    for image_id in task_definition.container_images:
+                        try:
+                            image = self.__filter_image(
+                                image_id,
+                                repositoryNames=repositoryNames,
+                                repositoryPrefix=repositoryPrefix,
+                                tags=tags,
+                            )
+                        except LookupError:  # noqa: PERF203
+                            warnings.warn(
+                                f"Image {image_id} not found for periodic EventRule "
+                                f"{rule.arn}, task definition {task_definition.family_revision}",  # noqa: E501
+                                UserWarning,
+                                stacklevel=2,
+                            )
+                        else:
+                            if image:
+                                used_images[image_id] = image
+
+        # TODO: We need to check other things that might use images, like Lambda
+        # functions, when we get around to implementing the ``lambda`` service.
+        return list(used_images.values())
+
+
 class ECRImageMixin:
     """
     Add a bunch of support for inspecting ECR images and getting information

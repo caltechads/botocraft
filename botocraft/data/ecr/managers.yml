@@ -111,6 +111,9 @@ Repository:
       boto3_name: list_tags_for_resource
       response_attr: tags
 Image:
+  mixins:
+    - name: ECRImageManagerMixin
+      import_path: botocraft.mixins.ecr
   methods:
     get:
       boto3_name: batch_get_image
