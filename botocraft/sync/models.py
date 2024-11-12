@@ -189,6 +189,10 @@ class ModelRelationshipDefinition(BaseModel):
     #: If ``True``, force this to be a many-to-many relationship.  Otherwise,
     #: try to figure it out from our transformer.
     many: Optional[bool] = None
+    #: If specified, use this as the name of the method on the related model's
+    #: manager to get the related model instance.  This defaults to ``get``
+    #: if :py:attr:`many` is ``False`` and ``list`` if :py:attr:`many` is ``True``.
+    method: Optional[str] = None
 
     @model_validator(mode="before")
     @classmethod

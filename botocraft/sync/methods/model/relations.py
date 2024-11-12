@@ -187,18 +187,20 @@ class ModelRelationGenerator:
             "{key}": {_value},
 """
         if self.returns_many:
+            method = self.property_def.method if self.property_def.method else "list"
             code += f"""
             }})
         except AttributeError:
             return []
-        return {self.property_def.primary_model_name}.objects.using(self.session).list(**pk)  # type: ignore[arg-type]
+        return {self.property_def.primary_model_name}.objects.using(self.session).{method}(**pk)  # type: ignore[arg-type]
 """  # noqa: E501
         else:
+            method = self.property_def.method if self.property_def.method else "get"
             code += f"""
         }})
         except AttributeError:
             return None
-        return {self.property_def.primary_model_name}.objects.using(self.session).get(**pk)  # type: ignore[arg-type]
+        return {self.property_def.primary_model_name}.objects.using(self.session).{method}(**pk)  # type: ignore[arg-type]
 """  # noqa: E501
         return code
 
