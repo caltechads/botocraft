@@ -1,3 +1,4 @@
+from functools import wraps
 from typing import TYPE_CHECKING, Any, Callable, Dict, List
 
 if TYPE_CHECKING:
@@ -17,6 +18,7 @@ def load_balancer_attributes_to_dict(
     return a dictionary instead of a list of dictionaries.
     """
 
+    @wraps(func)
     def wrapper(self, *args, **kwargs) -> Dict[str, Any]:
         attrs = func(self, *args, **kwargs)
         _attrs: Dict[str, Any] = {}

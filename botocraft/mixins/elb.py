@@ -1,5 +1,6 @@
 # mypy: disable-error-code="attr-defined"
 import warnings
+from functools import wraps
 from typing import TYPE_CHECKING, Callable, Dict, List, Optional, cast
 
 import boto3
@@ -21,6 +22,7 @@ def add_attributes_for_get(
     load balancer attributes to the :py:class:`ClassicELB` object.
     """
 
+    @wraps(func)
     def wrapper(self, *args, **kwargs) -> "ClassicELB":
         elb = func(self, *args, **kwargs)
         if elb:
@@ -51,6 +53,7 @@ def add_attributes_for_list(
 
     """
 
+    @wraps(func)
     def wrapper(self, *args, **kwargs) -> List["ClassicELB"]:
         elbs = func(self, *args, **kwargs)
         if elbs:
@@ -80,6 +83,7 @@ def add_tags_for_get(func: Callable[..., "ClassicELB"]) -> Callable[..., "Classi
     ARNs.
     """
 
+    @wraps(func)
     def wrapper(self, *args, **kwargs) -> "ClassicELB":
         elb = func(self, *args, **kwargs)
         if elb:
@@ -102,6 +106,7 @@ def add_tags_for_list(
     ARNs.
     """
 
+    @wraps(func)
     def wrapper(self, *args, **kwargs) -> List["ClassicELB"]:
         from botocraft.services import ClassicELB
 

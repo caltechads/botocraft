@@ -1,4 +1,5 @@
 # mypy: disable-error-code="attr-defined"
+from functools import wraps
 from typing import TYPE_CHECKING, Callable, List
 
 if TYPE_CHECKING:
@@ -21,6 +22,7 @@ def kms_keys_only(
     key ids.
     """
 
+    @wraps(func)
     def wrapper(self, *args, **kwargs) -> List["KMSKey"]:
         _ids = func(self, *args, **kwargs)
         return [self.get(KeyId=_id.KeyId) for _id in _ids]

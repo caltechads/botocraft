@@ -2,7 +2,9 @@
 
 import base64
 import datetime
-from functools import cached_property
+import re
+import warnings
+from functools import cached_property, wraps
 from typing import (
     TYPE_CHECKING,
     Any,
@@ -10,10 +12,12 @@ from typing import (
     ClassVar,
     Dict,
     List,
+    Literal,
     Optional,
     cast,
 )
 
+import click
 import docker
 from pydantic import BaseModel
 
@@ -22,7 +26,10 @@ if TYPE_CHECKING:
         ECRImage,
         ECRImageManager,
         ImageIdentifier,
+        Repository,
         RepositoryManager,
+        Service,
+        TaskDefinition,
     )
 
 
@@ -77,9 +84,9 @@ class ImageInfo(BaseModel):
     created: datetime.datetime
 
 
-# decorators
-
-# Repository
+# -----------
+# Decorators
+# -----------
 
 
 def repo_list_images_ecr_images_only(
@@ -91,6 +98,7 @@ def repo_list_images_ecr_images_only(
     of :py:class:`botocraft.services.ecr.Image` objects.
     """
 
+    @wraps(func)
     def wrapper(self, *args, **kwargs) -> List["ECRImage"]:
         identifiers: List["ImageIdentifier"] = func(self, *args, **kwargs)  # noqa: UP037
         images: List["ECRImage"] = []  # noqa: UP037
@@ -185,7 +193,9 @@ def image_list_images_ecr_images_only(
     return wrapper
 
 
+# -------------
 # Mixins
+# -------------
 
 
 class RepositoryMixin:
@@ -620,7 +630,6 @@ class ECRImageMixin:
         """
         return self.docker_image.history()
 
-    # method
     def clean(self) -> None:
         """
         Remove the image from our local docker storage, if it exists.
@@ -634,7 +643,6 @@ class ECRImageMixin:
             ecr_client.client.images.remove(self.name)
             ecr_client.client.close()
 
-    # method
     def clean_other_versions(self) -> None:
         """
         Remove the all images for this repository except for the one with
