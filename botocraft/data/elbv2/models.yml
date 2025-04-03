@@ -201,3 +201,5 @@ secondary:
         rename: ActionType
   AdministrativeOverride:
     alternate_name: ElbV2AdministrativeOverride
+  IpamPools:
+    alternate_name: ElbV2IpamPools

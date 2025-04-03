@@ -41,12 +41,13 @@ class ServiceManager(ECSServiceManagerMixin, Boto3ModelManager):
         clientToken: Optional[str] = None,
         serviceConnectConfiguration: Optional["ServiceConnectConfiguration"] = None,
         volumeConfigurations: Optional[List["ServiceVolumeConfiguration"]] = None,
+        vpcLatticeConfigurations: Optional[List["VpcLatticeConfiguration"]] = None,
     ) -> "Service":
         """
         Create an ECS service.
 
         Args:
-            model: The :py:class:``Service`` to create.
+            model: The :py:class:`Service` to create.
 
         Keyword Args:
             clientToken: An identifier that you provide to ensure the idempotency of the request. It must be unique and is case
@@ -55,12 +56,14 @@ class ServiceManager(ECSServiceManagerMixin, Boto3ModelManager):
                 discovered by, and connected from, other services within a namespace.
             volumeConfigurations: The configuration for a volume specified in the task definition as a volume that is configured
                 at launch time. Currently, the only supported volume type is an Amazon EBS volume.
+            vpcLatticeConfigurations: The VPC Lattice configuration for the service being created.
         """
         data = model.model_dump(exclude_none=True, by_alias=True)
         args = dict(
             serviceName=data.get("serviceName"),
             cluster=data.get("clusterArn"),
             taskDefinition=data.get("taskDefinition"),
+            availabilityZoneRebalancing=data.get("availabilityZoneRebalancing"),
             loadBalancers=data.get("loadBalancers"),
             serviceRegistries=data.get("serviceRegistries"),
             desiredCount=data.get("desiredCount"),
@@ -82,6 +85,7 @@ class ServiceManager(ECSServiceManagerMixin, Boto3ModelManager):
             enableExecuteCommand=data.get("enableExecuteCommand"),
             serviceConnectConfiguration=self.serialize(serviceConnectConfiguration),
             volumeConfigurations=self.serialize(volumeConfigurations),
+            vpcLatticeConfigurations=self.serialize(vpcLatticeConfigurations),
         )
         _response = self.client.create_service(
             **{k: v for k, v in args.items() if v is not None}
@@ -231,12 +235,13 @@ class ServiceManager(ECSServiceManagerMixin, Boto3ModelManager):
         forceNewDeployment: bool = False,
         serviceConnectConfiguration: Optional["ServiceConnectConfiguration"] = None,
         volumeConfigurations: Optional[List["ServiceVolumeConfiguration"]] = None,
+        vpcLatticeConfigurations: Optional[List["VpcLatticeConfiguration"]] = None,
     ) -> "Service":
         """
         Modifies the parameters of a service.
 
         Args:
-            model: The :py:class:``Service`` to update.
+            model: The :py:class:`Service` to update.
 
         Keyword Args:
             forceNewDeployment: Determines whether to force a new deployment of the service. By default, deployments aren't
@@ -250,6 +255,7 @@ class ServiceManager(ECSServiceManagerMixin, Boto3ModelManager):
                 <https://docs.aws.amazon.com/AmazonECS/latest/APIRefere nce/API_ServiceManagedEBSVolumeConfiguration.html>`_. The
                 ``name`` of the volume must match the ``name`` from the task definition. If set to null, no new deployment is
                 triggered. Otherwise, if this configuration differs from the existing one, it triggers a new deployment.
+            vpcLatticeConfigurations: An object representing the VPC Lattice configuration for the service being updated.
         """
         data = model.model_dump(exclude_none=True, by_alias=True)
         args = dict(
@@ -259,6 +265,7 @@ class ServiceManager(ECSServiceManagerMixin, Boto3ModelManager):
             taskDefinition=data.get("taskDefinition"),
             capacityProviderStrategy=data.get("capacityProviderStrategy"),
             deploymentConfiguration=data.get("deploymentConfiguration"),
+            availabilityZoneRebalancing=data.get("availabilityZoneRebalancing"),
             networkConfiguration=data.get("networkConfiguration"),
             placementConstraints=data.get("placementConstraints"),
             placementStrategy=data.get("placementStrategy"),
@@ -272,6 +279,7 @@ class ServiceManager(ECSServiceManagerMixin, Boto3ModelManager):
             serviceRegistries=data.get("serviceRegistries"),
             serviceConnectConfiguration=self.serialize(serviceConnectConfiguration),
             volumeConfigurations=self.serialize(volumeConfigurations),
+            vpcLatticeConfigurations=self.serialize(vpcLatticeConfigurations),
         )
         _response = self.client.update_service(
             **{k: v for k, v in args.items() if v is not None}
@@ -290,6 +298,7 @@ class ServiceManager(ECSServiceManagerMixin, Boto3ModelManager):
         taskDefinition: Optional[str] = None,
         capacityProviderStrategy: Optional[List["CapacityProviderStrategyItem"]] = None,
         deploymentConfiguration: Optional["DeploymentConfiguration"] = None,
+        availabilityZoneRebalancing: Optional[Literal["ENABLED", "DISABLED"]] = None,
         networkConfiguration: Optional["NetworkConfiguration"] = None,
         placementConstraints: Optional[List["PlacementConstraint"]] = None,
         placementStrategy: Optional[List["PlacementStrategy"]] = None,
@@ -302,7 +311,8 @@ class ServiceManager(ECSServiceManagerMixin, Boto3ModelManager):
         propagateTags: Optional[Literal["TASK_DEFINITION", "SERVICE", "NONE"]] = None,
         serviceRegistries: Optional[List["ServiceRegistry"]] = None,
         serviceConnectConfiguration: Optional["ServiceConnectConfiguration"] = None,
-        volumeConfigurations: Optional[List["ServiceVolumeConfiguration"]] = None
+        volumeConfigurations: Optional[List["ServiceVolumeConfiguration"]] = None,
+        vpcLatticeConfigurations: Optional[List["VpcLatticeConfiguration"]] = None
     ) -> "Service":
         """
         Update individual attributes of an ECS service.
@@ -320,7 +330,8 @@ class ServiceManager(ECSServiceManagerMixin, Boto3ModelManager):
                 stops an old task after the new version is running.
             capacityProviderStrategy: The capacity provider strategy to update the service to use.
             deploymentConfiguration: Optional deployment parameters that control how many tasks run during the deployment and
-                the failure detection methods.
+                the ordering of stopping and starting tasks.
+            availabilityZoneRebalancing: Indicates whether to use Availability Zone rebalancing for the service.
             networkConfiguration: An object representing the network configuration for the service.
             placementConstraints: An array of task placement constraint objects to update the service to use. If no value is
                 specified, the existing placement constraints for the service will remain unchanged. If this value is specified, it
@@ -340,12 +351,9 @@ class ServiceManager(ECSServiceManagerMixin, Boto3ModelManager):
                 update a service's tasks to use a newer Docker image with the same image/tag combination (``my_image:latest``) or to
                 roll Fargate tasks onto a newer platform version.
             healthCheckGracePeriodSeconds: The period of time, in seconds, that the Amazon ECS service scheduler ignores
-                unhealthy Elastic Load Balancing target health checks after a task has first started. This is only valid if your
-                service is configured to use a load balancer. If your service's tasks take a while to start and respond to Elastic
-                Load Balancing health checks, you can specify a health check grace period of up to 2,147,483,647 seconds. During
-                that time, the Amazon ECS service scheduler ignores the Elastic Load Balancing health check status. This grace
-                period can prevent the ECS service scheduler from marking tasks as unhealthy and stopping them before they have time
-                to come up.
+                unhealthy Elastic Load Balancing, VPC Lattice, and container health checks after a task has first started. If you
+                don't specify a health check grace period value, the default value of ``0`` is used. If you don't use any of the
+                health checks, then ``healthCheckGracePeriodSeconds`` is unused.
             enableExecuteCommand: If ``true``, this enables execute command functionality on all task containers.
             enableECSManagedTags: Determines whether to turn on Amazon ECS managed tags for the tasks in the service. For more
                 information, see `Tagging Your Amazon ECS Resources
@@ -365,6 +373,7 @@ class ServiceManager(ECSServiceManagerMixin, Boto3ModelManager):
                 <https://docs.aws.amazon.com/AmazonECS/latest/APIRefere nce/API_ServiceManagedEBSVolumeConfiguration.html>`_. The
                 ``name`` of the volume must match the ``name`` from the task definition. If set to null, no new deployment is
                 triggered. Otherwise, if this configuration differs from the existing one, it triggers a new deployment.
+            vpcLatticeConfigurations: An object representing the VPC Lattice configuration for the service being updated.
         """
         args: Dict[str, Any] = dict(
             service=self.serialize(service),
@@ -373,6 +382,7 @@ class ServiceManager(ECSServiceManagerMixin, Boto3ModelManager):
             taskDefinition=self.serialize(taskDefinition),
             capacityProviderStrategy=self.serialize(capacityProviderStrategy),
             deploymentConfiguration=self.serialize(deploymentConfiguration),
+            availabilityZoneRebalancing=self.serialize(availabilityZoneRebalancing),
             networkConfiguration=self.serialize(networkConfiguration),
             placementConstraints=self.serialize(placementConstraints),
             placementStrategy=self.serialize(placementStrategy),
@@ -386,6 +396,7 @@ class ServiceManager(ECSServiceManagerMixin, Boto3ModelManager):
             serviceRegistries=self.serialize(serviceRegistries),
             serviceConnectConfiguration=self.serialize(serviceConnectConfiguration),
             volumeConfigurations=self.serialize(volumeConfigurations),
+            vpcLatticeConfigurations=self.serialize(vpcLatticeConfigurations),
         )
         _response = self.client.update_service(
             **{k: v for k, v in args.items() if v is not None}
@@ -405,7 +416,7 @@ class ClusterManager(Boto3ModelManager):
         Create an ECS cluster.
 
         Args:
-            model: The :py:class:``Cluster`` to create.
+            model: The :py:class:`Cluster` to create.
         """
         data = model.model_dump(exclude_none=True, by_alias=True)
         args = dict(
@@ -529,7 +540,7 @@ class ClusterManager(Boto3ModelManager):
         Update an ECS cluster.
 
         Args:
-            model: The :py:class:``Cluster`` to update.
+            model: The :py:class:`Cluster` to update.
         """
         data = model.model_dump(exclude_none=True, by_alias=True)
         args = dict(
@@ -599,7 +610,7 @@ class TaskDefinitionManager(TaskDefinitionManagerMixin, Boto3ModelManager):
         Container Service Developer Guide*.
 
         Args:
-            model: The :py:class:``TaskDefinition`` to create.
+            model: The :py:class:`TaskDefinition` to create.
 
         Keyword Args:
             tags: The metadata that you apply to the task definition to help you categorize and organize them. Each tag consists
@@ -625,6 +636,7 @@ class TaskDefinitionManager(TaskDefinitionManagerMixin, Boto3ModelManager):
             inferenceAccelerators=data.get("inferenceAccelerators"),
             ephemeralStorage=data.get("ephemeralStorage"),
             runtimePlatform=data.get("runtimePlatform"),
+            enableFaultInjection=data.get("enableFaultInjection"),
         )
         _response = self.client.register_task_definition(
             **{k: v for k, v in args.items() if v is not None}
@@ -740,7 +752,7 @@ class TaskDefinitionManager(TaskDefinitionManagerMixin, Boto3ModelManager):
         Container Service Developer Guide*.
 
         Args:
-            model: The :py:class:``TaskDefinition`` to update.
+            model: The :py:class:`TaskDefinition` to update.
 
         Keyword Args:
             tags: The metadata that you apply to the task definition to help you categorize and organize them. Each tag consists
@@ -766,6 +778,7 @@ class TaskDefinitionManager(TaskDefinitionManagerMixin, Boto3ModelManager):
             inferenceAccelerators=data.get("inferenceAccelerators"),
             ephemeralStorage=data.get("ephemeralStorage"),
             runtimePlatform=data.get("runtimePlatform"),
+            enableFaultInjection=data.get("enableFaultInjection"),
         )
         _response = self.client.register_task_definition(
             **{k: v for k, v in args.items() if v is not None}
@@ -1041,8 +1054,8 @@ class TaskManager(Boto3ModelManager):
 
         Keyword Args:
             cluster: The short name or full Amazon Resource Name (ARN) of the cluster that hosts the task or tasks to describe.
-                If you do not specify a cluster, the default cluster is assumed. This parameter is required if the task or tasks you
-                are describing were launched in any cluster other than the default cluster.
+                If you do not specify a cluster, the default cluster is assumed. This parameter is required. If you do not specify a
+                value, the ``default`` cluster is used.
             include: Specifies whether you want to see the resource tags for the task. If ``TAGS`` is specified, the tags are
                 included in the response. If this field is omitted, tags aren't included in the response.
         """
@@ -1077,8 +1090,8 @@ class TaskManager(Boto3ModelManager):
 
         Keyword Args:
             cluster: The short name or full Amazon Resource Name (ARN) of the cluster that hosts the task or tasks to describe.
-                If you do not specify a cluster, the default cluster is assumed. This parameter is required if the task or tasks you
-                are describing were launched in any cluster other than the default cluster.
+                If you do not specify a cluster, the default cluster is assumed. This parameter is required. If you do not specify a
+                value, the ``default`` cluster is used.
             include: Specifies whether you want to see the resource tags for the task. If ``TAGS`` is specified, the tags are
                 included in the response. If this field is omitted, tags aren't included in the response.
         """
@@ -1174,7 +1187,7 @@ class TaskManager(Boto3ModelManager):
         Starts a new task using the specified task definition.
 
         Args:
-            model: The :py:class:``Task`` to create.
+            model: The :py:class:`Task` to create.
 
         Keyword Args:
             capacityProviderStrategy: The capacity provider strategy to use for the task.
@@ -1243,7 +1256,7 @@ class TaskManager(Boto3ModelManager):
         Stops a running task. Any tags associated with the task will be deleted.
 
         Args:
-            task: The task ID of the task to stop.
+            task: Thefull Amazon Resource Name (ARN) of the task.
 
         Keyword Args:
             cluster: The short name or full Amazon Resource Name (ARN) of the cluster that hosts the task to stop. If you do not
@@ -1326,7 +1339,7 @@ class LoadBalancerConfiguration(Boto3Model):
     """
     loadBalancerName: Optional[str] = None
     """
-    The name of the load balancer to associate with the service or task set.
+    The name of the load balancer to associate with the Amazon ECS service or task set.
     """
     containerName: Optional[str] = None
     """
@@ -1413,9 +1426,7 @@ class CapacityProviderStrategyItem(Boto3Model):
     platform version 1.3.0 or later. ``FARGATE_SPOT`` supports Linux tasks with the ARM64 architecture on platform version
     1.4.0 or later.
 
-    A capacity provider strategy may contain a maximum of 6 capacity providers.
-
-    """
+    A capacity provider strategy can contain a maximum of 20 capacity providers."""
 
     capacityProvider: str
     """
@@ -1539,22 +1550,18 @@ class AwsVpcConfiguration(Boto3Model):
     """
     The IDs of the subnets associated with the task or service.
 
-    There's a limit of 16 subnets that can be specified per
-    ``awsvpcConfiguration``.
+    There's a limit of 16 subnets that can be specified.
     """
     securityGroups: Optional[List[str]] = None
     """
     The IDs of the security groups associated with the task or service.
 
-    If you don't specify a security group, the default
-    security group for the VPC is used. There's a limit of 5 security groups that can be specified per
-    ``awsvpcConfiguration``.
+    If you don't specify a security group, the default security group for the VPC is used. There's a limit of 5 security
+    groups that can be specified.
     """
     assignPublicIp: Optional[Literal["ENABLED", "DISABLED"]] = None
     """
     Whether the task's elastic network interface receives a public IP address.
-
-    The default value is ``DISABLED``.
     """
 
 
@@ -1593,7 +1600,7 @@ class DeploymentEphemeralStorage(Boto3Model):
 
     kmsKeyId: Optional[str] = None
     """
-    Specify an Amazon Web Services Key Management Service key ID to encrypt the ephemeral storage for deployment.
+    Specify an Key Management Service key ID to encrypt the ephemeral storage for deployment.
     """
 
 
@@ -1881,9 +1888,7 @@ class Secret(Boto3Model):
 
     For more information, see `Specifying sensitive
     data <https://docs.aws.amazon.com/AmazonECS/latest/developerguide/specifying-sensitive-data.html>`_ in the *Amazon Elastic
-    Container Service Developer Guide*.
-
-    """
+    Container Service Developer Guide*."""
 
     name: str
     """
@@ -2170,6 +2175,32 @@ class ServiceVolumeConfiguration(Boto3Model):
     """
 
 
+class VpcLatticeConfiguration(Boto3Model):
+    """
+    The VPC Lattice configuration for your service that holds the information for the target group(s) Amazon ECS tasks
+    will be registered to.
+    """
+
+    roleArn: str
+    """
+    The ARN of the IAM role to associate with this VPC Lattice configuration.
+
+    This is the Amazon ECS  infrastructure IAM role that is used to manage your VPC Lattice infrastructure.
+    """
+    targetGroupArn: str
+    """
+    The full Amazon Resource Name (ARN) of the target group or groups associated with the VPC Lattice configuration that
+    the Amazon ECS tasks will be registered to.
+    """
+    portName: str
+    """
+    The name of the port mapping to register in the VPC Lattice target group.
+
+    This is the name of the ``portMapping`` you
+    defined in your task definition.
+    """
+
+
 class Deployment(ReadonlyBoto3Model):
     """
     The details of an Amazon ECS service deployment.
@@ -2287,6 +2318,10 @@ class Deployment(ReadonlyBoto3Model):
     """
     The Fargate ephemeral storage settings for the deployment.
     """
+    vpcLatticeConfigurations: Optional[List["VpcLatticeConfiguration"]] = None
+    """
+    The VPC Lattice configuration for the service deployment.
+    """
 
 
 class ServiceEvent(Boto3Model):
@@ -2314,7 +2349,6 @@ class PlacementConstraint(Boto3Model):
     Elastic Container Service Developer Guide*.
 
     If you're using the Fargate launch type, task placement constraints aren't supported.
-
     """
 
     type: Optional[Literal["distinctInstance", "memberOf"]] = None
@@ -2433,7 +2467,7 @@ class Service(TagsDictMixin, ECSServiceModelMixin, PrimaryBoto3Model):
     """
     The metadata that you apply to the service to help you categorize and organize them.
 
-    Each tag consists of a key and an optional value. You define both the key and value.
+    Each tag consists of a key and an optional value. You define bot the key and value.
     """
     serviceArn: str = Field(default=None, frozen=True)
     """
@@ -2475,8 +2509,7 @@ class Service(TagsDictMixin, ECSServiceModelMixin, PrimaryBoto3Model):
     """
     The capacity provider strategy the service uses.
 
-    When using ``DescribeServices``, this field is omitted if the service
-    was created using a launch type.
+    When using the DescribeServices API, this field is omitted if the service was created using a launch type.
     """
     platformVersion: Optional[str] = None
     """
@@ -2573,6 +2606,10 @@ class Service(TagsDictMixin, ECSServiceModelMixin, PrimaryBoto3Model):
 
     If ``true``, the execute command
     functionality is turned on for all containers in tasks as part of the service.
+    """
+    availabilityZoneRebalancing: Optional[Literal["ENABLED", "DISABLED"]] = None
+    """
+    Indicates whether to use Availability Zone rebalancing for the service.
     """
 
     @property
@@ -2774,7 +2811,7 @@ class ManagedStorageConfiguration(Boto3Model):
 
     kmsKeyId: Optional[str] = None
     """
-    Specify a Amazon Web Services Key Management Service key ID to encrypt the managed storage.
+    Specify a Key Management Service key ID to encrypt the managed storage.
     """
     fargateEphemeralStorageKmsKeyId: Optional[str] = None
     """
@@ -2818,9 +2855,20 @@ class KeyValuePair(Boto3Model):
 
 class ClusterSetting(Boto3Model):
     """
-    The settings to use when creating a cluster.
+    The settings to use when creating a cluster. This parameter is used to turn on CloudWatch Container Insights with
+    enhanced observability or CloudWatch Container Insights for a cluster.
 
-    This parameter is used to turn on CloudWatch Container Insights for a cluster.
+    Container Insights with enhanced observability provides all the Container Insights metrics, plus additional task and
+    container metrics. This version supports enhanced observability for Amazon ECS clusters using the Amazon EC2 and
+    Fargate launch types. After you configure Container Insights with enhanced observability on Amazon ECS, Container
+    Insights auto- collects detailed infrastructure telemetry from the cluster level down to the container level in your
+    environment and displays these critical performance data in curated dashboards removing the heavy lifting in
+    observability set-up.
+
+    For more information, see
+    `Monitor Amazon ECS containers using Container Insights with enhanced observability <https://docs.aws.amazon.com/AmazonECS/latest/developerguide/cloudwatch-container-insights.html>`_
+    in the
+    *Amazon Elastic Container Service Developer Guide*.
     """
 
     name: Optional[Literal["containerInsights"]] = None
@@ -2833,7 +2881,7 @@ class ClusterSetting(Boto3Model):
     """
     The value to set for the cluster setting.
 
-    The supported values are ``enabled`` and ``disabled``.
+    The supported values are ``enhanced``, ``enabled``, and ``disabled``.
     """
 
 
@@ -3088,12 +3136,11 @@ class RepositoryCredentials(Boto3Model):
 
 class PortMapping(Boto3Model):
     """
-    Port mappings expose your container's network ports to the outside world. this allows clients to access your
-    application. It's also used for inter-container communication within the same task.
+    Port mappings allow containers to access ports on the host container instance to send or receive traffic. Port
+    mappings are specified as part of the container definition.
 
-    For task definitions (both the Fargate and EC2 launch type) that use the ``awsvpc`` network mode, only specify the
-    ``containerPort``. The ``hostPort`` is always ignored, and the container port is automatically mapped to a random
-    high-numbered port on the host.
+    If you use containers in a task with the ``awsvpc`` or ``host`` network mode, specify the exposed ports using
+    ``containerPort``. The ``hostPort`` can be left blank or it must be the same value as the ``containerPort``.
 
     Most fields of this parameter (``containerPort``, ``hostPort``, ``protocol``) maps to ``PortBindings`` in the docker
     container create command and the ``--publish`` option to ``docker run``. If the network mode of a task definition is set
@@ -3125,10 +3172,10 @@ class PortMapping(Boto3Model):
     """
     The name that's used for the port mapping.
 
-    This parameter only applies to Service Connect. This parameter is the name
-    that you use in the ``serviceConnectConfiguration`` of a service. The name can include up to 64 characters. The
-    characters can include lowercase letters, numbers, underscores (_), and hyphens (-). The name can't start with a
-    hyphen.
+    This parameter is the name that you use in the
+    ``serviceConnectConfiguration`` and the ``vpcLatticeConfigurations`` of a service. The name can include up to 64
+    characters. The characters can include lowercase letters, numbers, underscores (_), and hyphens (-). The name can't
+    start with a hyphen.
     """
     appProtocol: Optional[Literal["http", "http2", "grpc"]] = None
     """
@@ -3326,12 +3373,11 @@ class Tmpfs(Boto3Model):
 
 
 class LinuxParameters(Boto3Model):
-    """Linux-specific modifications that are applied to the container, such as Linux kernel capabilities. For more information
-    see `KernelCapabilities <https://docs.aws.amazon.com/AmazonECS/latest/APIReference/API_KernelCapabilities.html>`_.
+    """Linux-specific modifications that are applied to the default Docker container configuration, such as Linux kernel
+    capabilities. For more information see
+    `KernelCapabilities <https://docs.aws.amazon.com/AmazonECS/latest/APIReference/API_KernelCapabilities.html>`_.
 
-    This parameter is not supported for Windows containers.
-
-    """
+    This parameter is not supported for Windows containers."""
 
     capabilities: Optional[KernelCapabilities] = None
     """
@@ -3428,7 +3474,6 @@ class HostEntry(Boto3Model):
     """Hostnames and IP address entries that are added to the ``/etc/hosts`` file of a container via the ``extraHosts``
     parameter of its
     `ContainerDefinition <https://docs.aws.amazon.com/AmazonECS/latest/APIReference/API_ContainerDefinition.html>`_.
-
     """
 
     hostname: str
@@ -3509,26 +3554,30 @@ class HealthCheck(Boto3Model):
     """
     The time period in seconds between each health check execution.
 
-    You may specify between 5 and 300 seconds. The default value is 30 seconds.
+    You may specify between 5 and 300 seconds. The default
+    value is 30 seconds. This value applies only when you specify a ``command``.
     """
     timeout: Optional[int] = None
     """
     The time period in seconds to wait for a health check to succeed before it is considered a failure.
 
-    You may specify between 2 and 60 seconds. The default value is 5.
+    You may specify
+    between 2 and 60 seconds. The default value is 5. This value applies only when you specify a ``command``.
     """
     retries: Optional[int] = None
     """
     The number of times to retry a failed health check before the container is considered unhealthy.
 
-    You may specify between 1 and 10 retries. The default value is 3.
+    You may specify between
+    1 and 10 retries. The default value is 3. This value applies only when you specify a ``command``.
     """
     startPeriod: Optional[int] = None
     """
     The optional grace period to provide containers time to bootstrap before failed health checks count towards the
     maximum number of retries.
 
-    You can specify between 0 and 300 seconds. By default, the ``startPeriod`` is off.
+    You can specify between 0 and 300 seconds. By default, the ``startPeriod`` is off. This value applies
+    only when you specify a ``command``.
     """
 
 
@@ -3555,6 +3604,8 @@ class SystemControl(Boto3Model):
       task.
 
     This parameter is not supported for Windows containers.
+
+
 
     This parameter is only supported for tasks that are hosted on Fargate if the tasks are using platform version ``1.4.0``
     or later (Linux). This isn't supported for Windows containers on Fargate.
@@ -3755,7 +3806,8 @@ class ContainerDefinition(Boto3Model):
     """
     linuxParameters: Optional[LinuxParameters] = None
     """
-    Linux-specific modifications that are applied to the container, such as Linux kernel capabilities.
+    Linux-specific modifications that are applied to the default Docker container configuration, such as Linux kernel
+    capabilities.
 
     For more information see
     `KernelCapabilities <https://docs.aws.amazon.com/AmazonECS/latest/APIReference/API_KernelCapabilities.html>`_.
@@ -3789,6 +3841,17 @@ class ContainerDefinition(Boto3Model):
     stopTimeout: Optional[int] = None
     """
     Time duration (in seconds) to wait before the container is forcefully killed if it doesn't exit normally on its own.
+    """
+    versionConsistency: Optional[Literal["enabled", "disabled"]] = None
+    """
+    Specifies whether Amazon ECS will resolve the container image tag provided in the container definition to an image
+    digest.
+
+    By default, the value is ``enabled``. If you set the value for a container as ``disabled``, Amazon ECS will not
+    resolve the provided container image tag to a digest and will use the original image URI specified in the container
+    definition for deployment. For more information about container image resolution, see `Container image
+    resolution <https://docs.aws.amazon.com/AmazonECS/latest/developerguide/deployment-type-ecs.html#deployment-container-
+    image-stability>`_ in the *Amazon ECS Developer Guide*.
     """
     hostname: Optional[str] = None
     """
@@ -4006,8 +4069,8 @@ class DockerVolumeConfiguration(Boto3Model):
     """
     A map of Docker driver-specific options passed through.
 
-    This parameter maps to ``DriverOpts`` in the docker
-    create-volume command and the ``xxopt`` option to docker volume create.
+    This parameter maps to ``DriverOpts`` in the docker create-
+    volume command and the ``xxopt`` option to docker volume create.
     """
     labels: Optional[Dict[str, str]] = None
     """
@@ -4225,9 +4288,7 @@ class TaskDefinitionPlacementConstraint(Boto3Model):
     constraints <https://docs.aws.amazon.com/AmazonECS/latest/developerguide/task-placement-constraints.html>`_ in the *Amazon
     Elastic Container Service Developer Guide*.
 
-    Task placement constraints aren't supported for tasks run on Fargate.
-
-    """
+    Task placement constraints aren't supported for tasks run on Fargate."""
 
     type: Optional[Literal["memberOf"]] = None
     """
@@ -4302,10 +4363,10 @@ class ProxyConfiguration(Boto3Model):
     """
     The configuration details for the App Mesh proxy.
 
-    Your Amazon ECS container instances require at least version 1.26.0 of the container agent and at least version
-    1.26.0-1 of the ``ecs-init`` package to use a proxy configuration. If your container instances are launched from the
-    Amazon ECS optimized AMI version ``20190301`` or later, they contain the required versions of the container agent and
-    ``ecs-init``. For more information, see `Amazon ECS-optimized Linux
+    Your Amazon ECS container instances require at least version 1.26.0 of the container agent and at least version 1.26.0-1
+    of the ``ecs-init`` package to use a proxy configuration. If your container instances are launched from the Amazon ECS
+    optimized AMI version ``20190301`` or later, they contain the required versions of the container agent and ``ecs-init``.
+    For more information, see `Amazon ECS-optimized Linux
     AMI <https://docs.aws.amazon.com/AmazonECS/latest/developerguide/ecs-optimized_AMI.html>`_ in the *Amazon Elastic
     Container Service Developer Guide*.
     """
@@ -4323,7 +4384,7 @@ class ProxyConfiguration(Boto3Model):
     properties: Optional[List["KeyValuePair"]] = None
     """
     The set of network configuration parameters to provide the Container Network Interface (CNI) plugin, specified as
-    key-value pairs.
+    key- value pairs.
     """
 
 
@@ -4336,7 +4397,7 @@ class EphemeralStorage(Boto3Model):
     """
     The total amount, in GiB, of ephemeral storage to set for the task.
 
-    The minimum supported value is ``20`` GiB and the
+    The minimum supported value is ``21`` GiB and the
     maximum supported value is ``200`` GiB.
     """
 
@@ -4503,8 +4564,7 @@ class TaskDefinition(TagsDictMixin, TaskDefinitionModelMixin, PrimaryBoto3Model)
     containers within the specified task share the same IPC resources. If ``none`` is specified, then IPC resources within
     the containers of a task are private and not shared with other containers in a task or on the container instance. If no
     value is specified, then the IPC resource namespace sharing depends on the Docker daemon setting on the container
-    instance. For more information, see `IPC settings <https://docs.docker.com/engine/reference/run/#ipc-settings---ipc>`_ in
-    the *Docker run reference*.
+    instance.
     """
     proxyConfiguration: Optional[ProxyConfiguration] = None
     """
@@ -4525,6 +4585,13 @@ class TaskDefinition(TagsDictMixin, TaskDefinitionModelMixin, PrimaryBoto3Model)
     ephemeralStorage: Optional[EphemeralStorage] = None
     """
     The ephemeral storage settings to use for tasks run with the task definition.
+    """
+    enableFaultInjection: Optional[bool] = None
+    """
+    Enables fault injection and allows for fault injection requests to be accepted from the task's containers.
+
+    The default
+    value is ``false``.
     """
     Tags: Optional[List["ECSTag"]] = None
     """
@@ -4848,7 +4915,7 @@ class TaskEphemeralStorage(Boto3Model):
     """
     kmsKeyId: Optional[str] = None
     """
-    Specify an Amazon Web Services Key Management Service key ID to encrypt the ephemeral storage for the task.
+    Specify an Key Management Service key ID to encrypt the ephemeral storage for the task.
     """
 
 
@@ -5083,8 +5150,8 @@ class Task(TagsDictMixin, PrimaryBoto3Model):
     """
     The ``family`` and ``revision`` (``family:revision``) or full ARN of the task definition to run.
 
-    If a
-    ``revision`` isn't specified, the latest ``ACTIVE`` revision is used.
+    If a ``revision`` isn't
+    specified, the latest ``ACTIVE`` revision is used.
     """
 
     @property
@@ -5607,8 +5674,8 @@ class ClusterServiceConnectDefaultsRequest(Boto3Model):
     The namespace name or full Amazon Resource Name (ARN) of the Cloud Map namespace that's used when you create a
     service and don't specify a Service Connect configuration.
 
-    The namespace name can include up to 1024 characters. The name is case-sensitive. The name can't include hyphens
-    (-), tilde (~), greater than (>), less than (<), or slash (/).
+    The namespace name can include up to 1024 characters. The name is case-sensitive. The name can't include greater
+    than (>), less than (<), double quotation marks ("), or slash (/).
     """
 
 

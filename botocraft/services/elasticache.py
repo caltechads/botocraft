@@ -51,7 +51,7 @@ class CacheClusterManager(Boto3ModelManager):
         Memcached, Valkey or Redis OSS.
 
         Args:
-            model: The :py:class:``CacheCluster`` to create.
+            model: The :py:class:`CacheCluster` to create.
 
         Keyword Args:
             AZMode: Specifies whether the nodes in this Memcached cluster are created in a single Availability Zone or created
@@ -72,7 +72,7 @@ class CacheClusterManager(Boto3ModelManager):
             Port: The port number on which each of the cache nodes accepts connections.
             NotificationTopicArn: The Amazon Resource Name (ARN) of the Amazon Simple Notification Service (SNS) topic to which
                 notifications are sent.
-            AuthToken:  **Reserved parameter.** The password used to access a password protected server.
+            AuthToken: **Reserved parameter.** The password used to access a password protected server.
             OutpostMode: Specifies whether the nodes in the cluster are created in a single outpost or across multiple outposts.
             PreferredOutpostArns: The outpost ARNs in which the cache cluster is created.
         """
@@ -137,7 +137,7 @@ class CacheClusterManager(Boto3ModelManager):
         parameters by specifying the parameters and the new values.
 
         Args:
-            model: The :py:class:``CacheCluster`` to update.
+            model: The :py:class:`CacheCluster` to update.
 
         Keyword Args:
             CacheNodeIdsToRemove: A list of cache node IDs to be removed. A node ID is a numeric identifier (0001, 0002, etc.).
@@ -146,7 +146,7 @@ class CacheClusterManager(Boto3ModelManager):
                 the cluster or pending cache nodes, whichever is greater, and the value of ``NumCacheNodes`` in the request.
             AZMode: Specifies whether the new nodes in this Memcached cluster are all created in a single Availability Zone or
                 created across multiple Availability Zones.
-            NewAvailabilityZones:  This option is only supported on Memcached clusters.
+            NewAvailabilityZones: This option is only supported on Memcached clusters.
             CacheSecurityGroupNames: A list of cache security group names to authorize on this cluster. This change is
                 asynchronously applied as soon as possible.
             SecurityGroupIds: Specifies the VPC Security Groups associated with the cluster.
@@ -320,7 +320,7 @@ class CacheParameterGroupManager(Boto3ModelManager):
         CacheParameterGroup.
 
         Args:
-            model: The :py:class:``CacheParameterGroup`` to create.
+            model: The :py:class:`CacheParameterGroup` to create.
 
         Keyword Args:
             Tags: A list of tags to be added to this resource. A tag is a key-value pair. A tag key must be accompanied by a tag
@@ -347,7 +347,7 @@ class CacheParameterGroupManager(Boto3ModelManager):
         submitting a list parameter name and value pairs.
 
         Args:
-            model: The :py:class:``CacheParameterGroup`` to update.
+            model: The :py:class:`CacheParameterGroup` to update.
         """
         data = model.model_dump(exclude_none=True, by_alias=True)
         args = dict(
@@ -513,7 +513,7 @@ class CacheSubnetGroupManager(Boto3ModelManager):
         Creates a new cache subnet group.
 
         Args:
-            model: The :py:class:``CacheSubnetGroup`` to create.
+            model: The :py:class:`CacheSubnetGroup` to create.
 
         Keyword Args:
             Tags: A list of tags to be added to this resource. A tag is a key-value pair. A tag key must be accompanied by a tag
@@ -541,7 +541,7 @@ class CacheSubnetGroupManager(Boto3ModelManager):
         Modifies an existing cache subnet group.
 
         Args:
-            model: The :py:class:``CacheSubnetGroup`` to update.
+            model: The :py:class:`CacheSubnetGroup` to update.
 
         Keyword Args:
             SubnetIds: The EC2 subnet IDs for the cache subnet group.
@@ -640,7 +640,7 @@ class CacheSecurityGroupManager(Boto3ModelManager):
         Creates a new cache security group. Use a cache security group to control access to one or more clusters.
 
         Args:
-            model: The :py:class:``CacheSecurityGroup`` to create.
+            model: The :py:class:`CacheSecurityGroup` to create.
 
         Keyword Args:
             Tags: A list of tags to be added to this resource. A tag is a key-value pair. A tag key must be accompanied by a tag
@@ -830,7 +830,7 @@ class ReplicationGroupManager(Boto3ModelManager):
         replication group.
 
         Args:
-            model: The :py:class:``ReplicationGroup`` to create.
+            model: The :py:class:`ReplicationGroup` to create.
             ReplicationGroupDescription: A user-created description for the replication group.
 
         Keyword Args:
@@ -840,7 +840,7 @@ class ReplicationGroupManager(Boto3ModelManager):
             AutomaticFailoverEnabled: Specifies whether a read-only replica is automatically promoted to read/write primary if
                 the existing primary fails.
             MultiAZEnabled: A flag indicating if you have Multi-AZ enabled to enhance fault tolerance. For more information, see
-                `Minimizing Downtime: Multi-AZ <http://docs.aws.amazon.com/AmazonElastiCache/latest/red-ug/AutoFailover.html>`_.
+                `Minimizing Downtime: Multi-AZ <http://docs.aws.amazon.com/AmazonElastiCache/latest/dg/AutoFailover.html>`_.
             NumCacheClusters: The number of clusters this replication group initially has.
             PreferredCacheClusterAZs: A list of EC2 Availability Zones in which the replication group's clusters are created.
                 The order of the Availability Zones in the list is the order in which clusters are allocated. The primary cluster is
@@ -876,10 +876,10 @@ class ReplicationGroupManager(Boto3ModelManager):
             Port: The port number on which each member of the replication group accepts connections.
             NotificationTopicArn: The Amazon Resource Name (ARN) of the Amazon Simple Notification Service (SNS) topic to which
                 notifications are sent.
-            AuthToken:  **Reserved parameter.** The password used to access a password protected server.
+            AuthToken: **Reserved parameter.** The password used to access a password protected server.
             DataTieringEnabled: Enables data tiering. Data tiering is only supported for replication groups using the r6gd node
                 type. This parameter must be set to true when using r6gd nodes. For more information, see `Data tiering
-                <https://docs.aws.amazon.com/AmazonElastiCache/latest/red-ug/data-tiering.html>`_.
+                <https://docs.aws.amazon.com/AmazonElastiCache/latest/dg/data-tiering.html>`_.
             ServerlessCacheSnapshotName: The name of the snapshot used to create a replication group. Available for Valkey,
                 Redis OSS only.
         """
@@ -959,7 +959,7 @@ class ReplicationGroupManager(Boto3ModelManager):
         Modifies the settings for a replication group. This is limited to Valkey and Redis OSS 7 and above.
 
         Args:
-            model: The :py:class:``ReplicationGroup`` to update.
+            model: The :py:class:`ReplicationGroup` to update.
 
         Keyword Args:
             ReplicationGroupDescription: A description for the replication group. Maximum length is 255 characters.
@@ -1368,22 +1368,21 @@ class CacheParameterGroupStatus(Boto3Model):
 
 
 class CacheNode(Boto3Model):
-    """Represents an individual cache node within a cluster. Each cache node runs its own instance of the cluster's
-    protocol-compliant caching software - either Memcached, Valkey or Redis OSS.
+    """Represents an individual cache node within a cluster. Each cache node runs its own instance of the cluster's protocol-
+    compliant caching software - either Memcached, Valkey or Redis OSS.
 
     The following node types are supported by ElastiCache. Generally speaking, the current generation types provide more
     memory and computational power at lower cost when compared to their equivalent previous generation counterparts.
 
     * General purpose:
 
-
     + Current generation:
 
     **M7g node types**: ``cache.m7g.large``, ``cache.m7g.xlarge``, ``cache.m7g.2xlarge``, ``cache.m7g.4xlarge``,
       ``cache.m7g.8xlarge``, ``cache.m7g.12xlarge``, ``cache.m7g.16xlarge``
 
-    For region availability, see `Supported Node Types <https://docs.aws.amazon.com/AmazonElastiCache/latest/red-
-    ug/CacheNodes.SupportedTypes.html#CacheNodes.SupportedTypesByRegion>`_
+    For region availability, see `Supported Node Types <https://docs.aws.amazon.com/AmazonElastiCache/latest/dg/CacheNodes.S
+    upportedTypes.html#CacheNodes.SupportedTypesByRegion>`_
 
     **M6g node types** (available only for Redis OSS engine version 5.0.6 onward and for Memcached engine version 1.5.16
       onward): ``cache.m6g.large``, ``cache.m6g.xlarge``, ``cache.m6g.2xlarge``, ``cache.m6g.4xlarge``, ``cache.m6g.8xlarge``,
@@ -1411,21 +1410,19 @@ class CacheNode(Boto3Model):
     **M3 node types:** ``cache.m3.medium``, ``cache.m3.large``, ``cache.m3.xlarge``, ``cache.m3.2xlarge``
     * Compute optimized:
 
-
     + Previous generation: (not recommended. Existing clusters are still supported but creation of new clusters is not
     supported for these types.)
 
     **C1 node types:** ``cache.c1.xlarge``
     * Memory optimized:
 
-
     + Current generation:
 
     **R7g node types**: ``cache.r7g.large``, ``cache.r7g.xlarge``, ``cache.r7g.2xlarge``, ``cache.r7g.4xlarge``,
       ``cache.r7g.8xlarge``, ``cache.r7g.12xlarge``, ``cache.r7g.16xlarge``
 
-    For region availability, see `Supported Node Types <https://docs.aws.amazon.com/AmazonElastiCache/latest/red-
-    ug/CacheNodes.SupportedTypes.html#CacheNodes.SupportedTypesByRegion>`_
+    For region availability, see `Supported Node Types <https://docs.aws.amazon.com/AmazonElastiCache/latest/dg/CacheNodes.S
+    upportedTypes.html#CacheNodes.SupportedTypesByRegion>`_
 
     **R6g node types** (available only for Redis OSS engine version 5.0.6 onward and for Memcached engine version 1.5.16
       onward): ``cache.r6g.large``, ``cache.r6g.xlarge``, ``cache.r6g.2xlarge``, ``cache.r6g.4xlarge``, ``cache.r6g.8xlarge``,
@@ -1450,8 +1447,7 @@ class CacheNode(Boto3Model):
     * Valkey or Redis OSS append-only files (AOF) are not supported for T1 or T2 instances.
     * Valkey or Redis OSS Multi-AZ with automatic failover is not supported on T1 instances.
     * The configuration variables ``appendonly`` and ``appendfsync`` are not supported on Valkey, or on Redis OSS version
-      2.8.22 and later.
-    """
+      2.8.22 and later."""
 
     CacheNodeId: Optional[str] = None
     """
@@ -1706,8 +1702,8 @@ class CacheCluster(CacheClusterModelMixin, PrimaryBoto3Model):
     """
     Must be either ``ipv4`` | ``ipv6`` | ``dual_stack``.
 
-    IPv6 is supported for workloads using Valkey 7.2 and above, Redis OSS engine version 6.2 and above or Memcached
-    engine version 1.6.6 and above on all instances built on the
+    IPv6 is supported for workloads using Valkey 7.2 and above, Redis OSS engine version 6.2 7.1 or Memcached engine
+    version 1.6.6 and above on all instances built on the
     `Nitro system <http://aws.amazon.com/ec2/nitro/>`_.
     """
     IpDiscovery: Optional[Literal["ipv4", "ipv6"]] = None
@@ -1715,8 +1711,8 @@ class CacheCluster(CacheClusterModelMixin, PrimaryBoto3Model):
     The network type associated with the cluster, either ``ipv4`` | ``ipv6``.
 
     IPv6 is supported for workloads using Valkey
-    7.2 and above, Redis OSS engine version 6.2 and above or Memcached engine version 1.6.6 and above on all instances
-    built on the `Nitro system <http://aws.amazon.com/ec2/nitro/>`_.
+    7.2 and above, Redis OSS engine version 6.2 to 7.1 or Memcached engine version 1.6.6 and above on all instances built on
+    the `Nitro system <http://aws.amazon.com/ec2/nitro/>`_.
     """
     TransitEncryptionMode: Literal["preferred", "required"] = Field(
         default=None, frozen=True
@@ -1922,8 +1918,7 @@ class CacheSubnetGroup(PrimaryBoto3Model):
     """Represents the output of one of the following operations:
 
     * ``CreateCacheSubnetGroup``
-    * ``ModifyCacheSubnetGroup``
-    """
+    * ``ModifyCacheSubnetGroup``"""
 
     manager_class: ClassVar[Type[Boto3ModelManager]] = CacheSubnetGroupManager
 
@@ -1953,8 +1948,8 @@ class CacheSubnetGroup(PrimaryBoto3Model):
     """
     Either ``ipv4`` | ``ipv6`` | ``dual_stack``.
 
-    IPv6 is supported for workloads using Valkey 7.2 and above, Redis OSS engine version 6.2 and above or Memcached
-    engine version 1.6.6 and above on all instances built on the
+    IPv6 is supported for workloads using Valkey 7.2 and above, Redis OSS engine version 6.2 to 7.1 or Memcached engine
+    version 1.6.6 and above on all instances built on the
     `Nitro system <http://aws.amazon.com/ec2/nitro/>`_.
     """
 
@@ -2036,8 +2031,7 @@ class CacheSecurityGroup(PrimaryBoto3Model):
 
     * ``AuthorizeCacheSecurityGroupIngress``
     * ``CreateCacheSecurityGroup``
-    * ``RevokeCacheSecurityGroupIngress``
-    """
+    * ``RevokeCacheSecurityGroupIngress``"""
 
     manager_class: ClassVar[Type[Boto3ModelManager]] = CacheSecurityGroupManager
 
@@ -2351,7 +2345,7 @@ class ReplicationGroup(ReplicationGroupModelMixin, PrimaryBoto3Model):
     A flag indicating if you have Multi-AZ enabled to enhance fault tolerance.
 
     For more information, see `Minimizing
-    Downtime: Multi-AZ <http://docs.aws.amazon.com/AmazonElastiCache/latest/red-ug/AutoFailover.html>`_
+    Downtime: Multi-AZ <http://docs.aws.amazon.com/AmazonElastiCache/latest/dg/AutoFailover.html>`_
     """
     ReplicationGroupId: Optional[str] = None
     """
@@ -2472,7 +2466,7 @@ failed``, ``snapshotting``.
 
     Data tiering is only supported for replication groups using the r6gd node type. This parameter must be set to true
     when using r6gd nodes. For more information, see
-    `Data tiering <https://docs.aws.amazon.com/AmazonElastiCache/latest/red-ug/data-tiering.html>`_.
+    `Data tiering <https://docs.aws.amazon.com/AmazonElastiCache/latest/dg/data-tiering.html>`_.
     """
     AutoMinorVersionUpgrade: Optional[bool] = None
     """
@@ -2485,16 +2479,16 @@ failed``, ``snapshotting``.
     """
     Must be either ``ipv4`` | ``ipv6`` | ``dual_stack``.
 
-    IPv6 is supported for workloads using Valkey 7.2 and above, Redis OSS engine version 6.2 and above or Memcached
-    engine version 1.6.6 and above on all instances built on the
+    IPv6 is supported for workloads using Valkey 7.2 and above, Redis OSS engine version 6.2 to 7.1 or Memcached engine
+    version 1.6.6 and above on all instances built on the
     `Nitro system <http://aws.amazon.com/ec2/nitro/>`_.
     """
     IpDiscovery: Optional[Literal["ipv4", "ipv6"]] = None
     """
     The network type you choose when modifying a cluster, either ``ipv4`` | ``ipv6``.
 
-    IPv6 is supported for workloads using Valkey 7.2 and above, Redis OSS engine version 6.2 and above or Memcached
-    engine version 1.6.6 and above on all instances built on the
+    IPv6 is supported for workloads using Valkey 7.2 and above, Redis OSS engine version 6.2 to 7.1 or Memcached engine
+    version 1.6.6 and above on all instances built on the
     `Nitro system <http://aws.amazon.com/ec2/nitro/>`_.
     """
     TransitEncryptionMode: Optional[Literal["preferred", "required"]] = None
@@ -2595,7 +2589,7 @@ class CacheParameter(ReadonlyPrimaryBoto3Model):
     applied.
 
     You can force a reboot or wait until the next maintenance window's reboot. For more information, see
-    `Rebooting a Cluster <https://docs.aws.amazon.com/AmazonElastiCache/latest/red-ug/Clusters.Rebooting.html>`_.
+    `Rebooting a Cluster <https://docs.aws.amazon.com/AmazonElastiCache/latest/dg/Clusters.Rebooting.html>`_.
     """
 
     @property
@@ -2710,8 +2704,7 @@ class CacheParameterGroupNameMessage(Boto3Model):
     """Represents the output of one of the following operations:
 
     * ``ModifyCacheParameterGroup``
-    * ``ResetCacheParameterGroup``
-    """
+    * ``ResetCacheParameterGroup``"""
 
     CacheParameterGroupName: Optional[str] = None
     """
@@ -2799,7 +2792,7 @@ class CacheNodeTypeSpecificParameter(Boto3Model):
     applied.
 
     You can force a reboot or wait until the next maintenance window's reboot. For more information, see
-    `Rebooting a Cluster <https://docs.aws.amazon.com/AmazonElastiCache/latest/red-ug/Clusters.Rebooting.html>`_.
+    `Rebooting a Cluster <https://docs.aws.amazon.com/AmazonElastiCache/latest/dg/Clusters.Rebooting.html>`_.
     """
 
 
@@ -2922,8 +2915,8 @@ class NodeGroupConfiguration(Boto3Model):
     """
     A string that specifies the keyspace for a particular node group.
 
-    Keyspaces range from 0 to 16,383. The string is in
-    the format ``startkey-endkey``.
+    Keyspaces range from 0 to 16,383. The string is in the
+    format ``startkey-endkey``.
     """
     ReplicaCount: Optional[int] = None
     """

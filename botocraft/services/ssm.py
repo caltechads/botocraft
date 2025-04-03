@@ -34,10 +34,10 @@ class ParameterManager(Boto3ModelManager):
         Policies: Optional[str] = None,
     ) -> int:
         """
-        Add a parameter to the system.
+        Create or update a parameter in Parameter Store.
 
         Args:
-            model: The :py:class:``Parameter`` to create.
+            model: The :py:class:`Parameter` to create.
 
         Keyword Args:
             Description: Information about the parameter that you want to add to the system. Optional but recommended.
@@ -50,8 +50,8 @@ class ParameterManager(Boto3ModelManager):
                 identify the type of resource to which it applies, the environment, or the type of configuration data referenced by
                 the parameter. In this case, you could specify the following key-value pairs:
             Tier: The parameter tier to assign to a parameter.
-            Policies: One or more policies to apply to a parameter. This operation takes a JSON array. Parameter Store, a
-                capability of Amazon Web Services Systems Manager supports the following policy types:
+            Policies: One or more policies to apply to a parameter. This operation takes a JSON array. Parameter Store, a tool
+                in Amazon Web Services Systems Manager supports the following policy types:
         """
         data = model.model_dump(exclude_none=True, by_alias=True)
         args = dict(
@@ -87,10 +87,10 @@ class ParameterManager(Boto3ModelManager):
         Policies: Optional[str] = None,
     ) -> int:
         """
-        Add a parameter to the system.
+        Create or update a parameter in Parameter Store.
 
         Args:
-            model: The :py:class:``Parameter`` to update.
+            model: The :py:class:`Parameter` to update.
 
         Keyword Args:
             Description: Information about the parameter that you want to add to the system. Optional but recommended.
@@ -104,8 +104,8 @@ class ParameterManager(Boto3ModelManager):
                 identify the type of resource to which it applies, the environment, or the type of configuration data referenced by
                 the parameter. In this case, you could specify the following key-value pairs:
             Tier: The parameter tier to assign to a parameter.
-            Policies: One or more policies to apply to a parameter. This operation takes a JSON array. Parameter Store, a
-                capability of Amazon Web Services Systems Manager supports the following policy types:
+            Policies: One or more policies to apply to a parameter. This operation takes a JSON array. Parameter Store, a tool
+                in Amazon Web Services Systems Manager supports the following policy types:
         """
         data = model.model_dump(exclude_none=True, by_alias=True)
         args = dict(
@@ -408,8 +408,8 @@ class ParameterInlinePolicy(Boto3Model):
     """
     The type of policy.
 
-    Parameter Store, a capability of Amazon Web Services Systems Manager, supports the following policy
-    types: Expiration, ExpirationNotification, and NoChangeNotification.
+    Parameter Store, a tool in Amazon Web Services Systems Manager, supports the following policy types: Expiration,
+    ExpirationNotification, and NoChangeNotification.
     """
     PolicyStatus: Optional[str] = None
     """
@@ -433,7 +433,7 @@ class ParameterMetadata(Boto3Model):
     """
     ARN: Optional[str] = None
     """
-    The (ARN) of the last user to update the parameter.
+    The Amazon Resource Name (ARN) of the parameter.
     """
     Type: Optional[Literal["String", "StringList", "SecureString"]] = None
     """

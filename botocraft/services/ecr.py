@@ -35,7 +35,7 @@ class RepositoryManager(Boto3ModelManager):
         Create an ECR repository.
 
         Args:
-            model: The :py:class:``Repository`` to create.
+            model: The :py:class:`Repository` to create.
         """
         data = model.model_dump(exclude_none=True, by_alias=True)
         args = dict(
@@ -881,6 +881,7 @@ class ImageScanStatus(Boto3Model):
             "PENDING",
             "SCAN_ELIGIBILITY_EXPIRED",
             "FINDINGS_UNAVAILABLE",
+            "LIMIT_EXCEEDED",
         ]
     ] = None
     """

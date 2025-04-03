@@ -45,7 +45,7 @@ class DBInstanceManager(Boto3ModelManager):
         Creates a new DB instance.
 
         Args:
-            model: The :py:class:``DBInstance`` to create.
+            model: The :py:class:`DBInstance` to create.
 
         Keyword Args:
             MasterUserPassword: The password for the master user.
@@ -114,6 +114,7 @@ class DBInstanceManager(Boto3ModelManager):
             EnableIAMDatabaseAuthentication=data.get(
                 "IAMDatabaseAuthenticationEnabled"
             ),
+            DatabaseInsightsMode=data.get("DatabaseInsightsMode"),
             EnablePerformanceInsights=data.get("PerformanceInsightsEnabled"),
             PerformanceInsightsKMSKeyId=data.get("PerformanceInsightsKMSKeyId"),
             PerformanceInsightsRetentionPeriod=data.get(
@@ -180,7 +181,7 @@ class DBInstanceManager(Boto3ModelManager):
         instance, call ``DescribeValidDBInstanceModifications`` before you call ``ModifyDBInstance``.
 
         Args:
-            model: The :py:class:``DBInstance`` to update.
+            model: The :py:class:`DBInstance` to update.
 
         Keyword Args:
             DBSubnetGroupName: The new DB subnet group for the DB instance. You can use this parameter to move your DB instance
@@ -267,6 +268,7 @@ class DBInstanceManager(Boto3ModelManager):
             EnableIAMDatabaseAuthentication=data.get(
                 "IAMDatabaseAuthenticationEnabled"
             ),
+            DatabaseInsightsMode=data.get("DatabaseInsightsMode"),
             EnablePerformanceInsights=data.get("PerformanceInsightsEnabled"),
             PerformanceInsightsKMSKeyId=data.get("PerformanceInsightsKMSKeyId"),
             PerformanceInsightsRetentionPeriod=data.get(
@@ -327,8 +329,8 @@ class DBInstanceManager(Boto3ModelManager):
             FinalDBSnapshotIdentifier: The ``DBSnapshotIdentifier`` of the new ``DBSnapshot`` created when the
                 ``SkipFinalSnapshot`` parameter is disabled.
             DeleteAutomatedBackups: Specifies whether to remove automated backups immediately after the DB instance is deleted.
-                This parameter isn't case-sensitive. The default is to remove automated backups immediately after the DB instance is
-                deleted.
+                This parameter isn't case- sensitive. The default is to remove automated backups immediately after the DB instance
+                is deleted.
         """
         args: Dict[str, Any] = dict(
             DBInstanceIdentifier=self.serialize(DBInstanceIdentifier),
@@ -440,8 +442,7 @@ class DBSecurityGroupMembership(Boto3Model):
     * ``ModifyDBInstance``
     * ``RebootDBInstance``
     * ``RestoreDBInstanceFromDBSnapshot``
-    * ``RestoreDBInstanceToPointInTime``
-    """
+    * ``RestoreDBInstanceToPointInTime``"""
 
     DBSecurityGroupName: Optional[str] = None
     """
@@ -1200,6 +1201,10 @@ class DBInstance(PrimaryBoto3Model):
     In most cases, the ``Timezone`` element is empty. ``Timezone`` content appears only
     for RDS for Db2 and RDS for SQL Server DB instances that were created with a time zone specified.
     """
+    DatabaseInsightsMode: Optional[Literal["standard", "advanced"]] = None
+    """
+    The mode of Database Insights that is enabled for the instance.
+    """
     PerformanceInsightsKMSKeyId: Optional[str] = None
     """
     The Amazon Web Services KMS key identifier for encryption of Performance Insights data.
@@ -1405,6 +1410,21 @@ class CloudwatchLogsExportConfiguration(Boto3Model):
     Therefore, the ``ApplyImmediately`` parameter has no effect.
 
     This setting doesn't apply to RDS Custom DB instances.
+
+    The following values are valid for each DB engine:
+
+    * Aurora MySQL - ``audit | error | general | slowquery | iam-db-auth-error``
+    * Aurora PostgreSQL - ``postgresql | iam-db-auth-error``
+    * RDS for MySQL - ``error | general | slowquery | iam-db-auth-error``
+    * RDS for PostgreSQL - ``postgresql | upgrade | iam-db-auth-error``
+
+    For more information about exporting CloudWatch Logs for Amazon RDS, see  `Publishing Database Logs to Amazon CloudWatch
+    Logs <https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/USER_LogAccess.html#USER_LogAccess.Procedural.UploadtoCloud
+    Watch>`_ in the *Amazon RDS User Guide*.
+
+    For more information about exporting CloudWatch Logs for Amazon Aurora, see `Publishing Database Logs to Amazon
+    CloudWatch Logs <https://docs.aws.amazon.com/AmazonRDS/latest/AuroraUserGuide/USER_LogAccess.html#USER_LogAccess.Procedu
+    ral.UploadtoCloudWatch>`_ in the *Amazon Aurora User Guide*.
     """
 
     EnableLogTypes: Optional[List[str]] = None

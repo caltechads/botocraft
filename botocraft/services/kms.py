@@ -39,7 +39,7 @@ class KMSKeyManager(Boto3ModelManager):
         your service resources.
 
         Args:
-            model: The :py:class:``KeyMetadata`` to create.
+            model: The :py:class:`KeyMetadata` to create.
 
         Keyword Args:
             Policy: The key policy to attach to the KMS key.

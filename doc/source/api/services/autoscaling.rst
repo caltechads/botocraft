@@ -72,6 +72,12 @@ structure of the fields in the primary models or other secondary models.
     :exclude-members: update_forward_refs, model_extra, model_fields_set, validate, schema_json, model_rebuild, model_post_init, model_parametrized_name, model_json_schema, copy, from_orm, dict, json, schema, schema_json, model_dump
 
 
+.. autopydantic_model:: botocraft.services.autoscaling.AutoScalingAvailabilityZoneImpairmentPolicy
+    :show-inheritance:
+    :inherited-members:
+    :exclude-members: update_forward_refs, model_extra, model_fields_set, validate, schema_json, model_rebuild, model_post_init, model_parametrized_name, model_json_schema, copy, from_orm, dict, json, schema, schema_json, model_dump
+
+
 .. autopydantic_model:: botocraft.services.autoscaling.AutoScalingBaselineEbsBandwidthMbsRequest
     :show-inheritance:
     :inherited-members:
@@ -79,6 +85,18 @@ structure of the fields in the primary models or other secondary models.
 
 
 .. autopydantic_model:: botocraft.services.autoscaling.AutoScalingBlockDeviceMapping
+    :show-inheritance:
+    :inherited-members:
+    :exclude-members: update_forward_refs, model_extra, model_fields_set, validate, schema_json, model_rebuild, model_post_init, model_parametrized_name, model_json_schema, copy, from_orm, dict, json, schema, schema_json, model_dump
+
+
+.. autopydantic_model:: botocraft.services.autoscaling.AutoScalingCapacityReservationSpecification
+    :show-inheritance:
+    :inherited-members:
+    :exclude-members: update_forward_refs, model_extra, model_fields_set, validate, schema_json, model_rebuild, model_post_init, model_parametrized_name, model_json_schema, copy, from_orm, dict, json, schema, schema_json, model_dump
+
+
+.. autopydantic_model:: botocraft.services.autoscaling.AutoScalingCapacityReservationTarget
     :show-inheritance:
     :inherited-members:
     :exclude-members: update_forward_refs, model_extra, model_fields_set, validate, schema_json, model_rebuild, model_post_init, model_parametrized_name, model_json_schema, copy, from_orm, dict, json, schema, schema_json, model_dump
@@ -168,6 +186,18 @@ structure of the fields in the primary models or other secondary models.
     :exclude-members: update_forward_refs, model_extra, model_fields_set, validate, schema_json, model_rebuild, model_post_init, model_parametrized_name, model_json_schema, copy, from_orm, dict, json, schema, schema_json, model_dump
 
 
+.. autopydantic_model:: botocraft.services.autoscaling.BaselinePerformanceFactorsRequest
+    :show-inheritance:
+    :inherited-members:
+    :exclude-members: update_forward_refs, model_extra, model_fields_set, validate, schema_json, model_rebuild, model_post_init, model_parametrized_name, model_json_schema, copy, from_orm, dict, json, schema, schema_json, model_dump
+
+
+.. autopydantic_model:: botocraft.services.autoscaling.CpuPerformanceFactorRequest
+    :show-inheritance:
+    :inherited-members:
+    :exclude-members: update_forward_refs, model_extra, model_fields_set, validate, schema_json, model_rebuild, model_post_init, model_parametrized_name, model_json_schema, copy, from_orm, dict, json, schema, schema_json, model_dump
+
+
 .. autopydantic_model:: botocraft.services.autoscaling.EbsMapping
     :show-inheritance:
     :inherited-members:
@@ -199,6 +229,12 @@ structure of the fields in the primary models or other secondary models.
 
 
 .. autopydantic_model:: botocraft.services.autoscaling.NetworkBandwidthGbpsRequest
+    :show-inheritance:
+    :inherited-members:
+    :exclude-members: update_forward_refs, model_extra, model_fields_set, validate, schema_json, model_rebuild, model_post_init, model_parametrized_name, model_json_schema, copy, from_orm, dict, json, schema, schema_json, model_dump
+
+
+.. autopydantic_model:: botocraft.services.autoscaling.PerformanceFactorReferenceRequest
     :show-inheritance:
     :inherited-members:
     :exclude-members: update_forward_refs, model_extra, model_fields_set, validate, schema_json, model_rebuild, model_post_init, model_parametrized_name, model_json_schema, copy, from_orm, dict, json, schema, schema_json, model_dump

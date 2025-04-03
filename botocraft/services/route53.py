@@ -39,7 +39,7 @@ class HostedZoneManager(Boto3ModelManager):
         domain and its subdomains within one or more Amazon Virtual Private Clouds (Amazon VPCs).
 
         Args:
-            model: The :py:class:``HostedZone`` to create.
+            model: The :py:class:`HostedZone` to create.
 
         Keyword Args:
             VPC: (Private hosted zones only) A complex type that contains information about the Amazon VPC that you're
@@ -116,7 +116,7 @@ class HostedZoneManager(Boto3ModelManager):
                 request.
             DelegationSetId: If you're using reusable delegation sets and you want to list all of the hosted zones that are
                 associated with a reusable delegation set, specify the ID of that reusable delegation set.
-            HostedZoneType:  (Optional) Specifies if the hosted zone is private.
+            HostedZoneType: (Optional) Specifies if the hosted zone is private.
         """
         paginator = self.client.get_paginator("list_hosted_zones")
         args: Dict[str, Any] = dict(
@@ -181,9 +181,9 @@ class HostedZoneManager(Boto3ModelManager):
                 specified record name doesn't exist, the results begin with the first resource record set that has a name greater
                 than the value of ``name``.
             StartRecordType: The type of resource record set to begin the record listing from.
-            StartRecordIdentifier:  *Resource record sets that have a routing policy other than simple:* If results were
-                truncated for a given DNS name and type, specify the value of ``NextRecordIdentifier`` from the previous response to
-                get the next resource record set that has the current DNS name and type.
+            StartRecordIdentifier: *Resource record sets that have a routing policy other than simple:* If results were
+                truncated for a given DNS name and   type, specify the value of ``NextRecordIdentifier`` from the previous response
+                to get the next resource record set that   has the current DNS name and type.
             MaxItems: (Optional) The maximum number of resource records sets to include in the response body for this request.
                 If the response includes more than ``maxitems`` resource record sets, the value of the ``IsTruncated`` element in
                 the response is ``true``, and the values of the ``NextRecordName`` and ``NextRecordType`` elements in the response
@@ -377,7 +377,7 @@ class HostedZoneManager(Boto3ModelManager):
             VPC: A complex type that contains information about the VPC that you want to associate with a private hosted zone.
 
         Keyword Args:
-            Comment:  *Optional:* A comment about the association request.
+            Comment: *Optional:* A comment about the association request.
         """
         args: Dict[str, Any] = dict(
             HostedZoneId=self.serialize(HostedZoneId),
@@ -409,7 +409,7 @@ class HostedZoneManager(Boto3ModelManager):
                 zone.
 
         Keyword Args:
-            Comment:  *Optional:* A comment about the disassociation request.
+            Comment: *Optional:* A comment about the disassociation request.
 
         """
         args: Dict[str, Any] = dict(
@@ -445,7 +445,7 @@ class Route53VPCManager(Boto3ModelManager):
             VPC: A complex type that contains information about the VPC that you want to associate with a private hosted zone.
 
         Keyword Args:
-            Comment:  *Optional:* A comment about the association request.
+            Comment: *Optional:* A comment about the association request.
         """
         args: Dict[str, Any] = dict(
             HostedZoneId=self.serialize(HostedZoneId),
@@ -477,7 +477,7 @@ class Route53VPCManager(Boto3ModelManager):
                 zone.
 
         Keyword Args:
-            Comment:  *Optional:* A comment about the disassociation request.
+            Comment: *Optional:* A comment about the disassociation request.
 
         """
         args: Dict[str, Any] = dict(
@@ -538,6 +538,10 @@ class Route53VPCManager(Boto3ModelManager):
             "il-central-1",
             "ca-west-1",
             "ap-southeast-5",
+            "mx-central-1",
+            "us-isof-south-1",
+            "us-isof-east-1",
+            "ap-southeast-7",
         ],
         *,
         MaxItems: Optional[str] = None,
@@ -679,7 +683,7 @@ class Route53CidrCollectionManager(Boto3ModelManager):
         Creates a CIDR collection in the current Amazon Web Services account.
 
         Args:
-            model: The :py:class:``CidrCollection`` to create.
+            model: The :py:class:`CidrCollection` to create.
             CallerReference: A client-specific token that allows requests to be securely retried so that the intended outcome
                 will only occur once, retries receive a similar response, and there are no additional edge cases to handle.
         """
@@ -741,7 +745,7 @@ class Route53CidrCollectionManager(Boto3ModelManager):
         blocks to one or multiple locations.
 
         Args:
-            model: The :py:class:``CidrCollection`` to update.
+            model: The :py:class:`CidrCollection` to update.
 
         Keyword Args:
             CollectionVersion: A sequential counter that Amazon Route 53 sets to 1 when you create a collection and increments
@@ -811,7 +815,7 @@ class Route53QueryLoggingConfigManager(Boto3ModelManager):
         begins to publish log data to an Amazon CloudWatch Logs log group.
 
         Args:
-            model: The :py:class:``QueryLoggingConfig`` to create.
+            model: The :py:class:`QueryLoggingConfig` to create.
         """
         data = model.model_dump(exclude_none=True, by_alias=True)
         args = dict(
@@ -958,9 +962,9 @@ class Route53ResourceRecordSetManager(Boto3ModelManager):
                 specified record name doesn't exist, the results begin with the first resource record set that has a name greater
                 than the value of ``name``.
             StartRecordType: The type of resource record set to begin the record listing from.
-            StartRecordIdentifier:  *Resource record sets that have a routing policy other than simple:* If results were
-                truncated for a given DNS name and type, specify the value of ``NextRecordIdentifier`` from the previous response to
-                get the next resource record set that has the current DNS name and type.
+            StartRecordIdentifier: *Resource record sets that have a routing policy other than simple:* If results were
+                truncated for a given DNS name and   type, specify the value of ``NextRecordIdentifier`` from the previous response
+                to get the next resource record set that   has the current DNS name and type.
             MaxItems: (Optional) The maximum number of resource records sets to include in the response body for this request.
                 If the response includes more than ``maxitems`` resource record sets, the value of the ``IsTruncated`` element in
                 the response is ``true``, and the values of the ``NextRecordName`` and ``NextRecordType`` elements in the response
@@ -1189,6 +1193,10 @@ class Route53VPC(PrimaryBoto3Model):
             "il-central-1",
             "ca-west-1",
             "ap-southeast-5",
+            "mx-central-1",
+            "us-isof-south-1",
+            "us-isof-east-1",
+            "ap-southeast-7",
         ]
     ] = None
     """
@@ -1387,8 +1395,8 @@ class Route53GeoLocation(Boto3Model):
     """
     For geolocation resource record sets, the two-letter code for a state of the United States.
 
-    Route 53 doesn't support
-    any other values for ``SubdivisionCode``. For a list of state abbreviations, see `Appendix B: Two-Letter State and
+    Route 53 doesn't support any
+    other values for ``SubdivisionCode``. For a list of state abbreviations, see `Appendix B: Two-Letter State and
     Possession Abbreviations <https://pe.usps.com/text/pub28/28apb.htm>`_ on the United States Postal Service website.
     """
 
@@ -1467,11 +1475,11 @@ class Route53Coordinates(Boto3Model):
 
     Latitude: str
     """
- Specifies a coordinate of the north-south position of a geographic point on the surface of the Earth (-90 - 90). 
+Specifies a coordinate of the north-south position of a geographic point on the surface of the Earth (-90 - 90).
     """
     Longitude: str
     """
- Specifies a coordinate of the east-west position of a geographic point on the surface of the Earth (-180 - 180). 
+Specifies a coordinate of the east-west position of a geographic point on the surface of the Earth (-180 - 180).
     """
 
 
@@ -1592,6 +1600,8 @@ class Route53ResourceRecordSet(PrimaryBoto3Model):
         "il-central-1",
         "ca-west-1",
         "ap-southeast-5",
+        "mx-central-1",
+        "ap-southeast-7",
     ] = Field(default=None, frozen=True)
     """
     *Latency-based resource record sets only:* The Amazon EC2 Region where you created the resource that this resource
@@ -2156,7 +2166,6 @@ class DeleteCidrCollectionResponse(Boto3Model):
 class CollectionSummary(Boto3Model):
     """A complex type that is an entry in an
     `CidrCollection <https://docs.aws.amazon.com/Route53/latest/APIReference/API_CidrCollection.html>`_ array.
-
     """
 
     Arn: Optional[str] = None

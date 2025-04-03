@@ -564,3 +564,7 @@ secondary:
     alternate_name: EC2MediaAcceleratorInfo
   NeuronInfo:
     alternate_name: EC2NeuronInfo
+  BlockPublicAccessStates:
+    alternate_name: EC2BlockPublicAccessStates
+  BaselinePerformanceFactors:
+    alternate_name: EC2BaselinePerformanceFactors

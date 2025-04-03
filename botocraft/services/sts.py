@@ -44,10 +44,9 @@ class AssumeRoleManager(Boto3ModelManager):
         temporary credentials consist of an access key ID, a secret access key, and a security token. Typically, you use
         ``AssumeRole`` within your account or for cross-account access. For a comparison of ``AssumeRole`` with other API
         operations that produce temporary credentials, see `Requesting Temporary Security
-        Credentials <https://docs.aws.amazon.com/IAM/latest/UserGuide/id_credentials_temp_request.html>`_ and `Comparing the
-        Amazon Web Services STS API
-        operations <https://docs.aws.amazon.com/IAM/latest/UserGuide/id_credentials_temp_request.html#stsapi_comparison>`_ in the
-        *IAM User Guide*.
+        Credentials <https://docs.aws.amazon.com/IAM/latest/UserGuide/id_credentials_temp_request.html>`_ and `Compare STS
+        credentials <https://docs.aws.amazon.com/IAM/latest/UserGuide/id_credentials_sts-comparison.html>`_ in the *IAM User
+        Guide*.
 
         Args:
             RoleArn: The Amazon Resource Name (ARN) of the role to assume.
@@ -85,7 +84,9 @@ class AssumeRoleManager(Boto3ModelManager):
             TokenCode: The value provided by the MFA device, if the trust policy of the role being assumed requires MFA. (In
                 other words, if the policy includes a condition that tests for MFA). If the role being assumed requires MFA and if
                 the ``TokenCode`` value is missing or expired, the ``AssumeRole`` call returns an "access denied" error.
-            SourceIdentity: The source identity specified by the principal that is calling the ``AssumeRole`` operation.
+            SourceIdentity: The source identity specified by the principal that is calling the ``AssumeRole`` operation. The
+                source identity value persists across `chained role
+                <https://docs.aws.amazon.com/IAM/latest/UserGuide/id_roles.html#iam-term-role-chaining>`_ sessions.
             ProvidedContexts: A list of previously acquired trusted context assertions in the format of a JSON array. The
                 trusted context assertion is signed and encrypted by Amazon Web Services STS.
 
@@ -131,10 +132,9 @@ class AssumeRoleManager(Boto3ModelManager):
         response. This operation provides a mechanism for tying an enterprise identity store or directory to role-based Amazon
         Web Services access without user-specific credentials or configuration. For a comparison of ``AssumeRoleWithSAML`` with
         the other API operations that produce temporary credentials, see `Requesting Temporary Security
-        Credentials <https://docs.aws.amazon.com/IAM/latest/UserGuide/id_credentials_temp_request.html>`_ and `Comparing the
-        Amazon Web Services STS API
-        operations <https://docs.aws.amazon.com/IAM/latest/UserGuide/id_credentials_temp_request.html#stsapi_comparison>`_ in the
-        *IAM User Guide*.
+        Credentials <https://docs.aws.amazon.com/IAM/latest/UserGuide/id_credentials_temp_request.html>`_ and `Compare STS
+        credentials <https://docs.aws.amazon.com/IAM/latest/UserGuide/id_credentials_sts-comparison.html>`_ in the *IAM User
+        Guide*.
 
         Args:
             RoleArn: The Amazon Resource Name (ARN) of the role that the caller is assuming.
@@ -201,8 +201,9 @@ class AssumeRoleManager(Boto3ModelManager):
                 role ID in the ``AssumedRoleUser`` response element.
             WebIdentityToken: The OAuth 2.0 access token or OpenID Connect ID token that is provided by the identity provider.
                 Your application must get this token by authenticating the user who is using your application with a web identity
-                provider before the application makes an ``AssumeRoleWithWebIdentity`` call. Only tokens with RSA algorithms (RS256)
-                are supported.
+                provider before the application makes an ``AssumeRoleWithWebIdentity`` call. Timestamps in the token must be
+                formatted as either an integer or a long integer. Tokens must be signed using either RSA keys (RS256, RS384, or
+                RS512) or ECDSA keys (ES256, ES384, or ES512).
 
         Keyword Args:
             ProviderId: The fully qualified host component of the domain name of the OAuth 2.0 identity provider. Do not specify
@@ -553,6 +554,10 @@ A hash value based on the concatenation of the following:
     SourceIdentity: Optional[str] = None
     """
     The value in the ``SourceIdentity`` attribute in the SAML assertion.
+
+    The source identity value persists across
+    `chained role <https://docs.aws.amazon.com/IAM/latest/UserGuide/id_roles.html#iam-term-role-chaining>`_
+    sessions.
     """
 
 

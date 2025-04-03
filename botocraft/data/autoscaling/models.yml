@@ -112,3 +112,9 @@ secondary:
     alternate_name: AutoScalingTagDescription
   AvailabilityZoneDistribution:
     alternate_name: AutoScalingAvailabilityZoneDistribution
+  AvailabilityZoneImpairmentPolicy:
+    alternate_name: AutoScalingAvailabilityZoneImpairmentPolicy
+  CapacityReservationSpecification:
+    alternate_name: AutoScalingCapacityReservationSpecification
+  CapacityReservationTarget:
+    alternate_name: AutoScalingCapacityReservationTarget

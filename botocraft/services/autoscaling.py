@@ -38,13 +38,14 @@ class AutoScalingGroupManager(Boto3ModelManager):
         LifecycleHookSpecificationList: Optional[
             List["LifecycleHookSpecification"]
         ] = None,
+        SkipZonalShiftValidation: Optional[bool] = None,
     ) -> None:
         """
         **We strongly recommend using a launch template when calling this operation to ensure full functionality for
         Amazon EC2 Auto Scaling and Amazon EC2.**
 
         Args:
-            model: The :py:class:``AutoScalingGroup`` to create.
+            model: The :py:class:`AutoScalingGroup` to create.
 
         Keyword Args:
             InstanceId: The ID of the instance used to base the launch configuration on. If specified, Amazon EC2 Auto Scaling
@@ -56,6 +57,10 @@ class AutoScalingGroupManager(Boto3ModelManager):
                 Scaling User Guide*.
             LifecycleHookSpecificationList: One or more lifecycle hooks to add to the Auto Scaling group before instances are
                 launched.
+            SkipZonalShiftValidation: If you enable zonal shift with cross-zone disabled load balancers, capacity could become
+                imbalanced across Availability Zones. To skip the validation, specify ``true``. For more information, see `Auto
+                Scaling group zonal shift <https://docs.aws.amazon.com/autoscaling/ec2/userguide/ec2-auto-scaling-zonal-
+                shift.html>`_ in the *Amazon EC2 Auto Scaling User Guide*.
         """
         data = model.model_dump(exclude_none=True, by_alias=True)
         args = dict(
@@ -92,18 +97,33 @@ class AutoScalingGroupManager(Boto3ModelManager):
             TrafficSources=data.get("TrafficSources"),
             InstanceMaintenancePolicy=data.get("InstanceMaintenancePolicy"),
             AvailabilityZoneDistribution=data.get("AvailabilityZoneDistribution"),
+            AvailabilityZoneImpairmentPolicy=data.get(
+                "AvailabilityZoneImpairmentPolicy"
+            ),
+            SkipZonalShiftValidation=self.serialize(SkipZonalShiftValidation),
+            CapacityReservationSpecification=data.get(
+                "CapacityReservationSpecification"
+            ),
         )
         self.client.create_auto_scaling_group(
             **{k: v for k, v in args.items() if v is not None}
         )
 
-    def update(self, model: "AutoScalingGroup") -> None:
+    def update(
+        self, model: "AutoScalingGroup", SkipZonalShiftValidation: Optional[bool] = None
+    ) -> None:
         """
         **We strongly recommend that all Auto Scaling groups use launch templates to ensure full functionality for
         Amazon EC2 Auto Scaling and Amazon EC2.**
 
         Args:
-            model: The :py:class:``AutoScalingGroup`` to update.
+            model: The :py:class:`AutoScalingGroup` to update.
+
+        Keyword Args:
+            SkipZonalShiftValidation: If you enable zonal shift with cross-zone disabled load balancers, capacity could become
+                imbalanced across Availability Zones. To skip the validation, specify ``true``. For more information, see `Auto
+                Scaling group zonal shift <https://docs.aws.amazon.com/autoscaling/ec2/userguide/ec2-auto-scaling-zonal-
+                shift.html>`_ in the *Amazon EC2 Auto Scaling User Guide*.
         """
         data = model.model_dump(exclude_none=True, by_alias=True)
         args = dict(
@@ -139,6 +159,13 @@ class AutoScalingGroupManager(Boto3ModelManager):
             DefaultInstanceWarmup=data.get("DefaultInstanceWarmup"),
             InstanceMaintenancePolicy=data.get("InstanceMaintenancePolicy"),
             AvailabilityZoneDistribution=data.get("AvailabilityZoneDistribution"),
+            AvailabilityZoneImpairmentPolicy=data.get(
+                "AvailabilityZoneImpairmentPolicy"
+            ),
+            SkipZonalShiftValidation=self.serialize(SkipZonalShiftValidation),
+            CapacityReservationSpecification=data.get(
+                "CapacityReservationSpecification"
+            ),
         )
         self.client.update_auto_scaling_group(
             **{k: v for k, v in args.items() if v is not None}
@@ -310,7 +337,7 @@ class LaunchConfigurationManager(Boto3ModelManager):
         Creates a launch configuration.
 
         Args:
-            model: The :py:class:``LaunchConfiguration`` to create.
+            model: The :py:class:`LaunchConfiguration` to create.
 
         Keyword Args:
             InstanceId: The ID of the instance to use to create the launch configuration. The new launch configuration derives
@@ -538,9 +565,7 @@ class AutoScalingBaselineEbsBandwidthMbsRequest(Boto3Model):
     EBS-optimized instances <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ebs-optimized.html>`_ in the *Amazon EC2 User
     Guide for Linux Instances*.
 
-    Default: No minimum or maximum limits
-
-    """
+    Default: No minimum or maximum limits"""
 
     Min: Optional[int] = None
     """
@@ -603,6 +628,46 @@ class NetworkBandwidthGbpsRequest(Boto3Model):
     Max: Optional[float] = None
     """
     The maximum amount of network bandwidth, in gigabits per second (Gbps).
+    """
+
+
+class PerformanceFactorReferenceRequest(Boto3Model):
+    """
+    Specify an instance family to use as the baseline reference for CPU performance. All instance types that All
+    instance types that match your specified attributes will be compared against the CPU performance of the referenced
+    instance family, regardless of CPU manufacturer or architecture differences.
+
+    Currently only one instance family can be specified in the list.
+    """
+
+    InstanceFamily: Optional[str] = None
+    """
+    The instance family to use as a baseline reference.
+    """
+
+
+class CpuPerformanceFactorRequest(Boto3Model):
+    """
+    The CPU performance to consider, using an instance family as the baseline reference.
+    """
+
+    References: Optional[List["PerformanceFactorReferenceRequest"]] = None
+    """
+    Specify an instance family to use as the baseline reference for CPU performance.
+
+    All instance types that match your specified attributes will be compared against the CPU performance of the
+    referenced instance family, regardless of CPU manufacturer or architecture differences.
+    """
+
+
+class BaselinePerformanceFactorsRequest(Boto3Model):
+    """
+    The baseline performance factors for the instance requirements.
+    """
+
+    Cpu: Optional[CpuPerformanceFactorRequest] = None
+    """
+    The CPU performance to consider, using an instance family as the baseline reference.
     """
 
 
@@ -674,7 +739,7 @@ class AutoScalingInstanceRequirements(Boto3Model):
     OnDemandMaxPricePercentageOverLowestPrice: Optional[int] = None
     """
     [Price protection] The price protection threshold for On-Demand Instances, as a percentage higher than an identified
-    On-Demand price.
+    On- Demand price.
 
     The identified On-Demand price is the price of the lowest priced current generation C, M, or R instance type with
     your specified attributes. If no current generation C, M, or R instance type matches your attributes, then the
@@ -764,6 +829,10 @@ class AutoScalingInstanceRequirements(Boto3Model):
 
     All other instance types are ignored, even if they match your specified attributes.
     """
+    BaselinePerformanceFactors: Optional[BaselinePerformanceFactorsRequest] = None
+    """
+    The baseline performance factors for the instance requirements.
+    """
 
 
 class LaunchTemplateOverrides(Boto3Model):
@@ -780,9 +849,7 @@ class LaunchTemplateOverrides(Boto3Model):
 
     After you define your instance requirements, you don't have to keep updating these settings to get new EC2 instance
     types automatically. Amazon EC2 Auto Scaling uses the instance requirements of the Auto Scaling group to determine
-    whether a new EC2 instance type can be used.
-
-    """
+    whether a new EC2 instance type can be used."""
 
     InstanceType: Optional[str] = None
     """
@@ -1142,6 +1209,68 @@ class AutoScalingAvailabilityZoneDistribution(Boto3Model):
     """
 
 
+class AutoScalingAvailabilityZoneImpairmentPolicy(Boto3Model):
+    """
+    The Availability Zone impairment policy.
+    """
+
+    ZonalShiftEnabled: Optional[bool] = None
+    """
+    If ``true``, enable zonal shift for your Auto Scaling group.
+    """
+    ImpairedZoneHealthCheckBehavior: Optional[
+        Literal["ReplaceUnhealthy", "IgnoreUnhealthy"]
+    ] = None
+    """
+    Specifies the health check behavior for the impaired Availability Zone in an active zonal shift.
+
+    If you select ``Replace
+    unhealthy``, instances that appear unhealthy will be replaced in all Availability Zones. If you select ``Ignore
+    unhealthy``, instances will not be replaced in the Availability Zone with the active zonal shift. For more information,
+    see `Auto Scaling group zonal shift <https://docs.aws.amazon.com/autoscaling/ec2/userguide/ec2-auto-scaling-zonal-
+    shift.html>`_ in the *Amazon EC2 Auto Scaling User Guide*.
+    """
+
+
+class AutoScalingCapacityReservationTarget(Boto3Model):
+    """
+    Describes a target Capacity Reservation or Capacity Reservation resource group.
+    """
+
+    CapacityReservationIds: Optional[List[str]] = None
+    """
+    The Capacity Reservation IDs to launch instances into.
+    """
+    CapacityReservationResourceGroupArns: Optional[List[str]] = None
+    """
+    The resource group ARNs of the Capacity Reservation to launch instances into.
+    """
+
+
+class AutoScalingCapacityReservationSpecification(Boto3Model):
+    """
+    The capacity reservation specification.
+    """
+
+    CapacityReservationPreference: Optional[
+        Literal[
+            "capacity-reservations-only",
+            "capacity-reservations-first",
+            "none",
+            "default",
+        ]
+    ] = None
+    """
+    The capacity reservation preference.
+
+    The following options are available:
+    """
+    CapacityReservationTarget: Optional[AutoScalingCapacityReservationTarget] = None
+    """
+    Describes a target Capacity Reservation or Capacity Reservation resource group.
+    """
+
+
 class AutoScalingGroup(TagsDictMixin, AutoScalingGroupModelMixin, PrimaryBoto3Model):
     """
     Describes an Auto Scaling group.
@@ -1304,6 +1433,18 @@ operation is in progress.
     )
     """
     The instance capacity distribution across Availability Zones.
+    """
+    AvailabilityZoneImpairmentPolicy: Optional[
+        AutoScalingAvailabilityZoneImpairmentPolicy
+    ] = None
+    """
+    The Availability Zone impairment policy.
+    """
+    CapacityReservationSpecification: Optional[
+        AutoScalingCapacityReservationSpecification
+    ] = None
+    """
+    The capacity reservation specification.
     """
 
     @property

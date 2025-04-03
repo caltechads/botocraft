@@ -35,7 +35,7 @@ class EventRuleManager(Boto3ModelManager):
         rule using `DisableRule <https://docs.aws.amazon.com/eventbridge/latest/APIReference/API_DisableRule.html>`_.
 
         Args:
-            model: The :py:class:``Rule`` to create.
+            model: The :py:class:`Rule` to create.
 
         Keyword Args:
             Tags: The list of key-value pairs to associate with the rule.
@@ -67,7 +67,7 @@ class EventRuleManager(Boto3ModelManager):
         rule using `DisableRule <https://docs.aws.amazon.com/eventbridge/latest/APIReference/API_DisableRule.html>`_.
 
         Args:
-            model: The :py:class:``Rule`` to update.
+            model: The :py:class:`Rule` to update.
 
         Keyword Args:
             Tags: The list of key-value pairs to associate with the rule.
@@ -310,7 +310,7 @@ class EventTargetManager(Boto3ModelManager):
         rule.
 
         Args:
-            model: The :py:class:``Target`` to create.
+            model: The :py:class:`Target` to create.
 
         Keyword Args:
             EventBusName: The name or ARN of the event bus associated with the rule. If you omit this, the default event bus is
@@ -338,7 +338,7 @@ class EventTargetManager(Boto3ModelManager):
         rule.
 
         Args:
-            model: The :py:class:``Target`` to update.
+            model: The :py:class:`Target` to update.
 
         Keyword Args:
             EventBusName: The name or ARN of the event bus associated with the rule. If you omit this, the default event bus is
@@ -625,7 +625,7 @@ class EventsInputTransformer(Boto3Model):
     """
     Settings to enable you to provide custom input to a target based on certain event data.
 
-    You can extract one or more key-value pairs from the event and then use that data to send customized input to the
+    You can extract one or more key- value pairs from the event and then use that data to send customized input to the
     target.
     """
 
@@ -1137,7 +1137,7 @@ class EventsDeadLetterConfig(Boto3Model):
 
 class EventsRetryPolicy(Boto3Model):
     """
-    The ``RetryPolicy`` object that contains the retry policy configuration to use for the dead-letter queue.
+    The retry policy configuration to use for the dead-letter queue.
     """
 
     MaximumRetryAttempts: Optional[int] = None
@@ -1173,9 +1173,7 @@ class EventTarget(PrimaryBoto3Model):
     through an organization instead of directly by the account ID, then you must specify a ``RoleArn`` with proper
     permissions in the ``Target`` structure. For more information, see `Sending and Receiving Events Between Amazon Web
     Services Accounts <https://docs.aws.amazon.com/eventbridge/latest/userguide/eventbridge-cross-account-event-
-    delivery.html>`_ in the *Amazon EventBridge User Guide*.
-
-    """
+    delivery.html>`_ in the *Amazon EventBridge User Guide*."""
 
     manager_class: ClassVar[Type[Boto3ModelManager]] = EventTargetManager
 
@@ -1214,7 +1212,7 @@ class EventTarget(PrimaryBoto3Model):
     """
     Settings to enable you to provide custom input to a target based on certain event data.
 
-    You can extract one or more key-value pairs from the event and then use that data to send customized input to the
+    You can extract one or more key- value pairs from the event and then use that data to send customized input to the
     target.
     """
     KinesisParameters: EventsKinesisParameters = Field(default=None, frozen=True)
@@ -1270,7 +1268,7 @@ class EventTarget(PrimaryBoto3Model):
     """
     RetryPolicy: EventsRetryPolicy = Field(default=None, frozen=True)
     """
-    The ``RetryPolicy`` object that contains the retry policy configuration to use for the dead-letter queue.
+    The retry policy configuration to use for the dead-letter queue.
     """
     AppSyncParameters: EventsAppSyncParameters = Field(default=None, frozen=True)
     """
@@ -1407,9 +1405,9 @@ class ListRulesResponse(Boto3Model):
     """
     NextToken: Optional[str] = None
     """
-    Indicates whether there are additional results to retrieve.
+    A token indicating there are more results available.
 
-    If there are no more results, the value is null.
+    If there are no more results, no token is included in the response.
     """
 
 
@@ -1420,9 +1418,9 @@ class ListRuleNamesByTargetResponse(Boto3Model):
     """
     NextToken: Optional[str] = None
     """
-    Indicates whether there are additional results to retrieve.
+    A token indicating there are more results available.
 
-    If there are no more results, the value is null.
+    If there are no more results, no token is included in the response.
     """
 
 
@@ -1433,9 +1431,9 @@ class ListTargetsByRuleResponse(Boto3Model):
     """
     NextToken: Optional[str] = None
     """
-    Indicates whether there are additional results to retrieve.
+    A token indicating there are more results available.
 
-    If there are no more results, the value is null.
+    If there are no more results, no token is included in the response.
     """
 
 

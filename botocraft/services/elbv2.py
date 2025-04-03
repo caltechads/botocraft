@@ -38,7 +38,7 @@ class LoadBalancerManager(Boto3ModelManager):
         Creates an Application Load Balancer, Network Load Balancer, or Gateway Load Balancer.
 
         Args:
-            model: The :py:class:``LoadBalancer`` to create.
+            model: The :py:class:`LoadBalancer` to create.
 
         Keyword Args:
             SubnetMappings: The IDs of the subnets. You can specify only one subnet per Availability Zone. You must specify
@@ -57,6 +57,7 @@ class LoadBalancerManager(Boto3ModelManager):
             IpAddressType=data.get("IpAddressType"),
             CustomerOwnedIpv4Pool=data.get("CustomerOwnedIpv4Pool"),
             EnablePrefixForIpv6SourceNat=data.get("EnablePrefixForIpv6SourceNat"),
+            IpamPools=data.get("IpamPools"),
         )
         _response = self.client.create_load_balancer(
             **{k: v for k, v in args.items() if v is not None}
@@ -171,7 +172,7 @@ class ListenerManager(Boto3ModelManager):
         Creates a listener for the specified Application Load Balancer, Network Load Balancer, or Gateway Load Balancer.
 
         Args:
-            model: The :py:class:``Listener`` to create.
+            model: The :py:class:`Listener` to create.
 
         Keyword Args:
             Tags: The tags to assign to the listener.
@@ -202,7 +203,7 @@ class ListenerManager(Boto3ModelManager):
         unchanged.
 
         Args:
-            model: The :py:class:``Listener`` to update.
+            model: The :py:class:`Listener` to update.
         """
         data = model.model_dump(exclude_none=True, by_alias=True)
         args = dict(
@@ -300,7 +301,7 @@ class RuleManager(Boto3ModelManager):
         Creates a rule for the specified listener. The listener must be associated with an Application Load Balancer.
 
         Args:
-            model: The :py:class:``Rule`` to create.
+            model: The :py:class:`Rule` to create.
             ListenerArn: The Amazon Resource Name (ARN) of the listener.
 
         Keyword Args:
@@ -327,7 +328,7 @@ class RuleManager(Boto3ModelManager):
         Replaces the specified properties of the specified rule. Any properties that you do not specify are unchanged.
 
         Args:
-            model: The :py:class:``Rule`` to update.
+            model: The :py:class:`Rule` to update.
         """
         data = model.model_dump(exclude_none=True, by_alias=True)
         args = dict(
@@ -416,7 +417,7 @@ class TargetGroupManager(Boto3ModelManager):
         Creates a target group.
 
         Args:
-            model: The :py:class:``TargetGroup`` to create.
+            model: The :py:class:`TargetGroup` to create.
             Name: The name of the target group.
 
         Keyword Args:
@@ -455,7 +456,7 @@ class TargetGroupManager(Boto3ModelManager):
         Modifies the health checks used when evaluating the health state of the targets in the specified target group.
 
         Args:
-            model: The :py:class:``TargetGroup`` to update.
+            model: The :py:class:`TargetGroup` to update.
         """
         data = model.model_dump(exclude_none=True, by_alias=True)
         args = dict(
@@ -676,6 +677,17 @@ class AvailabilityZone(Boto3Model):
     """
 
 
+class ElbV2IpamPools(Boto3Model):
+    """
+    [Application Load Balancers] The IPAM pool in use by the load balancer, if configured.
+    """
+
+    Ipv4IpamPoolId: Optional[str] = None
+    """
+    The ID of the IPv4 IPAM pool.
+    """
+
+
 class LoadBalancer(PrimaryBoto3Model):
     """
     Information about a load balancer.
@@ -751,7 +763,12 @@ class LoadBalancer(PrimaryBoto3Model):
     """
     [Network Load Balancers with UDP listeners] Indicates whether to use an IPv6 prefix from each subnet for source NAT.
 
-    The IP address type must be ``dualstack``. The default value is ``off``.
+    The
+    IP address type must be ``dualstack``. The default value is ``off``.
+    """
+    IpamPools: Optional[ElbV2IpamPools] = None
+    """
+    [Application Load Balancers] The IPAM pool in use by the load balancer, if configured.
     """
 
     @property
@@ -915,8 +932,8 @@ class AuthenticateOidcActionConfig(Boto3Model):
     """
     [HTTPS listeners] Information about an identity provider that is compliant with OpenID Connect (OIDC).
 
-    Specify only
-    when ``Type`` is ``authenticate-oidc``.
+    Specify only when
+    ``Type`` is ``authenticate-oidc``.
     """
 
     Issuer: str
@@ -951,8 +968,8 @@ class AuthenticateOidcActionConfig(Boto3Model):
     """
     The OAuth 2.0 client secret.
 
-    This parameter is required if you are creating a rule. If you are modifying a rule, you
-    can omit this parameter if you set ``UseExistingClientSecret`` to true.
+    This parameter is required if you are creating a rule. If you are modifying a rule, you can
+    omit this parameter if you set ``UseExistingClientSecret`` to true.
     """
     SessionCookieName: Optional[str] = None
     """
@@ -1193,8 +1210,8 @@ class Action(Boto3Model):
     """
     [HTTPS listeners] Information about an identity provider that is compliant with OpenID Connect (OIDC).
 
-    Specify only
-    when ``Type`` is ``authenticate-oidc``.
+    Specify only when
+    ``Type`` is ``authenticate-oidc``.
     """
     AuthenticateCognitoConfig: Optional[AuthenticateCognitoActionConfig] = None
     """
@@ -1257,6 +1274,10 @@ class MutualAuthenticationAttributes(Boto3Model):
     TrustStoreAssociationStatus: Optional[Literal["active", "removed"]] = None
     """
     Indicates a shared trust stores association status.
+    """
+    AdvertiseTrustStoreCaNames: Optional[Literal["on", "off"]] = None
+    """
+    Indicates whether trust store CA certificate names are advertised.
     """
 
 
