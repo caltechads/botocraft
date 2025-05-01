@@ -37,6 +37,7 @@ primary:
         readonly: false
       TagList:
         readonly: false
+        rename: Tags
       CustomerOwnedIpEnabled:
         readonly: false
       PerformanceInsightsEnabled:
