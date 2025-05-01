@@ -619,7 +619,10 @@ class ModelGenerator(AbstractGenerator):
                 needs_field_class: bool = False
                 field_class_args: List[str] = []
                 if default:
-                    field_class_args.append(f"default={default}" if default else "")
+                    if python_type.startswith("List[") and default == "None":
+                        field_class_args.append("default_factory=list")
+                    else:
+                        field_class_args.append(f"default={default}" if default else "")
                 field_line = f"    {field_name}: {python_type}"
                 if field_def.rename:
                     # We need it to be a pydantic Field class instance so that we can
