@@ -1,6 +1,6 @@
 [project]
 name = "botocraft"
-version = "0.12.3"
+version = "0.12.4"
 authors = [
     {name = "Caltech IMSS ADS", email = "imss-ads-staff@caltech.edu"},
 ]
@@ -74,7 +74,7 @@ python-preference = "only-system"
 dev-dependencies = [
     "boto3-stubs>=1.35.35",
     "botocore-stubs>=1.35.35",
-    "types-PyYAML >= 6.0.12.3024.09.17",
+    "types-PyYAML >= 6.0.12.4024.09.17",
     "types-requests>=2.32.0.20240914",
 ]
 
