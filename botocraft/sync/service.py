@@ -332,9 +332,9 @@ class ModelGenerator(AbstractGenerator):
         """
         properties: str = ""
         if base_class in ["PrimaryBoto3Model", "ReadonlyPrimaryBoto3Model"]:
-            assert (
-                model_def.primary_key or "pk" in model_def.properties
-            ), f'Primary service model "{model_def.name}" has no primary key defined'
+            assert model_def.primary_key or "pk" in model_def.properties, (
+                f'Primary service model "{model_def.name}" has no primary key defined'
+            )
 
             if "pk" not in model_def.properties and model_def.primary_key:
                 # There is no ``pk`` property, in the ``properties:`` section,
@@ -636,7 +636,7 @@ class ModelGenerator(AbstractGenerator):
                     needs_field_class = True
                     field_class_args.append("frozen=True")
                 if needs_field_class:
-                    field_line += f' = Field({", ".join(field_class_args)})'
+                    field_line += f" = Field({', '.join(field_class_args)})"
                 elif default:
                     field_line += f" = {field_def.default}"
                 fields.append(field_line)
@@ -659,16 +659,19 @@ class ModelGenerator(AbstractGenerator):
             tag_class: Optional[str] = None
             has_tags: bool = False
             field_names = {name.lower(): name for name in model_fields}
-            if "tags" in field_names:
+            tag_attr: Optional[str] = None
+            for name in ["tags", "taglist"]:
+                if name in field_names:
+                    tag_attr = field_names[name]
+                    break
+            if tag_attr:
                 # We do have tags defined in the model definition
                 has_tags = True
-                tag_attr = field_names["tags"]
-                if tag_attr == "tags":
-                    if model_fields[tag_attr].rename != "Tags":
-                        warnings.warn(  # noqa: B028
-                            f'Model {model_name} has a field named "tags".  Rename it '
-                            'to "Tags" in the model definition.'
-                        )
+                if tag_attr != "Tags" and model_fields[tag_attr].rename != "Tags":
+                    warnings.warn(  # noqa: B028
+                        f'Model {model_name} has a field named "tags".  Rename it '
+                        'to "Tags" in the model definition.'
+                    )
                 # Extract the name of the tag class from the python type annotation.
                 # Different services use different types for tags.
                 tag_class = self.field_type(
