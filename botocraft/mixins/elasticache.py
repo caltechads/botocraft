@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, List
+from typing import TYPE_CHECKING, List, cast
 
 import boto3
 
@@ -63,3 +63,16 @@ class ReplicationGroupModelMixin:
             CacheCluster.objects.using(self.session).get(cluster_id)
             for cluster_id in self.MemberClusters
         ]
+
+    @property
+    def engine_version(self) -> str:
+        """
+        The engine version of the replication group.  This is the same as the
+        engine version of the first cluster in the replication group.
+        """
+        from botocraft.services import CacheCluster
+
+        cluster = CacheCluster.objects.using(self.session).get(
+            self.MemberClusters[0], ShowCacheNodeInfo=False
+        )
+        return cast(str, cluster.EngineVersion)
