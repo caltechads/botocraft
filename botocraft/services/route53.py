@@ -1644,7 +1644,7 @@ class Route53ResourceRecordSet(PrimaryBoto3Model):
 
     Note the following:
     """
-    ResourceRecords: List["ResourceRecord"] = Field(default=None, frozen=True)
+    ResourceRecords: List["ResourceRecord"] = Field(default_factory=list, frozen=True)
     """
     Information about the resource records to act upon.
     """

@@ -1339,7 +1339,9 @@ class AutoScalingGroup(TagsDictMixin, AutoScalingGroupModelMixin, PrimaryBoto3Mo
     """
     The duration of the health check grace period, in seconds.
     """
-    Instances: List["AutoScalingInstanceReference"] = Field(default=None, frozen=True)
+    Instances: List["AutoScalingInstanceReference"] = Field(
+        default_factory=list, frozen=True
+    )
     """
     The EC2 instances associated with the group.
     """
@@ -1347,7 +1349,9 @@ class AutoScalingGroup(TagsDictMixin, AutoScalingGroupModelMixin, PrimaryBoto3Mo
     """
     The date and time the group was created.
     """
-    SuspendedProcesses: List["SuspendedProcess"] = Field(default=None, frozen=True)
+    SuspendedProcesses: List["SuspendedProcess"] = Field(
+        default_factory=list, frozen=True
+    )
     """
     The suspended processes associated with the group.
     """
@@ -1359,7 +1363,7 @@ class AutoScalingGroup(TagsDictMixin, AutoScalingGroupModelMixin, PrimaryBoto3Mo
     """
     One or more subnet IDs, if applicable, separated by commas.
     """
-    EnabledMetrics: List["EnabledMetric"] = Field(default=None, frozen=True)
+    EnabledMetrics: List["EnabledMetric"] = Field(default_factory=list, frozen=True)
     """
     The metrics enabled for the group.
     """

@@ -866,7 +866,7 @@ class ClassicELB(TagsDictMixin, ClassicELBModelMixin, PrimaryBoto3Model):
     """
     The date and time the load balancer was created.
     """
-    Instances: List["ClassicELBInstance"] = Field(default=None, frozen=True)
+    Instances: List["ClassicELBInstance"] = Field(default_factory=list, frozen=True)
     """
     The IDs of the instances for the load balancer.
     """
@@ -883,7 +883,7 @@ class ClassicELB(TagsDictMixin, ClassicELBModelMixin, PrimaryBoto3Model):
     The ID of the Amazon Route 53 hosted zone for the load balancer.
     """
     Listeners: List["ListenerDescription"] = Field(
-        default=None, serialization_alias="ListenerDescriptions", frozen=True
+        default_factory=list, serialization_alias="ListenerDescriptions", frozen=True
     )
     """
     The listeners for the load balancer.

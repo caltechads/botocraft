@@ -740,7 +740,9 @@ class LoadBalancer(PrimaryBoto3Model):
     """
     The state of the load balancer.
     """
-    AvailabilityZones: List["AvailabilityZone"] = Field(default=None, frozen=True)
+    AvailabilityZones: List["AvailabilityZone"] = Field(
+        default_factory=list, frozen=True
+    )
     """
     The subnets for the load balancer.
     """

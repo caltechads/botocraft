@@ -1649,7 +1649,7 @@ class CacheCluster(CacheClusterModelMixin, PrimaryBoto3Model):
     Service (SNS).
     """
     CacheSecurityGroups: List["CacheSecurityGroupMembership"] = Field(
-        default=None, frozen=True
+        default_factory=list, frozen=True
     )
     """
     A list of cache security group elements, composed of name and status sub-elements.
@@ -1662,7 +1662,7 @@ class CacheCluster(CacheClusterModelMixin, PrimaryBoto3Model):
     """
     The name of the cache subnet group associated with the cluster.
     """
-    CacheNodes: List["CacheNode"] = Field(default=None, frozen=True)
+    CacheNodes: List["CacheNode"] = Field(default_factory=list, frozen=True)
     """
     A list of cache nodes that are members of the cluster.
     """
@@ -1673,7 +1673,9 @@ class CacheCluster(CacheClusterModelMixin, PrimaryBoto3Model):
 
     This parameter is disabled for previous versions.
     """
-    SecurityGroups: List["SecurityGroupMembership"] = Field(default=None, frozen=True)
+    SecurityGroups: List["SecurityGroupMembership"] = Field(
+        default_factory=list, frozen=True
+    )
     """
     A list of VPC Security Groups associated with the cluster.
     """
@@ -1958,7 +1960,7 @@ class CacheSubnetGroup(PrimaryBoto3Model):
     """
     The Amazon Virtual Private Cloud identifier (VPC ID) of the cache subnet group.
     """
-    Subnets: List[Subnet] = Field(default=None, frozen=True)
+    Subnets: List[Subnet] = Field(default_factory=list, frozen=True)
     """
     A list of subnets associated with the cache subnet group.
     """
@@ -1967,7 +1969,7 @@ class CacheSubnetGroup(PrimaryBoto3Model):
     The ARN (Amazon Resource Name) of the cache subnet group.
     """
     SupportedNetworkTypes: List[Literal["ipv4", "ipv6", "dual_stack"]] = Field(
-        default=None, frozen=True
+        default_factory=list, frozen=True
     )
     """
     Either ``ipv4`` | ``ipv6`` | ``dual_stack``.
@@ -2071,7 +2073,9 @@ class CacheSecurityGroup(PrimaryBoto3Model):
     """
     The description of the cache security group.
     """
-    EC2SecurityGroups: List["EC2SecurityGroup"] = Field(default=None, frozen=True)
+    EC2SecurityGroups: List["EC2SecurityGroup"] = Field(
+        default_factory=list, frozen=True
+    )
     """
     A list of Amazon EC2 security groups that are associated with this cache security group.
     """
@@ -2397,11 +2401,11 @@ failed``, ``snapshotting``.
     A group of settings to be applied to the replication group, either immediately or during the next maintenance
     window.
     """
-    MemberClusters: List[str] = Field(default=None, frozen=True)
+    MemberClusters: List[str] = Field(default_factory=list, frozen=True)
     """
     The names of all the cache clusters that are part of this replication group.
     """
-    NodeGroups: List["NodeGroup"] = Field(default=None, frozen=True)
+    NodeGroups: List["NodeGroup"] = Field(default_factory=list, frozen=True)
     """
     A list of node groups in this replication group.
 
@@ -2460,7 +2464,7 @@ failed``, ``snapshotting``.
     """
     A flag that enables encryption at-rest when set to ``true``.
     """
-    MemberClustersOutpostArns: List[str] = Field(default=None, frozen=True)
+    MemberClustersOutpostArns: List[str] = Field(default_factory=list, frozen=True)
     """
     The outpost ARNs of the replication group's member clusters.
     """

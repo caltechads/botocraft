@@ -920,7 +920,7 @@ class RDSCertificateDetails(Boto3Model):
     """
 
 
-class DBInstance(PrimaryBoto3Model):
+class DBInstance(TagsDictMixin, PrimaryBoto3Model):
     """
     Contains the details of an Amazon RDS DB instance.
 
@@ -930,6 +930,7 @@ class DBInstance(PrimaryBoto3Model):
     ``StartDBInstance``, and ``StopDBInstance``.
     """
 
+    tag_class: ClassVar[Type] = Tag
     manager_class: ClassVar[Type[Boto3ModelManager]] = DBInstanceManager
 
     DBInstanceIdentifier: str
@@ -987,7 +988,7 @@ class DBInstance(PrimaryBoto3Model):
     """
     A list of log types that this DB instance is configured to export to CloudWatch Logs.
     """
-    TagList: Optional[List[Tag]] = None
+    Tags: List[Tag] = Field(default_factory=list, serialization_alias="TagList")
     """
     A list of tags.
     """
@@ -1040,12 +1041,14 @@ class DBInstance(PrimaryBoto3Model):
     A list of DB security group elements containing ``DBSecurityGroup.Name`` and ``DBSecurityGroup.Status`` subelements.
     """
     VpcSecurityGroups: List["VpcSecurityGroupMembership"] = Field(
-        default=None, frozen=True
+        default_factory=list, frozen=True
     )
     """
     The list of Amazon EC2 VPC security groups that the DB instance belongs to.
     """
-    DBParameterGroups: List["DBParameterGroupStatus"] = Field(default=None, frozen=True)
+    DBParameterGroups: List["DBParameterGroupStatus"] = Field(
+        default_factory=list, frozen=True
+    )
     """
     The list of DB parameter groups applied to this DB instance.
     """
@@ -1076,11 +1079,15 @@ class DBInstance(PrimaryBoto3Model):
     """
     The identifier of the source DB instance if this DB instance is a read replica.
     """
-    ReadReplicaDBInstanceIdentifiers: List[str] = Field(default=None, frozen=True)
+    ReadReplicaDBInstanceIdentifiers: List[str] = Field(
+        default_factory=list, frozen=True
+    )
     """
     The identifiers of the read replicas associated with this DB instance.
     """
-    ReadReplicaDBClusterIdentifiers: List[str] = Field(default=None, frozen=True)
+    ReadReplicaDBClusterIdentifiers: List[str] = Field(
+        default_factory=list, frozen=True
+    )
     """
     The identifiers of Aurora DB clusters to which the RDS DB instance is replicated as a read replica.
 
@@ -1106,7 +1113,7 @@ class DBInstance(PrimaryBoto3Model):
     The Provisioned IOPS (I/O operations per second) value for the DB instance.
     """
     OptionGroupMemberships: List["OptionGroupMembership"] = Field(
-        default=None, frozen=True
+        default_factory=list, frozen=True
     )
     """
     The list of option group memberships for this DB instance.
@@ -1126,7 +1133,7 @@ class DBInstance(PrimaryBoto3Model):
     """
     If present, specifies the name of the secondary Availability Zone for a DB instance with multi-AZ support.
     """
-    StatusInfos: List["DBInstanceStatusInfo"] = Field(default=None, frozen=True)
+    StatusInfos: List["DBInstanceStatusInfo"] = Field(default_factory=list, frozen=True)
     """
     The status of a read replica.
 
@@ -1160,7 +1167,9 @@ class DBInstance(PrimaryBoto3Model):
     """
     The identifier of the CA certificate for this DB instance.
     """
-    DomainMemberships: List["DomainMembership"] = Field(default=None, frozen=True)
+    DomainMemberships: List["DomainMembership"] = Field(
+        default_factory=list, frozen=True
+    )
     """
     The Active Directory Domain membership records associated with the DB instance.
     """
@@ -1224,7 +1233,7 @@ class DBInstance(PrimaryBoto3Model):
     The database can't be deleted when deletion protection is enabled. For more information, see
     `Deleting a DB Instance <https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/USER_DeleteInstance.html>`_.
     """
-    AssociatedRoles: List["DBInstanceRole"] = Field(default=None, frozen=True)
+    AssociatedRoles: List["DBInstanceRole"] = Field(default_factory=list, frozen=True)
     """
     The Amazon Web Services Identity and Access Management (IAM) roles associated with the DB instance.
     """
@@ -1238,7 +1247,7 @@ class DBInstance(PrimaryBoto3Model):
     """
     DBInstanceAutomatedBackupsReplications: List[
         "DBInstanceAutomatedBackupsReplication"
-    ] = Field(default=None, frozen=True)
+    ] = Field(default_factory=list, frozen=True)
     """
     The list of replicated automated backups associated with the DB instance.
     """

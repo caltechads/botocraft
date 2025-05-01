@@ -1613,7 +1613,7 @@ class TaskSet(TagsDictMixin, Boto3Model):
     """
 
     tag_class: ClassVar[Type] = ECSTag
-    Tags: List["ECSTag"] = Field(default=None, serialization_alias="tags")
+    Tags: List["ECSTag"] = Field(default_factory=list, serialization_alias="tags")
     """
     The metadata that you apply to the task set to help you categorize and organize them.
 
@@ -2036,7 +2036,7 @@ class EBSTagSpecification(TagsDictMixin, Boto3Model):
     """
 
     tag_class: ClassVar[Type] = ECSTag
-    Tags: List["ECSTag"] = Field(default=None, serialization_alias="tags")
+    Tags: List["ECSTag"] = Field(default_factory=list, serialization_alias="tags")
     """
     The tags applied to this Amazon EBS volume.
 
@@ -2463,7 +2463,7 @@ class Service(TagsDictMixin, ECSServiceModelMixin, PrimaryBoto3Model):
     For more information, see
     `Services <https://docs.aws.amazon.com/AmazonECS/latest/developerguide/ecs_services.html>`_.
     """
-    Tags: List["ECSTag"] = Field(default=None, serialization_alias="tags")
+    Tags: List["ECSTag"] = Field(default_factory=list, serialization_alias="tags")
     """
     The metadata that you apply to the service to help you categorize and organize them.
 
@@ -2531,14 +2531,14 @@ class Service(TagsDictMixin, ECSServiceModelMixin, PrimaryBoto3Model):
     Optional deployment parameters that control how many tasks run during the deployment and the ordering of stopping
     and starting tasks.
     """
-    taskSets: List["TaskSet"] = Field(default=None, frozen=True)
+    taskSets: List["TaskSet"] = Field(default_factory=list, frozen=True)
     """
     Information about a set of Amazon ECS tasks in either an CodeDeploy or an ``EXTERNAL`` deployment.
 
     An Amazon ECS task set includes details such as the desired number of tasks, how many tasks are running, and whether
     the task set serves production traffic.
     """
-    deployments: List["Deployment"] = Field(default=None, frozen=True)
+    deployments: List["Deployment"] = Field(default_factory=list, frozen=True)
     """
     The current state of deployments for the service.
     """
@@ -2549,7 +2549,7 @@ class Service(TagsDictMixin, ECSServiceModelMixin, PrimaryBoto3Model):
     It allows the Amazon ECS container agent to register container instances with an Elastic Load Balancing load
     balancer.
     """
-    events: List["ServiceEvent"] = Field(default=None, frozen=True)
+    events: List["ServiceEvent"] = Field(default_factory=list, frozen=True)
     """
     The event stream for your service.
 
@@ -2951,7 +2951,7 @@ class Cluster(TagsDictMixin, PrimaryBoto3Model):
     """
     A user-generated string that you use to identify your cluster.
     """
-    Tags: List["ECSTag"] = Field(default=None, serialization_alias="tags")
+    Tags: List["ECSTag"] = Field(default_factory=list, serialization_alias="tags")
     """
     The metadata that you apply to the cluster to help you categorize and organize them.
 
@@ -2997,7 +2997,7 @@ class Cluster(TagsDictMixin, PrimaryBoto3Model):
     You can view these services with
     `PListServices <https://docs.aws.amazon.com/AmazonECS/latest/APIReference/API_ListServices.html>`_.
     """
-    statistics: List["KeyValuePair"] = Field(default=None, frozen=True)
+    statistics: List["KeyValuePair"] = Field(default_factory=list, frozen=True)
     """
     Additional information about your clusters that are separated by launch type.
 
@@ -3022,7 +3022,7 @@ class Cluster(TagsDictMixin, PrimaryBoto3Model):
     When services or tasks are run in the cluster with no launch type or capacity provider strategy specified, the
     default capacity provider strategy is used.
     """
-    attachments: List["Attachment"] = Field(default=None, frozen=True)
+    attachments: List["Attachment"] = Field(default_factory=list, frozen=True)
     """
     The resources attached to a cluster.
 
@@ -4484,7 +4484,7 @@ class TaskDefinition(TagsDictMixin, TaskDefinitionModelMixin, PrimaryBoto3Model)
     """
     The status of the task definition.
     """
-    requiresAttributes: List["Attribute"] = Field(default=None, frozen=True)
+    requiresAttributes: List["Attribute"] = Field(default_factory=list, frozen=True)
     """
     The container instance attributes required by your task.
 
@@ -4503,7 +4503,7 @@ class TaskDefinition(TagsDictMixin, TaskDefinitionModelMixin, PrimaryBoto3Model)
     An array of placement constraint objects to use for tasks.
     """
     compatibilities: List[Literal["EC2", "FARGATE", "EXTERNAL"]] = Field(
-        default=None, frozen=True
+        default_factory=list, frozen=True
     )
     """
     Amazon ECS validates the task definition parameters with those supported by the launch type.
@@ -4927,7 +4927,7 @@ class Task(TagsDictMixin, PrimaryBoto3Model):
     tag_class: ClassVar[Type] = ECSTag
     manager_class: ClassVar[Type[Boto3ModelManager]] = TaskManager
 
-    Tags: List["ECSTag"] = Field(default=None, serialization_alias="tags")
+    Tags: List["ECSTag"] = Field(default_factory=list, serialization_alias="tags")
     """
     The metadata that you apply to the task to help you categorize and organize the task.
 
@@ -4955,11 +4955,11 @@ class Task(TagsDictMixin, PrimaryBoto3Model):
     in the *Amazon Elastic Container
     Service Developer Guide*.
     """
-    attachments: List["Attachment"] = Field(default=None, frozen=True)
+    attachments: List["Attachment"] = Field(default_factory=list, frozen=True)
     """
     The Elastic Network Adapter that's associated with the task if the task uses the ``awsvpc`` network mode.
     """
-    attributes: List["Attribute"] = Field(default=None, frozen=True)
+    attributes: List["Attribute"] = Field(default_factory=list, frozen=True)
     """
     The attributes of the task.
     """
@@ -4985,7 +4985,7 @@ class Task(TagsDictMixin, PrimaryBoto3Model):
     """
     The ARN of the container instances that host the task.
     """
-    containers: List["Container"] = Field(default=None, frozen=True)
+    containers: List["Container"] = Field(default_factory=list, frozen=True)
     """
     The containers that's associated with the task.
     """
@@ -5038,7 +5038,7 @@ class Task(TagsDictMixin, PrimaryBoto3Model):
     ``UNKNOWN``.
     """
     inferenceAccelerators: List["InferenceAccelerator"] = Field(
-        default=None, frozen=True
+        default_factory=list, frozen=True
     )
     """
     The Elastic Inference accelerator that's associated with the task.
@@ -5384,7 +5384,7 @@ class ContainerInstance(
     tag_class: ClassVar[Type] = ECSTag
     manager_class: ClassVar[Type[Boto3ModelManager]] = ContainerInstanceManager
 
-    Tags: List["ECSTag"] = Field(default=None, serialization_alias="tags")
+    Tags: List["ECSTag"] = Field(default_factory=list, serialization_alias="tags")
     """
     The metadata that you apply to the container instance to help you categorize and organize them.
 
@@ -5728,7 +5728,7 @@ class UpdateClusterResponse(Boto3Model):
 
 class RegisterTaskDefinitionResponse(TagsDictMixin, Boto3Model):
     tag_class: ClassVar[Type] = ECSTag
-    Tags: List["ECSTag"] = Field(default=None, serialization_alias="tags")
+    Tags: List["ECSTag"] = Field(default_factory=list, serialization_alias="tags")
     """
     The list of tags associated with the task definition.
     """
@@ -5747,7 +5747,7 @@ class DeregisterTaskDefinitionResponse(Boto3Model):
 
 class DescribeTaskDefinitionResponse(TagsDictMixin, Boto3Model):
     tag_class: ClassVar[Type] = ECSTag
-    Tags: List["ECSTag"] = Field(default=None, serialization_alias="tags")
+    Tags: List["ECSTag"] = Field(default_factory=list, serialization_alias="tags")
     """
     The metadata that's applied to the task definition to help you categorize and organize them.
 

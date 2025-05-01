@@ -474,7 +474,7 @@ overview.html>`_ that contains the KMS key. This field is present only when the 
     """
     EncryptionAlgorithms: List[
         Literal["SYMMETRIC_DEFAULT", "RSAES_OAEP_SHA_1", "RSAES_OAEP_SHA_256", "SM2PKE"]
-    ] = Field(default=None, frozen=True)
+    ] = Field(default_factory=list, frozen=True)
     """
     The encryption algorithms that the KMS key supports.
 
@@ -493,13 +493,15 @@ overview.html>`_ that contains the KMS key. This field is present only when the 
             "ECDSA_SHA_512",
             "SM2DSA",
         ]
-    ] = Field(default=None, frozen=True)
+    ] = Field(default_factory=list, frozen=True)
     """
     The signing algorithms that the KMS key supports.
 
     You cannot use the KMS key with other signing algorithms within KMS.
     """
-    KeyAgreementAlgorithms: List[Literal["ECDH"]] = Field(default=None, frozen=True)
+    KeyAgreementAlgorithms: List[Literal["ECDH"]] = Field(
+        default_factory=list, frozen=True
+    )
     """
     The key agreement algorithm used to derive a shared secret.
     """
@@ -530,7 +532,7 @@ overview.html>`_ that contains the KMS key. This field is present only when the 
     """
     MacAlgorithms: List[
         Literal["HMAC_SHA_224", "HMAC_SHA_256", "HMAC_SHA_384", "HMAC_SHA_512"]
-    ] = Field(default=None, frozen=True)
+    ] = Field(default_factory=list, frozen=True)
     """
     The message authentication code (MAC) algorithm that the HMAC KMS key supports.
     """

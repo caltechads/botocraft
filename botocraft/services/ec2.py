@@ -2906,13 +2906,13 @@ class Vpc(TagsDictMixin, PrimaryBoto3Model):
     The allowed tenancy of instances launched into the VPC.
     """
     Ipv6CidrBlockAssociationSet: List["VpcIpv6CidrBlockAssociation"] = Field(
-        default=None, frozen=True
+        default_factory=list, frozen=True
     )
     """
     Information about the IPv6 CIDR blocks associated with the VPC.
     """
     CidrBlockAssociationSet: List["VpcCidrBlockAssociation"] = Field(
-        default=None, frozen=True
+        default_factory=list, frozen=True
     )
     """
     Information about the IPv4 CIDR blocks associated with the VPC.
@@ -3170,7 +3170,7 @@ class Subnet(TagsDictMixin, PrimaryBoto3Model):
     receives an IPv6 address.
     """
     Ipv6CidrBlockAssociationSet: List["SubnetIpv6CidrBlockAssociation"] = Field(
-        default=None, frozen=True
+        default_factory=list, frozen=True
     )
     """
     Information about the IPv6 CIDR blocks associated with the subnet.
@@ -3622,11 +3622,13 @@ class NetworkAcl(TagsDictMixin, PrimaryBoto3Model):
     tag_class: ClassVar[Type] = Tag
     manager_class: ClassVar[Type[Boto3ModelManager]] = NetworkAclManager
 
-    Associations: List["NetworkAclAssociation"] = Field(default=None, frozen=True)
+    Associations: List["NetworkAclAssociation"] = Field(
+        default_factory=list, frozen=True
+    )
     """
     Any associations between the network ACL and your subnets.
     """
-    Entries: List["NetworkAclEntry"] = Field(default=None, frozen=True)
+    Entries: List["NetworkAclEntry"] = Field(default_factory=list, frozen=True)
     """
     The entries (rules) in the network ACL.
     """
@@ -3638,7 +3640,7 @@ class NetworkAcl(TagsDictMixin, PrimaryBoto3Model):
     """
     The ID of the network ACL.
     """
-    Tags: List[Tag] = Field(default=None, frozen=True)
+    Tags: List[Tag] = Field(default_factory=list, frozen=True)
     """
     Any tags assigned to the network ACL.
     """
@@ -3909,7 +3911,7 @@ class AMI(TagsDictMixin, AMIModelMixin, PrimaryBoto3Model):
     EC2 API, or the `describe-images <https://docs.aws.amazon.com/cli/latest/reference/ec2/describe-images.html>`_ command in
     the CLI.
     """
-    ProductCodes: List["ProductCode"] = Field(default=None, frozen=True)
+    ProductCodes: List["ProductCode"] = Field(default_factory=list, frozen=True)
     """
     Any product codes associated with the AMI.
     """
@@ -4008,7 +4010,7 @@ class AMI(TagsDictMixin, AMIModelMixin, PrimaryBoto3Model):
     """
     The name of the AMI that was provided during image creation.
     """
-    Tags: List[Tag] = Field(default=None, frozen=True)
+    Tags: List[Tag] = Field(default_factory=list, frozen=True)
     """
     Any tags assigned to the image.
     """
@@ -4844,14 +4846,14 @@ class Instance(TagsDictMixin, PrimaryBoto3Model):
     Indicates whether this is a Spot Instance or a Scheduled Instance.
     """
     ElasticGpuAssociations: List["ElasticGpuAssociation"] = Field(
-        default=None, frozen=True
+        default_factory=list, frozen=True
     )
     """
     Deprecated.
     """
     ElasticInferenceAcceleratorAssociations: List[
         "ElasticInferenceAcceleratorAssociation"
-    ] = Field(default=None, frozen=True)
+    ] = Field(default_factory=list, frozen=True)
     """
     Deprecated.
     """
@@ -4915,7 +4917,7 @@ class Instance(TagsDictMixin, PrimaryBoto3Model):
     """
     Indicates whether the instance is enabled for hibernation.
     """
-    Licenses: List["LicenseConfiguration"] = Field(default=None, frozen=True)
+    Licenses: List["LicenseConfiguration"] = Field(default_factory=list, frozen=True)
     """
     The license configurations for the instance.
     """
@@ -5032,7 +5034,7 @@ class Instance(TagsDictMixin, PrimaryBoto3Model):
     """
     The AMI launch index, which can be used to find this instance in the launch group.
     """
-    ProductCodes: List["ProductCode"] = Field(default=None, frozen=True)
+    ProductCodes: List["ProductCode"] = Field(default_factory=list, frozen=True)
     """
     The product codes attached to this instance, if applicable.
     """
@@ -6241,7 +6243,7 @@ class LaunchTemplate(TagsDictMixin, PrimaryBoto3Model):
     """
     The version number of the latest version of the launch template.
     """
-    Tags: List[Tag] = Field(default=None, frozen=True)
+    Tags: List[Tag] = Field(default_factory=list, frozen=True)
     """
     The tags for the launch template.
     """
@@ -9020,7 +9022,7 @@ class NetworkInterface(PrimaryBoto3Model):
     """
     The ID of the subnet.
     """
-    TagSet: List[Tag] = Field(default=None, frozen=True)
+    TagSet: List[Tag] = Field(default_factory=list, frozen=True)
     """
     Any tags assigned to the network interface.
     """
