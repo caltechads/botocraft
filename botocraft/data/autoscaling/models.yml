@@ -118,3 +118,9 @@ secondary:
     alternate_name: AutoScalingCapacityReservationSpecification
   CapacityReservationTarget:
     alternate_name: AutoScalingCapacityReservationTarget
+  BaselinePerformanceFactorsRequest:
+    alternate_name: AutoScalingBaselinePerformanceFactorsRequest
+  CpuPerformanceFactorRequest:
+    alternate_name: AutoScalingCpuPerformanceFactorRequest
+  PerformanceFactorReferenceRequest:
+    alternate_name: AutoScalingPerformanceFactorReferenceRequest

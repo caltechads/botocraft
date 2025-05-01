@@ -631,7 +631,7 @@ class NetworkBandwidthGbpsRequest(Boto3Model):
     """
 
 
-class PerformanceFactorReferenceRequest(Boto3Model):
+class AutoScalingPerformanceFactorReferenceRequest(Boto3Model):
     """
     Specify an instance family to use as the baseline reference for CPU performance. All instance types that All
     instance types that match your specified attributes will be compared against the CPU performance of the referenced
@@ -646,12 +646,12 @@ class PerformanceFactorReferenceRequest(Boto3Model):
     """
 
 
-class CpuPerformanceFactorRequest(Boto3Model):
+class AutoScalingCpuPerformanceFactorRequest(Boto3Model):
     """
     The CPU performance to consider, using an instance family as the baseline reference.
     """
 
-    References: Optional[List["PerformanceFactorReferenceRequest"]] = None
+    References: Optional[List["AutoScalingPerformanceFactorReferenceRequest"]] = None
     """
     Specify an instance family to use as the baseline reference for CPU performance.
 
@@ -660,12 +660,12 @@ class CpuPerformanceFactorRequest(Boto3Model):
     """
 
 
-class BaselinePerformanceFactorsRequest(Boto3Model):
+class AutoScalingBaselinePerformanceFactorsRequest(Boto3Model):
     """
     The baseline performance factors for the instance requirements.
     """
 
-    Cpu: Optional[CpuPerformanceFactorRequest] = None
+    Cpu: Optional[AutoScalingCpuPerformanceFactorRequest] = None
     """
     The CPU performance to consider, using an instance family as the baseline reference.
     """
@@ -829,7 +829,9 @@ class AutoScalingInstanceRequirements(Boto3Model):
 
     All other instance types are ignored, even if they match your specified attributes.
     """
-    BaselinePerformanceFactors: Optional[BaselinePerformanceFactorsRequest] = None
+    BaselinePerformanceFactors: Optional[
+        AutoScalingBaselinePerformanceFactorsRequest
+    ] = None
     """
     The baseline performance factors for the instance requirements.
     """

@@ -13,7 +13,6 @@ from botocraft.mixins.ec2 import (AMIManagerMixin, AMIModelMixin,
                                   EC2TagsManagerMixin, SecurityGroupModelMixin,
                                   ec2_instance_only, ec2_instances_only)
 from botocraft.mixins.tags import TagsDictMixin
-from botocraft.services.autoscaling import BaselinePerformanceFactorsRequest
 from botocraft.services.common import Filter, Tag
 
 from .abstract import (Boto3Model, Boto3ModelManager, PrimaryBoto3Model,
@@ -12800,6 +12799,53 @@ class EC2NetworkBandwidthGbpsRequest(Boto3Model):
     The maximum amount of network bandwidth, in Gbps.
 
     To specify no maximum limit, omit this parameter.
+    """
+
+
+class PerformanceFactorReferenceRequest(Boto3Model):
+    """
+    Specify an instance family to use as the baseline reference for CPU performance. All instance types that match your
+    specified attributes will be compared against the CPU performance of the referenced instance family, regardless of
+    CPU manufacturer or architecture.
+
+    Currently, only one instance family can be specified in the list.
+    """
+
+    InstanceFamily: Optional[str] = None
+    """
+    The instance family to use as a baseline reference.
+    """
+
+
+class CpuPerformanceFactorRequest(Boto3Model):
+    """
+    The CPU performance to consider, using an instance family as the baseline reference.
+    """
+
+    References: Optional[List["PerformanceFactorReferenceRequest"]] = None
+    """
+    Specify an instance family to use as the baseline reference for CPU performance.
+
+    All instance types that match your specified attributes will be compared against the CPU performance of the
+    referenced instance family, regardless of CPU manufacturer or architecture differences.
+    """
+
+
+class BaselinePerformanceFactorsRequest(Boto3Model):
+    """
+    The baseline performance to consider, using an instance family as a baseline reference.
+
+    The instance family establishes
+    the lowest acceptable level of performance. Amazon EC2 uses this baseline to guide instance type selection, but there is
+    no guarantee that the selected instance types will always exceed the baseline for every application. Currently, this
+    parameter only supports CPU performance as a baseline performance factor. For more information, see `Performance
+    protection <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-fleet-attribute-based-instance-type-
+    selection.html#ec2fleet-abis-performance-protection>`_ in the *Amazon EC2 User Guide*.
+    """
+
+    Cpu: Optional[CpuPerformanceFactorRequest] = None
+    """
+    The CPU performance to consider, using an instance family as the baseline reference.
     """
 
 
