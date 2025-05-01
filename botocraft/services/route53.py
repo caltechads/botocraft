@@ -1602,6 +1602,8 @@ class Route53ResourceRecordSet(PrimaryBoto3Model):
         "ap-southeast-5",
         "mx-central-1",
         "ap-southeast-7",
+        "us-gov-east-1",
+        "us-gov-west-1",
     ] = Field(default=None, frozen=True)
     """
     *Latency-based resource record sets only:* The Amazon EC2 Region where you created the resource that this resource

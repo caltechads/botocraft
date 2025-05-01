@@ -597,7 +597,7 @@ class AMIManager(EC2TagsManagerMixin, AMIManagerMixin, Boto3ModelManager):
 
     def delete(self, ImageId: str, *, DryRun: bool = False) -> None:
         """
-        Deregisters the specified AMI. After you deregister an AMI, it can't be used to launch new instances.
+        Deregisters the specified AMI. A deregistered AMI can't be used to launch new instances.
 
         Args:
             ImageId: The ID of the AMI.
@@ -1062,9 +1062,9 @@ class InstanceManager(EC2TagsManagerMixin, Boto3ModelManager):
             DryRun: Checks whether you have the required permissions for the operation, without actually making the request, and
                 provides an error response. If you have the required permissions, the error response is ``DryRunOperation``.
                 Otherwise, it is ``UnauthorizedOperation``.
-            Force: Forces the instances to stop. The instances do not have an opportunity to flush file system caches or file
-                system metadata. If you use this option, you must perform file system check and repair procedures. This option is
-                not recommended for Windows instances.
+            Force: Forces the instance to stop. The instance will first attempt a graceful shutdown, which includes flushing
+                file system caches and metadata. If the graceful shutdown fails to complete within the timeout period, the instance
+                shuts down forcibly without flushing the file system caches and metadata.
 
         """
         args: Dict[str, Any] = dict(
@@ -1108,8 +1108,9 @@ class InstanceManager(EC2TagsManagerMixin, Boto3ModelManager):
         self, InstanceIds: List[str], *, DryRun: bool = False
     ) -> Optional[List["InstanceStateChange"]]:
         """
-        Shuts down the specified instances. This operation is idempotent; if you terminate an instance more than once,
-        each call succeeds.
+        Shuts down the specified instances. This operation is
+        `idempotent <https://docs.aws.amazon.com/ec2/latest/devguide/ec2-api-idempotency.html>`_; if you terminate an instance
+        more than once, each call succeeds.
 
         Args:
             InstanceIds: The IDs of the instances.
@@ -1118,6 +1119,7 @@ class InstanceManager(EC2TagsManagerMixin, Boto3ModelManager):
             DryRun: Checks whether you have the required permissions for the operation, without actually making the request, and
                 provides an error response. If you have the required permissions, the error response is ``DryRunOperation``.
                 Otherwise, it is ``UnauthorizedOperation``.
+
         """
         args: Dict[str, Any] = dict(
             InstanceIds=self.serialize(InstanceIds), DryRun=self.serialize(DryRun)
@@ -6163,9 +6165,9 @@ class Instance(TagsDictMixin, PrimaryBoto3Model):
             Hibernate: Hibernates the instance if the instance was enabled for hibernation at launch. If the instance cannot
                 hibernate successfully, a normal shutdown occurs. For more information, see `Hibernate your instance
                 <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/Hibernate.html>`_ in the *Amazon EC2 User Guide*.
-            Force: Forces the instances to stop. The instances do not have an opportunity to flush file system caches or file
-                system metadata. If you use this option, you must perform file system check and repair procedures. This option is
-                not recommended for Windows instances.
+            Force: Forces the instance to stop. The instance will first attempt a graceful shutdown, which includes flushing
+                file system caches and metadata. If the graceful shutdown fails to complete within the timeout period, the instance
+                shuts down forcibly without flushing the file system caches and metadata.
         """
 
         return (
@@ -12114,9 +12116,10 @@ class LaunchTemplateInstanceNetworkInterfaceSpecificationRequest(Boto3Model):
     """
     The device index for the network interface attachment.
 
-    Each network interface requires a device index. If you create a launch template that includes secondary network
-    interfaces but not a primary network interface, then you must add a primary network interface as a launch parameter
-    when you launch an instance from the template.
+    The primary network interface has a device index of 0. Each
+    network interface is of type ``interface``, you must specify a device index. If you create a launch template that
+    includes secondary network interfaces but not a primary network interface, then you must add a primary network interface
+    as a launch parameter when you launch an instance from the template.
     """
     Groups: Optional[List[str]] = None
     """

@@ -38,6 +38,7 @@ dependencies = [
   "jsonpath-ng >= 1.6.1",
   "docker >= 7.1.0",
   "ipython >= 8.28.0",
+  "build>=1.2.2.post1",
 ]
 
 [project.optional-dependencies]

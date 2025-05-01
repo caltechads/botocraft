@@ -162,6 +162,8 @@ secondary:
     alternate_name: ElastiCacheGlobalReplicationGroupInfo
   SlotMigration:
     alternate_name: ElastiCacheSlotMigration
+  ScaleConfig:
+    alternate_name: ElastiCacheScaleConfig
   CreateCacheClusterResult:
     fields:
       CacheCluster:

@@ -131,6 +131,7 @@ class CacheClusterManager(Boto3ModelManager):
         ApplyImmediately: Optional[bool] = None,
         AuthToken: Optional[str] = None,
         AuthTokenUpdateStrategy: Optional[Literal["SET", "ROTATE", "DELETE"]] = None,
+        ScaleConfig: Optional["ElastiCacheScaleConfig"] = None,
     ) -> "CacheCluster":
         """
         Modifies the settings for a cluster. You can use this operation to change one or more cluster configuration
@@ -163,6 +164,8 @@ class CacheClusterManager(Boto3ModelManager):
                 specified with the ``auth-token-update`` parameter. Password constraints:
             AuthTokenUpdateStrategy: Specifies the strategy to use to update the AUTH token. This parameter must be specified
                 with the ``auth-token`` parameter. Possible values:
+            ScaleConfig: Configures horizontal or vertical scaling for Memcached clusters, specifying the scaling percentage and
+                interval.
         """
         data = model.model_dump(exclude_none=True, by_alias=True)
         args = dict(
@@ -188,6 +191,7 @@ class CacheClusterManager(Boto3ModelManager):
             AuthTokenUpdateStrategy=self.serialize(AuthTokenUpdateStrategy),
             LogDeliveryConfigurations=data.get("LogDeliveryConfigurations"),
             IpDiscovery=data.get("IpDiscovery"),
+            ScaleConfig=self.serialize(ScaleConfig),
         )
         _response = self.client.modify_cache_cluster(
             **{k: v for k, v in args.items() if v is not None}
@@ -1269,6 +1273,22 @@ Refers to `slow-log <https://redis.io/commands/slowlog>`_ or engine-log..
     """
 
 
+class ElastiCacheScaleConfig(Boto3Model):
+    """
+    The scaling configuration changes that are pending for the Memcached cluster.
+    """
+
+    ScalePercentage: Optional[int] = None
+    """
+    The percentage by which to scale the Memcached cluster, either horizontally by adding nodes or vertically by
+    increasing resources.
+    """
+    ScaleIntervalMinutes: Optional[int] = None
+    """
+    The time interval in seconds between scaling operations when performing gradual scaling for a Memcached cluster.
+    """
+
+
 class ElastiCachePendingModifiedValues(Boto3Model):
     """
     A group of settings that are applied to the cluster in the future, or that are currently being applied.
@@ -1307,6 +1327,10 @@ class ElastiCachePendingModifiedValues(Boto3Model):
     TransitEncryptionMode: Optional[Literal["preferred", "required"]] = None
     """
     A setting that allows you to migrate your clients to use in-transit encryption, with no downtime.
+    """
+    ScaleConfig: Optional[ElastiCacheScaleConfig] = None
+    """
+    The scaling configuration changes that are pending for the Memcached cluster.
     """
 
 

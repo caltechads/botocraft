@@ -1097,30 +1097,31 @@ class EventsRedshiftDataParameters(Boto3Model):
 
 class SageMakerPipelineParameter(Boto3Model):
     """
-    Name/Value pair of a parameter to start execution of a SageMaker Model Building Pipeline.
+    Name/Value pair of a parameter to start execution of a SageMaker AI Model Building Pipeline.
     """
 
     Name: str
     """
-    Name of parameter to start execution of a SageMaker Model Building Pipeline.
+    Name of parameter to start execution of a SageMaker AI Model Building Pipeline.
     """
     Value: str
     """
-    Value of parameter to start execution of a SageMaker Model Building Pipeline.
+    Value of parameter to start execution of a SageMaker AI Model Building Pipeline.
     """
 
 
 class EventsSageMakerPipelineParameters(Boto3Model):
     """
-    Contains the SageMaker Model Building Pipeline parameters to start execution of a SageMaker Model Building Pipeline.
+    Contains the SageMaker AI Model Building Pipeline parameters to start execution of a SageMaker AI Model Building
+    Pipeline.
 
-    If you specify a SageMaker Model Building Pipeline as a target, you can use this to specify parameters to start a
+    If you specify a SageMaker AI Model Building Pipeline as a target, you can use this to specify parameters to start a
     pipeline execution based on EventBridge events.
     """
 
     PipelineParameterList: Optional[List["SageMakerPipelineParameter"]] = None
     """
-    List of Parameter names and values for SageMaker Model Building Pipeline execution.
+    List of Parameter names and values for SageMaker AI Model Building Pipeline execution.
     """
 
 
@@ -1260,7 +1261,8 @@ class EventTarget(PrimaryBoto3Model):
         default=None, frozen=True
     )
     """
-    Contains the SageMaker Model Building Pipeline parameters to start execution of a SageMaker Model Building Pipeline.
+    Contains the SageMaker AI Model Building Pipeline parameters to start execution of a SageMaker AI Model Building
+    Pipeline.
     """
     DeadLetterConfig: EventsDeadLetterConfig = Field(default=None, frozen=True)
     """

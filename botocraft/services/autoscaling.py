@@ -1381,6 +1381,10 @@ operation is in progress.
     """
     Indicates whether newly launched instances are protected from termination by Amazon EC2 Auto Scaling when scaling
     in.
+
+    For more information about preventing instances from terminating on scale in, see `Use instance scale-in
+    protection <https://docs.aws.amazon.com/autoscaling/ec2/userguide/ec2-auto-scaling-instance-protection.html>`_ in the
+    *Amazon EC2 Auto Scaling User Guide*.
     """
     ServiceLinkedRoleARN: Optional[str] = None
     """
