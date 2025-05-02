@@ -291,8 +291,27 @@ class ModelIdentityMixin:
         raise ValueError(msg)
 
 
-def classproperty(func):
-    return classmethod(property(func))
+class classproperty:  # noqa: N801
+    """
+    A class property that can be used to define a property on a class.
+
+    This is useful for defining properties that are not instance-specific,
+    but rather class-specific.
+
+    Example:
+        .. code-block:: python
+
+            class MyClass:
+                @classproperty
+                def my_property(cls):
+                    return "Hello, world!"
+    """
+
+    def __init__(self, func):
+        self.func = func
+
+    def __get__(self, instance, owner):
+        return self.func(owner)
 
 
 class ReadonlyPrimaryBoto3Model(  # pylint: disable=abstract-method
@@ -301,16 +320,8 @@ class ReadonlyPrimaryBoto3Model(  # pylint: disable=abstract-method
     #: The manager for this model
     manager_class: ClassVar[Type[Boto3ModelManager]]
 
-    @classproperty
-    def objects(cls) -> Boto3ModelManager:  # noqa: N805
-        """
-        Get the manager for this model.
-
-        Returns:
-            The manager for this model.
-
-        """
-        return cls.manager_class()
+    #: Get the manager for this model, and set it as a class property
+    objects: ClassVar[classproperty] = classproperty(lambda cls: cls.manager_class())
 
     def save(self, **kwargs):  # noqa: ARG002
         """
@@ -338,16 +349,8 @@ class PrimaryBoto3Model(  # pylint: disable=abstract-method
     #: The manager for this model
     manager_class: ClassVar[Type[Boto3ModelManager]]
 
-    @classproperty
-    def objects(cls) -> Boto3ModelManager:  # noqa: N805
-        """
-        Get the manager for this model.
-
-        Returns:
-            The manager for this model.
-
-        """
-        return cls.manager_class()
+    #: Get the manager for this model, and set it as a class property
+    objects: ClassVar[classproperty] = classproperty(lambda cls: cls.manager_class())
 
     def save(self, **kwargs):
         """
