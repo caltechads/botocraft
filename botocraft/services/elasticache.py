@@ -2676,27 +2676,21 @@ Refers to `slow-log <https://redis.io/commands/slowlog>`_ or engine-log..
 
 
 class CreateCacheClusterResult(Boto3Model):
-    ElasticacheCluster: CacheCluster = Field(
-        default=None, serialization_alias="CacheCluster"
-    )
+    ElasticacheCluster: CacheCluster = Field(default=None, alias="CacheCluster")
     """
     Contains all of the attributes of a specific cluster.
     """
 
 
 class ModifyCacheClusterResult(Boto3Model):
-    ElasticacheCluster: CacheCluster = Field(
-        default=None, serialization_alias="CacheCluster"
-    )
+    ElasticacheCluster: CacheCluster = Field(default=None, alias="CacheCluster")
     """
     Contains all of the attributes of a specific cluster.
     """
 
 
 class DeleteCacheClusterResult(Boto3Model):
-    ElasticacheCluster: CacheCluster = Field(
-        default=None, serialization_alias="CacheCluster"
-    )
+    ElasticacheCluster: CacheCluster = Field(default=None, alias="CacheCluster")
     """
     Contains all of the attributes of a specific cluster.
     """
@@ -2721,7 +2715,7 @@ class CacheClusterMessage(Boto3Model):
 
 class CreateCacheParameterGroupResult(Boto3Model):
     ElasticacheParameterGroup: CacheParameterGroup = Field(
-        default=None, serialization_alias="CacheParameterGroup"
+        default=None, alias="CacheParameterGroup"
     )
     """
     Represents the output of a ``CreateCacheParameterGroup`` operation.
@@ -2849,7 +2843,7 @@ class CacheParameterGroupDetails(Boto3Model):
 
 class CreateCacheSubnetGroupResult(Boto3Model):
     ElasticacheSubnetGroup: CacheSubnetGroup = Field(
-        default=None, serialization_alias="CacheSubnetGroup"
+        default=None, alias="CacheSubnetGroup"
     )
     """
 Represents the output of one of the following operations:
@@ -2858,7 +2852,7 @@ Represents the output of one of the following operations:
 
 class ModifyCacheSubnetGroupResult(Boto3Model):
     ElasticacheSubnetGroup: CacheSubnetGroup = Field(
-        default=None, serialization_alias="CacheSubnetGroup"
+        default=None, alias="CacheSubnetGroup"
     )
     """
 Represents the output of one of the following operations:
@@ -2884,7 +2878,7 @@ class CacheSubnetGroupMessage(Boto3Model):
 
 class CreateCacheSecurityGroupResult(Boto3Model):
     ElasticacheSecurityGroup: CacheSecurityGroup = Field(
-        default=None, serialization_alias="CacheSecurityGroup"
+        default=None, alias="CacheSecurityGroup"
     )
     """
 Represents the output of one of the following operations:
@@ -2910,7 +2904,7 @@ class CacheSecurityGroupMessage(Boto3Model):
 
 class AuthorizeCacheSecurityGroupIngressResult(Boto3Model):
     ElasticacheSecurityGroup: CacheSecurityGroup = Field(
-        default=None, serialization_alias="CacheSecurityGroup"
+        default=None, alias="CacheSecurityGroup"
     )
     """
 Represents the output of one of the following operations:
@@ -2919,7 +2913,7 @@ Represents the output of one of the following operations:
 
 class RevokeCacheSecurityGroupIngressResult(Boto3Model):
     ElasticacheSecurityGroup: CacheSecurityGroup = Field(
-        default=None, serialization_alias="CacheSecurityGroup"
+        default=None, alias="CacheSecurityGroup"
     )
     """
 Represents the output of one of the following operations:
@@ -2973,7 +2967,7 @@ class NodeGroupConfiguration(Boto3Model):
 
 class CreateReplicationGroupResult(Boto3Model):
     ElasticacheReplicationGroup: ReplicationGroup = Field(
-        default=None, serialization_alias="ReplicationGroup"
+        default=None, alias="ReplicationGroup"
     )
     """
     Contains all of the attributes of a specific Valkey or Redis OSS replication group.
@@ -2982,7 +2976,7 @@ class CreateReplicationGroupResult(Boto3Model):
 
 class ModifyReplicationGroupResult(Boto3Model):
     ElasticacheReplicationGroup: ReplicationGroup = Field(
-        default=None, serialization_alias="ReplicationGroup"
+        default=None, alias="ReplicationGroup"
     )
     """
     Contains all of the attributes of a specific Valkey or Redis OSS replication group.
@@ -2991,7 +2985,7 @@ class ModifyReplicationGroupResult(Boto3Model):
 
 class DeleteReplicationGroupResult(Boto3Model):
     ElasticacheReplicationGroup: ReplicationGroup = Field(
-        default=None, serialization_alias="ReplicationGroup"
+        default=None, alias="ReplicationGroup"
     )
     """
     Contains all of the attributes of a specific Valkey or Redis OSS replication group.

@@ -811,7 +811,7 @@ class BatchGetImageResponse(Boto3Model):
 
 class ListTagsForResourceResponse(TagsDictMixin, Boto3Model):
     tag_class: ClassVar[Type] = Tag
-    Tags: List[Tag] = Field(default_factory=list, serialization_alias="tags")
+    Tags: List[Tag] = Field(default_factory=list, alias="tags")
     """
     The tags for the resource.
     """
@@ -1132,7 +1132,7 @@ class Resource(TagsDictMixin, Boto3Model):
     """
 
     tag_class: ClassVar[Type] = Dict[str, str]
-    Tags: Dict[str, str] = Field(default=None, serialization_alias="tags")
+    Tags: Dict[str, str] = Field(default=None, alias="tags")
     """
     The tags attached to the resource.
     """

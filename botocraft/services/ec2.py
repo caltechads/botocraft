@@ -11231,9 +11231,7 @@ class AuthorizeSecurityGroupIngressResult(Boto3Model):
 
 
 class CreateNetworkAclResult(Boto3Model):
-    NetworkAclInstance: NetworkAcl = Field(
-        default=None, serialization_alias="NetworkAcl"
-    )
+    NetworkAclInstance: NetworkAcl = Field(default=None, alias="NetworkAcl")
     """
     Information about the network ACL.
     """
@@ -14249,9 +14247,7 @@ class ValidationWarning(Boto3Model):
 
 
 class CreateLaunchTemplateResult(Boto3Model):
-    LaunchTemplateInstance: LaunchTemplate = Field(
-        default=None, serialization_alias="LaunchTemplate"
-    )
+    LaunchTemplateInstance: LaunchTemplate = Field(default=None, alias="LaunchTemplate")
     """
     Information about the launch template.
     """
@@ -14263,9 +14259,7 @@ class CreateLaunchTemplateResult(Boto3Model):
 
 
 class DeleteLaunchTemplateResult(Boto3Model):
-    LaunchTemplateInstance: LaunchTemplate = Field(
-        default=None, serialization_alias="LaunchTemplate"
-    )
+    LaunchTemplateInstance: LaunchTemplate = Field(default=None, alias="LaunchTemplate")
     """
     Information about the launch template.
     """
@@ -14286,7 +14280,7 @@ class DescribeLaunchTemplatesResult(Boto3Model):
 
 class CreateLaunchTemplateVersionResult(Boto3Model):
     LaunchTemplateVersionInstance: LaunchTemplateVersion = Field(
-        default=None, serialization_alias="LaunchTemplateVersion"
+        default=None, alias="LaunchTemplateVersion"
     )
     """
     Information about the launch template version.
@@ -14394,7 +14388,7 @@ class DescribeLaunchTemplateVersionsResult(Boto3Model):
 
 class CreateNetworkInterfaceResult(Boto3Model):
     NetworkInterfaceInstance: NetworkInterface = Field(
-        default=None, serialization_alias="NetworkInterface"
+        default=None, alias="NetworkInterface"
     )
     """
     Information about the network interface.

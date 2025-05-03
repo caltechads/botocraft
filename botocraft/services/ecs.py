@@ -1613,7 +1613,7 @@ class TaskSet(TagsDictMixin, Boto3Model):
     """
 
     tag_class: ClassVar[Type] = ECSTag
-    Tags: List["ECSTag"] = Field(default_factory=list, serialization_alias="tags")
+    Tags: List["ECSTag"] = Field(default_factory=list, alias="tags")
     """
     The metadata that you apply to the task set to help you categorize and organize them.
 
@@ -2036,7 +2036,7 @@ class EBSTagSpecification(TagsDictMixin, Boto3Model):
     """
 
     tag_class: ClassVar[Type] = ECSTag
-    Tags: List["ECSTag"] = Field(default_factory=list, serialization_alias="tags")
+    Tags: List["ECSTag"] = Field(default_factory=list, alias="tags")
     """
     The tags applied to this Amazon EBS volume.
 
@@ -2463,7 +2463,7 @@ class Service(TagsDictMixin, ECSServiceModelMixin, PrimaryBoto3Model):
     For more information, see
     `Services <https://docs.aws.amazon.com/AmazonECS/latest/developerguide/ecs_services.html>`_.
     """
-    Tags: List["ECSTag"] = Field(default_factory=list, serialization_alias="tags")
+    Tags: List["ECSTag"] = Field(default_factory=list, alias="tags")
     """
     The metadata that you apply to the service to help you categorize and organize them.
 
@@ -2951,7 +2951,7 @@ class Cluster(TagsDictMixin, PrimaryBoto3Model):
     """
     A user-generated string that you use to identify your cluster.
     """
-    Tags: List["ECSTag"] = Field(default_factory=list, serialization_alias="tags")
+    Tags: List["ECSTag"] = Field(default_factory=list, alias="tags")
     """
     The metadata that you apply to the cluster to help you categorize and organize them.
 
@@ -4927,7 +4927,7 @@ class Task(TagsDictMixin, PrimaryBoto3Model):
     tag_class: ClassVar[Type] = ECSTag
     manager_class: ClassVar[Type[Boto3ModelManager]] = TaskManager
 
-    Tags: List["ECSTag"] = Field(default_factory=list, serialization_alias="tags")
+    Tags: List["ECSTag"] = Field(default_factory=list, alias="tags")
     """
     The metadata that you apply to the task to help you categorize and organize the task.
 
@@ -5384,7 +5384,7 @@ class ContainerInstance(
     tag_class: ClassVar[Type] = ECSTag
     manager_class: ClassVar[Type[Boto3ModelManager]] = ContainerInstanceManager
 
-    Tags: List["ECSTag"] = Field(default_factory=list, serialization_alias="tags")
+    Tags: List["ECSTag"] = Field(default_factory=list, alias="tags")
     """
     The metadata that you apply to the container instance to help you categorize and organize them.
 
@@ -5728,7 +5728,7 @@ class UpdateClusterResponse(Boto3Model):
 
 class RegisterTaskDefinitionResponse(TagsDictMixin, Boto3Model):
     tag_class: ClassVar[Type] = ECSTag
-    Tags: List["ECSTag"] = Field(default_factory=list, serialization_alias="tags")
+    Tags: List["ECSTag"] = Field(default_factory=list, alias="tags")
     """
     The list of tags associated with the task definition.
     """
@@ -5747,7 +5747,7 @@ class DeregisterTaskDefinitionResponse(Boto3Model):
 
 class DescribeTaskDefinitionResponse(TagsDictMixin, Boto3Model):
     tag_class: ClassVar[Type] = ECSTag
-    Tags: List["ECSTag"] = Field(default_factory=list, serialization_alias="tags")
+    Tags: List["ECSTag"] = Field(default_factory=list, alias="tags")
     """
     The metadata that's applied to the task definition to help you categorize and organize them.
 

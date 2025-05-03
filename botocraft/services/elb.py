@@ -883,7 +883,7 @@ class ClassicELB(TagsDictMixin, ClassicELBModelMixin, PrimaryBoto3Model):
     The ID of the Amazon Route 53 hosted zone for the load balancer.
     """
     Listeners: List["ListenerDescription"] = Field(
-        default_factory=list, serialization_alias="ListenerDescriptions", frozen=True
+        default_factory=list, alias="ListenerDescriptions", frozen=True
     )
     """
     The listeners for the load balancer.

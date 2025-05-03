@@ -988,7 +988,7 @@ class DBInstance(TagsDictMixin, PrimaryBoto3Model):
     """
     A list of log types that this DB instance is configured to export to CloudWatch Logs.
     """
-    Tags: List[Tag] = Field(default_factory=list, serialization_alias="TagList")
+    Tags: List[Tag] = Field(default_factory=list, alias="TagList")
     """
     A list of tags.
     """
@@ -1405,7 +1405,7 @@ Services Region.
 
 
 class CreateDBInstanceResult(Boto3Model):
-    RDSDBInstance: DBInstance = Field(default=None, serialization_alias="DBInstance")
+    RDSDBInstance: DBInstance = Field(default=None, alias="DBInstance")
     """
     Contains the details of an Amazon RDS DB instance.
     """
@@ -1447,14 +1447,14 @@ class CloudwatchLogsExportConfiguration(Boto3Model):
 
 
 class ModifyDBInstanceResult(Boto3Model):
-    RDSDBInstance: DBInstance = Field(default=None, serialization_alias="DBInstance")
+    RDSDBInstance: DBInstance = Field(default=None, alias="DBInstance")
     """
     Contains the details of an Amazon RDS DB instance.
     """
 
 
 class DeleteDBInstanceResult(Boto3Model):
-    RDSDBInstance: DBInstance = Field(default=None, serialization_alias="DBInstance")
+    RDSDBInstance: DBInstance = Field(default=None, alias="DBInstance")
     """
     Contains the details of an Amazon RDS DB instance.
     """

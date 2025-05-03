@@ -1197,7 +1197,7 @@ class Action(Boto3Model):
         "authenticate-cognito",
         "redirect",
         "fixed-response",
-    ] = Field(default=None, serialization_alias="Type")
+    ] = Field(default=None, alias="Type")
     """
     The type of action.
     """
@@ -1529,7 +1529,7 @@ class RuleCondition(Boto3Model):
     Balancers <https://docs.aws.amazon.com/elasticloadbalancing/latest/application/load-balancer-limits.html>`_.
     """
 
-    FieldName: str = Field(default=None, serialization_alias="Field")
+    FieldName: str = Field(default=None, alias="Field")
     """
     The field in the HTTP request.
 
