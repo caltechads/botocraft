@@ -629,7 +629,7 @@ class ModelGenerator(AbstractGenerator):
                     # set the serialization_alias attribute.
                     needs_field_class = True
                     field_line = f"    {field_def.rename}: {python_type}"
-                    field_class_args.append(f'serialization_alias="{field_name}"')
+                    field_class_args.append(f'alias="{field_name}"')
                 if field_def.readonly:
                     # We need it to be a pydantic Field class instance so that we can
                     # set the frozen attribute.
