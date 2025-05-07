@@ -10,6 +10,7 @@ from typing import Any, ClassVar, Dict, List, Literal, Optional, Type, cast
 from pydantic import Field
 
 from botocraft.mixins.elasticache import (CacheClusterModelMixin,
+                                          ElastiCacheManagerTagsMixin,
                                           ReplicationGroupModelMixin)
 from botocraft.mixins.tags import TagsDictMixin
 from botocraft.services.common import Tag
@@ -25,7 +26,7 @@ from .abstract import (Boto3Model, Boto3ModelManager, PrimaryBoto3Model,
 # ===============
 
 
-class CacheClusterManager(Boto3ModelManager):
+class CacheClusterManager(ElastiCacheManagerTagsMixin, Boto3ModelManager):
 
     service_name: str = "elasticache"
 
@@ -797,7 +798,7 @@ class CacheSecurityGroupManager(Boto3ModelManager):
         return cast("CacheSecurityGroup", results)
 
 
-class ReplicationGroupManager(Boto3ModelManager):
+class ReplicationGroupManager(ElastiCacheManagerTagsMixin, Boto3ModelManager):
 
     service_name: str = "elasticache"
 

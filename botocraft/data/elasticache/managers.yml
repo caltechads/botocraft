@@ -1,5 +1,8 @@
 ---
 CacheCluster:
+  mixins:
+    - name: ElastiCacheManagerTagsMixin
+      import_path: botocraft.mixins.elasticache
   methods:
     create:
       boto3_name: create_cache_cluster
@@ -147,6 +150,9 @@ CacheSecurityGroup:
           default: >-
             "None"
 ReplicationGroup:
+  mixins:
+    - name: ElastiCacheManagerTagsMixin
+      import_path: botocraft.mixins.elasticache
   methods:
     create:
       boto3_name: create_replication_group

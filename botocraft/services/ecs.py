@@ -2049,7 +2049,7 @@ class EBSTagSpecification(TagsDictMixin, Boto3Model):
     """
     propagateTags: Optional[Literal["TASK_DEFINITION", "SERVICE", "NONE"]] = None
     """
-    Determines whether to propagate the tags from the task definition to  the Amazon EBS volume.
+    Determines whether to propagate the tags from the task definition to the Amazon EBS volume.
 
     Tags can only propagate to
     a ``SERVICE`` specified in
