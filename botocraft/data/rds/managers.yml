@@ -45,7 +45,32 @@ DBInstance:
           required: true
     list:
       boto3_name: describe_db_instances
-
+DBSubnetGroup:
+  methods:
+    create:
+      boto3_name: create_db_subnet_group
+      response_attr: DBSubnetGroup
+      args:
+        Tags:
+          attribute: TagList
+    update:
+      boto3_name: modify_db_subnet_group
+      response_attr: DBSubnetGroup
+      args:
+        Tags:
+          attribute: TagList
+    delete:
+      boto3_name: delete_db_subnet_group
+      response_attr: DBSubnetGroup
+    get:
+      boto3_name: describe_db_subnet_groups
+      args:
+        DBSubnetGroupName:
+          required: true
+        Filters:
+          hidden: true
+    list:
+      boto3_name: describe_db_subnet_groups
 
 
 

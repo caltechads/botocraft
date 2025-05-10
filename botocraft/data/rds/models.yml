@@ -42,6 +42,55 @@ primary:
         readonly: false
       PerformanceInsightsEnabled:
         readonly: false
+      DBSubnetGroup:
+        python_type: >-
+          "RDSDBSubnetGroup"
+    relations:
+      subnet_group:
+        primary_model_name: RDSDBSubnetGroup
+        docstring: >-
+          Return the subnet group that this DB instance is in, if any.
+        transformer:
+          mapping:
+            DBSubnetGroupName: >-
+              self.DBSubnetGroup.DBSubnetGroupName
+      security_groups:
+        primary_model_name: SecurityGroup
+        docstring: >-
+          Return the security groups that this DB instance is in, if any.
+        many: true
+        transformer:
+          mapping:
+            GroupIds: >-
+              [g.VpcSecurityGroupId for g in self.VpcSecurityGroups if g.VpcSecurityGroupId]
+      vpc:
+        primary_model_name: Vpc
+        docstring: >-
+          Return the VPC that this DB instance is in, if any.
+        transformer:
+          mapping:
+            VpcId: >-
+              self.DBSubnetGroup.VpcId
+  DBSubnetGroup:
+    alternate_name: RDSDBSubnetGroup
+    primary_key: DBSubnetGroupArn
+    arn_key: DBSubnetGroupArn
+    name_key: DBSubnetGroupName
+    input_shapes:
+      - CreateDBSubnetGroupMessage
+      - ModifyDBSubnetGroupMessage
+    fields:
+      DBSubnetGroupName:
+        required: true
+      DBSubnetGroupDescription:
+        required: true
+      Subnets:
+        required: true
+      VpcId:
+        required: true
+      SubnetGroupStatus:
+        default: >-
+          "Complete"
 secondary:
   CreateDBInstanceResult:
     fields:
@@ -61,8 +110,6 @@ secondary:
     alternate_name: RDSEndpoint
   Subnet:
     alternate_name: RDSSubnet
-  DBSubnetGroup:
-    alternate_name: RDSDBSubnetGroup
   MasterUserSecret:
     alternate_name: RDSMasterUserSecret
   CertificateDetails:
