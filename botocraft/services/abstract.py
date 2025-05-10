@@ -293,8 +293,6 @@ class ModelIdentityMixin:
 
 class classproperty:  # noqa: N801
     """
-    A class property that can be used to define a property on a class.
-
     This is useful for defining properties that are not instance-specific,
     but rather class-specific.
 
