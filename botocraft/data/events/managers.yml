@@ -95,3 +95,36 @@ Target:
       decorators:
         - name: event_rules_only
           import_path: botocraft.mixins.events
+EventBus:
+  methods:
+    create:
+      boto3_name: create_event_bus
+      response_attr: None
+    update:
+      boto3_name: update_event_bus
+      response_attr: None
+    delete:
+      boto3_name: delete_event_bus
+      return_type: None
+      args:
+        Name:
+          required: true
+    get:
+      boto3_name: describe_event_bus
+      response_attr: None
+      return_type: >-
+        Optional["EventBus"]
+      decorators:
+        - name: DescribeEventBusResponse_to_EventBus
+          import_path: botocraft.mixins.events
+    list:
+      boto3_name: list_event_buses
+      response_attr: EventBuses
+    put_events:
+      boto3_name: put_events
+      response_attr: None
+    list_rules:
+      boto3_name: list_rules
+      response_attr: Rules
+      return_type: >-
+        List["EventRule"]

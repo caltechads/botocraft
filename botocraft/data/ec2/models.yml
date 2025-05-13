@@ -2,7 +2,8 @@
 primary:
   Vpc:
     primary_key: VpcId
-    name_key: VpcId
+    name_key: >-
+      self.tags["Name"] if "Name" in self.tags else None
     input_shapes:
       - CreateVpcRequest
     fields:
@@ -41,7 +42,8 @@ primary:
   Subnet:
     primary_key: SubnetId
     arn_key: SubnetArn
-    name_key: SubnetId
+    name_key: >-
+      self.tags["Name"] if "Name" in self.tags else None
     input_shapes:
       - CreateSubnetRequest
     fields:
@@ -103,7 +105,8 @@ primary:
             VpcId: VpcId
   NetworkAcl:
     primary_key: NetworkAclId
-    name_key: NetworkAclId
+    name_key: >-
+      self.tags["Name"] if "Name" in self.tags else None
     input_shapes:
       - CreateNetworkAclRequest
     relations:
@@ -187,6 +190,8 @@ primary:
               [{"Name": "image-id", "Values": [self.ImageId]}]
   Instance:
     primary_key: InstanceId
+    name_key: >-
+      self.tags["Name"] if "Name" in self.tags else None
     input_shapes:
       - RunInstancesRequest
     mixins:

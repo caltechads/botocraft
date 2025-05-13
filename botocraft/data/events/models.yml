@@ -55,6 +55,34 @@ primary:
         transformer:
           mapping:
             TargetArn: Arn
+  EventBus:
+    primary_key: Name
+    arn_key: Arn
+    name_key: Name
+    input_shapes:
+      - CreateEventBusRequest
+      - UpdateEventBusRequest
+    manager_methods:
+      rules:
+        docstring: >-
+          Return the rules that are associated with this event bus.
+        manager_method: list_rules
+        args:
+          0:
+            name: EventBusName
+            value: >-
+              cast(str, self.Name)
+      put_events:
+        docstring: >-
+          Put events to this event bus.
+        manager_method: put_events
+        user_args:
+          0:
+            name: Entries
+        user_keyword_args:
+          - name: EndpointId
+            value: >-
+              None
 secondary:
   Connection:
     alternate_name: EventsConnection

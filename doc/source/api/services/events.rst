@@ -12,6 +12,12 @@ represent resources in the AWS service, and are acted on by the managers.
 
 
 
+.. autopydantic_model:: botocraft.services.events.EventBus
+    :show-inheritance:
+    :inherited-members:
+    :exclude-members: update_forward_refs, model_extra, model_fields_set, validate, schema_json, model_rebuild, model_post_init, model_parametrized_name, model_json_schema, copy, from_orm, dict, json, schema, schema_json, model_dump
+
+
 .. autopydantic_model:: botocraft.services.events.EventRule
     :show-inheritance:
     :inherited-members:
@@ -33,6 +39,10 @@ AWS service. They are responsible for creating, updating, and deleting the
 resources in the service, as well as any additional operations that are
 available for those models.
 
+
+.. autoclass:: botocraft.services.events.EventBusManager
+   :members:
+   :show-inheritance:
 
 .. autoclass:: botocraft.services.events.EventRuleManager
    :members:
@@ -168,6 +178,12 @@ structure of the fields in the primary models or other secondary models.
     :exclude-members: update_forward_refs, model_extra, model_fields_set, validate, schema_json, model_rebuild, model_post_init, model_parametrized_name, model_json_schema, copy, from_orm, dict, json, schema, schema_json, model_dump
 
 
+.. autopydantic_model:: botocraft.services.events.PutEventsRequestEntry
+    :show-inheritance:
+    :inherited-members:
+    :exclude-members: update_forward_refs, model_extra, model_fields_set, validate, schema_json, model_rebuild, model_post_init, model_parametrized_name, model_json_schema, copy, from_orm, dict, json, schema, schema_json, model_dump
+
+
 .. autopydantic_model:: botocraft.services.events.RunCommandTarget
     :show-inheritance:
     :inherited-members:
@@ -196,7 +212,25 @@ because they have some useful additional information.
 
 
 
+.. autopydantic_model:: botocraft.services.events.CreateEventBusResponse
+    :show-inheritance:
+    :inherited-members:
+    :exclude-members: update_forward_refs, model_extra, model_fields_set, validate, schema_json, model_rebuild, model_post_init, model_parametrized_name, model_json_schema, copy, from_orm, dict, json, schema, schema_json, model_dump
+
+
+.. autopydantic_model:: botocraft.services.events.DescribeEventBusResponse
+    :show-inheritance:
+    :inherited-members:
+    :exclude-members: update_forward_refs, model_extra, model_fields_set, validate, schema_json, model_rebuild, model_post_init, model_parametrized_name, model_json_schema, copy, from_orm, dict, json, schema, schema_json, model_dump
+
+
 .. autopydantic_model:: botocraft.services.events.DescribeRuleResponse
+    :show-inheritance:
+    :inherited-members:
+    :exclude-members: update_forward_refs, model_extra, model_fields_set, validate, schema_json, model_rebuild, model_post_init, model_parametrized_name, model_json_schema, copy, from_orm, dict, json, schema, schema_json, model_dump
+
+
+.. autopydantic_model:: botocraft.services.events.ListEventBusesResponse
     :show-inheritance:
     :inherited-members:
     :exclude-members: update_forward_refs, model_extra, model_fields_set, validate, schema_json, model_rebuild, model_post_init, model_parametrized_name, model_json_schema, copy, from_orm, dict, json, schema, schema_json, model_dump
@@ -215,6 +249,18 @@ because they have some useful additional information.
 
 
 .. autopydantic_model:: botocraft.services.events.ListTargetsByRuleResponse
+    :show-inheritance:
+    :inherited-members:
+    :exclude-members: update_forward_refs, model_extra, model_fields_set, validate, schema_json, model_rebuild, model_post_init, model_parametrized_name, model_json_schema, copy, from_orm, dict, json, schema, schema_json, model_dump
+
+
+.. autopydantic_model:: botocraft.services.events.PutEventsResponse
+    :show-inheritance:
+    :inherited-members:
+    :exclude-members: update_forward_refs, model_extra, model_fields_set, validate, schema_json, model_rebuild, model_post_init, model_parametrized_name, model_json_schema, copy, from_orm, dict, json, schema, schema_json, model_dump
+
+
+.. autopydantic_model:: botocraft.services.events.PutEventsResultEntry
     :show-inheritance:
     :inherited-members:
     :exclude-members: update_forward_refs, model_extra, model_fields_set, validate, schema_json, model_rebuild, model_post_init, model_parametrized_name, model_json_schema, copy, from_orm, dict, json, schema, schema_json, model_dump
@@ -245,6 +291,12 @@ because they have some useful additional information.
 
 
 .. autopydantic_model:: botocraft.services.events.RemoveTargetsResultEntry
+    :show-inheritance:
+    :inherited-members:
+    :exclude-members: update_forward_refs, model_extra, model_fields_set, validate, schema_json, model_rebuild, model_post_init, model_parametrized_name, model_json_schema, copy, from_orm, dict, json, schema, schema_json, model_dump
+
+
+.. autopydantic_model:: botocraft.services.events.UpdateEventBusResponse
     :show-inheritance:
     :inherited-members:
     :exclude-members: update_forward_refs, model_extra, model_fields_set, validate, schema_json, model_rebuild, model_post_init, model_parametrized_name, model_json_schema, copy, from_orm, dict, json, schema, schema_json, model_dump

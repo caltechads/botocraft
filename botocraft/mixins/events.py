@@ -3,7 +3,7 @@ from functools import wraps
 from typing import TYPE_CHECKING, Callable, List, Optional
 
 if TYPE_CHECKING:
-    from botocraft.services import DescribeRuleResponse, EventRule
+    from botocraft.services import DescribeRuleResponse, EventRule, EventBus
 
 
 def event_rules_only(
@@ -60,5 +60,28 @@ def EventRule_purge_CreatedBy_attribute(
         model = args[0]
         model.CreatedBy = None
         return func(self, *args, **kwargs)
+
+    return wrapper
+
+
+def DescribeEventBusResponse_to_EventBus(
+    func: Callable[..., Optional["DescribeRuleResponse"]],
+) -> Callable[..., Optional["EventBus"]]:
+    """
+    The boto3 call describe_rule does not actually return a rule object, but
+    instead a DescribeRuleResponse object. This decorator wraps the function
+    to return a Rule object instead.
+    """
+
+    @wraps(func)
+    def wrapper(self, *args, **kwargs) -> Optional["EventRule"]:
+        from botocraft.services.events import EventBus
+
+        response = func(self, *args, **kwargs)
+        if not response:
+            return None
+        bus = EventBus(**response.model_dump())
+        self.sessionize(bus)
+        return bus
 
     return wrapper

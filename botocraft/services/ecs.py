@@ -7,8 +7,6 @@ from datetime import datetime
 from functools import cached_property
 from typing import Any, ClassVar, Dict, List, Literal, Optional, Type, cast
 
-from pydantic import Field
-
 from botocraft.mixins.ecs import (ECSContainerInstanceModelMixin,
                                   ECSServiceManagerMixin, ECSServiceModelMixin,
                                   TaskDefinitionManagerMixin,
@@ -21,6 +19,7 @@ from botocraft.mixins.ecs import (ECSContainerInstanceModelMixin,
 from botocraft.mixins.tags import TagsDictMixin
 from botocraft.services.ec2 import Instance, InstanceManager, NetworkInterface
 from botocraft.services.elbv2 import TargetGroup, TargetGroupManager
+from pydantic import Field
 
 from .abstract import (Boto3Model, Boto3ModelManager, PrimaryBoto3Model,
                        ReadonlyBoto3Model, ReadonlyBoto3ModelManager,

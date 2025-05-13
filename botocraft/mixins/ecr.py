@@ -302,7 +302,7 @@ class ECRImageManagerMixin:
                 image = _image
         return image
 
-    def in_use(
+    def in_use(  # noqa: PLR0912
         self,
         repositoryNames: Optional[List[str]] = None,  # noqa: N803
         repositoryPrefix: Optional[str] = None,  # noqa: N803
@@ -337,9 +337,9 @@ class ECRImageManagerMixin:
             TaskDefinition,
         )
 
-        assert not (
-            repositoryNames and repositoryPrefix
-        ), "You can't use both repositoryNames and repositoryPrefix at the same time."
+        assert not (repositoryNames and repositoryPrefix), (
+            "You can't use both repositoryNames and repositoryPrefix at the same time."
+        )
 
         if not tags:
             tags = {}
@@ -470,6 +470,8 @@ class ECRImageMixin:
         """
         Get the name of the image.
         """
+        if self.imageId.imageTag is None:
+            return f"{self.repository.repositoryUri}:{self.imageId.imageDigest}"  # type: ignore[attr-defined]
         return f"{self.repository.repositoryUri}:{self.imageId.imageTag}"  # type: ignore[attr-defined]
 
     @property
@@ -477,7 +479,9 @@ class ECRImageMixin:
         """
         Return just the image name, excluding the registry.
         """
-        return f"{self.repositoryName}:{self.imageId.imageTag}"
+        if self.imageId.imageTag is None:
+            return f"{self.repository.repositoryName}:{self.imageId.imageDigest}"  # type: ignore[attr-defined]
+        return f"{self.repository.repositoryName}:{self.imageId.imageTag}"  # type: ignore[attr-defined]
 
     @property
     def is_pulled(self) -> bool:

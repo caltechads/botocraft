@@ -7,13 +7,13 @@ from datetime import datetime
 from functools import cached_property
 from typing import Any, ClassVar, Dict, List, Literal, Optional, Type, cast
 
-from pydantic import Field
-
-from botocraft.mixins.events import (DescribeRuleResponse_to_EventRule,
+from botocraft.mixins.events import (DescribeEventBusResponse_to_EventBus,
+                                     DescribeRuleResponse_to_EventRule,
                                      EventRule_purge_CreatedBy_attribute,
                                      event_rules_only)
 from botocraft.mixins.tags import TagsDictMixin
 from botocraft.services.common import Tag
+from pydantic import Field
 
 from .abstract import (Boto3Model, Boto3ModelManager, PrimaryBoto3Model,
                        ReadonlyBoto3Model, ReadonlyBoto3ModelManager,
@@ -475,6 +475,205 @@ class EventTargetManager(Boto3ModelManager):
 
         self.sessionize(results)
         return cast(List[str], results)
+
+
+class EventBusManager(Boto3ModelManager):
+
+    service_name: str = "events"
+
+    def create(
+        self,
+        model: "EventBus",
+        EventSourceName: Optional[str] = None,
+        KmsKeyIdentifier: Optional[str] = None,
+        DeadLetterConfig: Optional["EventsDeadLetterConfig"] = None,
+        Tags: Optional[List[Tag]] = None,
+    ) -> "CreateEventBusResponse":
+        """
+        Creates a new event bus within your account. This can be a custom event bus which you can use to receive events
+        from your custom applications and services, or it can be a partner event bus which can be matched to a partner
+        event source.
+
+        Args:
+            model: The :py:class:`EventBus` to create.
+
+        Keyword Args:
+            EventSourceName: If you are creating a partner event bus, this specifies the partner event source that the new event
+                bus will be matched with.
+            KmsKeyIdentifier: The identifier of the KMS customer managed key for EventBridge to use, if you choose to use a
+                customer managed key to encrypt events on this event bus. The identifier can be the key Amazon Resource Name (ARN),
+                KeyId, key alias, or key alias ARN.
+            DeadLetterConfig: Configuration details of the Amazon SQS queue for EventBridge to use as a dead-letter queue (DLQ).
+            Tags: Tags to associate with the event bus.
+        """
+        data = model.model_dump(exclude_none=True, by_alias=True)
+        args = dict(
+            Name=data.get("Name"),
+            EventSourceName=self.serialize(EventSourceName),
+            Description=data.get("Description"),
+            KmsKeyIdentifier=self.serialize(KmsKeyIdentifier),
+            DeadLetterConfig=self.serialize(DeadLetterConfig),
+            Tags=self.serialize(Tags),
+        )
+        _response = self.client.create_event_bus(
+            **{k: v for k, v in args.items() if v is not None}
+        )
+        response = CreateEventBusResponse(**_response)
+
+        self.sessionize(response)
+        return cast("CreateEventBusResponse", response)
+
+    def update(
+        self,
+        model: "EventBus",
+        KmsKeyIdentifier: Optional[str] = None,
+        DeadLetterConfig: Optional["EventsDeadLetterConfig"] = None,
+    ) -> "UpdateEventBusResponse":
+        """
+        Updates the specified event bus.
+
+        Args:
+            model: The :py:class:`EventBus` to update.
+
+        Keyword Args:
+            KmsKeyIdentifier: The identifier of the KMS customer managed key for EventBridge to use, if you choose to use a
+                customer managed key to encrypt events on this event bus. The identifier can be the key Amazon Resource Name (ARN),
+                KeyId, key alias, or key alias ARN.
+            DeadLetterConfig: Configuration details of the Amazon SQS queue for EventBridge to use as a dead-letter queue (DLQ).
+        """
+        data = model.model_dump(exclude_none=True, by_alias=True)
+        args = dict(
+            Name=data.get("Name"),
+            KmsKeyIdentifier=self.serialize(KmsKeyIdentifier),
+            Description=data.get("Description"),
+            DeadLetterConfig=self.serialize(DeadLetterConfig),
+        )
+        _response = self.client.update_event_bus(
+            **{k: v for k, v in args.items() if v is not None}
+        )
+        response = UpdateEventBusResponse(**_response)
+
+        self.sessionize(response)
+        return cast("UpdateEventBusResponse", response)
+
+    def delete(self, Name: str) -> None:
+        """
+        Deletes the specified custom event bus or partner event bus. All rules associated with this event bus need to be
+        deleted. You can't delete your account's default event bus.
+
+        Args:
+            Name: The name of the event bus to delete.
+        """
+        args: Dict[str, Any] = dict(Name=self.serialize(Name))
+        self.client.delete_event_bus(**{k: v for k, v in args.items() if v is not None})
+
+    @DescribeEventBusResponse_to_EventBus
+    def get(self, *, Name: Optional[str] = None) -> Optional["EventBus"]:
+        """
+        Displays details about an event bus in your account. This can include the external Amazon Web Services accounts
+        that are permitted to write events to your default event bus, and the associated policy. For custom event buses
+        and partner event buses, it displays the name, ARN, policy, state, and creation time.
+
+        Keyword Args:
+            Name: The name or ARN of the event bus to show details for. If you omit this, the default event bus is displayed.
+        """
+        args: Dict[str, Any] = dict(Name=self.serialize(Name))
+        _response = self.client.describe_event_bus(
+            **{k: v for k, v in args.items() if v is not None}
+        )
+        response = DescribeEventBusResponse(**_response)
+
+        if response:
+            self.sessionize(response)
+            return response
+        return None
+
+    def list(
+        self,
+    ) -> List["EventBus"]:
+        """
+        Lists all the event buses in your account, including the default event bus, custom event buses, and partner
+        event buses.
+        """
+        _response = self.client.list_event_buses(
+            **{k: v for k, v in args.items() if v is not None}
+        )
+        response = ListEventBusesResponse(**_response)
+        if response and response.EventBuses:
+            self.sessionize(response.EventBuses)
+            return response.EventBuses
+        return []
+
+    def put_events(
+        self,
+        Entries: List["PutEventsRequestEntry"],
+        *,
+        EndpointId: Optional[str] = None
+    ) -> "PutEventsResponse":
+        """
+        Sends custom events to Amazon EventBridge so that they can be matched to rules.
+
+        Args:
+            Entries: The entry that defines an event in your system. You can specify several parameters for the entry such as
+                the source and type of the event, resources associated with the event, and so on.
+
+        Keyword Args:
+            EndpointId: The URL subdomain of the endpoint. For example, if the URL for Endpoint is
+                https://abcde.veo.endpoints.event.amazonaws.com, then the EndpointId is ``abcde.veo``.
+        """
+        args: Dict[str, Any] = dict(
+            Entries=self.serialize(Entries), EndpointId=self.serialize(EndpointId)
+        )
+        _response = self.client.put_events(
+            **{k: v for k, v in args.items() if v is not None}
+        )
+        response = PutEventsResponse(**_response)
+
+        results: "PutEventsResponse" = None
+        if response is not None:
+            results = response
+
+        self.sessionize(results)
+        return cast("PutEventsResponse", results)
+
+    def list_rules(
+        self,
+        *,
+        NamePrefix: Optional[str] = None,
+        EventBusName: Optional[str] = None,
+        Limit: Optional[int] = None
+    ) -> List["EventRule"]:
+        """
+        Lists your Amazon EventBridge rules. You can either list all the rules or you can provide a prefix to match to
+        the rule names.
+
+        Keyword Args:
+            NamePrefix: The prefix matching the rule name.
+            EventBusName: The name or ARN of the event bus to list the rules for. If you omit this, the default event bus is
+                used.
+            Limit: The maximum number of results to return.
+        """
+        paginator = self.client.get_paginator("list_rules")
+        args: Dict[str, Any] = dict(
+            NamePrefix=self.serialize(NamePrefix),
+            EventBusName=self.serialize(EventBusName),
+            Limit=self.serialize(Limit),
+        )
+        response_iterator = paginator.paginate(
+            **{k: v for k, v in args.items() if v is not None}
+        )
+
+        results: List["EventRule"] = []
+
+        for _response in response_iterator:
+            response = ListRulesResponse(**_response)
+            if response.Rules is not None:
+                results.extend(response.Rules)
+            else:
+                break
+
+        self.sessionize(results)
+        return cast(List["EventRule"], results)
 
 
 # ==============
@@ -1331,6 +1530,154 @@ class EventTarget(PrimaryBoto3Model):
         return EventRule.objects.using(self.session).list_by_target(**pk)  # type: ignore[arg-type]
 
 
+class PutEventsRequestEntry(Boto3Model):
+    """
+    Represents an event to be submitted.
+    """
+
+    Time: Optional[datetime] = None
+    """
+The time stamp of the event, per `RFC3339 <https://www.rfc-editor.org/rfc/rfc3339.txt>`_. If no time stamp is provided,
+the time stamp of the `PutEvents <https://docs.aws.amazon.com/eventbridge/latest/APIReference/API_PutEvents.html>`_ call
+is used.
+    """
+    Source: Optional[str] = None
+    """
+    The source of the event.
+    """
+    Resources: Optional[List[str]] = None
+    """
+    Amazon Web Services resources, identified by Amazon Resource Name (ARN), which the event primarily concerns.
+
+    Any number, including zero, may be present.
+    """
+    DetailType: Optional[str] = None
+    """
+    Free-form string, with a maximum of 128 characters, used to decide what fields to expect in the event detail.
+    """
+    Detail: Optional[str] = None
+    """
+    A valid JSON object.
+
+    There is no other schema imposed. The JSON object may contain fields and nested sub-objects.
+    """
+    EventBusName: Optional[str] = None
+    """
+    The name or ARN of the event bus to receive the event.
+
+    Only the rules that are associated with this event bus are used to match the event. If you omit this, the default
+    event bus is used.
+    """
+    TraceHeader: Optional[str] = None
+    """
+    An X-Ray trace header, which is an http header (X-Amzn-Trace-Id) that contains the trace-id associated with the
+    event.
+    """
+
+
+class EventBus(PrimaryBoto3Model):
+    """
+    An event bus receives events from a source, uses rules to evaluate them, applies any configured input
+    transformation, and routes them to the appropriate target(s).
+
+    Your account's default event bus receives events from Amazon Web Services services. A custom event bus can receive
+    events from your custom applications and services. A partner event bus receives events from an event source created
+    by an SaaS partner. These events come from the partners services or applications.
+    """
+
+    manager_class: ClassVar[Type[Boto3ModelManager]] = EventBusManager
+
+    Name: Optional[str] = None
+    """
+    The name of the event bus.
+    """
+    Arn: str = Field(default=None, frozen=True)
+    """
+    The ARN of the event bus.
+    """
+    Description: Optional[str] = None
+    """
+    The event bus description.
+    """
+    Policy: str = Field(default=None, frozen=True)
+    """
+    The permissions policy of the event bus, describing which other Amazon Web Services accounts can write events to
+    this event bus.
+    """
+    CreationTime: datetime = Field(default=None, frozen=True)
+    """
+    The time the event bus was created.
+    """
+    LastModifiedTime: datetime = Field(default=None, frozen=True)
+    """
+    The time the event bus was last modified.
+    """
+
+    @property
+    def pk(self) -> Optional[str]:
+        """
+        Return the primary key of the model.   This is the value of the :py:attr:`Name` attribute.
+
+        Returns:
+            The primary key of the model instance.
+        """
+        return self.Name
+
+    @property
+    def arn(self) -> Optional[str]:
+        """
+        Return the ARN of the model.   This is the value of the :py:attr:`Arn` attribute.
+
+        Returns:
+            The ARN of the model instance.
+        """
+        return self.Arn
+
+    @property
+    def name(self) -> Optional[str]:
+        """
+        Return the name of the model.   This is the value of the :py:attr:`Name` attribute.
+
+        Returns:
+            The name of the model instance.
+        """
+        return self.Name
+
+    def rules(self) -> List["EventRule"]:
+        """
+        Return the rules that are associated with this event bus.
+        """
+
+        return (
+            cast(EventBusManager, self.objects)
+            .using(self.session)
+            .list_rules(
+                cast(str, self.Name),
+            )
+        )
+
+    def put_events(
+        self, Entries: List["PutEventsRequestEntry"], EndpointId: Optional[str] = None
+    ) -> "PutEventsResponse":
+        """
+        Put events to this event bus.
+
+        Args:
+            Entries: The entry that defines an event in your system. You can specify several parameters for the entry such as
+                the source and type of the event, resources associated with the event, and so on.
+
+        Keyword Args:
+            EndpointId: The URL subdomain of the endpoint. For example, if the URL for Endpoint is
+                https://abcde.veo.endpoints.event.amazonaws.com, then the EndpointId is ``abcde.veo``.
+        """
+
+        return (
+            cast(EventBusManager, self.objects)
+            .using(self.session)
+            .put_events(Entries, EndpointId=EndpointId)
+        )
+
+
 # =======================
 # Request/Response Models
 # =======================
@@ -1502,4 +1849,138 @@ class RemoveTargetsResponse(Boto3Model):
     FailedEntries: Optional[List["RemoveTargetsResultEntry"]] = None
     """
     The failed target entries.
+    """
+
+
+class CreateEventBusResponse(Boto3Model):
+    EventBusArn: Optional[str] = None
+    """
+    The ARN of the new event bus.
+    """
+    Description: Optional[str] = None
+    """
+    The event bus description.
+    """
+    KmsKeyIdentifier: Optional[str] = None
+    """
+    The identifier of the KMS customer managed key for EventBridge to use to encrypt events on this event bus, if one
+    has been specified.
+    """
+    DeadLetterConfig: Optional[EventsDeadLetterConfig] = None
+    """
+    Configuration details of the Amazon SQS queue for EventBridge to use as a dead-letter queue (DLQ).
+    """
+
+
+class UpdateEventBusResponse(Boto3Model):
+    Arn: Optional[str] = None
+    """
+    The event bus Amazon Resource Name (ARN).
+    """
+    Name: Optional[str] = None
+    """
+    The event bus name.
+    """
+    KmsKeyIdentifier: Optional[str] = None
+    """
+    The identifier of the KMS customer managed key for EventBridge to use to encrypt events on this event bus, if one
+    has been specified.
+    """
+    Description: Optional[str] = None
+    """
+    The event bus description.
+    """
+    DeadLetterConfig: Optional[EventsDeadLetterConfig] = None
+    """
+    Configuration details of the Amazon SQS queue for EventBridge to use as a dead-letter queue (DLQ).
+    """
+
+
+class DescribeEventBusResponse(Boto3Model):
+    Name: Optional[str] = None
+    """
+    The name of the event bus.
+
+    Currently, this is always ``default``.
+    """
+    Arn: Optional[str] = None
+    """
+    The Amazon Resource Name (ARN) of the account permitted to write events to the current account.
+    """
+    Description: Optional[str] = None
+    """
+    The event bus description.
+    """
+    KmsKeyIdentifier: Optional[str] = None
+    """
+    The identifier of the KMS customer managed key for EventBridge to use to encrypt events on this event bus, if one
+    has been specified.
+    """
+    DeadLetterConfig: Optional[EventsDeadLetterConfig] = None
+    """
+    Configuration details of the Amazon SQS queue for EventBridge to use as a dead-letter queue (DLQ).
+    """
+    Policy: Optional[str] = None
+    """
+    The policy that enables the external account to send events to your account.
+    """
+    CreationTime: Optional[datetime] = None
+    """
+    The time the event bus was created.
+    """
+    LastModifiedTime: Optional[datetime] = None
+    """
+    The time the event bus was last modified.
+    """
+
+
+class ListEventBusesResponse(Boto3Model):
+    EventBuses: Optional[List["EventBus"]] = None
+    """
+    This list of event buses.
+    """
+    NextToken: Optional[str] = None
+    """
+    A token indicating there are more results available.
+
+    If there are no more results, no token is included in the response.
+    """
+
+
+class PutEventsResultEntry(Boto3Model):
+    """
+    Represents the results of an event submitted to an event bus.
+
+    If the submission was successful, the entry has the event ID in it. Otherwise, you can use the error code and error
+    message to identify the problem with the entry.
+
+    For information about the errors that are common to all actions, see
+    `Common Errors <https://docs.aws.amazon.com/eventbridge/latest/APIReference/CommonErrors.html>`_.
+    """
+
+    EventId: Optional[str] = None
+    """
+    The ID of the event.
+    """
+    ErrorCode: Optional[str] = None
+    """
+    The error code that indicates why the event submission failed.
+    """
+    ErrorMessage: Optional[str] = None
+    """
+    The error message that explains why the event submission failed.
+    """
+
+
+class PutEventsResponse(Boto3Model):
+    FailedEntryCount: Optional[int] = None
+    """
+    The number of failed entries.
+    """
+    Entries: Optional[List["PutEventsResultEntry"]] = None
+    """
+    The successfully and unsuccessfully ingested events results.
+
+    If the ingestion was successful, the entry has the event ID in it. Otherwise, you can use the error code and error
+    message to identify the problem with the entry.
     """

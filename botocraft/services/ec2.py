@@ -7,14 +7,13 @@ from datetime import datetime
 from functools import cached_property
 from typing import Any, ClassVar, Dict, List, Literal, Optional, Type, cast
 
-from pydantic import Field
-
 from botocraft.mixins.ec2 import (AMIManagerMixin, AMIModelMixin,
                                   EC2TagsManagerMixin, InstanceModelMixin,
                                   SecurityGroupModelMixin, ec2_instance_only,
                                   ec2_instances_only)
 from botocraft.mixins.tags import TagsDictMixin
 from botocraft.services.common import Filter, Tag
+from pydantic import Field
 
 from .abstract import (Boto3Model, Boto3ModelManager, PrimaryBoto3Model,
                        ReadonlyBoto3Model, ReadonlyBoto3ModelManager,
@@ -2957,12 +2956,13 @@ class Vpc(TagsDictMixin, PrimaryBoto3Model):
     @property
     def name(self) -> Optional[str]:
         """
-        Return the name of the model.   This is the value of the :py:attr:`VpcId` attribute.
+        Return the name of the model.   This is the value of the :py:attr:`self.tags["Name"] if "Name" in self.tags else
+        None` attribute.
 
         Returns:
             The name of the model instance.
         """
-        return self.VpcId
+        return self.self.tags["Name"] if "Name" in self.tags else None
 
     @cached_property
     def subnets(self) -> Optional[List["Subnet"]]:
@@ -3253,12 +3253,13 @@ class Subnet(TagsDictMixin, PrimaryBoto3Model):
     @property
     def name(self) -> Optional[str]:
         """
-        Return the name of the model.   This is the value of the :py:attr:`SubnetId` attribute.
+        Return the name of the model.   This is the value of the :py:attr:`self.tags["Name"] if "Name" in self.tags else
+        None` attribute.
 
         Returns:
             The name of the model instance.
         """
-        return self.SubnetId
+        return self.self.tags["Name"] if "Name" in self.tags else None
 
     @cached_property
     def vpc(self) -> Optional["Vpc"]:
@@ -3669,12 +3670,13 @@ class NetworkAcl(TagsDictMixin, PrimaryBoto3Model):
     @property
     def name(self) -> Optional[str]:
         """
-        Return the name of the model.   This is the value of the :py:attr:`NetworkAclId` attribute.
+        Return the name of the model.   This is the value of the :py:attr:`self.tags["Name"] if "Name" in self.tags else
+        None` attribute.
 
         Returns:
             The name of the model instance.
         """
-        return self.NetworkAclId
+        return self.self.tags["Name"] if "Name" in self.tags else None
 
     @cached_property
     def vpc(self) -> Optional["Vpc"]:
@@ -6010,6 +6012,17 @@ class Instance(TagsDictMixin, InstanceModelMixin, PrimaryBoto3Model):
             The primary key of the model instance.
         """
         return self.InstanceId
+
+    @property
+    def name(self) -> Optional[str]:
+        """
+        Return the name of the model.   This is the value of the :py:attr:`self.tags["Name"] if "Name" in self.tags else
+        None` attribute.
+
+        Returns:
+            The name of the model instance.
+        """
+        return self.self.tags["Name"] if "Name" in self.tags else None
 
     @cached_property
     def ami(self) -> Optional["AMI"]:

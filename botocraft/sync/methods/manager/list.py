@@ -14,8 +14,8 @@ class ListMethodGenerator(ManagerMethodGenerator):
         Override the kwargs to exclude the pagination arguments if
         the boto3 operation can paginate.
         """
+        _args: OrderedDict[str, str] = OrderedDict()
         if self.client.can_paginate(self.boto3_name):
-            _args: OrderedDict[str, str] = OrderedDict()
             for _arg, arg_type in super().kwargs(location=location).items():
                 if _arg not in self.PAGINATOR_ARGS:
                     _args[_arg] = arg_type
