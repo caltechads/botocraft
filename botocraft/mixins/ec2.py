@@ -191,27 +191,6 @@ class InstanceModelMixin:
     methods to the class that are not normally part of the object.
     """
 
-    def open_tunnels(
-        self, host: Optional[str] = None
-    ) -> Optional[Dict[str, List[Dict[str, Any]]]]:
-        """
-        Return the list of tunnels that are open to this instance.  This is
-        useful for checking if a tunnel is open before closing it.
-
-        Returns:
-            A dictionary with the output of the command.
-
-        """
-        host_ip = self.__maybe_resolve_ip(host) if host else None
-        if not hasattr(self, "tunnels"):
-            return None
-        if host_ip:
-            if host_ip not in self.tunnels:
-                msg = f"No open tunnel found for {host_ip}. Did you call start_tunnel?"
-                raise ValueError(msg)
-            return {host_ip: self.tunnels[host_ip]}
-        return self.tunnels
-
     def __maybe_resolve_ip(self, host: str) -> str:
         """
         Given a hostname or IP address, return the IP address.  If the host is
