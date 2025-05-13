@@ -243,7 +243,7 @@ class InstanceModelMixin:
                     raise ValueError(msg)
         return port
 
-    def start_tunnel(
+    def open_tunnel(
         self,
         host: str,
         remote_port: int,
