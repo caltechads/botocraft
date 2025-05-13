@@ -189,9 +189,22 @@ primary:
     primary_key: InstanceId
     input_shapes:
       - RunInstancesRequest
+    mixins:
+      - name: InstanceModelMixin
+        import_path: botocraft.mixins.ec2
     fields:
       Tags:
         readonly: false
+      Tunnels:
+        python_type: >-
+          Dict[str, List[Dict[str, Any]]]
+        docstring: >-
+          The tunnels that are open for this instance.  This is used by
+          :py:meth:`start_tunnel` and :py:meth:`stop_tunnel`.
+      Architecture:
+        readonly: true
+        default: >-
+          "x86_64"
     relations:
       ami:
         primary_model_name: AMI

@@ -39,6 +39,7 @@ dependencies = [
   "docker >= 7.1.0",
   "ipython >= 8.28.0",
   "build>=1.2.2.post1",
+  "psutil>=7.0.0",
 ]
 
 [project.optional-dependencies]

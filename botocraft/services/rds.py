@@ -2,13 +2,17 @@
 # pylint: disable=anomalous-backslash-in-string,unsubscriptable-object,line-too-long,arguments-differ,arguments-renamed,unused-import,redefined-outer-name
 # pyright: reportUnusedImport=false
 # mypy: disable-error-code="index, override, assignment, union-attr, misc"
+from collections import OrderedDict
 from datetime import datetime
+from functools import cached_property
 from typing import Any, ClassVar, Dict, List, Literal, Optional, Type, cast
 
 from pydantic import Field
 
 from botocraft.mixins.tags import TagsDictMixin
 from botocraft.services.common import Filter, Tag
+from botocraft.services.ec2 import (SecurityGroup, SecurityGroupManager, Vpc,
+                                    VpcManager)
 
 from .abstract import (Boto3Model, Boto3ModelManager, PrimaryBoto3Model,
                        ReadonlyBoto3Model, ReadonlyBoto3ModelManager,
@@ -410,6 +414,129 @@ class DBInstanceManager(Boto3ModelManager):
         return results
 
 
+class RDSDBSubnetGroupManager(Boto3ModelManager):
+
+    service_name: str = "rds"
+
+    def create(
+        self, model: "RDSDBSubnetGroup", SubnetIds: List[str]
+    ) -> "RDSDBSubnetGroup":
+        """
+        Creates a new DB subnet group. DB subnet groups must contain at least one subnet in at least two AZs in the
+        Amazon Web Services Region.
+
+        Args:
+            model: The :py:class:`DBSubnetGroup` to create.
+            SubnetIds: The EC2 Subnet IDs for the DB subnet group.
+        """
+        data = model.model_dump(exclude_none=True, by_alias=True)
+        args = dict(
+            DBSubnetGroupName=data.get("DBSubnetGroupName"),
+            DBSubnetGroupDescription=data.get("DBSubnetGroupDescription"),
+            SubnetIds=self.serialize(SubnetIds),
+            Tags=data.get("TagList"),
+        )
+        _response = self.client.create_db_subnet_group(
+            **{k: v for k, v in args.items() if v is not None}
+        )
+        response = CreateDBSubnetGroupResult(**_response)
+
+        self.sessionize(response.DBSubnetGroup)
+        return cast("RDSDBSubnetGroup", response.DBSubnetGroup)
+
+    def update(
+        self, model: "RDSDBSubnetGroup", SubnetIds: List[str]
+    ) -> "RDSDBSubnetGroup":
+        """
+        Modifies an existing DB subnet group. DB subnet groups must contain at least one subnet in at least two AZs in
+        the Amazon Web Services Region.
+
+        Args:
+            model: The :py:class:`DBSubnetGroup` to update.
+            SubnetIds: The EC2 subnet IDs for the DB subnet group.
+        """
+        data = model.model_dump(exclude_none=True, by_alias=True)
+        args = dict(
+            DBSubnetGroupName=data.get("DBSubnetGroupName"),
+            SubnetIds=self.serialize(SubnetIds),
+            DBSubnetGroupDescription=data.get("DBSubnetGroupDescription"),
+        )
+        _response = self.client.modify_db_subnet_group(
+            **{k: v for k, v in args.items() if v is not None}
+        )
+        response = ModifyDBSubnetGroupResult(**_response)
+
+        self.sessionize(response.DBSubnetGroup)
+        return cast("RDSDBSubnetGroup", response.DBSubnetGroup)
+
+    def delete(self, DBSubnetGroupName: str) -> None:
+        """
+        Deletes a DB subnet group.
+
+        Args:
+            DBSubnetGroupName: The name of the database subnet group to delete.
+        """
+        args: Dict[str, Any] = dict(DBSubnetGroupName=self.serialize(DBSubnetGroupName))
+        self.client.delete_db_subnet_group(
+            **{k: v for k, v in args.items() if v is not None}
+        )
+
+    def get(self, DBSubnetGroupName: str) -> Optional["RDSDBSubnetGroup"]:
+        """
+        Returns a list of DBSubnetGroup descriptions. If a DBSubnetGroupName is specified, the list will contain only
+        the descriptions of the specified DBSubnetGroup.
+
+        Args:
+            DBSubnetGroupName: The name of the DB subnet group to return details for.
+        """
+        args: Dict[str, Any] = dict(DBSubnetGroupName=self.serialize(DBSubnetGroupName))
+        _response = self.client.describe_db_subnet_groups(
+            **{k: v for k, v in args.items() if v is not None}
+        )
+        response = DBSubnetGroupMessage(**_response)
+
+        if response and response.DBSubnetGroups:
+            self.sessionize(response.DBSubnetGroups[0])
+            return response.DBSubnetGroups[0]
+        return None
+
+    def list(
+        self,
+        *,
+        DBSubnetGroupName: Optional[str] = None,
+        Filters: Optional[List[Filter]] = None
+    ) -> List["RDSDBSubnetGroup"]:
+        """
+        Returns a list of DBSubnetGroup descriptions. If a DBSubnetGroupName is specified, the list will contain only
+        the descriptions of the specified DBSubnetGroup.
+
+        Keyword Args:
+            DBSubnetGroupName: The name of the DB subnet group to return details for.
+            Filters: This parameter isn't currently supported.
+        """
+        paginator = self.client.get_paginator("describe_db_subnet_groups")
+        args: Dict[str, Any] = dict(
+            DBSubnetGroupName=self.serialize(DBSubnetGroupName),
+            Filters=self.serialize(Filters),
+        )
+        response_iterator = paginator.paginate(
+            **{k: v for k, v in args.items() if v is not None}
+        )
+        results: List["RDSDBSubnetGroup"] = []
+        for _response in response_iterator:
+            if list(_response.keys()) == ["ResponseMetadata"]:
+                break
+            if "ResponseMetadata" in _response:
+                del _response["ResponseMetadata"]
+            response = DBSubnetGroupMessage(**_response)
+            if response.DBSubnetGroups:
+                results.extend(response.DBSubnetGroups)
+            else:
+                break
+        self.sessionize(results)
+        return results
+
+
 # ==============
 # Service Models
 # ==============
@@ -492,93 +619,6 @@ class DBParameterGroupStatus(Boto3Model):
     The status of parameter updates.
 
     Valid values are:
-    """
-
-
-class RDSAvailabilityZone(Boto3Model):
-    """
-    Contains Availability Zone information.
-
-    This data type is used as an element in the ``OrderableDBInstanceOption`` data type.
-    """
-
-    Name: Optional[str] = None
-    """
-    The name of the Availability Zone.
-    """
-
-
-class Outpost(Boto3Model):
-    """
-    If the subnet is associated with an Outpost, this value specifies the Outpost.
-
-    For more information about RDS on Outposts, see
-    `Amazon RDS on Amazon Web Services Outposts <https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/rds-on-outposts.html>`_
-    in the *Amazon RDS User Guide.*
-    """
-
-    Arn: Optional[str] = None
-    """
-    The Amazon Resource Name (ARN) of the Outpost.
-    """
-
-
-class RDSSubnet(Boto3Model):
-    """
-    This data type is used as a response element for the ``DescribeDBSubnetGroups`` operation.
-    """
-
-    SubnetIdentifier: Optional[str] = None
-    """
-    The identifier of the subnet.
-    """
-    SubnetAvailabilityZone: Optional[RDSAvailabilityZone] = None
-    """
-    Contains Availability Zone information.
-    """
-    SubnetOutpost: Optional[Outpost] = None
-    """
-    If the subnet is associated with an Outpost, this value specifies the Outpost.
-    """
-    SubnetStatus: Optional[str] = None
-    """
-    The status of the subnet.
-    """
-
-
-class RDSDBSubnetGroup(Boto3Model):
-    """
-    Information about the subnet group associated with the DB instance, including the name, description, and subnets in
-    the subnet group.
-    """
-
-    DBSubnetGroupName: Optional[str] = None
-    """
-    The name of the DB subnet group.
-    """
-    DBSubnetGroupDescription: Optional[str] = None
-    """
-    Provides the description of the DB subnet group.
-    """
-    VpcId: Optional[str] = None
-    """
-    Provides the VpcId of the DB subnet group.
-    """
-    SubnetGroupStatus: Optional[str] = None
-    """
-    Provides the status of the DB subnet group.
-    """
-    Subnets: Optional[List["RDSSubnet"]] = None
-    """
-    Contains a list of ``Subnet`` elements.
-    """
-    DBSubnetGroupArn: Optional[str] = None
-    """
-    The Amazon Resource Name (ARN) for the DB subnet group.
-    """
-    SupportedNetworkTypes: Optional[List[str]] = None
-    """
-    The network type of the DB subnet group.
     """
 
 
@@ -1000,6 +1040,11 @@ class DBInstance(TagsDictMixin, PrimaryBoto3Model):
     """
     Indicates whether Performance Insights is enabled for the DB instance.
     """
+    DBSubnetGroup: Optional["RDSDBSubnetGroup"] = None
+    """
+    Information about the subnet group associated with the DB instance, including the name, description, and subnets in
+    the subnet group.
+    """
     DBInstanceStatus: str = Field(default=None, frozen=True)
     """
     The current state of this database.
@@ -1055,11 +1100,6 @@ class DBInstance(TagsDictMixin, PrimaryBoto3Model):
     AvailabilityZone: Optional[str] = None
     """
     The name of the Availability Zone where the DB instance is located.
-    """
-    DBSubnetGroup: RDSDBSubnetGroup = Field(default=None, frozen=True)
-    """
-    Information about the subnet group associated with the DB instance, including the name, description, and subnets in
-    the subnet group.
     """
     PreferredMaintenanceWindow: Optional[str] = None
     """
@@ -1398,6 +1438,199 @@ Services Region.
         """
         return self.DBInstanceIdentifier
 
+    @cached_property
+    def subnet_group(self) -> Optional["RDSDBSubnetGroup"]:
+        """
+        Return the subnet group that this DB instance is in, if any.
+
+        .. note::
+
+            The output of this property is cached on the model instance, so
+            calling this multiple times will not result in multiple calls to the
+            AWS API.   If you need a fresh copy of the data, you can re-get the
+            model instance from the manager.
+        """
+
+        try:
+            pk = OrderedDict(
+                {
+                    "DBSubnetGroupName": self.DBSubnetGroup.DBSubnetGroupName,
+                }
+            )
+        except AttributeError:
+            return None
+        return RDSDBSubnetGroup.objects.using(self.session).get(**pk)  # type: ignore[arg-type]
+
+    @cached_property
+    def security_groups(self) -> Optional[List["SecurityGroup"]]:
+        """
+        Return the security groups that this DB instance is in, if any.
+
+        .. note::
+
+            The output of this property is cached on the model instance, so
+            calling this multiple times will not result in multiple calls to the
+            AWS API.   If you need a fresh copy of the data, you can re-get the
+            model instance from the manager.
+        """
+
+        try:
+            pk = OrderedDict(
+                {
+                    "GroupIds": [
+                        g.VpcSecurityGroupId
+                        for g in self.VpcSecurityGroups
+                        if g.VpcSecurityGroupId
+                    ],
+                }
+            )
+        except AttributeError:
+            return []
+        return SecurityGroup.objects.using(self.session).list(**pk)  # type: ignore[arg-type]
+
+    @cached_property
+    def vpc(self) -> Optional["Vpc"]:
+        """
+        Return the VPC that this DB instance is in, if any.
+
+        .. note::
+
+            The output of this property is cached on the model instance, so
+            calling this multiple times will not result in multiple calls to the
+            AWS API.   If you need a fresh copy of the data, you can re-get the
+            model instance from the manager.
+        """
+
+        try:
+            pk = OrderedDict(
+                {
+                    "VpcId": self.DBSubnetGroup.VpcId,
+                }
+            )
+        except AttributeError:
+            return None
+        return Vpc.objects.using(self.session).get(**pk)  # type: ignore[arg-type]
+
+
+class RDSAvailabilityZone(Boto3Model):
+    """
+    Contains Availability Zone information.
+
+    This data type is used as an element in the ``OrderableDBInstanceOption`` data type.
+    """
+
+    Name: Optional[str] = None
+    """
+    The name of the Availability Zone.
+    """
+
+
+class Outpost(Boto3Model):
+    """
+    If the subnet is associated with an Outpost, this value specifies the Outpost.
+
+    For more information about RDS on Outposts, see
+    `Amazon RDS on Amazon Web Services Outposts <https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/rds-on-outposts.html>`_
+    in the *Amazon RDS User Guide.*
+    """
+
+    Arn: Optional[str] = None
+    """
+    The Amazon Resource Name (ARN) of the Outpost.
+    """
+
+
+class RDSSubnet(Boto3Model):
+    """
+    This data type is used as a response element for the ``DescribeDBSubnetGroups`` operation.
+    """
+
+    SubnetIdentifier: Optional[str] = None
+    """
+    The identifier of the subnet.
+    """
+    SubnetAvailabilityZone: Optional[RDSAvailabilityZone] = None
+    """
+    Contains Availability Zone information.
+    """
+    SubnetOutpost: Optional[Outpost] = None
+    """
+    If the subnet is associated with an Outpost, this value specifies the Outpost.
+    """
+    SubnetStatus: Optional[str] = None
+    """
+    The status of the subnet.
+    """
+
+
+class RDSDBSubnetGroup(PrimaryBoto3Model):
+    """
+    Contains the details of an Amazon RDS DB subnet group.
+
+    This data type is used as a response element in the ``DescribeDBSubnetGroups`` action.
+    """
+
+    manager_class: ClassVar[Type[Boto3ModelManager]] = RDSDBSubnetGroupManager
+
+    DBSubnetGroupName: str
+    """
+    The name of the DB subnet group.
+    """
+    DBSubnetGroupDescription: str
+    """
+    Provides the description of the DB subnet group.
+    """
+    Subnets: List["RDSSubnet"]
+    """
+    Contains a list of ``Subnet`` elements.
+    """
+    VpcId: str
+    """
+    Provides the VpcId of the DB subnet group.
+    """
+    SubnetGroupStatus: Optional[str] = "Complete"
+    """
+    Provides the status of the DB subnet group.
+    """
+    DBSubnetGroupArn: str = Field(default=None, frozen=True)
+    """
+    The Amazon Resource Name (ARN) for the DB subnet group.
+    """
+    SupportedNetworkTypes: List[str] = Field(default_factory=list, frozen=True)
+    """
+    The network type of the DB subnet group.
+    """
+
+    @property
+    def pk(self) -> Optional[str]:
+        """
+        Return the primary key of the model.   This is the value of the :py:attr:`DBSubnetGroupArn` attribute.
+
+        Returns:
+            The primary key of the model instance.
+        """
+        return self.DBSubnetGroupArn
+
+    @property
+    def arn(self) -> Optional[str]:
+        """
+        Return the ARN of the model.   This is the value of the :py:attr:`DBSubnetGroupArn` attribute.
+
+        Returns:
+            The ARN of the model instance.
+        """
+        return self.DBSubnetGroupArn
+
+    @property
+    def name(self) -> Optional[str]:
+        """
+        Return the name of the model.   This is the value of the :py:attr:`DBSubnetGroupName` attribute.
+
+        Returns:
+            The name of the model instance.
+        """
+        return self.DBSubnetGroupName
+
 
 # =======================
 # Request/Response Models
@@ -1475,4 +1708,36 @@ class DBInstanceMessage(Boto3Model):
     DBInstances: Optional[List["DBInstance"]] = None
     """
     A list of ``DBInstance`` instances.
+    """
+
+
+class CreateDBSubnetGroupResult(Boto3Model):
+    DBSubnetGroup: Optional[RDSDBSubnetGroup] = None
+    """
+    Contains the details of an Amazon RDS DB subnet group.
+    """
+
+
+class ModifyDBSubnetGroupResult(Boto3Model):
+    DBSubnetGroup: Optional[RDSDBSubnetGroup] = None
+    """
+    Contains the details of an Amazon RDS DB subnet group.
+    """
+
+
+class DBSubnetGroupMessage(Boto3Model):
+    """
+    Contains the result of a successful invocation of the ``DescribeDBSubnetGroups`` action.
+    """
+
+    Marker: Optional[str] = None
+    """
+    An optional pagination token provided by a previous request.
+
+    If this parameter is specified, the response includes only
+    records beyond the marker, up to the value specified by ``MaxRecords``.
+    """
+    DBSubnetGroups: Optional[List["RDSDBSubnetGroup"]] = None
+    """
+    A list of ``DBSubnetGroup`` instances.
     """

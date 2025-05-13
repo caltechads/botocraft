@@ -10,8 +10,9 @@ from typing import Any, ClassVar, Dict, List, Literal, Optional, Type, cast
 from pydantic import Field
 
 from botocraft.mixins.ec2 import (AMIManagerMixin, AMIModelMixin,
-                                  EC2TagsManagerMixin, SecurityGroupModelMixin,
-                                  ec2_instance_only, ec2_instances_only)
+                                  EC2TagsManagerMixin, InstanceModelMixin,
+                                  SecurityGroupModelMixin, ec2_instance_only,
+                                  ec2_instances_only)
 from botocraft.mixins.tags import TagsDictMixin
 from botocraft.services.common import Filter, Tag
 
@@ -1641,6 +1642,7 @@ class NetworkInterfaceManager(EC2TagsManagerMixin, Boto3ModelManager):
         *,
         NetworkCardIndex: Optional[int] = None,
         EnaSrdSpecification: Optional["EnaSrdSpecification"] = None,
+        EnaQueueCount: Optional[int] = None,
         DryRun: bool = False
     ) -> "AttachNetworkInterfaceResult":
         """
@@ -1655,6 +1657,7 @@ class NetworkInterfaceManager(EC2TagsManagerMixin, Boto3ModelManager):
             NetworkCardIndex: The index of the network card. Some instance types support multiple network cards. The primary
                 network interface must be assigned to network card index 0. The default is network card index 0.
             EnaSrdSpecification: Configures ENA Express for the network interface that this action attaches to the instance.
+            EnaQueueCount: The number of ENA queues to be created with the instance.
             DryRun: Checks whether you have the required permissions for the action, without actually making the request, and
                 provides an error response. If you have the required permissions, the error response is ``DryRunOperation``.
                 Otherwise, it is ``UnauthorizedOperation``.
@@ -1665,6 +1668,7 @@ class NetworkInterfaceManager(EC2TagsManagerMixin, Boto3ModelManager):
             DeviceIndex=self.serialize(DeviceIndex),
             NetworkCardIndex=self.serialize(NetworkCardIndex),
             EnaSrdSpecification=self.serialize(EnaSrdSpecification),
+            EnaQueueCount=self.serialize(EnaQueueCount),
             DryRun=self.serialize(DryRun),
         )
         _response = self.client.attach_network_interface(
@@ -3815,6 +3819,14 @@ class EbsBlockDevice(Boto3Model):
     encryption <https://docs.aws.amazon.com/ebs/latest/userguide/ebs-encryption.html#encryption-parameters>`_ in the *Amazon
     EBS User Guide*.
     """
+    VolumeInitializationRate: Optional[int] = None
+    """
+    Specifies the Amazon EBS Provisioned Rate for Volume Initialization (volume initialization rate), in MiB/s, at which
+    to download the snapshot blocks from Amazon S3 to the volume.
+
+    This is also known as *volume initialization*. Specifying a volume initialization rate ensures that the volume is
+    initialized at a predictable and consistent rate after creation.
+    """
 
 
 class EC2BlockDeviceMapping(Boto3Model):
@@ -4328,6 +4340,10 @@ class InstanceNetworkInterfaceAttachment(Boto3Model):
     """
     Contains the ENA Express settings for the network interface that's attached to the instance.
     """
+    EnaQueueCount: Optional[int] = None
+    """
+    The number of ENA queues created with the instance.
+    """
 
 
 class GroupIdentifier(Boto3Model):
@@ -4790,7 +4806,7 @@ class EC2DetailedMonitoring(Boto3Model):
     """
 
 
-class Instance(TagsDictMixin, PrimaryBoto3Model):
+class Instance(TagsDictMixin, InstanceModelMixin, PrimaryBoto3Model):
     """
     Describes an instance.
     """
@@ -4802,8 +4818,14 @@ class Instance(TagsDictMixin, PrimaryBoto3Model):
     """
     Any tags assigned to the instance.
     """
+    Tunnels: Optional[Dict[str, List[Dict[str, Any]]]] = None
+    """
+    The tunnels that are open for this instance.
+
+    This is used by :py:meth:`start_tunnel` and :py:meth:`stop_tunnel`.
+    """
     Architecture: Literal["i386", "x86_64", "arm64", "x86_64_mac", "arm64_mac"] = Field(
-        default=None, frozen=True
+        default="x86_64", frozen=True
     )
     """
     The architecture of the image.
@@ -6397,6 +6419,13 @@ class LaunchTemplateEbsBlockDevice(Boto3Model):
     """
     The throughput that the volume supports, in MiB/s.
     """
+    VolumeInitializationRate: Optional[int] = None
+    """
+    The Amazon EBS Provisioned Rate for Volume Initialization (volume initialization rate) specified for the volume, in
+    MiB/s.
+
+    If no volume initialization rate was specified, the value is ``null``.
+    """
 
 
 class LaunchTemplateBlockDeviceMapping(Boto3Model):
@@ -6625,6 +6654,10 @@ class LaunchTemplateInstanceNetworkInterfaceSpecification(Boto3Model):
     `Idle connection tracking timeout <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/security-group-connection-tracking.html#connection-
     tracking-timeouts>`_ in the *Amazon EC2 User Guide*.
     """
+    EnaQueueCount: Optional[int] = None
+    """
+    The number of ENA queues created with the instance.
+    """
 
 
 class LaunchTemplatesMonitoring(Boto3Model):
@@ -6740,6 +6773,7 @@ class LaunchTemplateTagSpecification(TagsDictMixin, Boto3Model):
             "network-insights-path",
             "network-insights-access-scope",
             "network-insights-access-scope-analysis",
+            "outpost-lag",
             "placement-group",
             "prefix-list",
             "replace-root-volume-task",
@@ -6747,6 +6781,7 @@ class LaunchTemplateTagSpecification(TagsDictMixin, Boto3Model):
             "route-table",
             "security-group",
             "security-group-rule",
+            "service-link-virtual-interface",
             "snapshot",
             "spot-fleet-request",
             "spot-instances-request",
@@ -8785,6 +8820,10 @@ class NetworkInterfaceAttachment(Boto3Model):
     """
     Configures ENA Express for the network interface that this action attaches to the instance.
     """
+    EnaQueueCount: Optional[int] = None
+    """
+    The number of ENA queues created with the instance.
+    """
 
 
 class EC2ConnectionTrackingConfiguration(Boto3Model):
@@ -9377,6 +9416,18 @@ class NetworkCardInfo(Boto3Model):
     """
     The peak (burst) network performance of the network card, in Gbps.
     """
+    DefaultEnaQueueCountPerInterface: Optional[int] = None
+    """
+    The default number of the ENA queues for each interface.
+    """
+    MaximumEnaQueueCount: Optional[int] = None
+    """
+    The maximum number of the ENA queues.
+    """
+    MaximumEnaQueueCountPerInterface: Optional[int] = None
+    """
+    The maximum number of the ENA queues for each interface.
+    """
 
 
 class EC2EfaInfo(Boto3Model):
@@ -9453,6 +9504,10 @@ class EC2NetworkInfo(Boto3Model):
     BandwidthWeightings: Optional[List[Literal["default", "vpc-1", "ebs-1"]]] = None
     """
     A list of valid settings for configurable bandwidth weighting for the instance type, if supported.
+    """
+    FlexibleEnaQueuesSupport: Optional[Literal["unsupported", "supported"]] = None
+    """
+    Indicates whether changing the number of ENA queues is supported.
     """
 
 
@@ -10950,6 +11005,7 @@ class TagSpecification(TagsDictMixin, Boto3Model):
             "network-insights-path",
             "network-insights-access-scope",
             "network-insights-access-scope-analysis",
+            "outpost-lag",
             "placement-group",
             "prefix-list",
             "replace-root-volume-task",
@@ -10957,6 +11013,7 @@ class TagSpecification(TagsDictMixin, Boto3Model):
             "route-table",
             "security-group",
             "security-group-rule",
+            "service-link-virtual-interface",
             "snapshot",
             "spot-fleet-request",
             "spot-instances-request",
@@ -11882,6 +11939,10 @@ class InstanceNetworkInterfaceSpecification(Boto3Model):
     `Connection tracking timeouts <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/security-group-connection-tracking.html#connection-
     tracking-timeouts>`_ in the *Amazon EC2 User Guide*.
     """
+    EnaQueueCount: Optional[int] = None
+    """
+    The number of ENA queues to be created with the instance.
+    """
 
 
 class IamInstanceProfileSpecification(Boto3Model):
@@ -12049,6 +12110,14 @@ class LaunchTemplateEbsBlockDeviceRequest(Boto3Model):
     Throughput: Optional[int] = None
     """
     The throughput to provision for a ``gp3`` volume, with a maximum of 1,000 MiB/s.
+    """
+    VolumeInitializationRate: Optional[int] = None
+    """
+    Specifies the Amazon EBS Provisioned Rate for Volume Initialization (volume initialization rate), in MiB/s, at which
+    to download the snapshot blocks from Amazon S3 to the volume.
+
+    This is also known as *volume initialization*. Specifying a volume initialization rate ensures that the volume is
+    initialized at a predictable and consistent rate after creation.
     """
 
 
@@ -12224,6 +12293,10 @@ class LaunchTemplateInstanceNetworkInterfaceSpecificationRequest(Boto3Model):
     `Idle connection tracking timeout <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/security-group-connection-tracking.html#connection-
     tracking-timeouts>`_ in the *Amazon EC2 User Guide*.
     """
+    EnaQueueCount: Optional[int] = None
+    """
+    The number of ENA queues to be created with the instance.
+    """
 
 
 class LaunchTemplatesMonitoringRequest(Boto3Model):
@@ -12342,6 +12415,7 @@ class LaunchTemplateTagSpecificationRequest(TagsDictMixin, Boto3Model):
             "network-insights-path",
             "network-insights-access-scope",
             "network-insights-access-scope-analysis",
+            "outpost-lag",
             "placement-group",
             "prefix-list",
             "replace-root-volume-task",
@@ -12349,6 +12423,7 @@ class LaunchTemplateTagSpecificationRequest(TagsDictMixin, Boto3Model):
             "route-table",
             "security-group",
             "security-group-rule",
+            "service-link-virtual-interface",
             "snapshot",
             "spot-fleet-request",
             "spot-instances-request",
