@@ -120,9 +120,9 @@ class ModelPropertyGenerator:
             The method body.
 
         """
-        assert (
-            self.property_def.transformer.regex
-        ), f"Property {self.property_name} does not have a regex transformer"
+        assert self.property_def.transformer.regex, (
+            f"Property {self.property_name} does not have a regex transformer"
+        )
         return f"""
         return self.transform(
             "{self.property_def.transformer.regex.attribute}",
@@ -139,9 +139,9 @@ class ModelPropertyGenerator:
             The method body.
 
         """
-        assert (
-            self.property_def.transformer.mapping
-        ), f"Property {self.property_name} does not have a mapping transformer"
+        assert self.property_def.transformer.mapping, (
+            f"Property {self.property_name} does not have a mapping transformer"
+        )
         code = """        return OrderedDict({
 """
         for key, value in self.property_def.transformer.mapping.items():
@@ -162,9 +162,9 @@ class ModelPropertyGenerator:
             The method body.
 
         """
-        assert (
-            self.property_def.transformer.alias
-        ), f"Property {self.property_name} does not have an alias transformer"
+        assert self.property_def.transformer.alias, (
+            f"Property {self.property_name} does not have an alias transformer"
+        )
         return f"""
         return self.{self.property_def.transformer.alias}
 """
@@ -178,9 +178,9 @@ class ModelPropertyGenerator:
             The method body.
 
         """
-        assert (
-            self.property_def.transformer.code
-        ), f"Property {self.property_name} does not have an code transformer"
+        assert self.property_def.transformer.code, (
+            f"Property {self.property_name} does not have an code transformer"
+        )
         return f"""
         return {self.property_def.transformer.code.code}
 """

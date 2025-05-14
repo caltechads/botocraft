@@ -354,6 +354,9 @@ class ModelDefinition(BaseModel):
     #: The name of the base class for this model.  If not specified, we'll
     #: use the default base class for the use case.
     base_class: Optional[str] = None
+    #: A different docstring for the model.  If not specified, we'll use the
+    #: docstring from the botocore model.
+    docstring: Optional[str] = None
     #: If defined, use this as the model name instead of what botocore supplies.
     #: We use this if some submodels have a ame conflict with a model in
     #: another service or an attribute on a model in this service.
@@ -392,6 +395,11 @@ class ModelDefinition(BaseModel):
     relations: Dict[str, ModelRelationshipDefinition] = {}
     #: Methods on the model that call methods on the manager for the model.
     manager_methods: Dict[str, ModelManagerMethodDefinition] = {}
+    #: If ``True``, this is a bespoke model.  This means that we
+    #: don't have a botocore shape for it and are buiding it out of
+    #: many AWS API calls.  This is used for things like S3 buckets
+    #: and SQS queues, which have no full shapes in botocore.
+    bespoke: bool = False
 
     def unalias_field_name(self, field_name: str) -> str:
         """
@@ -942,9 +950,9 @@ class BotocraftInterface(BaseModel):
         # First purge all the previously generated documentation
         self.purge_docs()
         if service:
-            assert (
-                service in self.services
-            ), f'No service definition for AWS Service "{service}"'
+            assert service in self.services, (
+                f'No service definition for AWS Service "{service}"'
+            )
             print(f"Generating {service} service interface")
             generator = ServiceGenerator(self.services[service])
             generator.generate()

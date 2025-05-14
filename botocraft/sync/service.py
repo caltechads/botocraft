@@ -2,6 +2,7 @@ import re
 import warnings
 from collections import OrderedDict
 from copy import deepcopy
+from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Dict, Final, List, Optional, Set, Type, cast
 
@@ -14,6 +15,7 @@ import isort
 from docformatter.format import Formatter
 
 from .docstring import DocumentationFormatter, FormatterArgs
+from .exceptions import ModelHasNoMembersError, NoPythonTypeError
 from .methods import (  # pylint: disable=import-error
     CreateMethodGenerator,
     DeleteMethodGenerator,
@@ -37,6 +39,22 @@ from .models import (
 )
 from .shapes import PythonTypeShapeConverter
 from .sphinx import ServiceSphinxDocBuilder
+
+
+@dataclass
+class ModelTagsDAO:
+    """
+    A data access object for how to handle tags in a model.
+
+    """
+
+    #: The new set of base classes for this model, possibly including the
+    #: ``TagsDictMixin`` class.
+    base_class: str
+    #: The name of the tag class.  This is the class that will be used to
+    #: represent the tags in the model.  This will be ``None`` if there are no
+    #: tags in the model.
+    tag_class: Optional[str] = None
 
 
 class AbstractGenerator:
@@ -170,7 +188,7 @@ class ModelGenerator(AbstractGenerator):
             model_fields: the botocraft model field definitions for the model
 
         Returns:
-            model_fields with the extra fields added
+            ``model_fields`` with any extra fields from the output shape added
 
         """
         model_def = self.get_model_def(model_name)
@@ -233,12 +251,15 @@ class ModelGenerator(AbstractGenerator):
         the associated model definition, if it exists.
 
         Note:
-            This really only makes sense on :py:class:`botocore.model.StructureShape`
-            objects, since they are the only ones that have fields (aka "members").
+            This really only makes sense on
+            :py:class:`botocore.model.StructureShape` objects or bespoke
+            models, since they are the only ones that have fields (aka
+            "members").
 
         Side Effects:
-            We set :py:attr:`ModelAttributeDefinition.botocore_shape` on each
-            field definition, and we set :py:attr:`ModelAttributeDefinition.readonly`
+            If this is not a bespoke model, we set
+            :py:attr:`ModelAttributeDefinition.botocore_shape` on each field
+            definition, and we set :py:attr:`ModelAttributeDefinition.readonly`
             if the field is not in any of the input shapes for the model.
 
         Returns:
@@ -246,8 +267,10 @@ class ModelGenerator(AbstractGenerator):
 
         """
         model_def = self.get_model_def(model_name)
-        fields: Dict[str, ModelAttributeDefinition] = deepcopy(model_def.fields)
+        if model_def.bespoke:
+            return model_def.extra_fields
         model_shape = self.get_shape(model_name)
+        fields: Dict[str, ModelAttributeDefinition] = deepcopy(model_def.fields)
         if hasattr(model_shape, "members"):
             for field, field_shape in model_shape.members.items():
                 if field not in fields:
@@ -277,10 +300,8 @@ class ModelGenerator(AbstractGenerator):
         """
         Build out the manually defined extra fields for a model.
 
-        Extra fields are exclusively defined in the botocore model definition.
-        We add them manually to the model definition by inspecting the response
-        shape for the create/get/list/update methods and adding any fields that
-        aren't already defined in the service model shape.
+        Extra fields are exclusively defined in the botocraft model definition.
+        We add them manually to the model definition.
 
         Args:
             model_def: The botocraft model definition for this model
@@ -543,37 +564,25 @@ class ModelGenerator(AbstractGenerator):
         model_shape: Optional[botocore.model.Shape] = None,
     ) -> List[str]:
         """
-        Generate the code for a single model and its dependent models and save
-        them to :py:attr:`classes`.
+        Return the python code representing all the fields for a model from the
+        botocore shape.  This is used to generate the fields for a model when we
+        do have a botocore shape for it.
 
         Args:
             model_name: The name of the model to generate. This will be the
                 name of the class.
+            model_def: The botocraft model definition for this model.
 
         Keyword Args:
-            model_shape: The botocore shape to generate the model for.  If not provided,
-                we will look it up in the service model.
-
-        Side Effects:
-            This may add new models to :py:attr:`classes` and new imports to
-            :py:attr:`imports`.
+            model_shape: The botocore shape to generate the model for.  If not
+                provided, we will extract it from the botocore service model.
 
         Returns:
-            The name of the model class that was generated.
+            The list of python code representing the pydantic model fields
+            as strings
 
         """
-        if model_name in self.classes:
-            # If we've already generated this model, just return it.
-            return model_name
-
-        # The list of fields for this model
         fields: List[str] = []
-
-        # Get the model definition for this model from the service definition
-        # file in ``botocraft/data/<service_name>/models.yml``.
-        model_def = self.get_model_def(model_name)
-        # Get the base class for this model
-        base_class = cast(str, model_def.base_class)
         # This needs to be up here before we check for alternate names
         model_fields = self.botocore_shape_field_defs(model_name)
         if not model_shape:
@@ -648,65 +657,186 @@ class ModelGenerator(AbstractGenerator):
                 # Add the docstring for this field
                 if docstring:
                     fields.append(self.docformatter.format_attribute(docstring))
+        return fields
 
-            # Add any botocraft defined properties.  This includes relations.
-            properties = self.get_properties(model_def, base_class)
+    def handle_tag_class(
+        self,
+        model_def: ModelDefinition,
+        base_class: str,
+    ) -> ModelTagsDAO:
+        """
+        Determine whether we need to add
+        :py:class:`~botocraft.mixins.tags.TagsDictMixin` as a mixin for the
+        model, and if so, what the name of the tag class is.
 
-            # Add any botocraft defined mixins to the class inheritance
-            if model_def.mixins:
-                for mixin in model_def.mixins:
-                    self.imports.add(f"from {mixin.import_path} import {mixin.name}")
-                base_class = ", ".join(
-                    [mixin.name for mixin in model_def.mixins] + [base_class]
+        If the model has a ``Tags`` or ``TagList`` field case was, we will add
+        the :py:model:`~botocraft.mixins.tags.TagsDictMixin` class to the base
+        class for this model.  This is used to add the ``tags`` model property
+        that is a writable dictionary of tags for the model instead of a list of
+        dicts, as AWS uses.
+
+        Args:
+            model_def: The botocraft model definition for this model.
+            base_class: The current base class(es) for this model.
+
+        Returns:
+            The new set of base classes for this model, possibly including the
+            ``TagsDictMixin`` class.
+
+        """
+        model_name = model_def.name
+        if model_def.bespoke:
+            # If this is a bespoke model, we need just look at the
+            # ModelDefinition.extra_fields for the tags field -- there won't
+            # be a botocore shape for this model.   model_fields here are the
+            # definitoins for the extra fields in the botocraft model definition.
+            model_fields = model_def.extra_fields
+        else:
+            # This is a botocore model, so we need to get the fields from the
+            # botocore model shape.  THis includes the extra fields that are
+            # manually defined in the botocraft model definition.  This is
+            # a list of model field definitions, augmented from data from the
+            # corresponding members of the botocore shappe.
+            model_fields = self.botocore_shape_field_defs(model_name)
+        field_names = {name.lower(): name for name in model_fields}
+
+        # See if we need to add the TagsDictMixin
+        tag_class: Optional[str] = None
+        tag_attr: Optional[str] = None
+        for name in ["tags", "taglist"]:
+            if name in field_names:
+                # set the tag_attr to the normally capitalized name of the field
+                # in the model definition
+                tag_attr = field_names[name]
+                break
+        if tag_attr:
+            # We do have tags defined in the model definition
+            if tag_attr != "Tags" and model_fields[tag_attr].rename != "Tags":
+                warnings.warn(  # noqa: B028
+                    f'Model {model_name} has a field named "tags".  Rename it '
+                    'to "Tags" in the model definition.'
                 )
-
-            # See if we need to add the TagsDictMixin
-            tag_class: Optional[str] = None
-            has_tags: bool = False
-            field_names = {name.lower(): name for name in model_fields}
-            tag_attr: Optional[str] = None
-            for name in ["tags", "taglist"]:
-                if name in field_names:
-                    tag_attr = field_names[name]
-                    break
-            if tag_attr:
-                # We do have tags defined in the model definition
-                has_tags = True
-                if tag_attr != "Tags" and model_fields[tag_attr].rename != "Tags":
-                    warnings.warn(  # noqa: B028
-                        f'Model {model_name} has a field named "tags".  Rename it '
-                        'to "Tags" in the model definition.'
-                    )
-                # Extract the name of the tag class from the python type annotation.
-                # Different services use different types for tags.
-                tag_class = self.field_type(
+            # Extract the name of the tag class from the python type annotation.
+            # Different services use different types for tags.
+            if model_def.bespoke:
+                # If this is a bespoke model, we need to look at the
+                # ModelDefinition.extra_fields for the tags field -- there won't
+                # be a botocore shape for this model.
+                tag_class = model_fields[tag_attr].python_type
+                assert tag_class, (
+                    f"Bespoke Model {model_name} has a Tag field named "
+                    f"{tag_attr} but no python type annotation for it."
+                )
+            else:
+                tag_class = self.get_python_type_for_field(
                     model_name, tag_attr, model_fields[tag_attr]
                 )
-                tag_class = re.sub(r"List\[(.*)\]", r"\1", tag_class)
-                tag_class = re.sub(r'"(.*)"', r"\1", tag_class)
-            if has_tags:
-                base_class = f"TagsDictMixin, {base_class}"
+            tag_class = re.sub(r"List\[(.*)\]", r"\1", tag_class)
+            tag_class = re.sub(r'"(.*)"', r"\1", tag_class)
+            base_class = f"TagsDictMixin, {base_class}"
+        return ModelTagsDAO(base_class=base_class, tag_class=tag_class)
 
-            # Actually build the class code
-            code: str = f"class {model_name}({base_class}):\n"
+    def generate_single_model(  # noqa: PLR0912
+        self, model_name: str, model_shape: Optional[botocore.model.Shape] = None
+    ) -> str:
+        """
+        Generate the code for a single model and its dependent models and save
+        them to :py:attr:`classes`.
+
+        Args:
+            model_name: The name of the model to generate. This will be the
+                name of the class.
+
+        Keyword Args:
+            model_shape: The botocore shape to generate the model for.  If not provided,
+                we will look it up in the service model.
+
+        Side Effects:
+            This may add new models to :py:attr:`classes` and new imports to
+            :py:attr:`imports`.
+
+        Returns:
+            The name of the model class that was generated.
+
+        """
+        if model_name in self.classes:
+            # If we've already generated this model, just return it.
+            return model_name
+
+        # The list of Python code lines for this model representing the
+        # pydantic model fields.
+        field_code: List[str] = []
+
+        # Get the model definition for this model from the service definition
+        # file in ``botocraft/data/<service_name>/models.yml``.
+        model_def = self.get_model_def(model_name)
+        # Handle the case where the model name is different from the
+        # botocore model name.
+        if model_def.alternate_name:
+            model_name = model_def.alternate_name
+        # Get the base class for this model
+        base_class = cast(str, model_def.base_class)
+
+        if model_def.bespoke:
+            # This is not a botocore model, so we just add the code for the
+            # fields defined in the ModelDefinition.extra_fields attribute.
+            field_code = self.format_extra_fields_from_model_def(model_def)
+        else:
+            # This is a botocore model, so we generate the code for fields from a
+            # combination of the botocore model shape and the botocraft model
+            # definition, including any extra fields that are defined in the
+            # botocraft model definition.
+            field_code = self.format_fields_from_botocore_shape(
+                model_name, model_def, model_shape=model_shape
+            )
+
+        # Add any botocraft defined properties.  This includes relations.
+        properties = self.get_properties(model_def, base_class)
+
+        # Add any botocraft defined mixins to the class inheritance
+        if model_def.mixins:
+            for mixin in model_def.mixins:
+                self.imports.add(f"from {mixin.import_path} import {mixin.name}")
+            base_class = ", ".join(
+                [mixin.name for mixin in model_def.mixins] + [base_class]
+            )
+
+        tags_dao = self.handle_tag_class(model_def, base_class)
+        code: str = f"class {model_name}({tags_dao.base_class}):\n"
+        if model_shape:
+            # If we have a botocore shape for this model, get the docstring
+            # for the class from the shape.
             docstring = self.docformatter.format_docstring(model_shape)
-            if docstring:
-                code += f'    """{docstring}"""\n'
-            if has_tags:
-                code += f"    tag_class: ClassVar[Type] = {tag_class}\n"
-            if "PrimaryBoto3Model" in base_class:
-                if model_def.alternate_name:
-                    manager_name = f"{model_def.alternate_name}Manager"
-                else:
-                    manager_name = f"{model_name}Manager"
-                code += f"    manager_class: ClassVar[Type[Boto3ModelManager]] = {manager_name}\n\n"  # noqa: E501
-            if fields:
-                code += "\n".join(fields)
-            if properties:
-                code += f"\n{properties}"
-            if not fields and not properties:
-                code += "    pass"
-            self.classes[model_name] = code
+        else:
+            # If we don't have a botocore shape for this model, get the
+            # docstring from the botocraft model definition, if it exists.
+            docstring = model_def.docstring if model_def.docstring else None
+        if docstring:
+            code += f'    """{docstring}"""\n'
+        if tags_dao.tag_class:
+            # The ``tag_class`` attribute is the class that will be used to
+            # represent the tags in the model.  This is used by TagsDictMixin
+            # to convert the tags to a dictionary of tag key/value pairs.
+            code += f"    tag_class: ClassVar[Type] = {tags_dao.tag_class}\n"
+        if "PrimaryBoto3Model" in base_class:
+            if model_def.alternate_name:
+                manager_name = f"{model_def.alternate_name}Manager"
+            else:
+                manager_name = f"{model_name}Manager"
+            code += f"    manager_class: ClassVar[Type[Boto3ModelManager]] = {manager_name}\n\n"  # noqa: E501
+        if field_code:
+            code += "\n".join(field_code)
+        if properties:
+            code += f"\n{properties}"
+        if not field_code and not properties:
+            code += "    pass"
+        # Add the class to the list so we only generate it once and can
+        # write it out to the file later.
+        self.classes[model_name] = code
+        assert code, (
+            f"Model {model_name} has no fields or properties defined.  This is "
+            "probably a bug in the botocraft model definition or generator code."
+        )
         return model_name
 
 

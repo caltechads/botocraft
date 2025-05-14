@@ -254,13 +254,13 @@ class ManagerMethodGenerator:
                     args[_arg_name] = f"{python_type} = {default}"
         if location == "method":
             for arg_name, arg_def in self.method_def.extra_args.items():
-                assert (
-                    arg_name not in args
-                ), f"{self.model_name}Manager.{self.method_name}: "
+                assert arg_name not in args, (
+                    f"{self.model_name}Manager.{self.method_name}: "
+                )
                 f"extra_args.{arg_name}: already defined"
-                assert (
-                    arg_def.python_type is not None
-                ), f"{self.model_name}Manager.{self.method_name}: "
+                assert arg_def.python_type is not None, (
+                    f"{self.model_name}Manager.{self.method_name}: "
+                )
                 f"extra_args.{arg_name}: python_type is required"
                 if kind == "args":
                     if arg_def.required is True:
@@ -481,9 +481,9 @@ class ManagerMethodGenerator:
         for field_data in response_model_def.fields.values():
             if field_data.rename:
                 response_attrs[field_data.rename.lower()] = field_data.rename
-        for attr in response_attrs:
+        for attr, value in response_attrs.items():
             if attr in potential_names:
-                response_attr = response_attrs[attr]
+                response_attr = value
                 break
         attrs = ", ".join([f'"{attr}"' for attr in self.output_shape.members])
         if response_attr:
@@ -561,10 +561,8 @@ class ManagerMethodGenerator:
             return self.method_def.return_type
         # If our output shape has no members, then we return None
         output_shape = cast(botocore.model.StructureShape, self.output_shape)
-        if (
-            not hasattr(output_shape, "members")
-            or hasattr(output_shape, "members")
-            and not output_shape.members
+        if not hasattr(output_shape, "members") or (
+            hasattr(output_shape, "members") and not output_shape.members
         ):
             return "None"
         if self.response_attr is None:
