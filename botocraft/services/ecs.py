@@ -1454,12 +1454,16 @@ class DeploymentCircuitBreaker(Boto3Model):
     The deployment circuit breaker can only be used for services using the rolling update (``ECS``) deployment type.
 
     The **deployment circuit breaker** determines whether a service deployment will fail if the service can't reach a
-    steady state. If you use the deployment circuit breaker, a service deployment will transition to a failed state and
-    stop launching new tasks. If you use the rollback option, when a service deployment fails, the service is rolled
-    back to the last deployment that completed successfully. For more information, see
+    steady state. If it is turned on, a service deployment will transition to a failed state and stop launching new
+    tasks. You can also configure Amazon ECS to roll back your service to the last completed deployment after a failure.
+    For more information, see
     `Rolling update <https://docs.aws.amazon.com/AmazonECS/latest/developerguide/deployment-type-ecs.html>`_
+     in the *Amazon Elastic Container Service Developer Guide*.
+
+    For more information about API failure reasons, see
+    `API failure reasons <https://docs.aws.amazon.com/AmazonECS/latest/developerguide/api_failures_messages.html>`_
     in the *Amazon Elastic
-    Container Service Developer Guide*
+    Container Service Developer Guide*.
     """
 
     enable: bool
@@ -1477,7 +1481,17 @@ class DeploymentCircuitBreaker(Boto3Model):
 
 class DeploymentAlarms(Boto3Model):
     """
-    Information about the CloudWatch alarms.
+    One of the methods which provide a way for you to quickly identify when a deployment has failed, and then to
+    optionally roll back the failure to the last working deployment.
+
+    When the alarms are generated, Amazon ECS sets the service deployment to failed. Set the rollback parameter to have
+    Amazon ECS to roll back your service to the last completed deployment after a failure.
+
+    You can only use the ``DeploymentAlarms`` method to detect failures when the ``DeploymentController`` is set to ``ECS``
+    (rolling update).
+
+    For more information, see `Rolling update <https://docs.aws.amazon.com/AmazonECS/latest/developerguide/deployment-type-
+    ecs.html>`_ in the  **Amazon Elastic Container Service Developer Guide** .
     """
 
     alarmNames: List[str]
@@ -1501,8 +1515,8 @@ class DeploymentAlarms(Boto3Model):
 
 class DeploymentConfiguration(Boto3Model):
     """
-    Optional deployment parameters that control how many tasks run during the deployment and the ordering of stopping
-    and starting tasks.
+    Optional deployment parameters that control how many tasks run during a deployment and the ordering of stopping and
+    starting tasks.
     """
 
     deploymentCircuitBreaker: Optional[DeploymentCircuitBreaker] = None
@@ -1540,9 +1554,10 @@ class DeploymentConfiguration(Boto3Model):
 
 class AwsVpcConfiguration(Boto3Model):
     """
-    The VPC subnets and security groups that are associated with a task.
+    An object representing the networking details for a task or service.
 
-    All specified subnets and security groups must be from the same VPC.
+    For example
+    ``awsVpcConfiguration={subnets=["subnet-12344321"],securityGroups=["sg-12344321"]}``.
     """
 
     subnets: List[str]
@@ -1566,7 +1581,7 @@ class AwsVpcConfiguration(Boto3Model):
 
 class NetworkConfiguration(Boto3Model):
     """
-    The network configuration for the task set.
+    The network configuration for a task or service.
     """
 
     awsvpcConfiguration: Optional[AwsVpcConfiguration] = None
@@ -1577,7 +1592,7 @@ class NetworkConfiguration(Boto3Model):
 
 class Scale(Boto3Model):
     """
-    A floating-point percentage of your desired number of tasks to place and keep running in the task set.
+    A floating-point percentage of the desired number of tasks to place and keep running in the task set.
     """
 
     value: Optional[float] = None
@@ -1594,7 +1609,7 @@ class Scale(Boto3Model):
 
 class DeploymentEphemeralStorage(Boto3Model):
     """
-    The Fargate ephemeral storage settings for the task set.
+    The amount of ephemeral storage to allocate for the deployment.
     """
 
     kmsKeyId: Optional[str] = None
@@ -1783,7 +1798,10 @@ class ServiceConnectClientAlias(Boto3Model):
 
 class TimeoutConfiguration(Boto3Model):
     """
-    A reference to an object that represents the configured timeouts for Service Connect.
+    An object that represents the timeout configurations for Service Connect.
+
+    If ``idleTimeout`` is set to a time that is less than ``perRequestTimeout``, the connection will close when the
+    ``idleTimeout`` is reached and not the ``perRequestTimeout``.
     """
 
     idleTimeoutSeconds: Optional[int] = None
@@ -1805,7 +1823,7 @@ class TimeoutConfiguration(Boto3Model):
 
 class ServiceConnectTlsCertificateAuthority(Boto3Model):
     """
-    The signer certificate authority.
+    The certificate root authority that secures your service.
     """
 
     awsPcaAuthorityArn: Optional[str] = None
@@ -1816,7 +1834,7 @@ class ServiceConnectTlsCertificateAuthority(Boto3Model):
 
 class ServiceConnectTlsConfiguration(Boto3Model):
     """
-    A reference to an object that represents a Transport Layer Security (TLS) configuration.
+    The key that encrypts and decrypts your resources for Service Connect TLS.
     """
 
     issuerCertificateAuthority: ServiceConnectTlsCertificateAuthority
@@ -1961,11 +1979,8 @@ class LogConfiguration(Boto3Model):
 
 class ServiceConnectConfiguration(Boto3Model):
     """
-    The details of the Service Connect configuration that's used by this deployment. Compare the configuration between
-    multiple deployments when troubleshooting issues with new deployments.
-
-    The configuration for this service to discover and connect to services, and be discovered by, and connected from,
-    other services within a namespace.
+    The Service Connect configuration of your Amazon ECS service. The configuration for this service to discover and
+    connect to services, and be discovered by, and connected from, other services within a namespace.
 
     Tasks that run in a namespace can use short names to connect to services in the namespace. Tasks can connect to
     services across all of the clusters in the namespace. Tasks connect through a managed proxy container that collects
@@ -2058,11 +2073,13 @@ class EBSTagSpecification(TagsDictMixin, Boto3Model):
 
 
 class ServiceManagedEBSVolumeConfiguration(Boto3Model):
-    """
-    The configuration for the Amazon EBS volume that Amazon ECS creates and manages on your behalf.
+    """The configuration for the Amazon EBS volume that Amazon ECS creates and manages on your behalf. These settings are used
+    to create each Amazon EBS volume, with one volume created for each task in the service. For information about the
+    supported launch types and operating systems, see `Supported operating systems and launch
+    types <https://docs.aws.amazon.com/AmazonECS/latest/developerguide/ebs-volumes.html#ebs-volumes-configuration>`_ in the
+    *Amazon Elastic Container Service Developer Guide*.
 
-    These settings are used to create each Amazon EBS volume, with one volume created for each task in the service. The
-    Amazon EBS volumes are visible in your account in the Amazon EC2 console once they are created.
+    Many of these parameters map 1:1 with the Amazon EBS ``CreateVolume`` API request parameters.
     """
 
     encrypted: Optional[bool] = None
@@ -2401,7 +2418,7 @@ class PlacementStrategy(Boto3Model):
 
 class DeploymentController(Boto3Model):
     """
-    The deployment controller type the service is using.
+    The deployment controller to use for the service.
     """
 
     type: Literal["ECS", "CODE_DEPLOY", "EXTERNAL"]
@@ -2749,8 +2766,7 @@ class ExecuteCommandLogConfiguration(Boto3Model):
     """
     The log configuration for the results of the execute command actions.
 
-    The logs can be sent to CloudWatch Logs or an
-    Amazon S3 bucket. When ``logging=OVERRIDE`` is specified, a ``logConfiguration`` must be provided.
+    The logs can be sent to CloudWatch Logs or an Amazon S3 bucket.
     """
 
     cloudWatchLogGroupName: Optional[str] = None
@@ -2805,7 +2821,7 @@ class ExecuteCommandConfiguration(Boto3Model):
 
 class ManagedStorageConfiguration(Boto3Model):
     """
-    The details of the managed storage configuration.
+    The managed storage configuration for the cluster.
     """
 
     kmsKeyId: Optional[str] = None
@@ -2820,7 +2836,7 @@ class ManagedStorageConfiguration(Boto3Model):
 
 class ClusterConfiguration(Boto3Model):
     """
-    The execute command configuration for the cluster.
+    The execute command and managed storage configuration for the cluster.
     """
 
     executeCommandConfiguration: Optional[ExecuteCommandConfiguration] = None
@@ -3124,7 +3140,7 @@ class Cluster(TagsDictMixin, PrimaryBoto3Model):
 
 class RepositoryCredentials(Boto3Model):
     """
-    The private repository authentication credentials to use.
+    The repository credentials for private registry authentication.
     """
 
     credentialsParameter: str
@@ -3193,13 +3209,13 @@ class PortMapping(Boto3Model):
 
 class ContainerRestartPolicy(Boto3Model):
     """
-    The restart policy for a container.
+    You can enable a restart policy for each container defined in your task definition, to overcome transient failures
+    faster and maintain task availability.
 
-    When you set up a restart policy, Amazon ECS can restart the container without needing to replace the task. For more
-    information, see
-    `Restart individual containers in Amazon ECS tasks with container restart policies <https://docs.aws.amazon.com/AmazonECS/latest/developerguide/container-restart-policy.html>`_
-    in the
-    *Amazon Elastic Container Service Developer Guide*.
+    When you enable a restart policy for a container, Amazon ECS can restart the container if it exits, without needing
+    to replace the task. For more information, see
+    `Restart individual containers in Amazon ECS tasks with container restart policies <https://docs.aws.amazon.com/AmazonECS/latest/developerguide/container-
+    restart-policy.html>`_ in the *Amazon Elastic Container Service Developer Guide*.
     """
 
     enabled: bool
@@ -3306,13 +3322,25 @@ class VolumeFrom(Boto3Model):
 
 
 class KernelCapabilities(Boto3Model):
-    """
-    The Linux capabilities for the container that are added to or dropped from the default configuration provided by
-    Docker.
+    """The Linux capabilities to add or remove from the default Docker configuration for a container defined in the task
+    definition. For more detailed information about these Linux capabilities, see the
+    `capabilities(7) <http://man7.org/linux/man-pages/man7/capabilities.7.html>`_ Linux manual page.
 
-    For tasks that use the Fargate launch type, ``capabilities`` is supported for all platform versions but the ``add``
-    parameter is only supported if using platform version 1.4.0 or later.
-    """
+    The following describes how Docker processes the Linux capabilities specified in the ``add`` and ``drop`` request
+    parameters. For information about the latest behavior, see `Docker Compose: order of cap_drop and
+    cap_add <https://forums.docker.com/t/docker-compose-order-of-cap-drop-and-cap-add/97136/1>`_ in the Docker Community
+    Forum.
+
+    * When the container is a privleged container, the container capabilities are all of the default Docker capabilities.
+      The capabilities specified in the ``add`` request parameter, and the ``drop`` request parameter are ignored.
+    * When the ``add`` request parameter is set to ALL, the container capabilities are all of the default Docker
+      capabilities, excluding those specified in the ``drop`` request parameter.
+    * When the ``drop`` request parameter is set to ALL, the container capabilities are the capabilities specified in the
+      ``add`` request parameter.
+    * When the ``add`` request parameter and the ``drop`` request parameter are both empty, the capabilities the container
+      capabilities are all of the default Docker capabilities.
+    * The default is to first drop the capabilities specified in the ``drop`` request parameter, and then add the
+      capabilities specified in the ``add`` request parameter."""
 
     add: Optional[List[str]] = None
     """
@@ -3372,11 +3400,9 @@ class Tmpfs(Boto3Model):
 
 
 class LinuxParameters(Boto3Model):
-    """Linux-specific modifications that are applied to the default Docker container configuration, such as Linux kernel
-    capabilities. For more information see
+    """The Linux-specific options that are applied to the container, such as Linux
     `KernelCapabilities <https://docs.aws.amazon.com/AmazonECS/latest/APIReference/API_KernelCapabilities.html>`_.
-
-    This parameter is not supported for Windows containers."""
+    """
 
     capabilities: Optional[KernelCapabilities] = None
     """
@@ -3535,10 +3561,83 @@ class Ulimit(Boto3Model):
 
 class HealthCheck(Boto3Model):
     """
-    The container health check command and associated configuration parameters for the container.
+    An object representing a container health check. Health check parameters that are specified in a container
+    definition override any Docker health checks that exist in the container image (such as those specified in a parent
+    image or from the image's Dockerfile). This configuration maps to the ``HEALTHCHECK`` parameter of docker run.
 
-    This parameter maps to
-    ``HealthCheck`` in the docker container create command and the ``HEALTHCHECK`` parameter of docker run.
+    The Amazon ECS container agent only monitors and reports on the health checks specified in the task definition. Amazon
+    ECS does not monitor Docker health checks that are embedded in a container image and not specified in the container
+    definition. Health check parameters that are specified in a container definition override any Docker health checks that
+    exist in the container image.
+
+    You can view the health status of both individual containers and a task with the DescribeTasks API operation or when
+    viewing the task details in the console.
+
+    The health check is designed to make sure that your containers survive agent restarts, upgrades, or temporary
+    unavailability.
+
+    Amazon ECS performs health checks on containers with the default that launched the container instance or the task.
+
+    The following describes the possible ``healthStatus`` values for a container:
+
+    * ``HEALTHY``-The container health check has passed successfully.
+    * ``UNHEALTHY``-The container health check has failed.
+    * ``UNKNOWN``-The container health check is being evaluated, there's no container health check defined, or Amazon ECS
+      doesn't have the health status of the container.
+
+    The following describes the possible ``healthStatus`` values based on the container health checker status of essential
+    containers in the task with the following priority order (high to low):
+
+    * ``UNHEALTHY``-One or more essential containers have failed their health check.
+    * ``UNKNOWN``-Any essential container running within the task is in an ``UNKNOWN`` state and no other essential
+      containers have an ``UNHEALTHY`` state.
+    * ``HEALTHY``-All essential containers within the task have passed their health checks.
+
+    Consider the following task health example with 2 containers.
+
+    * If Container1 is ``UNHEALTHY`` and Container2 is ``UNKNOWN``, the task health is ``UNHEALTHY``.
+    * If Container1 is ``UNHEALTHY`` and Container2 is ``HEALTHY``, the task health is ``UNHEALTHY``.
+    * If Container1 is ``HEALTHY`` and Container2 is ``UNKNOWN``, the task health is ``UNKNOWN``.
+    * If Container1 is ``HEALTHY`` and Container2 is ``HEALTHY``, the task health is ``HEALTHY``.
+
+    Consider the following task health example with 3 containers.
+
+    * If Container1 is ``UNHEALTHY`` and Container2 is ``UNKNOWN``, and Container3 is ``UNKNOWN``, the task health is
+      ``UNHEALTHY``.
+    * If Container1 is ``UNHEALTHY`` and Container2 is ``UNKNOWN``, and Container3 is ``HEALTHY``, the task health is
+      ``UNHEALTHY``.
+    * If Container1 is ``UNHEALTHY`` and Container2 is ``HEALTHY``, and Container3 is ``HEALTHY``, the task health is
+      ``UNHEALTHY``.
+    * If Container1 is ``HEALTHY`` and Container2 is ``UNKNOWN``, and Container3 is ``HEALTHY``, the task health is
+      ``UNKNOWN``.
+    * If Container1 is ``HEALTHY`` and Container2 is ``UNKNOWN``, and Container3 is ``UNKNOWN``, the task health is
+      ``UNKNOWN``.
+    * If Container1 is ``HEALTHY`` and Container2 is ``HEALTHY``, and Container3 is ``HEALTHY``, the task health is
+      ``HEALTHY``.
+
+    If a task is run manually, and not as part of a service, the task will continue its lifecycle regardless of its health
+    status. For tasks that are part of a service, if the task reports as unhealthy then the task will be stopped and the
+    service scheduler will replace it.
+
+    The following are notes about container health check support:
+
+    * If the Amazon ECS container agent becomes disconnected from the Amazon ECS service, this won't cause a container to
+      transition to an ``UNHEALTHY`` status. This is by design, to ensure that containers remain running during agent restarts
+      or temporary unavailability. The health check status is the "last heard from" response from the Amazon ECS agent, so if
+      the container was considered ``HEALTHY`` prior to the disconnect, that status will remain until the agent reconnects and
+      another health check occurs. There are no assumptions made about the status of the container health checks.
+    * Container health checks require version ``1.17.0`` or greater of the Amazon ECS container agent. For more information,
+      see `Updating the Amazon ECS container agent <https://docs.aws.amazon.com/AmazonECS/latest/developerguide/ecs-agent-
+    update.html>`_.
+    * Container health checks are supported for Fargate tasks if you're using platform version ``1.1.0`` or greater. For
+      more information, see `Fargate platform
+      versions <https://docs.aws.amazon.com/AmazonECS/latest/developerguide/platform_versions.html>`_.
+    * Container health checks aren't supported for tasks that are part of a service that's configured to use a Classic Load
+      Balancer.
+
+    For an example of how to specify a task definition with multiple containers where container dependency is specified, see
+    `Container dependency <https://docs.aws.amazon.com/AmazonECS/latest/developerguide/example_task_definitions.html#example
+    _task_definition-containerdependency>`_ in the *Amazon Elastic Container Service Developer Guide*.
     """
 
     command: List[str]
@@ -3647,7 +3746,7 @@ class FirelensConfiguration(Boto3Model):
     The FireLens configuration for the container.
 
     This is used to specify and configure a log router for container logs. For more information, see
-    `Custom Log Routing <https://docs.aws.amazon.com/AmazonECS/latest/developerguide/using_firelens.html>`_
+    `Custom log routing <https://docs.aws.amazon.com/AmazonECS/latest/developerguide/using_firelens.html>`_
     in the *Amazon Elastic
     Container Service Developer Guide*.
     """
@@ -4009,14 +4108,7 @@ class ContainerDefinition(Boto3Model):
 
 class HostVolumeProperties(Boto3Model):
     """
-    This parameter is specified when you use bind mount host volumes. The contents of the ``host`` parameter determine
-    whether your bind mount host volume persists on the host container instance and where it's stored. If the ``host``
-    parameter is empty, then the Docker daemon assigns a host path for your data volume. However, the data isn't
-    guaranteed to persist after the containers that are associated with it stop running.
-
-    Windows containers can mount whole directories on the same drive as ``$env:ProgramData``. Windows containers can't mount
-    directories on a different drive, and mount point can't be across drives. For example, you can mount
-    ``C:mypath:C:mypath`` and ``D::D:``, but not ``D:mypath:C:mypath`` or ``D::C:mypath``.
+    Details on a container instance bind mount host volume.
     """
 
     sourcePath: Optional[str] = None
@@ -4034,12 +4126,11 @@ class HostVolumeProperties(Boto3Model):
 
 class DockerVolumeConfiguration(Boto3Model):
     """
-    This parameter is specified when you use Docker volumes.
+    This parameter is specified when you're using Docker volumes.
 
-    Windows containers only support the use of the ``local`` driver. To use bind mounts, specify the ``host`` parameter
+    Docker volumes are only supported when you're using the
+    EC2 launch type. Windows containers only support the use of the ``local`` driver. To use bind mounts, specify a ``host``
     instead.
-
-    Docker volumes aren't supported by tasks run on Fargate.
     """
 
     scope: Optional[Literal["task", "shared"]] = None
@@ -4109,7 +4200,12 @@ class EFSAuthorizationConfig(Boto3Model):
 
 class EFSVolumeConfiguration(Boto3Model):
     """
-    This parameter is specified when you use an Amazon Elastic File System file system for task storage.
+    This parameter is specified when you're using an Amazon Elastic File System file system for task storage.
+
+    For more information, see
+    `Amazon EFS volumes <https://docs.aws.amazon.com/AmazonECS/latest/developerguide/efs-volumes.html>`_
+    in
+    the *Amazon Elastic Container Service Developer Guide*.
     """
 
     fileSystemId: str
@@ -4151,9 +4247,13 @@ class EFSVolumeConfiguration(Boto3Model):
 
 
 class FSxWindowsFileServerAuthorizationConfig(Boto3Model):
-    """
-    The authorization configuration details for the Amazon FSx for Windows File Server file system.
-    """
+    """The authorization configuration details for Amazon FSx for Windows File Server file system. See `FSxWindowsFileServerVol
+    umeConfiguration <https://docs.aws.amazon.com/AmazonECS/latest/APIReference/API_FSxWindowsFileServerVolumeConfiguration.
+    html>`_ in the *Amazon ECS API Reference*.
+
+    For more information and the input format, see `Amazon FSx for Windows File Server
+    Volumes <https://docs.aws.amazon.com/AmazonECS/latest/developerguide/wfsx-volumes.html>`_ in the *Amazon Elastic Container
+    Service Developer Guide*."""
 
     credentialsParameter: str
     """
@@ -4171,9 +4271,12 @@ AD (Active Directory) or self-hosted AD on Amazon EC2.
 
 
 class FSxWindowsFileServerVolumeConfiguration(Boto3Model):
-    """
-    This parameter is specified when you use Amazon FSx for Windows File Server file system for task storage.
-    """
+    """This parameter is specified when you're using `Amazon FSx for Windows File
+    Server <https://docs.aws.amazon.com/fsx/latest/WindowsGuide/what-is.html>`_ file system for task storage.
+
+    For more information and the input format, see `Amazon FSx for Windows File Server
+    volumes <https://docs.aws.amazon.com/AmazonECS/latest/developerguide/wfsx-volumes.html>`_ in the *Amazon Elastic Container
+    Service Developer Guide*."""
 
     fileSystemId: str
     """
@@ -4308,10 +4411,11 @@ class TaskDefinitionPlacementConstraint(Boto3Model):
 
 class RuntimePlatform(Boto3Model):
     """
-    The operating system that your task definitions are running on. A platform family is specified only for tasks using
-    the Fargate launch type.
+    Information about the platform for the Amazon ECS service or task.
 
-    When you specify a task in a service, this value must match the ``runtimePlatform`` value of the service.
+    For more information about ``RuntimePlatform``, see
+    `RuntimePlatform <https://docs.aws.amazon.com/AmazonECS/latest/developerguide/task_definition_parameters.html#runtime-
+    platform>`_ in the *Amazon Elastic Container Service Developer Guide*.
     """
 
     cpuArchitecture: Optional[Literal["X86_64", "ARM64"]] = None
@@ -4362,12 +4466,11 @@ class ProxyConfiguration(Boto3Model):
     """
     The configuration details for the App Mesh proxy.
 
-    Your Amazon ECS container instances require at least version 1.26.0 of the container agent and at least version 1.26.0-1
-    of the ``ecs-init`` package to use a proxy configuration. If your container instances are launched from the Amazon ECS
-    optimized AMI version ``20190301`` or later, they contain the required versions of the container agent and ``ecs-init``.
-    For more information, see `Amazon ECS-optimized Linux
-    AMI <https://docs.aws.amazon.com/AmazonECS/latest/developerguide/ecs-optimized_AMI.html>`_ in the *Amazon Elastic
-    Container Service Developer Guide*.
+    For tasks that use the EC2 launch type, the container instances require at least version 1.26.0 of the container agent
+    and at least version 1.26.0-1 of the ``ecs-init`` package to use a proxy configuration. If your container instances are
+    launched from the Amazon ECS optimized AMI version ``20190301`` or later, then they contain the required versions of the
+    container agent and ``ecs-init``. For more information, see `Amazon ECS-optimized Linux
+    AMI <https://docs.aws.amazon.com/AmazonECS/latest/developerguide/ecs-optimized_AMI.html>`_
     """
 
     type: Optional[Literal["APPMESH"]] = None
@@ -4388,9 +4491,15 @@ class ProxyConfiguration(Boto3Model):
 
 
 class EphemeralStorage(Boto3Model):
-    """
-    The ephemeral storage settings to use for tasks run with the task definition.
-    """
+    """The amount of ephemeral storage to allocate for the task. This parameter is used to expand the total amount of ephemeral
+    storage available, beyond the default amount, for tasks hosted on Fargate. For more information, see `Using data volumes
+    in tasks <https://docs.aws.amazon.com/AmazonECS/latest/developerguide/using_data_volumes.html>`_ in the *Amazon ECS
+    Developer Guide;*.
+
+    For tasks using the Fargate launch type, the task requires the following platforms:
+
+    * Linux platform version ``1.4.0`` or later.
+    * Windows platform version ``1.0.0`` or later."""
 
     sizeInGiB: int
     """
@@ -4856,7 +4965,7 @@ class InferenceAcceleratorOverride(Boto3Model):
 
 class TaskOverride(Boto3Model):
     """
-    One or more container overrides.
+    The overrides that are associated with a task.
     """
 
     containerOverrides: Optional[List["ContainerOverride"]] = None
@@ -4901,7 +5010,7 @@ class TaskOverride(Boto3Model):
 
 class TaskEphemeralStorage(Boto3Model):
     """
-    The Fargate ephemeral storage settings for the task.
+    The amount of ephemeral storage to allocate for the task.
     """
 
     sizeInGiB: Optional[int] = None
@@ -5278,7 +5387,7 @@ class Task(TagsDictMixin, PrimaryBoto3Model):
 
 class VersionInfo(Boto3Model):
     """
-    The version information for the Amazon ECS container agent and Docker daemon running on the container instance.
+    The Docker and Amazon ECS container agent version information about a container instance.
     """
 
     agentVersion: Optional[str] = None
@@ -5843,9 +5952,10 @@ class DescribeTasksResponse(Boto3Model):
 
 class TaskManagedEBSVolumeTerminationPolicy(Boto3Model):
     """
-    The termination policy for the volume when the task exits.
+    The termination policy for the Amazon EBS volume when the task exits.
 
-    This provides a way to control whether Amazon ECS terminates the Amazon EBS volume when the task stops.
+    For more information, see
+    `Amazon ECS volume termination policy <https://docs.aws.amazon.com/AmazonECS/latest/developerguide/ebs-volumes.html#ebs-volume-types>`_.
     """
 
     deleteOnTermination: bool
@@ -5865,8 +5975,7 @@ class TaskManagedEBSVolumeConfiguration(Boto3Model):
     """
     The configuration for the Amazon EBS volume that Amazon ECS creates and manages on your behalf.
 
-    These settings are used to create each Amazon EBS volume, with one volume created for each task. The Amazon EBS
-    volumes are visible in your account in the Amazon EC2 console once they are created.
+    These settings are used to create each Amazon EBS volume, with one volume created for each task.
     """
 
     encrypted: Optional[bool] = None

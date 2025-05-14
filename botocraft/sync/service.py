@@ -786,6 +786,7 @@ class ModelGenerator(AbstractGenerator):
             # combination of the botocore model shape and the botocraft model
             # definition, including any extra fields that are defined in the
             # botocraft model definition.
+            model_shape = self.get_shape(model_name)
             field_code = self.format_fields_from_botocore_shape(
                 model_name, model_def, model_shape=model_shape
             )
@@ -806,11 +807,17 @@ class ModelGenerator(AbstractGenerator):
         if model_shape:
             # If we have a botocore shape for this model, get the docstring
             # for the class from the shape.
-            docstring = self.docformatter.format_docstring(model_shape)
+            docstring = self.docformatter.format_docstring(model_shape.documentation)
         else:
             # If we don't have a botocore shape for this model, get the
             # docstring from the botocraft model definition, if it exists.
-            docstring = model_def.docstring if model_def.docstring else None
+            _docstring = model_def.docstring if model_def.docstring else None
+            if _docstring:
+                docstring = self.docformatter.format_docstring(_docstring)
+            else:
+                # If we don't have a docstring, we need to set it to None
+                # so that the docformatter doesn't try to format it.
+                docstring = None
         if docstring:
             code += f'    """{docstring}"""\n'
         if tags_dao.tag_class:

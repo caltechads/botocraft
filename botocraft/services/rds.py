@@ -542,10 +542,14 @@ class RDSDBSubnetGroupManager(Boto3ModelManager):
 
 
 class RDSEndpoint(Boto3Model):
-    """
-    The connection endpoint for the DB instance.
+    """This data type represents the information you need to connect to an Amazon RDS DB instance. This data type is used as a
+    response element in the following actions:
 
-    The endpoint might not be shown for instances with the status of ``creating``.
+    * ``CreateDBInstance``
+    * ``DescribeDBInstances``
+    * ``DeleteDBInstance``
+
+    For the data structure that represents Amazon Aurora DB cluster endpoints, see ``DBClusterEndpoint``.
     """
 
     Address: Optional[str] = None
@@ -693,9 +697,8 @@ class ProcessorFeature(Boto3Model):
 
 class RDSPendingModifiedValues(Boto3Model):
     """
-    Information about pending changes to the DB instance.
-
-    This information is returned only when there are pending changes. Specific changes are identified by subelements.
+    This data type is used as a response element in the ``ModifyDBInstance`` operation and contains changes that will be
+    applied during the next maintenance window.
     """
 
     DBInstanceClass: Optional[str] = None
@@ -922,12 +925,14 @@ class DBInstanceAutomatedBackupsReplication(Boto3Model):
 
 class RDSMasterUserSecret(Boto3Model):
     """
-    The secret managed by RDS in Amazon Web Services Secrets Manager for the master user password.
+    Contains the secret managed by RDS in Amazon Web Services Secrets Manager for the master user password.
 
     For more information, see
     `Password management with Amazon Web Services Secrets Manager <https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/rds-secrets-manager.html>`_
-    in the *Amazon RDS User
-    Guide.*
+    in the *Amazon RDS User Guide*    and
+    `Password management with Amazon Web Services Secrets Manager <https://docs.aws.amazon.com/AmazonRDS/latest/AuroraUserGuide/rds-secrets-manager.html>`_
+    in the *Amazon Aurora
+    User Guide.*
     """
 
     SecretArn: Optional[str] = None
@@ -946,7 +951,13 @@ class RDSMasterUserSecret(Boto3Model):
 
 class RDSCertificateDetails(Boto3Model):
     """
-    The details of the DB instance's server certificate.
+    The details of the DB instance’s server certificate.
+
+    For more information, see `Using SSL/TLS to encrypt a connection to a DB
+    instance <https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/UsingWithRDS.SSL.html>`_ in the *Amazon RDS User Guide*
+    and  `Using SSL/TLS to encrypt a connection to a DB
+    cluster <https://docs.aws.amazon.com/AmazonRDS/latest/AuroraUserGuide/UsingWithRDS.SSL.html>`_ in the *Amazon Aurora User
+    Guide*.
     """
 
     CAIdentifier: Optional[str] = None
@@ -1526,7 +1537,7 @@ class RDSAvailabilityZone(Boto3Model):
 
 class Outpost(Boto3Model):
     """
-    If the subnet is associated with an Outpost, this value specifies the Outpost.
+    A data type that represents an Outpost.
 
     For more information about RDS on Outposts, see
     `Amazon RDS on Amazon Web Services Outposts <https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/rds-on-outposts.html>`_
@@ -1571,31 +1582,31 @@ class RDSDBSubnetGroup(PrimaryBoto3Model):
 
     manager_class: ClassVar[Type[Boto3ModelManager]] = RDSDBSubnetGroupManager
 
-    DBSubnetGroupName: str
+    DBSubnetGroupName: Optional[str] = None
     """
     The name of the DB subnet group.
     """
-    DBSubnetGroupDescription: str
+    DBSubnetGroupDescription: Optional[str] = None
     """
     Provides the description of the DB subnet group.
     """
-    Subnets: List["RDSSubnet"]
-    """
-    Contains a list of ``Subnet`` elements.
-    """
-    VpcId: str
+    VpcId: Optional[str] = None
     """
     Provides the VpcId of the DB subnet group.
     """
-    SubnetGroupStatus: Optional[str] = "Complete"
+    SubnetGroupStatus: Optional[str] = None
     """
     Provides the status of the DB subnet group.
     """
-    DBSubnetGroupArn: str = Field(default=None, frozen=True)
+    Subnets: Optional[List["RDSSubnet"]] = None
+    """
+    Contains a list of ``Subnet`` elements.
+    """
+    DBSubnetGroupArn: Optional[str] = None
     """
     The Amazon Resource Name (ARN) for the DB subnet group.
     """
-    SupportedNetworkTypes: List[str] = Field(default_factory=list, frozen=True)
+    SupportedNetworkTypes: Optional[List[str]] = None
     """
     The network type of the DB subnet group.
     """
@@ -1645,27 +1656,19 @@ class CreateDBInstanceResult(Boto3Model):
 
 class CloudwatchLogsExportConfiguration(Boto3Model):
     """
-    The log types to be enabled for export to CloudWatch Logs for a specific DB instance.
+    The configuration setting for the log types to be enabled for export to CloudWatch Logs for a specific DB instance
+    or DB cluster.
 
-    A change to the ``CloudwatchLogsExportConfiguration`` parameter is always applied to the DB instance immediately.
-    Therefore, the ``ApplyImmediately`` parameter has no effect.
+    The ``EnableLogTypes`` and ``DisableLogTypes`` arrays determine which logs will be exported (or not exported) to
+    CloudWatch Logs. The values within these arrays depend on the DB engine being used.
 
-    This setting doesn't apply to RDS Custom DB instances.
+    For more information about exporting CloudWatch Logs for Amazon RDS DB instances, see `Publishing Database Logs to
+    Amazon CloudWatch Logs <https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/USER_LogAccess.html#USER_LogAccess.Proced
+    ural.UploadtoCloudWatch>`_  in the *Amazon RDS User Guide*.
 
-    The following values are valid for each DB engine:
-
-    * Aurora MySQL - ``audit | error | general | slowquery | iam-db-auth-error``
-    * Aurora PostgreSQL - ``postgresql | iam-db-auth-error``
-    * RDS for MySQL - ``error | general | slowquery | iam-db-auth-error``
-    * RDS for PostgreSQL - ``postgresql | upgrade | iam-db-auth-error``
-
-    For more information about exporting CloudWatch Logs for Amazon RDS, see  `Publishing Database Logs to Amazon CloudWatch
-    Logs <https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/USER_LogAccess.html#USER_LogAccess.Procedural.UploadtoCloud
-    Watch>`_ in the *Amazon RDS User Guide*.
-
-    For more information about exporting CloudWatch Logs for Amazon Aurora, see `Publishing Database Logs to Amazon
-    CloudWatch Logs <https://docs.aws.amazon.com/AmazonRDS/latest/AuroraUserGuide/USER_LogAccess.html#USER_LogAccess.Procedu
-    ral.UploadtoCloudWatch>`_ in the *Amazon Aurora User Guide*.
+    For more information about exporting CloudWatch Logs for Amazon Aurora DB clusters, see `Publishing Database Logs to
+    Amazon CloudWatch Logs <https://docs.aws.amazon.com/AmazonRDS/latest/AuroraUserGuide/USER_LogAccess.html#USER_LogAccess.
+    Procedural.UploadtoCloudWatch>`_ in the *Amazon Aurora User Guide*.
     """
 
     EnableLogTypes: Optional[List[str]] = None

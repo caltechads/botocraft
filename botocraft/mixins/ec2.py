@@ -3,7 +3,7 @@ import subprocess
 from datetime import datetime
 from functools import wraps
 from ipaddress import ip_address
-from typing import TYPE_CHECKING, Any, Callable, Dict, List, Literal, Optional, cast
+from typing import TYPE_CHECKING, Callable, Dict, List, Literal, Optional, cast
 from zoneinfo import ZoneInfo
 
 import psutil

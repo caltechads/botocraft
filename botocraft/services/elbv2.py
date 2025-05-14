@@ -598,7 +598,7 @@ class TargetGroupManager(Boto3ModelManager):
 
 class LoadBalancerState(Boto3Model):
     """
-    The state of the load balancer.
+    Information about the state of the load balancer.
     """
 
     Code: Optional[Literal["active", "provisioning", "active_impaired", "failed"]] = (
@@ -678,7 +678,9 @@ class AvailabilityZone(Boto3Model):
 
 class ElbV2IpamPools(Boto3Model):
     """
-    [Application Load Balancers] The IPAM pool in use by the load balancer, if configured.
+    An IPAM pool is a collection of IP address CIDRs.
+
+    IPAM pools enable you to organize your IP addresses according to your routing and security needs.
     """
 
     Ipv4IpamPoolId: Optional[str] = None
@@ -931,10 +933,8 @@ class Certificate(ReadonlyBoto3Model):
 
 class AuthenticateOidcActionConfig(Boto3Model):
     """
-    [HTTPS listeners] Information about an identity provider that is compliant with OpenID Connect (OIDC).
-
-    Specify only when
-    ``Type`` is ``authenticate-oidc``.
+    Request parameters when using an identity provider (IdP) that is compliant with OpenID Connect (OIDC) to
+    authenticate users.
     """
 
     Issuer: str
@@ -1010,10 +1010,7 @@ class AuthenticateOidcActionConfig(Boto3Model):
 
 class AuthenticateCognitoActionConfig(Boto3Model):
     """
-    [HTTPS listeners] Information for using Amazon Cognito to authenticate users.
-
-    Specify only when ``Type`` is
-    ``authenticate-cognito``.
+    Request parameters to use when integrating with Amazon Cognito to authenticate users.
     """
 
     UserPoolArn: str
@@ -1060,9 +1057,22 @@ class AuthenticateCognitoActionConfig(Boto3Model):
 
 class RedirectActionConfig(Boto3Model):
     """
-    [Application Load Balancer] Information for creating a redirect action.
+    Information about a redirect action.
 
-    Specify only when ``Type`` is ``redirect``.
+    A URI consists of the following components: protocol://hostname:port/path?query. You must modify at least one of the
+    following components to avoid a redirect loop: protocol, hostname, port, or path. Any components that you do not modify
+    retain their original values.
+
+    You can reuse URI components using the following reserved keywords:
+
+    * #{protocol}
+    * #{host}
+    * #{port}
+    * #{path} (the leading "/" is removed)
+    * #{query}
+
+    For example, you can change the path to "/new/#{path}", the hostname to "example.#{host}", or the query to
+    "#{query}&value=xyz".
     """
 
     Protocol: Optional[str] = None
@@ -1106,10 +1116,7 @@ class RedirectActionConfig(Boto3Model):
 
 class FixedResponseActionConfig(Boto3Model):
     """
-    [Application Load Balancer] Information for creating an action that returns a custom HTTP response.
-
-    Specify only when
-    ``Type`` is ``fixed-response``.
+    Information about an action that returns a custom HTTP response.
     """
 
     MessageBody: Optional[str] = None
@@ -1145,7 +1152,7 @@ class TargetGroupTuple(Boto3Model):
 
 class ElbV2TargetGroupStickinessConfig(Boto3Model):
     """
-    The target group stickiness for the rule.
+    Information about the target group stickiness for a rule.
     """
 
     Enabled: Optional[bool] = None
@@ -1162,12 +1169,7 @@ class ElbV2TargetGroupStickinessConfig(Boto3Model):
 
 class ForwardActionConfig(Boto3Model):
     """
-    Information for creating an action that distributes requests among one or more target groups.
-
-    For Network Load
-    Balancers, you can specify a single target group. Specify only when ``Type`` is ``forward``. If you specify both
-    ``ForwardConfig`` and ``TargetGroupArn``, you can specify only one target group using ``ForwardConfig`` and it must be
-    the same target group specified in ``TargetGroupArn``.
+    Information about a forward action.
     """
 
     TargetGroups: Optional[List["TargetGroupTuple"]] = None
@@ -1254,7 +1256,7 @@ class Action(Boto3Model):
 
 class MutualAuthenticationAttributes(Boto3Model):
     """
-    The mutual authentication configuration information.
+    Information about the mutual authentication attributes of a listener.
     """
 
     Mode: Optional[str] = None
@@ -1397,9 +1399,7 @@ class Listener(PrimaryBoto3Model):
 
 class HostHeaderConditionConfig(Boto3Model):
     """
-    Information for a host header condition.
-
-    Specify only when ``Field`` is ``host-header``.
+    Information about a host header condition.
     """
 
     Values: Optional[List[str]] = None
@@ -1413,9 +1413,7 @@ class HostHeaderConditionConfig(Boto3Model):
 
 class PathPatternConditionConfig(Boto3Model):
     """
-    Information for a path pattern condition.
-
-    Specify only when ``Field`` is ``path-pattern``.
+    Information about a path pattern condition.
     """
 
     Values: Optional[List[str]] = None
@@ -1429,9 +1427,9 @@ class PathPatternConditionConfig(Boto3Model):
 
 class HttpHeaderConditionConfig(Boto3Model):
     """
-    Information for an HTTP header condition.
+    Information about an HTTP header condition.
 
-    Specify only when ``Field`` is ``http-header``.
+    There is a set of standard HTTP header fields. You can also define custom HTTP header fields.
     """
 
     HttpHeaderName: Optional[str] = None
@@ -1469,9 +1467,11 @@ class QueryStringKeyValuePair(Boto3Model):
 
 class QueryStringConditionConfig(Boto3Model):
     """
-    Information for a query string condition.
+    Information about a query string condition.
 
-    Specify only when ``Field`` is ``query-string``.
+    The query string component of a URI starts after the first '?' character and is terminated by either a '#' character
+    or the end of the URI. A typical query string contains key/value pairs separated by '&' characters. The allowed
+    characters are specified by RFC 3986. Any character can be percentage encoded.
     """
 
     Values: Optional[List["QueryStringKeyValuePair"]] = None
@@ -1487,9 +1487,11 @@ class QueryStringConditionConfig(Boto3Model):
 
 class HttpRequestMethodConditionConfig(Boto3Model):
     """
-    Information for an HTTP method condition.
+    Information about an HTTP method condition.
 
-    Specify only when ``Field`` is ``http-request-method``.
+    HTTP defines a set of request methods, also referred to as HTTP verbs. For more information, see the
+    `HTTP Method Registry <https://www.iana.org/assignments/http-methods/http-methods.xhtml>`_.
+    You can also define custom HTTP methods.
     """
 
     Values: Optional[List[str]] = None
@@ -1503,9 +1505,10 @@ class HttpRequestMethodConditionConfig(Boto3Model):
 
 class SourceIpConditionConfig(Boto3Model):
     """
-    Information for a source IP condition.
+    Information about a source IP condition.
 
-    Specify only when ``Field`` is ``source-ip``.
+    You can use this condition to route based on the IP address of the source that connects to the load balancer. If a
+    client is behind a proxy, this is the IP address of the proxy not the IP address of the client.
     """
 
     Values: Optional[List[str]] = None
@@ -1636,7 +1639,9 @@ class Rule(PrimaryBoto3Model):
 
 class ResponseCodeMatcher(Boto3Model):
     """
-    The HTTP or gRPC codes to use when checking for a successful response from a target.
+    The codes to use when checking for a successful response from a target.
+
+    If the protocol version is gRPC, these are gRPC codes. Otherwise, these are HTTP codes.
     """
 
     HttpCode: Optional[str] = None
@@ -2048,7 +2053,7 @@ class DescribeTargetGroupsOutput(Boto3Model):
 
 class TargetHealthInfo(Boto3Model):
     """
-    The health information for the target.
+    Information about the current health of a target.
     """
 
     State: Optional[
@@ -2095,11 +2100,7 @@ class TargetHealthInfo(Boto3Model):
 
 class AnomalyDetectionInfo(Boto3Model):
     """
-    The anomaly detection result for the target.
-
-    If no anomalies were detected, the result is ``normal``.
-
-    If anomalies were detected, the result is ``anomalous``.
+    Information about anomaly detection and mitigation.
     """
 
     Result: Optional[Literal["anomalous", "normal"]] = None
@@ -2114,7 +2115,7 @@ class AnomalyDetectionInfo(Boto3Model):
 
 class ElbV2AdministrativeOverride(Boto3Model):
     """
-    The administrative override information for the target.
+    Information about the override status applied to a target.
     """
 
     State: Optional[

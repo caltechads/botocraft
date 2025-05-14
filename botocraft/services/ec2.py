@@ -2752,7 +2752,7 @@ class EC2InstanceTypeManager(ReadonlyBoto3ModelManager):
 
 class VpcCidrBlockState(Boto3Model):
     """
-    Information about the state of the CIDR block.
+    Describes the state of a CIDR block.
     """
 
     State: Optional[
@@ -3036,7 +3036,7 @@ class Vpc(TagsDictMixin, PrimaryBoto3Model):
 
 class SubnetCidrBlockState(Boto3Model):
     """
-    The state of the CIDR block.
+    Describes the state of a CIDR block.
     """
 
     State: Optional[
@@ -3092,9 +3092,7 @@ class SubnetIpv6CidrBlockAssociation(Boto3Model):
 
 class EC2PrivateDnsNameOptionsOnLaunch(Boto3Model):
     """
-    The type of hostnames to assign to instances in the subnet at launch.
-
-    An instance hostname is based on the IPv4 address or ID of the instance.
+    Describes the options for instance hostnames.
     """
 
     HostnameType: Optional[Literal["ip-name", "resource-name"]] = None
@@ -3546,7 +3544,9 @@ class NetworkAclAssociation(Boto3Model):
 
 
 class EC2IcmpTypeCode(Boto3Model):
-    """ICMP protocol: The ICMP type and code."""
+    """
+    Describes the ICMP type and code.
+    """
 
     Code: Optional[int] = None
     """
@@ -3563,7 +3563,9 @@ class EC2IcmpTypeCode(Boto3Model):
 
 
 class NetworkAclPortRange(Boto3Model):
-    """TCP or UDP protocols: The range of ports the rule applies to."""
+    """
+    Describes a range of ports.
+    """
 
     From: Optional[int] = None
     """
@@ -3727,39 +3729,9 @@ class NetworkAcl(TagsDictMixin, PrimaryBoto3Model):
         return Subnet.objects.using(self.session).list(**pk)  # type: ignore[arg-type]
 
 
-class ProductCode(Boto3Model):
-    """
-    Describes a product code.
-    """
-
-    ProductCodeId: Optional[str] = None
-    """
-    The product code.
-    """
-    ProductCodeType: Optional[Literal["devpay", "marketplace"]] = None
-    """
-    The type of product code.
-    """
-
-
-class EC2StateReason(Boto3Model):
-    """
-    The reason for the state change.
-    """
-
-    Code: Optional[str] = None
-    """
-    The reason code for the state change.
-    """
-    Message: Optional[str] = None
-    """
-    The message for the state change.
-    """
-
-
 class EbsBlockDevice(Boto3Model):
     """
-    Parameters used to automatically set up EBS volumes when the instance is launched.
+    Describes a block device for an EBS volume.
     """
 
     DeleteOnTermination: Optional[bool] = None
@@ -3862,6 +3834,36 @@ class EC2BlockDeviceMapping(Boto3Model):
     """
 
 
+class EC2StateReason(Boto3Model):
+    """
+    Describes a state change.
+    """
+
+    Code: Optional[str] = None
+    """
+    The reason code for the state change.
+    """
+    Message: Optional[str] = None
+    """
+    The message for the state change.
+    """
+
+
+class ProductCode(Boto3Model):
+    """
+    Describes a product code.
+    """
+
+    ProductCodeId: Optional[str] = None
+    """
+    The product code.
+    """
+    ProductCodeType: Optional[Literal["devpay", "marketplace"]] = None
+    """
+    The type of product code.
+    """
+
+
 class AMI(TagsDictMixin, AMIModelMixin, PrimaryBoto3Model):
     """
     Describes an image.
@@ -3870,40 +3872,7 @@ class AMI(TagsDictMixin, AMIModelMixin, PrimaryBoto3Model):
     tag_class: ClassVar[Type] = Tag
     manager_class: ClassVar[Type[Boto3ModelManager]] = AMIManager
 
-    Architecture: Literal["i386", "x86_64", "arm64", "x86_64_mac", "arm64_mac"] = Field(
-        default=None, frozen=True
-    )
-    """
-    The architecture of the image.
-    """
-    ImageId: str = Field(default=None, frozen=True)
-    """
-    The ID of the AMI.
-    """
-    ImageType: Literal["machine", "kernel", "ramdisk"] = Field(
-        default=None, frozen=True
-    )
-    """
-    The type of image.
-    """
-    Public: bool = Field(default=None, frozen=True)
-    """
-    Indicates whether the image has public launch permissions.
-
-    The value is ``true`` if this image has public launch
-    permissions or ``false`` if it has only implicit and explicit launch permissions.
-    """
-    KernelId: str = Field(default=None, frozen=True)
-    """
-    The kernel associated with the image, if any.
-
-    Only applicable for machine images.
-    """
-    Platform: Literal["Windows"] = Field(default=None, frozen=True)
-    """
-    This value is set to ``windows`` for Windows AMIs; otherwise, it is blank.
-    """
-    PlatformDetails: str = Field(default=None, frozen=True)
+    PlatformDetails: Optional[str] = None
     """
     The platform details associated with the billing code of the AMI.
 
@@ -3911,7 +3880,7 @@ class AMI(TagsDictMixin, AMIModelMixin, PrimaryBoto3Model):
     `Understand AMI billing information <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ami-billing-info.html>`_
     in the *Amazon EC2 User Guide*.
     """
-    UsageOperation: str = Field(default=None, frozen=True)
+    UsageOperation: Optional[str] = None
     """
     The operation of the Amazon EC2 instance and the billing code that is associated with the AMI.
 
@@ -3924,78 +3893,79 @@ class AMI(TagsDictMixin, AMIModelMixin, PrimaryBoto3Model):
     EC2 API, or the `describe-images <https://docs.aws.amazon.com/cli/latest/reference/ec2/describe-images.html>`_ command in
     the CLI.
     """
-    ProductCodes: List["ProductCode"] = Field(default_factory=list, frozen=True)
+    BlockDeviceMappings: Optional[List["EC2BlockDeviceMapping"]] = None
     """
-    Any product codes associated with the AMI.
+    Any block device mapping entries.
     """
-    RamdiskId: str = Field(default=None, frozen=True)
+    Description: Optional[str] = None
     """
-    The RAM disk associated with the image, if any.
-
-    Only applicable for machine images.
+    The description of the AMI that was provided during image creation.
     """
-    State: Literal[
-        "pending",
-        "available",
-        "invalid",
-        "deregistered",
-        "transient",
-        "failed",
-        "error",
-        "disabled",
-    ] = Field(default=None, frozen=True)
-    """
-    The current state of the AMI.
-
-    If the state is ``available``, the image is successfully registered and can be used to
-    launch an instance.
-    """
-    EnaSupport: bool = Field(default=None, frozen=True)
+    EnaSupport: Optional[bool] = None
     """
     Specifies whether enhanced networking with ENA is enabled.
     """
-    ImageOwnerAlias: str = Field(default=None, frozen=True)
+    Hypervisor: Optional[Literal["ovm", "xen"]] = None
+    """
+    The hypervisor type of the image.
+
+    Only ``xen`` is supported. ``ovm`` is not supported.
+    """
+    ImageOwnerAlias: Optional[str] = None
     """
     The owner alias (``amazon`` | ``aws-backup-vault`` | ``aws-marketplace``).
     """
-    RootDeviceName: str = Field(default=None, frozen=True)
+    Name: Optional[str] = None
+    """
+    The name of the AMI that was provided during image creation.
+    """
+    RootDeviceName: Optional[str] = None
     """
     The device name of the root device volume (for example, ``/dev/sda1``).
     """
-    RootDeviceType: Literal["ebs", "instance-store"] = Field(default=None, frozen=True)
+    RootDeviceType: Optional[Literal["ebs", "instance-store"]] = None
     """
     The type of root device used by the AMI.
 
     The AMI can use an Amazon EBS volume or an instance store volume.
     """
-    SriovNetSupport: str = Field(default=None, frozen=True)
+    SriovNetSupport: Optional[str] = None
     """
     Specifies whether enhanced networking with the Intel 82599 Virtual Function interface is enabled.
     """
-    VirtualizationType: Literal["hvm", "paravirtual"] = Field(default=None, frozen=True)
-    """
-    The type of virtualization of the AMI.
-    """
-    StateReason: EC2StateReason = Field(default=None, frozen=True)
+    StateReason: Optional[EC2StateReason] = None
     """
     The reason for the state change.
     """
-    BootMode: Literal["legacy-bios", "uefi", "uefi-preferred"] = Field(
-        default=None, frozen=True
-    )
+    Tags: Optional[List[Tag]] = None
+    """
+    Any tags assigned to the image.
+    """
+    VirtualizationType: Optional[Literal["hvm", "paravirtual"]] = None
+    """
+    The type of virtualization of the AMI.
+    """
+    BootMode: Optional[Literal["legacy-bios", "uefi", "uefi-preferred"]] = None
     """
     The boot mode of the image.
 
     For more information, see `Boot
     modes <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ami-boot.html>`_ in the *Amazon EC2 User Guide*.
     """
-    DeprecationTime: str = Field(default=None, frozen=True)
+    TpmSupport: Optional[Literal["v2.0"]] = None
+    """
+    If the image is configured for NitroTPM support, the value is ``v2.0``.
+
+    For more information, see
+    `NitroTPM <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/nitrotpm.html>`_ in the *Amazon EC2 User Guide*.
+    """
+    DeprecationTime: Optional[str] = None
     """
     The date and time to deprecate the AMI, in UTC, in the following format: *YYYY*-*MM*-*DD*T*HH*:*MM*:*SS*Z.
 
     If you specified a value for seconds, Amazon EC2 rounds the seconds to the nearest minute.
     """
-    ImdsSupport: Literal["v2.0"] = Field(default=None, frozen=True)
+    ImdsSupport: Optional[Literal["v2.0"]] = None
     """
     If ``v2.0``, it indicates that IMDSv2 is specified in the AMI.
 
@@ -4005,51 +3975,22 @@ class AMI(TagsDictMixin, AMIModelMixin, PrimaryBoto3Model):
     AMI <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/configuring-IMDS-new-instances.html#configure-IMDS-new-
     instances-ami-configuration>`_ in the *Amazon EC2 User Guide*.
     """
-    BlockDeviceMappings: Optional[List["EC2BlockDeviceMapping"]] = None
-    """
-    Any block device mapping entries.
-    """
-    Description: Optional[str] = None
-    """
-    The description of the AMI that was provided during image creation.
-    """
-    Hypervisor: Literal["ovm", "xen"] = Field(default=None, frozen=True)
-    """
-    The hypervisor type of the image.
-
-    Only ``xen`` is supported. ``ovm`` is not supported.
-    """
-    Name: Optional[str] = None
-    """
-    The name of the AMI that was provided during image creation.
-    """
-    Tags: List[Tag] = Field(default_factory=list, frozen=True)
-    """
-    Any tags assigned to the image.
-    """
-    TpmSupport: Literal["v2.0"] = Field(default=None, frozen=True)
-    """
-    If the image is configured for NitroTPM support, the value is ``v2.0``.
-
-    For more information, see
-    `NitroTPM <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/nitrotpm.html>`_ in the *Amazon EC2 User Guide*.
-    """
-    SourceInstanceId: str = Field(default=None, frozen=True)
+    SourceInstanceId: Optional[str] = None
     """
 The ID of the instance that the AMI was created from if the AMI was created using
 `CreateImage <https://docs.aws.amazon.com/AWSEC2/latest/APIReference/API_CreateImage.html>`_. This field only appears if
 the AMI was created using CreateImage.
     """
-    DeregistrationProtection: str = Field(default=None, frozen=True)
+    DeregistrationProtection: Optional[str] = None
     """
     Indicates whether deregistration protection is enabled for the AMI.
     """
-    LastLaunchedTime: str = Field(default=None, frozen=True)
+    LastLaunchedTime: Optional[str] = None
     """
 The date and time, in `ISO 8601 date-time format <http://www.iso.org/iso/iso8601>`_, when the AMI was last used to launch
 an EC2 instance. When the AMI is used to launch an instance, there is a 24-hour delay before that usage is reported.
     """
-    ImageAllowed: bool = Field(default=None, frozen=True)
+    ImageAllowed: Optional[bool] = None
     """
     If ``true``, the AMI satisfies the criteria for Allowed AMIs and can be discovered and used in the account.
 
@@ -4057,25 +3998,84 @@ an EC2 instance. When the AMI is used to launch an instance, there is a 24-hour 
     and Allowed AMIs is set to ``enabled``, the AMI can't be discovered or used in the account. If ``false`` and Allowed
     AMIs is set to ``audit-mode``, the AMI can be discovered and used in the account.
     """
-    SourceImageId: str = Field(default=None, frozen=True)
+    SourceImageId: Optional[str] = None
     """
     The ID of the source AMI from which the AMI was created.
     """
-    SourceImageRegion: str = Field(default=None, frozen=True)
+    SourceImageRegion: Optional[str] = None
     """
     The Region of the source AMI.
     """
-    ImageLocation: str = Field(default=None, frozen=True)
+    ImageId: Optional[str] = None
+    """
+    The ID of the AMI.
+    """
+    ImageLocation: Optional[str] = None
     """
     The location of the AMI.
     """
-    OwnerId: str = Field(default=None, frozen=True)
+    State: Optional[
+        Literal[
+            "pending",
+            "available",
+            "invalid",
+            "deregistered",
+            "transient",
+            "failed",
+            "error",
+            "disabled",
+        ]
+    ] = None
+    """
+    The current state of the AMI.
+
+    If the state is ``available``, the image is successfully registered and can be used to
+    launch an instance.
+    """
+    OwnerId: Optional[str] = None
     """
     The ID of the Amazon Web Services account that owns the image.
     """
-    CreationDate: str = Field(default=None, frozen=True)
+    CreationDate: Optional[str] = None
     """
     The date and time the image was created.
+    """
+    Public: Optional[bool] = None
+    """
+    Indicates whether the image has public launch permissions.
+
+    The value is ``true`` if this image has public launch
+    permissions or ``false`` if it has only implicit and explicit launch permissions.
+    """
+    ProductCodes: Optional[List["ProductCode"]] = None
+    """
+    Any product codes associated with the AMI.
+    """
+    Architecture: Optional[
+        Literal["i386", "x86_64", "arm64", "x86_64_mac", "arm64_mac"]
+    ] = None
+    """
+    The architecture of the image.
+    """
+    ImageType: Optional[Literal["machine", "kernel", "ramdisk"]] = None
+    """
+    The type of image.
+    """
+    KernelId: Optional[str] = None
+    """
+    The kernel associated with the image, if any.
+
+    Only applicable for machine images.
+    """
+    RamdiskId: Optional[str] = None
+    """
+    The RAM disk associated with the image, if any.
+
+    Only applicable for machine images.
+    """
+    Platform: Optional[Literal["Windows"]] = None
+    """
+    This value is set to ``windows`` for Windows AMIs; otherwise, it is blank.
     """
 
     @property
@@ -4124,7 +4124,8 @@ an EC2 instance. When the AMI is used to launch an instance, there is a 24-hour 
 
 class OperatorResponse(Boto3Model):
     """
-    The service provider that manages the EBS volume.
+    Describes whether the resource is managed by a service provider and, if so, describes the service provider that
+    manages it.
     """
 
     Managed: Optional[bool] = None
@@ -4141,7 +4142,7 @@ class OperatorResponse(Boto3Model):
 
 class EbsInstanceBlockDevice(Boto3Model):
     """
-    Parameters used to automatically set up EBS volumes when the instance is launched.
+    Describes a parameter used to set up an EBS volume in a block device mapping.
     """
 
     AttachTime: Optional[datetime] = None
@@ -4191,7 +4192,7 @@ class InstanceBlockDeviceMapping(Boto3Model):
 
 class EC2IamInstanceProfile(Boto3Model):
     """
-    The IAM instance profile associated with the instance, if applicable.
+    Describes an IAM instance profile.
     """
 
     Arn: Optional[str] = None
@@ -4256,7 +4257,7 @@ class ElasticInferenceAcceleratorAssociation(Boto3Model):
 
 class InstanceNetworkInterfaceAssociation(Boto3Model):
     """
-    The association information for an Elastic IPv4 associated with the network interface.
+    Describes association information for an Elastic IP address (IPv4).
     """
 
     CarrierIp: Optional[str] = None
@@ -4283,7 +4284,12 @@ class InstanceNetworkInterfaceAssociation(Boto3Model):
 
 class InstanceAttachmentEnaSrdUdpSpecification(Boto3Model):
     """
-    Configures ENA Express for UDP network traffic.
+    ENA Express is compatible with both TCP and UDP transport protocols.
+
+    When it's enabled, TCP traffic automatically uses it. However, some UDP-based applications are designed to handle
+    network packets that are out of order, without a need for retransmission, such as live video broadcasting or other
+    near-real-time applications. For UDP traffic, you can specify whether to use ENA Express, based on your application
+    environment needs.
     """
 
     EnaSrdUdpEnabled: Optional[bool] = None
@@ -4296,7 +4302,15 @@ class InstanceAttachmentEnaSrdUdpSpecification(Boto3Model):
 
 class InstanceAttachmentEnaSrdSpecification(Boto3Model):
     """
-    Contains the ENA Express settings for the network interface that's attached to the instance.
+    ENA Express uses Amazon Web Services Scalable Reliable Datagram (SRD) technology to increase the maximum bandwidth
+    used per stream and minimize tail latency of network traffic between EC2 instances. With ENA Express, you can
+    communicate between two EC2 instances in the same subnet within the same account, or in different accounts. Both
+    sending and receiving instances must have ENA Express enabled.
+
+    To improve the reliability of network packet delivery, ENA Express reorders network packets on the receiving end by
+    default. However, some UDP-based applications are designed to handle network packets that are out of order to reduce
+    the overhead for packet delivery at the network layer. When ENA Express is enabled, you can specify whether UDP
+    network traffic uses it.
     """
 
     EnaSrdEnabled: Optional[bool] = None
@@ -4311,7 +4325,7 @@ class InstanceAttachmentEnaSrdSpecification(Boto3Model):
 
 class InstanceNetworkInterfaceAttachment(Boto3Model):
     """
-    The network interface attachment.
+    Describes a network interface attachment.
     """
 
     AttachTime: Optional[datetime] = None
@@ -4429,8 +4443,8 @@ class InstanceIpv6Prefix(Boto3Model):
 
 class ConnectionTrackingSpecificationResponse(Boto3Model):
     """
-    A security group connection tracking configuration that enables you to set the timeout for connection tracking on an
-    Elastic network interface.
+    A security group connection tracking specification response that enables you to set the idle timeout for connection
+    tracking on an Elastic network interface.
 
     For more information, see
     `Connection tracking timeouts <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/security-group-connection-tracking.html#connection-
@@ -4580,7 +4594,7 @@ class EC2CpuOptions(Boto3Model):
 
 class CapacityReservationTargetResponse(Boto3Model):
     """
-    Information about the targeted Capacity Reservation or Capacity Reservation group.
+    Describes a target Capacity Reservation or Capacity Reservation group.
     """
 
     CapacityReservationId: Optional[str] = None
@@ -4595,7 +4609,13 @@ class CapacityReservationTargetResponse(Boto3Model):
 
 class CapacityReservationSpecificationResponse(Boto3Model):
     """
-    Information about the Capacity Reservation targeting option.
+    Describes the instance's Capacity Reservation targeting preferences.
+
+    The action returns the
+    ``capacityReservationPreference`` response element if the instance is configured to run in On-Demand capacity, or if it
+    is configured in run in any ``open`` Capacity Reservation that has matching attributes (instance type, platform,
+    Availability Zone). The action returns the ``capacityReservationTarget`` response element if the instance explicily
+    targets a specific Capacity Reservation or Capacity Reservation group.
     """
 
     CapacityReservationPreference: Optional[
@@ -4614,7 +4634,13 @@ class CapacityReservationSpecificationResponse(Boto3Model):
 
 class EC2HibernationOptions(Boto3Model):
     """
-    Indicates whether the instance is enabled for hibernation.
+    Indicates whether your instance is configured for hibernation.
+
+    This parameter is valid only if the instance meets the
+    `hibernation prerequisites <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/hibernating-prerequisites.html>`_.
+    For    more information, see
+    `Hibernate your Amazon EC2 instance <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/Hibernate.html>`_
+    in the *Amazon EC2 User Guide*.
     """
 
     Configured: Optional[bool] = None
@@ -4682,7 +4708,7 @@ class EC2EnclaveOptions(Boto3Model):
 
 class PrivateDnsNameOptionsResponse(Boto3Model):
     """
-    The options for the instance hostname.
+    Describes the options for instance hostnames.
     """
 
     HostnameType: Optional[Literal["ip-name", "resource-name"]] = None
@@ -4701,7 +4727,7 @@ class PrivateDnsNameOptionsResponse(Boto3Model):
 
 class InstanceMaintenanceOptions(Boto3Model):
     """
-    Provides information on the recovery and maintenance options of your instance.
+    The maintenance options for the instance.
     """
 
     AutoRecovery: Optional[Literal["disabled", "default"]] = None
@@ -4712,7 +4738,8 @@ class InstanceMaintenanceOptions(Boto3Model):
 
 class InstanceNetworkPerformanceOptions(Boto3Model):
     """
-    Contains settings for the network performance options for your instance.
+    With network performance options, you can adjust your bandwidth preferences to meet the needs of the workload that
+    runs on your instance.
     """
 
     BandwidthWeighting: Optional[Literal["default", "vpc-1", "ebs-1"]] = None
@@ -4727,7 +4754,7 @@ class InstanceNetworkPerformanceOptions(Boto3Model):
 
 class InstanceState(Boto3Model):
     """
-    The current state of the instance.
+    Describes the current state of an instance.
     """
 
     Code: Optional[int] = None
@@ -4746,7 +4773,7 @@ class InstanceState(Boto3Model):
 
 class EC2Placement(Boto3Model):
     """
-    The location where the instance launched, if applicable.
+    Describes the placement of an instance.
     """
 
     Affinity: Optional[str] = None
@@ -4797,7 +4824,7 @@ class EC2Placement(Boto3Model):
 
 class EC2DetailedMonitoring(Boto3Model):
     """
-    The monitoring for the instance.
+    Describes the monitoring of an instance.
     """
 
     State: Optional[Literal["disabled", "disabling", "enabled", "pending"]] = None
@@ -6380,7 +6407,7 @@ class LaunchTemplate(TagsDictMixin, PrimaryBoto3Model):
 
 class LaunchTemplateIamInstanceProfileSpecification(Boto3Model):
     """
-    The IAM instance profile.
+    Describes an IAM instance profile.
     """
 
     Arn: Optional[str] = None
@@ -6395,7 +6422,7 @@ class LaunchTemplateIamInstanceProfileSpecification(Boto3Model):
 
 class LaunchTemplateEbsBlockDevice(Boto3Model):
     """
-    Information about the block device for an EBS volume.
+    Describes a block device for an EBS volume.
     """
 
     Encrypted: Optional[bool] = None
@@ -6505,7 +6532,12 @@ class Ipv6PrefixSpecificationResponse(Boto3Model):
 
 class LaunchTemplateEnaSrdUdpSpecification(Boto3Model):
     """
-    Configures ENA Express for UDP network traffic.
+    ENA Express is compatible with both TCP and UDP transport protocols.
+
+    When it's enabled, TCP traffic automatically uses it. However, some UDP-based applications are designed to handle
+    network packets that are out of order, without a need for retransmission, such as live video broadcasting or other
+    near-real-time applications. For UDP traffic, you can specify whether to use ENA Express, based on your application
+    environment needs.
     """
 
     EnaSrdUdpEnabled: Optional[bool] = None
@@ -6518,7 +6550,15 @@ class LaunchTemplateEnaSrdUdpSpecification(Boto3Model):
 
 class LaunchTemplateEnaSrdSpecification(Boto3Model):
     """
-    Contains the ENA Express settings for instances launched from your launch template.
+    ENA Express uses Amazon Web Services Scalable Reliable Datagram (SRD) technology to increase the maximum bandwidth
+    used per stream and minimize tail latency of network traffic between EC2 instances. With ENA Express, you can
+    communicate between two EC2 instances in the same subnet within the same account, or in different accounts. Both
+    sending and receiving instances must have ENA Express enabled.
+
+    To improve the reliability of network packet delivery, ENA Express reorders network packets on the receiving end by
+    default. However, some UDP-based applications are designed to handle network packets that are out of order to reduce
+    the overhead for packet delivery at the network layer. When ENA Express is enabled, you can specify whether UDP
+    network traffic uses it.
     """
 
     EnaSrdEnabled: Optional[bool] = None
@@ -6533,11 +6573,11 @@ class LaunchTemplateEnaSrdSpecification(Boto3Model):
 
 class EC2ConnectionTrackingSpecification(Boto3Model):
     """
-    A security group connection tracking specification that enables you to set the timeout for connection tracking on an
-    Elastic network interface.
+    A security group connection tracking specification that enables you to set the idle timeout for connection tracking
+    on an Elastic network interface.
 
     For more information, see
-    `Idle connection tracking timeout <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/security-group-connection-tracking.html#connection-
+    `Connection tracking timeouts <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/security-group-connection-tracking.html#connection-
     tracking-timeouts>`_ in the *Amazon EC2 User Guide*.
     """
 
@@ -6675,7 +6715,7 @@ class LaunchTemplateInstanceNetworkInterfaceSpecification(Boto3Model):
 
 class LaunchTemplatesMonitoring(Boto3Model):
     """
-    The monitoring for the instance.
+    Describes the monitoring for the instance.
     """
 
     Enabled: Optional[bool] = None
@@ -6688,7 +6728,7 @@ class LaunchTemplatesMonitoring(Boto3Model):
 
 class LaunchTemplatePlacement(Boto3Model):
     """
-    The placement of the instance.
+    Describes the placement of an instance.
     """
 
     AvailabilityZone: Optional[str] = None
@@ -6937,23 +6977,22 @@ class LaunchTemplateInstanceMarketOptions(Boto3Model):
 
 class InstanceCreditSpecification(Boto3Model):
     """
-    The credit option for CPU usage of the instance.
+    Describes the credit option for CPU usage of a burstable performance instance.
     """
 
+    InstanceId: Optional[str] = None
+    """
+    The ID of the instance.
+    """
     CpuCredits: Optional[str] = None
     """
-    The credit option for CPU usage of a T instance.
+    The credit option for CPU usage of the instance.
     """
 
 
 class LaunchTemplateCpuOptions(Boto3Model):
     """
     The CPU options for the instance.
-
-    For more information, see
-    `CPU options for Amazon EC2 instances <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/instance-optimize-cpu.html>`_
-    in the *Amazon EC2 User
-    Guide*.
     """
 
     CoreCount: Optional[int] = None
@@ -7006,10 +7045,6 @@ class LaunchTemplateLicenseConfiguration(Boto3Model):
 class LaunchTemplateHibernationOptions(Boto3Model):
     """
     Indicates whether an instance is configured for hibernation.
-
-    For more information, see
-    `Hibernate your Amazon EC2 instance <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/Hibernate.html>`_
-    in the *Amazon EC2 User Guide*.
     """
 
     Configured: Optional[bool] = None
@@ -7024,9 +7059,9 @@ class LaunchTemplateInstanceMetadataOptions(Boto3Model):
     The metadata options for the instance.
 
     For more information, see
-    `Configure the Instance Metadata Service options <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/configuring-instance-metadata-options.html>`_
-    in the *Amazon
-    EC2 User Guide*.
+    `Use instance metadata to manage your EC2 instance <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-instance-metadata.html>`_
+    in the *Amazon EC2 User
+    Guide*.
     """
 
     State: Optional[Literal["pending", "applied"]] = None
@@ -7117,8 +7152,6 @@ class InstanceMemoryMiB(Boto3Model):
 class InstanceMemoryGiBPerVCpu(Boto3Model):
     """
     The minimum and maximum amount of memory per vCPU, in GiB.
-
-    Default: No minimum or maximum limits
     """
 
     Min: Optional[float] = None
@@ -7138,8 +7171,6 @@ class InstanceMemoryGiBPerVCpu(Boto3Model):
 class InstanceNetworkInterfaceCount(Boto3Model):
     """
     The minimum and maximum number of network interfaces.
-
-    Default: No minimum or maximum limits
     """
 
     Min: Optional[int] = None
@@ -7159,8 +7190,6 @@ class InstanceNetworkInterfaceCount(Boto3Model):
 class InstanceTotalLocalStorageGB(Boto3Model):
     """
     The minimum and maximum amount of total local storage, in GB.
-
-    Default: No minimum or maximum limits
     """
 
     Min: Optional[float] = None
@@ -7178,10 +7207,12 @@ class InstanceTotalLocalStorageGB(Boto3Model):
 
 
 class InstanceBaselineEbsBandwidthMbps(Boto3Model):
-    """The minimum and maximum baseline bandwidth to Amazon EBS, in Mbps. For more information, see `Amazon EBS-optimized
-    instances <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ebs-optimized.html>`_ in the *Amazon EC2 User Guide*.
+    """
+    The minimum and maximum baseline bandwidth to Amazon EBS, in Mbps.
 
-    Default: No minimum or maximum limits"""
+    For more information, see `Amazon EBS-optimized
+    instances <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ebs-optimized.html>`_ in the *Amazon EC2 User Guide*.
+    """
 
     Min: Optional[int] = None
     """
@@ -7201,10 +7232,6 @@ class InstanceAcceleratorCount(Boto3Model):
     """
     The minimum and maximum number of accelerators (GPUs, FPGAs, or Amazon Web Services Inferentia chips) on an
     instance.
-
-    To exclude accelerator-enabled instance types, set ``Max`` to ``0``.
-
-    Default: No minimum or maximum limits
     """
 
     Min: Optional[int] = None
@@ -7224,8 +7251,6 @@ class InstanceAcceleratorCount(Boto3Model):
 class InstanceAcceleratorTotalMemoryMiB(Boto3Model):
     """
     The minimum and maximum amount of total accelerator memory, in MiB.
-
-    Default: No minimum or maximum limits
     """
 
     Min: Optional[int] = None
@@ -7246,7 +7271,11 @@ class InstanceNetworkBandwidthGbps(Boto3Model):
     """
     The minimum and maximum amount of network bandwidth, in gigabits per second (Gbps).
 
-    Default: No minimum or maximum limits
+    Setting the minimum bandwidth does not guarantee that your instance will achieve the minimum bandwidth. Amazon EC2
+    will identify instance types that support the specified minimum bandwidth, but the actual bandwidth of your instance
+    might go below the specified minimum at times. For more information, see
+    `Available instance bandwidth <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-instance-network-bandwidth.html#available-instance-
+    bandwidth>`_ in the *Amazon EC2 User Guide*.
     """
 
     Min: Optional[float] = None
@@ -7294,14 +7323,13 @@ class CpuPerformanceFactor(Boto3Model):
 
 class EC2BaselinePerformanceFactors(Boto3Model):
     """
-    The baseline performance to consider, using an instance family as a baseline reference.
+    The baseline performance to consider, using an instance family as a baseline reference. The instance family
+    establishes the lowest acceptable level of performance. Amazon EC2 uses this baseline to guide instance type
+    selection, but there is no guarantee that the selected instance types will always exceed the baseline for every
+    application.
 
-    The instance family establishes
-    the lowest acceptable level of performance. Amazon EC2 uses this baseline to guide instance type selection, but there is
-    no guarantee that the selected instance types will always exceed the baseline for every application. Currently, this
-    parameter only supports CPU performance as a baseline performance factor. For more information, see `Performance
-    protection <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-fleet-attribute-based-instance-type-
-    selection.html#ec2fleet-abis-performance-protection>`_ in the *Amazon EC2 User Guide*.
+    Currently, this parameter only supports CPU performance as a baseline performance factor. For example, specifying
+    ``c6i`` would use the CPU performance of the ``c6i`` family as the baseline reference.
     """
 
     Cpu: Optional[CpuPerformanceFactor] = None
@@ -7315,7 +7343,33 @@ class LaunchTemplateInstanceRequirements(Boto3Model):
     The attributes for the instance types. When you specify instance attributes, Amazon EC2 will identify instance types
     with these attributes.
 
-    If you specify ``InstanceRequirements``, you can't specify ``InstanceTypes``.
+    You must specify ``VCpuCount`` and ``MemoryMiB``. All other attributes are optional. Any unspecified optional attribute
+    is set to its default.
+
+    When you specify multiple attributes, you get instance types that satisfy all of the specified attributes. If you
+    specify multiple values for an attribute, you get instance types that satisfy any of the specified values.
+
+    To limit the list of instance types from which Amazon EC2 can identify matching instance types, you can use one of the
+    following parameters, but not both in the same request:
+
+    * ``AllowedInstanceTypes`` - The instance types to include in the list. All other instance types are ignored, even if
+      they match your specified attributes.
+    * ``ExcludedInstanceTypes`` - The instance types to exclude from the list, even if they match your specified attributes.
+
+    If you specify ``InstanceRequirements``, you can't specify ``InstanceType``.
+
+    Attribute-based instance type selection is only supported when using Auto Scaling groups, EC2 Fleet, and Spot Fleet to
+    launch instances. If you plan to use the launch template in the `launch instance
+    wizard <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-launch-instance-wizard.html>`_ or with the `RunInstances
+    API <https://docs.aws.amazon.com/AWSEC2/latest/APIReference/API_RunInstances.html>`_, you can't specify
+    ``InstanceRequirements``.
+
+    For more information, see `Create mixed instances group using attribute-based instance type
+    selection <https://docs.aws.amazon.com/autoscaling/ec2/userguide/create-mixed-instances-group-attribute-based-instance-
+    type-selection.html>`_ in the *Amazon EC2 Auto Scaling User Guide*, and also `Specify attributes for instance type
+    selection for EC2 Fleet or Spot Fleet <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-fleet-attribute-based-
+    instance-type-selection.html>`_ and `Spot placement score <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/spot-
+    placement-score.html>`_ in the *Amazon EC2 User Guide*.
     """
 
     VCpuCount: Optional[VCpuCountRange] = None
@@ -7489,7 +7543,7 @@ class LaunchTemplateInstanceRequirements(Boto3Model):
 
 class LaunchTemplatePrivateDnsNameOptions(Boto3Model):
     """
-    The options for the instance hostname.
+    Describes the options for instance hostnames.
     """
 
     HostnameType: Optional[Literal["ip-name", "resource-name"]] = None
@@ -7508,7 +7562,7 @@ class LaunchTemplatePrivateDnsNameOptions(Boto3Model):
 
 class LaunchTemplateInstanceMaintenanceOptions(Boto3Model):
     """
-    The maintenance options for your instance.
+    The maintenance options of your instance.
     """
 
     AutoRecovery: Optional[Literal["default", "disabled"]] = None
@@ -7519,7 +7573,8 @@ class LaunchTemplateInstanceMaintenanceOptions(Boto3Model):
 
 class LaunchTemplateNetworkPerformanceOptions(Boto3Model):
     """
-    Contains the launch template settings for network performance options for your instance.
+    With network performance options, you can adjust your bandwidth preferences to meet the needs of the workload that
+    runs on your instance at launch.
     """
 
     BandwidthWeighting: Optional[Literal["default", "vpc-1", "ebs-1"]] = None
@@ -7534,7 +7589,7 @@ class LaunchTemplateNetworkPerformanceOptions(Boto3Model):
 
 class ResponseLaunchTemplateData(Boto3Model):
     """
-    Information about the launch template.
+    The information for a launch template.
     """
 
     KernelId: Optional[str] = None
@@ -8731,7 +8786,8 @@ class LaunchTemplateVersion(PrimaryBoto3Model):
 
 class NetworkInterfaceAssociation(Boto3Model):
     """
-    The association information for an Elastic IP address (IPv4) associated with the network interface.
+    Describes association information for an Elastic IP address (IPv4 only), or a Carrier IP address (for a network
+    interface which resides in a subnet in a Wavelength Zone).
     """
 
     AllocationId: Optional[str] = None
@@ -8766,7 +8822,12 @@ class NetworkInterfaceAssociation(Boto3Model):
 
 class AttachmentEnaSrdUdpSpecification(Boto3Model):
     """
-    Configures ENA Express for UDP network traffic.
+    ENA Express is compatible with both TCP and UDP transport protocols.
+
+    When it's enabled, TCP traffic automatically uses it. However, some UDP-based applications are designed to handle
+    network packets that are out of order, without a need for retransmission, such as live video broadcasting or other
+    near-real-time applications. For UDP traffic, you can specify whether to use ENA Express, based on your application
+    environment needs.
     """
 
     EnaSrdUdpEnabled: Optional[bool] = None
@@ -8779,7 +8840,15 @@ class AttachmentEnaSrdUdpSpecification(Boto3Model):
 
 class AttachmentEnaSrdSpecification(Boto3Model):
     """
-    Configures ENA Express for the network interface that this action attaches to the instance.
+    ENA Express uses Amazon Web Services Scalable Reliable Datagram (SRD) technology to increase the maximum bandwidth
+    used per stream and minimize tail latency of network traffic between EC2 instances. With ENA Express, you can
+    communicate between two EC2 instances in the same subnet within the same account, or in different accounts. Both
+    sending and receiving instances must have ENA Express enabled.
+
+    To improve the reliability of network packet delivery, ENA Express reorders network packets on the receiving end by
+    default. However, some UDP-based applications are designed to handle network packets that are out of order to reduce
+    the overhead for packet delivery at the network layer. When ENA Express is enabled, you can specify whether UDP
+    network traffic uses it.
     """
 
     EnaSrdEnabled: Optional[bool] = None
@@ -8794,7 +8863,7 @@ class AttachmentEnaSrdSpecification(Boto3Model):
 
 class NetworkInterfaceAttachment(Boto3Model):
     """
-    The network interface attachment.
+    Describes a network interface attachment.
     """
 
     AttachTime: Optional[datetime] = None
@@ -8841,8 +8910,8 @@ class NetworkInterfaceAttachment(Boto3Model):
 
 class EC2ConnectionTrackingConfiguration(Boto3Model):
     """
-    A security group connection tracking configuration that enables you to set the timeout for connection tracking on an
-    Elastic network interface.
+    A security group connection tracking configuration that enables you to set the idle timeout for connection tracking
+    on an Elastic network interface.
 
     For more information, see
     `Connection tracking timeouts <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/security-group-connection-tracking.html#connection-
@@ -8943,7 +9012,12 @@ class Ipv6PrefixSpecification(Boto3Model):
 
 class EC2EnaSrdUdpSpecification(Boto3Model):
     """
-    Configures ENA Express for UDP network traffic.
+    ENA Express is compatible with both TCP and UDP transport protocols.
+
+    When it's enabled, TCP traffic automatically uses it. However, some UDP-based applications are designed to handle
+    network packets that are out of order, without a need for retransmission, such as live video broadcasting or other
+    near-real-time applications. For UDP traffic, you can specify whether to use ENA Express, based on your application
+    environment needs.
     """
 
     EnaSrdUdpEnabled: Optional[bool] = None
@@ -8956,7 +9030,15 @@ class EC2EnaSrdUdpSpecification(Boto3Model):
 
 class EnaSrdSpecification(Boto3Model):
     """
-    Configures ENA Express for the network interface that this action attaches to the instance.
+    ENA Express uses Amazon Web Services Scalable Reliable Datagram (SRD) technology to increase the maximum bandwidth
+    used per stream and minimize tail latency of network traffic between EC2 instances. With ENA Express, you can
+    communicate between two EC2 instances in the same subnet within the same account, or in different accounts. Both
+    sending and receiving instances must have ENA Express enabled.
+
+    To improve the reliability of network packet delivery, ENA Express reorders network packets on the receiving end by
+    default. However, some UDP-based applications are designed to handle network packets that are out of order to reduce
+    the overhead for packet delivery at the network layer. When ENA Express is enabled, you can specify whether UDP
+    network traffic uses it.
     """
 
     EnaSrdEnabled: Optional[bool] = None
@@ -9240,7 +9322,7 @@ class NetworkInterface(PrimaryBoto3Model):
 
 class EC2ProcessorInfo(Boto3Model):
     """
-    Describes the processor.
+    Describes the processor used by the instance type.
     """
 
     SupportedArchitectures: Optional[
@@ -9326,7 +9408,7 @@ class DiskInfo(Boto3Model):
 
 class EC2InstanceStorageInfo(Boto3Model):
     """
-    Describes the instance storage for the instance type.
+    Describes the instance store features that are supported by the instance type.
     """
 
     TotalSizeInGB: Optional[int] = None
@@ -9349,7 +9431,7 @@ class EC2InstanceStorageInfo(Boto3Model):
 
 class EC2EbsOptimizedInfo(Boto3Model):
     """
-    Describes the optimized EBS performance for the instance type.
+    Describes the optimized EBS performance for supported instance types.
     """
 
     BaselineBandwidthInMbps: Optional[int] = None
@@ -9380,7 +9462,7 @@ class EC2EbsOptimizedInfo(Boto3Model):
 
 class EC2EbsInfo(Boto3Model):
     """
-    Describes the Amazon EBS settings for the instance type.
+    Describes the Amazon EBS features supported by the instance type.
     """
 
     EbsOptimizedSupport: Optional[Literal["unsupported", "supported", "default"]] = None
@@ -9456,7 +9538,7 @@ class EC2EfaInfo(Boto3Model):
 
 class EC2NetworkInfo(Boto3Model):
     """
-    Describes the network settings for the instance type.
+    Describes the networking features of the instance type.
     """
 
     NetworkPerformance: Optional[str] = None
@@ -9560,7 +9642,7 @@ class GpuDeviceInfo(Boto3Model):
 
 class EC2GpuInfo(Boto3Model):
     """
-    Describes the GPU accelerator settings for the instance type.
+    Describes the GPU accelerators for the instance type.
     """
 
     Gpus: Optional[List["GpuDeviceInfo"]] = None
@@ -9609,7 +9691,7 @@ class FpgaDeviceInfo(Boto3Model):
 
 class EC2FpgaInfo(Boto3Model):
     """
-    Describes the FPGA accelerator settings for the instance type.
+    Describes the FPGAs for the instance type.
     """
 
     Fpgas: Optional[List["FpgaDeviceInfo"]] = None
@@ -9624,7 +9706,7 @@ class EC2FpgaInfo(Boto3Model):
 
 class EC2PlacementGroupInfo(Boto3Model):
     """
-    Describes the placement group settings for the instance type.
+    Describes the placement group support of the instance type.
     """
 
     SupportedStrategies: Optional[List[Literal["cluster", "partition", "spread"]]] = (
@@ -9637,6 +9719,8 @@ class EC2PlacementGroupInfo(Boto3Model):
 
 class InferenceDeviceMemoryInfo(Boto3Model):
     """
+    Amazon Elastic Inference is no longer available.
+
     Describes the memory available to the inference accelerator.
     """
 
@@ -9673,7 +9757,9 @@ class InferenceDeviceInfo(Boto3Model):
 
 class EC2InferenceAcceleratorInfo(Boto3Model):
     """
-    Describes the Inference accelerator settings for the instance type.
+    Amazon Elastic Inference is no longer available.
+
+    Describes the Inference accelerators for the instance type.
     """
 
     Accelerators: Optional[List["InferenceDeviceInfo"]] = None
@@ -9733,7 +9819,7 @@ class MediaDeviceInfo(Boto3Model):
 
 class EC2MediaAcceleratorInfo(Boto3Model):
     """
-    Describes the media accelerator settings for the instance type.
+    Describes the media accelerators for the instance type.
     """
 
     Accelerators: Optional[List["MediaDeviceInfo"]] = None
@@ -9748,7 +9834,7 @@ class EC2MediaAcceleratorInfo(Boto3Model):
 
 class NeuronDeviceCoreInfo(Boto3Model):
     """
-    Describes the cores available to each neuron accelerator.
+    Describes the cores available to the neuron accelerator.
     """
 
     Count: Optional[int] = None
@@ -9763,7 +9849,7 @@ class NeuronDeviceCoreInfo(Boto3Model):
 
 class NeuronDeviceMemoryInfo(Boto3Model):
     """
-    Describes the memory available to each neuron accelerator.
+    Describes the memory available to the neuron accelerator.
     """
 
     SizeInMiB: Optional[int] = None
@@ -9797,7 +9883,7 @@ class NeuronDeviceInfo(Boto3Model):
 
 class EC2NeuronInfo(Boto3Model):
     """
-    Describes the Neuron accelerator settings for the instance type.
+    Describes the neuron accelerators for the instance type.
     """
 
     NeuronDevices: Optional[List["NeuronDeviceInfo"]] = None
@@ -10910,10 +10996,7 @@ class DescribeVpcsResult(Boto3Model):
 
 class AttributeBooleanValue(Boto3Model):
     """
-    Indicates whether the instances launched in the VPC get DNS hostnames.
-
-    If this attribute is ``true``, instances in the
-    VPC get DNS hostnames; otherwise, they do not.
+    Describes a value for a resource attribute that is a Boolean value.
     """
 
     Value: Optional[bool] = None
@@ -11194,7 +11277,7 @@ class RevokeSecurityGroupIngressResult(Boto3Model):
 
 class ReferencedSecurityGroup(Boto3Model):
     """
-    Describes the security group that is referenced in the rule.
+    Describes the security group that is referenced in the security group rule.
     """
 
     GroupId: Optional[str] = None
@@ -11398,10 +11481,7 @@ class ElasticInferenceAccelerator(Boto3Model):
 
 class EC2LaunchTemplateSpecification(Boto3Model):
     """
-    The launch template.
-
-    Any additional parameters that you specify for the new instance overwrite the corresponding parameters included in
-    the launch template.
+    Describes the launch template to use.
     """
 
     LaunchTemplateId: Optional[str] = None
@@ -11458,10 +11538,7 @@ class SpotMarketOptions(Boto3Model):
 
 class InstanceMarketOptionsRequest(Boto3Model):
     """
-    The market (purchasing) option for the instances.
-
-    For RunInstances, persistent Spot Instance requests are only supported when **InstanceInterruptionBehavior** is set to
-    either ``hibernate`` or ``stop``.
+    Describes the market (purchasing) option for the instances.
     """
 
     MarketType: Optional[Literal["spot", "capacity-block"]] = None
@@ -11475,15 +11552,9 @@ class InstanceMarketOptionsRequest(Boto3Model):
 
 
 class CreditSpecificationRequest(Boto3Model):
-    """The credit option for CPU usage of the burstable performance instance. Valid values are ``standard`` and ``unlimited``.
-    To change this attribute after launch, use  `ModifyInstanceCreditSpecification <https://docs.aws.amazon.com/AWSEC2/lates
-    t/APIReference/API_ModifyInstanceCreditSpecification.html>`_. For more information, see `Burstable performance
-    instances <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/burstable-performance-instances.html>`_ in the *Amazon EC2
-    User Guide*.
-
-    Default: ``standard`` (T2 instances) or ``unlimited`` (T3/T3a/T4g instances)
-
-    For T3 instances with ``host`` tenancy, only ``standard`` is supported."""
+    """
+    The credit option for CPU usage of a T instance.
+    """
 
     CpuCredits: str
     """
@@ -11504,7 +11575,7 @@ class LicenseConfigurationRequest(Boto3Model):
 
 class RunInstancesMonitoringEnabled(Boto3Model):
     """
-    Specifies whether detailed monitoring is enabled for the instance.
+    Describes the monitoring of an instance.
     """
 
     Enabled: bool
@@ -11519,9 +11590,7 @@ class CpuOptionsRequest(Boto3Model):
     """
     The CPU options for the instance.
 
-    For more information, see
-    `Optimize CPU options <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/instance-optimize-cpu.html>`_
-    in the *Amazon EC2 User Guide*.
+    Both the core count and threads per core must be specified in the request.
     """
 
     CoreCount: Optional[int] = None
@@ -11546,7 +11615,7 @@ class CpuOptionsRequest(Boto3Model):
 
 class EC2CapacityReservationTarget(Boto3Model):
     """
-    Information about the target Capacity Reservation or Capacity Reservation group.
+    Describes a target Capacity Reservation or Capacity Reservation group.
     """
 
     CapacityReservationId: Optional[str] = None
@@ -11561,11 +11630,15 @@ class EC2CapacityReservationTarget(Boto3Model):
 
 class CapacityReservationSpecification(Boto3Model):
     """
-    Information about the Capacity Reservation targeting option.
+    Describes an instance's Capacity Reservation targeting option.
 
-    If you do not specify this parameter, the instance's
-    Capacity Reservation preference defaults to ``open``, which enables it to run in any open Capacity Reservation that has
-    matching attributes (instance type, platform, Availability Zone, and tenancy).
+    Use the ``CapacityReservationPreference`` parameter to configure the instance to run as an On-Demand Instance, to run in
+    any ``open`` Capacity Reservation that has matching attributes, or to run only in a Capacity Reservation or Capacity
+    Reservation group. Use the ``CapacityReservationTarget`` parameter to explicitly target a specific Capacity Reservation
+    or a Capacity Reservation group.
+
+    You can only specify ``CapacityReservationPreference`` and ``CapacityReservationTarget`` if the
+    ``CapacityReservationPreference`` is ``capacity-reservations-only``.
     """
 
     CapacityReservationPreference: Optional[
@@ -11583,12 +11656,14 @@ class CapacityReservationSpecification(Boto3Model):
 
 
 class HibernationOptionsRequest(Boto3Model):
-    """Indicates whether an instance is enabled for hibernation. This parameter is valid only if the instance meets the
-    `hibernation prerequisites <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/hibernating-prerequisites.html>`_. For
-    more information, see `Hibernate your Amazon EC2
-    instance <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/Hibernate.html>`_ in the *Amazon EC2 User Guide*.
+    """
+    Indicates whether your instance is configured for hibernation.
 
-    You can't enable hibernation and Amazon Web Services Nitro Enclaves on the same instance.
+    This parameter is valid only if the instance meets the
+    `hibernation prerequisites <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/hibernating-prerequisites.html>`_.
+    For    more information, see
+    `Hibernate your Amazon EC2 instance <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/Hibernate.html>`_
+    in the *Amazon EC2 User Guide*.
     """
 
     Configured: Optional[bool] = None
@@ -11600,9 +11675,6 @@ class HibernationOptionsRequest(Boto3Model):
 class InstanceMetadataOptionsRequest(Boto3Model):
     """
     The metadata options for the instance.
-
-    For more information, see
-    `Instance metadata and user data <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-instance-metadata.html>`_.
     """
 
     HttpTokens: Optional[Literal["optional", "required"]] = None
@@ -11632,11 +11704,13 @@ class InstanceMetadataOptionsRequest(Boto3Model):
 
 
 class EnclaveOptionsRequest(Boto3Model):
-    """Indicates whether the instance is enabled for Amazon Web Services Nitro Enclaves. For more information, see `What is
-    Amazon Web Services Nitro Enclaves? <https://docs.aws.amazon.com/enclaves/latest/user/nitro-enclave.html>`_ in the *Amazon
-    Web Services Nitro Enclaves User Guide*.
+    """
+    Indicates whether the instance is enabled for Amazon Web Services Nitro Enclaves.
 
-    You can't enable Amazon Web Services Nitro Enclaves and hibernation on the same instance.
+    For more information, see
+    `What is Amazon Web Services Nitro Enclaves? <https://docs.aws.amazon.com/enclaves/latest/user/nitro-enclave.html>`_
+    in the *Amazon
+    Web Services Nitro Enclaves User Guide*.
     """
 
     Enabled: Optional[bool] = None
@@ -11647,10 +11721,7 @@ class EnclaveOptionsRequest(Boto3Model):
 
 class PrivateDnsNameOptionsRequest(Boto3Model):
     """
-    The options for the instance hostname.
-
-    The default values are inherited from the subnet. Applies only if creating a network interface, not attaching an
-    existing one.
+    Describes the options for instance hostnames.
     """
 
     HostnameType: Optional[Literal["ip-name", "resource-name"]] = None
@@ -11673,7 +11744,7 @@ class PrivateDnsNameOptionsRequest(Boto3Model):
 
 class InstanceMaintenanceOptionsRequest(Boto3Model):
     """
-    The maintenance and recovery options for the instance.
+    The maintenance options for the instance.
     """
 
     AutoRecovery: Optional[Literal["disabled", "default"]] = None
@@ -11688,7 +11759,8 @@ class InstanceMaintenanceOptionsRequest(Boto3Model):
 
 class InstanceNetworkPerformanceOptionsRequest(Boto3Model):
     """
-    Contains settings for the network performance options for the instance.
+    Configure network performance options for your instance that are geared towards performance improvements based on
+    the workload that it runs.
     """
 
     BandwidthWeighting: Optional[Literal["default", "vpc-1", "ebs-1"]] = None
@@ -11699,7 +11771,7 @@ class InstanceNetworkPerformanceOptionsRequest(Boto3Model):
 
 class OperatorRequest(Boto3Model):
     """
-    Reserved for internal use.
+    The service provider that manages the resource.
     """
 
     Principal: Optional[str] = None
@@ -11736,7 +11808,7 @@ class Ipv6PrefixSpecificationRequest(Boto3Model):
 
 class EnaSrdUdpSpecificationRequest(Boto3Model):
     """
-    Contains ENA Express settings for UDP network traffic for the network interface attached to the instance.
+    Configures ENA Express for UDP network traffic from your launch template.
     """
 
     EnaSrdUdpEnabled: Optional[bool] = None
@@ -11750,7 +11822,7 @@ class EnaSrdUdpSpecificationRequest(Boto3Model):
 
 class EnaSrdSpecificationRequest(Boto3Model):
     """
-    Specifies the ENA Express settings for the network interface that's attached to the instance.
+    Launch instances with ENA Express settings configured from your launch template.
     """
 
     EnaSrdEnabled: Optional[bool] = None
@@ -11765,8 +11837,8 @@ class EnaSrdSpecificationRequest(Boto3Model):
 
 class ConnectionTrackingSpecificationRequest(Boto3Model):
     """
-    A security group connection tracking specification that enables you to set the timeout for connection tracking on an
-    Elastic network interface.
+    A security group connection tracking specification request that enables you to set the idle timeout for connection
+    tracking on an Elastic network interface.
 
     For more information, see
     `Connection tracking timeouts <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/security-group-connection-tracking.html#connection-
@@ -11960,7 +12032,7 @@ class InstanceNetworkInterfaceSpecification(Boto3Model):
 
 class IamInstanceProfileSpecification(Boto3Model):
     """
-    The name or Amazon Resource Name (ARN) of an IAM instance profile.
+    Describes an IAM instance profile.
     """
 
     Arn: Optional[str] = None
@@ -12058,7 +12130,7 @@ class TerminateInstancesResult(Boto3Model):
 
 class LaunchTemplateIamInstanceProfileSpecificationRequest(Boto3Model):
     """
-    The name or Amazon Resource Name (ARN) of an IAM instance profile.
+    An IAM instance profile.
     """
 
     Arn: Optional[str] = None
@@ -12073,7 +12145,7 @@ class LaunchTemplateIamInstanceProfileSpecificationRequest(Boto3Model):
 
 class LaunchTemplateEbsBlockDeviceRequest(Boto3Model):
     """
-    Parameters used to automatically set up EBS volumes when the instance is launched.
+    The parameters for a block device for an EBS volume.
     """
 
     Encrypted: Optional[bool] = None
@@ -12314,7 +12386,7 @@ class LaunchTemplateInstanceNetworkInterfaceSpecificationRequest(Boto3Model):
 
 class LaunchTemplatesMonitoringRequest(Boto3Model):
     """
-    The monitoring for the instance.
+    Describes the monitoring for the instance.
     """
 
     Enabled: Optional[bool] = None
@@ -12327,7 +12399,7 @@ class LaunchTemplatesMonitoringRequest(Boto3Model):
 
 class LaunchTemplatePlacementRequest(Boto3Model):
     """
-    The placement for the instance.
+    Describes the placement of an instance.
     """
 
     AvailabilityZone: Optional[str] = None
@@ -12567,10 +12639,7 @@ class LaunchTemplateCpuOptionsRequest(Boto3Model):
     """
     The CPU options for the instance.
 
-    For more information, see
-    `CPU options for Amazon EC2 instances <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/instance-optimize-cpu.html>`_
-    in the *Amazon EC2 User
-    Guide*.
+    Both the core count and threads per core must be specified in the request.
     """
 
     CoreCount: Optional[int] = None
@@ -12596,11 +12665,13 @@ class LaunchTemplateCpuOptionsRequest(Boto3Model):
 
 class LaunchTemplateCapacityReservationSpecificationRequest(Boto3Model):
     """
-    The Capacity Reservation targeting option.
+    Describes an instance's Capacity Reservation targeting option.
 
-    If you do not specify this parameter, the instance's Capacity Reservation
-    preference defaults to ``open``, which enables it to run in any open Capacity Reservation that has matching attributes
-    (instance type, platform, Availability Zone).
+    You can specify only one option at a time. Use the
+    ``CapacityReservationPreference`` parameter to configure the instance to run in On-Demand capacity or to run in any
+    ``open`` Capacity Reservation that has matching attributes (instance type, platform, Availability Zone). Use the
+    ``CapacityReservationTarget`` parameter to explicitly target a specific Capacity Reservation or a Capacity Reservation
+    group.
     """
 
     CapacityReservationPreference: Optional[
@@ -12630,13 +12701,10 @@ class LaunchTemplateLicenseConfigurationRequest(Boto3Model):
 
 class LaunchTemplateHibernationOptionsRequest(Boto3Model):
     """
-    Indicates whether an instance is enabled for hibernation.
+    Indicates whether the instance is configured for hibernation.
 
     This parameter is valid only if the instance meets the
     `hibernation prerequisites <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/hibernating-prerequisites.html>`_.
-    For    more information, see
-    `Hibernate your Amazon EC2 instance <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/Hibernate.html>`_
-    in the *Amazon EC2 User Guide*.
     """
 
     Configured: Optional[bool] = None
@@ -12650,9 +12718,9 @@ class LaunchTemplateInstanceMetadataOptionsRequest(Boto3Model):
     The metadata options for the instance.
 
     For more information, see
-    `Configure the Instance Metadata Service options <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/configuring-instance-metadata-options.html>`_
-    in the *Amazon
-    EC2 User Guide*.
+    `Use instance metadata to manage your EC2 instance <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-instance-metadata.html>`_
+    in the *Amazon EC2 User
+    Guide*.
     """
 
     HttpTokens: Optional[Literal["optional", "required"]] = None
@@ -12687,11 +12755,13 @@ class LaunchTemplateInstanceMetadataOptionsRequest(Boto3Model):
 
 
 class LaunchTemplateEnclaveOptionsRequest(Boto3Model):
-    """Indicates whether the instance is enabled for Amazon Web Services Nitro Enclaves. For more information, see `What is
-    Nitro Enclaves? <https://docs.aws.amazon.com/enclaves/latest/user/nitro-enclave.html>`_ in the *Amazon Web Services Nitro
-    Enclaves User Guide*.
+    """
+    Indicates whether the instance is enabled for Amazon Web Services Nitro Enclaves.
 
-    You can't enable Amazon Web Services Nitro Enclaves and hibernation on the same instance.
+    For more information, see
+    `What is Nitro Enclaves? <https://docs.aws.amazon.com/enclaves/latest/user/nitro-enclave.html>`_
+    in the *Amazon Web Services Nitro
+    Enclaves User Guide*.
     """
 
     Enabled: Optional[bool] = None
@@ -12741,8 +12811,6 @@ class MemoryMiBRequest(Boto3Model):
 class EC2MemoryGiBPerVCpuRequest(Boto3Model):
     """
     The minimum and maximum amount of memory per vCPU, in GiB.
-
-    Default: No minimum or maximum limits
     """
 
     Min: Optional[float] = None
@@ -12762,8 +12830,6 @@ class EC2MemoryGiBPerVCpuRequest(Boto3Model):
 class NetworkInterfaceCountRequest(Boto3Model):
     """
     The minimum and maximum number of network interfaces.
-
-    Default: No minimum or maximum limits
     """
 
     Min: Optional[int] = None
@@ -12783,8 +12849,6 @@ class NetworkInterfaceCountRequest(Boto3Model):
 class TotalLocalStorageGBRequest(Boto3Model):
     """
     The minimum and maximum amount of total local storage, in GB.
-
-    Default: No minimum or maximum limits
     """
 
     Min: Optional[float] = None
@@ -12802,10 +12866,12 @@ class TotalLocalStorageGBRequest(Boto3Model):
 
 
 class BaselineEbsBandwidthMbpsRequest(Boto3Model):
-    """The minimum and maximum baseline bandwidth to Amazon EBS, in Mbps. For more information, see `Amazon EBS-optimized
-    instances <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ebs-optimized.html>`_ in the *Amazon EC2 User Guide*.
+    """
+    The minimum and maximum baseline bandwidth to Amazon EBS, in Mbps.
 
-    Default: No minimum or maximum limits"""
+    For more information, see `Amazon EBS-optimized
+    instances <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ebs-optimized.html>`_ in the *Amazon EC2 User Guide*.
+    """
 
     Min: Optional[int] = None
     """
@@ -12826,9 +12892,8 @@ class AcceleratorCountRequest(Boto3Model):
     The minimum and maximum number of accelerators (GPUs, FPGAs, or Amazon Web Services Inferentia chips) on an
     instance.
 
-    To exclude accelerator-enabled instance types, set ``Max`` to ``0``.
-
-    Default: No minimum or maximum limits
+    To
+    exclude accelerator-enabled instance types, set ``Max`` to ``0``.
     """
 
     Min: Optional[int] = None
@@ -12849,8 +12914,6 @@ class AcceleratorCountRequest(Boto3Model):
 class AcceleratorTotalMemoryMiBRequest(Boto3Model):
     """
     The minimum and maximum amount of total accelerator memory, in MiB.
-
-    Default: No minimum or maximum limits
     """
 
     Min: Optional[int] = None
@@ -12868,11 +12931,15 @@ class AcceleratorTotalMemoryMiBRequest(Boto3Model):
 
 
 class EC2NetworkBandwidthGbpsRequest(Boto3Model):
-    """The minimum and maximum amount of baseline network bandwidth, in gigabits per second (Gbps). For more information, see
-    `Amazon EC2 instance network bandwidth <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-instance-network-
-    bandwidth.html>`_ in the *Amazon EC2 User Guide*.
+    """
+    The minimum and maximum amount of network bandwidth, in gigabits per second (Gbps).
 
-    Default: No minimum or maximum limits"""
+    Setting the minimum bandwidth does not guarantee that your instance will achieve the minimum bandwidth. Amazon EC2
+    will identify instance types that support the specified minimum bandwidth, but the actual bandwidth of your instance
+    might go below the specified minimum at times. For more information, see
+    `Available instance bandwidth <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-instance-network-bandwidth.html#available-instance-
+    bandwidth>`_ in the *Amazon EC2 User Guide*.
+    """
 
     Min: Optional[float] = None
     """
@@ -12919,14 +12986,13 @@ class CpuPerformanceFactorRequest(Boto3Model):
 
 class BaselinePerformanceFactorsRequest(Boto3Model):
     """
-    The baseline performance to consider, using an instance family as a baseline reference.
+    The baseline performance to consider, using an instance family as a baseline reference. The instance family
+    establishes the lowest acceptable level of performance. Amazon EC2 uses this baseline to guide instance type
+    selection, but there is no guarantee that the selected instance types will always exceed the baseline for every
+    application.
 
-    The instance family establishes
-    the lowest acceptable level of performance. Amazon EC2 uses this baseline to guide instance type selection, but there is
-    no guarantee that the selected instance types will always exceed the baseline for every application. Currently, this
-    parameter only supports CPU performance as a baseline performance factor. For more information, see `Performance
-    protection <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-fleet-attribute-based-instance-type-
-    selection.html#ec2fleet-abis-performance-protection>`_ in the *Amazon EC2 User Guide*.
+    Currently, this parameter only supports CPU performance as a baseline performance factor. For example, specifying
+    ``c6i`` would use the CPU performance of the ``c6i`` family as the baseline reference.
     """
 
     Cpu: Optional[CpuPerformanceFactorRequest] = None
@@ -13143,9 +13209,7 @@ class InstanceRequirementsRequest(Boto3Model):
 
 class LaunchTemplatePrivateDnsNameOptionsRequest(Boto3Model):
     """
-    The options for the instance hostname.
-
-    The default values are inherited from the subnet.
+    Describes the options for instance hostnames.
     """
 
     HostnameType: Optional[Literal["ip-name", "resource-name"]] = None
@@ -13168,7 +13232,7 @@ class LaunchTemplatePrivateDnsNameOptionsRequest(Boto3Model):
 
 class LaunchTemplateInstanceMaintenanceOptionsRequest(Boto3Model):
     """
-    The maintenance options for the instance.
+    The maintenance options of your instance.
     """
 
     AutoRecovery: Optional[Literal["default", "disabled"]] = None
@@ -13183,7 +13247,8 @@ class LaunchTemplateInstanceMaintenanceOptionsRequest(Boto3Model):
 
 class LaunchTemplateNetworkPerformanceOptionsRequest(Boto3Model):
     """
-    Contains launch template settings to boost network performance for the type of workload that runs on your instance.
+    When you configure network performance options in your launch template, your instance is geared for performance
+    improvements based on the workload that it runs as soon as it's available.
     """
 
     BandwidthWeighting: Optional[Literal["default", "vpc-1", "ebs-1"]] = None
@@ -13194,7 +13259,9 @@ class LaunchTemplateNetworkPerformanceOptionsRequest(Boto3Model):
 
 class RequestLaunchTemplateData(Boto3Model):
     """
-    The information for the launch template.
+    The information to include in the launch template.
+
+    You must specify at least one parameter for the launch template data.
     """
 
     KernelId: Optional[str] = None
@@ -14324,8 +14391,8 @@ class ValidationError(Boto3Model):
 
 class ValidationWarning(Boto3Model):
     """
-    If the launch template contains parameters or parameter combinations that are not valid, an error code and an error
-    message are returned for each issue that's found.
+    The error codes and error messages that are returned for the parameters or parameter combinations that are not valid
+    when a new launch template or new version of a launch template is created.
     """
 
     Errors: Optional[List["ValidationError"]] = None
@@ -14401,7 +14468,7 @@ class DeleteLaunchTemplateVersionsResponseSuccessItem(Boto3Model):
 
 class EC2ResponseError(Boto3Model):
     """
-    Information about the error.
+    Describes the error that's returned when you cannot delete a launch template version.
     """
 
     Code: Optional[
@@ -14520,7 +14587,7 @@ class AttachNetworkInterfaceResult(Boto3Model):
 
 class NetworkInterfacePermissionState(Boto3Model):
     """
-    Information about the state of the permission.
+    Describes the state of a network interface permission.
     """
 
     State: Optional[Literal["pending", "granted", "revoking", "revoked"]] = None

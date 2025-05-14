@@ -500,9 +500,17 @@ class ImageScanningConfiguration(Boto3Model):
 
 class EncryptionConfiguration(Boto3Model):
     """
-    The encryption configuration for the repository.
+    The encryption configuration for the repository. This determines how the contents of your repository are encrypted
+    at rest.
 
-    This determines how the contents of your repository are encrypted at rest.
+    By default, when no encryption configuration is set or the ``AES256`` encryption type is used, Amazon ECR uses server-
+    side encryption with Amazon S3-managed encryption keys which encrypts your data at rest using an AES256 encryption
+    algorithm. This does not require any action on your part.
+
+    For more control over the encryption of the contents of your repository, you can use server-side encryption with Key
+    Management Service key stored in Key Management Service (KMS) to encrypt your images. For more information, see `Amazon
+    ECR encryption at rest <https://docs.aws.amazon.com/AmazonECR/latest/userguide/encryption-at-rest.html>`_ in the *Amazon
+    Elastic Container Registry User Guide*.
     """
 
     encryptionType: Literal["AES256", "KMS", "KMS_DSSE"]
@@ -604,7 +612,7 @@ class Repository(TagsDictMixin, RepositoryMixin, PrimaryBoto3Model):
 
 class ImageIdentifier(Boto3Model):
     """
-    An object containing the image tag and image digest associated with an image.
+    An object with identifying information for an image in an Amazon ECR repository.
     """
 
     imageDigest: Optional[str] = None
@@ -632,15 +640,15 @@ class ECRImage(ECRImageMixin, ReadonlyPrimaryBoto3Model):
     """
     The name of the repository associated with the image.
     """
-    imageId: ImageIdentifier = Field(default=None, frozen=True)
+    imageId: Optional[ImageIdentifier] = None
     """
     An object containing the image tag and image digest associated with an image.
     """
-    imageManifest: str = Field(default=None, frozen=True)
+    imageManifest: Optional[str] = None
     """
     The image manifest associated with the image.
     """
-    imageManifestMediaType: str = Field(default=None, frozen=True)
+    imageManifestMediaType: Optional[str] = None
     """
     The manifest media type of the image.
     """
@@ -738,7 +746,7 @@ class DescribeRepositoriesResponse(Boto3Model):
 
 class ListImagesFilter(Boto3Model):
     """
-    The filter key and value with which to filter your ``ListImages`` results.
+    An object representing a filter on a ListImages operation.
     """
 
     tagStatus: Optional[Literal["TAGGED", "UNTAGGED", "ANY"]] = None
@@ -867,7 +875,7 @@ class DescribeImageReplicationStatusResponse(Boto3Model):
 
 class ImageScanStatus(Boto3Model):
     """
-    The current state of the scan.
+    The current status of an image scan.
     """
 
     status: Optional[
@@ -1004,7 +1012,7 @@ class VulnerablePackage(Boto3Model):
 
 class PackageVulnerabilityDetails(Boto3Model):
     """
-    An object that contains the details of a package vulnerability finding.
+    Information about a package vulnerability finding.
     """
 
     cvss: Optional[List["CvssScore"]] = None
@@ -1051,7 +1059,7 @@ class PackageVulnerabilityDetails(Boto3Model):
 
 class Recommendation(Boto3Model):
     """
-    An object that contains information about the recommended course of action to remediate the finding.
+    Details about the recommended course of action to remediate the finding.
     """
 
     url: Optional[str] = None
@@ -1066,7 +1074,7 @@ class Recommendation(Boto3Model):
 
 class Remediation(Boto3Model):
     """
-    An object that contains the details about how to remediate a finding.
+    Information on how to remediate a finding.
     """
 
     recommendation: Optional[Recommendation] = None
@@ -1077,7 +1085,7 @@ class Remediation(Boto3Model):
 
 class AwsEcrContainerImageDetails(Boto3Model):
     """
-    An object that contains details about the Amazon ECR container image involved in the finding.
+    The image details of the Amazon ECR container image.
     """
 
     architecture: Optional[str] = None
@@ -1116,7 +1124,7 @@ class AwsEcrContainerImageDetails(Boto3Model):
 
 class ResourceDetails(Boto3Model):
     """
-    An object that contains details about the resource involved in a finding.
+    Contains details about the resource involved in the finding.
     """
 
     awsEcrContainerImage: Optional[AwsEcrContainerImageDetails] = None
@@ -1166,7 +1174,7 @@ class CvssScoreAdjustment(Boto3Model):
 
 class CvssScoreDetails(Boto3Model):
     """
-    An object that contains details about the CVSS score given to a finding.
+    Information about the CVSS score.
     """
 
     adjustments: Optional[List["CvssScoreAdjustment"]] = None
@@ -1193,7 +1201,7 @@ class CvssScoreDetails(Boto3Model):
 
 class ScoreDetails(Boto3Model):
     """
-    An object that contains details of the Amazon Inspector score.
+    Information about the Amazon Inspector score given to a finding.
     """
 
     cvss: Optional[CvssScoreDetails] = None
@@ -1285,7 +1293,7 @@ class EnhancedImageScanFinding(Boto3Model):
 
 class ImageScanFindings(ReadonlyBoto3Model):
     """
-    The information contained in the image scan findings.
+    The details of an image scan.
     """
 
     findingSeverityCounts: Optional[

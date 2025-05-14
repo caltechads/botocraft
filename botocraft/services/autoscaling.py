@@ -441,7 +441,13 @@ class LaunchConfigurationManager(Boto3ModelManager):
 
 class AutoScalingLaunchTemplateSpecification(Boto3Model):
     """
-    The launch template for the group.
+    Describes the launch template and the version of the launch template that Amazon EC2 Auto Scaling uses to launch
+    Amazon EC2 instances.
+
+    For more information about launch templates, see
+    `Launch templates <https://docs.aws.amazon.com/autoscaling/ec2/userguide/launch-templates.html>`_
+    in the *Amazon EC2 Auto Scaling
+    User Guide*.
     """
 
     LaunchTemplateId: Optional[str] = None
@@ -479,9 +485,9 @@ class AutoScalingLaunchTemplateSpecification(Boto3Model):
 
 
 class VCpuCountRequest(Boto3Model):
-    """
-    The minimum and maximum number of vCPUs for an instance type.
-    """
+    """Specifies the minimum and maximum for the ``VCpuCount`` object when you specify
+    `InstanceRequirements <https://docs.aws.amazon.com/autoscaling/ec2/APIReference/API_InstanceRequirements.html>`_ for an
+    Auto Scaling group."""
 
     Min: int
     """
@@ -494,9 +500,9 @@ class VCpuCountRequest(Boto3Model):
 
 
 class AutoScalingMemoryMiBRequest(Boto3Model):
-    """
-    The minimum and maximum instance memory size for an instance type, in MiB.
-    """
+    """Specifies the minimum and maximum for the ``MemoryMiB`` object when you specify
+    `InstanceRequirements <https://docs.aws.amazon.com/autoscaling/ec2/APIReference/API_InstanceRequirements.html>`_ for an
+    Auto Scaling group."""
 
     Min: int
     """
@@ -509,11 +515,9 @@ class AutoScalingMemoryMiBRequest(Boto3Model):
 
 
 class MemoryGiBPerVCpuRequest(Boto3Model):
-    """
-    The minimum and maximum amount of memory per vCPU for an instance type, in GiB.
-
-    Default: No minimum or maximum limits
-    """
+    """Specifies the minimum and maximum for the ``MemoryGiBPerVCpu`` object when you specify
+    `InstanceRequirements <https://docs.aws.amazon.com/autoscaling/ec2/APIReference/API_InstanceRequirements.html>`_ for an
+    Auto Scaling group."""
 
     Min: Optional[float] = None
     """
@@ -526,11 +530,9 @@ class MemoryGiBPerVCpuRequest(Boto3Model):
 
 
 class AutoScalingNetworkInterfaceCountRequest(Boto3Model):
-    """
-    The minimum and maximum number of network interfaces for an instance type.
-
-    Default: No minimum or maximum limits
-    """
+    """Specifies the minimum and maximum for the ``NetworkInterfaceCount`` object when you specify
+    `InstanceRequirements <https://docs.aws.amazon.com/autoscaling/ec2/APIReference/API_InstanceRequirements.html>`_ for an
+    Auto Scaling group."""
 
     Min: Optional[int] = None
     """
@@ -543,11 +545,9 @@ class AutoScalingNetworkInterfaceCountRequest(Boto3Model):
 
 
 class AutoScalingTotalLocalStorageGBRequest(Boto3Model):
-    """
-    The minimum and maximum total local storage size for an instance type, in GB.
-
-    Default: No minimum or maximum limits
-    """
+    """Specifies the minimum and maximum for the ``TotalLocalStorageGB`` object when you specify
+    `InstanceRequirements <https://docs.aws.amazon.com/autoscaling/ec2/APIReference/API_InstanceRequirements.html>`_ for an
+    Auto Scaling group."""
 
     Min: Optional[float] = None
     """
@@ -560,11 +560,9 @@ class AutoScalingTotalLocalStorageGBRequest(Boto3Model):
 
 
 class AutoScalingBaselineEbsBandwidthMbsRequest(Boto3Model):
-    """The minimum and maximum baseline bandwidth performance for an instance type, in Mbps. For more information, see `Amazon
-    EBS-optimized instances <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ebs-optimized.html>`_ in the *Amazon EC2 User
-    Guide for Linux Instances*.
-
-    Default: No minimum or maximum limits"""
+    """Specifies the minimum and maximum for the ``BaselineEbsBandwidthMbps`` object when you specify
+    `InstanceRequirements <https://docs.aws.amazon.com/autoscaling/ec2/APIReference/API_InstanceRequirements.html>`_ for an
+    Auto Scaling group."""
 
     Min: Optional[int] = None
     """
@@ -577,14 +575,9 @@ class AutoScalingBaselineEbsBandwidthMbsRequest(Boto3Model):
 
 
 class AutoScalingAcceleratorCountRequest(Boto3Model):
-    """
-    The minimum and maximum number of accelerators (GPUs, FPGAs, or Amazon Web Services Inferentia chips) for an
-    instance type.
-
-    To exclude accelerator-enabled instance types, set ``Max`` to ``0``.
-
-    Default: No minimum or maximum limits
-    """
+    """Specifies the minimum and maximum for the ``AcceleratorCount`` object when you specify
+    `InstanceRequirements <https://docs.aws.amazon.com/autoscaling/ec2/APIReference/API_InstanceRequirements.html>`_ for an
+    Auto Scaling group."""
 
     Min: Optional[int] = None
     """
@@ -597,11 +590,9 @@ class AutoScalingAcceleratorCountRequest(Boto3Model):
 
 
 class AutoScalingAcceleratorTotalMemoryMiBRequest(Boto3Model):
-    """
-    The minimum and maximum total memory size for the accelerators on an instance type, in MiB.
-
-    Default: No minimum or maximum limits
-    """
+    """Specifies the minimum and maximum for the ``AcceleratorTotalMemoryMiB`` object when you specify
+    `InstanceRequirements <https://docs.aws.amazon.com/autoscaling/ec2/APIReference/API_InstanceRequirements.html>`_ for an
+    Auto Scaling group."""
 
     Min: Optional[int] = None
     """
@@ -614,11 +605,15 @@ class AutoScalingAcceleratorTotalMemoryMiBRequest(Boto3Model):
 
 
 class NetworkBandwidthGbpsRequest(Boto3Model):
-    """
-    The minimum and maximum amount of network bandwidth, in gigabits per second (Gbps).
+    """Specifies the minimum and maximum for the ``NetworkBandwidthGbps`` object when you specify
+    `InstanceRequirements <https://docs.aws.amazon.com/autoscaling/ec2/APIReference/API_InstanceRequirements.html>`_ for an
+    Auto Scaling group.
 
-    Default: No minimum or maximum limits
-    """
+    Setting the minimum bandwidth does not guarantee that your instance will achieve the minimum bandwidth. Amazon EC2 will
+    identify instance types that support the specified minimum bandwidth, but the actual bandwidth of your instance might go
+    below the specified minimum at times. For more information, see `Available instance
+    bandwidth <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-instance-network-bandwidth.html#available-instance-
+    bandwidth>`_ in the *Amazon EC2 User Guide for Linux Instances*."""
 
     Min: Optional[float] = None
     """
@@ -661,7 +656,13 @@ class AutoScalingCpuPerformanceFactorRequest(Boto3Model):
 
 class AutoScalingBaselinePerformanceFactorsRequest(Boto3Model):
     """
-    The baseline performance factors for the instance requirements.
+    The baseline performance to consider, using an instance family as a baseline reference. The instance family
+    establishes the lowest acceptable level of performance. Auto Scaling uses this baseline to guide instance type
+    selection, but there is no guarantee that the selected instance types will always exceed the baseline for every
+    application.
+
+    Currently, this parameter only supports CPU performance as a baseline performance factor. For example, specifying
+    ``c6i`` uses the CPU performance of the ``c6i`` family as the baseline reference.
     """
 
     Cpu: Optional[AutoScalingCpuPerformanceFactorRequest] = None
@@ -672,15 +673,30 @@ class AutoScalingBaselinePerformanceFactorsRequest(Boto3Model):
 
 class AutoScalingInstanceRequirements(Boto3Model):
     """
-    The instance requirements. Amazon EC2 Auto Scaling uses your specified requirements to identify instance types.
-    Then, it uses your On-Demand and Spot allocation strategies to launch instances from these instance types.
+    The attributes for the instance types for a mixed instances policy. Amazon EC2 Auto Scaling uses your specified
+    requirements to identify instance types. Then, it uses your On-Demand and Spot allocation strategies to launch
+    instances from these instance types.
 
-    You can specify up to four separate sets of instance requirements per Auto Scaling group. This is useful for
-    provisioning instances from different Amazon Machine Images (AMIs) in the same Auto Scaling group. To do this, create
-    the AMIs and create a new launch template for each AMI. Then, create a compatible set of instance requirements for each
-    launch template.
+    When you specify multiple attributes, you get instance types that satisfy all of the specified attributes. If you
+    specify multiple values for an attribute, you get instance types that satisfy any of the specified values.
 
-    If you specify ``InstanceRequirements``, you can't specify ``InstanceType``.
+    To limit the list of instance types from which Amazon EC2 Auto Scaling can identify matching instance types, you can use
+    one of the following parameters, but not both in the same request:
+
+    * ``AllowedInstanceTypes`` - The instance types to include in the list. All other instance types are ignored, even if
+      they match your specified attributes.
+    * ``ExcludedInstanceTypes`` - The instance types to exclude from the list, even if they match your specified attributes.
+
+    You must specify ``VCpuCount`` and ``MemoryMiB``. All other attributes are optional. Any unspecified optional attribute
+    is set to its default.
+
+    For more information, see `Create a mixed instances group using attribute-based instance type
+    selection <https://docs.aws.amazon.com/autoscaling/ec2/userguide/create-mixed-instances-group-attribute-based-instance-
+    type-selection.html>`_ in the *Amazon EC2 Auto Scaling User Guide*. For help determining which instance types match your
+    attributes before you apply them to your Auto Scaling group, see `Preview instance types with specified
+    attributes <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-fleet-attribute-based-instance-type-
+    selection.html#ec2fleet-get-instance-types-from-instance-requirements>`_ in the *Amazon EC2 User Guide for Linux
+    Instances*.
     """
 
     VCpuCount: VCpuCountRequest
@@ -897,8 +913,7 @@ class LaunchTemplateOverrides(Boto3Model):
 
 class AutoScalingLaunchTemplate(Boto3Model):
     """
-    One or more launch templates and the instance types (overrides) that are used to launch EC2 instances to fulfill On-
-    Demand and Spot capacities.
+    Use this structure to specify the launch templates and instance types (overrides) for a mixed instances policy.
     """
 
     LaunchTemplateSpecification: Optional[AutoScalingLaunchTemplateSpecification] = None
@@ -913,7 +928,8 @@ class AutoScalingLaunchTemplate(Boto3Model):
 
 class AutoScalingInstancesDistribution(Boto3Model):
     """
-    The instances distribution.
+    Use this structure to specify the distribution of On-Demand Instances and Spot Instances and the allocation
+    strategies used to fulfill On-Demand and Spot capacities for a mixed instances policy.
     """
 
     OnDemandAllocationStrategy: Optional[str] = None
@@ -963,7 +979,14 @@ class AutoScalingInstancesDistribution(Boto3Model):
 
 class AutoScalingMixedInstancesPolicy(Boto3Model):
     """
-    The mixed instances policy for the group.
+    Use this structure to launch multiple instance types and On-Demand Instances and Spot Instances within a single Auto
+    Scaling group.
+
+    A mixed instances policy contains information that Amazon EC2 Auto Scaling can use to launch instances and help
+    optimize your costs. For more information, see
+    `Auto Scaling groups with multiple instance types and purchase options <https://docs.aws.amazon.com/autoscaling/ec2/userguide/ec2-auto-scaling-mixed-instances-groups.html>`_
+    in the
+    *Amazon EC2 Auto Scaling User Guide*.
     """
 
     LaunchTemplate: Optional[AutoScalingLaunchTemplate] = None
@@ -1119,7 +1142,12 @@ class AutoScalingTagDescription(Boto3Model):
 
 class AutoScalingInstanceReusePolicy(Boto3Model):
     """
-    The instance reuse policy.
+    Describes an instance reuse policy for a warm pool.
+
+    For more information, see
+    `Warm pools for Amazon EC2 Auto Scaling <https://docs.aws.amazon.com/autoscaling/ec2/userguide/ec2-auto-scaling-warm-pools.html>`_
+    in the *Amazon EC2 Auto
+    Scaling User Guide*.
     """
 
     ReuseOnScaleIn: Optional[bool] = None
@@ -1130,7 +1158,7 @@ class AutoScalingInstanceReusePolicy(Boto3Model):
 
 class AutoScalingWarmPoolConfiguration(Boto3Model):
     """
-    The warm pool for the group.
+    Describes a warm pool configuration.
     """
 
     MaxGroupPreparedCapacity: Optional[int] = None
@@ -1173,7 +1201,12 @@ class TrafficSourceIdentifier(Boto3Model):
 
 class AutoScalingInstanceMaintenancePolicy(Boto3Model):
     """
-    An instance maintenance policy.
+    Describes an instance maintenance policy.
+
+    For more information, see
+    `Set instance maintenance policy <https://docs.aws.amazon.com/autoscaling/ec2/userguide/ec2-auto-scaling-instance-maintenance-policy.html>`_
+    in the
+    *Amazon EC2 Auto Scaling User Guide*.
     """
 
     MinHealthyPercentage: Optional[int] = None
@@ -1196,7 +1229,7 @@ class AutoScalingInstanceMaintenancePolicy(Boto3Model):
 
 class AutoScalingAvailabilityZoneDistribution(Boto3Model):
     """
-    The instance capacity distribution across Availability Zones.
+    Describes an Availability Zone distribution.
     """
 
     CapacityDistributionStrategy: Optional[
@@ -1212,7 +1245,7 @@ class AutoScalingAvailabilityZoneDistribution(Boto3Model):
 
 class AutoScalingAvailabilityZoneImpairmentPolicy(Boto3Model):
     """
-    The Availability Zone impairment policy.
+    Describes an Availability Zone impairment policy.
     """
 
     ZonalShiftEnabled: Optional[bool] = None
@@ -1235,7 +1268,9 @@ class AutoScalingAvailabilityZoneImpairmentPolicy(Boto3Model):
 
 class AutoScalingCapacityReservationTarget(Boto3Model):
     """
-    Describes a target Capacity Reservation or Capacity Reservation resource group.
+    The target for the Capacity Reservation.
+
+    Specify Capacity Reservations IDs or Capacity Reservation resource group ARNs.
     """
 
     CapacityReservationIds: Optional[List[str]] = None
@@ -1250,7 +1285,10 @@ class AutoScalingCapacityReservationTarget(Boto3Model):
 
 class AutoScalingCapacityReservationSpecification(Boto3Model):
     """
-    The capacity reservation specification.
+    Describes the Capacity Reservation preference and targeting options.
+
+    If you specify ``open`` or ``none`` for
+    ``CapacityReservationPreference``, do not specify a ``CapacityReservationTarget``.
     """
 
     CapacityReservationPreference: Optional[
@@ -1536,7 +1574,7 @@ operation is in progress.
 
 class EbsMapping(Boto3Model):
     """
-    Information to attach an EBS volume to an instance at launch.
+    Describes information used to set up an Amazon EBS volume specified in a block device mapping.
     """
 
     SnapshotId: Optional[str] = None
@@ -1622,12 +1660,7 @@ class AutoScalingBlockDeviceMapping(Boto3Model):
 
 class AutoScalingInstanceMonitoring(Boto3Model):
     """
-    Controls whether instances in this group are launched with detailed (``true``) or basic (``false``) monitoring.
-
-    For more information, see
-    `Configure monitoring for Auto Scaling instances <https://docs.aws.amazon.com/autoscaling/latest/userguide/enable-as-instance-metrics.html>`_
-    in the *Amazon EC2
-    Auto Scaling User Guide*.
+    Describes whether detailed monitoring is enabled for the Auto Scaling instances.
     """
 
     Enabled: Optional[bool] = None
@@ -2065,7 +2098,8 @@ class AutoScalingInstancesType(Boto3Model):
 
 class AutoScalingActivity(Boto3Model):
     """
-    A scaling activity.
+    Describes scaling activity, which is a long-running process that represents a change to your Auto Scaling group,
+    such as changing its size or replacing an instance.
     """
 
     ActivityId: str

@@ -248,9 +248,7 @@ class KMSKeyManager(Boto3ModelManager):
 
 class MultiRegionKey(Boto3Model):
     """
-    Displays the key ARN and Region of the primary key.
-
-    This field includes the current KMS key if it is the primary key.
+    Describes the primary or replica key in a multi-Region key.
     """
 
     Arn: Optional[str] = None
@@ -265,16 +263,10 @@ class MultiRegionKey(Boto3Model):
 
 class KMSMultiRegionConfiguration(Boto3Model):
     """
-    Lists the primary and replica keys in same multi-Region key. This field is present only when the value of the
-    ``MultiRegion`` field is ``True``.
+    Describes the configuration of this multi-Region key. This field appears only when the KMS key is a primary or
+    replica of a multi-Region key.
 
     For more information about any listed KMS key, use the DescribeKey operation.
-
-    * ``MultiRegionKeyType`` indicates whether the KMS key is a ``PRIMARY`` or ``REPLICA`` key.
-    * ``PrimaryKey`` displays the key ARN and Region of the primary key. This field displays the current KMS key if it is
-      the primary key.
-    * ``ReplicaKeys`` displays the key ARNs and Regions of all replica keys. This field includes the current KMS key if it
-      is a replica key.
     """
 
     MultiRegionKeyType: Optional[Literal["PRIMARY", "REPLICA"]] = None
@@ -296,12 +288,16 @@ class KMSMultiRegionConfiguration(Boto3Model):
 
 
 class XksKeyConfigurationType(Boto3Model):
-    """
-    Information about the external key that is associated with a KMS key in an external key store.
+    """Information about the `external key <https://docs.aws.amazon.com/kms/latest/developerguide/keystore-
+    external.html#concept-external-key>`_ that is associated with a KMS key in an external key store.
 
-    For more information, see `External key <https://docs.aws.amazon.com/kms/latest/developerguide/keystore-
-    external.html#concept-external-key>`_ in the *Key Management Service Developer Guide*.
-    """
+    This element appears in a CreateKey or DescribeKey response only for a KMS key in an external key store.
+
+    The *external key* is a symmetric encryption key that is hosted by an external key manager outside of Amazon Web
+    Services. When you use the KMS key in an external key store in a cryptographic operation, the cryptographic operation is
+    performed in the external key manager using the specified external key. For more information, see `External
+    key <https://docs.aws.amazon.com/kms/latest/developerguide/keystore-external.html#concept-external-key>`_ in the *Key
+    Management Service Developer Guide*."""
 
     Id: Optional[str] = None
     """
@@ -320,50 +316,15 @@ class KMSKey(PrimaryBoto3Model):
 
     manager_class: ClassVar[Type[Boto3ModelManager]] = KMSKeyManager
 
-    Enabled: Optional[bool] = True
-    """
-    Specifies whether the KMS key is enabled.
-
-    When ``KeyState`` is ``Enabled`` this value is true, otherwise it is false.
-    """
-    KeyUsage: Optional[
-        Literal[
-            "SIGN_VERIFY", "ENCRYPT_DECRYPT", "GENERATE_VERIFY_MAC", "KEY_AGREEMENT"
-        ]
-    ] = "ENCRYPT_DECRYPT"
-    """
-The `cryptographic operations <https://docs.aws.amazon.com/kms/latest/developerguide/concepts.html#cryptographic-
-operations>`_ for which you can use the KMS key.
-    """
-    KeySpec: Optional[
-        Literal[
-            "RSA_2048",
-            "RSA_3072",
-            "RSA_4096",
-            "ECC_NIST_P256",
-            "ECC_NIST_P384",
-            "ECC_NIST_P521",
-            "ECC_SECG_P256K1",
-            "SYMMETRIC_DEFAULT",
-            "HMAC_224",
-            "HMAC_256",
-            "HMAC_384",
-            "HMAC_512",
-            "SM2",
-        ]
-    ] = "SYMMETRIC_DEFAULT"
-    """
-    Describes the type of key material in the KMS key.
-    """
-    AWSAccountId: str = Field(default=None, frozen=True)
+    AWSAccountId: Optional[str] = None
     """
     The twelve-digit account ID of the Amazon Web Services account that owns the KMS key.
     """
-    KeyId: str = Field(frozen=True)
+    KeyId: str
     """
     The globally unique identifier for the KMS key.
     """
-    Arn: str = Field(default=None, frozen=True)
+    Arn: Optional[str] = None
     """
     The Amazon Resource Name (ARN) of the KMS key.
 
@@ -371,35 +332,52 @@ operations>`_ for which you can use the KMS key.
     (KMS) <https://docs.aws.amazon.com/general/latest/gr/aws-arns-and-namespaces.html#arn-syntax-kms>`_ in the Example ARNs
     section of the *Amazon Web Services General Reference*.
     """
-    CreationDate: datetime = Field(default=None, frozen=True)
+    CreationDate: Optional[datetime] = None
     """
     The date and time when the KMS key was created.
+    """
+    Enabled: Optional[bool] = None
+    """
+    Specifies whether the KMS key is enabled.
+
+    When ``KeyState`` is ``Enabled`` this value is true, otherwise it is false.
     """
     Description: Optional[str] = None
     """
     The description of the KMS key.
     """
-    KeyState: Literal[
-        "Creating",
-        "Enabled",
-        "Disabled",
-        "PendingDeletion",
-        "PendingImport",
-        "PendingReplicaDeletion",
-        "Unavailable",
-        "Updating",
-    ] = Field(default=None, frozen=True)
+    KeyUsage: Optional[
+        Literal[
+            "SIGN_VERIFY", "ENCRYPT_DECRYPT", "GENERATE_VERIFY_MAC", "KEY_AGREEMENT"
+        ]
+    ] = None
+    """
+The `cryptographic operations <https://docs.aws.amazon.com/kms/latest/developerguide/concepts.html#cryptographic-
+operations>`_ for which you can use the KMS key.
+    """
+    KeyState: Optional[
+        Literal[
+            "Creating",
+            "Enabled",
+            "Disabled",
+            "PendingDeletion",
+            "PendingImport",
+            "PendingReplicaDeletion",
+            "Unavailable",
+            "Updating",
+        ]
+    ] = None
     """
     The current status of the KMS key.
     """
-    DeletionDate: datetime = Field(default=None, frozen=True)
+    DeletionDate: Optional[datetime] = None
     """
     The date and time after which KMS deletes this KMS key.
 
     This value is present only when the KMS key is scheduled for
     deletion, that is, when its ``KeyState`` is ``PendingDeletion``.
     """
-    ValidTo: datetime = Field(default=None, frozen=True)
+    ValidTo: Optional[datetime] = None
     """
     The time at which the imported key material expires.
 
@@ -422,7 +400,7 @@ operations>`_ for which you can use the KMS key.
 A unique identifier for the `custom key store <https://docs.aws.amazon.com/kms/latest/developerguide/custom-key-store-
 overview.html>`_ that contains the KMS key. This field is present only when the KMS key is created in a custom key store.
     """
-    CloudHsmClusterId: str = Field(default=None, frozen=True)
+    CloudHsmClusterId: Optional[str] = None
     """
     The cluster ID of the CloudHSM cluster that contains the key material for the KMS key.
 
@@ -432,16 +410,16 @@ overview.html>`_ that contains the KMS key. This field is present only when the 
     creates the key material for the KMS key in the associated CloudHSM cluster. This field is present only when the KMS key
     is created in an CloudHSM key store.
     """
-    ExpirationModel: Literal["KEY_MATERIAL_EXPIRES", "KEY_MATERIAL_DOES_NOT_EXPIRE"] = (
-        Field(default=None, frozen=True)
-    )
+    ExpirationModel: Optional[
+        Literal["KEY_MATERIAL_EXPIRES", "KEY_MATERIAL_DOES_NOT_EXPIRE"]
+    ] = None
     """
     Specifies whether the KMS key's key material expires.
 
     This value is present only when ``Origin`` is ``EXTERNAL``,
     otherwise this value is omitted.
     """
-    KeyManager: Literal["AWS", "CUSTOMER"] = Field(default=None, frozen=True)
+    KeyManager: Optional[Literal["AWS", "CUSTOMER"]] = None
     """
     The manager of the KMS key.
 
@@ -471,36 +449,60 @@ overview.html>`_ that contains the KMS key. This field is present only when the 
     """
     Instead, use the ``KeySpec`` field.
     """
-    EncryptionAlgorithms: List[
-        Literal["SYMMETRIC_DEFAULT", "RSAES_OAEP_SHA_1", "RSAES_OAEP_SHA_256", "SM2PKE"]
-    ] = Field(default_factory=list, frozen=True)
+    KeySpec: Optional[
+        Literal[
+            "RSA_2048",
+            "RSA_3072",
+            "RSA_4096",
+            "ECC_NIST_P256",
+            "ECC_NIST_P384",
+            "ECC_NIST_P521",
+            "ECC_SECG_P256K1",
+            "SYMMETRIC_DEFAULT",
+            "HMAC_224",
+            "HMAC_256",
+            "HMAC_384",
+            "HMAC_512",
+            "SM2",
+        ]
+    ] = None
+    """
+    Describes the type of key material in the KMS key.
+    """
+    EncryptionAlgorithms: Optional[
+        List[
+            Literal[
+                "SYMMETRIC_DEFAULT", "RSAES_OAEP_SHA_1", "RSAES_OAEP_SHA_256", "SM2PKE"
+            ]
+        ]
+    ] = None
     """
     The encryption algorithms that the KMS key supports.
 
     You cannot use the KMS key with other encryption algorithms within KMS.
     """
-    SigningAlgorithms: List[
-        Literal[
-            "RSASSA_PSS_SHA_256",
-            "RSASSA_PSS_SHA_384",
-            "RSASSA_PSS_SHA_512",
-            "RSASSA_PKCS1_V1_5_SHA_256",
-            "RSASSA_PKCS1_V1_5_SHA_384",
-            "RSASSA_PKCS1_V1_5_SHA_512",
-            "ECDSA_SHA_256",
-            "ECDSA_SHA_384",
-            "ECDSA_SHA_512",
-            "SM2DSA",
+    SigningAlgorithms: Optional[
+        List[
+            Literal[
+                "RSASSA_PSS_SHA_256",
+                "RSASSA_PSS_SHA_384",
+                "RSASSA_PSS_SHA_512",
+                "RSASSA_PKCS1_V1_5_SHA_256",
+                "RSASSA_PKCS1_V1_5_SHA_384",
+                "RSASSA_PKCS1_V1_5_SHA_512",
+                "ECDSA_SHA_256",
+                "ECDSA_SHA_384",
+                "ECDSA_SHA_512",
+                "SM2DSA",
+            ]
         ]
-    ] = Field(default_factory=list, frozen=True)
+    ] = None
     """
     The signing algorithms that the KMS key supports.
 
     You cannot use the KMS key with other signing algorithms within KMS.
     """
-    KeyAgreementAlgorithms: List[Literal["ECDH"]] = Field(
-        default_factory=list, frozen=True
-    )
+    KeyAgreementAlgorithms: Optional[List[Literal["ECDH"]]] = None
     """
     The key agreement algorithm used to derive a shared secret.
     """
@@ -511,16 +513,14 @@ overview.html>`_ that contains the KMS key. This field is present only when the 
     This value is ``True`` for
     multi-Region primary and replica keys and ``False`` for regional KMS keys.
     """
-    MultiRegionConfiguration: KMSMultiRegionConfiguration = Field(
-        default=None, frozen=True
-    )
+    MultiRegionConfiguration: Optional[KMSMultiRegionConfiguration] = None
     """
     Lists the primary and replica keys in same multi-Region key.
 
     This field is present only when the value of the
     ``MultiRegion`` field is ``True``.
     """
-    PendingDeletionWindowInDays: int = Field(default=None, frozen=True)
+    PendingDeletionWindowInDays: Optional[int] = None
     """
     The waiting period before the primary key in a multi-Region key is deleted.
 
@@ -529,13 +529,13 @@ overview.html>`_ that contains the KMS key. This field is present only when the 
     ``PendingReplicaDeletion``. That indicates that the KMS key is the primary key in a multi-Region key, it is scheduled
     for deletion, and it still has existing replica keys.
     """
-    MacAlgorithms: List[
-        Literal["HMAC_SHA_224", "HMAC_SHA_256", "HMAC_SHA_384", "HMAC_SHA_512"]
-    ] = Field(default_factory=list, frozen=True)
+    MacAlgorithms: Optional[
+        List[Literal["HMAC_SHA_224", "HMAC_SHA_256", "HMAC_SHA_384", "HMAC_SHA_512"]]
+    ] = None
     """
     The message authentication code (MAC) algorithm that the HMAC KMS key supports.
     """
-    XksKeyConfiguration: XksKeyConfigurationType = Field(default=None, frozen=True)
+    XksKeyConfiguration: Optional[XksKeyConfigurationType] = None
     """
     Information about the external key that is associated with a KMS key in an external key store.
     """

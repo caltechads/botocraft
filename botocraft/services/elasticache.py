@@ -1197,10 +1197,9 @@ class CacheParameterManager(ReadonlyBoto3ModelManager):
 
 class ElastiCacheEndpoint(Boto3Model):
     """
-    Represents a Memcached cluster endpoint which can be used by an application to connect to any node in the cluster.
-    The configuration endpoint will always have ``.cfg`` in it.
+    Represents the information required for client programs to connect to a cache node.
 
-    Example: ``mem-3.9dvc4r.cfg.usw2.cache.amazonaws.com:11211``
+    This value is read-only.
     """
 
     Address: Optional[str] = None
@@ -1275,7 +1274,7 @@ Refers to `slow-log <https://redis.io/commands/slowlog>`_ or engine-log..
 
 class ElastiCacheScaleConfig(Boto3Model):
     """
-    The scaling configuration changes that are pending for the Memcached cluster.
+    Configuration settings for horizontal or vertical scaling operations on Memcached clusters.
     """
 
     ScalePercentage: Optional[int] = None
@@ -2223,7 +2222,7 @@ class ReshardingStatus(Boto3Model):
 
 class UserGroupsUpdateStatus(Boto3Model):
     """
-    The user group being modified.
+    The status of the user group update.
     """
 
     UserGroupIdsToAdd: Optional[List[str]] = None
@@ -2238,8 +2237,8 @@ class UserGroupsUpdateStatus(Boto3Model):
 
 class ReplicationGroupPendingModifiedValues(Boto3Model):
     """
-    A group of settings to be applied to the replication group, either immediately or during the next maintenance
-    window.
+    The settings to be applied to the Valkey or Redis OSS replication group, either immediately or during the next
+    maintenance window.
     """
 
     PrimaryClusterId: Optional[str] = None

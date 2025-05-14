@@ -270,11 +270,7 @@ class CallerIdentityManager(Boto3ModelManager):
 
 class STSCredentials(Boto3Model):
     """
-    The temporary security credentials, which include an access key ID, a secret access key, and a security (or session)
-    token.
-
-    The size of the security token that STS API operations return is not fixed. We strongly recommend that you make no
-    assumptions about the maximum size.
+    Amazon Web Services credentials for API authentication.
     """
 
     AccessKeyId: str
@@ -297,12 +293,7 @@ class STSCredentials(Boto3Model):
 
 class STSAssumedRoleUser(Boto3Model):
     """
-    The Amazon Resource Name (ARN) and the assumed role ID, which are identifiers that you can use to refer to the
-    resulting temporary security credentials.
-
-    For example, you can reference these credentials as a principal in a resource-based
-    policy by using the ARN or assumed role ID. The ARN and ID include the ``RoleSessionName`` that you specified when you
-    called ``AssumeRole``.
+    The identifiers for the temporary security credentials that the operation returns.
     """
 
     AssumedRoleId: str
@@ -354,34 +345,6 @@ class AssumeRole(ReadonlyPrimaryBoto3Model):
     SourceIdentity: Optional[str] = None
     """
     The source identity specified by the principal that is calling the ``AssumeRole`` operation.
-    """
-    Subject: Optional[Optional[str]] = None
-    """
-    The subject of the assumed role.
-    """
-    SubjectType: Optional[Optional[str]] = None
-    """
-    The type of the subject of the assumed role (SAML only).
-    """
-    Issuer: Optional[Optional[str]] = None
-    """
-    The issuer of the assumed role (SAML Only).
-    """
-    Provider: Optional[Optional[str]] = None
-    """
-    The provider of the assumed role (Web Identity Only).
-    """
-    Audience: Optional[Optional[str]] = None
-    """
-    The audience of the assumed role (SAML Only).
-    """
-    NameQualifier: Optional[Optional[str]] = None
-    """
-    The name qualifier of the assumed role (SAML Only).
-    """
-    SubjectFromWebIdentityToken: Optional[Optional[str]] = None
-    """
-    The subject from the web identity token (Web Identity Only).
     """
 
     @property

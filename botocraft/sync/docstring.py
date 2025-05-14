@@ -143,18 +143,17 @@ class DocumentationFormatter:
         # Change forward ticks to backticks
         return documentation.replace("‘", "`")  # noqa: RUF001
 
-    def format_docstring(self, shape: botocore.model.Shape) -> str:
+    def format_docstring(self, documentation: str) -> str:
         """
         Format the documentation for a model.
 
         Args:
-            shape: the botocore shape for the model
+            documentation: the documentation for the model
 
         Returns:
             The formatted documentation for the model as reStructuredText.
 
         """
-        documentation = shape.documentation
         documentation = self.clean(documentation)
         return documentation  # noqa: RET504
 

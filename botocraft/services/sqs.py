@@ -649,6 +649,10 @@ type, you must use ``StringValue``.
 
 
 class Message(PrimaryBoto3Model):
+    """
+    An Amazon SQS message.
+    """
+
     manager_class: ClassVar[Type[Boto3ModelManager]] = MessageManager
 
     MessageId: Optional[str] = None

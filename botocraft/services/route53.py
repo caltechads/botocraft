@@ -1002,10 +1002,10 @@ class Route53ResourceRecordSetManager(Boto3ModelManager):
 
 class HostedZoneConfig(Boto3Model):
     """
-    A complex type that includes the ``Comment`` and ``PrivateZone`` elements.
+    A complex type that contains an optional comment about your hosted zone.
 
-    If you omitted the ``HostedZoneConfig`` and
-    ``Comment`` elements from the request, the ``Config`` and ``Comment`` elements don't appear in the response.
+    If you don't want to specify a comment, omit
+    both the ``HostedZoneConfig`` and ``Comment`` elements.
     """
 
     Comment: Optional[str] = None
@@ -1020,9 +1020,10 @@ class HostedZoneConfig(Boto3Model):
 
 class Route53LinkedService(Boto3Model):
     """
-    If the hosted zone was created by another service, the service that created the hosted zone.
+    If a health check or hosted zone was created by another service, ``LinkedService`` is a complex type that describes
+    the service that created the resource.
 
-    When a hosted zone is created by another service, you can't edit or delete it using Route 53.
+    When a resource is created by another service, you can't edit or delete it using Amazon Route 53.
     """
 
     ServicePrincipal: Optional[str] = None
@@ -1224,7 +1225,7 @@ class Route53CidrCollection(PrimaryBoto3Model):
 
     manager_class: ClassVar[Type[Boto3ModelManager]] = Route53CidrCollectionManager
 
-    Arn: str = Field(default=None, frozen=True)
+    Arn: Optional[str] = None
     """
     The ARN of the collection.
 
@@ -1238,7 +1239,7 @@ class Route53CidrCollection(PrimaryBoto3Model):
     """
     The name of a CIDR collection.
     """
-    Version: int = Field(default=None, frozen=True)
+    Version: Optional[int] = None
     """
     A sequential counter that Route 53 sets to 1 when you create a CIDR collection and increments by 1 each time you
     update settings for the CIDR collection.
@@ -1319,7 +1320,7 @@ class Route53QueryLoggingConfig(PrimaryBoto3Model):
 
     manager_class: ClassVar[Type[Boto3ModelManager]] = Route53QueryLoggingConfigManager
 
-    Id: str = Field(frozen=True)
+    Id: str
     """
     The ID for a configuration for DNS query logging.
     """
@@ -1355,31 +1356,7 @@ class Route53QueryLoggingConfig(PrimaryBoto3Model):
 
 class Route53GeoLocation(Boto3Model):
     """
-    *Geolocation resource record sets only:* A complex type that lets you control how Amazon Route 53 responds to DNS
-    queries based on the geographic origin of the query. For example, if you want all queries from Africa to be routed
-    to a web server with an IP address of ``192.0.2.111``, create a resource record set with a ``Type`` of ``A`` and a
-    ``ContinentCode`` of ``AF``.
-
-    If you create separate resource record sets for overlapping geographic regions (for example, one resource record set for
-    a continent and one for a country on the same continent), priority goes to the smallest geographic region. This allows
-    you to route most queries for a continent to one resource and to route queries for a country on that continent to a
-    different resource.
-
-    You can't create two geolocation resource record sets that specify the same geographic location.
-
-    The value ``*`` in the ``CountryCode`` element matches all geographic locations that aren't specified in other
-    geolocation resource record sets that have the same values for the ``Name`` and ``Type`` elements.
-
-    Geolocation works by mapping IP addresses to locations. However, some IP addresses aren't mapped to geographic
-    locations, so even if you create geolocation resource record sets that cover all seven continents, Route 53 will receive
-    some DNS queries from locations that it can't identify. We recommend that you create a resource record set for which the
-    value of ``CountryCode`` is ``*``. Two groups of queries are routed to the resource that you specify in this record:
-    queries that come from locations for which you haven't created geolocation resource record sets and queries from IP
-    addresses that aren't mapped to a location. If you don't create a ``*`` resource record set, Route 53 returns a "no
-    answer" response for queries from those locations.
-
-    You can't create non-geolocation resource record sets that have the same values for the ``Name`` and ``Type`` elements
-    as geolocation resource record sets.
+    A complex type that contains information about a geographic location.
     """
 
     ContinentCode: Optional[str] = None
@@ -1424,12 +1401,10 @@ class Route53AliasTarget(Boto3Model):
     *Alias resource record sets only:* Information about the Amazon Web Services resource, such as a CloudFront
     distribution or an Amazon S3 bucket, that you want to route traffic to.
 
-    If you're creating resource records sets for a private hosted zone, note the following:
+    When creating resource record sets for a private hosted zone, note the following:
 
-    * You can't create an alias resource record set in a private hosted zone to route traffic to a CloudFront distribution.
     * For information about creating failover resource record sets in a private hosted zone, see `Configuring Failover in a
-      Private Hosted Zone <https://docs.aws.amazon.com/Route53/latest/DeveloperGuide/dns-failover-private-hosted-zones.html>`_
-      in the *Amazon Route 53 Developer Guide*.
+      Private Hosted Zone <https://docs.aws.amazon.com/Route53/latest/DeveloperGuide/dns-failover-private-hosted-zones.html>`_.
     """
 
     HostedZoneId: str
@@ -1469,7 +1444,7 @@ class Route53CidrRoutingConfig(Boto3Model):
 
 class Route53Coordinates(Boto3Model):
     """
-    Contains the longitude and latitude for a geographic region.
+    A complex type that lists the coordinates for a geoproximity resource record.
     """
 
     Latitude: str
@@ -1484,8 +1459,13 @@ Specifies a coordinate of the east-west position of a geographic point on the su
 
 class Route53GeoProximityLocation(Boto3Model):
     """
-    *GeoproximityLocation resource record sets only:* A complex type that lets you control how Route 53 responds to DNS
-    queries based on the geographic origin of the query and your resources.
+    (Resource record sets only): A complex type that lets you specify where your resources are located. Only one of
+    ``LocalZoneGroup``, ``Coordinates``, or ``Amazon Web ServicesRegion`` is allowed per request at a time.
+
+    For more information about geoproximity routing, see
+    `Geoproximity routing <https://docs.aws.amazon.com/Route53/latest/DeveloperGuide/routing-policy-geoproximity.html>`_
+    in the *Amazon
+    Route 53 Developer Guide*.
     """
 
     AWSRegion: Optional[str] = None
@@ -1513,7 +1493,7 @@ class Route53ResourceRecordSet(PrimaryBoto3Model):
 
     manager_class: ClassVar[Type[Boto3ModelManager]] = Route53ResourceRecordSetManager
 
-    Name: str = Field(frozen=True)
+    Name: str
     """
     For ``ChangeResourceRecordSets`` requests, the name of the record that you want to create, update, or delete.
 
@@ -1538,7 +1518,7 @@ class Route53ResourceRecordSet(PrimaryBoto3Model):
         "SSHFP",
         "SVCB",
         "HTTPS",
-    ] = Field(frozen=True)
+    ]
     """
     The DNS record type.
 
@@ -1547,7 +1527,7 @@ class Route53ResourceRecordSet(PrimaryBoto3Model):
     in the
     *Amazon Route 53 Developer Guide*.
     """
-    SetIdentifier: str = Field(default=None, frozen=True)
+    SetIdentifier: Optional[str] = None
     """
     *Resource record sets that have a routing policy other than simple:* An identifier that differentiates among
     multiple resource record sets that have the same combination of name and type, such as multiple weighted resource
@@ -1556,7 +1536,7 @@ class Route53ResourceRecordSet(PrimaryBoto3Model):
     In a group of resource record sets that have the same name and type, the
     value of ``SetIdentifier`` must be unique for each resource record set.
     """
-    Weight: int = Field(default=None, frozen=True)
+    Weight: Optional[int] = None
     """
     *Weighted resource record sets only:* Among resource record sets that have the same combination of DNS name and
     type, a value that determines the proportion of DNS queries that Amazon Route 53 responds to using the current
@@ -1566,44 +1546,46 @@ class Route53ResourceRecordSet(PrimaryBoto3Model):
     and type. Route 53 then responds to queries based on the ratio of a resource's weight to the total. Note the
     following:
     """
-    Region: Literal[
-        "us-east-1",
-        "us-east-2",
-        "us-west-1",
-        "us-west-2",
-        "ca-central-1",
-        "eu-west-1",
-        "eu-west-2",
-        "eu-west-3",
-        "eu-central-1",
-        "eu-central-2",
-        "ap-southeast-1",
-        "ap-southeast-2",
-        "ap-southeast-3",
-        "ap-northeast-1",
-        "ap-northeast-2",
-        "ap-northeast-3",
-        "eu-north-1",
-        "sa-east-1",
-        "cn-north-1",
-        "cn-northwest-1",
-        "ap-east-1",
-        "me-south-1",
-        "me-central-1",
-        "ap-south-1",
-        "ap-south-2",
-        "af-south-1",
-        "eu-south-1",
-        "eu-south-2",
-        "ap-southeast-4",
-        "il-central-1",
-        "ca-west-1",
-        "ap-southeast-5",
-        "mx-central-1",
-        "ap-southeast-7",
-        "us-gov-east-1",
-        "us-gov-west-1",
-    ] = Field(default=None, frozen=True)
+    Region: Optional[
+        Literal[
+            "us-east-1",
+            "us-east-2",
+            "us-west-1",
+            "us-west-2",
+            "ca-central-1",
+            "eu-west-1",
+            "eu-west-2",
+            "eu-west-3",
+            "eu-central-1",
+            "eu-central-2",
+            "ap-southeast-1",
+            "ap-southeast-2",
+            "ap-southeast-3",
+            "ap-northeast-1",
+            "ap-northeast-2",
+            "ap-northeast-3",
+            "eu-north-1",
+            "sa-east-1",
+            "cn-north-1",
+            "cn-northwest-1",
+            "ap-east-1",
+            "me-south-1",
+            "me-central-1",
+            "ap-south-1",
+            "ap-south-2",
+            "af-south-1",
+            "eu-south-1",
+            "eu-south-2",
+            "ap-southeast-4",
+            "il-central-1",
+            "ca-west-1",
+            "ap-southeast-5",
+            "mx-central-1",
+            "ap-southeast-7",
+            "us-gov-east-1",
+            "us-gov-west-1",
+        ]
+    ] = None
     """
     *Latency-based resource record sets only:* The Amazon EC2 Region where you created the resource that this resource
     record set refers to.
@@ -1611,7 +1593,7 @@ class Route53ResourceRecordSet(PrimaryBoto3Model):
     The resource typically is an Amazon Web Services resource, such as an EC2 instance or an ELB load balancer, and is
     referred to by an IP address or a DNS domain name, depending on the record type.
     """
-    GeoLocation: Route53GeoLocation = Field(default=None, frozen=True)
+    GeoLocation: Optional[Route53GeoLocation] = None
     """
     *Geolocation resource record sets only:* A complex type that lets you control how Amazon Route 53 responds to DNS
     queries based on the geographic origin of the query.
@@ -1620,7 +1602,7 @@ class Route53ResourceRecordSet(PrimaryBoto3Model):
     web server with an IP address of ``192.0.2.111``, create a resource record set with a ``Type`` of ``A`` and a
     ``ContinentCode`` of ``AF``.
     """
-    Failover: Literal["PRIMARY", "SECONDARY"] = Field(default=None, frozen=True)
+    Failover: Optional[Literal["PRIMARY", "SECONDARY"]] = None
     """
     *Failover resource record sets only:* To configure failover, you add the ``Failover`` element to two resource record
     sets.
@@ -1629,7 +1611,7 @@ class Route53ResourceRecordSet(PrimaryBoto3Model):
     set, you specify ``SECONDARY``. In addition, you include the ``HealthCheckId`` element and specify the health check that
     you want Amazon Route 53 to perform for each resource record set.
     """
-    MultiValueAnswer: bool = Field(default=None, frozen=True)
+    MultiValueAnswer: Optional[bool] = None
     """
     *Multivalue answer resource record sets only*: To route traffic approximately randomly to multiple resources, such
     as web servers, create one multivalue answer record for each resource and specify ``true`` for ``MultiValueAnswer``.
@@ -1637,38 +1619,38 @@ class Route53ResourceRecordSet(PrimaryBoto3Model):
     Note
     the following:
     """
-    TTL: int = Field(default=None, frozen=True)
+    TTL: Optional[int] = None
     """
     The resource record cache time to live (TTL), in seconds.
 
     Note the following:
     """
-    ResourceRecords: List["ResourceRecord"] = Field(default_factory=list, frozen=True)
+    ResourceRecords: Optional[List["ResourceRecord"]] = None
     """
     Information about the resource records to act upon.
     """
-    AliasTarget: Route53AliasTarget = Field(default=None, frozen=True)
+    AliasTarget: Optional[Route53AliasTarget] = None
     """
     *Alias resource record sets only:* Information about the Amazon Web Services resource, such as a CloudFront
     distribution or an Amazon S3 bucket, that you want to route traffic to.
     """
-    HealthCheckId: str = Field(default=None, frozen=True)
+    HealthCheckId: Optional[str] = None
     """
     If you want Amazon Route 53 to return this resource record set in response to a DNS query only when the status of a
     health check is healthy, include the ``HealthCheckId`` element and specify the ID of the applicable health check.
     """
-    TrafficPolicyInstanceId: str = Field(default=None, frozen=True)
+    TrafficPolicyInstanceId: Optional[str] = None
     """
     When you create a traffic policy instance, Amazon Route 53 automatically creates a resource record set.
 
     ``TrafficPolicyInstanceId`` is the ID of the traffic policy instance that Route 53 created this resource record set for.
     """
-    CidrRoutingConfig: Route53CidrRoutingConfig = Field(default=None, frozen=True)
+    CidrRoutingConfig: Optional[Route53CidrRoutingConfig] = None
     """
     The object that is specified in resource record set object when you are linking a resource record set to a CIDR
     location.
     """
-    GeoProximityLocation: Route53GeoProximityLocation = Field(default=None, frozen=True)
+    GeoProximityLocation: Optional[Route53GeoProximityLocation] = None
     """
     *GeoproximityLocation resource record sets only:* A complex type that lets you control how Route 53 responds to DNS
     queries based on the geographic origin of the query and your resources.
@@ -1702,7 +1684,7 @@ class Route53ResourceRecordSet(PrimaryBoto3Model):
 
 class ChangeInfo(Boto3Model):
     """
-    A complex type that contains information about the ``CreateHostedZone`` request.
+    A complex type that describes change information about changes made to your hosted zone.
     """
 
     Id: str
@@ -1732,7 +1714,8 @@ Coordinated Universal Time (UTC). For example, the value ``2017-03-27T17:48:16.7
 
 class Route53DelegationSet(Boto3Model):
     """
-    A complex type that describes the name servers for this hosted zone.
+    A complex type that lists the name servers in a delegation set, as well as the ``CallerReference`` and the ``ID``
+    for the delegation set.
     """
 
     Id: Optional[str] = None
@@ -1969,11 +1952,8 @@ class GetHostedZoneCountResponse(Boto3Model):
 
 class HostedZoneLimit(Boto3Model):
     """
-    The current setting for the specified limit.
-
-    For example, if you specified ``MAX_RRSETS_BY_ZONE`` for the value of
-    ``Type`` in the request, the value of ``Limit`` is the maximum number of records that you can create in the specified
-    hosted zone.
+    A complex type that contains the type of limit that you specified in the request and the current value for that
+    limit.
     """
 
     Type: Literal["MAX_RRSETS_BY_ZONE", "MAX_VPCS_ASSOCIATED_BY_ZONE"]
@@ -2035,9 +2015,10 @@ class DisassociateVPCFromHostedZoneResponse(Boto3Model):
 
 class HostedZoneOwner(Boto3Model):
     """
-    The owner of a private hosted zone that the specified VPC is associated with.
+    A complex type that identifies a hosted zone that a specified Amazon VPC is associated with and the owner of the
+    hosted zone.
 
-    The owner can be either an Amazon Web Services account or an Amazon Web Services service.
+    If there is a value for ``OwningAccount``, there is no value for ``OwningService``, and vice versa.
     """
 
     OwningAccount: Optional[str] = None
@@ -2296,7 +2277,7 @@ The action to perform:
 
 class ChangeBatch(Boto3Model):
     """
-    A complex type that contains an optional comment and the ``Changes`` element.
+    The information for a change request.
     """
 
     Comment: Optional[str] = None

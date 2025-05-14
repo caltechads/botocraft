@@ -644,20 +644,14 @@ class ClassicELBManager(ClassicELBManagerMixin, Boto3ModelManager):
 # ==============
 
 
-class ClassicELBInstance(Boto3Model):
-    """
-    The ID of an EC2 instance.
-    """
-
-    InstanceId: Optional[str] = None
-    """
-    The instance ID.
-    """
-
-
 class ClassicELBListener(Boto3Model):
     """
-    The listener.
+    Information about a listener.
+
+    For information about the protocols and the ports supported by Elastic Load Balancing, see
+    `Listeners for Your Classic Load Balancer <https://docs.aws.amazon.com/elasticloadbalancing/latest/classic/elb-listener-config.html>`_
+    in the *Classic
+    Load Balancers Guide*.
     """
 
     Protocol: str
@@ -702,25 +696,6 @@ class ListenerDescription(Boto3Model):
     """
 
 
-class ClassicELBSourceSecurityGroup(Boto3Model):
-    """
-    The security group for the load balancer, which you can use as part of your inbound rules for your registered
-    instances.
-
-    To only allow traffic from load balancers, add a security group rule that specifies this source security group as
-    the inbound source.
-    """
-
-    OwnerAlias: Optional[str] = None
-    """
-    The owner of the security group.
-    """
-    GroupName: Optional[str] = None
-    """
-    The name of the security group.
-    """
-
-
 class AppCookieStickinessPolicy(Boto3Model):
     """
     Information about a policy for application-controlled session stickiness.
@@ -759,7 +734,7 @@ class LBCookieStickinessPolicy(Boto3Model):
 
 class ClassicELBPolicies(Boto3Model):
     """
-    The policies defined for the load balancer.
+    The policies for a load balancer.
     """
 
     AppCookieStickinessPolicies: Optional[List["AppCookieStickinessPolicy"]] = None
@@ -791,9 +766,20 @@ class BackendServerDescription(Boto3Model):
     """
 
 
+class ClassicELBInstance(Boto3Model):
+    """
+    The ID of an EC2 instance.
+    """
+
+    InstanceId: Optional[str] = None
+    """
+    The instance ID.
+    """
+
+
 class ClassicELBHealthCheck(Boto3Model):
     """
-    Information about the health checks conducted on the load balancer.
+    Information about a health check.
     """
 
     Target: str
@@ -820,6 +806,21 @@ class ClassicELBHealthCheck(Boto3Model):
     """
 
 
+class ClassicELBSourceSecurityGroup(Boto3Model):
+    """
+    Information about a source security group.
+    """
+
+    OwnerAlias: Optional[str] = None
+    """
+    The owner of the security group.
+    """
+    GroupName: Optional[str] = None
+    """
+    The name of the security group.
+    """
+
+
 class PolicyAttribute(Boto3Model):
     """
     Information about a policy attribute.
@@ -843,59 +844,25 @@ class ClassicELB(TagsDictMixin, ClassicELBModelMixin, PrimaryBoto3Model):
     tag_class: ClassVar[Type] = Dict[str, str]
     manager_class: ClassVar[Type[Boto3ModelManager]] = ClassicELBManager
 
-    LoadBalancerName: str
+    LoadBalancerName: Optional[str] = None
     """
     The name of the load balancer.
     """
-    AvailabilityZones: List[str]
-    """
-    The Availability Zones for the load balancer.
-    """
-    Scheme: Optional[str] = ""
-    """
-    The type of load balancer.
-
-    Valid only for load balancers in a VPC.
-    """
-    VPCId: str = Field(default=None, frozen=True)
-    """
-    The ID of the VPC for the load balancer.
-    """
-    CreatedTime: datetime = Field(default=None, frozen=True)
-    """
-    The date and time the load balancer was created.
-    """
-    Instances: List["ClassicELBInstance"] = Field(default_factory=list, frozen=True)
-    """
-    The IDs of the instances for the load balancer.
-    """
-    DNSName: str = Field(default=None, frozen=True)
+    DNSName: Optional[str] = None
     """
     The DNS name of the load balancer.
     """
-    CanonicalHostedZoneName: str = Field(default=None, frozen=True)
+    CanonicalHostedZoneName: Optional[str] = None
     """
     The DNS name of the load balancer.
     """
-    CanonicalHostedZoneNameID: str = Field(default=None, frozen=True)
+    CanonicalHostedZoneNameID: Optional[str] = None
     """
     The ID of the Amazon Route 53 hosted zone for the load balancer.
     """
-    Listeners: List["ListenerDescription"] = Field(
-        default_factory=list, alias="ListenerDescriptions", frozen=True
-    )
+    ListenerDescriptions: Optional[List["ListenerDescription"]] = None
     """
     The listeners for the load balancer.
-    """
-    SourceSecurityGroup: ClassicELBSourceSecurityGroup = Field(
-        default=None, frozen=True
-    )
-    """
-    The security group for the load balancer, which you can use as part of your inbound rules for your registered
-    instances.
-
-    To only allow traffic from load balancers, add a security group rule that specifies this source security group as
-    the inbound source.
     """
     Policies: Optional[ClassicELBPolicies] = None
     """
@@ -905,13 +872,33 @@ class ClassicELB(TagsDictMixin, ClassicELBModelMixin, PrimaryBoto3Model):
     """
     Information about your EC2 instances.
     """
+    AvailabilityZones: Optional[List[str]] = None
+    """
+    The Availability Zones for the load balancer.
+    """
     Subnets: Optional[List[str]] = None
     """
     The IDs of the subnets for the load balancer.
     """
+    VPCId: Optional[str] = None
+    """
+    The ID of the VPC for the load balancer.
+    """
+    Instances: Optional[List["ClassicELBInstance"]] = None
+    """
+    The IDs of the instances for the load balancer.
+    """
     HealthCheck: Optional[ClassicELBHealthCheck] = None
     """
     Information about the health checks conducted on the load balancer.
+    """
+    SourceSecurityGroup: Optional[ClassicELBSourceSecurityGroup] = None
+    """
+    The security group for the load balancer, which you can use as part of your inbound rules for your registered
+    instances.
+
+    To only allow traffic from load balancers, add a security group rule that specifies this source security group as
+    the inbound source.
     """
     SecurityGroups: Optional[List[str]] = None
     """
@@ -919,29 +906,15 @@ class ClassicELB(TagsDictMixin, ClassicELBModelMixin, PrimaryBoto3Model):
 
     Valid only for load balancers in a VPC.
     """
-    Tags: Optional[Dict[str, str]] = None
+    CreatedTime: Optional[datetime] = None
     """
-    The tags associated with the load balancer.
+    The date and time the load balancer was created.
     """
-    CrossZoneLoadBalancing: Optional[bool] = False
+    Scheme: Optional[str] = None
     """
-    Whether cross-zone load balancing is enabled for the load balancer.
-    """
-    AccessLog: Optional["ClassicELBAccessLog"] = None
-    """
-    The access log settings for the load balancer.
-    """
-    ConnectionDraining: Optional["ClassicELBConnectionDraining"] = None
-    """
-    The connection draining settings for the load balancer.
-    """
-    ConnectionSettings: Optional["ClassicELBConnectionSettings"] = None
-    """
-    The connection settings for the load balancer.
-    """
-    AdditionalAttributes: Optional[Dict[str, str]] = None
-    """
-    Additional attributes for the load balancer.
+    The type of load balancer.
+
+    Valid only for load balancers in a VPC.
     """
 
     @property
@@ -1448,12 +1421,7 @@ class DeleteLoadBalancerListenerOutput(Boto3Model):
 
 class ClassicELBCrossZoneLoadBalancing(Boto3Model):
     """
-    If enabled, the load balancer routes the request traffic evenly across all instances regardless of the Availability
-    Zones.
-
-    For more information, see `Configure Cross-Zone Load
-    Balancing <https://docs.aws.amazon.com/elasticloadbalancing/latest/classic/enable-disable-crosszone-lb.html>`_ in the
-    *Classic Load Balancers Guide*.
+    Information about the ``CrossZoneLoadBalancing`` attribute.
     """
 
     Enabled: bool
@@ -1464,12 +1432,7 @@ class ClassicELBCrossZoneLoadBalancing(Boto3Model):
 
 class ClassicELBAccessLog(Boto3Model):
     """
-    If enabled, the load balancer captures detailed information of all requests and delivers the information to the
-    Amazon S3 bucket that you specify.
-
-    For more information, see
-    `Enable Access Logs <https://docs.aws.amazon.com/elasticloadbalancing/latest/classic/enable-
-    access-logs.html>`_ in the *Classic Load Balancers Guide*.
+    Information about the ``AccessLog`` attribute.
     """
 
     Enabled: bool
@@ -1496,13 +1459,7 @@ class ClassicELBAccessLog(Boto3Model):
 
 class ClassicELBConnectionDraining(Boto3Model):
     """
-    If enabled, the load balancer allows existing requests to complete before the load balancer shifts traffic away from
-    a deregistered or unhealthy instance.
-
-    For more information, see
-    `Configure Connection Draining <https://docs.aws.amazon.com/elasticloadbalancing/latest/classic/config-conn-drain.html>`_
-    in the *Classic Load
-    Balancers Guide*.
+    Information about the ``ConnectionDraining`` attribute.
     """
 
     Enabled: bool
@@ -1517,14 +1474,7 @@ class ClassicELBConnectionDraining(Boto3Model):
 
 class ClassicELBConnectionSettings(Boto3Model):
     """
-    If enabled, the load balancer allows the connections to remain idle (no data is sent over the connection) for the
-    specified duration.
-
-    By default, Elastic Load Balancing maintains a 60-second idle connection timeout for both front-end and back-end
-    connections of your load balancer. For more information, see
-    `Configure Idle Connection Timeout <https://docs.aws.amazon.com/elasticloadbalancing/latest/classic/config-idle-timeout.html>`_
-    in the *Classic Load
-    Balancers Guide*.
+    Information about the ``ConnectionSettings`` attribute.
     """
 
     IdleTimeout: int
@@ -1551,7 +1501,7 @@ class AdditionalAttribute(Boto3Model):
 
 class ClassicELBLoadBalancerAttributes(Boto3Model):
     """
-    Information about the load balancer attributes.
+    The attributes for a load balancer.
     """
 
     CrossZoneLoadBalancing: Optional[ClassicELBCrossZoneLoadBalancing] = None

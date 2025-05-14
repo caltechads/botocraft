@@ -692,7 +692,7 @@ class EventRule(PrimaryBoto3Model):
     """
     The name of the rule.
     """
-    Arn: str = Field(default=None, frozen=True)
+    Arn: Optional[str] = None
     """
     The Amazon Resource Name (ARN) of the rule.
     """
@@ -727,7 +727,7 @@ class EventRule(PrimaryBoto3Model):
     """
     The Amazon Resource Name (ARN) of the role that is used for target invocation.
     """
-    ManagedBy: str = Field(default=None, frozen=True)
+    ManagedBy: Optional[str] = None
     """
     If the rule was created on behalf of your account by an Amazon Web Services service, this field displays the
     principal name of the service that created the rule.
@@ -738,7 +738,6 @@ class EventRule(PrimaryBoto3Model):
 
     If you omit this, the default event bus is used.
     """
-    CreatedBy: Optional[Optional[str]] = None
 
     @property
     def pk(self) -> Optional[str]:
@@ -822,10 +821,8 @@ class EventRule(PrimaryBoto3Model):
 
 class EventsInputTransformer(Boto3Model):
     """
-    Settings to enable you to provide custom input to a target based on certain event data.
-
-    You can extract one or more key- value pairs from the event and then use that data to send customized input to the
-    target.
+    Contains the parameters needed for you to provide custom input to a target based on one or more pieces of data
+    extracted from the event.
     """
 
     InputPathsMap: Optional[Dict[str, str]] = None
@@ -846,10 +843,11 @@ class EventsInputTransformer(Boto3Model):
 
 class EventsKinesisParameters(Boto3Model):
     """
-    The custom parameter you can use to control the shard assignment, when the target is a Kinesis data stream.
+    This object enables you to specify a JSON path to extract from the event and use as the partition key for the Amazon
+    Kinesis data stream, so that you can control the shard to which the event goes.
 
-    If you do
-    not include this parameter, the default is to use the ``eventId`` as the partition key.
+    If you do not include this parameter,
+    the default is to use the ``eventId`` as the partition key.
     """
 
     PartitionKeyPath: str
@@ -886,7 +884,8 @@ class RunCommandTarget(Boto3Model):
 
 class EventsRunCommandParameters(Boto3Model):
     """
-    Parameters used when you are using the rule to invoke Amazon EC2 Run Command.
+    This parameter contains the criteria (either InstanceIds or a tag) used to specify which EC2 instances are to be
+    sent the command.
     """
 
     RunCommandTargets: List["RunCommandTarget"]
@@ -898,8 +897,8 @@ class EventsRunCommandParameters(Boto3Model):
 
 class EventsAwsVpcConfiguration(Boto3Model):
     """
-    Use this structure to specify the VPC subnets and security groups for the task, and whether a public IP address is
-    to be used.
+    This structure specifies the VPC subnets and security groups for the task, and whether a public IP address is to be
+    used.
 
     This structure is relevant only for ECS tasks that use the ``awsvpc`` network mode.
     """
@@ -928,12 +927,7 @@ class EventsAwsVpcConfiguration(Boto3Model):
 
 class EventsNetworkConfiguration(Boto3Model):
     """
-    Use this structure if the Amazon ECS task uses the ``awsvpc`` network mode. This structure specifies the VPC subnets
-    and security groups associated with the task, and whether a public IP address is to be used. This structure is
-    required if ``LaunchType`` is ``FARGATE`` because the ``awsvpc`` mode is required for Fargate tasks.
-
-    If you specify ``NetworkConfiguration`` when the target ECS task does not use the ``awsvpc`` network mode, the task
-    fails.
+    This structure specifies the network configuration for an ECS task.
     """
 
     awsvpcConfiguration: Optional[EventsAwsVpcConfiguration] = None
@@ -1034,12 +1028,7 @@ class EventsPlacementStrategy(Boto3Model):
 
 class EventsEcsParameters(TagsDictMixin, Boto3Model):
     """
-    Contains the Amazon ECS task definition and task count to be used, if the event target is an Amazon ECS task.
-
-    For more information about Amazon ECS tasks, see
-    `Task Definitions <https://docs.aws.amazon.com/AmazonECS/latest/developerguide/task_defintions.html>`_
-    in the *Amazon EC2
-    Container Service Developer Guide*.
+    The custom parameters to be used when the target is an Amazon ECS task.
     """
 
     tag_class: ClassVar[Type] = Tag
@@ -1160,8 +1149,7 @@ class BatchRetryStrategy(Boto3Model):
     """
     The retry strategy to use for failed jobs, if the target is an Batch job.
 
-    The retry strategy is the number of times to retry the failed job execution. Valid values are 1-10. When you specify
-    a retry strategy here, it overrides the retry strategy defined in the job definition.
+    If you specify a retry strategy here, it overrides the retry strategy defined in the job definition.
     """
 
     Attempts: Optional[int] = None
@@ -1174,10 +1162,7 @@ class BatchRetryStrategy(Boto3Model):
 
 class EventsBatchParameters(Boto3Model):
     """
-    If the event target is an Batch job, this contains the job definition, job name, and other parameters.
-
-    For more
-    information, see `Jobs <https://docs.aws.amazon.com/batch/latest/userguide/jobs.html>`_ in the *Batch User Guide*.
+    The custom parameters to be used when the target is an Batch job.
     """
 
     JobDefinition: str
@@ -1208,9 +1193,7 @@ class EventsBatchParameters(Boto3Model):
 
 class EventsSqsParameters(Boto3Model):
     """
-    Contains the message group ID to use when the target is a FIFO queue.
-
-    If you specify an SQS FIFO queue as a target, the queue must have content-based deduplication enabled.
+    This structure includes the custom parameter to be used when the target is an SQS FIFO queue.
     """
 
     MessageGroupId: Optional[str] = None
@@ -1221,12 +1204,10 @@ class EventsSqsParameters(Boto3Model):
 
 class EventsHttpParameters(Boto3Model):
     """
-    Contains the HTTP parameters to use when the target is a API Gateway endpoint or EventBridge ApiDestination.
+    These are custom parameter to be used when the target is an API Gateway APIs or EventBridge ApiDestinations.
 
-    If you specify an API Gateway API or EventBridge ApiDestination as a target, you can use this parameter to specify
-    headers, path parameters, and query string keys/values as part of your target invoking request. If you're using
-    ApiDestinations, the corresponding Connection can also have these values configured. In case of any conflicting
-    keys, values from the Connection take precedence.
+    In the latter case, these are merged with any InvocationParameters specified on the Connection, with any values from
+    the Connection taking precedence.
     """
 
     PathParameterValues: Optional[List[str]] = None
@@ -1246,10 +1227,8 @@ class EventsHttpParameters(Boto3Model):
 
 class EventsRedshiftDataParameters(Boto3Model):
     """
-    Contains the Amazon Redshift Data API parameters to use when the target is a Amazon Redshift cluster.
-
-    If you specify a Amazon Redshift Cluster as a Target, you can use this to specify parameters to invoke the Amazon
-    Redshift Data API ExecuteStatement based on EventBridge events.
+    These are custom parameters to be used when the target is a Amazon Redshift cluster to invoke the Amazon Redshift
+    Data API ExecuteStatement based on EventBridge events.
     """
 
     SecretManagerArn: Optional[str] = None
@@ -1311,11 +1290,8 @@ class SageMakerPipelineParameter(Boto3Model):
 
 class EventsSageMakerPipelineParameters(Boto3Model):
     """
-    Contains the SageMaker AI Model Building Pipeline parameters to start execution of a SageMaker AI Model Building
-    Pipeline.
-
-    If you specify a SageMaker AI Model Building Pipeline as a target, you can use this to specify parameters to start a
-    pipeline execution based on EventBridge events.
+    These are custom parameters to use when the target is a SageMaker AI Model Building Pipeline that starts based on
+    EventBridge events.
     """
 
     PipelineParameterList: Optional[List["SageMakerPipelineParameter"]] = None
@@ -1326,7 +1302,11 @@ class EventsSageMakerPipelineParameters(Boto3Model):
 
 class EventsDeadLetterConfig(Boto3Model):
     """
-    The ``DeadLetterConfig`` that defines the target queue to send dead-letter queue events to.
+    Configuration details of the Amazon SQS queue for EventBridge to use as a dead-letter queue (DLQ).
+
+    For more information, see `Using dead-letter queues to process undelivered
+    events <https://docs.aws.amazon.com/eventbridge/latest/userguide/eb-rule-event-delivery.html#eb-rule-dlq>`_ in the
+    *EventBridge User Guide*.
     """
 
     Arn: Optional[str] = None
@@ -1337,7 +1317,7 @@ class EventsDeadLetterConfig(Boto3Model):
 
 class EventsRetryPolicy(Boto3Model):
     """
-    The retry policy configuration to use for the dead-letter queue.
+    A ``RetryPolicy`` object that includes information about the retry policy settings.
     """
 
     MaximumRetryAttempts: Optional[int] = None
@@ -1377,23 +1357,23 @@ class EventTarget(PrimaryBoto3Model):
 
     manager_class: ClassVar[Type[Boto3ModelManager]] = EventTargetManager
 
-    Id: str = Field(frozen=True)
+    Id: str
     """
     The ID of the target within the specified rule.
 
     Use this ID to reference the target when updating the rule. We recommend using a memorable and unique string.
     """
-    Arn: str = Field(frozen=True)
+    Arn: str
     """
     The Amazon Resource Name (ARN) of the target.
     """
-    RoleArn: str = Field(default=None, frozen=True)
+    RoleArn: Optional[str] = None
     """
     The Amazon Resource Name (ARN) of the IAM role to be used for this target when the rule is triggered.
 
     If one rule triggers multiple targets, you can use a different IAM role for each target.
     """
-    Input: str = Field(default=None, frozen=True)
+    Input: Optional[str] = None
     """
     Valid JSON text passed to the target.
 
@@ -1401,32 +1381,32 @@ class EventTarget(PrimaryBoto3Model):
     information, see `The JavaScript Object Notation (JSON) Data Interchange Format <http://www.rfc-
     editor.org/rfc/rfc7159.txt>`_.
     """
-    InputPath: str = Field(default=None, frozen=True)
+    InputPath: Optional[str] = None
     """
     The value of the JSONPath that is used for extracting part of the matched event when passing it to the target.
 
     You may use JSON dot notation or bracket notation. For more information about JSON paths, see
     `JSONPath <http://goessner.net/articles/JsonPath/>`_.
     """
-    InputTransformer: EventsInputTransformer = Field(default=None, frozen=True)
+    InputTransformer: Optional[EventsInputTransformer] = None
     """
     Settings to enable you to provide custom input to a target based on certain event data.
 
     You can extract one or more key- value pairs from the event and then use that data to send customized input to the
     target.
     """
-    KinesisParameters: EventsKinesisParameters = Field(default=None, frozen=True)
+    KinesisParameters: Optional[EventsKinesisParameters] = None
     """
     The custom parameter you can use to control the shard assignment, when the target is a Kinesis data stream.
 
     If you do
     not include this parameter, the default is to use the ``eventId`` as the partition key.
     """
-    RunCommandParameters: EventsRunCommandParameters = Field(default=None, frozen=True)
+    RunCommandParameters: Optional[EventsRunCommandParameters] = None
     """
     Parameters used when you are using the rule to invoke Amazon EC2 Run Command.
     """
-    EcsParameters: EventsEcsParameters = Field(default=None, frozen=True)
+    EcsParameters: Optional[EventsEcsParameters] = None
     """
     Contains the Amazon ECS task definition and task count to be used, if the event target is an Amazon ECS task.
 
@@ -1435,43 +1415,39 @@ class EventTarget(PrimaryBoto3Model):
     in the *Amazon EC2
     Container Service Developer Guide*.
     """
-    BatchParameters: EventsBatchParameters = Field(default=None, frozen=True)
+    BatchParameters: Optional[EventsBatchParameters] = None
     """
     If the event target is an Batch job, this contains the job definition, job name, and other parameters.
 
     For more
     information, see `Jobs <https://docs.aws.amazon.com/batch/latest/userguide/jobs.html>`_ in the *Batch User Guide*.
     """
-    SqsParameters: EventsSqsParameters = Field(default=None, frozen=True)
+    SqsParameters: Optional[EventsSqsParameters] = None
     """
     Contains the message group ID to use when the target is a FIFO queue.
     """
-    HttpParameters: EventsHttpParameters = Field(default=None, frozen=True)
+    HttpParameters: Optional[EventsHttpParameters] = None
     """
     Contains the HTTP parameters to use when the target is a API Gateway endpoint or EventBridge ApiDestination.
     """
-    RedshiftDataParameters: EventsRedshiftDataParameters = Field(
-        default=None, frozen=True
-    )
+    RedshiftDataParameters: Optional[EventsRedshiftDataParameters] = None
     """
     Contains the Amazon Redshift Data API parameters to use when the target is a Amazon Redshift cluster.
     """
-    SageMakerPipelineParameters: EventsSageMakerPipelineParameters = Field(
-        default=None, frozen=True
-    )
+    SageMakerPipelineParameters: Optional[EventsSageMakerPipelineParameters] = None
     """
     Contains the SageMaker AI Model Building Pipeline parameters to start execution of a SageMaker AI Model Building
     Pipeline.
     """
-    DeadLetterConfig: EventsDeadLetterConfig = Field(default=None, frozen=True)
+    DeadLetterConfig: Optional[EventsDeadLetterConfig] = None
     """
     The ``DeadLetterConfig`` that defines the target queue to send dead-letter queue events to.
     """
-    RetryPolicy: EventsRetryPolicy = Field(default=None, frozen=True)
+    RetryPolicy: Optional[EventsRetryPolicy] = None
     """
     The retry policy configuration to use for the dead-letter queue.
     """
-    AppSyncParameters: EventsAppSyncParameters = Field(default=None, frozen=True)
+    AppSyncParameters: Optional[EventsAppSyncParameters] = None
     """
     Contains the GraphQL operation to be parsed and executed, if the event target is an AppSync API.
     """
