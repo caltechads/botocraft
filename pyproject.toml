@@ -1,6 +1,6 @@
 [project]
 name = "botocraft"
-version = "0.13.0"
+version = "0.14.0"
 authors = [
     {name = "Caltech IMSS ADS", email = "imss-ads-staff@caltech.edu"},
 ]
@@ -31,7 +31,7 @@ dependencies = [
   "pyyaml >= 6.0.2",
   "black >= 24.8.0",
   "inflect >= 7.4.0",
-  "markdownify >= 0.13.0",
+  "markdownify >= 0.14.0",
   "docformatter >= 1.7.5",
   "isort >= 5.13.2",
   "autoflake >= 2.3.1",
