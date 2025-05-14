@@ -1,5 +1,6 @@
 import socket
 import subprocess
+from contextlib import contextmanager
 from datetime import datetime
 from functools import wraps
 from ipaddress import ip_address
@@ -242,6 +243,46 @@ class InstanceModelMixin:
                     msg = f"No available port found starting at {start_port}."
                     raise ValueError(msg)
         return port
+
+    @contextmanager
+    def tunnel(
+        self,
+        host: str,
+        remote_port: int,
+        local_port: Optional[int] = None,
+        profile: Optional[str] = None,
+    ):
+        """
+        A context manager for opening and closing a tunnel.
+
+        This will call `open_tunnel` when entering the context and
+        `close_tunnel` when exiting the context.
+
+        Args:
+            host: The remote host to connect to (IP or hostname).
+            remote_port: The remote port to connect to.
+            local_port: The local port to use. If None, an unused port will be chosen.
+            profile: The AWS profile to use. If None, the default profile will be used.
+
+        Raises:
+            ValueError: If the local port is already in use.
+            RuntimeError: If the instance is not connected to SSM or if there
+                is an error when starting the session or SSH tunnel.
+
+        Yields:
+            The local port used for the tunnel.
+
+        """
+        local_port = self.open_tunnel(
+            host=host,
+            remote_port=remote_port,
+            local_port=local_port,
+            profile=profile,
+        )
+        try:
+            yield local_port
+        finally:
+            self.close_tunnel(host=host, local_port=local_port)
 
     def open_tunnel(
         self,
