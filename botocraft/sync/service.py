@@ -109,7 +109,7 @@ class AbstractGenerator:
         """
         return self.service_model.metadata
 
-    def generate(self) -> None:
+    def generate_all_service_models(self) -> None:
         raise NotImplementedError
 
 
@@ -156,7 +156,7 @@ class ModelGenerator(AbstractGenerator):
             return defn
         return ModelDefinition(base_class="Boto3Model", name=model_name)
 
-    def add_extra_fields(
+    def add_extra_fields_from_output_shape(
         self, model_name: str, model_fields: Dict[str, ModelAttributeDefinition]
     ) -> Dict[str, ModelAttributeDefinition]:
         """
@@ -223,7 +223,9 @@ class ModelGenerator(AbstractGenerator):
                 field_def.readonly = True
         return model_fields
 
-    def fields(self, model_name: str) -> Dict[str, ModelAttributeDefinition]:
+    def botocore_shape_field_defs(
+        self, model_name: str
+    ) -> Dict[str, ModelAttributeDefinition]:
         """
         Return the fields for a botocore shape as a dictionary of field names to
         botocraft field definitions.  This incorporates settings from the
@@ -259,17 +261,19 @@ class ModelGenerator(AbstractGenerator):
             fields.update(model_def.extra_fields)
         # These are the fields that are in the output shape of the get/list
         # methods but not in the service model shape
-        fields = self.add_extra_fields(model_name, fields)
+        fields = self.add_extra_fields_from_output_shape(model_name, fields)
         return fields  # noqa: RET504
 
-    def generate(self) -> None:
+    def generate_all_service_models(self) -> None:
         """
         Generate all the service models.
         """
         for model_name in self.service_def.primary_models:
-            _ = self.generate_model(model_name)
+            _ = self.generate_single_model(model_name)
 
-    def extra_fields(self, model_def: ModelDefinition) -> List[str]:
+    def format_extra_fields_from_model_def(
+        self, model_def: ModelDefinition
+    ) -> List[str]:
         """
         Build out the manually defined extra fields for a model.
 
@@ -409,7 +413,7 @@ class ModelGenerator(AbstractGenerator):
 
         return properties
 
-    def field_type(
+    def get_python_type_for_field(
         self,
         model_name: str,
         field_name: str,
@@ -460,9 +464,9 @@ class ModelGenerator(AbstractGenerator):
             python_type = self.shape_converter.convert(
                 cast(botocore.model.StructureShape, field_shape)
             )
-        return self.validate_type(model_name, field_name, field_def, python_type)
+        return self.validate_python_type(model_name, field_name, field_def, python_type)
 
-    def validate_type(
+    def validate_python_type(
         self,
         model_name: str,
         field_name: str,
@@ -534,9 +538,12 @@ class ModelGenerator(AbstractGenerator):
 
         return python_type
 
-    def generate_model(  # noqa: PLR0912, PLR0915
-        self, model_name: str, model_shape: Optional[botocore.model.Shape] = None
-    ) -> str:
+    def format_fields_from_botocore_shape(  # noqa: PLR0912
+        self,
+        model_name: str,
+        model_def: ModelDefinition,
+        model_shape: Optional[botocore.model.Shape] = None,
+    ) -> List[str]:
         """
         Generate the code for a single model and its dependent models and save
         them to :py:attr:`classes`.
@@ -570,7 +577,7 @@ class ModelGenerator(AbstractGenerator):
         # Get the base class for this model
         base_class = cast(str, model_def.base_class)
         # This needs to be up here before we check for alternate names
-        model_fields = self.fields(model_name)
+        model_fields = self.botocore_shape_field_defs(model_name)
         if not model_shape:
             model_shape = self.get_shape(model_name)
         if model_def.alternate_name:
@@ -593,7 +600,7 @@ class ModelGenerator(AbstractGenerator):
                 docstring = field_def.docstring
                 # Deterimine the python type for this field
                 if field_shape:
-                    python_type = self.field_type(
+                    python_type = self.get_python_type_for_field(
                         model_name,
                         field_name,
                         model_shape=model_shape,
@@ -809,7 +816,7 @@ class {manager_name}({base_class}):
 
         return generator
 
-    def generate(self) -> None:
+    def generate_all_manager_models(self) -> None:
         for model_name, manager_def in self.service_def.managers.items():
             self.generate_manager(model_name, manager_def)
         self.imports.update(self.model_generator.imports)
@@ -935,12 +942,12 @@ class ServiceGenerator:
         Generate the code for this service.
         """
         # Generate the service models
-        self.model_generator.generate()
+        self.model_generator.generate_all_service_models()
         self.model_classes = deepcopy(self.model_generator.classes)
         self.imports.update(self.model_generator.imports)
 
         # Generate the service managers and request/response models
-        self.manager_generator.generate()
+        self.manager_generator.generate_all_manager_models()
         # We have to do this because very occasionaly there are no real
         # primary models, and we use a response model as one.  Thus we need
         # to remove any primary models from the response classes

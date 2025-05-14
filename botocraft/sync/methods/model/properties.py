@@ -73,11 +73,11 @@ class ModelPropertyGenerator:
             return_type = "OrderedDict[str, Any]"
             self.generator.imports.add("from collections import OrderedDict")
         elif self.property_def.transformer.alias:
-            fields = self.generator.fields(self.model_name)
-            assert (
-                self.property_def.transformer.alias in fields
-            ), f"Alias: attribute {self.property_def.transformer.alias} not found in model {self.model_name}"  # noqa: E501
-            return_type = self.generator.field_type(
+            fields = self.generator.botocore_shape_field_defs(self.model_name)
+            assert self.property_def.transformer.alias in fields, (
+                f"Alias: attribute {self.property_def.transformer.alias} not found in model {self.model_name}"
+            )  # noqa: E501
+            return_type = self.generator.get_python_type_for_field(
                 self.model_name,
                 self.property_def.transformer.alias,
                 field_shape=fields[self.property_def.transformer.alias].botocore_shape,

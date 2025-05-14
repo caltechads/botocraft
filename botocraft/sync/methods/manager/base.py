@@ -132,7 +132,7 @@ class ManagerMethodGenerator:
             A dictionary of argument names to argument definitions.
 
         """
-        model_fields = self.model_generator.fields(self.model_name)
+        model_fields = self.model_generator.botocore_shape_field_defs(self.model_name)
         args: OrderedDict[str, MethodArgumentDefinition] = OrderedDict()
         if self.input_shape is not None:
             for arg in self.input_shape.members:
@@ -440,7 +440,7 @@ class ManagerMethodGenerator:
         response_model_def = self.model_generator.get_model_def(model_name)
         if response_model_def.alternate_name:
             model_name = response_model_def.alternate_name
-        self.model_generator.generate_model(
+        self.model_generator.generate_single_model(
             model_name, model_shape=self.operation_model.output_shape
         )
         return model_name

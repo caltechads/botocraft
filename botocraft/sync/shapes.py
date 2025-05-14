@@ -280,7 +280,7 @@ class StructureShapeConverter(AbstractShapeConverter):
         if not name_only:
             if not self.model_exists(model_name):
                 # We have not yet generated this model as a pydantic class
-                model_name = self.model_generator.generate_model(
+                model_name = self.model_generator.generate_single_model(
                     shape.name, model_shape=shape
                 )
             else:  # noqa: PLR5501

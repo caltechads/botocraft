@@ -63,13 +63,13 @@ class ModelRelationGenerator:
         if self.property_def.many is not None:
             return self.property_def.many
         many = False
-        fields = self.generator.fields(self.model_name)
+        fields = self.generator.botocore_shape_field_defs(self.model_name)
         if self.property_def.transformer.regex or self.property_def.transformer.alias:
             if self.property_def.transformer.regex:
                 field_name = self.property_def.transformer.regex.attribute
             else:
                 field_name = cast(str, self.property_def.transformer.alias)
-            attr_python_type = self.generator.field_type(
+            attr_python_type = self.generator.get_python_type_for_field(
                 self.model_name,
                 field_name,
                 field_shape=fields[field_name].botocore_shape,
