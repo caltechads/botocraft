@@ -444,8 +444,7 @@ class ModelGenerator(AbstractGenerator):
         if not model_shape:
             model_shape = self.get_shape(model_name)
         if not hasattr(model_shape, "members"):
-            msg = f"Model {model_name} has no fields."
-            raise ValueError(msg)
+            raise ModelHasNoMembersError(model_name)
         if not field_shape:
             field_shape = cast(botocore.model.StructureShape, model_shape).members.get(
                 field_name
@@ -484,7 +483,7 @@ class ModelGenerator(AbstractGenerator):
             python_type: the python type we have guessed for the field
 
         Raises:
-            ValueError: we could not determine the type for the field
+            NoPythonTypeError: we could not determine the type for the field
             TypeError: we have determined that the type for the field is invalid
 
         Returns:
@@ -492,8 +491,7 @@ class ModelGenerator(AbstractGenerator):
 
         """
         if python_type is None:
-            msg = f"Could not determine type for field {field_name}."
-            raise ValueError(msg)
+            raise NoPythonTypeError(field_name, model_name)
         name = field_def.rename if field_def.rename else field_name
         if python_type == name or f"[{name}]" in python_type:
             # If our type annotation is for a model with the same name as the field

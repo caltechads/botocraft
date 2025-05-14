@@ -2,6 +2,11 @@ from typing import TYPE_CHECKING, Dict, Final, Optional, Type, cast
 
 import botocore.model
 
+from .exceptions import (
+    NoConverterError,
+    WrongConverterError,
+)
+
 if TYPE_CHECKING:
     from botocraft.sync.service import ModelGenerator, ServiceGenerator
 
@@ -109,8 +114,7 @@ class StringShapeConverter(AbstractShapeConverter):
             else:
                 python_type = "str"
             return python_type
-        msg = f"Not string type: {shape.type_name}"
-        raise ValueError(msg)
+        raise WrongConverterError(shape, self)
 
 
 class BooleanShapeConverter(AbstractShapeConverter):
@@ -122,8 +126,7 @@ class BooleanShapeConverter(AbstractShapeConverter):
     ) -> str:
         if shape.type_name == "boolean":
             return "bool"
-        msg = f"Not boolean type: {shape.type_name}"
-        raise ValueError(msg)
+        raise WrongConverterError(shape, self)
 
 
 class IntegerShapeConverter(AbstractShapeConverter):
@@ -135,8 +138,7 @@ class IntegerShapeConverter(AbstractShapeConverter):
     ) -> str:
         if shape.type_name in ["integer", "long"]:
             return "int"
-        msg = f"Not integer type: {shape.type_name}"
-        raise ValueError(msg)
+        raise WrongConverterError(shape, self)
 
 
 class DoubleShapeConverter(AbstractShapeConverter):
@@ -148,8 +150,7 @@ class DoubleShapeConverter(AbstractShapeConverter):
     ) -> str:
         if shape.type_name == "double":
             return "float"
-        msg = f"Not double type: {shape.type_name}"
-        raise ValueError(msg)
+        raise WrongConverterError(shape, self)
 
 
 class ListShapeConverter(AbstractShapeConverter):
@@ -177,15 +178,14 @@ class ListShapeConverter(AbstractShapeConverter):
                 is a structure shape.
 
         Raises:
-            ValueError: this is not a list shape
+            WrongConverterError: this is not a list shape
 
         Returns:
             a python type for the list
 
         """
         if shape.type_name != "list":
-            msg = f"Not list type: {shape.type_name}"
-            raise ValueError(msg)
+            raise WrongConverterError(shape, self)
         element_shape = cast(botocore.model.ListShape, shape).member
         inner_model_name = self.shape_converter.convert(
             element_shape, quote=True, name_only=name_only
@@ -219,15 +219,14 @@ class MapShapeConverter(AbstractShapeConverter):
                 is a structure shape.
 
         Raises:
-            ValueError: this is not a map shape
+            WrongConverterError: this is not a map shape
 
         Returns:
             the python type for the map
 
         """
         if shape.type_name != "map":
-            msg = f"Not map type: {shape.type_name}"
-            raise ValueError(msg)
+            raise WrongConverterError(shape, self)
         shape = cast(botocore.model.MapShape, shape)
         value_type = self.shape_converter.convert(
             shape.value, quote=True, name_only=name_only
@@ -243,8 +242,8 @@ class StructureShapeConverter(AbstractShapeConverter):
         self, shape: botocore.model.Shape, quote: bool = False, name_only: bool = False
     ) -> str:
         """
-        Convert a structure shape to a python type.  This
-        ends up always being a pydantic model.
+        Convert a structure shape to a python type.  This ends up always being a
+        pydantic model.
 
         Side Effects:
             Might add a new pydantic class to the service python module.
@@ -262,15 +261,14 @@ class StructureShapeConverter(AbstractShapeConverter):
                 and not create the model in the model generator.
 
         Raises:
-            ValueError: this is not a structure shape
+            WrongConverterError: this is not a structure shape
 
         Returns:
             the python type for the structure
 
         """
         if shape.type_name != "structure":
-            msg = f"Not structure type: {shape.type_name}"
-            raise ValueError(msg)
+            raise WrongConverterError(shape, self)
         import_path: Optional[str] = None
         shape = cast(botocore.model.StructureShape, shape)
         model_def = self.model_generator.get_model_def(shape.name)
@@ -327,7 +325,7 @@ class TimestampShapeConverter(AbstractShapeConverter):
                 and not create the model in the model generator.
 
         Raises:
-            ValueError: this is not a timestamp shape
+            WrongConverterError: this is not a timestamp shape
 
         Returns:
             the python type for the timestamp
@@ -336,8 +334,42 @@ class TimestampShapeConverter(AbstractShapeConverter):
         if shape.type_name == "timestamp":
             return "datetime"
         self.model_generator.imports.add("from datetime import datetime")
-        msg = f"Not timestamp type: {shape.type_name}"
-        raise ValueError(msg)
+        raise WrongConverterError(shape, self)
+
+
+class BinaryShapeConverter(AbstractShapeConverter):
+    def to_python(
+        self,
+        shape: botocore.model.Shape,
+        quote: bool = False,  # noqa: ARG002
+        name_only: bool = False,  # noqa: ARG002
+    ) -> str:
+        """
+        Convert a binary shape to a python type.  This
+        ends up always being a ``bytes`` object.
+
+        Args:
+            shape: the botocore shape to convert
+
+        Keyword Args:
+            quote: if ``True``, we will quote the string in the
+                return value.  This is used when we're generating
+                manager methods, because the manager classes appear
+                in the file before the models, so we need to quote
+                the model names to avoid mypy errors.
+            name_only: if ``True``, we will return the name of the model
+                and not create the model in the model generator.
+
+        Raises:
+            WrongConverterError: this is not a binary shape
+
+        Returns:
+            the python type for the shape
+
+        """
+        if shape.type_name == "blob":
+            return "bytes"
+        raise WrongConverterError(shape, self)
 
 
 class PythonTypeShapeConverter:
@@ -350,6 +382,7 @@ class PythonTypeShapeConverter:
         "double": DoubleShapeConverter,
         "list": ListShapeConverter,
         "map": MapShapeConverter,
+        "blob": BinaryShapeConverter,
     }
 
     def __init__(
@@ -380,7 +413,7 @@ class PythonTypeShapeConverter:
                 create the model in the model generator.
 
         Raises:
-            ValueError: Could not find a converter for the shape
+            NoConverterError: Could not find a converter for the shape
 
         Returns:
             The python type for the shape to be used in type hints
@@ -389,7 +422,6 @@ class PythonTypeShapeConverter:
         for converter in self.converters.values():
             try:
                 return converter.to_python(shape, quote=quote, name_only=name_only)
-            except ValueError:  # noqa: PERF203
+            except WrongConverterError:  # noqa: PERF203
                 pass
-        msg = f"No converter for {shape.type_name}"
-        raise ValueError(msg)
+        raise NoConverterError(shape)
