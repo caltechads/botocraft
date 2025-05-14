@@ -1,0 +1,84 @@
+---
+primary:
+  Queue:
+    primary_key: QueueUrl
+    name_key: QueueName
+    bespoke: true
+    extra_fields:
+      QueueUrl:
+        python_type: str
+      QueueName:
+        python_type: str
+      Attributes:
+        python_type: Optional[Dict[str, str]]
+        default: None
+      tags:
+        rename: Tags
+        python_type: Dict[str, str]
+        default: >-
+          Field(default_factory=dict)
+    relations:
+      messages:
+        primary_model_name: Message
+        many: true
+        docstring: >-
+          Return the messages that are associated with this queue, if any.
+        method: list_by_queue
+        transformer:
+          mapping:
+            QueueUrl: QueueUrl
+    manager_methods:
+      purge:
+        docstring: >-
+          Purge the queue.
+        manager_method: purge
+        args:
+          0:
+            name: QueueUrl
+            value: >-
+              cast(str, self.QueueUrl)
+      add_permission:
+        docstring: >-
+          Add permission to the queue.
+        manager_method: add_permission
+        args:
+          0:
+            name: QueueUrl
+            value: >-
+              cast(str, self.QueueUrl)
+        user_args:
+          1:
+            name: Label
+          2:
+            name: AWSAccountIds
+          3:
+            name: Actions
+      remove_permission:
+        docstring: >-
+          Remove permission from the queue.
+        manager_method: remove_permission
+        args:
+          0:
+            name: QueueUrl
+            value: >-
+              cast(str, self.QueueUrl)
+        user_args:
+          1:
+            name: Label
+      receive:
+        docstring: >-
+          Receive messages from the queue.
+        manager_method: receive_messages
+        args:
+          0:
+            name: QueueUrl
+            value: >-
+              cast(str, self.QueueUrl)
+        user_keyword_args:
+          - name: AttributeNames
+          - name: MaxNumberOfMessages
+          - name: VisibilityTimeout
+          - name: WaitTimeSeconds
+          - name: ReceiveRequestAttemptId
+  Message:
+    primary_key: MessageId

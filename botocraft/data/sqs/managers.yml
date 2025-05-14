@@ -1,0 +1,49 @@
+Queue:
+  mixins:
+    - name: QueueManagerMixin
+      import_path: botocraft.mixins.sqs
+  methods:
+    create:
+      boto3_name: create_queue
+      response_attr: QueueUrl
+    delete:
+      boto3_name: delete_queue
+      response_attr: None
+    list:
+      boto3_name: list_queues
+      response_attr: QueueUrls
+      decorators:
+        - name: queue_list_urls_to_queues
+          import_path: botocraft.mixins.sqs
+    purge:
+      boto3_name: purge_queue
+      response_attr: None
+    add_permission:
+      boto3_name: add_permission
+      response_attr: None
+    remove_permission:
+      boto3_name: remove_permission
+      response_attr: None
+    delete_message:
+      boto3_name: delete_message
+      response_attr: None
+    receive_messages:
+      boto3_name: receive_message
+      response_attr: Messages
+    batch_send_messages:
+      boto3_name: send_message_batch
+      response_attr: None
+    batch_delete_messages:
+      boto3_name: delete_message_batch
+      response_attr: None
+    change_message_visibility:
+      boto3_name: change_message_visibility
+      response_attr: None
+    change_message_visibility_batch:
+      boto3_name: change_message_visibility_batch
+      response_attr: None
+Message:
+  methods:
+    send:
+      boto3_name: send_message
+      response_attr: MessageId
