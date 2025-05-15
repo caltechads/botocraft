@@ -1,5 +1,6 @@
 import socket
 import subprocess
+import time
 from contextlib import contextmanager
 from datetime import datetime
 from functools import wraps
@@ -357,6 +358,21 @@ class InstanceModelMixin:
         except FileNotFoundError as e:
             msg = "AWS CLI is not installed or not in PATH"
             raise RuntimeError(msg) from e
+
+        # Wait for the port to be open
+        for _ in range(40):
+            with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
+                if sock.connect_ex(("127.0.0.1", local_port)) == 0:
+                    break
+            time.sleep(0.25)
+        else:
+            # If the port is not open after 10 seconds, kill the process
+            ssm_process.kill()
+            msg = (
+                f"Failed to open tunnel to {host_ip}:{remote_port} on local "
+                f"port {local_port}."
+            )
+            raise RuntimeError(msg)
 
         # Store the processes for later management
         if self.Tunnels is None:  # type: ignore[has-type]
