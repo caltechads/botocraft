@@ -12,8 +12,8 @@ primary:
       Attributes:
         python_type: Optional[Dict[str, str]]
         default: None
-      tags:
-        rename: Tags
+      Tags:
+        rename: tags
         python_type: Dict[str, str]
         default: >-
           Field(default_factory=dict)
