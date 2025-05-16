@@ -355,7 +355,14 @@ class PrimaryBoto3Model(  # pylint: disable=abstract-method
         Save the model.
         """
         if self.pk:
-            return self.objects.update(self, **kwargs)
+            if hasattr(self.objects, "update"):
+                # If the model has a primary key, we assume it is already
+                # created and we need to update it.
+                # We also assume that the model has a manager.
+                return self.objects.update(self, **kwargs)
+            msg = f"Model {self.__class__.__name__} is not updatable."
+            raise NotUpdatableError(msg)
+
         return self.objects.create(self, **kwargs)
 
     def delete(self):
