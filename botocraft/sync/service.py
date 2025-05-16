@@ -311,18 +311,36 @@ class ModelGenerator(AbstractGenerator):
 
         """
         fields: List[str] = []
+        needs_field_class: bool = False
+        field_class_args: List[str] = []
         for field_name, field_def in getattr(model_def, "extra_fields", {}).items():
+            if field_def.default:
+                if (
+                    field_def.python_type.startswith("List[")
+                    and field_def.default == "None"
+                ):
+                    field_class_args.append("default_factory=list")
+                    needs_field_class = True
+                else:
+                    field_class_args.append(f"default={field_def.default}")
+            if field_def.readonly:
+                field_class_args.append("frozen=True")
+                needs_field_class = True
+            if field_def.rename:
+                field_line = f"    {field_def.rename}: {field_def.python_type}"
+                field_class_args.append(f'alias="{field_name}"')
+                needs_field_class = True
+            else:
+                field_line = f"    {field_name}: {field_def.python_type}"
+            if needs_field_class:
+                field_line += f" = Field({', '.join(field_class_args)})"
+            elif field_def.default:
+                field_line += f" = {field_def.default}"
+            fields.append(field_line)
             if field_def.docstring:
                 fields.append(self.docformatter.format_attribute(field_def.docstring))
-            field = f"    {field_name}: {field_def.python_type}"
-            if field_def.readonly:
-                field = re.sub(r"Optional\[(.*)\]", r"\1", field)
-                _default = f", default={field_def.default}" if field_def.default else ""
-                field += f" = Field(frozen=True{_default})"
-            elif field_def.default:
-                field += f" = {field_def.default}"
             self.imports.update(field_def.imports)
-            fields.append(field)
+            field_class_args = []
         return fields
 
     def get_properties(
@@ -635,6 +653,7 @@ class ModelGenerator(AbstractGenerator):
                 if default:
                     if python_type.startswith("List[") and default == "None":
                         field_class_args.append("default_factory=list")
+                        needs_field_class = True
                     else:
                         field_class_args.append(f"default={default}" if default else "")
                 field_line = f"    {field_name}: {python_type}"
