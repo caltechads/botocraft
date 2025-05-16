@@ -1,3 +1,4 @@
+- :doc:`/api/services/application_autoscaling`
 - :doc:`/api/services/autoscaling`
 - :doc:`/api/services/ec2`
 - :doc:`/api/services/ecr`

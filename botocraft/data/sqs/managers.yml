@@ -47,3 +47,6 @@ Message:
     send:
       boto3_name: send_message
       response_attr: MessageId
+    delete:
+      boto3_name: delete_message
+      response_attr: None

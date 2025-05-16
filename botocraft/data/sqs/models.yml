@@ -4,29 +4,34 @@ primary:
     primary_key: QueueUrl
     name_key: QueueName
     bespoke: true
+    mixins:
+      - name: QueueModelMixin
+        import_path: botocraft.mixins.sqs
     extra_fields:
       QueueUrl:
         python_type: str
+        docstring: >-
+          The URL of the queue. This is a unique identifier for the queue.
       QueueName:
         python_type: str
+        docstring: >-
+          The name of the queue. This is a unique identifier for the queue.
       Attributes:
         python_type: Optional[Dict[str, str]]
         default: None
-      Tags:
-        rename: tags
-        python_type: Dict[str, str]
-        default: >-
-          Field(default_factory=dict)
-    relations:
-      messages:
-        primary_model_name: Message
-        many: true
         docstring: >-
-          Return the messages that are associated with this queue, if any.
-        method: list_by_queue
-        transformer:
-          mapping:
-            QueueUrl: QueueUrl
+          The attributes of the queue. This is a dictionary of attribute names
+          and values.
+      tags:
+        rename: Tags
+        python_type: >-
+          List[Tag]
+        default: >-
+          None
+        docstring: >-
+          The tags of the queue. This is a list of Tag objects.
+        imports:
+          - from .common import Tag
     manager_methods:
       purge:
         docstring: >-
@@ -75,10 +80,41 @@ primary:
             value: >-
               cast(str, self.QueueUrl)
         user_keyword_args:
-          - name: AttributeNames
+          - name: MessageAttributeNames
           - name: MaxNumberOfMessages
           - name: VisibilityTimeout
           - name: WaitTimeSeconds
           - name: ReceiveRequestAttemptId
   Message:
-    primary_key: MessageId
+    properties:
+      pk:
+        docstring: >-
+          The primary key of the message. This can be used to delete the message
+          from its queue with the
+          :py:meth:`botocraft.services.sqs.MessageManager.delete` method.
+        transformer:
+          mapping:
+            QueueUrl: QueueUrl
+            ReceiptHandle: ReceiptHandle
+    manager_methods:
+      send:
+        docstring: >-
+          Send this message to the queue.
+        manager_method: send
+        args:
+          0:
+            name: QueueUrl
+            value: >-
+              cast(str, self.QueueUrl)
+          1:
+            name: MessageBody
+            value: >-
+              cast(str, self.MessageBody)
+        keyword_args:
+          - name: MessageAttributes
+            value: >-
+              cast(Optional[Dict[str, MessageAttributeValue]], self.MessageAttributes)
+        user_keyword_args:
+          - name: DelaySeconds
+          - name: MessageDeduplicationId
+          - name: MessageGroupId

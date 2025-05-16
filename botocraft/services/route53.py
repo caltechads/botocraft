@@ -7,9 +7,10 @@ from datetime import datetime
 from functools import cached_property
 from typing import Any, ClassVar, Dict, List, Literal, Optional, Type, cast
 
+from pydantic import Field
+
 from botocraft.mixins.route53 import HostedZoneModelMixin
 from botocraft.mixins.tags import TagsDictMixin
-from pydantic import Field
 
 from .abstract import (Boto3Model, Boto3ModelManager, PrimaryBoto3Model,
                        ReadonlyBoto3Model, ReadonlyBoto3ModelManager,
@@ -1123,7 +1124,7 @@ class HostedZone(HostedZoneModelMixin, PrimaryBoto3Model):
             return []
         return Route53ResourceRecordSet.objects.using(self.session).list(**pk)  # type: ignore[arg-type]
 
-    def update_comment(self, Comment: str) -> "UpdateHostedZoneCommentResponse":
+    def update_comment(self, Comment: str) -> "HostedZone":
         """
         Update the comment for the hosted zone.
 

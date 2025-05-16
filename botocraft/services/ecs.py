@@ -7,6 +7,8 @@ from datetime import datetime
 from functools import cached_property
 from typing import Any, ClassVar, Dict, List, Literal, Optional, Type, cast
 
+from pydantic import Field
+
 from botocraft.mixins.ecs import (ECSContainerInstanceModelMixin,
                                   ECSServiceManagerMixin, ECSServiceModelMixin,
                                   TaskDefinitionManagerMixin,
@@ -19,7 +21,6 @@ from botocraft.mixins.ecs import (ECSContainerInstanceModelMixin,
 from botocraft.mixins.tags import TagsDictMixin
 from botocraft.services.ec2 import Instance, InstanceManager, NetworkInterface
 from botocraft.services.elbv2 import TargetGroup, TargetGroupManager
-from pydantic import Field
 
 from .abstract import (Boto3Model, Boto3ModelManager, PrimaryBoto3Model,
                        ReadonlyBoto3Model, ReadonlyBoto3ModelManager,
@@ -2086,8 +2087,9 @@ class ServiceManagedEBSVolumeConfiguration(Boto3Model):
     """
     Indicates whether the volume should be encrypted.
 
-    If no value is specified, encryption is turned on by default. This
-    parameter maps 1:1 with the ``Encrypted`` parameter of the `CreateVolume
+    If you turn on Region-level Amazon EBS encryption by default but set
+    this value as ``false``, the setting is overridden and the volume is encrypted with the KMS key specified for Amazon EBS
+    encryption by default. This parameter maps 1:1 with the ``Encrypted`` parameter of the `CreateVolume
     API <https://docs.aws.amazon.com/AWSEC2/latest/APIReference/API_CreateVolume.html>`_ in the *Amazon EC2 API Reference*.
     """
     kmsKeyId: Optional[str] = None
@@ -2095,10 +2097,12 @@ class ServiceManagedEBSVolumeConfiguration(Boto3Model):
     The Amazon Resource Name (ARN) identifier of the Amazon Web Services Key Management Service key to use for Amazon
     EBS encryption.
 
-    When encryption is turned on and no Amazon Web Services Key Management Service key is specified, the default
-    Amazon Web Services managed key for Amazon EBS volumes is used. This parameter maps 1:1 with the ``KmsKeyId`` parameter
-    of the `CreateVolume API <https://docs.aws.amazon.com/AWSEC2/latest/APIReference/API_CreateVolume.html>`_ in the *Amazon
-    EC2 API Reference*.
+    When a key is specified using this parameter, it overrides Amazon EBS default encryption or any KMS key that
+    you specified for cluster-level managed storage encryption. This parameter maps 1:1 with the ``KmsKeyId`` parameter of
+    the `CreateVolume API <https://docs.aws.amazon.com/AWSEC2/latest/APIReference/API_CreateVolume.html>`_ in the *Amazon EC2
+    API Reference*. For more information about encrypting Amazon EBS volumes attached to tasks, see `Encrypt data stored in
+    Amazon EBS volumes attached to Amazon ECS tasks <https://docs.aws.amazon.com/AmazonECS/latest/developerguide/ebs-kms-
+    encryption.html>`_.
     """
     volumeType: Optional[str] = None
     """
@@ -2120,11 +2124,21 @@ class ServiceManagedEBSVolumeConfiguration(Boto3Model):
     """
     snapshotId: Optional[str] = None
     """
-    The snapshot that Amazon ECS uses to create the volume.
+    The snapshot that Amazon ECS uses to create volumes for attachment to tasks maintained by the service.
 
-    You must specify either a snapshot ID or a volume size. This
-    parameter maps 1:1 with the ``SnapshotId`` parameter of the `CreateVolume
-    API <https://docs.aws.amazon.com/AWSEC2/latest/APIReference/API_CreateVolume.html>`_ in the *Amazon EC2 API Reference*.
+    You must specify
+    either ``snapshotId`` or ``sizeInGiB`` in your volume configuration. This parameter maps 1:1 with the ``SnapshotId``
+    parameter of the `CreateVolume API <https://docs.aws.amazon.com/AWSEC2/latest/APIReference/API_CreateVolume.html>`_ in the
+    *Amazon EC2 API Reference*.
+    """
+    volumeInitializationRate: Optional[int] = None
+    """
+    The rate, in MiB/s, at which data is fetched from a snapshot of an existing EBS volume to create new volumes for
+    attachment to the tasks maintained by the service.
+
+    This property can be specified only if you specify a ``snapshotId``.
+    For more information, see `Initialize Amazon EBS volumes <https://docs.aws.amazon.com/ebs/latest/userguide/initalize-
+    volume.html>`_ in the *Amazon EBS User Guide*.
     """
     iops: Optional[int] = None
     """
@@ -2165,7 +2179,7 @@ class ServiceManagedEBSVolumeConfiguration(Boto3Model):
     The filesystem type for the volume.
 
     For volumes created from a snapshot, you must specify the same filesystem type that the volume was using when the
-    snapshot was created. If there is a filesystem type mismatch, the task will fail to start.
+    snapshot was created. If there is a filesystem type mismatch, the tasks will fail to start.
     """
 
 
@@ -2826,11 +2840,11 @@ class ManagedStorageConfiguration(Boto3Model):
 
     kmsKeyId: Optional[str] = None
     """
-    Specify a Key Management Service key ID to encrypt the managed storage.
+    Specify a Key Management Service key ID to encrypt Amazon ECS managed storage.
     """
     fargateEphemeralStorageKmsKeyId: Optional[str] = None
     """
-    Specify the Key Management Service key ID for the Fargate ephemeral storage.
+    Specify the Key Management Service key ID for Fargate ephemeral storage.
     """
 
 
@@ -2982,7 +2996,7 @@ class Cluster(TagsDictMixin, PrimaryBoto3Model):
     """
     configuration: Optional[ClusterConfiguration] = None
     """
-    The execute command configuration for the cluster.
+    The execute command and managed storage configuration for the cluster.
     """
     status: str = Field(default=None, frozen=True)
     """
@@ -5982,8 +5996,9 @@ class TaskManagedEBSVolumeConfiguration(Boto3Model):
     """
     Indicates whether the volume should be encrypted.
 
-    If no value is specified, encryption is turned on by default. This
-    parameter maps 1:1 with the ``Encrypted`` parameter of the `CreateVolume
+    If you turn on Region-level Amazon EBS encryption by default but set
+    this value as ``false``, the setting is overridden and the volume is encrypted with the KMS key specified for Amazon EBS
+    encryption by default. This parameter maps 1:1 with the ``Encrypted`` parameter of the `CreateVolume
     API <https://docs.aws.amazon.com/AWSEC2/latest/APIReference/API_CreateVolume.html>`_ in the *Amazon EC2 API Reference*.
     """
     kmsKeyId: Optional[str] = None
@@ -5991,10 +6006,12 @@ class TaskManagedEBSVolumeConfiguration(Boto3Model):
     The Amazon Resource Name (ARN) identifier of the Amazon Web Services Key Management Service key to use for Amazon
     EBS encryption.
 
-    When encryption is turned on and no Amazon Web Services Key Management Service key is specified, the default
-    Amazon Web Services managed key for Amazon EBS volumes is used. This parameter maps 1:1 with the ``KmsKeyId`` parameter
-    of the `CreateVolume API <https://docs.aws.amazon.com/AWSEC2/latest/APIReference/API_CreateVolume.html>`_ in the *Amazon
-    EC2 API Reference*.
+    When a key is specified using this parameter, it overrides Amazon EBS default encryption or any KMS key that
+    you specified for cluster-level managed storage encryption. This parameter maps 1:1 with the ``KmsKeyId`` parameter of
+    the `CreateVolume API <https://docs.aws.amazon.com/AWSEC2/latest/APIReference/API_CreateVolume.html>`_ in the *Amazon EC2
+    API Reference*. For more information about encrypting Amazon EBS volumes attached to a task, see `Encrypt data stored in
+    Amazon EBS volumes attached to Amazon ECS tasks <https://docs.aws.amazon.com/AmazonECS/latest/developerguide/ebs-kms-
+    encryption.html>`_.
     """
     volumeType: Optional[str] = None
     """
@@ -6021,6 +6038,15 @@ class TaskManagedEBSVolumeConfiguration(Boto3Model):
     You must specify either a snapshot ID or a volume size. This
     parameter maps 1:1 with the ``SnapshotId`` parameter of the `CreateVolume
     API <https://docs.aws.amazon.com/AWSEC2/latest/APIReference/API_CreateVolume.html>`_ in the *Amazon EC2 API Reference*.
+    """
+    volumeInitializationRate: Optional[int] = None
+    """
+    The rate, in MiB/s, at which data is fetched from a snapshot of an existing Amazon EBS volume to create a new volume
+    for attachment to the task.
+
+    This property can be specified only if you specify a ``snapshotId``. For more information, see
+    `Initialize Amazon EBS volumes <https://docs.aws.amazon.com/ebs/latest/userguide/initalize-volume.html>`_ in the *Amazon
+    EBS User Guide*.
     """
     iops: Optional[int] = None
     """

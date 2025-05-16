@@ -7,6 +7,8 @@ from datetime import datetime
 from functools import cached_property
 from typing import Any, ClassVar, Dict, List, Literal, Optional, Type, cast
 
+from pydantic import Field
+
 from botocraft.mixins.elb import (ClassicELBManagerMixin, ClassicELBModelMixin,
                                   add_attributes_for_get,
                                   add_attributes_for_list, add_tags_for_get,
@@ -16,7 +18,6 @@ from botocraft.services.common import Tag
 from botocraft.services.ec2 import (Instance, InstanceManager, SecurityGroup,
                                     SecurityGroupManager, Subnet,
                                     SubnetManager, Vpc, VpcManager)
-from pydantic import Field
 
 from .abstract import (Boto3Model, Boto3ModelManager, PrimaryBoto3Model,
                        ReadonlyBoto3Model, ReadonlyBoto3ModelManager,
@@ -1156,7 +1157,7 @@ class ClassicELB(TagsDictMixin, ClassicELBModelMixin, PrimaryBoto3Model):
             )
         )
 
-    def policies(self) -> "DescribeLoadBalancerPoliciesOutput":
+    def policies(self) -> List["PolicyDescription"]:
         """
         Return the policies associated with this load balancer.
 
@@ -1189,7 +1190,7 @@ class ClassicELB(TagsDictMixin, ClassicELBModelMixin, PrimaryBoto3Model):
 
     def add_instances(
         self, Instances: List["ClassicELBInstance"]
-    ) -> "RegisterEndPointsOutput":
+    ) -> List["ClassicELBInstance"]:
         """
         Add instances to the load balancer.
 
@@ -1208,7 +1209,7 @@ class ClassicELB(TagsDictMixin, ClassicELBModelMixin, PrimaryBoto3Model):
 
     def remove_instances(
         self, Instances: List["ClassicELBInstance"]
-    ) -> "DeregisterEndPointsOutput":
+    ) -> List["ClassicELBInstance"]:
         """
         Remove instances from the load balancer.
 

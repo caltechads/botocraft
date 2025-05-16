@@ -4,16 +4,18 @@
 # mypy: disable-error-code="index, override, assignment, union-attr, misc"
 from collections import OrderedDict
 from datetime import datetime
-from functools import cached_property
 from typing import Any, ClassVar, Dict, List, Literal, Optional, Type, cast
 
-from botocraft.mixins.sqs import QueueManagerMixin, queue_list_urls_to_queues
-from botocraft.mixins.tags import TagsDictMixin
 from pydantic import Field
+
+from botocraft.mixins.sqs import (QueueManagerMixin, QueueModelMixin,
+                                  queue_list_urls_to_queues)
+from botocraft.mixins.tags import TagsDictMixin
 
 from .abstract import (Boto3Model, Boto3ModelManager, PrimaryBoto3Model,
                        ReadonlyBoto3Model, ReadonlyBoto3ModelManager,
                        ReadonlyPrimaryBoto3Model)
+from .common import Tag
 
 # ===============
 # Managers
@@ -425,20 +427,58 @@ class MessageManager(Boto3ModelManager):
         self.sessionize(results)
         return cast(str, results)
 
+    def delete(self, QueueUrl: str, ReceiptHandle: str) -> None:
+        """
+        Deletes the specified message from the specified queue. To select the message to delete, use the
+        ``ReceiptHandle`` of the message (*not* the ``MessageId`` which you receive when you send the message). Amazon
+        SQS can delete a message from a queue even if a visibility timeout setting causes the message to be locked by
+        another consumer. Amazon SQS automatically deletes messages left in a queue longer than the retention period
+        configured for the queue.
+
+        Args:
+            QueueUrl: The URL of the Amazon SQS queue from which messages are deleted.
+            ReceiptHandle: The receipt handle associated with the message to delete.
+        """
+        args: Dict[str, Any] = dict(
+            QueueUrl=self.serialize(QueueUrl),
+            ReceiptHandle=self.serialize(ReceiptHandle),
+        )
+        self.client.delete_message(**{k: v for k, v in args.items() if v is not None})
+
 
 # ==============
 # Service Models
 # ==============
 
 
-class Queue(TagsDictMixin, PrimaryBoto3Model):
-    tag_class: ClassVar[Type] = Dict[str, str]
+class Queue(TagsDictMixin, QueueModelMixin, PrimaryBoto3Model):
+    tag_class: ClassVar[Type] = Tag
     manager_class: ClassVar[Type[Boto3ModelManager]] = QueueManager
 
     QueueUrl: str
+    """
+    The URL of the queue.
+
+    This is a unique identifier for the queue.
+    """
     QueueName: str
+    """
+    The name of the queue.
+
+    This is a unique identifier for the queue.
+    """
     Attributes: Optional[Dict[str, str]] = None
-    tags: Dict[str, str] = Field(default_factory=dict)
+    """
+    The attributes of the queue.
+
+    This is a dictionary of attribute names and values.
+    """
+    Tags: List[Tag] = Field(default_factory=list, alias="tags")
+    """
+    The tags of the queue.
+
+    This is a list of Tag objects.
+    """
 
     @property
     def pk(self) -> Optional[str]:
@@ -459,29 +499,6 @@ class Queue(TagsDictMixin, PrimaryBoto3Model):
             The name of the model instance.
         """
         return self.QueueName
-
-    @cached_property
-    def messages(self) -> Optional[List["Message"]]:
-        """
-        Return the messages that are associated with this queue, if any.
-
-        .. note::
-
-            The output of this property is cached on the model instance, so
-            calling this multiple times will not result in multiple calls to the
-            AWS API.   If you need a fresh copy of the data, you can re-get the
-            model instance from the manager.
-        """
-
-        try:
-            pk = OrderedDict(
-                {
-                    "QueueUrl": self.QueueUrl,
-                }
-            )
-        except AttributeError:
-            return []
-        return Message.objects.using(self.session).list_by_queue(**pk)  # type: ignore[arg-type]
 
     def purge(self) -> "None":
         """
@@ -544,45 +561,17 @@ class Queue(TagsDictMixin, PrimaryBoto3Model):
 
     def receive(
         self,
-        AttributeNames: Optional[
-            List[
-                Literal[
-                    "All",
-                    "Policy",
-                    "VisibilityTimeout",
-                    "MaximumMessageSize",
-                    "MessageRetentionPeriod",
-                    "ApproximateNumberOfMessages",
-                    "ApproximateNumberOfMessagesNotVisible",
-                    "CreatedTimestamp",
-                    "LastModifiedTimestamp",
-                    "QueueArn",
-                    "ApproximateNumberOfMessagesDelayed",
-                    "DelaySeconds",
-                    "ReceiveMessageWaitTimeSeconds",
-                    "RedrivePolicy",
-                    "FifoQueue",
-                    "ContentBasedDeduplication",
-                    "KmsMasterKeyId",
-                    "KmsDataKeyReusePeriodSeconds",
-                    "DeduplicationScope",
-                    "FifoThroughputLimit",
-                    "RedriveAllowPolicy",
-                    "SqsManagedSseEnabled",
-                ]
-            ]
-        ] = None,
+        MessageAttributeNames: Optional[List[str]] = None,
         MaxNumberOfMessages: Optional[int] = None,
         VisibilityTimeout: Optional[int] = None,
         WaitTimeSeconds: Optional[int] = None,
         ReceiveRequestAttemptId: Optional[str] = None,
-    ) -> "ReceiveMessageResult":
+    ) -> List["Message"]:
         """
         Receive messages from the queue.
 
         Keyword Args:
-            AttributeNames: This parameter has been discontinued but will be supported for backward compatibility. To provide
-                attribute names, you are encouraged to use ``MessageSystemAttributeNames``.
+            MessageAttributeNames: The name of the message attribute, where *N* is the index.
             MaxNumberOfMessages: The maximum number of messages to return. Amazon SQS never returns more messages than this
                 value (however, fewer messages might be returned). Valid values: 1 to 10. Default: 1.
             VisibilityTimeout: The duration (in seconds) that the received messages are hidden from subsequent retrieve requests
@@ -600,7 +589,7 @@ class Queue(TagsDictMixin, PrimaryBoto3Model):
             .using(self.session)
             .receive_messages(
                 cast(str, self.QueueUrl),
-                AttributeNames=AttributeNames,
+                MessageAttributeNames=MessageAttributeNames,
                 MaxNumberOfMessages=MaxNumberOfMessages,
                 VisibilityTimeout=VisibilityTimeout,
                 WaitTimeSeconds=WaitTimeSeconds,
@@ -616,6 +605,44 @@ class MessageAttributeValue(Boto3Model):
 
     ``Name``, ``type``, ``value`` and the message body must not be empty or null. All parts of the message attribute,
     including ``Name``, ``Type``, and ``Value``, are part of the message size restriction (256 KiB or 262,144 bytes).
+    """
+
+    StringValue: Optional[str] = None
+    """
+    Strings are Unicode with UTF-8 binary encoding.
+
+    For a list of code values, see
+    `ASCII Printable Characters <http://en.wikipedia.org/wiki/ASCII#ASCII_printable_characters>`_.
+    """
+    BinaryValue: Optional[bytes] = None
+    """
+    Binary type attributes can store any binary data, such as compressed data, encrypted data, or images.
+    """
+    StringListValues: Optional[List[str]] = None
+    """
+    Not implemented.
+
+    Reserved for future use.
+    """
+    BinaryListValues: Optional[List[bytes]] = None
+    """
+    Not implemented.
+
+    Reserved for future use.
+    """
+    DataType: str
+    """
+Amazon SQS supports the following logical data types: ``String``, ``Number``, and ``Binary``. For the ``Number`` data
+type, you must use ``StringValue``.
+    """
+
+
+class MessageSystemAttributeValue(Boto3Model):
+    """
+    The user-specified message system attribute value. For string data types, the ``Value`` attribute has the same
+    restrictions on the content as the message body. For more information, see  ``SendMessage.``
+
+    ``Name``, ``type``, ``value`` and the message body must not be empty or null.
     """
 
     StringValue: Optional[str] = None
@@ -717,14 +744,51 @@ class Message(PrimaryBoto3Model):
     """
 
     @property
-    def pk(self) -> Optional[str]:
+    def pk(self) -> OrderedDict[str, Any]:
         """
-        Return the primary key of the model.   This is the value of the :py:attr:`MessageId` attribute.
+        The primary key of the message.
 
-        Returns:
-            The primary key of the model instance.
+        This can be used to delete the message from its queue with the :py:meth:`botocraft.services.sqs.MessageManager.delete` method.
         """
-        return self.MessageId
+
+        return OrderedDict(
+            {
+                "QueueUrl": self.QueueUrl,
+                "ReceiptHandle": self.ReceiptHandle,
+            }
+        )
+
+    def send(
+        self,
+        DelaySeconds: Optional[int] = None,
+        MessageDeduplicationId: Optional[str] = None,
+        MessageGroupId: Optional[str] = None,
+    ) -> "str":
+        """
+        Send this message to the queue.
+
+        Keyword Args:
+            DelaySeconds: The length of time, in seconds, for which to delay a specific message. Valid values: 0 to 900.
+                Maximum: 15 minutes. Messages with a positive ``DelaySeconds`` value become available for processing after the delay
+                period is finished. If you don't specify a value, the default value for the queue applies.
+            MessageDeduplicationId: This parameter applies only to FIFO (first-in-first-out) queues.
+            MessageGroupId: This parameter applies only to FIFO (first-in-first-out) queues.
+        """
+
+        return (
+            cast(MessageManager, self.objects)
+            .using(self.session)
+            .send(
+                cast(str, self.QueueUrl),
+                cast(str, self.MessageBody),
+                MessageAttributes=cast(
+                    Optional[Dict[str, MessageAttributeValue]], self.MessageAttributes
+                ),
+                DelaySeconds=DelaySeconds,
+                MessageDeduplicationId=MessageDeduplicationId,
+                MessageGroupId=MessageGroupId,
+            )
+        )
 
 
 # =======================
@@ -769,44 +833,6 @@ class ReceiveMessageResult(Boto3Model):
     Messages: Optional[List["Message"]] = None
     """
     A list of messages.
-    """
-
-
-class MessageSystemAttributeValue(Boto3Model):
-    """
-    The user-specified message system attribute value. For string data types, the ``Value`` attribute has the same
-    restrictions on the content as the message body. For more information, see  ``SendMessage.``
-
-    ``Name``, ``type``, ``value`` and the message body must not be empty or null.
-    """
-
-    StringValue: Optional[str] = None
-    """
-    Strings are Unicode with UTF-8 binary encoding.
-
-    For a list of code values, see
-    `ASCII Printable Characters <http://en.wikipedia.org/wiki/ASCII#ASCII_printable_characters>`_.
-    """
-    BinaryValue: Optional[bytes] = None
-    """
-    Binary type attributes can store any binary data, such as compressed data, encrypted data, or images.
-    """
-    StringListValues: Optional[List[str]] = None
-    """
-    Not implemented.
-
-    Reserved for future use.
-    """
-    BinaryListValues: Optional[List[bytes]] = None
-    """
-    Not implemented.
-
-    Reserved for future use.
-    """
-    DataType: str
-    """
-Amazon SQS supports the following logical data types: ``String``, ``Number``, and ``Binary``. For the ``Number`` data
-type, you must use ``StringValue``.
     """
 
 

@@ -7,6 +7,8 @@ from datetime import datetime
 from functools import cached_property
 from typing import Any, ClassVar, Dict, List, Literal, Optional, Type, cast
 
+from pydantic import Field
+
 from botocraft.mixins.ecr import (ECRImageManagerMixin, ECRImageMixin,
                                   RepositoryMixin,
                                   image_list_images_ecr_images_only,
@@ -14,7 +16,6 @@ from botocraft.mixins.ecr import (ECRImageManagerMixin, ECRImageMixin,
                                   repo_list_images_ecr_images_only)
 from botocraft.mixins.tags import TagsDictMixin
 from botocraft.services.common import Tag
-from pydantic import Field
 
 from .abstract import (Boto3Model, Boto3ModelManager, PrimaryBoto3Model,
                        ReadonlyBoto3Model, ReadonlyBoto3ModelManager,

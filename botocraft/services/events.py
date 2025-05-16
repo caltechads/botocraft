@@ -7,13 +7,14 @@ from datetime import datetime
 from functools import cached_property
 from typing import Any, ClassVar, Dict, List, Literal, Optional, Type, cast
 
+from pydantic import Field
+
 from botocraft.mixins.events import (DescribeEventBusResponse_to_EventBus,
                                      DescribeRuleResponse_to_EventRule,
                                      EventRule_purge_CreatedBy_attribute,
                                      event_rules_only)
 from botocraft.mixins.tags import TagsDictMixin
 from botocraft.services.common import Tag
-from pydantic import Field
 
 from .abstract import (Boto3Model, Boto3ModelManager, PrimaryBoto3Model,
                        ReadonlyBoto3Model, ReadonlyBoto3ModelManager,

@@ -30,6 +30,14 @@ def queue_list_urls_to_queues(
 
 
 class QueueManagerMixin:
+    """
+    A mixin class that extends :py:class:`~botocraft.services.sqs.QueueManager`
+    to add the :py:meth:`get` method to retrieve a queue by name.   Queues are
+    not first class objects in AWS SQS, so this is a convenience method to
+    retrieve a queue by name and return our bespoke
+    :py:class:`~botocraft.service.sqs.Queue` object.
+    """
+
     def get(self, QueueName: str):  # noqa: N803
         """
         Get a queue by name.
