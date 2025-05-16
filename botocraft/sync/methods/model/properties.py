@@ -75,8 +75,9 @@ class ModelPropertyGenerator:
         elif self.property_def.transformer.alias:
             fields = self.generator.botocore_shape_field_defs(self.model_name)
             assert self.property_def.transformer.alias in fields, (
-                f"Alias: attribute {self.property_def.transformer.alias} not found in model {self.model_name}"
-            )  # noqa: E501
+                f"Alias: attribute {self.property_def.transformer.alias} not found "
+                "in model {self.model_name}"
+            )
             return_type = self.generator.get_python_type_for_field(
                 self.model_name,
                 self.property_def.transformer.alias,
@@ -145,7 +146,14 @@ class ModelPropertyGenerator:
         code = """        return OrderedDict({
 """
         for key, value in self.property_def.transformer.mapping.items():
-            code += f"""
+            if "self" in value:
+                # This is a reference to the model itself
+                # e.g. "self.name" or "self.tags"
+                code += f"""
+            "{key}": {value},
+"""
+            else:
+                code += f"""
             "{key}": self.{value},
 """
         code += """
