@@ -31,6 +31,9 @@ primary:
     input_shapes:
       - RegisterScalableTargetRequest
       - DeregisterScalableTargetRequest
+    mixins:
+      - name: ScalableTargetModelMixin
+        import_path: botocraft.mixins.application_autoscaling
     properties:
       pk:
         docstring: >-
@@ -39,8 +42,33 @@ primary:
         transformer:
           mapping:
             ServiceNamespace: ServiceNamespace
+            ResourceIds: >-
+              [self.ResourceId]
+            ScalableDimension: ScalableDimension
+    relations:
+      scaling_policies:
+        primary_model_name: ScalingPolicy
+        many: true
+        docstring: >-
+          Return the :py:class:`ScalingPolicy` objects that this scalable target
+          has.
+        transformer:
+          mapping:
+            ServiceNamespace: ServiceNamespace
+            ResourceIds: >-
+              [self.ResourceId]
+            ScalableDimension: ScalableDimension
+      scheduled_action:
+        primary_model_name: ScheduledAction
+        docstring: >-
+          Return the :py:class:`ScheduledAction` objects that this scalable target
+          has.
+        transformer:
+          mapping:
+            ServiceNamespace: ServiceNamespace
             ResourceId: ResourceId
             ScalableDimension: ScalableDimension
+
   ScheduledAction:
     arn_key: ScheduledActionARN
     name_key: ScheduledActionName
@@ -53,9 +81,20 @@ primary:
           :py:meth:`botocraft.services.application_autoscaling.ScheduledActionManager.delete`.
         transformer:
           mapping:
-            ScheduledActionName: ScheduledActionName
             ServiceNamespace: ServiceNamespace
-            ResourceId: ResourceId
+            ScheduledActionNames: >-
+              [self.ScheduledActionName]
+    relations:
+      scalable_target:
+        primary_model_name: ScalableTarget
+        docstring: >-
+          Return the :py:class:`ScalableTarget` object that this scheduled action
+          applies to.
+        transformer:
+          mapping:
+            ServiceNamespace: ServiceNamespace
+            ResourceIds: >-
+              [self.ResourceId]
             ScalableDimension: ScalableDimension
 secondary:
   PredefinedMetricSpecification:

@@ -86,6 +86,17 @@ primary:
           mapping:
             TargetGroupArns: >-
               [lb.targetGroupArn for lb in self.loadBalancers if lb.targetGroupArn]
+      scalable_targets:
+        primary_model_name: ScalableTarget
+        many: true
+        docstring: >-
+          Return the scalable targets that are associated with this service, if any.
+        transformer:
+          mapping:
+            ServiceNamespace: >-
+              "ecs"
+            ResourceIds: >-
+              f"service/{self.cluster_name}/{self.serviceName}"
   Cluster:
     primary_key: clusterArn
     arn_key: clusterArn

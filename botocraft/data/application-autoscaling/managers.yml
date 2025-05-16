@@ -3,6 +3,9 @@ ScalingPolicy:
     create:
       boto3_name: put_scaling_policy
       response_attr: None
+      decorators:
+        - name: scaling_policy_only
+          import_path: botocraft.mixins.application_autoscaling
     delete:
       boto3_name: delete_scaling_policy
       response_attr: None
@@ -12,6 +15,9 @@ ScalingPolicy:
     update:
       boto3_name: put_scaling_policy
       response_attr: None
+      decorators:
+        - name: scaling_policy_only
+          import_path: botocraft.mixins.application_autoscaling
     get:
       boto3_name: describe_scaling_policies
       response_attr: ScalingPolicies
@@ -19,7 +25,10 @@ ScalableTarget:
   methods:
     create:
       boto3_name: register_scalable_target
-      response_attr: ScalableTargetARN
+      response_attr: None
+      decorators:
+        - name: scalable_target_only
+          import_path: botocraft.mixins.application_autoscaling
     delete:
       boto3_name: deregister_scalable_target
       return_type: >-

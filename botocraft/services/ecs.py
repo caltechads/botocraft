@@ -19,6 +19,8 @@ from botocraft.mixins.ecs import (ECSContainerInstanceModelMixin,
                                   ecs_task_populate_taskDefinitions,
                                   ecs_tasks_only)
 from botocraft.mixins.tags import TagsDictMixin
+from botocraft.services.application_autoscaling import (ScalableTarget,
+                                                        ScalableTargetManager)
 from botocraft.services.ec2 import Instance, InstanceManager, NetworkInterface
 from botocraft.services.elbv2 import TargetGroup, TargetGroupManager
 
@@ -126,7 +128,7 @@ class ServiceManager(ECSServiceManagerMixin, Boto3ModelManager):
         service: str,
         *,
         cluster: Optional[str] = None,
-        include: Optional[List[Literal["TAGS"]]] = None
+        include: Optional[List[Literal["TAGS"]]] = None,
     ) -> Optional["Service"]:
         """
         Describes the specified services running in your cluster.
@@ -161,7 +163,7 @@ class ServiceManager(ECSServiceManagerMixin, Boto3ModelManager):
         services: List[str],
         *,
         cluster: str = "default",
-        include: Optional[List[Literal["TAGS"]]] = None
+        include: Optional[List[Literal["TAGS"]]] = None,
     ) -> List["Service"]:
         """
         Describes the specified services running in your cluster.
@@ -195,7 +197,7 @@ class ServiceManager(ECSServiceManagerMixin, Boto3ModelManager):
         *,
         cluster: Optional[str] = None,
         launchType: Optional[Literal["EC2", "FARGATE", "EXTERNAL"]] = None,
-        schedulingStrategy: Optional[Literal["REPLICA", "DAEMON"]] = None
+        schedulingStrategy: Optional[Literal["REPLICA", "DAEMON"]] = None,
     ) -> List[str]:
         """
         Returns a list of services. You can filter the results by cluster, launch type, and scheduling strategy.
@@ -312,7 +314,7 @@ class ServiceManager(ECSServiceManagerMixin, Boto3ModelManager):
         serviceRegistries: Optional[List["ServiceRegistry"]] = None,
         serviceConnectConfiguration: Optional["ServiceConnectConfiguration"] = None,
         volumeConfigurations: Optional[List["ServiceVolumeConfiguration"]] = None,
-        vpcLatticeConfigurations: Optional[List["VpcLatticeConfiguration"]] = None
+        vpcLatticeConfigurations: Optional[List["VpcLatticeConfiguration"]] = None,
     ) -> "Service":
         """
         Update individual attributes of an ECS service.
@@ -456,7 +458,7 @@ class ClusterManager(Boto3ModelManager):
         *,
         include: List[
             Literal["ATTACHMENTS", "CONFIGURATIONS", "SETTINGS", "STATISTICS", "TAGS"]
-        ] = ["ATTACHMENTS", "CONFIGURATIONS", "SETTINGS", "STATISTICS", "TAGS"]
+        ] = ["ATTACHMENTS", "CONFIGURATIONS", "SETTINGS", "STATISTICS", "TAGS"],
     ) -> Optional["Cluster"]:
         """
         Describes one or more of your clusters.
@@ -487,7 +489,7 @@ class ClusterManager(Boto3ModelManager):
         clusters: Optional[List[str]] = None,
         include: List[
             Literal["ATTACHMENTS", "CONFIGURATIONS", "SETTINGS", "STATISTICS", "TAGS"]
-        ] = ["ATTACHMENTS", "CONFIGURATIONS", "SETTINGS", "STATISTICS", "TAGS"]
+        ] = ["ATTACHMENTS", "CONFIGURATIONS", "SETTINGS", "STATISTICS", "TAGS"],
     ) -> List["Cluster"]:
         """
         Describes one or more of your clusters.
@@ -563,7 +565,7 @@ class ClusterManager(Boto3ModelManager):
         *,
         settings: Optional[List["ClusterSetting"]] = None,
         configuration: Optional["ClusterConfiguration"] = None,
-        serviceConnectDefaults: Optional["ClusterServiceConnectDefaultsRequest"] = None
+        serviceConnectDefaults: Optional["ClusterServiceConnectDefaultsRequest"] = None,
     ) -> "Cluster":
         """
         Update individual attributes of an ECS cluster.
@@ -700,7 +702,7 @@ class TaskDefinitionManager(TaskDefinitionManagerMixin, Boto3ModelManager):
         *,
         familyPrefix: Optional[str] = None,
         status: Optional[Literal["ACTIVE", "INACTIVE", "DELETE_IN_PROGRESS"]] = None,
-        sort: Optional[Literal["ASC", "DESC"]] = None
+        sort: Optional[Literal["ASC", "DESC"]] = None,
     ) -> List[str]:
         """
         Returns a list of task definitions that are registered to your account. You can filter the results by family
@@ -792,7 +794,7 @@ class TaskDefinitionManager(TaskDefinitionManagerMixin, Boto3ModelManager):
         self,
         *,
         familyPrefix: Optional[str] = None,
-        status: Optional[Literal["ACTIVE", "INACTIVE", "ALL"]] = None
+        status: Optional[Literal["ACTIVE", "INACTIVE", "ALL"]] = None,
     ) -> List[str]:
         """
         Returns a list of task definition families that are registered to your account. This list includes task
@@ -841,7 +843,7 @@ class ContainerInstanceManager(ReadonlyBoto3ModelManager):
         include: List[Literal["TAGS", "CONTAINER_INSTANCE_HEALTH"]] = [
             "TAGS",
             "CONTAINER_INSTANCE_HEALTH",
-        ]
+        ],
     ) -> Optional["ContainerInstance"]:
         """
         Describes one or more container instances. Returns metadata about each container instance requested.
@@ -883,7 +885,7 @@ class ContainerInstanceManager(ReadonlyBoto3ModelManager):
         include: List[Literal["TAGS", "CONTAINER_INSTANCE_HEALTH"]] = [
             "TAGS",
             "CONTAINER_INSTANCE_HEALTH",
-        ]
+        ],
     ) -> List["ContainerInstance"]:
         """
         Describes one or more container instances. Returns metadata about each container instance requested.
@@ -928,7 +930,7 @@ class ContainerInstanceManager(ReadonlyBoto3ModelManager):
                 "DEREGISTERING",
                 "REGISTRATION_FAILED",
             ]
-        ] = None
+        ] = None,
     ) -> List[str]:
         """
         Returns a list of container instances in a specified cluster. You can filter the results of a ``ListContainerInstances``
@@ -981,7 +983,7 @@ class ContainerInstanceManager(ReadonlyBoto3ModelManager):
         startedBy: Optional[str] = None,
         serviceName: Optional[str] = None,
         desiredStatus: Optional[Literal["RUNNING", "PENDING", "STOPPED"]] = None,
-        launchType: Optional[Literal["EC2", "FARGATE", "EXTERNAL"]] = None
+        launchType: Optional[Literal["EC2", "FARGATE", "EXTERNAL"]] = None,
     ) -> List[str]:
         """
         Returns a list of tasks. You can filter the results by cluster, task definition family, container instance,
@@ -1044,7 +1046,7 @@ class TaskManager(Boto3ModelManager):
         task: str,
         *,
         cluster: str = "default",
-        include: List[Literal["TAGS"]] = ["TAGS"]
+        include: List[Literal["TAGS"]] = ["TAGS"],
     ) -> Optional["Task"]:
         """
         Describes a specified task or tasks.
@@ -1080,7 +1082,7 @@ class TaskManager(Boto3ModelManager):
         tasks: List[str],
         *,
         cluster: str = "default",
-        include: List[Literal["TAGS"]] = ["TAGS"]
+        include: List[Literal["TAGS"]] = ["TAGS"],
     ) -> List["Task"]:
         """
         Describes a specified task or tasks.
@@ -1118,7 +1120,7 @@ class TaskManager(Boto3ModelManager):
         startedBy: Optional[str] = None,
         serviceName: Optional[str] = None,
         desiredStatus: Optional[Literal["RUNNING", "PENDING", "STOPPED"]] = None,
-        launchType: Optional[Literal["EC2", "FARGATE", "EXTERNAL"]] = None
+        launchType: Optional[Literal["EC2", "FARGATE", "EXTERNAL"]] = None,
     ) -> List[str]:
         """
         Returns a list of tasks. You can filter the results by cluster, task definition family, container instance,
@@ -2774,6 +2776,30 @@ class Service(TagsDictMixin, ECSServiceModelMixin, PrimaryBoto3Model):
         except AttributeError:
             return []
         return TargetGroup.objects.using(self.session).list(**pk)  # type: ignore[arg-type]
+
+    @cached_property
+    def scalable_targets(self) -> Optional[List["ScalableTarget"]]:
+        """
+        Return the scalable targets that are associated with this service, if any.
+
+        .. note::
+
+            The output of this property is cached on the model instance, so
+            calling this multiple times will not result in multiple calls to the
+            AWS API.   If you need a fresh copy of the data, you can re-get the
+            model instance from the manager.
+        """
+
+        try:
+            pk = OrderedDict(
+                {
+                    "ServiceNamespace": "ecs",
+                    "ResourceIds": f"service/{self.cluster_name}/{self.serviceName}",
+                }
+            )
+        except AttributeError:
+            return []
+        return ScalableTarget.objects.using(self.session).list(**pk)  # type: ignore[arg-type]
 
 
 class ExecuteCommandLogConfiguration(Boto3Model):

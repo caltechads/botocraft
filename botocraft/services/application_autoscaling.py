@@ -9,6 +9,9 @@ from typing import Any, ClassVar, Dict, List, Literal, Optional, Type, cast
 
 from pydantic import Field
 
+from botocraft.mixins.application_autoscaling import (ScalableTargetModelMixin,
+                                                      scalable_target_only,
+                                                      scaling_policy_only)
 from botocraft.mixins.tags import TagsDictMixin
 
 from .abstract import (Boto3Model, Boto3ModelManager, PrimaryBoto3Model,
@@ -24,6 +27,7 @@ class ScalingPolicyManager(Boto3ModelManager):
 
     service_name: str = "application-autoscaling"
 
+    @scaling_policy_only
     def create(self, model: "ScalingPolicy") -> "PutScalingPolicyResponse":
         """
         Creates or updates a scaling policy for an Application Auto Scaling scalable target.
@@ -213,6 +217,7 @@ class ScalingPolicyManager(Boto3ModelManager):
         self.sessionize(results)
         return results
 
+    @scaling_policy_only
     def update(self, model: "ScalingPolicy") -> "PutScalingPolicyResponse":
         """
         Creates or updates a scaling policy for an Application Auto Scaling scalable target.
@@ -329,9 +334,10 @@ class ScalableTargetManager(Boto3ModelManager):
 
     service_name: str = "application-autoscaling"
 
+    @scalable_target_only
     def create(
         self, model: "ScalableTarget", Tags: Optional[Dict[str, str]] = None
-    ) -> str:
+    ) -> "RegisterScalableTargetResponse":
         """
         Registers or updates a scalable target, which is the resource that you want to scale.
 
@@ -358,8 +364,8 @@ class ScalableTargetManager(Boto3ModelManager):
         )
         response = RegisterScalableTargetResponse(**_response)
 
-        self.sessionize(response.ScalableTargetARN)
-        return cast(str, response.ScalableTargetARN)
+        self.sessionize(response)
+        return cast("RegisterScalableTargetResponse", response)
 
     def delete(
         self,
@@ -1789,7 +1795,7 @@ class ApplicationAutoscalingSuspendedState(Boto3Model):
     """
 
 
-class ScalableTarget(PrimaryBoto3Model):
+class ScalableTarget(ScalableTargetModelMixin, PrimaryBoto3Model):
     """
     Represents a scalable target.
     """
@@ -1913,10 +1919,60 @@ class ScalableTarget(PrimaryBoto3Model):
         return OrderedDict(
             {
                 "ServiceNamespace": self.ServiceNamespace,
-                "ResourceId": self.ResourceId,
+                "ResourceIds": [self.ResourceId],
                 "ScalableDimension": self.ScalableDimension,
             }
         )
+
+    @cached_property
+    def scaling_policies(self) -> Optional[List["ScalingPolicy"]]:
+        """
+        Return the :py:class:`ScalingPolicy` objects that this scalable target has.
+
+        .. note::
+
+            The output of this property is cached on the model instance, so
+            calling this multiple times will not result in multiple calls to the
+            AWS API.   If you need a fresh copy of the data, you can re-get the
+            model instance from the manager.
+        """
+
+        try:
+            pk = OrderedDict(
+                {
+                    "ServiceNamespace": self.ServiceNamespace,
+                    "ResourceIds": [self.ResourceId],
+                    "ScalableDimension": self.ScalableDimension,
+                }
+            )
+        except AttributeError:
+            return []
+        return ScalingPolicy.objects.using(self.session).list(**pk)  # type: ignore[arg-type]
+
+    @cached_property
+    def scheduled_action(self) -> Optional["ScheduledAction"]:
+        """
+        Return the :py:class:`ScheduledAction` objects that this scalable target has.
+
+        .. note::
+
+            The output of this property is cached on the model instance, so
+            calling this multiple times will not result in multiple calls to the
+            AWS API.   If you need a fresh copy of the data, you can re-get the
+            model instance from the manager.
+        """
+
+        try:
+            pk = OrderedDict(
+                {
+                    "ServiceNamespace": self.ServiceNamespace,
+                    "ResourceId": self.ResourceId,
+                    "ScalableDimension": self.ScalableDimension,
+                }
+            )
+        except AttributeError:
+            return None
+        return ScheduledAction.objects.using(self.session).get(**pk)  # type: ignore[arg-type]
 
 
 class ApplicationAutoscalingScalableTargetAction(Boto3Model):
@@ -2070,12 +2126,35 @@ class ScheduledAction(PrimaryBoto3Model):
 
         return OrderedDict(
             {
-                "ScheduledActionName": self.ScheduledActionName,
                 "ServiceNamespace": self.ServiceNamespace,
-                "ResourceId": self.ResourceId,
-                "ScalableDimension": self.ScalableDimension,
+                "ScheduledActionNames": [self.ScheduledActionName],
             }
         )
+
+    @cached_property
+    def scalable_target(self) -> Optional["ScalableTarget"]:
+        """
+        Return the :py:class:`ScalableTarget` object that this scheduled action applies to.
+
+        .. note::
+
+            The output of this property is cached on the model instance, so
+            calling this multiple times will not result in multiple calls to the
+            AWS API.   If you need a fresh copy of the data, you can re-get the
+            model instance from the manager.
+        """
+
+        try:
+            pk = OrderedDict(
+                {
+                    "ServiceNamespace": self.ServiceNamespace,
+                    "ResourceIds": [self.ResourceId],
+                    "ScalableDimension": self.ScalableDimension,
+                }
+            )
+        except AttributeError:
+            return None
+        return ScalableTarget.objects.using(self.session).get(**pk)  # type: ignore[arg-type]
 
 
 # =======================
