@@ -44,7 +44,7 @@ class ModelRelationGenerator:
         model_path = self.generator.service_generator.interface.models[
             self.property_def.primary_model_name
         ]
-        if not model_path.endswith(self.generator.service_generator.aws_service_name):
+        if not model_path.endswith(self.generator.service_generator.safe_service_name):
             # The relation is not to one of our models, so we need to import it
             manager_model_name = f"{self.property_def.primary_model_name}Manager"
             self.generator.imports.add(

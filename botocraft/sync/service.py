@@ -1013,6 +1013,14 @@ class ServiceGenerator:
         return self.service_def.name
 
     @property
+    def safe_service_name(self) -> str:
+        """
+        Return the safe service name for this service.  This is the name we
+        use to generate the file name for the service.
+        """
+        return self.service_def.safe_service_name
+
+    @property
     def service_full_name(self) -> str:
         """
         Return what AWS thinks the full name of this services is.

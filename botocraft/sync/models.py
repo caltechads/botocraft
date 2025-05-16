@@ -793,6 +793,18 @@ class ServiceDefinition(BaseModel):
         msg = f'Unknown model name "{model_name}"'
         raise KeyError(msg)
 
+    @property
+    def safe_service_name(self) -> str:
+        """
+        Return a safe version of the service name.  This is used to
+        generate the import path for the service.
+
+        Returns:
+            The safe service name
+
+        """
+        return self.name.replace("-", "_")
+
 
 # ------
 # Global
@@ -832,7 +844,9 @@ class BotocraftInterface(BaseModel):
                         msg = f'Model {_model_name} already defined "'
                         f'in "{self.models[_model_name]}"'
                         raise ValueError(msg)
-                    self.models[_model_name] = f"botocraft.services.{service}"
+                    self.models[_model_name] = (
+                        f"botocraft.services.{self.services[service].safe_service_name}"
+                    )
                 for manager in self.services[service].managers:
                     # Register the manager name to import path mapping so that we can
                     # have them available when we're building our inter-model
@@ -844,7 +858,9 @@ class BotocraftInterface(BaseModel):
                         if model.alternate_name:
                             _manager = model.alternate_name
                     _manager = f"{_manager}Manager"
-                    self.models[_manager] = f"botocraft.services.{service}"
+                    self.models[_manager] = (
+                        f"botocraft.services.{self.services[service].safe_service_name}"
+                    )
 
     def add_model(self, name: str, service: str) -> None:
         """
@@ -856,12 +872,17 @@ class BotocraftInterface(BaseModel):
 
         """
         if name in self.models:
-            if self.models[name] == f"botocraft.services.{service}":
+            if (
+                self.models[name]
+                == f"botocraft.services.{self.services[service].safe_service_name}"
+            ):
                 # We already registered this model during :py:meth:`load`
                 return
             msg = f'Model {name} already defined in "{self.models[name]}"'
             raise ValueError(msg)
-        self.models[name] = f"botocraft.services.{service}"
+        self.models[name] = (
+            f"botocraft.services.{self.services[service].safe_service_name}"
+        )
 
     def populate_init_py(self):
         """
@@ -870,8 +891,10 @@ class BotocraftInterface(BaseModel):
         """
         init_path = SERVICES_DIR / "__init__.py"
         with init_path.open("w", encoding="utf-8") as f:
-            for service in self.services:
-                f.write(f"from .{service} import *  # noqa: F401,F403\n")
+            for service in self.services.values():
+                f.write(
+                    f"from .{service.safe_service_name} import *  # noqa: F401,F403\n"
+                )
 
     def populate_services_toc(self):
         """
@@ -885,8 +908,8 @@ class BotocraftInterface(BaseModel):
    :hidden:
 
 """
-        for service in sorted(self.services.keys()):
-            code += f"   api/services/{service}\n"
+        for service in sorted(self.services):
+            code += f"   api/services/{self.services[service].safe_service_name}\n"
         with index_path.open("w", encoding="utf-8") as f:
             f.write(code)
 
@@ -897,8 +920,10 @@ class BotocraftInterface(BaseModel):
         """
         index_path = DOCS_DIR / "overview" / "_services_list.rst"
         code = ""
-        for service in sorted(self.services.keys()):
-            code += f"- :doc:`/api/services/{service}`\n"
+        for service in sorted(self.services):
+            code += (
+                f"- :doc:`/api/services/{self.services[service].safe_service_name}`\n"
+            )
         with index_path.open("w", encoding="utf-8") as f:
             f.write(code)
 
@@ -913,7 +938,10 @@ class BotocraftInterface(BaseModel):
 
         """
         init_path = SERVICES_DIR / "__init__.py"
-        import_line = f"from .{service} import *  # noqa: F401,F403"
+        import_line = (
+            f"from .{self.services[service].safe_service_name} import *  "
+            "# noqa: F401,F403"
+        )
         with init_path.open(encoding="utf-8") as f:
             contents = f.read()
         if import_line not in contents:
@@ -925,8 +953,8 @@ class BotocraftInterface(BaseModel):
         Purge all the previously generated documentation.
         """
         path = DOCS_DIR / "api" / "services"
-        for service in self.services:
-            service_path = path / f"{service}.rst"
+        for service in self.services.values():
+            service_path = path / f"{service.safe_service_name}.rst"
             if service_path.exists():
                 service_path.unlink()
         path = DOCS_DIR / "_services_index.rst"

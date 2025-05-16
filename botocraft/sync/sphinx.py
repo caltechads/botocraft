@@ -74,7 +74,7 @@ class ServiceSphinxDocBuilder:
         # First get the path to this file
         this_file = Path(__file__).resolve()
         docs_dir = this_file.parents[2] / "doc" / "source" / "api" / "services"
-        return docs_dir / f"{self.generator.aws_service_name}.rst"
+        return docs_dir / f"{self.generator.safe_service_name}.rst"
 
     @property
     def header(self) -> str:
@@ -86,7 +86,7 @@ class ServiceSphinxDocBuilder:
         )
         return f"""
 {title}
-{'=' * len(title)}
+{"=" * len(title)}
 """
 
     def autoclass(self, class_name: str, pydantic: bool = True) -> str:
@@ -101,13 +101,13 @@ class ServiceSphinxDocBuilder:
         if pydantic:
             return f"""
 
-.. autopydantic_model:: botocraft.services.{self.generator.aws_service_name}.{class_name}
+.. autopydantic_model:: botocraft.services.{self.generator.safe_service_name}.{class_name}
     :show-inheritance:
     :inherited-members:
     :exclude-members: update_forward_refs, model_extra, model_fields_set, validate, schema_json, model_rebuild, model_post_init, model_parametrized_name, model_json_schema, copy, from_orm, dict, json, schema, schema_json, model_dump
 """  # noqa: E501
         return f"""
-.. autoclass:: botocraft.services.{self.generator.aws_service_name}.{class_name}
+.. autoclass:: botocraft.services.{self.generator.safe_service_name}.{class_name}
    :members:
    :show-inheritance:
 """
