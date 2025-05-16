@@ -1,8 +1,9 @@
+from typing import Generator
 from functools import wraps
 from typing import TYPE_CHECKING, Callable, List
 
 if TYPE_CHECKING:
-    from botocraft.services.sqs import Queue
+    from botocraft.services.sqs import Message, Queue
 
 
 # ----------
@@ -70,3 +71,28 @@ class QueueManagerMixin:
             Attributes=attributes if attributes else None,
             Tags=tags["Tags"],
         )
+
+
+class QueueModelMixin:
+    """
+    A mixin class that extends :py:class:`~botocraft.services.sqs.Queue`
+    to provide a generator that will yield all the messages in the queue
+    eternally.  This is useful for a job that needs to listen continuously
+    for messages on a queue.
+    """
+
+    def __iter__(self) -> Generator["Message", None, None]:
+        """
+        Iterate over the messages in the queue.  This will yield all the
+        messages in the queue eternally.
+
+        Yields:
+            A message object representing the message in the queue.
+
+        """
+        while True:
+            messages = self.receive(  # type: ignore[attr-defined]
+                MaxMessages=10,
+                WaitTimeSeconds=20,
+            )
+            yield from messages
