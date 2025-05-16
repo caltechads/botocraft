@@ -3,6 +3,7 @@
    :caption: AWS Services
    :hidden:
 
+   api/services/application_autoscaling
    api/services/autoscaling
    api/services/ec2
    api/services/ecr

@@ -1,0 +1,74 @@
+---
+primary:
+  ScalingPolicy:
+    arn_key: PolicyARN
+    name_key: PolicyName
+    properties:
+      pk:
+        docstring: >-
+          The primary key of the scaling policy. This can be used to get the
+          scaling policy with the :py:meth:`botocraft.services.application_autoscaling.ScalingPolicyManager.get`
+          method, or to do
+          :py:meth:`botocraft.services.application_autoscaling.ScalingPolicyManager.delete`.
+        transformer:
+          mapping:
+            PolicyName: PolicyName
+            ServiceNamespace: ServiceNamespace
+    relations:
+      scalable_target:
+        primary_model_name: ScalableTarget
+        docstring: >-
+          Return the :py:class:`ScalableTarget` object that this scaling policy
+          applies to.
+        transformer:
+          mapping:
+            ResourceId: ResourceId
+            ScalableDimension: ScalableDimension
+            ServiceNamespace: ServiceNamespace
+  ScalableTarget:
+    arn_key: ScalableTargetARN
+    name_key: ResourceId
+    input_shapes:
+      - RegisterScalableTargetRequest
+      - DeregisterScalableTargetRequest
+    properties:
+      pk:
+        docstring: >-
+          The primary key of the scalable target. This can be used do
+          :py:meth:`botocraft.services.application_autoscaling.ScalableTargetManager.delete`.
+        transformer:
+          mapping:
+            ServiceNamespace: ServiceNamespace
+            ResourceId: ResourceId
+            ScalableDimension: ScalableDimension
+  ScheduledAction:
+    arn_key: ScheduledActionARN
+    name_key: ScheduledActionName
+    properties:
+      pk:
+        docstring: >-
+          The primary key of the scheduled action. This can be used to get the
+          scheduled action with the :py:meth:`botocraft.services.application_autoscaling.ScheduledActionManager.get`
+          method, or to do
+          :py:meth:`botocraft.services.application_autoscaling.ScheduledActionManager.delete`.
+        transformer:
+          mapping:
+            ScheduledActionName: ScheduledActionName
+            ServiceNamespace: ServiceNamespace
+            ResourceId: ResourceId
+            ScalableDimension: ScalableDimension
+secondary:
+  PredefinedMetricSpecification:
+    alternate_name: ApplicationAutoscalingPredefinedMetricSpecification
+  StepScalingPolicyConfiguration:
+    alternate_name: ApplicationAutoscalingStepScalingPolicyConfiguration
+  CustomizedMetricSpecification:
+    alternate_name: ApplicationAutoscalingCustomizedMetricSpecification
+  TargetTrackingScalingPolicyConfiguration:
+    alternate_name: ApplicationAutoscalingTargetTrackingScalingPolicyConfiguration
+  PredictiveScalingPolicyConfiguration:
+    alternate_name: ApplicationAutoscalingPredictiveScalingPolicyConfiguration
+  SuspendedState:
+    alternate_name: ApplicationAutoscalingSuspendedState
+  ScalableTargetAction:
+    alternate_name: ApplicationAutoscalingScalableTargetAction
