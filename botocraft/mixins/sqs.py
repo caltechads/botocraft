@@ -45,7 +45,7 @@ class QueueManagerMixin:
               attributes, and tags.
 
         """
-        from botocraft.services.sqs import Queue
+        from botocraft.services import Queue, Tag
 
         sqs = self.client  # type: ignore[attr-defined]
         response = sqs.get_queue_url(QueueName=QueueName)
@@ -56,8 +56,14 @@ class QueueManagerMixin:
         )
         attributes = response["Attributes"]
         tags = sqs.list_queue_tags(QueueUrl=queue_url)
+        # Unfortunately the tags are returned as a dict with the key "Tags" and
+        # the value being a dict of tags. We need to extract the tags from this
+        # dict and convert them to a list of dicts, like TagsDictMixin expects
         if "Tags" not in tags:
-            tags["Tags"] = {}
+            tags["Tags"] = []
+        else:
+            tags["Tags"] = [Tag(Key=k, Value=v) for k, v in tags["Tags"].items()]
+
         return Queue(
             QueueName=QueueName,
             QueueUrl=queue_url,
