@@ -165,7 +165,8 @@ class ModelManagerMethodGenerator:
                     else:
                         raise
                 _return_shape = response_attr_shape
-            _return_shape = output_shape
+            else:
+                _return_shape = output_shape
             return self.model_generator.shape_converter.convert(
                 _return_shape, quote=True, name_only=True
             )
@@ -358,8 +359,6 @@ class ModelManagerMethodGenerator:
             The method keyword arguments.
 
         """
-        if not self.method_def.keyword_args and not self.method_def.user_keyword_args:
-            return ""
         kwargs: List[str] = []
         if self.method_def.keyword_args:
             for arg in self.method_def.keyword_args:
@@ -368,9 +367,9 @@ class ModelManagerMethodGenerator:
                 else:
                     kwargs.append(f"{arg.name}=self.{arg.name}")
         if self.method_def.user_keyword_args:
-            kwargs = [
-                f"{arg.name}={arg.name}" for arg in self.method_def.user_keyword_args
-            ]
+            kwargs.extend(
+                [f"{arg.name}={arg.name}" for arg in self.method_def.user_keyword_args]
+            )
         return ", ".join(kwargs)
 
     @property
