@@ -1,8 +1,11 @@
 import re
-from typing import Any, ClassVar, Optional, Type
+from collections import OrderedDict
+from typing import Any, ClassVar, Optional, Type, Union
 
 import boto3
 from pydantic import BaseModel, ConfigDict, Field
+
+from .exceptions import NotUpdatableError
 
 
 class TransformMixin:
@@ -256,7 +259,7 @@ class ReadonlyBoto3ModelManager(Boto3ModelManager):  # pylint: disable=abstract-
 
 class ModelIdentityMixin:
     @property
-    def pk(self) -> Optional[str]:
+    def pk(self) -> Optional[Union[str, OrderedDict]]:
         """
         Get the primary key of the model instance.
 
@@ -372,4 +375,6 @@ class PrimaryBoto3Model(  # pylint: disable=abstract-method
         if not self.pk:
             msg = "Cannot delete a model that has not been saved."
             raise ValueError(msg)
+        if isinstance(self.pk, OrderedDict):
+            return self.manager.delete(**self.pk)
         return self.manager.delete(self.pk)
