@@ -1160,6 +1160,6 @@ class ServiceGenerator:
         formatted_code = Formatter(FormatterArgs(), None, None, None)._format_code(  # noqa: SLF001
             formatted_code
         )
-        output_file = self.service_path / f"{self.service_def.name}.py"
+        output_file = self.service_path / f"{self.service_def.safe_service_name}.py"
         with output_file.open("w", encoding="utf-8") as fd:
             fd.write(formatted_code)
