@@ -19,6 +19,9 @@ class ListMethodGenerator(ManagerMethodGenerator):
             for _arg, arg_type in super().kwargs(location=location).items():
                 if _arg not in self.PAGINATOR_ARGS:
                     _args[_arg] = arg_type
+        else:
+            for _arg, arg_type in super().kwargs(location=location).items():
+                _args[_arg] = arg_type
         return _args
 
     @property
@@ -72,6 +75,7 @@ class ListMethodGenerator(ManagerMethodGenerator):
 """  # noqa: E501
         else:
             code = f"""
+        {self.operation_args}
         {self.operation_call}
         if response and response.{self.response_attr}:
             self.sessionize(response.{self.response_attr})
