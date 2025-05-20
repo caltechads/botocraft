@@ -14,6 +14,7 @@ from botocraft.mixins.ecs import (ECSContainerInstanceModelMixin,
                                   TaskDefinitionManagerMixin,
                                   TaskDefinitionModelMixin, ecs_clusters_only,
                                   ecs_container_instances_only,
+                                  ecs_service_deployments_only,
                                   ecs_services_only, ecs_task_definitions_only,
                                   ecs_task_populate_taskDefinition,
                                   ecs_task_populate_taskDefinitions,
@@ -164,7 +165,7 @@ class ServiceManager(ECSServiceManagerMixin, Boto3ModelManager):
         *,
         cluster: str = "default",
         include: Optional[List[Literal["TAGS"]]] = None,
-    ) -> List["Service"]:
+    ) -> Optional[List["Service"]]:
         """
         Describes the specified services running in your cluster.
 
@@ -490,7 +491,7 @@ class ClusterManager(Boto3ModelManager):
         include: List[
             Literal["ATTACHMENTS", "CONFIGURATIONS", "SETTINGS", "STATISTICS", "TAGS"]
         ] = ["ATTACHMENTS", "CONFIGURATIONS", "SETTINGS", "STATISTICS", "TAGS"],
-    ) -> List["Cluster"]:
+    ) -> Optional[List["Cluster"]]:
         """
         Describes one or more of your clusters.
 
@@ -886,7 +887,7 @@ class ContainerInstanceManager(ReadonlyBoto3ModelManager):
             "TAGS",
             "CONTAINER_INSTANCE_HEALTH",
         ],
-    ) -> List["ContainerInstance"]:
+    ) -> Optional[List["ContainerInstance"]]:
         """
         Describes one or more container instances. Returns metadata about each container instance requested.
 
@@ -1083,7 +1084,7 @@ class TaskManager(Boto3ModelManager):
         *,
         cluster: str = "default",
         include: List[Literal["TAGS"]] = ["TAGS"],
-    ) -> List["Task"]:
+    ) -> Optional[List["Task"]]:
         """
         Describes a specified task or tasks.
 
@@ -1278,6 +1279,150 @@ class TaskManager(Boto3ModelManager):
         )
         response = StopTaskResponse(**_response)
         return cast(Task, response.task)
+
+
+class ServiceDeploymentManager(ReadonlyBoto3ModelManager):
+
+    service_name: str = "ecs"
+
+    def get(self, serviceDeploymentArn: str) -> Optional["ServiceDeployment"]:
+        """
+        Describes one or more of your service deployments.
+
+        Args:
+            serviceDeploymentArn: The deployment ID or full Amazon Resource Name (ARN) entry of the deployment that you want to
+                describe.
+        """
+        args: Dict[str, Any] = dict(
+            serviceDeploymentArns=self.serialize([serviceDeploymentArn])
+        )
+        _response = self.client.describe_service_deployments(
+            **{k: v for k, v in args.items() if v is not None}
+        )
+        response = DescribeServiceDeploymentsResponse(**_response)
+
+        if response and response.serviceDeployments:
+            self.sessionize(response.serviceDeployments[0])
+            return response.serviceDeployments[0]
+        return None
+
+    def get_many(
+        self, serviceDeploymentArns: List[str]
+    ) -> Optional[List["ServiceDeployment"]]:
+        """
+        Describes one or more of your service deployments.
+
+        Args:
+            serviceDeploymentArns: The ARN of the service deployment.
+        """
+        args: Dict[str, Any] = dict(
+            serviceDeploymentArns=self.serialize(serviceDeploymentArns)
+        )
+        _response = self.client.describe_service_deployments(
+            **{k: v for k, v in args.items() if v is not None}
+        )
+        response = DescribeServiceDeploymentsResponse(**_response)
+
+        self.sessionize(response.serviceDeployments)
+        return response.serviceDeployments
+
+    @ecs_service_deployments_only
+    def list(
+        self,
+        service: str,
+        *,
+        cluster: Optional[str] = None,
+        status: Optional[
+            List[
+                Literal[
+                    "PENDING",
+                    "SUCCESSFUL",
+                    "STOPPED",
+                    "STOP_REQUESTED",
+                    "IN_PROGRESS",
+                    "ROLLBACK_REQUESTED",
+                    "ROLLBACK_IN_PROGRESS",
+                    "ROLLBACK_SUCCESSFUL",
+                    "ROLLBACK_FAILED",
+                ]
+            ]
+        ] = None,
+        createdAt: Optional["CreatedAt"] = None,
+        nextToken: Optional[str] = None,
+        maxResults: Optional[int] = None,
+    ) -> List["ServiceDeploymentBrief"]:
+        """
+        This operation lists all the service deployments that meet the specified filter criteria.
+
+        Args:
+            service: The ARN or name of the service
+
+        Keyword Args:
+            cluster: The cluster that hosts the service. This can either be the cluster name or ARN. Starting April 15, 2023,
+                Amazon Web Services will not onboard new customers to Amazon Elastic Inference (EI), and will help current customers
+                migrate their workloads to options that offer better price and performance. If you don't specify a cluster,
+                ``default`` is used.
+            status: An optional filter you can use to narrow the results. If you do not specify a status, then all status values
+                are included in the result.
+            createdAt: An optional filter you can use to narrow the results by the service creation date. If you do not specify
+                a value, the result includes all services created before the current time. The format is yyyy-MM-dd HH:mm:ss.SSSSSS.
+            nextToken: The ``nextToken`` value returned from a ``ListServiceDeployments`` request indicating that more results
+                are available to fulfill the request and further calls are needed. If you provided ``maxResults``, it's possible the
+                number of results is fewer than ``maxResults``.
+            maxResults: The maximum number of service deployment results that ``ListServiceDeployments`` returned in paginated
+                output. When this parameter is used, ``ListServiceDeployments`` only returns ``maxResults`` results in a single page
+                along with a ``nextToken`` response element. The remaining results of the initial request can be seen by sending
+                another ``ListServiceDeployments`` request with the returned ``nextToken`` value. This value can be between 1 and
+                100. If this parameter isn't used, then ``ListServiceDeployments`` returns up to 20 results and a ``nextToken``
+                value if applicable.
+        """
+        args: Dict[str, Any] = dict(
+            service=self.serialize(service),
+            cluster=self.serialize(cluster),
+            status=self.serialize(status),
+            createdAt=self.serialize(createdAt),
+            nextToken=self.serialize(nextToken),
+            maxResults=self.serialize(maxResults),
+        )
+        _response = self.client.list_service_deployments(
+            **{k: v for k, v in args.items() if v is not None}
+        )
+        response = ListServiceDeploymentsResponse(**_response)
+        if response and response.serviceDeployments:
+            self.sessionize(response.serviceDeployments)
+            return response.serviceDeployments
+        return []
+
+    def stop(
+        self,
+        serviceDeploymentArn: str,
+        *,
+        stopType: Optional[Literal["ABORT", "ROLLBACK"]] = None,
+    ) -> str:
+        """
+        Stops an ongoing service deployment.
+
+        Args:
+            serviceDeploymentArn: The ARN of the service deployment that you want to stop.
+
+        Keyword Args:
+            stopType: How you want Amazon ECS to stop the service.
+        """
+        args: Dict[str, Any] = dict(
+            serviceDeploymentArn=self.serialize(serviceDeploymentArn),
+            stopType=self.serialize(stopType),
+        )
+        _response = self.client.stop_service_deployment(
+            **{k: v for k, v in args.items() if v is not None}
+        )
+        response = StopServiceDeploymentResponse(**_response)
+
+        results: str = None
+        if response is not None:
+            results = response.serviceDeploymentArn
+
+        self.sessionize(results)
+        return cast(str, results)
 
 
 # ==============
@@ -2066,7 +2211,7 @@ class EBSTagSpecification(TagsDictMixin, Boto3Model):
     """
     propagateTags: Optional[Literal["TASK_DEFINITION", "SERVICE", "NONE"]] = None
     """
-    Determines whether to propagate the tags from the task definition to  the Amazon EBS volume.
+    Determines whether to propagate the tags from the task definition to the Amazon EBS volume.
 
     Tags can only propagate to
     a ``SERVICE`` specified in
@@ -2800,6 +2945,30 @@ class Service(TagsDictMixin, ECSServiceModelMixin, PrimaryBoto3Model):
         except AttributeError:
             return []
         return ScalableTarget.objects.using(self.session).list(**pk)  # type: ignore[arg-type]
+
+    @cached_property
+    def service_deployments(self) -> Optional[List["ServiceDeployment"]]:
+        """
+        Return the ARNs of :py:class:`ServiceDeployment` objects that run in this service, if any.
+
+        .. note::
+
+            The output of this property is cached on the model instance, so
+            calling this multiple times will not result in multiple calls to the
+            AWS API.   If you need a fresh copy of the data, you can re-get the
+            model instance from the manager.
+        """
+
+        try:
+            pk = OrderedDict(
+                {
+                    "service": self.serviceName,
+                    "cluster": self.clusterArn,
+                }
+            )
+        except AttributeError:
+            return []
+        return ServiceDeployment.objects.using(self.session).list(**pk)  # type: ignore[arg-type]
 
 
 class ExecuteCommandLogConfiguration(Boto3Model):
@@ -4870,7 +5039,7 @@ class Container(Boto3Model):
     """
     reason: Optional[str] = None
     """
-    A short (255 max characters) human-readable string to provide additional details about a running or stopped
+    A short (1024 max characters) human-readable string to provide additional details about a running or stopped
     container.
     """
     networkBindings: Optional[List["NetworkBinding"]] = None
@@ -5725,6 +5894,262 @@ operation.
         return Task.objects.using(self.session).list(**pk)  # type: ignore[arg-type]
 
 
+class ServiceRevisionSummary(Boto3Model):
+    """
+    The information about the number of requested, pending, and running tasks for a service revision.
+    """
+
+    arn: Optional[str] = None
+    """
+    The ARN of the service revision.
+    """
+    requestedTaskCount: Optional[int] = None
+    """
+    The number of requested tasks for the service revision.
+    """
+    runningTaskCount: Optional[int] = None
+    """
+    The number of running tasks for the service revision.
+    """
+    pendingTaskCount: Optional[int] = None
+    """
+    The number of pending tasks for the service revision.
+    """
+
+
+class Rollback(Boto3Model):
+    """
+    Information about the service deployment rollback.
+    """
+
+    reason: Optional[str] = None
+    """
+    The reason the rollback happened.
+
+    For example, the circuit breaker initiated the rollback operation.
+    """
+    startedAt: Optional[datetime] = None
+    """
+    Time time that the rollback started.
+
+    The format is yyyy-MM-dd HH:mm:ss.SSSSSS.
+    """
+    serviceRevisionArn: Optional[str] = None
+    """
+    The ARN of the service revision deployed as part of the rollback.
+    """
+
+
+class ServiceDeploymentCircuitBreaker(Boto3Model):
+    """
+    Information about the circuit breaker used to determine when a service deployment has failed.
+
+    The deployment circuit breaker is the rolling update mechanism that determines if the tasks reach a steady state.
+    The deployment circuit breaker has an option that will automatically roll back a failed deployment to the last
+    cpompleted service revision. For more information, see
+    `How the Amazon ECS deployment circuit breaker detects failures <https://docs.aws.amazon.com/AmazonECS/latest/developerguide/deployment-circuit-breaker.html>`_
+    in the *Amazon
+    ECS Developer Guide*.
+    """
+
+    status: Optional[
+        Literal["TRIGGERED", "MONITORING", "MONITORING_COMPLETE", "DISABLED"]
+    ] = None
+    """
+    The circuit breaker status.
+
+    Amazon ECS is not using the circuit breaker for service deployment failures when the status
+    is ``DISABLED``.
+    """
+    failureCount: Optional[int] = None
+    """
+    The number of times the circuit breaker detected a service deploymeny failure.
+    """
+    threshold: Optional[int] = None
+    """
+    The threshhold which determines that the service deployment failed.
+    """
+
+
+class ServiceDeploymentAlarms(Boto3Model):
+    """
+    The CloudWatch alarms used to determine a service deployment failed.
+
+    Amazon ECS considers the service deployment as failed when any of the alarms move to the ``ALARM`` state. For more
+    information, see `How CloudWatch alarms detect Amazon ECS deployment
+    failures <https://docs.aws.amazon.com/AmazonECS/latest/developerguide/deployment-alarm-failure.html>`_ in the Amazon ECS
+    Developer Guide.
+    """
+
+    status: Optional[
+        Literal["TRIGGERED", "MONITORING", "MONITORING_COMPLETE", "DISABLED"]
+    ] = None
+    """
+    The status of the alarms check.
+
+    Amazon ECS is not using alarms for service deployment failures when the status is
+    ``DISABLED``.
+    """
+    alarmNames: Optional[List[str]] = None
+    """
+    The name of the CloudWatch alarms that determine when a service deployment failed.
+
+    A "," separates the alarms.
+    """
+    triggeredAlarmNames: Optional[List[str]] = None
+    """
+    One or more CloudWatch alarm names that have been triggered during the service deployment.
+
+    A "," separates the alarm names.
+    """
+
+
+class ServiceDeployment(ReadonlyPrimaryBoto3Model):
+    """
+    Information about the service deployment.
+
+    Service deployments provide a comprehensive view of your deployments. For information about service deployments, see
+    `View service history using Amazon ECS service deployments <https://docs.aws.amazon.com/AmazonECS/latest/developerguide/service-deployment.html>`_
+    in the  **Amazon
+    Elastic Container Service Developer Guide** .
+    """
+
+    manager_class: ClassVar[Type[Boto3ModelManager]] = ServiceDeploymentManager
+
+    serviceDeploymentArn: Optional[str] = None
+    """
+    The ARN of the service deployment.
+    """
+    serviceArn: Optional[str] = None
+    """
+    The ARN of the service for this service deployment.
+    """
+    clusterArn: Optional[str] = None
+    """
+    The ARN of the cluster that hosts the service.
+    """
+    createdAt: Optional[datetime] = None
+    """
+    The time the service deployment was created.
+
+    The format is yyyy-MM-dd HH:mm:ss.SSSSSS.
+    """
+    startedAt: Optional[datetime] = None
+    """
+    The time the service deployment statred.
+
+    The format is yyyy-MM-dd HH:mm:ss.SSSSSS.
+    """
+    finishedAt: Optional[datetime] = None
+    """
+    The time the service deployment finished.
+
+    The format is yyyy-MM-dd HH:mm:ss.SSSSSS.
+    """
+    stoppedAt: Optional[datetime] = None
+    """
+    The time the service deployment stopped.
+
+    The format is yyyy-MM-dd HH:mm:ss.SSSSSS.
+    """
+    updatedAt: Optional[datetime] = None
+    """
+    The time that the service deployment was last updated.
+
+    The format is yyyy-MM-dd HH:mm:ss.SSSSSS.
+    """
+    sourceServiceRevisions: Optional[List["ServiceRevisionSummary"]] = None
+    """
+    The currently deployed workload configuration.
+    """
+    targetServiceRevision: Optional[ServiceRevisionSummary] = None
+    """
+    The workload configuration being deployed.
+    """
+    status: Optional[
+        Literal[
+            "PENDING",
+            "SUCCESSFUL",
+            "STOPPED",
+            "STOP_REQUESTED",
+            "IN_PROGRESS",
+            "ROLLBACK_REQUESTED",
+            "ROLLBACK_IN_PROGRESS",
+            "ROLLBACK_SUCCESSFUL",
+            "ROLLBACK_FAILED",
+        ]
+    ] = None
+    """
+    The service deployment state.
+    """
+    statusReason: Optional[str] = None
+    """
+    Information about why the service deployment is in the current status.
+
+    For example, the circuit breaker detected a failure.
+    """
+    deploymentConfiguration: Optional[DeploymentConfiguration] = None
+    """
+    Optional deployment parameters that control how many tasks run during a deployment and the ordering of stopping and
+    starting tasks.
+    """
+    rollback: Optional[Rollback] = None
+    """
+    The rollback options the service deployment uses when the deployment fails.
+    """
+    deploymentCircuitBreaker: Optional[ServiceDeploymentCircuitBreaker] = None
+    """
+    The circuit breaker configuration that determines a service deployment failed.
+    """
+    alarms: Optional[ServiceDeploymentAlarms] = None
+    """
+    The CloudWatch alarms that determine when a service deployment fails.
+    """
+
+    @property
+    def pk(self) -> Optional[str]:
+        """
+        Return the primary key of the model.   This is the value of the :py:attr:`serviceDeploymentArn` attribute.
+
+        Returns:
+            The primary key of the model instance.
+        """
+        return self.serviceDeploymentArn
+
+    @property
+    def arn(self) -> Optional[str]:
+        """
+        Return the ARN of the model.   This is the value of the :py:attr:`serviceDeploymentArn` attribute.
+
+        Returns:
+            The ARN of the model instance.
+        """
+        return self.serviceDeploymentArn
+
+    @cached_property
+    def target_task_definition(self) -> Optional["TaskDefinition"]:
+        """
+        Return the :py:class:`TaskDefinition` object that this deployment uses, if any.
+
+        .. note::
+
+            The output of this property is cached on the model instance, so
+            calling this multiple times will not result in multiple calls to the
+            AWS API.   If you need a fresh copy of the data, you can re-get the
+            model instance from the manager.
+        """
+
+        try:
+            pk = OrderedDict(
+                {
+                    "taskDefinition": self.targetServiceRevision.arn,
+                }
+            )
+        except AttributeError:
+            return None
+        return TaskDefinition.objects.using(self.session).get(**pk)  # type: ignore[arg-type]
+
+
 # =======================
 # Request/Response Models
 # =======================
@@ -6161,4 +6586,124 @@ class StopTaskResponse(Boto3Model):
     task: Optional[Task] = None
     """
     The task that was stopped.
+    """
+
+
+class DescribeServiceDeploymentsResponse(Boto3Model):
+    serviceDeployments: Optional[List["ServiceDeployment"]] = None
+    """
+    The list of service deployments described.
+    """
+    failures: Optional[List["Failure"]] = None
+    """
+    Any failures associated with the call.
+    """
+
+
+class CreatedAt(Boto3Model):
+    """
+    The optional filter to narrow the ``ListServiceDeployment`` results.
+
+    If you do not specify a value, service deployments that were created before the current time are included in the
+    result.
+    """
+
+    before: Optional[datetime] = None
+    """
+    Include service deployments in the result that were created before this time.
+
+    The format is yyyy-MM-dd HH:mm:ss.SSSSSS.
+    """
+    after: Optional[datetime] = None
+    """
+    Include service deployments in the result that were created after this time.
+
+    The format is yyyy-MM-dd HH:mm:ss.SSSSSS.
+    """
+
+
+class ServiceDeploymentBrief(Boto3Model):
+    """
+    The service deployment properties that are retured when you call ``ListServiceDeployments``.
+
+    This provides a high-level overview of the service deployment.
+    """
+
+    serviceDeploymentArn: Optional[str] = None
+    """
+    The ARN of the service deployment.
+    """
+    serviceArn: Optional[str] = None
+    """
+    The ARN of the service for this service deployment.
+    """
+    clusterArn: Optional[str] = None
+    """
+    The ARN of the cluster that hosts the service.
+    """
+    startedAt: Optional[datetime] = None
+    """
+    The time that the service deployment statred.
+
+    The format is yyyy-MM-dd HH:mm:ss.SSSSSS.
+    """
+    createdAt: Optional[datetime] = None
+    """
+    The time that the service deployment was created.
+
+    The format is yyyy-MM-dd HH:mm:ss.SSSSSS.
+    """
+    finishedAt: Optional[datetime] = None
+    """
+    The time that the service deployment completed.
+
+    The format is yyyy-MM-dd HH:mm:ss.SSSSSS.
+    """
+    targetServiceRevisionArn: Optional[str] = None
+    """
+    The ARN of the service revision being deplyed.
+    """
+    status: Optional[
+        Literal[
+            "PENDING",
+            "SUCCESSFUL",
+            "STOPPED",
+            "STOP_REQUESTED",
+            "IN_PROGRESS",
+            "ROLLBACK_REQUESTED",
+            "ROLLBACK_IN_PROGRESS",
+            "ROLLBACK_SUCCESSFUL",
+            "ROLLBACK_FAILED",
+        ]
+    ] = None
+    """
+    The status of the service deployment.
+    """
+    statusReason: Optional[str] = None
+    """
+    Information about why the service deployment is in the current status.
+
+    For example, the circuit breaker detected a deployment failure.
+    """
+
+
+class ListServiceDeploymentsResponse(Boto3Model):
+    serviceDeployments: Optional[List["ServiceDeploymentBrief"]] = None
+    """
+    An overview of the service deployment, including the following properties:
+    """
+    nextToken: Optional[str] = None
+    """
+    The ``nextToken`` value to include in a future ``ListServiceDeployments`` request.
+
+    When the results of a
+    ``ListServiceDeployments`` request exceed ``maxResults``, this value can be used to retrieve the next page of results.
+    This value is null when there are no more results to return.
+    """
+
+
+class StopServiceDeploymentResponse(Boto3Model):
+    serviceDeploymentArn: Optional[str] = None
+    """
+    The ARN of the stopped service deployment.
     """

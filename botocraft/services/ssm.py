@@ -155,7 +155,7 @@ class ParameterManager(Boto3ModelManager):
 
     def get_many(
         self, Names: List[str], *, WithDecryption: bool = True
-    ) -> List["Parameter"]:
+    ) -> Optional[List["Parameter"]]:
         """
         Get information about one or more parameters by specifying multiple parameter names.
 

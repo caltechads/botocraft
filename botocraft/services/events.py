@@ -591,11 +591,27 @@ class EventBusManager(Boto3ModelManager):
 
     def list(
         self,
+        *,
+        NamePrefix: Optional[str] = None,
+        NextToken: Optional[str] = None,
+        Limit: Optional[int] = None
     ) -> List["EventBus"]:
         """
         Lists all the event buses in your account, including the default event bus, custom event buses, and partner
         event buses.
+
+        Keyword Args:
+            NamePrefix: Specifying this limits the results to only those event buses with names that start with the specified
+                prefix.
+            NextToken: The token returned by a previous call, which you can use to retrieve the next set of results.
+            Limit: Specifying this limits the number of results returned by this operation. The operation also returns a
+                NextToken which you can use in a subsequent operation to retrieve the next set of results.
         """
+        args: Dict[str, Any] = dict(
+            NamePrefix=self.serialize(NamePrefix),
+            NextToken=self.serialize(NextToken),
+            Limit=self.serialize(Limit),
+        )
         _response = self.client.list_event_buses(
             **{k: v for k, v in args.items() if v is not None}
         )
