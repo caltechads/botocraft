@@ -30,6 +30,11 @@ class GetManyMethodGenerator(ManagerMethodGenerator):
         """
         _ = self.response_class
         return_type = f'List["{self.model_name}"]'
+        if (
+            self.response_attr
+            and self.response_attr not in self.output_shape.required_members
+        ):
+            return_type = f"Optional[{return_type}]"
         if self.method_def.return_type:
             return_type = self.method_def.return_type
         return return_type
