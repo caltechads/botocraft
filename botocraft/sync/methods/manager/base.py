@@ -5,7 +5,6 @@ from typing import (
     Final,
     List,
     Literal,
-    Optional,
     cast,
 )
 
@@ -71,7 +70,7 @@ class ManagerMethodGenerator:
         generator: "ManagerGenerator",
         model_name: str,
         method_def: ManagerMethodDefinition,
-        method_name: Optional[str] = None,
+        method_name: str | None = None,
     ):
         if method_name is not None:
             self.method_name = method_name
@@ -247,7 +246,7 @@ class ManagerMethodGenerator:
                 if self.is_required(arg_name, location=location):
                     args[_arg_name] = python_type
             elif not self.is_required(arg_name, location=location):
-                default: Optional[str] = arg_def.default if arg_def.default else "None"
+                default: str | None = arg_def.default if arg_def.default else "None"
                 if default == "None":
                     args[_arg_name] = f"Optional[{python_type}] = None"
                 else:
@@ -446,7 +445,7 @@ class ManagerMethodGenerator:
         return model_name
 
     @property
-    def response_attr(self) -> Optional[str]:
+    def response_attr(self) -> str | None:
         """
         Deduce the name of the attribute in the boto3 response that we want to
         return from the method.  This is either some variation of the name of
@@ -458,7 +457,7 @@ class ManagerMethodGenerator:
             return from the method.
 
         """
-        response_attr: Optional[str] = None
+        response_attr: str | None = None
         if self.output_shape is None:
             return None
         if not hasattr(self.output_shape, "members"):
@@ -596,7 +595,7 @@ class ManagerMethodGenerator:
         return return_type
 
     @property
-    def decorators(self) -> Optional[str]:
+    def decorators(self) -> str | None:
         """
         Return the decorators for the method, if any.
 
@@ -646,7 +645,7 @@ class ManagerMethodGenerator:
         signature += f") -> {self.return_type}:"
         return signature
 
-    def get_arg_docstring(self, arg: str) -> Optional[str]:
+    def get_arg_docstring(self, arg: str) -> str | None:
         """
         Return the docstring for the given argument.
 
@@ -696,7 +695,7 @@ class ManagerMethodGenerator:
         return docstrings
 
     @property
-    def docstring(self) -> Optional[str]:
+    def docstring(self) -> str | None:
         """
         Return the docstring for the method.
         """

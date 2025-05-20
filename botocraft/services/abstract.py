@@ -1,6 +1,6 @@
 import re
 from collections import OrderedDict
-from typing import Any, ClassVar, Optional, Type, Union
+from typing import Any, ClassVar, Type
 
 import boto3
 from pydantic import BaseModel, ConfigDict, Field
@@ -12,7 +12,7 @@ class TransformMixin:
     def transform(
         self,
         attribute: str,
-        transformer: Optional[str],
+        transformer: str | None,
     ) -> Any:
         """
         Transform an attribute using a regular expression into something else
@@ -74,7 +74,7 @@ class Boto3Model(TransformMixin, BaseModel):
     #: pydantic complains vociferously if we use ``boto3.session.Session``.
     #: We exclude it from the model dump because it's not something that should
     #: be serialized.
-    session: Optional[Any] = Field(default=None, exclude=True)
+    session: Any | None = Field(default=None, exclude=True)
 
     def set_session(self, session: boto3.session.Session) -> None:
         """
@@ -113,7 +113,7 @@ class Boto3ModelManager(TransformMixin):
         #: The boto3 session to use for this manager.
         self.session = boto3.session.Session()
 
-    def using(self, session: boto3.session.Session) -> "Boto3ModelManager":
+    def using(self, session: boto3.session.Session | None) -> "Boto3ModelManager":
         """
         Use a different boto3 session for this manager.
 
@@ -126,8 +126,9 @@ class Boto3ModelManager(TransformMixin):
         # calls to the manager.  This is not good.  We need som way to make
         # it like a context manager, so that the session is only used for the
         # duration of the actual method call.
-        self.session = session
-        self.client = session.client(self.service_name)  # type: ignore[call-overload]
+        if session is not None:
+            self.session = session
+            self.client = session.client(self.service_name)  # type: ignore[call-overload]
         return self
 
     def serialize(self, arg: Any) -> Any:
@@ -180,7 +181,7 @@ class Boto3ModelManager(TransformMixin):
                 # iter(response) to check if it's a list.
                 # We get the fields on the model, excluding our special
                 # fields and then try to sessionize them.
-                if isinstance(response, (PrimaryBoto3Model, ReadonlyPrimaryBoto3Model)):
+                if isinstance(response, PrimaryBoto3Model | ReadonlyPrimaryBoto3Model):
                     response.set_session(self.session)
                     return
                 attrs = [
@@ -259,7 +260,7 @@ class ReadonlyBoto3ModelManager(Boto3ModelManager):  # pylint: disable=abstract-
 
 class ModelIdentityMixin:
     @property
-    def pk(self) -> Optional[Union[str, OrderedDict]]:
+    def pk(self) -> str | OrderedDict | None:
         """
         Get the primary key of the model instance.
 
@@ -270,7 +271,7 @@ class ModelIdentityMixin:
         raise NotImplementedError
 
     @property
-    def arn(self) -> Optional[str]:
+    def arn(self) -> str | None:
         """
         Get the ARN of the model instance.
 
@@ -282,7 +283,7 @@ class ModelIdentityMixin:
         raise ValueError(msg)
 
     @property
-    def name(self) -> Optional[str]:
+    def name(self) -> str | None:
         """
         Get the name of the model instance.
 

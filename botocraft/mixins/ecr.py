@@ -79,7 +79,7 @@ class ImageInfo(BaseModel):
     #: Docker Version used to build the image
     docker_version: str
     #: The user that the image runs as
-    user: Optional[str] = None
+    user: str | None = None
     #: When the image was created, as a UTC datetime object
     created: datetime.datetime
 
@@ -204,7 +204,7 @@ class RepositoryMixin:
     # properties
 
     @property
-    def images(self) -> Optional[List["ECRImage"]]:
+    def images(self) -> List["ECRImage"] | None:
         """
         Get a list of images for a given repository.
         """
@@ -242,9 +242,9 @@ class ECRImageManagerMixin:
     def __filter_image(
         self,
         image_id: str,
-        repositoryNames: Optional[List[str]] = None,  # noqa: N803
-        repositoryPrefix: Optional[str] = None,  # noqa: N803
-        tags: Optional[Dict[str, str]] = None,
+        repositoryNames: List[str] | None = None,  # noqa: N803
+        repositoryPrefix: str | None = None,  # noqa: N803
+        tags: Dict[str, str] | None = None,
     ) -> Optional["ECRImage"]:
         """
         Filter an image by repository name, prefix, or tags.   If no filters are
@@ -270,7 +270,7 @@ class ECRImageManagerMixin:
 
         if tags is None:
             tags = {}
-        image: Optional["ECRImage"] = None  # noqa: UP037
+        image: "ECRImage" | None = None  # noqa: UP037
         # See if this is even an ECR image
         if not image_id.startswith(self.account_id):
             if not re.match(r"\d{12}\.dkr\.ecr\..+\.amazonaws\.com", image_id):
@@ -304,9 +304,9 @@ class ECRImageManagerMixin:
 
     def in_use(  # noqa: PLR0912
         self,
-        repositoryNames: Optional[List[str]] = None,  # noqa: N803
-        repositoryPrefix: Optional[str] = None,  # noqa: N803
-        tags: Optional[Dict[str, str]] = None,
+        repositoryNames: List[str] | None = None,  # noqa: N803
+        repositoryPrefix: str | None = None,  # noqa: N803
+        tags: Dict[str, str] | None = None,
         verbose: bool = False,
     ) -> List["ECRImage"]:
         """
@@ -455,7 +455,7 @@ class ECRImageMixin:
     """
 
     objects: ClassVar["ECRImageManager"]
-    repositoryName: Optional[str]
+    repositoryName: str | None
     imageId: "ImageIdentifier"
 
     @property
@@ -666,8 +666,8 @@ class ECRImageMixin:
 
     def task_definitions(
         self,
-        status: Optional[Literal["ACTIVE", "INACTIVE", "ALL"]] = "ACTIVE",
-        tags: Optional[Dict[str, str]] = None,
+        status: Literal["ACTIVE", "INACTIVE", "ALL"] | None = "ACTIVE",
+        tags: Dict[str, str] | None = None,
         verbose: bool = False,
     ) -> List["TaskDefinition"]:
         """
@@ -724,8 +724,8 @@ class ECRImageMixin:
 
     def services(
         self,
-        status: Optional[Literal["ACTIVE", "INACTIVE", "ALL"]] = "ACTIVE",
-        tags: Optional[Dict[str, str]] = None,
+        status: Literal["ACTIVE", "INACTIVE", "ALL"] | None = "ACTIVE",
+        tags: Dict[str, str] | None = None,
         verbose: bool = False,
     ) -> List["Service"]:
         """

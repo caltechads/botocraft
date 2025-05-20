@@ -3,7 +3,7 @@ from collections import OrderedDict
 from dataclasses import dataclass, field
 from pathlib import Path
 from textwrap import indent
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List
 
 import yaml
 from pydantic import BaseModel, Field, ValidationInfo, field_validator, model_validator
@@ -51,9 +51,9 @@ class RegexTransformer(BaseModel):
     @classmethod
     def check_valid_regexp(
         cls,
-        v: Optional[str],
+        v: str | None,
         info: ValidationInfo,
-    ) -> Optional[str]:
+    ) -> str | None:
         """
         Validate that the transformer is a valid regular expression.
 
@@ -93,19 +93,19 @@ class CodeTransformerDefinition(BaseModel):
 class AttributeTransformerDefinition(BaseModel):
     #: If specified, use this regular expression to build the
     #: property output
-    regex: Optional[RegexTransformer] = None
+    regex: RegexTransformer | None = None
     #: If specified, use this mapping of attribute values to
     #: output keys to generate the output
-    mapping: Optional[Dict[str, str]] = None
+    mapping: Dict[str, str] | None = None
     #: If specified, use this property as an alias for this
     #: attribute.  This may be an alias on another related
     #: model
-    alias: Optional[str] = None
+    alias: str | None = None
     #: If specified, use this property as a verbatim expression
     #: to return
     #: attribute.  This may be an alias on another related
     #: model
-    code: Optional[CodeTransformerDefinition] = None
+    code: CodeTransformerDefinition | None = None
 
     @model_validator(mode="before")
     @classmethod
@@ -152,7 +152,7 @@ class ModelPropertyDefinition(BaseModel):
     """
 
     #: The docstring for this property
-    docstring: Optional[str] = None
+    docstring: str | None = None
     #: If ``True``, make this property be cached
     cached: bool = False
     #: If specified, use this definition to build the property
@@ -166,7 +166,7 @@ class ModelRelationshipDefinition(BaseModel):
     """
 
     #: The docstring for this property
-    docstring: Optional[str] = None
+    docstring: str | None = None
     #: If ``True``, make this property be cached
     cached: bool = True
     #: If specified, use this definition to build the primary key
@@ -188,11 +188,11 @@ class ModelRelationshipDefinition(BaseModel):
     primary_model_name: str
     #: If ``True``, force this to be a many-to-many relationship.  Otherwise,
     #: try to figure it out from our transformer.
-    many: Optional[bool] = None
+    many: bool | None = None
     #: If specified, use this as the name of the method on the related model's
     #: manager to get the related model instance.  This defaults to ``get``
     #: if :py:attr:`many` is ``False`` and ``list`` if :py:attr:`many` is ``True``.
-    method: Optional[str] = None
+    method: str | None = None
 
     @model_validator(mode="before")
     @classmethod
@@ -257,9 +257,9 @@ class ModelManagerMethodArgDefinition(BaseModel):
     name: str
     #: The value of the argument.  If ``None``, we'll use the value of the
     #: attribute on the model with the same name.
-    value: Optional[str] = None
+    value: str | None = None
     #: The type of the argument
-    attr_type: Optional[str] = None
+    attr_type: str | None = None
 
 
 class ModelManagerMethodKwargDefinition(BaseModel):
@@ -267,11 +267,11 @@ class ModelManagerMethodKwargDefinition(BaseModel):
     name: str
     #: The value of the argument.  if ``None``, we'll use the value of the
     #: attribute on the model with the same name.
-    value: Optional[str] = None
+    value: str | None = None
     #: The type of the argument
-    attr_type: Optional[str] = None
+    attr_type: str | None = None
     #: The default value for the argument
-    default: Optional[Any] = None
+    default: Any | None = None
 
 
 class ModelManagerMethodDefinition(BaseModel):
@@ -285,7 +285,7 @@ class ModelManagerMethodDefinition(BaseModel):
     #: If ``True``, make this result from this cached
     cached: bool = False
     #: The docstring for the method
-    docstring: Optional[str] = None
+    docstring: str | None = None
     #: The arguments for the method.  These should refer to attributes : on the
     #: model and map them to args on the manager method in the proper : order.
     #: The key is the position of the argument in the manager method signature,
@@ -317,24 +317,24 @@ class ModelAttributeDefinition(BaseModel):
 
     #: If specified, use this as the name of the field in the model.
     #: Set the original name of the field as a pydantic field alias.
-    rename: Optional[str] = None
+    rename: str | None = None
     #: If ``True``, make this field immutable.
     readonly: bool = False
     #: If ``True``, force the field to be required, even if the underlying
     #: botocore field is not required.
     required: bool = False
     #: If specified, set this as the default value for the field.
-    default: Optional[Any] = None
+    default: Any | None = None
     #: If specified, use this as the docstring for the field.
-    docstring: Optional[str] = None
+    docstring: str | None = None
     #: If specified, use this as the python type for the field.
-    python_type: Optional[str] = None
+    python_type: str | None = None
     #: If specified, the list of imports to add to the top of the
     #: to support the python type.
     imports: List[str] = []
     #: This is not defined in the YAML file, but is set by
     #: :py:meth:`ModelGenerator.fields` during generation.
-    botocore_shape: Optional[Any] = None
+    botocore_shape: Any | None = None
 
 
 class ModelDefinition(BaseModel):
@@ -350,27 +350,27 @@ class ModelDefinition(BaseModel):
     readonly: bool = False
     #: The plural form of our model name, if different from
     #: what the inflect library would generate.
-    plural: Optional[str] = None
+    plural: str | None = None
     #: The name of the base class for this model.  If not specified, we'll
     #: use the default base class for the use case.
-    base_class: Optional[str] = None
+    base_class: str | None = None
     #: A different docstring for the model.  If not specified, we'll use the
     #: docstring from the botocore model.
-    docstring: Optional[str] = None
+    docstring: str | None = None
     #: If defined, use this as the model name instead of what botocore supplies.
     #: We use this if some submodels have a ame conflict with a model in
     #: another service or an attribute on a model in this service.
-    alternate_name: Optional[str] = None
+    alternate_name: str | None = None
     #: The primary key for this model.  This is the field that will be used
     #: to determine whether we need to create a new model instance or update
     #: an existing one.  This can be the name of a property.
-    primary_key: Optional[str] = None
+    primary_key: str | None = None
     #: The ``ARN`` key for this model attribute if any.  Some AWS models
     #: have an ARN, a name, and an ID.  Some have no ARN.
-    arn_key: Optional[str] = None
+    arn_key: str | None = None
     #: The ``name`` key for this model attribute if any.  Some AWS models
     #: have an ARN, a name, and an ID.  Some have no name.
-    name_key: Optional[str] = None
+    name_key: str | None = None
     #: A list of field overrides for this model.  If a field name is not
     #: specified in this list, it will be generated verbatim from the
     #: botocore model attribute definition.
@@ -383,10 +383,10 @@ class ModelDefinition(BaseModel):
     #: The name of the output shape for the get method for this model.  We use
     #: this to add to the model any fields that appear in the get method
     #: response, but which are not present in the create method response.
-    output_shape: Optional[str] = None
+    output_shape: str | None = None
     #: The names of the request shapes for the writable methods for this model.
     #: We use these to determine which fields on the model are writable.
-    input_shapes: Optional[List[str]] = None
+    input_shapes: List[str] | None = None
     #: Computed properties.  These are all defined by us in the botocraft
     #: config.
     properties: Dict[str, ModelPropertyDefinition] = {}
@@ -452,17 +452,17 @@ class MethodArgumentDefinition(BaseModel):
     #: of this argument to the value of the model attribute specified
     #: here.  This is only useful for methods that take a model instance
     #: as an argument.
-    attribute: Optional[str] = None
+    attribute: str | None = None
     #: If specified, in the method signature, use this as the argument
     #: name.  Otherwise, we'll use the name of the boto3 argument.
-    rename: Optional[str] = None
+    rename: str | None = None
     #: If specified, when constructing the boto3 call invocation, set the value
     #: of this argument to the value of this method argument
-    source_arg: Optional[str] = None
+    source_arg: str | None = None
     #: If specified, in the boto3 call invocation, set the value
     #: of this argument to this specifically.  If this is set, we hide
     #: the argument from the method signature.
-    value: Optional[Any] = None
+    value: Any | None = None
     #: If ``True``, take value as the raw value to pass to the boto3 call
     #: instead of wrapping it in self.serialize()
     raw_value: bool = False
@@ -474,15 +474,15 @@ class MethodArgumentDefinition(BaseModel):
     #: this a keyword argument.
     required: bool = False
     #: If specified, set this as the default value for the argument.
-    default: Optional[Any] = None
+    default: Any | None = None
     #: If ``True``, don't include this argument in the method signature.
     #: or in the boto3 call invocation.
     hidden: bool = False
     #: If specified, use this as the docstring for the argument.  Otherwise,
     #: we'll use the docstring from the botocore operation.
-    docstring: Optional[str] = None
+    docstring: str | None = None
     #: If supplied, use this as the python type for the argument.
-    python_type: Optional[str] = None
+    python_type: str | None = None
 
 
 class ManagerMethodDefinition(BaseModel):
@@ -521,14 +521,14 @@ class ManagerMethodDefinition(BaseModel):
     #:     If you've renamed the model attribute you want to use on the response class
     #:     using :py:attr:`ModelAttributeDefinition.rename`, put the name of
     #:     the botocore here, not the value of the ``rename`` attribute.
-    response_attr: Optional[str] = None
+    response_attr: str | None = None
     #: If specified, use this as the docstring for the method itself (not
     #: the args, kwargs or return type).  If not specified, we'll use the
     #: docstring from the botocore operation.
-    docstring: Optional[str] = None
+    docstring: str | None = None
     #: If specified, use this as the return type for the method.  If not
     #: set, we'll use the model name, pluralizing if necessary.
-    return_type: Optional[str] = None
+    return_type: str | None = None
     #: Extra arguments for the method call
     extra_args: Dict[str, MethodArgumentDefinition] = {}
     #: Decorators to wrap the method in
@@ -587,13 +587,13 @@ class MethodDocstringDefinition:
     """
 
     #: The main method docstring.  This is the description of the method.
-    method: Optional[str] = None
+    method: str | None = None
     #: The docstrings for our positional arguments
-    args: OrderedDict[str, Optional[str]] = field(default_factory=OrderedDict)
+    args: OrderedDict[str, str | None] = field(default_factory=OrderedDict)
     #: The docstrings for our keyword arguments
-    kwargs: OrderedDict[str, Optional[str]] = field(default_factory=OrderedDict)
+    kwargs: OrderedDict[str, str | None] = field(default_factory=OrderedDict)
     #: The docstring for our return value
-    return_value: Optional[str] = None
+    return_value: str | None = None
 
     @property
     def is_empty(self) -> bool:
@@ -634,7 +634,7 @@ class MethodDocstringDefinition:
             docstring += "\n"
         return docstring
 
-    def render(self, formatter: DocumentationFormatter) -> Optional[str]:
+    def render(self, formatter: DocumentationFormatter) -> str | None:
         """
         Return the entire method docstring.
         """
@@ -743,7 +743,7 @@ class ServiceDefinition(BaseModel):
             The loaded service definition
 
         """
-        managers: Optional[Dict[str, ManagerDefinition]] = None
+        managers: Dict[str, ManagerDefinition] | None = None
         model_path = DATA_DIR / name / "models.yml"
         manager_path = DATA_DIR / name / "managers.yml"
         with model_path.open(encoding="utf-8") as f:
@@ -964,7 +964,7 @@ class BotocraftInterface(BaseModel):
         if path.exists():
             path.unlink()
 
-    def generate(self, service: Optional[str] = None) -> None:
+    def generate(self, service: str | None = None) -> None:
         """
         Generate all our service interfaces.
 
