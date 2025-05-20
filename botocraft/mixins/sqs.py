@@ -1,6 +1,7 @@
-from typing import Generator
 from functools import wraps
-from typing import TYPE_CHECKING, Callable, List
+from typing import TYPE_CHECKING, Callable, Generator, List, Union, Any
+
+from botocraft.eventbridge import AbstractEventFactory, EventFactory, EventBridgeEvent
 
 if TYPE_CHECKING:
     from botocraft.services.sqs import Message, Queue
@@ -73,12 +74,14 @@ class QueueManagerMixin:
         else:
             tags["Tags"] = [Tag(Key=k, Value=v) for k, v in tags["Tags"].items()]
 
-        return Queue(
+        queue = Queue(
             QueueName=QueueName,
             QueueUrl=queue_url,
             Attributes=attributes if attributes else None,
             Tags=tags["Tags"],
         )
+        queue.set_session(self.session)  # type: ignore[attr-defined]
+        return queue
 
 
 class QueueModelMixin:
@@ -89,18 +92,44 @@ class QueueModelMixin:
     for messages on a queue.
     """
 
-    def __iter__(self) -> Generator["Message", None, None]:
+    def poll(
+        self,
+        event_factory_class: type[AbstractEventFactory] | None = None,
+        raw: bool = False,
+    ) -> Generator[Union["EventBridgeEvent", dict[str, Any]], None, None]:
         """
-        Iterate over the messages in the queue.  This will yield all the
-        messages in the queue eternally.
+        Eternally poll for messages in the queue, and yield them as
+        :py:class:`~botocraft.eventbridge.EventBridgeEvent` objects or dicts (if
+        we can't identify the event) as they arrive.  This is useful for a job
+        that needs to listen continuously for messages on a queue.
+
+        Keyword Args:
+            event_factory_class: The class to use to create the event objects.  If not
+                provided, the default :py:class:`~botocraft.eventbridge.EventFactory`
+                class will be used.
+            raw: If ``True``, return the raw message body instead of an event object.
+                This is useful for debugging or if you want to handle the message
+                yourself.  If ``False``, return an event object, if possible.
 
         Yields:
-            A message object representing the message in the queue.
+            An event object representing the message in the queue, or a dict
+            representing the message if the event type is not recognized.
 
         """
+        if event_factory_class:
+            factory = event_factory_class(session=self.session)  # type: ignore[attr-defined]
+        else:
+            factory = EventFactory(session=self.session)  # type: ignore[attr-defined]
+
         while True:
             messages = self.receive(  # type: ignore[attr-defined]
-                MaxMessages=10,
+                MaxNumberOfMessages=10,
                 WaitTimeSeconds=20,
             )
-            yield from messages
+            if not messages:
+                continue
+            if raw:
+                yield from messages
+            else:
+                events = [factory.new(message.body) for message in messages]
+                yield from events
