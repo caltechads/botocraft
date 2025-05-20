@@ -3,13 +3,8 @@ clean:
 	find . -name "*.pyc" | xargs rm
 	find . -name "__pycache__" | xargs rm -rf
 
-dist: clean
-	@python -m build --sdist --wheel
-
-pypi: dist
-	@twine upload dist/*
-
-release: pypi
+release: clean
+	@bin/release.sh
 
 tox:
 	# create a tox pyenv virtualenv based on 3.7.x
