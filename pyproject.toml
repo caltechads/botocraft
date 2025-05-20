@@ -7,52 +7,63 @@ authors = [
 maintainers = [
     {name = "Chris Malek", email = "cmalek@caltech.edu"},
 ]
-requires-python = ">= 3.11"
+requires-python = ">= 3.10"
 description = "An opinionated boto3 wrapper for AWS"
 readme = "README.md"
 keywords = ["aws"]
 classifiers = [
-    "Development Status :: 3 - Alpha",
+    "Development Status :: 5 - Production/Stable",
     "Intended Audience :: Developers",
     "Operating System :: OS Independent",
+    "Framework :: Pydantic",
+    "Framework :: Pydantic :: 2",
     "Programming Language :: Python",
     "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.7",
-    "Programming Language :: Python :: 3.8",
-    "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Software Development :: Code Generators",
+    "Topic :: Software Development :: Libraries :: Python Modules",
 ]
 dependencies = [
   "boto3>=1.35.58",
   "botocore>=1.35.58",
   "pydantic >= 2.9.0",
   "click >= 8.0",
-  "pyyaml >= 6.0.2",
-  "black >= 24.8.0",
   "inflect >= 7.4.0",
+  "jsonpath-ng >= 1.6.1",
+  "docker >= 7.1.0",
+  "ipython >= 8.36.0",
+  "psutil>=7.0.0",
+]
+
+[dependency-groups]
+dev = [
+  "datamodel-code-generator>=0.30.1",
+  "bump-pydantic>=0.8.0",
+  "pyyaml >= 6.0.2",
   "markdownify >= 0.15.0",
   "docformatter >= 1.7.5",
   "isort >= 5.13.2",
   "autoflake >= 2.3.1",
-  "jsonpath-ng >= 1.6.1",
-  "docker >= 7.1.0",
-  "ipython >= 8.28.0",
-  "build>=1.2.2.post1",
-  "psutil>=7.0.0",
+  "bumpversion == 0.5.3",
+  "black >= 24.8.0",
+  "boto3-stubs>=1.35.35",
+  "botocore-stubs>=1.35.35",
+  "types-PyYAML >= 6.0.2",
+  "types-requests>=2.32.0.20240914",
 ]
-
-[project.optional-dependencies]
 docs = [
-    "sphinx<7",
-    "sphinx_rtd_theme == 2.0.0",
-    "sphinxcontrib-images >= 0.9.4",
-    "autodoc_pydantic >= 2.0.0",
-    "diagrams >= 0.23.3",
-    "setuptools>=75.1.0",
+  "sphinx<7",
+  "sphinx_rtd_theme == 2.0.0",
+  "sphinxcontrib-images >= 0.9.4",
+  "autodoc_pydantic >= 2.0.0",
+  "diagrams >= 0.23.3",
+  "setuptools>=75.1.0",
 ]
 build = [
-    "build >= 1.2.2",
+  "build>=1.2.2.post1",
 ]
 
 [project.urls]
@@ -65,19 +76,14 @@ botocraft = "botocraft.main:main"
 
 [build-system]
 requires = [
-    "setuptools >= 48",
-    "wheel >= 0.29.0",
+  "setuptools >= 48",
+  "wheel >= 0.29.0",
 ]
 build-backend = "setuptools.build_meta"
 
 [tool.uv]
 python-preference = "only-system"
-dev-dependencies = [
-    "boto3-stubs>=1.35.35",
-    "botocore-stubs>=1.35.35",
-    "types-PyYAML >= 6.0.2",
-    "types-requests>=2.32.0.20240914",
-]
+default-groups = ["docs", "build"]
 
 [tool.setuptools]
 # ...
@@ -120,7 +126,7 @@ ignore_missing_imports = true
 # Same as Black.
 line-length = 88
 indent-width = 4
-target-version = "py39"
+target-version = "py310"
 
 [tool.ruff.lint]
 select = ["ALL"]
