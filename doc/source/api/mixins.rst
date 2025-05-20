@@ -13,6 +13,7 @@ decorators are used to:
 - translate between what the AWS API provides and what we want to provide to the user.
 
 .. note::
+
    The mixins and decorators are not intended to be used directly by the user.
    They are intended to be used by the botocraft code generator to generate the
    service and manager classes.
@@ -33,6 +34,15 @@ Models
 
 Decorators
 ----------
+
+Application autoscaling
+~~~~~~~~~~~~~~~~~~~~~~~
+
+.. autofunction:: botocraft.mixins.autoscaling.scaling_policy_only
+
+.. autofunction:: botocraft.mixins.autoscaling.scalable_target_only
+
+.. autofunction:: botocraft.mixins.autoscaling.scheduled_action_only
 
 EC2
 ~~~
@@ -72,6 +82,9 @@ Manager Mixins
 EC2
 ~~~
 
+.. autoclass:: botocraft.mixins.ec2.AMIManagerMixin
+   :members:
+
 .. autoclass:: botocraft.mixins.ec2.EC2TagsManagerMixin
    :members:
 
@@ -85,6 +98,12 @@ Any
 .. autoclass:: botocraft.mixins.tags.TagsDictMixin
    :members:
 
+Application AutoScaling
+~~~~~~~~~~~~~~~~~~~~~~~
+
+.. autoclass:: botocraft.mixins.autoscaling.ScalableTargetModelMixin
+   :members:
+
 AutoScaling
 ~~~~~~~~~~~
 
@@ -93,6 +112,12 @@ AutoScaling
 
 EC2
 ~~~
+
+.. autoclass:: botocraft.mixins.ec2.InstanceModelMixin
+   :members:
+
+.. autoclass:: botocraft.mixins.ec2.AMIModelMixin
+   :members:
 
 .. autoclass:: botocraft.mixins.ec2.SecurityGroupModelMixin
    :members:

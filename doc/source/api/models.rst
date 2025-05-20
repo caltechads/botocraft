@@ -1,12 +1,13 @@
 .. _api__models:
 
 
-Models
-======
+botocraft configuration Models
+==============================
 
-These models are used to parse and validate the YAML files in our data directory
-and generate the service and manager classes that are used by the botocraft
-library.
+These Pydantic models are used to parse and validate the YAML files in our data
+directory and generate the service and manager classes that are used by the
+botocraft library.  They are used directly by ``botocraft sync`` to generate the
+service and manager classes.
 
 .. important::
 
@@ -75,8 +76,8 @@ does not.
 Model related models
 --------------------
 
-A Model is either a resource that can be managed in the AWS API, or a model that
-is necessary to compose a resource (like a tag, or a sub-structure of a
+A **Model** is either a resource that can be managed in the AWS API, or a model
+that is necessary to compose a resource (like a tag, or a sub-structure of a
 resource).
 
 Primary models

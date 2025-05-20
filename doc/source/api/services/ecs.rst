@@ -30,6 +30,12 @@ represent resources in the AWS service, and are acted on by the managers.
     :exclude-members: update_forward_refs, model_extra, model_fields_set, validate, schema_json, model_rebuild, model_post_init, model_parametrized_name, model_json_schema, copy, from_orm, dict, json, schema, schema_json, model_dump
 
 
+.. autopydantic_model:: botocraft.services.ecs.ServiceDeployment
+    :show-inheritance:
+    :inherited-members:
+    :exclude-members: update_forward_refs, model_extra, model_fields_set, validate, schema_json, model_rebuild, model_post_init, model_parametrized_name, model_json_schema, copy, from_orm, dict, json, schema, schema_json, model_dump
+
+
 .. autopydantic_model:: botocraft.services.ecs.Task
     :show-inheritance:
     :inherited-members:
@@ -57,6 +63,10 @@ available for those models.
    :show-inheritance:
 
 .. autoclass:: botocraft.services.ecs.ContainerInstanceManager
+   :members:
+   :show-inheritance:
+
+.. autoclass:: botocraft.services.ecs.ServiceDeploymentManager
    :members:
    :show-inheritance:
 
@@ -414,6 +424,12 @@ structure of the fields in the primary models or other secondary models.
     :exclude-members: update_forward_refs, model_extra, model_fields_set, validate, schema_json, model_rebuild, model_post_init, model_parametrized_name, model_json_schema, copy, from_orm, dict, json, schema, schema_json, model_dump
 
 
+.. autopydantic_model:: botocraft.services.ecs.Rollback
+    :show-inheritance:
+    :inherited-members:
+    :exclude-members: update_forward_refs, model_extra, model_fields_set, validate, schema_json, model_rebuild, model_post_init, model_parametrized_name, model_json_schema, copy, from_orm, dict, json, schema, schema_json, model_dump
+
+
 .. autopydantic_model:: botocraft.services.ecs.RuntimePlatform
     :show-inheritance:
     :inherited-members:
@@ -468,6 +484,18 @@ structure of the fields in the primary models or other secondary models.
     :exclude-members: update_forward_refs, model_extra, model_fields_set, validate, schema_json, model_rebuild, model_post_init, model_parametrized_name, model_json_schema, copy, from_orm, dict, json, schema, schema_json, model_dump
 
 
+.. autopydantic_model:: botocraft.services.ecs.ServiceDeploymentAlarms
+    :show-inheritance:
+    :inherited-members:
+    :exclude-members: update_forward_refs, model_extra, model_fields_set, validate, schema_json, model_rebuild, model_post_init, model_parametrized_name, model_json_schema, copy, from_orm, dict, json, schema, schema_json, model_dump
+
+
+.. autopydantic_model:: botocraft.services.ecs.ServiceDeploymentCircuitBreaker
+    :show-inheritance:
+    :inherited-members:
+    :exclude-members: update_forward_refs, model_extra, model_fields_set, validate, schema_json, model_rebuild, model_post_init, model_parametrized_name, model_json_schema, copy, from_orm, dict, json, schema, schema_json, model_dump
+
+
 .. autopydantic_model:: botocraft.services.ecs.ServiceEvent
     :show-inheritance:
     :inherited-members:
@@ -481,6 +509,12 @@ structure of the fields in the primary models or other secondary models.
 
 
 .. autopydantic_model:: botocraft.services.ecs.ServiceRegistry
+    :show-inheritance:
+    :inherited-members:
+    :exclude-members: update_forward_refs, model_extra, model_fields_set, validate, schema_json, model_rebuild, model_post_init, model_parametrized_name, model_json_schema, copy, from_orm, dict, json, schema, schema_json, model_dump
+
+
+.. autopydantic_model:: botocraft.services.ecs.ServiceRevisionSummary
     :show-inheritance:
     :inherited-members:
     :exclude-members: update_forward_refs, model_extra, model_fields_set, validate, schema_json, model_rebuild, model_post_init, model_parametrized_name, model_json_schema, copy, from_orm, dict, json, schema, schema_json, model_dump
@@ -598,6 +632,12 @@ because they have some useful additional information.
     :exclude-members: update_forward_refs, model_extra, model_fields_set, validate, schema_json, model_rebuild, model_post_init, model_parametrized_name, model_json_schema, copy, from_orm, dict, json, schema, schema_json, model_dump
 
 
+.. autopydantic_model:: botocraft.services.ecs.CreatedAt
+    :show-inheritance:
+    :inherited-members:
+    :exclude-members: update_forward_refs, model_extra, model_fields_set, validate, schema_json, model_rebuild, model_post_init, model_parametrized_name, model_json_schema, copy, from_orm, dict, json, schema, schema_json, model_dump
+
+
 .. autopydantic_model:: botocraft.services.ecs.DeleteClusterResponse
     :show-inheritance:
     :inherited-members:
@@ -623,6 +663,12 @@ because they have some useful additional information.
 
 
 .. autopydantic_model:: botocraft.services.ecs.DescribeContainerInstancesResponse
+    :show-inheritance:
+    :inherited-members:
+    :exclude-members: update_forward_refs, model_extra, model_fields_set, validate, schema_json, model_rebuild, model_post_init, model_parametrized_name, model_json_schema, copy, from_orm, dict, json, schema, schema_json, model_dump
+
+
+.. autopydantic_model:: botocraft.services.ecs.DescribeServiceDeploymentsResponse
     :show-inheritance:
     :inherited-members:
     :exclude-members: update_forward_refs, model_extra, model_fields_set, validate, schema_json, model_rebuild, model_post_init, model_parametrized_name, model_json_schema, copy, from_orm, dict, json, schema, schema_json, model_dump
@@ -664,6 +710,12 @@ because they have some useful additional information.
     :exclude-members: update_forward_refs, model_extra, model_fields_set, validate, schema_json, model_rebuild, model_post_init, model_parametrized_name, model_json_schema, copy, from_orm, dict, json, schema, schema_json, model_dump
 
 
+.. autopydantic_model:: botocraft.services.ecs.ListServiceDeploymentsResponse
+    :show-inheritance:
+    :inherited-members:
+    :exclude-members: update_forward_refs, model_extra, model_fields_set, validate, schema_json, model_rebuild, model_post_init, model_parametrized_name, model_json_schema, copy, from_orm, dict, json, schema, schema_json, model_dump
+
+
 .. autopydantic_model:: botocraft.services.ecs.ListServicesResponse
     :show-inheritance:
     :inherited-members:
@@ -695,6 +747,18 @@ because they have some useful additional information.
 
 
 .. autopydantic_model:: botocraft.services.ecs.RunTaskResponse
+    :show-inheritance:
+    :inherited-members:
+    :exclude-members: update_forward_refs, model_extra, model_fields_set, validate, schema_json, model_rebuild, model_post_init, model_parametrized_name, model_json_schema, copy, from_orm, dict, json, schema, schema_json, model_dump
+
+
+.. autopydantic_model:: botocraft.services.ecs.ServiceDeploymentBrief
+    :show-inheritance:
+    :inherited-members:
+    :exclude-members: update_forward_refs, model_extra, model_fields_set, validate, schema_json, model_rebuild, model_post_init, model_parametrized_name, model_json_schema, copy, from_orm, dict, json, schema, schema_json, model_dump
+
+
+.. autopydantic_model:: botocraft.services.ecs.StopServiceDeploymentResponse
     :show-inheritance:
     :inherited-members:
     :exclude-members: update_forward_refs, model_extra, model_fields_set, validate, schema_json, model_rebuild, model_post_init, model_parametrized_name, model_json_schema, copy, from_orm, dict, json, schema, schema_json, model_dump

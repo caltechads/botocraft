@@ -6,7 +6,8 @@ botocraft
    :caption: Overview
    :hidden:
 
-   overview/using
+   overview/services
+   overview/events
 
 .. toctree::
    :caption: Runbook
@@ -14,6 +15,7 @@ botocraft
 
    runbook/contributing
    runbook/authoring
+   runbook/eventbridge
 
 .. toctree::
    :caption: Reference
@@ -21,6 +23,7 @@ botocraft
 
    api/models
    api/mixins
+   api/events
 
 .. include:: _services_index.rst
 

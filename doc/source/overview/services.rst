@@ -1,5 +1,5 @@
-Using botocraft
-===============
+botocraft AWS service models
+============================
 
 ``botocraft`` provides a Django ORM-like interface to AWS resources.  This
 interface is provided by models and managers.
@@ -60,7 +60,7 @@ update, and delete a ``Service``, like so:
 
 .. code-block:: python
 
-    from botocraft.models import Service
+    from botocraft.services import Service
 
     # create a service
     service = Service(
@@ -72,6 +72,9 @@ update, and delete a ``Service``, like so:
     )
     service.objects.create(service)
 
+    # or
+    # service.save()
+
     # Update the service
     service.desiredCount = 2
     service.save()
@@ -82,8 +85,30 @@ update, and delete a ``Service``, like so:
     # Delete the service
     service.delete()
 
-Managers
+Sessions
 ^^^^^^^^
+
+You may need to manage multiple AWS accounts and regions in the same codebase.
+``botocraft`` provides a way to do this via sessions, which are simply
+``boto3.session.Session`` objects bound to the proper account user or role.
+
+To use a specific session, you can use the ``using`` method on the manager.  For
+example:
+
+.. code-block:: python
+
+    from botocraft.models import Service
+
+    session = boto3.session.Session(
+        aws_access_key_id='my-access-key',
+        aws_secret_access_key='my-secret-key',
+        region_name='us-west-2'
+    )
+
+    service = Service.objects.using(session).get('my-service', cluster='my-cluster')
+
+Managers
+--------
 
 A manager is an object that implements operations that can be performed on a
 primary model.  These map python methods to boto3 operations.
@@ -208,7 +233,7 @@ Example:
 
 .. code-block:: python
 
-    from botocraft.models import Service, LoadBalancerConfiguration
+    from botocraft.services import Service, LoadBalancerConfiguration
 
     # Create a service with a load balancer
     service = Service(
