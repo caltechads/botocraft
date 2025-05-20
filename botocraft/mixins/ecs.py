@@ -12,6 +12,8 @@ if TYPE_CHECKING:
         ContainerInstance,
         LoadBalancer,
         Service,
+        ServiceDeployment,
+        ServiceDeploymentBrief,
         Task,
         TaskDefinition,
         TaskManager,
@@ -36,10 +38,10 @@ def extract_task_family_and_revision(task_definition_arn: str) -> str:
     """
     task_definition_arn_re = r"arn:aws:ecs:[^:]+:[^:]+:task-definition/(?P<family>[^:]+):(?P<revision>[0-9]+)"  # noqa: E501
     match = re.match(task_definition_arn_re, task_definition_arn)
-    assert (
-        match
-    ), f"Could not extract task family and revision from {task_definition_arn}"
-    return f'{match.group("family")}:{match.group("revision")}'
+    assert match, (
+        f"Could not extract task family and revision from {task_definition_arn}"
+    )
+    return f"{match.group('family')}:{match.group('revision')}"
 
 
 # ----------
@@ -160,6 +162,38 @@ def ecs_container_instances_tasks_only(
         for i in range(0, len(arns), 100):
             tasks.extend(cast("TaskManager", Task.objects).get_many(arns[i : i + 100]))
         return tasks
+
+    return wrapper
+
+
+def ecs_service_deployments_only(
+    func: Callable[..., List["ServiceDeploymentBrief"]],
+) -> Callable[..., List["ServiceDeployment"]]:
+    """
+    Decorator to convert a list of service deployment arns to a list of
+    :py:class:`botocraft.services.ecs.Deployment` objects.
+    """
+
+    @wraps(func)
+    def wrapper(self, *args, **kwargs) -> List["ServiceDeployment"]:
+        from botocraft.services.ecs import ServiceDeployment, ServiceDeploymentManager
+
+        response = func(self, *args, **kwargs)
+        if response is None:
+            return []
+        arns = [
+            d.serviceDeploymentArn
+            for d in func(self, *args, **kwargs)
+            if d.serviceDeploymentArn
+        ]
+        deployments: list[ServiceDeployment] = []
+        for i in range(0, len(arns), 20):
+            _deployments = cast(
+                ServiceDeploymentManager, ServiceDeployment.objects
+            ).get_many(arns[i : i + 20])
+            if _deployments:
+                deployments.extend(_deployments)
+        return deployments
 
     return wrapper
 
@@ -377,9 +411,9 @@ class ECSServiceManagerMixin:
 
     def all(
         self,
-        launchType: Optional[Literal["EC2", "FARGATE", "EXTERNAL"]] = None,  # noqa: N803
-        schedulingStrategy: Optional[Literal["REPLICA", "DAEMON"]] = None,  # noqa: N803
-        tags: Optional[Dict[str, str]] = None,
+        launchType: Literal["EC2", "FARGATE", "EXTERNAL"] | None = None,  # noqa: N803
+        schedulingStrategy: Literal["REPLICA", "DAEMON"] | None = None,  # noqa: N803
+        tags: Dict[str, str] | None = None,
     ) -> List["Service"]:
         """
         Return all the services in the account.  This differs from
@@ -449,7 +483,7 @@ class ECSContainerInstanceModelMixin:
 class TaskDefinitionManagerMixin:
     def in_use(
         self,
-        tags: Optional[Dict[str, str]] = None,
+        tags: Dict[str, str] | None = None,
         verbose: bool = False,
     ) -> List["TaskDefinition"]:
         """
@@ -575,3 +609,21 @@ class TaskDefinitionModelMixin:
                 if service.taskDefinition == self.family_revision
             )
         return services
+
+
+class ServiceDeploymentModelMixin:
+    """
+    A mixin for :py:class:`botocraft.services.ecs.ServiceDeployment` that adds
+    some additional methods that we can't auto generate.
+    """
+
+    @property
+    def source_task_definitions(self) -> List["TaskDefinition"]:
+        """
+        Return the task definition for the deployment.
+        """
+        from botocraft.services import TaskDefinition
+
+        arns = [source.arn for source in self.sourceServiceRevisions]
+
+        return [TaskDefinition.objects.using(self.session).get(arn) for arn in arns]

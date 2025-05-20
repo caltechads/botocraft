@@ -241,3 +241,30 @@ Task:
           attribute: clusterArn
     delete:
       boto3_name: stop_task
+ServiceDeployment:
+  readonly: true
+  methods:
+    get:
+      boto3_name: describe_service_deployments
+      response_attr: serviceDeployments
+      args:
+        serviceDeploymentArns:
+          rename: serviceDeploymentArn
+          required: true
+          python_type: str
+          source_arg: "[serviceDeploymentArn]"
+          docstring: >-
+            The deployment ID or full Amazon Resource Name (ARN) entry of the
+            deployment that you want to describe.
+    get_many:
+      boto3_name: describe_service_deployments
+      response_attr: serviceDeployments
+    list:
+      boto3_name: list_service_deployments
+      response_attr: serviceDeployments
+      decorators:
+        - name: ecs_service_deployments_only
+          import_path: botocraft.mixins.ecs
+    stop:
+      boto3_name: stop_service_deployment
+      response_attr: serviceDeploymentArn

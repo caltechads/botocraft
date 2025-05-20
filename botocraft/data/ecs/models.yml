@@ -97,6 +97,16 @@ primary:
               "ecs"
             ResourceIds: >-
               f"service/{self.cluster_name}/{self.serviceName}"
+      service_deployments:
+        primary_model_name: ServiceDeployment
+        many: true
+        docstring: >-
+          Return the ARNs of :py:class:`ServiceDeployment` objects that run in this
+          service, if any.
+        transformer:
+          mapping:
+            service: serviceName
+            cluster: clusterArn
   Cluster:
     primary_key: clusterArn
     arn_key: clusterArn
@@ -264,6 +274,21 @@ primary:
             containerInstance: containerInstanceArn
             desiredStatus: >-
               "RUNNING"
+  ServiceDeployment:
+    primary_key: serviceDeploymentArn
+    arn_key: serviceDeploymentArn
+    readonly: true
+    relations:
+      target_task_definition:
+        primary_model_name: TaskDefinition
+        docstring: >-
+          Return the :py:class:`TaskDefinition` object that this deployment uses,
+          if any.
+        transformer:
+          mapping:
+            taskDefinition: >-
+              self.targetServiceRevision.arn
+
 secondary:
   Deployment:
     readonly: true
