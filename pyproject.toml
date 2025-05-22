@@ -122,6 +122,10 @@ ignore_missing_imports = true
 module = "docker.*"
 ignore_missing_imports = true
 
+[[tool.mypy.overrides]]
+module = "psutil.*"
+ignore_missing_imports = true
+
 [tool.ruff]
 # Same as Black.
 line-length = 88
