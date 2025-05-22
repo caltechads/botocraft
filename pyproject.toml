@@ -45,14 +45,12 @@ dev = [
   "pyyaml >= 6.0.2",
   "markdownify >= 0.15.0",
   "docformatter >= 1.7.5",
-  "isort >= 5.13.2",
-  "autoflake >= 2.3.1",
   "bumpversion == 0.5.3",
-  "black >= 24.8.0",
   "boto3-stubs>=1.35.35",
   "botocore-stubs>=1.35.35",
   "types-PyYAML >= 6.0.2",
   "types-requests>=2.32.0.20240914",
+  "ruff>=0.11.11",
 ]
 docs = [
   "sphinx<7",
@@ -154,6 +152,7 @@ ignore = [
     "D106",
     "D107",
     "D200",
+    "D203",
     "D205",
     "D212",
     "D400",
@@ -229,4 +228,13 @@ docstring-code-line-length = "dynamic"
     "I001",  # Import order
     "F401",  # Something imported but not used
     "D213",  # Multi-line docstring summary should start at the second line
+    "E501",  # Line too long
+    "N803",  # Argument name should be lowercase
+    "PLR0913",  # Too many arguments in function call
+    "C408",  # Unnecessary dict call - rewrite
+    "D404",  # First word of the docstring should not be "This"
+    "B006",  # argument default is mutable
+    "ARG002",  # Unused argument
+    "RUF001",  # Ambiguous line separator
+    "RUF002",  # Doctring contains ambiguous characters
 ]
