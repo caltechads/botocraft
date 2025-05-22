@@ -134,7 +134,7 @@ class ECSContainerInstanceStateChange(BaseModel):
     accountType: str | None = None
 
 
-class AWSEvent(BaseModel):
+class ECSContainerInstanceStateChangeEvent(BaseModel):
     #: Where the meat of the event is
     detail: ECSContainerInstanceStateChange
     #: The human readable name of the event

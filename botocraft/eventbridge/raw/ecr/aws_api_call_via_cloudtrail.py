@@ -152,7 +152,7 @@ class AWSAPICallViaCloudTrail(BaseModel):
     eventName: str
 
 
-class AWSEvent(BaseModel):
+class ECRAWSAPICallViaCloudTrailEvent(BaseModel):
     """
     Represents a complete AWS CloudTrail event as delivered by EventBridge.
     Wraps the CloudTrail API call details with EventBridge metadata.

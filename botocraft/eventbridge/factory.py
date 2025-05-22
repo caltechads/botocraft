@@ -79,7 +79,7 @@ class EventFactory(AbstractEventFactory):
             data (with a "session" key added) if the type is not recognized.
 
         """
-        data = cast(dict[str, Any], super().new(event_data))
+        data = cast("dict[str, Any]", super().new(event_data))
 
         if data["source"] == "aws.ecs":
             if data["detail-type"] == "ECS Task State Change":

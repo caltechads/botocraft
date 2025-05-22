@@ -1,15 +1,18 @@
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, Optional, cast
 
-from . import EventBridgeEvent
+from .base import EventBridgeEvent
 from .raw import (
     ECSAWSAPICallViaCloudTrailEvent as RawECSAWSAPICallViaCloudTrailEvent,
 )
 from .raw import (
-    ECSContainerInstanceChangeEvent as RawECSContainerInstanceChangeEvent,
+    ECSContainerInstanceStateChangeEvent as RawECSContainerInstanceStateChangeEvent,
 )
 from .raw import (
     ECSServiceActionEvent as RawECSServiceActionEvent,
+)
+from .raw import (
+    ECSServiceDeploymentStateChangeEvent as RawECSServiceDeploymentStateChangeEvent,
 )
 from .raw import (
     ECSTaskStateChangeEvent as RawECSTaskStateChangeEvent,
@@ -33,9 +36,9 @@ class SystemResources:
     """
 
     #: The CPU units available on the container instance, container or task.
-    cpu: int | None = None
+    cpu: float | None = None
     #: The memory available on the container instance, container or task.
-    memory: int | None = None
+    memory: float | None = None
 
 
 class ECSTaskStateChangeEvent(EventBridgeEvent, RawECSTaskStateChangeEvent):
@@ -97,7 +100,7 @@ class ECSTaskStateChangeEvent(EventBridgeEvent, RawECSTaskStateChangeEvent):
         """
         for attribute in self.detail.attributes:
             if attribute.name == "ecs.architecture":
-                return cast(str, attribute.value)
+                return cast("str", attribute.value)
         return "x86_64"
 
     @property
@@ -176,7 +179,7 @@ class ECSServiceActionEvent(EventBridgeEvent, RawECSServiceActionEvent):
 
 
 class ECSContainerInstanceStateChangeEvent(
-    EventBridgeEvent, RawECSContainerInstanceChangeEvent
+    EventBridgeEvent, RawECSContainerInstanceStateChangeEvent
 ):
     """
     EventBridge event for ECS container instance state change.
@@ -233,7 +236,7 @@ class ECSContainerInstanceStateChangeEvent(
 
 
 class ECSServiceDeploymentStateChangeEvent(
-    EventBridgeEvent, RawECSContainerInstanceChangeEvent
+    EventBridgeEvent, RawECSServiceDeploymentStateChangeEvent
 ):
     """
     EventBridge event for ECS service deployment state change.
@@ -246,7 +249,7 @@ class ECSServiceDeploymentStateChangeEvent(
         """
         from botocraft.services.ecs import Cluster
 
-        return Cluster.objects.using(self.session).get(cluster=self.detail.clusterArn)
+        return Cluster.objects.using(self.session).get(cluster=self.detail.clusterArn)  # type: ignore[attr-defined]
 
     @property
     def service(self) -> "Service":

@@ -1,7 +1,7 @@
 from functools import cached_property
 from typing import TYPE_CHECKING, Optional
 
-from . import EventBridgeEvent
+from .base import EventBridgeEvent
 from .raw import (
     ECRImageActionEvent as RawECRImageActionEvent,
 )
