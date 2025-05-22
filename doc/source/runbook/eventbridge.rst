@@ -1,10 +1,11 @@
-.. _overview_adding_events:
+.. _overview_adding_events_from_schema_library:
 
-How to add a new EventBridge event to botocraft
-===============================================
+Adding a new EventBridge event to botocraft from the Schema library
+===================================================================
 
 Background
-^^^^^^^^^^
+----------
+
 The ``botocraft.eventbridge`` module contains a factory class
 (:py:class:`~botocraft.eventbridge.factory.EventFactory`) that decodes the json
 from an EventBridge event and loads it into a corresponding Pydantic model.  This
@@ -43,6 +44,16 @@ You can filter by service by typing ``aws.{service_name}`` in the search bar, wh
 
 If there are multiple versions of the schema, choose the latest one, then click
 the "Actions" dropdown and choose "Download schema (version <version_number>)"
+
+.. note::
+
+    The EventBridge schema library is not complete, even for the AWS services that seem
+    to be complete.  For example, the ``aws.ecr`` service has a schema for the
+    ``ECS Task State Change`` event, but not for the ``ECR ECR Scan Resource Change``
+    event.
+
+    Thus to truly implement ALL the events for a service, you may need to google for
+    ``{service_name} eventbridge events``.
 
 Run ``datamodel-codegen`` on that schema to generate the Pydantic models.
 -------------------------------------------------------------------------
