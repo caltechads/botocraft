@@ -4,7 +4,7 @@ from collections import OrderedDict
 from copy import deepcopy
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Dict, Final, List, Optional, Set, Type, cast
+from typing import Any, Dict, Final, List, Set, Type, cast
 
 import black
 import black.parsing
@@ -54,7 +54,7 @@ class ModelTagsDAO:
     #: The name of the tag class.  This is the class that will be used to
     #: represent the tags in the model.  This will be ``None`` if there are no
     #: tags in the model.
-    tag_class: Optional[str] = None
+    tag_class: str | None = None
 
 
 class AbstractGenerator:
@@ -131,6 +131,243 @@ class AbstractGenerator:
         raise NotImplementedError
 
 
+class BotocoreFieldsFormatter:
+    """
+    Handles the formatting of fields from botocore shapes into Python code for
+    model classes.  This class extracts and formats field definitions from
+    botocore shapes, applying appropriate types, docstrings, and pydantic field
+    configurations.
+    """
+
+    def __init__(self, model_generator: "ModelGenerator") -> None:
+        """
+        Initialize the formatter with a reference to the model generator.
+
+        Args:
+            model_generator: The ModelGenerator instance that's using this
+                formatter.
+
+        """
+        #: Reference to the parent ModelGenerator
+        self.model_generator = model_generator
+        #: The documentation formatter used to format field docstrings
+        self.docformatter = self.model_generator.docformatter
+
+    def format_fields(
+        self,
+        model_name: str,
+        model_def: ModelDefinition,
+        model_shape: botocore.model.Shape | None = None,
+    ) -> List[str]:
+        """
+        Return the Python code representing all the fields for a model from the
+        botocore shape.
+
+        Args:
+            model_name: The name of the model to generate fields for
+            model_def: The botocraft model definition for this model
+            model_shape: The botocore shape to generate the model for. If not
+                provided, it will be extracted from the botocore service model.
+
+        Returns:
+            The list of Python code representing the pydantic model fields as
+            strings
+
+        """
+        fields: List[str] = []
+        # Get all field definitions for this model
+        model_fields = self.model_generator.botocore_shape_field_defs(model_name)
+
+        # Get the shape if not provided
+        if not model_shape:
+            model_shape = self.model_generator.get_shape(model_name)
+
+        # Use alternate_name if specified
+        effective_model_name = model_def.alternate_name or model_name
+
+        # Only proceed if the shape has members
+        if not hasattr(model_shape, "members"):
+            return fields
+
+        # Process each field in the model
+        for field_name, field_def in model_fields.items():
+            field_code = self._format_field(
+                effective_model_name, field_name, field_def, model_shape
+            )
+            fields.extend(field_code)
+
+        return fields
+
+    def _format_field(
+        self,
+        model_name: str,
+        field_name: str,
+        field_def: ModelAttributeDefinition,
+        model_shape: botocore.model.Shape,
+    ) -> List[str]:
+        """
+        Generate code for a single field in a model.
+
+        Args:
+            model_name: The model name
+            field_name: The field name
+            field_def: The field definition
+            model_shape: The model shape
+
+        Returns:
+            List of lines of code for the field
+
+        """
+        # Get field shape and determine if it's required
+        field_shape = field_def.botocore_shape
+        required = self._is_field_required(field_name, field_def, model_shape)
+
+        # Get type and documentation
+        python_type, docstring = self._get_field_type_and_docs(
+            model_name, field_name, field_def, field_shape, model_shape
+        )
+
+        # Build field definition with appropriate annotations and defaults
+        field_code = []
+        field_line = self._build_field_definition(
+            field_name, field_def, python_type, required
+        )
+        field_code.append(field_line)
+
+        # Add docstring if available
+        if docstring:
+            field_code.append(self.docformatter.format_attribute(docstring))
+
+        return field_code
+
+    def _is_field_required(
+        self,
+        field_name: str,
+        field_def: ModelAttributeDefinition,
+        model_shape: botocore.model.Shape,
+    ) -> bool:
+        """
+        Determine if a field is required based on field definition and model shape.
+
+        Args:
+            field_name: The field name
+            field_def: The field definition
+            model_shape: The model shape
+
+        Returns:
+            True if the field is required, False otherwise
+
+        """
+        if field_def.required is not None:
+            return field_def.required
+        return field_name in model_shape.required_members
+
+    def _get_field_type_and_docs(
+        self,
+        model_name: str,
+        field_name: str,
+        field_def: ModelAttributeDefinition,
+        field_shape: botocore.model.Shape | None,
+        model_shape: botocore.model.Shape,
+    ) -> tuple[str, str | None]:
+        """
+        Get the Python type and documentation for a field.
+
+        Args:
+            model_name: The model name
+            field_name: The field name
+            field_def: The field definition
+            field_shape: The field shape
+            model_shape: The model shape
+
+        Returns:
+            Tuple of (python_type, docstring)
+
+        """
+        docstring = field_def.docstring
+
+        if field_shape:
+            # Get type from the botocore shape
+            python_type = self.model_generator.get_python_type_for_field(
+                model_name,
+                field_name,
+                model_shape=model_shape,
+                field_def=field_def,
+                field_shape=field_shape,
+            )
+            # Use shape documentation if no explicit docstring provided
+            if not docstring:
+                docstring = cast("str", field_shape.documentation)
+        else:
+            # No shape, must have explicit type in field definition
+            assert field_def.python_type, (
+                f"Field {field_name} in model {model_name} has no botocore "
+                "shape or python type"
+            )
+            python_type = field_def.python_type
+
+        return python_type, docstring
+
+    def _build_field_definition(
+        self,
+        field_name: str,
+        field_def: ModelAttributeDefinition,
+        python_type: str,
+        required: bool,
+    ) -> str:
+        """
+        Build the field definition code.
+
+        Args:
+            field_name: The field name
+            field_def: The field definition
+            python_type: The Python type for the field
+            required: Whether the field is required
+
+        Returns:
+            Field definition code as a string
+
+        """
+        # Handle Optional types and default values
+        default = None
+        if not required:
+            if not field_def.readonly and not field_def.rename:
+                python_type = f"Optional[{python_type}]"
+            default = "None" if field_def.default is None else field_def.default
+
+        # Determine displayed field name (could be renamed)
+        display_name = field_def.rename or field_name
+
+        # Start building the field line
+        field_line = f"    {display_name}: {python_type}"
+
+        # Determine if we need pydantic Field
+        needs_field_class = False
+        field_class_args = []
+
+        if default:
+            if python_type.startswith("List[") and default == "None":
+                field_class_args.append("default_factory=list")
+                needs_field_class = True
+            else:
+                field_class_args.append(f"default={default}")
+
+        if field_def.rename:
+            field_class_args.append(f'alias="{field_name}"')
+            needs_field_class = True
+
+        if field_def.readonly:
+            field_class_args.append("frozen=True")
+            needs_field_class = True
+
+        if needs_field_class:
+            field_line += f" = Field({', '.join(field_class_args)})"
+        elif default:
+            field_line += f" = {field_def.default}"
+
+        return field_line
+
+
 class ModelGenerator(AbstractGenerator):
     """
     Generate pydantic model definitions from botocore shapes.
@@ -138,10 +375,10 @@ class ModelGenerator(AbstractGenerator):
 
     def __init__(self, service_generator: "ServiceGenerator") -> None:
         super().__init__(service_generator)
-        #: The shape converter we will use to convert botocore shapes to python
-        #: types, and build the appropriate python classes for ``StructureShape``
-        #: objects.
+        #: The shape converter we will use to convert botocore shapes to python types
         self.shape_converter = PythonTypeShapeConverter(service_generator, self)
+        #: The fields formatter for converting botocore shapes to field definitions
+        self.fields_formatter = BotocoreFieldsFormatter(self)
 
     def get_model_def(self, model_name: str) -> ModelDefinition:
         """
@@ -343,9 +580,7 @@ class ModelGenerator(AbstractGenerator):
             field_class_args = []
         return fields
 
-    def get_properties(
-        self, model_def: ModelDefinition, base_class: str
-    ) -> Optional[str]:
+    def get_properties(self, model_def: ModelDefinition, base_class: str) -> str | None:
         """
         Handle the special properties and methods for primary models.  A primary
         model is a model that has either ``PrimaryBoto3Model`` or
@@ -456,9 +691,9 @@ class ModelGenerator(AbstractGenerator):
         self,
         model_name: str,
         field_name: str,
-        field_def: Optional[ModelAttributeDefinition] = None,
-        model_shape: Optional[botocore.model.Shape] = None,
-        field_shape: Optional[botocore.model.Shape] = None,
+        field_def: ModelAttributeDefinition | None = None,
+        model_shape: botocore.model.Shape | None = None,
+        field_shape: botocore.model.Shape | None = None,
     ) -> str:
         """
         Return the python type annotation for a field on a model by combining
@@ -485,9 +720,9 @@ class ModelGenerator(AbstractGenerator):
         if not hasattr(model_shape, "members"):
             raise ModelHasNoMembersError(model_name)
         if not field_shape:
-            field_shape = cast(botocore.model.StructureShape, model_shape).members.get(
-                field_name
-            )
+            field_shape = cast(
+                "botocore.model.StructureShape", model_shape
+            ).members.get(field_name)
         if not field_def:
             model_def = self.get_model_def(model_name)
             field_def = model_def.fields.get(field_name, ModelAttributeDefinition())
@@ -500,7 +735,7 @@ class ModelGenerator(AbstractGenerator):
             raise TypeError(msg)
         if not python_type:
             python_type = self.shape_converter.convert(
-                cast(botocore.model.StructureShape, field_shape)
+                cast("botocore.model.StructureShape", field_shape)
             )
         return self.validate_python_type(model_name, field_name, field_def, python_type)
 
@@ -575,11 +810,11 @@ class ModelGenerator(AbstractGenerator):
 
         return python_type
 
-    def format_fields_from_botocore_shape(  # noqa: PLR0912
+    def format_fields_from_botocore_shape(
         self,
         model_name: str,
         model_def: ModelDefinition,
-        model_shape: Optional[botocore.model.Shape] = None,
+        model_shape: botocore.model.Shape | None = None,
     ) -> List[str]:
         """
         Return the python code representing all the fields for a model from the
@@ -587,96 +822,18 @@ class ModelGenerator(AbstractGenerator):
         do have a botocore shape for it.
 
         Args:
-            model_name: The name of the model to generate. This will be the
-                name of the class.
-            model_def: The botocraft model definition for this model.
+            model_name: The name of the model to generate
+            model_def: The botocraft model definition for this model
 
         Keyword Args:
-            model_shape: The botocore shape to generate the model for.  If not
-                provided, we will extract it from the botocore service model.
+            model_shape: The botocore shape to generate the model for
 
         Returns:
-            The list of python code representing the pydantic model fields
-            as strings
+            The list of python code representing the pydantic model fields as
+            strings
 
         """
-        fields: List[str] = []
-        # This needs to be up here before we check for alternate names
-        model_fields = self.botocore_shape_field_defs(model_name)
-        if not model_shape:
-            model_shape = self.get_shape(model_name)
-        if model_def.alternate_name:
-            model_name = model_def.alternate_name
-
-        if hasattr(model_shape, "members"):
-            # Get the list of all the fields for this model, along with their
-            # botocode definitions.  This includes fields from the botocore model,
-            # and any extra fields we have defined in the botocraft model
-            # definition.
-            for field_name, field_def in model_fields.items():
-                # The botocore shape for this field.  We determined this in
-                # :py:meth:`fields`.
-                field_shape = field_def.botocore_shape
-                # Whether this field is required
-                if field_def.required is None:
-                    required: bool = field_name in model_shape.required_members
-                else:
-                    required = field_def.required
-                docstring = field_def.docstring
-                # Deterimine the python type for this field
-                if field_shape:
-                    python_type = self.get_python_type_for_field(
-                        model_name,
-                        field_name,
-                        model_shape=model_shape,
-                        field_def=field_def,
-                        field_shape=field_shape,
-                    )
-                    if not docstring:
-                        docstring = cast(str, field_shape.documentation)
-                else:
-                    assert field_def.python_type, (
-                        f"Field {field_name} in model {model_name} has no botocore "
-                        "shape or python type"
-                    )
-                    python_type = field_def.python_type
-                default = None
-                if not required:
-                    if not field_def.readonly and not field_def.rename:
-                        python_type = f"Optional[{python_type}]"
-                    default = "None" if field_def.default is None else field_def.default
-
-                # Determine whether we need to add a pydantic.Field class
-                # instance as the value for this field.
-                needs_field_class: bool = False
-                field_class_args: List[str] = []
-                if default:
-                    if python_type.startswith("List[") and default == "None":
-                        field_class_args.append("default_factory=list")
-                        needs_field_class = True
-                    else:
-                        field_class_args.append(f"default={default}" if default else "")
-                field_line = f"    {field_name}: {python_type}"
-                if field_def.rename:
-                    # We need it to be a pydantic Field class instance so that we can
-                    # set the serialization_alias attribute.
-                    needs_field_class = True
-                    field_line = f"    {field_def.rename}: {python_type}"
-                    field_class_args.append(f'alias="{field_name}"')
-                if field_def.readonly:
-                    # We need it to be a pydantic Field class instance so that we can
-                    # set the frozen attribute.
-                    needs_field_class = True
-                    field_class_args.append("frozen=True")
-                if needs_field_class:
-                    field_line += f" = Field({', '.join(field_class_args)})"
-                elif default:
-                    field_line += f" = {field_def.default}"
-                fields.append(field_line)
-                # Add the docstring for this field
-                if docstring:
-                    fields.append(self.docformatter.format_attribute(docstring))
-        return fields
+        return self.fields_formatter.format_fields(model_name, model_def, model_shape)
 
     def handle_tag_class(
         self,
@@ -720,8 +877,8 @@ class ModelGenerator(AbstractGenerator):
         field_names = {name.lower(): name for name in model_fields}
 
         # See if we need to add the TagsDictMixin
-        tag_class: Optional[str] = None
-        tag_attr: Optional[str] = None
+        tag_class: str | None = None
+        tag_attr: str | None = None
         for name in ["tags", "taglist"]:
             if name in field_names:
                 # set the tag_attr to the normally capitalized name of the field
@@ -750,13 +907,20 @@ class ModelGenerator(AbstractGenerator):
                 tag_class = self.get_python_type_for_field(
                     model_name, tag_attr, model_fields[tag_attr]
                 )
-            tag_class = re.sub(r"List\[(.*)\]", r"\1", tag_class)
-            tag_class = re.sub(r'"(.*)"', r"\1", tag_class)
-            base_class = f"TagsDictMixin, {base_class}"
+            if tag_class == "Dict[str, str]":
+                # Almost all tags are stored as List[Dict[str, str]] in the
+                # botocore model, but some oddballs are actually stored in
+                # the exact form we want: Dict[str, str].  In this case, we
+                # don't need to add the TagsDictMixin class.
+                tag_class = None
+            else:
+                tag_class = re.sub(r"List\[(.*)\]", r"\1", tag_class)
+                tag_class = re.sub(r'"(.*)"', r"\1", tag_class)
+                base_class = f"TagsDictMixin, {base_class}"
         return ModelTagsDAO(base_class=base_class, tag_class=tag_class)
 
     def generate_single_model(  # noqa: PLR0912
-        self, model_name: str, model_shape: Optional[botocore.model.Shape] = None
+        self, model_name: str, model_shape: botocore.model.Shape | None = None
     ) -> str:
         """
         Generate the code for a single model and its dependent models and save
@@ -778,6 +942,9 @@ class ModelGenerator(AbstractGenerator):
             The name of the model class that was generated.
 
         """
+        # Save the original model name so we can use it later when
+        # we're looking up the model definition and fields.
+        orig_model_name = model_name
         if model_name in self.classes:
             # If we've already generated this model, just return it.
             return model_name
@@ -794,7 +961,7 @@ class ModelGenerator(AbstractGenerator):
         if model_def.alternate_name:
             model_name = model_def.alternate_name
         # Get the base class for this model
-        base_class = cast(str, model_def.base_class)
+        base_class = cast("str", model_def.base_class)
 
         if model_def.bespoke:
             # This is not a botocore model, so we just add the code for the
@@ -805,9 +972,9 @@ class ModelGenerator(AbstractGenerator):
             # combination of the botocore model shape and the botocraft model
             # definition, including any extra fields that are defined in the
             # botocraft model definition.
-            model_shape = self.get_shape(model_name)
+            model_shape = self.get_shape(orig_model_name)
             field_code = self.format_fields_from_botocore_shape(
-                model_name, model_def, model_shape=model_shape
+                orig_model_name, model_def, model_shape=model_shape
             )
 
         # Add any botocraft defined properties.  This includes relations.
