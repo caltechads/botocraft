@@ -3,7 +3,7 @@ from functools import wraps
 from typing import TYPE_CHECKING, Callable, List, Optional
 
 if TYPE_CHECKING:
-    from botocraft.services import DescribeRuleResponse, EventRule, EventBus
+    from botocraft.services import DescribeRuleResponse, EventBus, EventRule
 
 
 def event_rules_only(

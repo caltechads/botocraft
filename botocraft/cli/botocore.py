@@ -3,7 +3,7 @@ from collections import OrderedDict
 from textwrap import (
     indent as add_prefix,
 )
-from typing import Dict, Final, List, Literal, Optional, cast
+from typing import Dict, Final, List, Literal, cast
 
 import botocore.model
 import botocore.session
@@ -36,7 +36,7 @@ class ShapePrinter:
         self,
         shape: botocore.model.StringShape,
         indent: int = 0,
-        prefix: Optional[str] = None,
+        prefix: str | None = None,
     ) -> List[str]:
         """
         Render a string shape as a descriptive string.
@@ -56,7 +56,7 @@ class ShapePrinter:
         if "max" in shape.metadata and shape.metadata["max"] is not None:
             constraints += f"maxlength: {shape.metadata['max']} "
         if "pattern" in shape.metadata and shape.metadata["pattern"] is not None:
-            constraints += f"""pattern: "{shape.metadata['pattern']}" """
+            constraints += f"""pattern: "{shape.metadata["pattern"]}" """
         if prefix is not None:
             output.append(
                 f"{click.style(prefix, fg='cyan')}: string -> "
@@ -80,7 +80,7 @@ class ShapePrinter:
         self,
         shape: botocore.model.StringShape,
         indent: int = 0,
-        prefix: Optional[str] = None,
+        prefix: str | None = None,
     ) -> List[str]:
         """
         Render a blob shape as a descriptive string.  According to the botocore
@@ -123,7 +123,7 @@ class ShapePrinter:
         self,
         shape: botocore.model.Shape,
         indent: int = 0,
-        prefix: Optional[str] = None,
+        prefix: str | None = None,
         int_type: IntType = "int",
     ) -> List[str]:
         """
@@ -164,7 +164,7 @@ class ShapePrinter:
         self,
         shape: botocore.model.ListShape,
         indent: int = 0,
-        prefix: Optional[str] = None,
+        prefix: str | None = None,
     ) -> List[str]:
         """
         Render a list shape as a descriptive string.
@@ -197,7 +197,7 @@ class ShapePrinter:
         self,
         shape: botocore.model.MapShape,
         indent: int = 0,
-        prefix: Optional[str] = None,
+        prefix: str | None = None,
     ) -> List[str]:
         """
         Render a map shape as a descriptive string.
@@ -232,7 +232,7 @@ class ShapePrinter:
         self,
         shape: botocore.model.StructureShape,
         indent: int = 0,
-        prefix: Optional[str] = None,
+        prefix: str | None = None,
     ) -> List[str]:
         """
         Render a structure shape as a string.
@@ -275,7 +275,7 @@ class ShapePrinter:
         self,
         shape: botocore.model.Shape,
         indent: int = 0,
-        prefix: Optional[str] = None,
+        prefix: str | None = None,
     ) -> List[str]:
         """
         Render a shape as a string.
@@ -291,31 +291,31 @@ class ShapePrinter:
         output = []
         if shape.type_name == "structure":
             output = self.render_structure(
-                cast(botocore.model.StructureShape, shape),
+                cast("botocore.model.StructureShape", shape),
                 indent=indent,
                 prefix=prefix,
             )
         elif shape.type_name == "list":
             output = self.render_list(
-                cast(botocore.model.ListShape, shape),
+                cast("botocore.model.ListShape", shape),
                 indent=indent,
                 prefix=prefix,
             )
         elif shape.type_name == "map":
             output = self.render_map(
-                cast(botocore.model.MapShape, shape),
+                cast("botocore.model.MapShape", shape),
                 indent=indent,
                 prefix=prefix,
             )
         elif shape.type_name == "string":
             output = self.render_string(
-                cast(botocore.model.StringShape, shape),
+                cast("botocore.model.StringShape", shape),
                 indent=indent,
                 prefix=prefix,
             )
         elif shape.type_name == "blob":
             output = self.render_blob(
-                cast(botocore.model.Shape, shape),
+                cast("botocore.model.Shape", shape),
                 indent=indent,
                 prefix=prefix,
             )
@@ -328,10 +328,10 @@ class ShapePrinter:
             "boolean",
         ]:
             output = self.render_integer(
-                cast(botocore.model.StringShape, shape),
+                cast("botocore.model.StringShape", shape),
                 indent=indent,
                 prefix=prefix,
-                int_type=cast(IntType, shape.type_name),
+                int_type=cast("IntType", shape.type_name),
             )
         else:
             msg = f"Shape type {shape.type_name} not implemented"
@@ -343,7 +343,7 @@ def print_shape(
     service_model: botocore.model.ServiceModel,
     shape_name: str,
     indent: int = 0,
-    prefix: Optional[str] = None,
+    prefix: str | None = None,
 ) -> None:
     """
     Print the name and members of a shape.
@@ -411,7 +411,7 @@ def botocore_list_services():
 @click.option("--names-only", is_flag=True, help="List only model names, not shapes")
 @click.option("--shape-type", default=None, help="Show only this type of shape")
 @click.argument("service")
-def botocore_list_shapes(service: str, names_only: bool, shape_type: Optional[str]):
+def botocore_list_shapes(service: str, names_only: bool, shape_type: str | None):
     """
     List all shapes in a botocore service model.
 
@@ -580,6 +580,6 @@ def botocore_list_primary_models(service: str):
                 break
         if not writable:
             label = click.style(": [READONLY]", fg="green")
-        click.echo(f'{click.style(model, fg="red")}{label}')
+        click.echo(f"{click.style(model, fg='red')}{label}")
         for operation in operations:
             click.secho(f"    {camel_to_snake(operation)}", fg="cyan")

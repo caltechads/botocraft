@@ -16,7 +16,7 @@ import botocraft
 @click.pass_context
 def cli(_, version):
     """
-    botocraft command line interface.
+    Botocraft command line interface.
     """
     if version:
         print(botocraft.__version__)

@@ -129,7 +129,7 @@ def ec2_instances_only(
         reservations = func(*args, **kwargs)
         instances: List["Instance"] = []  # noqa: UP037
         for reservation in reservations:
-            instances.extend(cast(List["Instance"], reservation.Instances))
+            instances.extend(cast("List[Instance]", reservation.Instances))
         return instances
 
     return wrapper
@@ -148,7 +148,7 @@ def ec2_instance_only(
         reservation = func(*args, **kwargs)
         if not reservation:
             return None
-        return cast(List["Instance"], reservation.Instances)[0]
+        return cast("List[Instance]", reservation.Instances)[0]
 
     return wrapper
 
@@ -165,7 +165,7 @@ class EC2TagsManagerMixin:
     """
 
     def convert_tags(
-        self, tags: Optional[List["Tag"]], resource_type: ResourceType
+        self, tags: List["Tag"] | None, resource_type: ResourceType
     ) -> Optional["TagSpecification"]:
         """
         Given a TagList, convert it to a TagSpecification with ResourceType of
@@ -250,8 +250,8 @@ class InstanceModelMixin:
         self,
         host: str,
         remote_port: int,
-        local_port: Optional[int] = None,
-        profile: Optional[str] = None,
+        local_port: int | None = None,
+        profile: str | None = None,
     ):
         """
         A context manager for opening and closing a tunnel.
@@ -289,8 +289,8 @@ class InstanceModelMixin:
         self,
         host: str,
         remote_port: int,
-        local_port: Optional[int] = None,
-        profile: Optional[str] = None,
+        local_port: int | None = None,
+        profile: str | None = None,
     ) -> int:
         """
         Open a tunnel to the instance using SSM and SSH. This is useful for
@@ -387,7 +387,7 @@ class InstanceModelMixin:
         )
         return local_port
 
-    def close_tunnel(self, host: str, local_port: Optional[int] = None) -> None:
+    def close_tunnel(self, host: str, local_port: int | None = None) -> None:
         """
         Close one or more tunnels to ``host``. This will terminate the SSM
         session(s) and SSH process(es) that were opened by
@@ -489,9 +489,9 @@ class SecurityGroupModelMixin:
 class AMIManagerMixin:
     def in_use(
         self,
-        owners: Optional[List[str]] = None,
-        tags: Optional[Dict[str, str]] = None,
-        created_since: Optional[datetime] = None,
+        owners: List[str] | None = None,
+        tags: Dict[str, str] | None = None,
+        created_since: datetime | None = None,
     ) -> List["AMI"]:
         """
         Return a list of AMIs that are currently in use by a running or stopped
@@ -511,7 +511,7 @@ class AMIManagerMixin:
         from botocraft.services import Filter, Instance
 
         _owners = owners if owners else ["self"]
-        _filters: Optional[List[Filter]] = None
+        _filters: List[Filter] | None = None
         if tags:
             _filters = [
                 Filter(Name=f"tag:{key}", Values=[value]) for key, value in tags.items()

@@ -76,7 +76,7 @@ class CacheClusterModelMixin:
             property to get the hostnames of the other nodes.
 
         """
-        return cast(str, self.CacheNodes[0].Endpoint.Address)  # type: ignore[attr-defined]
+        return cast("str", self.CacheNodes[0].Endpoint.Address)  # type: ignore[attr-defined]
 
     @cached_property
     def port(self) -> int:
@@ -89,7 +89,7 @@ class CacheClusterModelMixin:
             property to get the ports of the other nodes.
 
         """
-        return cast(int, self.CacheNodes[0].Endpoint.Port)  # type: ignore[attr-defined]
+        return cast("int", self.CacheNodes[0].Endpoint.Port)  # type: ignore[attr-defined]
 
     @cached_property
     def tags(self) -> dict[str, str]:
@@ -139,21 +139,21 @@ class ReplicationGroupModelMixin:
         cluster = CacheCluster.objects.using(self.session).get(
             self.MemberClusters[0], ShowCacheNodeInfo=False
         )
-        return cast(str, cluster.EngineVersion)
+        return cast("str", cluster.EngineVersion)
 
     @cached_property
     def hostname(self) -> str:
         """
         The hostname of the cache cluster.
         """
-        return cast(str, self.NodeGroups[0].PrimaryEndpoint.Address)  # type: ignore[attr-defined]
+        return cast("str", self.NodeGroups[0].PrimaryEndpoint.Address)  # type: ignore[attr-defined]
 
     @cached_property
     def port(self) -> int:
         """
         The port of the cache cluster.
         """
-        return cast(int, self.NodeGroups[0].PrimaryEndpoint.Port)  # type: ignore[attr-defined]
+        return cast("int", self.NodeGroups[0].PrimaryEndpoint.Port)  # type: ignore[attr-defined]
 
     @cached_property
     def tags(self) -> dict[str, str]:

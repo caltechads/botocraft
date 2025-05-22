@@ -105,9 +105,9 @@ class AutoScalingGroupModelMixin:
             asg = self.objects.using(self.session).get(
                 AutoScalingGroupName=self.AutoScalingGroupName
             )
-            assert (
-                asg is not None
-            ), "AutoScalingGroup.wait_until_stable(): Autoscaling group not found."
+            assert asg is not None, (
+                "AutoScalingGroup.wait_until_stable(): Autoscaling group not found."
+            )
             if wait_count >= max_attempts:
                 reason = "Max attempts exceeded"
                 raise WaiterError(

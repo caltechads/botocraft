@@ -1,10 +1,10 @@
 from functools import wraps
-from typing import TYPE_CHECKING, Callable, Generator, List, Union, Any
+from typing import TYPE_CHECKING, Any, Callable, Generator, List, Union
 
-from botocraft.eventbridge import AbstractEventFactory, EventFactory, EventBridgeEvent
+from botocraft.eventbridge import AbstractEventFactory, EventBridgeEvent, EventFactory
 
 if TYPE_CHECKING:
-    from botocraft.services.sqs import Message, Queue
+    from botocraft.services.sqs import Queue
 
 
 # ----------

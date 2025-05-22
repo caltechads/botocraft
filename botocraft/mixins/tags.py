@@ -1,5 +1,5 @@
 from functools import cached_property
-from typing import TYPE_CHECKING, Any, Dict, Optional, Type, Union, cast
+from typing import TYPE_CHECKING, Any, Dict, Type, cast
 
 if TYPE_CHECKING:
     from botocraft.services.abstract import Boto3Model
@@ -24,14 +24,14 @@ class TagsDict(dict):
 
     def __init__(self, *args, **kwargs) -> None:
         #: The model instance that we are setting tags for.
-        self.instance: Optional["Boto3Model"] = None  # noqa: UP037
+        self.instance: "Boto3Model" | None = None  # noqa: UP037
         #: The boto3 tag class.  This has to be configurable because once
         #: again boto3 has different tag classes for different services.
-        self.tag_class: Optional[Type] = None
+        self.tag_class: Type | None = None
         #: The name of the key attribute in the tag class.
-        self.tag_Key: Optional[str] = None
+        self.tag_Key: str | None = None
         #: The name of the value attribute in the tag class.
-        self.tag_Value: Optional[str] = None
+        self.tag_Value: str | None = None
         super().__init__(*args, **kwargs)
 
     def check(self) -> None:
@@ -50,21 +50,21 @@ class TagsDict(dict):
             True if we have been configured, False otherwise.
 
         """
-        assert (
-            self.instance is not None
-        ), "The instance attribute must be set before setting tags."
-        assert hasattr(
-            self.instance, "Tags"
-        ), f"The {self.instance.__class__.__name__} does not have a Tags attribute."
-        assert (
-            self.tag_class is not None
-        ), "The tag_class attribute must be set before setting tags."
-        assert (
-            self.tag_Key is not None
-        ), "The tag_Key attribute must be set before setting tags."
-        assert (
-            self.tag_Value is not None
-        ), "The tag_Value attribute must be set before setting tags."
+        assert self.instance is not None, (
+            "The instance attribute must be set before setting tags."
+        )
+        assert hasattr(self.instance, "Tags"), (
+            f"The {self.instance.__class__.__name__} does not have a Tags attribute."
+        )
+        assert self.tag_class is not None, (
+            "The tag_class attribute must be set before setting tags."
+        )
+        assert self.tag_Key is not None, (
+            "The tag_Key attribute must be set before setting tags."
+        )
+        assert self.tag_Value is not None, (
+            "The tag_Value attribute must be set before setting tags."
+        )
 
     def __setitem__(self, key: str, value: str) -> None:
         """
@@ -82,12 +82,12 @@ class TagsDict(dict):
         if instance.Tags is None:  # type: ignore[attr-defined]
             instance.Tags = []  # type: ignore[attr-defined]
         for tag in instance.Tags:  # type: ignore[attr-defined]
-            if getattr(tag, cast(str, self.tag_Key)) == key:
-                setattr(tag, cast(str, self.tag_Value), value)
+            if getattr(tag, cast("str", self.tag_Key)) == key:
+                setattr(tag, cast("str", self.tag_Value), value)
                 found = True
                 break
         if not found:
-            tag = cast(Type, self.tag_class)(
+            tag = cast("Type", self.tag_class)(
                 **{self.tag_Key: key, self.tag_Value: value}
             )
             instance.Tags.append(tag)  # type: ignore[attr-defined]
@@ -105,12 +105,12 @@ class TagsDict(dict):
         self.check()
         instance = cast("Boto3Model", self.instance)
         for tag in instance.Tags:  # type: ignore[attr-defined]
-            if getattr(tag, cast(str, self.tag_Key)) == key:
+            if getattr(tag, cast("str", self.tag_Key)) == key:
                 instance.Tags.remove(tag)  # type: ignore[attr-defined]
                 break
         super().__delitem__(key)
 
-    def pop(self, key: str, default: Optional[Any] = None) -> Any:
+    def pop(self, key: str, default: Any | None = None) -> Any:
         """
         Override the ``pop`` method to delete the tags in ourselves and in the
         ``Tags`` attribute of the model instance.
@@ -128,7 +128,7 @@ class TagsDict(dict):
         self.check()
         instance = cast("Boto3Model", self.instance)
         for tag in instance.Tags:  # type: ignore[attr-defined]
-            if getattr(tag, cast(str, self.tag_Key)) == key:
+            if getattr(tag, cast("str", self.tag_Key)) == key:
                 instance.Tags.remove(tag)  # type: ignore[attr-defined]
                 break
         return super().pop(key, default)
@@ -154,7 +154,7 @@ class TagsDictMixin:
 
     #: The boto3 tag class.  This has to be configurable because once
     #: again boto3 has different tag classes for different services.
-    tag_class: Optional[Type] = None
+    tag_class: Type | None = None
 
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
@@ -168,9 +168,9 @@ class TagsDictMixin:
         """
         The name of the key attribute in the tag class.
         """
-        assert (
-            self.tag_class is not None
-        ), "The tag_class class attribute must be set before using tags."
+        assert self.tag_class is not None, (
+            "The tag_class class attribute must be set before using tags."
+        )
         instance = self.tag_class()
         candidates = ["key", "Key"]
         for candidate in candidates:
@@ -184,9 +184,9 @@ class TagsDictMixin:
         """
         The name of the value attribute in the tag class.
         """
-        assert (
-            self.tag_class is not None
-        ), "The tag_class class attribute must be set before using tags."
+        assert self.tag_class is not None, (
+            "The tag_class class attribute must be set before using tags."
+        )
         instance = self.tag_class()
         candidates = ["value", "Value"]
         for candidate in candidates:
@@ -204,9 +204,9 @@ class TagsDictMixin:
             The tags for the model instance.
 
         """
-        assert hasattr(
-            self, "Tags"
-        ), f"The {self.__class__.__name__} does not have a Tags attribute."
+        assert hasattr(self, "Tags"), (
+            f"The {self.__class__.__name__} does not have a Tags attribute."
+        )
         if self.Tags is None:
             _tags = TagsDict()
         else:
@@ -223,7 +223,7 @@ class TagsDictMixin:
         return _tags
 
     @tags.setter
-    def tags(self, value: Union[Dict[str, str], TagsDict]) -> None:
+    def tags(self, value: Dict[str, str] | TagsDict) -> None:
         """
         Set the tags for the model instance.
 
@@ -231,12 +231,12 @@ class TagsDictMixin:
             value: the tags to set for the model instance.
 
         """
-        assert (
-            self.tag_class is not None
-        ), "The tag_class class attribute must be set before setting tags."
-        assert hasattr(
-            self, "Tags"
-        ), f"The {self.__class__.__name__} does not have a Tags attribute."
+        assert self.tag_class is not None, (
+            "The tag_class class attribute must be set before setting tags."
+        )
+        assert hasattr(self, "Tags"), (
+            f"The {self.__class__.__name__} does not have a Tags attribute."
+        )
         self.Tags = []
         for key, _value in value.items():
             tag = self.tag_class(**{self.__tag_Key: key, self.__tag_Value: _value})

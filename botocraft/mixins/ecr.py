@@ -463,7 +463,7 @@ class ECRImageMixin:
         """
         Get the version of the image.
         """
-        return cast(str, self.imageId.imageTag)
+        return cast("str", self.imageId.imageTag)
 
     @property
     def name(self) -> str:

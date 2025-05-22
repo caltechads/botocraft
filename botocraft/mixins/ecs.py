@@ -189,7 +189,7 @@ def ecs_service_deployments_only(
         deployments: list[ServiceDeployment] = []
         for i in range(0, len(arns), 20):
             _deployments = cast(
-                ServiceDeploymentManager, ServiceDeployment.objects
+                "ServiceDeploymentManager", ServiceDeployment.objects
             ).get_many(arns[i : i + 20])
             if _deployments:
                 deployments.extend(_deployments)
@@ -523,7 +523,7 @@ class TaskDefinitionManagerMixin:
         # to the list of task definitions if we have not already seen it
         for service in services:
             try:
-                task_definition = cast(TaskDefinition, service.task_definition)
+                task_definition = cast("TaskDefinition", service.task_definition)
             except ClientException:
                 warnings.warn(
                     f"Task definition {service.taskDefinition} used by "

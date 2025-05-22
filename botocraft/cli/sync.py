@@ -1,4 +1,3 @@
-from typing import Optional
 
 import click
 
@@ -9,7 +8,7 @@ from .cli import cli
 
 @cli.command("sync", short_help="Sync an aws service to botocraft")
 @click.option("--service", default=None, help="The name of the AWS service to sync")
-def models_sync(service: Optional[str]) -> None:
+def models_sync(service: str | None) -> None:
     interface = BotocraftInterface()
     interface.load()
     if service and service not in interface.services:

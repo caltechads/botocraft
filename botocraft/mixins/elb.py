@@ -1,7 +1,7 @@
 # mypy: disable-error-code="attr-defined"
 import warnings
 from functools import wraps
-from typing import TYPE_CHECKING, Callable, Dict, List, Optional, cast
+from typing import TYPE_CHECKING, Callable, Dict, List, cast
 
 import boto3
 
@@ -165,7 +165,7 @@ class ClassicELBManagerMixin:
             The newly created :py:class:`ClassicELB` object
 
         """
-        tags: Optional[List[Dict[str, str]]] = None
+        tags: List[Dict[str, str]] | None = None
         if elb.Tags:
             tags = [{"Key": key, "Value": value} for key, value in elb.Tags.items()]
         # Since we use .create() directly on the manager, any .using(session) should
@@ -286,8 +286,8 @@ class ClassicELBManagerMixin:
                     Tags=[{"Key": key} for key in old_elb.Tags],
                 )
             else:
-                old_tags = cast(Dict[str, str], old_elb.Tags)
-                new_tags = cast(Dict[str, str], new_elb.Tags)
+                old_tags = cast("Dict[str, str]", old_elb.Tags)
+                new_tags = cast("Dict[str, str]", new_elb.Tags)
                 # First get the tags that need to be deleted by finding keys that
                 # are in old_elb.Tags but not in new_elb.Tags
                 keys_to_delete = set(old_tags.keys()) - set(new_tags.keys())
@@ -400,8 +400,8 @@ class ClassicELBManagerMixin:
                     LoadBalancerName=new_elb.LoadBalancerName, HealthCheck={}
                 )
             elif (
-                not old_elb.HealthCheck
-                and new_elb.HealthCheck
+                (not old_elb.HealthCheck
+                and new_elb.HealthCheck)
                 or old_elb.HealthCheck != new_elb.HealthCheck
             ):
                 self.configure_health_check(
