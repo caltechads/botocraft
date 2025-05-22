@@ -1,5 +1,5 @@
 from collections import OrderedDict
-from typing import TYPE_CHECKING, Dict, List, Optional, cast
+from typing import TYPE_CHECKING, Dict, List, cast
 
 from botocraft.sync.models import MethodArgumentDefinition, MethodDocstringDefinition
 
@@ -112,7 +112,7 @@ class ModelManagerMethodGenerator:
         )
 
     @property
-    def decorators(self) -> Optional[str]:
+    def decorators(self) -> str | None:
         """
         The decorators for the method.  If the method definition has decorators
         defined, add those first.
@@ -153,14 +153,14 @@ class ModelManagerMethodGenerator:
             _return_shape = None
             if response_attr is not None:
                 try:
-                    response_attr_shape = output_shape.members[cast(str, response_attr)]
+                    response_attr_shape = output_shape.members[cast("str", response_attr)]
                 except KeyError:
                     response_model_def = self.model_generator.get_model_def(
                         output_shape.name
                     )
                     for field, field_data in response_model_def.fields.items():
                         if field_data.rename == response_attr:
-                            response_attr_shape = output_shape.members[cast(str, field)]
+                            response_attr_shape = output_shape.members[cast("str", field)]
                             break
                     else:
                         raise
@@ -172,7 +172,7 @@ class ModelManagerMethodGenerator:
             )
         return "None"
 
-    def get_arg_docstring(self, arg: str) -> Optional[str]:
+    def get_arg_docstring(self, arg: str) -> str | None:
         """
         Return the docstring for the given argument.
 
@@ -223,7 +223,7 @@ class ModelManagerMethodGenerator:
         return docstrings
 
     @property
-    def docstring(self) -> Optional[str]:
+    def docstring(self) -> str | None:
         """
         Return the docstring for the method.
         """
@@ -257,7 +257,7 @@ class ModelManagerMethodGenerator:
                         f"the manager method {self.method_def.manager_method}."
                     )
                     raise ValueError(msg)
-                attr_type: Optional[str] = arg.attr_type
+                attr_type: str | None = arg.attr_type
                 if arg.attr_type is None:
                     # If the argument type is not specified, then use the type
                     # from the manager method
@@ -338,7 +338,7 @@ class ModelManagerMethodGenerator:
         for i in range(len(args_dict)):  # pylint: disable=consider-using-enumerate
             if i in self.method_def.args:
                 if args_dict[i].value is not None:
-                    args[i] = cast(str, args_dict[i].value)
+                    args[i] = cast("str", args_dict[i].value)
                 else:
                     value = args_dict[i].name
                     if "self." not in value:

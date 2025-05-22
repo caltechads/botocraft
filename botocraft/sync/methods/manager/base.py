@@ -239,7 +239,7 @@ class ManagerMethodGenerator:
                 # expose it in the method signature
                 continue
             if arg_def.python_type:
-                python_type = cast(str, arg_def.python_type)
+                python_type = cast("str", arg_def.python_type)
             else:
                 python_type = self.shape_converter.convert(arg_shape, quote=True)
             if kind == "args":
@@ -559,7 +559,7 @@ class ManagerMethodGenerator:
         if self.method_def.return_type:
             return self.method_def.return_type
         # If our output shape has no members, then we return None
-        output_shape = cast(botocore.model.StructureShape, self.output_shape)
+        output_shape = cast("botocore.model.StructureShape", self.output_shape)
         if not hasattr(output_shape, "members") or (
             hasattr(output_shape, "members") and not output_shape.members
         ):
@@ -571,7 +571,7 @@ class ManagerMethodGenerator:
         if self.output_shape is not None:
             try:
                 response_attr_shape = self.output_shape.members[
-                    cast(str, self.response_attr)
+                    cast("str", self.response_attr)
                 ]
             except KeyError:
                 response_model_def = self.model_generator.get_model_def(
@@ -580,7 +580,7 @@ class ManagerMethodGenerator:
                 for field, field_data in response_model_def.fields.items():
                     if field_data.rename == self.response_attr:
                         response_attr_shape = self.output_shape.members[
-                            cast(str, field)
+                            cast("str", field)
                         ]
                         break
                 else:

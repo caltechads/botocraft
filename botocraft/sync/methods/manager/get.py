@@ -68,7 +68,7 @@ class GetMethodGenerator(ManagerMethodGenerator):
 """
         # Assume the response attribute is a string and not None in this case,
         # since we definitely want to return something
-        response_attr = cast(str, self.response_attr)
+        response_attr = cast("str", self.response_attr)
         # Since this is a get method, we can assume that the response will
         # always be a StructureShape
         if response_attr:

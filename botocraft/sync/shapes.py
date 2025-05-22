@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, Dict, Final, Optional, Type, cast
+from typing import TYPE_CHECKING, Dict, Final, Type, cast
 
 import botocore.model
 
@@ -51,7 +51,7 @@ class AbstractShapeConverter:
         # This is some dependent model for this service. We'll generate it now.
         return False
 
-    def import_line(self, model_name: str) -> Optional[str]:
+    def import_line(self, model_name: str) -> str | None:
         """
         Given ``model_name``, determine whether we've already
         generated this model somewhere else in the service, and
@@ -107,7 +107,7 @@ class StringShapeConverter(AbstractShapeConverter):
         name_only: bool = False,  # noqa: ARG002
     ) -> str:
         if shape.type_name == "string" or shape.name == "String":
-            value = cast(botocore.model.StringShape, shape)
+            value = cast("botocore.model.StringShape", shape)
             if value.enum:
                 contents = ", ".join([f"'{value}'" for value in value.enum])
                 python_type = f"Literal[{contents}]"
@@ -186,7 +186,7 @@ class ListShapeConverter(AbstractShapeConverter):
         """
         if shape.type_name != "list":
             raise WrongConverterError(shape, self)
-        element_shape = cast(botocore.model.ListShape, shape).member
+        element_shape = cast("botocore.model.ListShape", shape).member
         inner_model_name = self.shape_converter.convert(
             element_shape, quote=True, name_only=name_only
         )
@@ -227,7 +227,7 @@ class MapShapeConverter(AbstractShapeConverter):
         """
         if shape.type_name != "map":
             raise WrongConverterError(shape, self)
-        shape = cast(botocore.model.MapShape, shape)
+        shape = cast("botocore.model.MapShape", shape)
         value_type = self.shape_converter.convert(
             shape.value, quote=True, name_only=name_only
         )
@@ -269,8 +269,8 @@ class StructureShapeConverter(AbstractShapeConverter):
         """
         if shape.type_name != "structure":
             raise WrongConverterError(shape, self)
-        import_path: Optional[str] = None
-        shape = cast(botocore.model.StructureShape, shape)
+        import_path: str | None = None
+        shape = cast("botocore.model.StructureShape", shape)
         model_def = self.model_generator.get_model_def(shape.name)
         model_name = shape.name
         if model_def.alternate_name:

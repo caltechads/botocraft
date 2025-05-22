@@ -42,7 +42,7 @@ class ListMethodGenerator(ManagerMethodGenerator):
         _ = self.response_class
         if self.output_shape is not None:
             response_attr_shape = self.output_shape.members[
-                cast(str, self.response_attr)
+                cast("str", self.response_attr)
             ]
         return_type = self.shape_converter.convert(response_attr_shape, quote=True)
         if self.method_def.return_type:

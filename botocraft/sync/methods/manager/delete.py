@@ -1,4 +1,3 @@
-from typing import Optional
 
 from .base import ManagerMethodGenerator
 
@@ -15,7 +14,7 @@ class DeleteMethodGenerator(ManagerMethodGenerator):
     method_name: str = "delete"
 
     @property
-    def response_attr(self) -> Optional[str]:
+    def response_attr(self) -> str | None:
         """
         Override our superclass here to not throw an error if we can't find the
         response attribute.  This is because sometimes delete methods return

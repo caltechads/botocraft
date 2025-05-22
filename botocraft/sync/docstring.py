@@ -1,16 +1,15 @@
 import re
 from dataclasses import dataclass, field
 from textwrap import wrap
-from typing import List, Literal, Optional, Tuple
+from typing import List, Literal, Tuple
 
-import botocore.model
 from markdownify import markdownify
 
 
 @dataclass
 class FormatterArgs:
-    line_range: Optional[Tuple[int, int]] = None
-    length_range: Optional[Tuple[int, int]] = None
+    line_range: Tuple[int, int] | None = None
+    length_range: Tuple[int, int] | None = None
     black: bool = True
     style: Literal["sphinx", "epytext"] = "sphinx"
     force_wrap: bool = False
@@ -21,8 +20,8 @@ class FormatterArgs:
     non_strict: bool = False
     rest_section_adorns: str = r"""[!\"#$%&'()*+,-./\\:;<=>?@[]^_`{|}~]{4,}"""
     tab_width: int = 4
-    wrap_summaries: int = 120
-    wrap_descriptions: int = 120
+    wrap_summaries: int = 88
+    wrap_descriptions: int = 88
     non_cap: List[str] = field(default_factory=list)
 
 
@@ -110,7 +109,7 @@ class DocumentationFormatter:
             documentation = documentation.replace(py_obj, updated_py_obj)
         return documentation
 
-    def clean(self, documentation: str, max_lines: Optional[int] = None) -> str:
+    def clean(self, documentation: str, max_lines: int | None = None) -> str:
         """
         Take the input documentation in HTML format and clean it up for use in a
         docstring, as reStructuredText.
@@ -174,7 +173,7 @@ class DocumentationFormatter:
         docs += '\n    """'
         return docs
 
-    def format_argument(self, arg: str, docs: Optional[str]) -> str:
+    def format_argument(self, arg: str, docs: str | None) -> str:
         """
         Format the documentation for a single argument of a method.
 

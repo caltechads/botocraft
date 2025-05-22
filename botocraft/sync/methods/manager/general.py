@@ -46,7 +46,7 @@ class GeneralMethodGenerator(ManagerMethodGenerator):
         if self.output_shape is not None:
             try:
                 response_attr_shape = self.output_shape.members[
-                    cast(str, self.response_attr)
+                    cast("str", self.response_attr)
                 ]
             except KeyError:
                 response_model_def = self.model_generator.get_model_def(
@@ -55,7 +55,7 @@ class GeneralMethodGenerator(ManagerMethodGenerator):
                 for field, field_data in response_model_def.fields.items():
                     if field_data.rename == self.response_attr:
                         response_attr_shape = self.output_shape.members[
-                            cast(str, field)
+                            cast("str", field)
                         ]
                         break
                 else:

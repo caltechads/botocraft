@@ -82,9 +82,9 @@ class CreateMethodGenerator(ManagerMethodGenerator):
                     continue
                 _arg = f"data.get('{arg}')"
                 if arg_def.value:
-                    _arg = self.serialize(cast(str, arg_def.value))
+                    _arg = self.serialize(cast("str", arg_def.value))
                 elif arg_def.source_arg:
-                    _arg = self.serialize(cast(str, arg_def.source_arg))
+                    _arg = self.serialize(cast("str", arg_def.source_arg))
                 elif arg_def.attribute:
                     _arg = f"data.get('{arg_def.attribute}')"
             _args[arg] = _arg
@@ -126,9 +126,9 @@ class CreateMethodGenerator(ManagerMethodGenerator):
                     if arg_def.raw_value:
                         _arg = arg_def.value
                     else:
-                        _arg = self.serialize(cast(str, arg_def.value))
+                        _arg = self.serialize(cast("str", arg_def.value))
                 elif arg_def.source_arg:
-                    _arg = self.serialize(cast(str, arg_def.source_arg))
+                    _arg = self.serialize(cast("str", arg_def.source_arg))
                 elif arg_def.attribute:
                     _arg = f"data.get('{arg_def.attribute}')"
             _args[arg] = _arg
@@ -194,7 +194,7 @@ class CreateMethodGenerator(ManagerMethodGenerator):
 
     @property
     def body(self) -> str:
-        response_attr = cast(str, self.response_attr)
+        response_attr = cast("str", self.response_attr)
         if self.response_attr_multiplicity == "many":
             response_attr = f"{response_attr}[0]"
         code = f"""

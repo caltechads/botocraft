@@ -68,7 +68,7 @@ class ModelRelationGenerator:
             if self.property_def.transformer.regex:
                 field_name = self.property_def.transformer.regex.attribute
             else:
-                field_name = cast(str, self.property_def.transformer.alias)
+                field_name = cast("str", self.property_def.transformer.alias)
             attr_python_type = self.generator.get_python_type_for_field(
                 self.model_name,
                 field_name,
@@ -146,7 +146,7 @@ class ModelRelationGenerator:
         """
         assert self.property_def.transformer.regex is not None, (
             f"Regex: no regex defined for property {self.property_name} on model {self.model_name}"
-        )  # noqa: E501
+        )
         if self.returns_many:
             code = f"""
         if self.{self.property_def.transformer.regex.attribute} is None:
@@ -173,7 +173,7 @@ class ModelRelationGenerator:
         """
         assert self.property_def.transformer.mapping is not None, (
             f"Mapping: no mapping defined for property {self.property_name} on model {self.model_name}"
-        )  # noqa: E501
+        )
         self.generator.imports.add("from collections import OrderedDict")
         code = """
         try:
