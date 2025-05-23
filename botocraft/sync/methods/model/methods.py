@@ -153,14 +153,18 @@ class ModelManagerMethodGenerator:
             _return_shape = None
             if response_attr is not None:
                 try:
-                    response_attr_shape = output_shape.members[cast("str", response_attr)]
+                    response_attr_shape = output_shape.members[
+                        cast("str", response_attr)
+                    ]
                 except KeyError:
                     response_model_def = self.model_generator.get_model_def(
                         output_shape.name
                     )
                     for field, field_data in response_model_def.fields.items():
                         if field_data.rename == response_attr:
-                            response_attr_shape = output_shape.members[cast("str", field)]
+                            response_attr_shape = output_shape.members[
+                                cast("str", field)
+                            ]
                             break
                     else:
                         raise
@@ -388,8 +392,15 @@ class ModelManagerMethodGenerator:
         if not model_alias:
             model_alias = self.model_name
         code = f"""
-        return cast({model_alias}Manager, self.objects).using(self.session).{self.method_def.manager_method}({args}{kwargs})
-"""  # noqa: E501
+        return (
+            cast("{model_alias}Manager", self.objects)  # type: ignore[attr-defined]
+            .using(self.session)
+            .{self.method_def.manager_method}(
+                {args}
+                {kwargs}
+            )
+        )
+"""
         return code  # noqa: RET504
 
     @property
