@@ -1,4 +1,3 @@
-
 from .base import ManagerMethodGenerator
 
 
@@ -45,7 +44,7 @@ class DeleteMethodGenerator(ManagerMethodGenerator):
         _ = self.response_class
         return_type = super().return_type
         if return_type != "None":
-            return_type = f'"{self.model_name}"'
+            return_type = f'"{self.real_model_name}"'
             if self.method_def.return_type:
                 return_type = self.method_def.return_type
         return return_type
@@ -63,5 +62,5 @@ class DeleteMethodGenerator(ManagerMethodGenerator):
             if self.response_attr is None:
                 code += "        return response"
             else:
-                code += f"        return cast({self.model_name}, response.{self.response_attr})"  # noqa: E501
+                code += f"        return cast({self.real_model_name}, response.{self.response_attr})"  # noqa: E501
         return code

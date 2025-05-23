@@ -8,7 +8,6 @@ from typing import (
     cast,
 )
 
-import botocore.session
 import inflect
 
 from botocraft.sync.models import (
@@ -111,6 +110,12 @@ class ManagerMethodGenerator:
         self.model_name = model_name
         #: The botocraft model definition for the model we're working with.
         self.model_def = self.model_generator.get_model_def(self.model_name)
+        #: The botocraft name for the model we're working with.  This is the name
+        #: of the model itself, or whatever the botocraft config for the model
+        #: specifies.
+        self.real_model_name = self.model_def.name
+        if self.model_def.alternate_name:
+            self.real_model_name = self.model_def.alternate_name
         #: The plural of the name of the model itself
         self.model_name_plural = self.inflect.plural(self.model_name)
         if self.model_def.plural:
