@@ -370,6 +370,149 @@ class BotocoreFieldsFormatter:
         return field_line
 
 
+class ExtraFieldsFormatter:
+    """
+    Handles the formatting of manually defined extra fields into Python code for
+    model classes.
+
+    This class is responsible for generating field definitions for extra fields
+    that are exclusively defined in the botocraft model definition and not
+    present in the botocore service definition.
+    """
+
+    def __init__(self, model_generator: "ModelGenerator") -> None:
+        """
+        Initialize the formatter with a reference to the model generator.
+
+        Args:
+            model_generator: The ModelGenerator instance that's using this
+                formatter.
+
+        """
+        #: Reference to the parent ModelGenerator
+        self.model_generator = model_generator
+        #: The documentation formatter used to format field docstrings
+        self.docformatter = self.model_generator.docformatter
+
+    def format_fields(self, model_def: ModelDefinition) -> List[str]:
+        """
+        Build out the manually defined extra fields for a model.
+
+        Extra fields are exclusively defined in the botocraft model definition.
+        We add them manually to the model definition.
+
+        Args:
+            model_def: The botocraft model definition for this model
+
+        Returns:
+            A list of formatted field code lines
+
+        """
+        fields: List[str] = []
+
+        # Get the extra_fields attribute or return empty list if not present
+        extra_fields = getattr(model_def, "extra_fields", {})
+
+        # Process each field
+        for field_name, field_def in extra_fields.items():
+            field_code = self._format_single_field(field_name, field_def)
+            fields.extend(field_code)
+
+            # Update imports for this field
+            if hasattr(field_def, "imports") and field_def.imports:
+                self.model_generator.imports.update(field_def.imports)
+
+        return fields
+
+    def _format_single_field(
+        self, field_name: str, field_def: ModelAttributeDefinition
+    ) -> List[str]:
+        """
+        Format a single extra field into Python code.
+
+        Args:
+            field_name: The name of the field
+            field_def: The definition of the field
+
+        Returns:
+            List of code lines for this field
+
+        """
+        field_code = []
+        needs_field_class = False
+        field_class_args = []
+
+        # Handle default values
+        if field_def.default:
+            if self._is_container_with_none_default(field_def):
+                field_class_args.append(self._get_container_factory(field_def))
+                needs_field_class = True
+            else:
+                field_class_args.append(f"default={field_def.default}")
+
+        # Handle readonly fields
+        if field_def.readonly:
+            field_class_args.append("frozen=True")
+            needs_field_class = True
+
+        # Handle field renaming
+        if field_def.rename:
+            field_line = f"    {field_def.rename}: {field_def.python_type}"
+            field_class_args.append(f'alias="{field_name}"')
+            needs_field_class = True
+        else:
+            field_line = f"    {field_name}: {field_def.python_type}"
+
+        # Append Field class or default value if needed
+        if needs_field_class:
+            field_line += f" = Field({', '.join(field_class_args)})"
+        elif field_def.default:
+            field_line += f" = {field_def.default}"
+
+        field_code.append(field_line)
+
+        # Add docstring if available
+        if field_def.docstring:
+            field_code.append(self.docformatter.format_attribute(field_def.docstring))
+
+        return field_code
+
+    def _is_container_with_none_default(
+        self, field_def: ModelAttributeDefinition
+    ) -> bool:
+        """
+        Check if field is a container type (List or Dict) with None default.
+
+        Args:
+            field_def: The field definition to check
+
+        Returns:
+            True if the field is a container with None default, False otherwise
+
+        """
+        return (
+            field_def.python_type.startswith("List[")
+            or field_def.python_type.startswith("Dict[")
+        ) and field_def.default == "None"
+
+    def _get_container_factory(self, field_def: ModelAttributeDefinition) -> str:
+        """
+        Get the appropriate default_factory for a container type.
+
+        Args:
+            field_def: The field definition
+
+        Returns:
+            String with the default_factory configuration
+
+        """
+        if field_def.python_type.startswith("List["):
+            return "default_factory=list"
+        if field_def.python_type.startswith("Dict["):
+            return "default_factory=dict"
+        return f"default={field_def.default}"
+
+
 class ModelGenerator(AbstractGenerator):
     """
     Generate pydantic model definitions from botocore shapes.
@@ -381,6 +524,8 @@ class ModelGenerator(AbstractGenerator):
         self.shape_converter = PythonTypeShapeConverter(service_generator, self)
         #: The fields formatter for converting botocore shapes to field definitions
         self.fields_formatter = BotocoreFieldsFormatter(self)
+        #: The formatter for extra fields defined in the botocraft model definition
+        self.extra_fields_formatter = ExtraFieldsFormatter(self)
 
     def get_model_def(self, model_name: str) -> ModelDefinition:
         """
@@ -549,38 +694,7 @@ class ModelGenerator(AbstractGenerator):
             A list of extra fields.
 
         """
-        fields: List[str] = []
-        needs_field_class: bool = False
-        field_class_args: List[str] = []
-        for field_name, field_def in getattr(model_def, "extra_fields", {}).items():
-            if field_def.default:
-                if (
-                    field_def.python_type.startswith("List[")
-                    and field_def.default == "None"
-                ):
-                    field_class_args.append("default_factory=list")
-                    needs_field_class = True
-                else:
-                    field_class_args.append(f"default={field_def.default}")
-            if field_def.readonly:
-                field_class_args.append("frozen=True")
-                needs_field_class = True
-            if field_def.rename:
-                field_line = f"    {field_def.rename}: {field_def.python_type}"
-                field_class_args.append(f'alias="{field_name}"')
-                needs_field_class = True
-            else:
-                field_line = f"    {field_name}: {field_def.python_type}"
-            if needs_field_class:
-                field_line += f" = Field({', '.join(field_class_args)})"
-            elif field_def.default:
-                field_line += f" = {field_def.default}"
-            fields.append(field_line)
-            if field_def.docstring:
-                fields.append(self.docformatter.format_attribute(field_def.docstring))
-            self.imports.update(field_def.imports)
-            field_class_args = []
-        return fields
+        return self.extra_fields_formatter.format_fields(model_def)
 
     def get_properties(self, model_def: ModelDefinition, base_class: str) -> str | None:
         """
