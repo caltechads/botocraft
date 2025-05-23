@@ -348,6 +348,9 @@ class BotocoreFieldsFormatter:
             if python_type.startswith("List[") and default == "None":
                 field_class_args.append("default_factory=list")
                 needs_field_class = True
+            elif python_type.startswith("Dict[") and default == "None":
+                field_class_args.append("default_factory=dict")
+                needs_field_class = True
             else:
                 field_class_args.append(f"default={default}")
 
