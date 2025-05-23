@@ -39,7 +39,9 @@ Repository:
           docstring: >-
             Extra things to include in the response.   Tags are expensive to
             retrieve because they need a second, slow API call, so you have
-            to request them specifically.
+            to request them specifically.  This is used only by the
+            ``@repo_get_add_tags`` decorator, which is why you don't see it in
+            the function body.
     list:
       boto3_name: describe_repositories
       decorators:

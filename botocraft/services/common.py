@@ -36,10 +36,10 @@ class Tag(Boto3Model):
 
     #: One part of a key-value pair that make up a tag. A ``key`` is a general label
     #: that acts like a category for more specific tag values.
-    Key: Optional[str] = None
+    Key: str | None = None
     #: The optional part of a key-value pair that make up a tag. A ``value`` acts as a
     #: descriptor within a tag category (key).
-    Value: Optional[str] = None
+    Value: str | None = None
 
 
 class Filter(Boto3Model):
