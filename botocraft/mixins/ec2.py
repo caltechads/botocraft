@@ -13,6 +13,7 @@ import psutil
 if TYPE_CHECKING:
     from botocraft.services import (
         AMI,
+        Finding,
         Instance,
         Reservation,
         Tag,
@@ -551,3 +552,79 @@ class AMIModelMixin:
         _filters = [Filter(Name="image-id", Values=[self.ImageId])]  # type: ignore[attr-defined]
         instances: List[Instance] = Instance.objects.all(Filters=_filters)
         return bool(instances)
+
+    @property
+    def vulnerabilities(self) -> List["Finding"]:
+        """
+        Return a list of vulnerabilities for the instance.  This is a
+        convenience method to get the vulnerabilities for the instance.
+
+        Returns:
+            A list of :py:class:`Finding` objects.
+
+        """
+        from botocraft.services import FilterCriteria, Finding, StringFilter
+
+        return Finding.objects.using(self.session).list(  # type: ignore[attr-defined]
+            FilterCriteria(
+                ec2InstanceImageId=[
+                    StringFilter(value=self.ImageId, comparison="EQUALS")  # type: ignore[attr-defined]
+                ],
+            ),
+        )
+
+
+class SubnetModelMixin:
+    """
+    A mixin is used on :py:class:`botocraft.services.ec2.Subnet` to add
+    miscellaneous methods to the class that are not normally part of the
+    object.
+    """
+
+    @property
+    def vulnerabilities(self) -> List["Finding"]:
+        """
+        Return a list of vulnerabilities for the instance.  This is a
+        convenience method to get the vulnerabilities for the instance.
+
+        Returns:
+            A list of :py:class:`Finding` objects.
+
+        """
+        from botocraft.services import FilterCriteria, Finding, StringFilter
+
+        return Finding.objects.using(self.session).list(  # type: ignore[attr-defined]
+            filterCriteria=FilterCriteria(
+                ec2InstanceSubnetId=[
+                    StringFilter(value=self.SubnetId, comparison="EQUALS")  # type: ignore[attr-defined]
+                ],
+            ),
+        )
+
+
+class VpcModelMixin:
+    """
+    A mixin is used on :py:class:`botocraft.services.ec2.Vpc` to add
+    miscellaneous methods to the class that are not normally part of the
+    object.
+    """
+
+    @property
+    def vulnerabilities(self) -> List["Finding"]:
+        """
+        Return a list of vulnerabilities for the instance.  This is a
+        convenience method to get the vulnerabilities for the instance.
+
+        Returns:
+            A list of :py:class:`Finding` objects.
+
+        """
+        from botocraft.services import FilterCriteria, Finding, StringFilter
+
+        return Finding.objects.using(self.session).list(  # type: ignore[attr-defined]
+            filterCriteria=FilterCriteria(
+                ec2InstanceVpcId=[
+                    StringFilter(value=self.VpcId, comparison="EQUALS")  # type: ignore[attr-defined]
+                ],
+            ),
+        )

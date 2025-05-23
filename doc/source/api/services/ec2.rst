@@ -344,6 +344,12 @@ structure of the fields in the primary models or other secondary models.
     :exclude-members: update_forward_refs, model_extra, model_fields_set, validate, schema_json, model_rebuild, model_post_init, model_parametrized_name, model_json_schema, copy, from_orm, dict, json, schema, schema_json, model_dump
 
 
+.. autopydantic_model:: botocraft.services.ec2.EC2PublicIpDnsNameOptions
+    :show-inheritance:
+    :inherited-members:
+    :exclude-members: update_forward_refs, model_extra, model_fields_set, validate, schema_json, model_rebuild, model_post_init, model_parametrized_name, model_json_schema, copy, from_orm, dict, json, schema, schema_json, model_dump
+
+
 .. autopydantic_model:: botocraft.services.ec2.EC2StateReason
     :show-inheritance:
     :inherited-members:

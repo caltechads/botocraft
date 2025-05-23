@@ -25,6 +25,7 @@ if TYPE_CHECKING:
     from botocraft.services import (
         ECRImage,
         ECRImageManager,
+        Finding,
         ImageIdentifier,
         Repository,
         RepositoryManager,
@@ -773,3 +774,34 @@ class ECRImageMixin:
                 ]
             )
         return services
+
+    @property
+    def vulnerabilities(self) -> List["Finding"]:
+        """
+        Return a list of vulnerabilities for this image.  This is done by
+        using the AWS Inspector2 service to scan the image and return the
+        vulnerabilities.
+
+        Note:
+            The AWS Inspector service is not instantaneous, but runs occasionally.
+            This doesn't matter much for us, because we are using the ECR immutable
+            images, so we can just get the vulnerabilities for the image we are using.
+
+        Warning:
+            If this image was just pushed, then the scan may not have run yet.
+            In that case, you will need to wait for the scan to run before you
+            can get the vulnerabilities.
+
+        Returns:
+            A list of vulnerabilities for this image.
+
+        """
+        from botocraft.services import FilterCriteria, Finding, StringFilter
+
+        return Finding.objects.using(self.session).list(  # type: ignore[attr-defined]
+            filterCriteria=FilterCriteria(
+                ecrImageHash=[
+                    StringFilter(value=self.imageId.imageDigest, comparison="EQUALS")
+                ],
+            )
+        )

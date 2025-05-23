@@ -7,6 +7,7 @@
 - :doc:`/api/services/elb`
 - :doc:`/api/services/elbv2`
 - :doc:`/api/services/events`
+- :doc:`/api/services/inspector2`
 - :doc:`/api/services/kms`
 - :doc:`/api/services/rds`
 - :doc:`/api/services/route53`

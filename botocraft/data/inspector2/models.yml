@@ -1,0 +1,110 @@
+---
+primary:
+  CisScanConfiguration:
+    primary_key: scanConfigurationArn
+    arn_key: scanConfigurationArn
+    name_key: scanName
+    input_shapes:
+      - CreateCisScanConfigurationRequest
+      - UpdateCisScanConfigurationRequest
+    fields:
+      tags:
+        rename: Tags
+  Filter:
+    alternate_name: Inspector2Filter
+    primary_key: filterArn
+    arn_key: filterArn
+    input_shapes:
+      - CreateFilterRequest
+      - UpdateFilterRequest
+    fields:
+      arn:
+        rename: filterArn
+      name:
+        rename: filterName
+      tags:
+        rename: Tags
+  Finding:
+    readonly: true
+    primary_key: findingArn
+    arn_key: findingArn
+  FindingsReport:
+    readonly: true
+    bespoke: true
+    primary_key: reportId
+    arn_key: reportId
+    extra_fields:
+      reportId:
+        python_type: str
+        default: None
+        docstring: >-
+          The ID of the report.
+      reportFormat:
+        python_type: >-
+          Literal["CSV", "JSON"]
+        required: true
+        docstring: >-
+          The format of the report.
+      s3Destination:
+        python_type: >-
+          "Destination"
+        required: true
+        docstring: >-
+          Info about the S3 bucket to which to send the report.
+      filterCriteria:
+        python_type: >-
+          Optional["FilterCriteria"]
+        default: None
+        docstring: >-
+          The criteria for the report.
+  DelegatedAdminAccount:
+    primary_key: accountId
+    id_key: accountId
+    readonly: true
+    fields:
+      status:
+        required: false
+        default: None
+    extra_fields:
+      relationshipStatus:
+        python_type: >-
+          Optional[Literal["CREATED", "INVITED", "DISABLED", "ENABLED", "REMOVED", "RESIGNED", "DELETED", "EMAIL_VERIFICATION_IN_PROGRESS", "EMAIL_VERIFICATION_FAILED", "REGION_DISABLED", "ACCOUNT_SUSPENDED", "CANNOT_CREATE_DETECTOR_IN_ORG_MASTER"]]
+        docstring: >-
+          The status of the relationship.
+        default: None
+    manager_methods:
+      enable:
+        manager_method: enable
+        docstring: >-
+          Enable a delegated admin account.
+        response_attr: None
+        args:
+          0:
+            name: delegatedAccountId
+            value: >-
+              cast(str, self.accountId)
+      disable:
+        manager_method: disable
+        docstring: >-
+          Disable a delegated admin account.
+        response_attr: None
+        args:
+          0:
+            name: delegatedAccountId
+            value: >-
+              cast(str, self.accountId)
+  Vulnerability:
+    primary_key: id
+    id_key: id
+    readonly: true
+secondary:
+  Resource:
+    alternate_name: Inspector2Resource
+    fields:
+      tags:
+        rename: Tags
+  VulnerablePackage:
+    fields:
+      packageManager:
+        python_type: >-
+          Optional[Literal["BUNDLER", "CARGO", "COMPOSER", "NPM", "NUGET", "PIPENV", "POETRY", "YARN", "GOBINARY", "GOMOD", "JAR", "OS", "PIP", "PYTHONPKG", "NODEPKG", "POM", "GEMSPEC", "DOTNET_CORE", "PYTHON", "RUST", "RUBY", "GOLANG", "JAVA", "NODEJS", "PHP", "DOTNET", "DOTNET5", "DOTNET6", "DOTNET7", "GENERIC"]]

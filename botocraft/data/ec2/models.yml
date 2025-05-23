@@ -6,6 +6,9 @@ primary:
       self.tags["Name"] if "Name" in self.tags else None
     input_shapes:
       - CreateVpcRequest
+    mixins:
+      - name: VpcModelMixin
+        import_path: botocraft.mixins.ec2
     fields:
       CidrBlock:
         required: true
@@ -46,6 +49,9 @@ primary:
       self.tags["Name"] if "Name" in self.tags else None
     input_shapes:
       - CreateSubnetRequest
+    mixins:
+      - name: SubnetModelMixin
+        import_path: botocraft.mixins.ec2
     fields:
       VpcId:
         required: true
@@ -125,7 +131,7 @@ primary:
         transformer:
           mapping:
             Filters: >-
-              [{"Name": "association.subnet-id", "Values": [subnet.SubnetId]}]
+              [{"Name": "association.subnet-id", "Values": [self.SubnetId]}]
   Image:
     alternate_name: AMI
     primary_key: ImageId
@@ -586,3 +592,5 @@ secondary:
     alternate_name: EC2BlockPublicAccessStates
   BaselinePerformanceFactors:
     alternate_name: EC2BaselinePerformanceFactors
+  PublicIpDnsNameOptions:
+    alternate_name: EC2PublicIpDnsNameOptions

@@ -12,6 +12,7 @@
    api/services/elb
    api/services/elbv2
    api/services/events
+   api/services/inspector2
    api/services/kms
    api/services/rds
    api/services/route53

@@ -16,6 +16,7 @@ botocraft
    runbook/contributing
    runbook/authoring
    runbook/eventbridge
+   runbook/eventbrdge_event_from_example
 
 .. toctree::
    :caption: Reference

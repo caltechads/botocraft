@@ -88,12 +88,6 @@ because they have some useful additional information.
 
 
 
-.. autopydantic_model:: botocraft.services.ecr.AwsEcrContainerImageDetails
-    :show-inheritance:
-    :inherited-members:
-    :exclude-members: update_forward_refs, model_extra, model_fields_set, validate, schema_json, model_rebuild, model_post_init, model_parametrized_name, model_json_schema, copy, from_orm, dict, json, schema, schema_json, model_dump
-
-
 .. autopydantic_model:: botocraft.services.ecr.BatchDeleteImageResponse
     :show-inheritance:
     :inherited-members:
@@ -107,24 +101,6 @@ because they have some useful additional information.
 
 
 .. autopydantic_model:: botocraft.services.ecr.CreateRepositoryResponse
-    :show-inheritance:
-    :inherited-members:
-    :exclude-members: update_forward_refs, model_extra, model_fields_set, validate, schema_json, model_rebuild, model_post_init, model_parametrized_name, model_json_schema, copy, from_orm, dict, json, schema, schema_json, model_dump
-
-
-.. autopydantic_model:: botocraft.services.ecr.CvssScore
-    :show-inheritance:
-    :inherited-members:
-    :exclude-members: update_forward_refs, model_extra, model_fields_set, validate, schema_json, model_rebuild, model_post_init, model_parametrized_name, model_json_schema, copy, from_orm, dict, json, schema, schema_json, model_dump
-
-
-.. autopydantic_model:: botocraft.services.ecr.CvssScoreAdjustment
-    :show-inheritance:
-    :inherited-members:
-    :exclude-members: update_forward_refs, model_extra, model_fields_set, validate, schema_json, model_rebuild, model_post_init, model_parametrized_name, model_json_schema, copy, from_orm, dict, json, schema, schema_json, model_dump
-
-
-.. autopydantic_model:: botocraft.services.ecr.CvssScoreDetails
     :show-inheritance:
     :inherited-members:
     :exclude-members: update_forward_refs, model_extra, model_fields_set, validate, schema_json, model_rebuild, model_post_init, model_parametrized_name, model_json_schema, copy, from_orm, dict, json, schema, schema_json, model_dump
@@ -214,43 +190,13 @@ because they have some useful additional information.
     :exclude-members: update_forward_refs, model_extra, model_fields_set, validate, schema_json, model_rebuild, model_post_init, model_parametrized_name, model_json_schema, copy, from_orm, dict, json, schema, schema_json, model_dump
 
 
-.. autopydantic_model:: botocraft.services.ecr.PackageVulnerabilityDetails
-    :show-inheritance:
-    :inherited-members:
-    :exclude-members: update_forward_refs, model_extra, model_fields_set, validate, schema_json, model_rebuild, model_post_init, model_parametrized_name, model_json_schema, copy, from_orm, dict, json, schema, schema_json, model_dump
-
-
-.. autopydantic_model:: botocraft.services.ecr.Recommendation
-    :show-inheritance:
-    :inherited-members:
-    :exclude-members: update_forward_refs, model_extra, model_fields_set, validate, schema_json, model_rebuild, model_post_init, model_parametrized_name, model_json_schema, copy, from_orm, dict, json, schema, schema_json, model_dump
-
-
-.. autopydantic_model:: botocraft.services.ecr.Remediation
-    :show-inheritance:
-    :inherited-members:
-    :exclude-members: update_forward_refs, model_extra, model_fields_set, validate, schema_json, model_rebuild, model_post_init, model_parametrized_name, model_json_schema, copy, from_orm, dict, json, schema, schema_json, model_dump
-
-
 .. autopydantic_model:: botocraft.services.ecr.Resource
     :show-inheritance:
     :inherited-members:
     :exclude-members: update_forward_refs, model_extra, model_fields_set, validate, schema_json, model_rebuild, model_post_init, model_parametrized_name, model_json_schema, copy, from_orm, dict, json, schema, schema_json, model_dump
 
 
-.. autopydantic_model:: botocraft.services.ecr.ResourceDetails
-    :show-inheritance:
-    :inherited-members:
-    :exclude-members: update_forward_refs, model_extra, model_fields_set, validate, schema_json, model_rebuild, model_post_init, model_parametrized_name, model_json_schema, copy, from_orm, dict, json, schema, schema_json, model_dump
-
-
 .. autopydantic_model:: botocraft.services.ecr.ScoreDetails
-    :show-inheritance:
-    :inherited-members:
-    :exclude-members: update_forward_refs, model_extra, model_fields_set, validate, schema_json, model_rebuild, model_post_init, model_parametrized_name, model_json_schema, copy, from_orm, dict, json, schema, schema_json, model_dump
-
-
-.. autopydantic_model:: botocraft.services.ecr.VulnerablePackage
     :show-inheritance:
     :inherited-members:
     :exclude-members: update_forward_refs, model_extra, model_fields_set, validate, schema_json, model_rebuild, model_post_init, model_parametrized_name, model_json_schema, copy, from_orm, dict, json, schema, schema_json, model_dump

@@ -1,0 +1,132 @@
+CisScanConfiguration:
+  mixins:
+    - name: CisScanConfigurationManagerMixin
+      import_path: botocraft.mixins.inspector2
+  methods:
+    create:
+      boto3_name: create_cis_scan_configuration
+      docstring: >-
+        Create a new CIS scan configuration.
+      response_attr: scanConfigurationArn
+    delete:
+      boto3_name: delete_cis_scan_configuration
+      docstring: >-
+        Delete a CIS scan configuration.
+      response_attr: scanConfigurationArn
+    update:
+      boto3_name: update_cis_scan_configuration
+      docstring: >-
+        Update a CIS scan configuration.
+      response_attr: scanConfigurationArn
+    list:
+      boto3_name: list_cis_scan_configurations
+      response_attr: scanConfigurations
+Filter:
+  methods:
+    create:
+      boto3_name: create_filter
+      docstring: >-
+        Create an inspector2 filter.
+      response_attr: arn
+    delete:
+      boto3_name: delete_filter
+      docstring: >-
+        Delete an inspector2 filter.
+      response_attr: arn
+    update:
+      boto3_name: update_filter
+      docstring: >-
+        Update an inspector2 filter.
+      response_attr: arn
+    get:
+      boto3_name: list_filters
+      docstring: >-
+        Get an inspector2 filter.
+      response_attr: filters
+      args:
+        arns:
+          required: true
+          rename: arn
+          python_type: str
+          source_arg: "[arn]"
+          docstring: >-
+            The ARN of the filter to get.
+        action:
+          hidden: true
+    list:
+      boto3_name: list_filters
+      response_attr: filters
+Finding:
+  readonly: true
+  methods:
+    get:
+      boto3_name: list_findings
+      docstring: >-
+        Get an inspector2 finding.
+      response_attr: findings
+      args:
+        arns:
+          required: true
+          rename: findingArn
+          python_type: str
+          source_arg: "[findingArn]"
+          docstring: >-
+            The ARN of the finding to get.
+        action:
+          hidden: true
+    list:
+      boto3_name: list_findings
+      response_attr: findings
+    list_aggregations:
+      boto3_name: list_finding_aggregations
+      response_attr: responses
+    batch_get_finding_details:
+      boto3_name: batch_get_finding_details
+      response_attr: None
+FindingsReport:
+  methods:
+    create:
+      boto3_name: create_findings_report
+      response_attr: reportId
+    get_status:
+      boto3_name: get_findings_report_status
+      response_attr: None
+    create_report:
+      boto3_name: create_findings_report
+      response_attr: reportId
+    cancel_report:
+      boto3_name: cancel_findings_report
+      response_attr: reportId
+DelegatedAdminAccount:
+  methods:
+    list:
+      boto3_name: list_delegated_admin_accounts
+      response_attr: delegatedAdminAccounts
+      return_type: >-
+        Optional["DelegatedAdmin"]
+      decorators:
+        - name: list_augment_delegated_admin_accounts
+          import_path: botocraft.mixins.inspector2
+    get:
+      boto3_name: get_delegated_admin_account
+      response_attr: delegatedAdmin
+      return_type: >-
+        Optional["DelegatedAdmin"]
+      decorators:
+        - name: convert_delegated_admin
+          import_path: botocraft.mixins.inspector2
+    enable:
+      boto3_name: enable_delegated_admin_account
+      response_attr: delegatedAdminAccountId
+    disable:
+      boto3_name: disable_delegated_admin_account
+      response_attr: delegatedAdminAccountId
+Vulnerability:
+  readonly: true
+  mixins:
+    - name: VulnerabilityManagerMixin
+      import_path: botocraft.mixins.inspector2
+  methods:
+    list:
+      boto3_name: search_vulnerabilities
+      response_attr: vulnerabilities
