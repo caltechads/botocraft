@@ -17,6 +17,8 @@ from botocraft.sync.models import (
 )
 
 if TYPE_CHECKING:
+    import botocore.model
+
     from botocraft.sync.service import (
         DocumentationFormatter,
         ManagerGenerator,
@@ -202,7 +204,7 @@ class ManagerMethodGenerator:
             return f"self.serialize({_arg})"
         return _arg
 
-    def _args(
+    def _args(  # noqa: PLR0912
         self,
         kind: Literal["args", "kwargs"],
         location: Literal["method", "operation"] = "method",

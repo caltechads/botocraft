@@ -29,7 +29,7 @@ class GetManyMethodGenerator(ManagerMethodGenerator):
 
         """
         _ = self.response_class
-        return_type = f'List["{self.model_name}"]'
+        return_type = f'Union[PrimaryBoto3ModelQuerySet, "{self.response_class}"]'
         if (
             self.response_attr
             and self.response_attr not in self.output_shape.required_members
@@ -41,14 +41,17 @@ class GetManyMethodGenerator(ManagerMethodGenerator):
 
     @property
     def body(self) -> str:
+        self.imports.add("from .abstract import PrimaryBoto3ModelQuerySet")
         code = f"""
         {self.operation_args}
         {self.operation_call}
 """
         if self.response_attr is not None:
             code += f"""
-        self.sessionize(response.{self.response_attr})
-        return response.{self.response_attr}
+        if response.{self.response_attr}:
+            self.sessionize(response.{self.response_attr})
+            return PrimaryBoto3ModelQuerySet(response.{self.response_attr})
+        return PrimaryBoto3ModelQuerySet([])
 """
         else:
             code += """

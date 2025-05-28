@@ -40,26 +40,35 @@ class ListMethodGenerator(ManagerMethodGenerator):
         # We do this because :py:meth:`response_class` will create the response class
         # if it doesn't exist, and we need that to happen so we can use its attributes
         _ = self.response_class
+        if self.method_def.return_type:
+            return self.method_def.return_type
         if self.output_shape is not None:
             response_attr_shape = self.output_shape.members[
                 cast("str", self.response_attr)
             ]
         return_type = self.shape_converter.convert(response_attr_shape, quote=True)
-        if self.method_def.return_type:
-            return_type = self.method_def.return_type
-        return return_type
+        _return_type = return_type.lower()
+        if _return_type.startswith("list["):
+            _return_type = _return_type.replace("list[", "").replace("]", "")
+        if _return_type.startswith("dict["):
+            _return_type = _return_type.replace("dict[", "").replace("]", "")
+            _return_type = _return_type.split(",")[1].strip()
+        if _return_type in ("str", "int", "float", "bool", "None"):
+            return return_type
+        return "PrimaryBoto3ModelQuerySet"
 
     @property
     def body(self) -> str:
         # This is a hard attribute to guess. Sometimes it's CamelCase, sometimes
         # it's camelCase, sometimes it's snake_case.  We'll just assume it's a
         # lowercase plural of the model name.
+        self.imports.add("from .abstract import PrimaryBoto3ModelQuerySet")
         if self.client.can_paginate(self.boto3_name):
             code = f"""
         paginator = self.client.get_paginator('{self.boto3_name}')
         {self.operation_args}
         response_iterator = paginator.paginate(**{{k: v for k, v in args.items() if v is not None}})
-        results: {self.return_type} = []
+        results = []
         for _response in response_iterator:
             if list(_response.keys()) == ['ResponseMetadata']:
                 break
@@ -71,7 +80,10 @@ class ListMethodGenerator(ManagerMethodGenerator):
             else:
                 break
         self.sessionize(results)
-        return results
+        if results and isinstance(results[0], Boto3Model):
+            return PrimaryBoto3ModelQuerySet(results)
+        else:
+            return results
 """  # noqa: E501
         else:
             code = f"""
@@ -79,7 +91,7 @@ class ListMethodGenerator(ManagerMethodGenerator):
         {self.operation_call}
         if response and response.{self.response_attr}:
             self.sessionize(response.{self.response_attr})
-            return response.{self.response_attr}
-        return []
+            return PrimaryBoto3ModelQuerySet(response.{self.response_attr})
+        return PrimaryBoto3ModelQuerySet([])
 """
         return code

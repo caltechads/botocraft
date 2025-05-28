@@ -63,6 +63,13 @@ docs = [
 build = [
   "build>=1.2.2.post1",
 ]
+test = [
+  "pytest >= 7.4.0",
+  "pytest-cov >= 4.1.0",
+  "pytest-mock >= 3.10.0",
+  "pytest-xdist >= 3.4.0",
+  "pytest-benchmark >= 3.4.1",
+]
 
 [project.urls]
 Documentation = "https://botocraft.readthedocs.io/en/latest/"
@@ -123,6 +130,11 @@ ignore_missing_imports = true
 [[tool.mypy.overrides]]
 module = "psutil.*"
 ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = "pytest.*"
+ignore_missing_imports = true
+
 
 [tool.ruff]
 # Same as Black.
@@ -213,6 +225,18 @@ docstring-code-format = false
 docstring-code-line-length = "dynamic"
 
 [tool.ruff.lint.per-file-ignores]
+"tests/services/*" = [
+    "D100",  # Missing docstring in public module
+    "D101",  # Missing docstring in public class
+    "D102",  # Missing docstring in public method
+    "D103",  # Missing docstring in public function
+    "D104",  # Missing docstring in public package
+    "D105",  # Missing docstring in magic method
+    "D106",  # Missing docstring in public nested class
+    "D107",  # Missing docstring in __init__
+    "E501",  # Line too long
+    "PLR2004", # Magic value used
+]
 "botocraft/services/*" = [
     "N803",  # Argument name should be lowercase
     "D301",  # Use 'r"""' for all backticks in docstrings

@@ -19,6 +19,7 @@ if TYPE_CHECKING:
         Tag,
         TagSpecification,
     )
+    from botocraft.services.abstract import PrimaryBoto3ModelQuerySet
 
 
 #: The EC2 resource types.  We need this for specifying the proper tag for
@@ -118,20 +119,22 @@ ResourceType = Literal[
 
 
 def ec2_instances_only(
-    func: Callable[..., List["Reservation"]],
-) -> Callable[..., List["Instance"]]:
+    func: Callable[..., "PrimaryBoto3ModelQuerySet"],
+) -> Callable[..., "PrimaryBoto3ModelQuerySet"]:
     """
     Wraps a boto3 method that returns a list of :py:class:`Reservation` objects
     to return a list of :py:class:`Instance` objects instead.
     """
 
     @wraps(func)
-    def wrapper(*args, **kwargs) -> List["Instance"]:
-        reservations = func(*args, **kwargs)
+    def wrapper(*args, **kwargs) -> "PrimaryBoto3ModelQuerySet":
+        from botocraft.services.abstract import PrimaryBoto3ModelQuerySet
+
+        qs = func(*args, **kwargs)
         instances: List["Instance"] = []  # noqa: UP037
-        for reservation in reservations:
-            instances.extend(cast("List[Instance]", reservation.Instances))
-        return instances
+        for reservation in qs.results:
+            instances.extend(cast("List[Instance]", reservation.Instances))  # type: ignore[attr-defined]
+        return PrimaryBoto3ModelQuerySet(instances)  # type: ignore[arg-type]
 
     return wrapper
 
@@ -554,7 +557,7 @@ class AMIModelMixin:
         return bool(instances)
 
     @property
-    def vulnerabilities(self) -> List["Finding"]:
+    def vulnerabilities(self) -> "PrimaryBoto3ModelQuerySet":
         """
         Return a list of vulnerabilities for the instance.  This is a
         convenience method to get the vulnerabilities for the instance.

@@ -4,11 +4,12 @@ from typing import TYPE_CHECKING, Callable, List, Optional
 
 if TYPE_CHECKING:
     from botocraft.services import DescribeRuleResponse, EventBus, EventRule
+    from botocraft.services.abstract import PrimaryBoto3ModelQuerySet
 
 
 def event_rules_only(
     func: Callable[..., List[str]],
-) -> Callable[..., List["EventRule"]]:
+) -> Callable[..., "PrimaryBoto3ModelQuerySet"]:
     """
     Wraps :py:meth:`botocraft.services.events.EventRuleManager.list_by_target`
     to return :py:class:`botocraft.services.ecs.EventRule` objects instead of
@@ -16,9 +17,12 @@ def event_rules_only(
     """
 
     @wraps(func)
-    def wrapper(self, *args, **kwargs) -> List["EventRule"]:
+    def wrapper(self, *args, **kwargs) -> "PrimaryBoto3ModelQuerySet":
+        from botocraft.services.abstract import PrimaryBoto3ModelQuerySet
+
         names = func(self, *args, **kwargs)
-        return [self.get(name) for name in names]
+        events = [self.get(name) for name in names]
+        return PrimaryBoto3ModelQuerySet(events)
 
     return wrapper
 
@@ -82,6 +86,6 @@ def DescribeEventBusResponse_to_EventBus(
             return None
         bus = EventBus(**response.model_dump())
         self.sessionize(bus)
-        return bus
+        return bus  # type: ignore[return-value]
 
-    return wrapper
+    return wrapper  # type: ignore[return-value]

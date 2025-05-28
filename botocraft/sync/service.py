@@ -1285,7 +1285,7 @@ class ServiceGenerator:
         #: A set of model imports we need to add to the top of the file
         self.imports: Set[str] = {
             "from datetime import datetime",
-            "from typing import ClassVar, Type, Optional, Literal, Dict, List, Any, cast",  # noqa: E501
+            "from typing import ClassVar, Type, Optional, Literal, Dict, List, Union, Any, cast",  # noqa: E501
             "from pydantic import Field",
             "from .abstract import Boto3Model, ReadonlyBoto3Model, PrimaryBoto3Model, "
             "ReadonlyPrimaryBoto3Model, Boto3ModelManager, ReadonlyBoto3ModelManager",

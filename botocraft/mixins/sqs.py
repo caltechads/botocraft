@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING, Any, Callable, Generator, List, Union
 from botocraft.eventbridge import AbstractEventFactory, EventBridgeEvent, EventFactory
 
 if TYPE_CHECKING:
-    from botocraft.services.sqs import Queue
+    from botocraft.services.abstract import PrimaryBoto3ModelQuerySet
 
 
 # ----------
@@ -14,18 +14,20 @@ if TYPE_CHECKING:
 
 def queue_list_urls_to_queues(
     func: Callable[..., List["str"]],
-) -> Callable[..., List["Queue"]]:
+) -> Callable[..., "PrimaryBoto3ModelQuerySet"]:
     """
     Wraps a boto3 method that returns a list of SQS queue URLs to return a list
     of :py:class:`Queue` objects instead.
     """
 
     @wraps(func)
-    def wrapper(*args, **kwargs) -> List["Queue"]:
+    def wrapper(*args, **kwargs) -> "PrimaryBoto3ModelQuerySet":
+        from botocraft.services.abstract import PrimaryBoto3ModelQuerySet
+
         self = args[0]
         urls = func(*args, **kwargs)
         names = [url.split("/")[-1] for url in urls]
-        return [self.get(QueueName=name) for name in names]
+        return PrimaryBoto3ModelQuerySet([self.get(QueueName=name) for name in names])
 
     return wrapper
 

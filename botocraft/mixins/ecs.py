@@ -12,12 +12,12 @@ if TYPE_CHECKING:
         ContainerInstance,
         LoadBalancer,
         Service,
-        ServiceDeployment,
         ServiceDeploymentBrief,
         Task,
         TaskDefinition,
         TaskManager,
     )
+    from botocraft.services.abstract import PrimaryBoto3ModelQuerySet  # noqa: TC004
 
 
 # ---------
@@ -52,15 +52,20 @@ def extract_task_family_and_revision(task_definition_arn: str) -> str:
 # Service
 
 
-def ecs_services_only(func: Callable[..., List[str]]) -> Callable[..., List["Service"]]:
+def ecs_services_only(
+    func: Callable[..., list[str]],
+) -> Callable[..., "PrimaryBoto3ModelQuerySet"]:
     """
-    Wraps :py:meth:`botocraft.services.ecs.ServiceManager.list` to return a list of
+    Wraps :py:meth:`botocraft.services.ecs.ServiceManager.list` to return a
+    :py:class:`PrimaryBoto3ModelQuerySet` of
     :py:class:`botocraft.services.ecs.Service` objects instead of only a list of
     ARNs.
     """
 
     @wraps(func)
-    def wrapper(self, *args, **kwargs) -> List["Service"]:
+    def wrapper(self, *args, **kwargs) -> "PrimaryBoto3ModelQuerySet":
+        from botocraft.services.abstract import PrimaryBoto3ModelQuerySet
+
         arns = func(self, *args, **kwargs)
         services = []
         # We have to do this in batches of 10 because the get_many method,
@@ -70,9 +75,9 @@ def ecs_services_only(func: Callable[..., List[str]]) -> Callable[..., List["Ser
             services.extend(
                 self.get_many(
                     arns[i : i + 10], cluster=kwargs["cluster"], include=["TAGS"]
-                )
+                ).results
             )
-        return services
+        return PrimaryBoto3ModelQuerySet(services)
 
     return wrapper
 
@@ -80,42 +85,50 @@ def ecs_services_only(func: Callable[..., List[str]]) -> Callable[..., List["Ser
 # Cluster
 
 
-def ecs_clusters_only(func: Callable[..., List[str]]) -> Callable[..., List["Cluster"]]:
+def ecs_clusters_only(
+    func: Callable[..., List[str]],
+) -> Callable[..., "PrimaryBoto3ModelQuerySet"]:
     """
-    Wraps :py:meth:`botocraft.services.ecs.ClusterManager.list` to return a list of
+    Wraps :py:meth:`botocraft.services.ecs.ClusterManager.list` to return a list
+    of :py:class:`botocraft.services.abstract.PrimaryBoto3ModelQuerySet` of
     :py:class:`botocraft.services.ecs.Cluster` objects instead of only a list of
     ARNs.
     """
 
     @wraps(func)
-    def wrapper(self, *args, **kwargs) -> List["Cluster"]:
+    def wrapper(self, *args, **kwargs) -> "PrimaryBoto3ModelQuerySet":
+        from botocraft.services.abstract import PrimaryBoto3ModelQuerySet
+
         arns = func(self, *args, **kwargs)
-        clusters = []
+        clusters: list[Cluster] = []
         # We have to do this in batches of 100 because the get_many method,
         # which uses the boto3 ``describe_clusters`` method, only accepts 100 ARNs
         # at a time.
         for i in range(0, len(arns), 100):
-            clusters.extend(self.get_many(clusters=arns[i : i + 100]))
-        return clusters
+            qs = self.get_many(clusters=arns[i : i + 100], include=["TAGS"])
+            clusters.extend(
+                qs.results if isinstance(qs, PrimaryBoto3ModelQuerySet) else qs.clusters  # type: ignore[arg-type]
+            )
+        return PrimaryBoto3ModelQuerySet(clusters)  # type: ignore[arg-type]
 
     return wrapper
 
 
-# TaskDefinition
-
-
 def ecs_task_definitions_only(
     func: Callable[..., List[str]],
-) -> Callable[..., List["TaskDefinition"]]:
+) -> Callable[..., "PrimaryBoto3ModelQuerySet"]:
     """
     Decorator to convert a list of ECS task definition identifiers to a list of
     :py:class:`botocraft.services.ecs.TaskDefinition` objects.
     """
 
     @wraps(func)
-    def wrapper(self, *args, **kwargs) -> List["TaskDefinition"]:
+    def wrapper(self, *args, **kwargs) -> "PrimaryBoto3ModelQuerySet":
+        from botocraft.services.abstract import PrimaryBoto3ModelQuerySet
+
         identifiers = func(self, *args, **kwargs)
-        return [self.get(identifier, include=["TAGS"]) for identifier in identifiers]
+        tds = [self.get(identifier, include=["TAGS"]) for identifier in identifiers]
+        return PrimaryBoto3ModelQuerySet(tds)
 
     return wrapper
 
@@ -125,62 +138,69 @@ def ecs_task_definitions_only(
 
 def ecs_container_instances_only(
     func: Callable[..., List[str]],
-) -> Callable[..., List["ContainerInstance"]]:
+) -> Callable[..., "PrimaryBoto3ModelQuerySet"]:
     """
-    Decorator to convert a list of ECS container instance arns to a list of
+    Decorator to convert a list of ECS container instance arns to a
+    :py:class:`botocraft.services.abstract.PrimaryBoto3ModelQuerySet` of
     :py:class:`botocraft.services.ecs.ContainerInstance` objects.
     """
 
-    def wrapper(self, *args, **kwargs) -> List["ContainerInstance"]:
+    def wrapper(self, *args, **kwargs) -> "PrimaryBoto3ModelQuerySet":
+        from botocraft.services.abstract import PrimaryBoto3ModelQuerySet
+
         arns = func(self, *args, **kwargs)
         container_instances = []
         for i in range(0, len(arns), 100):
-            container_instances.extend(
-                self.get_many(
-                    cluster=kwargs["cluster"], containerInstances=arns[i : i + 100]
-                )
+            _instances = self.get_many(
+                cluster=kwargs["cluster"], containerInstances=arns[i : i + 100]
             )
-        return container_instances
+            if isinstance(_instances, PrimaryBoto3ModelQuerySet):
+                _instances = _instances.results
+            # If we got a list of ContainerInstanceBrief objects, we need to convert
+            if _instances:
+                container_instances.extend(_instances)
+        return PrimaryBoto3ModelQuerySet(container_instances)
 
     return wrapper
 
 
 def ecs_container_instances_tasks_only(
     func: Callable[..., List[str]],
-) -> Callable[..., List["Task"]]:
+) -> Callable[..., "PrimaryBoto3ModelQuerySet"]:
     """
     Decorator to convert a list of ECS container instance arns to a list of
     :py:class:`botocraft.services.ecs.ContainerInstance` objects.
     """
 
     @wraps(func)
-    def wrapper(self, *args, **kwargs) -> List["Task"]:
+    def wrapper(self, *args, **kwargs) -> "PrimaryBoto3ModelQuerySet":
+        from botocraft.services.abstract import PrimaryBoto3ModelQuerySet
         from botocraft.services.ecs import Task
 
         arns = func(self, *args, **kwargs)
         tasks = []
         for i in range(0, len(arns), 100):
             tasks.extend(cast("TaskManager", Task.objects).get_many(arns[i : i + 100]))
-        return tasks
+        return PrimaryBoto3ModelQuerySet(tasks)  # type: ignore[arg-type]
 
     return wrapper
 
 
 def ecs_service_deployments_only(
     func: Callable[..., List["ServiceDeploymentBrief"]],
-) -> Callable[..., List["ServiceDeployment"]]:
+) -> Callable[..., "PrimaryBoto3ModelQuerySet"]:
     """
     Decorator to convert a list of service deployment arns to a list of
     :py:class:`botocraft.services.ecs.Deployment` objects.
     """
 
     @wraps(func)
-    def wrapper(self, *args, **kwargs) -> List["ServiceDeployment"]:
+    def wrapper(self, *args, **kwargs) -> "PrimaryBoto3ModelQuerySet":
         from botocraft.services.ecs import ServiceDeployment, ServiceDeploymentManager
 
         response = func(self, *args, **kwargs)
         if response is None:
-            return []
+            return PrimaryBoto3ModelQuerySet([])
         arns = [
             d.serviceDeploymentArn
             for d in func(self, *args, **kwargs)
@@ -191,9 +211,12 @@ def ecs_service_deployments_only(
             _deployments = cast(
                 "ServiceDeploymentManager", ServiceDeployment.objects
             ).get_many(arns[i : i + 20])
+            if isinstance(_deployments, PrimaryBoto3ModelQuerySet):
+                _deployments = _deployments.results  # type: ignore[assignment]
+            # If we got a list of ServiceDeploymentBrief objects, we need to convert
             if _deployments:
-                deployments.extend(_deployments)
-        return deployments
+                deployments.extend(_deployments)  # type: ignore[arg-type]
+        return PrimaryBoto3ModelQuerySet(deployments)  # type: ignore[arg-type]
 
     return wrapper
 

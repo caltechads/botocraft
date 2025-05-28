@@ -1,12 +1,13 @@
 # mypy: disable-error-code="attr-defined"
 import warnings
 from functools import wraps
-from typing import TYPE_CHECKING, Callable, Dict, List, cast
+from typing import TYPE_CHECKING, Callable, Dict, List, Optional, cast
 
 import boto3
 
 if TYPE_CHECKING:
     from botocraft.services import ClassicELB, Instance
+    from botocraft.services.abstract import PrimaryBoto3ModelQuerySet
 
 
 # ----------
@@ -45,8 +46,8 @@ def add_attributes_for_get(
 
 
 def add_attributes_for_list(
-    func: Callable[..., List["ClassicELB"]],
-) -> Callable[..., List["ClassicELB"]]:
+    func: Callable[..., "PrimaryBoto3ModelQuerySet"],
+) -> Callable[..., "PrimaryBoto3ModelQuerySet"]:
     """
     Wraps :py:meth:`botocraft.services.elb.ClassicELBManager.list` to add the
     load balancer attributes to the :py:class:`ClassicELB` objects.
@@ -54,10 +55,10 @@ def add_attributes_for_list(
     """
 
     @wraps(func)
-    def wrapper(self, *args, **kwargs) -> List["ClassicELB"]:
-        elbs = func(self, *args, **kwargs)
-        if elbs:
-            for elb in elbs:
+    def wrapper(self, *args, **kwargs) -> "PrimaryBoto3ModelQuerySet":
+        qs = func(self, *args, **kwargs)
+        if qs.results:
+            for elb in qs.results:
                 attrs = self.describe_attributes(LoadBalancerName=elb.LoadBalancerName)
                 if attrs.CrossZoneLoadBalancing:
                     elb.CrossZoneLoadBalancing = attrs.CrossZoneLoadBalancing.Enabled
@@ -71,12 +72,14 @@ def add_attributes_for_list(
                     elb.AdditionalAttributes = {
                         attr.Key: attr.Value for attr in attrs.AdditionalAttributes
                     }
-        return elbs
+        return qs
 
     return wrapper
 
 
-def add_tags_for_get(func: Callable[..., "ClassicELB"]) -> Callable[..., "ClassicELB"]:
+def add_tags_for_get(
+    func: Callable[..., Optional["ClassicELB"]],
+) -> Callable[..., Optional["ClassicELB"]]:
     """
     Wraps :py:meth:`botocraft.services.ecs.ServiceManager.list` to return a list of
     :py:class:`botocraft.services.ecs.Service` objects instead of only a list of
@@ -84,7 +87,7 @@ def add_tags_for_get(func: Callable[..., "ClassicELB"]) -> Callable[..., "Classi
     """
 
     @wraps(func)
-    def wrapper(self, *args, **kwargs) -> "ClassicELB":
+    def wrapper(self, *args, **kwargs) -> Optional["ClassicELB"]:
         elb = func(self, *args, **kwargs)
         if elb:
             tags = elb.objects.using(self.session).describe_tags(
@@ -98,8 +101,8 @@ def add_tags_for_get(func: Callable[..., "ClassicELB"]) -> Callable[..., "Classi
 
 
 def add_tags_for_list(
-    func: Callable[..., List["ClassicELB"]],
-) -> Callable[..., List["ClassicELB"]]:
+    func: Callable[..., "PrimaryBoto3ModelQuerySet"],
+) -> Callable[..., "PrimaryBoto3ModelQuerySet"]:
     """
     Wraps :py:meth:`botocraft.services.ecs.ServiceManager.list` to return a list of
     :py:class:`botocraft.services.ecs.Service` objects instead of only a list of
@@ -107,7 +110,7 @@ def add_tags_for_list(
     """
 
     @wraps(func)
-    def wrapper(self, *args, **kwargs) -> List["ClassicELB"]:
+    def wrapper(self, *args, **kwargs) -> "PrimaryBoto3ModelQuerySet":
         from botocraft.services import ClassicELB
 
         elbs = func(self, *args, **kwargs)
@@ -400,10 +403,8 @@ class ClassicELBManagerMixin:
                     LoadBalancerName=new_elb.LoadBalancerName, HealthCheck={}
                 )
             elif (
-                (not old_elb.HealthCheck
-                and new_elb.HealthCheck)
-                or old_elb.HealthCheck != new_elb.HealthCheck
-            ):
+                not old_elb.HealthCheck and new_elb.HealthCheck
+            ) or old_elb.HealthCheck != new_elb.HealthCheck:
                 self.configure_health_check(
                     LoadBalancerName=new_elb.LoadBalancerName,
                     HealthCheck=self.serialize(new_elb.HealthCheck),

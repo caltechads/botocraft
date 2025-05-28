@@ -2,6 +2,7 @@ from functools import wraps
 from typing import TYPE_CHECKING, Callable, List, Optional
 
 if TYPE_CHECKING:
+    from botocraft.services.abstract import PrimaryBoto3ModelQuerySet
     from botocraft.services.inspector2 import (
         CisScanConfiguration,
         DelegatedAdmin,
@@ -44,23 +45,24 @@ def convert_delegated_admin(
 
 
 def list_augment_delegated_admin_accounts(
-    func: Callable[..., List["DelegatedAdmin"]],
-) -> Callable[..., List["DelegatedAdminAccount"]]:
+    func: Callable[..., "PrimaryBoto3ModelQuerySet"],  # noqa: F821],
+) -> Callable[..., "PrimaryBoto3ModelQuerySet"]:
     """
     Wraps a boto3 method that returns a list of :py:class:`Reservation` objects
     to return a list of :py:class:`Instance` objects instead.
     """
 
     @wraps(func)
-    def wrapper(*args, **kwargs) -> List["DelegatedAdminAccount"]:
+    def wrapper(*args, **kwargs) -> "PrimaryBoto3ModelQuerySet":
+        from botocraft.services.abstract import PrimaryBoto3ModelQuerySet
         from botocraft.services.inspector2 import DelegatedAdminAccount
 
         self = args[0]
-        accts = func(*args, **kwargs)
+        qs = func(*args, **kwargs)
         new_accts = []
-        for acct in accts:
+        for acct in qs.results:
             _acct = DelegatedAdminAccount.objects.using(self.session).get(
-                delegatedAdminAccountId=acct.accountId
+                delegatedAdminAccountId=acct.accountId  # type: ignore[attr-defined]
             )
             # DelegatedAdminAccount is a frozen (readonly) model, so we need to
             # do a weird workaround to set the relationshipStatus attribute
@@ -69,7 +71,7 @@ def list_augment_delegated_admin_accounts(
                     update={"relationshipStatus": _acct.relationshipStatus}
                 )
             )
-        return new_accts
+        return PrimaryBoto3ModelQuerySet(new_accts)
 
     return wrapper
 

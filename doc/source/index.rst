@@ -7,6 +7,8 @@ botocraft
    :hidden:
 
    overview/services
+   overview/queryset
+   overview/tags
    overview/events
 
 .. toctree::
@@ -37,7 +39,7 @@ Why make this library?
 
 While boto3 and botocore are wonderful libraries, and I honor the AWS teams for
 making them available to us developers, one of the problems we have had is that
-there is no standard interface in boto3 to all resources.  For example,
+there is no standard interface in ``boto3`` to all resources.  For example,
 imagine you want to list a certain kind of resource:
 
 * If you want to get a list of all ECS clusters, you use the ``list_clusters``
@@ -91,13 +93,10 @@ AWS services.
 Features
 --------
 
-* Provides AWS resources as Django ORM-like Python classes, backed by `pydantic
-  <https://github.com/pydantic/pydantic>`_
-* Provides tooling to generate the code files for those classes by inspecting the ``botocore`` definitions. This allows us to stay up-to-date with the AWS API, while also adding our own customizations.
+* Provides AWS resources as Django ORM-like Python classes, backed by `pydantic <https://github.com/pydantic/pydantic>`_.  This includes Django-like functionality like managers, querysets, and model fields.
+* Lists the ``botocore`` definitions. This allows us to stay up-to-date with the AWS API, while also adding our own customizations.
 * Automatically generates managers for the resources that provide CRUDL functionality
 * Automatically generates documentation for the resources and managers, and other classes
 * Allows us to add custom methods and attributes to the classes that are not provided by the AWS API
 * Automatically paginates results if they are paginated in the AWS API
-* Allows us to resolve foreign keys and many-to-many relationships to resource objects.  For
-example, if you have an ECS service, you can get the cluster object by accessing
-the ``cluster`` attribute of the service object.
+* Allows us to resolve foreign keys and many-to-many relationships to resource objects.  For example, if you have an ECS service, you can get the cluster object by accessing the ``cluster`` attribute of the service object.

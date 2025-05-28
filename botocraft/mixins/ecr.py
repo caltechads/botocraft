@@ -32,6 +32,7 @@ if TYPE_CHECKING:
         Service,
         TaskDefinition,
     )
+    from botocraft.services.abstract import PrimaryBoto3ModelQuerySet  # noqa: TC004
 
 
 class ECRDockerClient(BaseModel):
@@ -91,8 +92,8 @@ class ImageInfo(BaseModel):
 
 
 def repo_list_images_ecr_images_only(
-    func: Callable[..., List["ImageIdentifier"]],
-) -> Callable[..., List["ECRImage"]]:
+    func: Callable[..., "PrimaryBoto3ModelQuerySet"],
+) -> Callable[..., "PrimaryBoto3ModelQuerySet"]:
     """
     Convert a list of ECR image identifiers returned by
     :py:meth:`botocraft.services.ecr.RepositoryManager.list_images` into a list
@@ -100,27 +101,29 @@ def repo_list_images_ecr_images_only(
     """
 
     @wraps(func)
-    def wrapper(self, *args, **kwargs) -> List["ECRImage"]:
-        identifiers: List["ImageIdentifier"] = func(self, *args, **kwargs)  # noqa: UP037
+    def wrapper(self, *args, **kwargs) -> "PrimaryBoto3ModelQuerySet":
+        from botocraft.services.abstract import PrimaryBoto3ModelQuerySet
+
+        qs: "PrimaryBoto3ModelQuerySet" = func(self, *args, **kwargs)  # noqa: UP037
         images: List["ECRImage"] = []  # noqa: UP037
         # NOTE: to be honest i'm not sure if there is a per request limit
         # for the number of images that can be retrieved, but i'm going to
         # assume that there is a limit of 100 images per request.
-        for i in range(0, len(identifiers), 100):
+        for i in range(0, len(qs.results), 100):
             _images = self.get_images(
                 repositoryName=kwargs["repositoryName"],
-                imageIds=identifiers[i : i + 100],
+                imageIds=qs.results[i : i + 100],
             )
             if _images:
                 images.extend(_images)
-        return images
+        return PrimaryBoto3ModelQuerySet(images)  # type: ignore[arg-type]
 
     return wrapper
 
 
 def repo_list_add_tags(
-    func: Callable[..., List["Repository"]],
-) -> Callable[..., List["Repository"]]:
+    func: Callable[..., "PrimaryBoto3ModelQuerySet"],
+) -> Callable[..., "PrimaryBoto3ModelQuerySet"]:
     """
     Add tags to all :py:class:`botocraft.services.ecr.Repository` objects returned
     by :py:meth:`botocraft.services.ecr.RepositoryManager.list`.  This has to
@@ -129,15 +132,15 @@ def repo_list_add_tags(
     """
 
     @wraps(func)
-    def wrapper(self, *args, **kwargs) -> List["Repository"]:
-        repos = func(self, *args, **kwargs)
+    def wrapper(self, *args, **kwargs) -> "PrimaryBoto3ModelQuerySet":
+        qs: PrimaryBoto3ModelQuerySet = func(self, *args, **kwargs)
         extras = kwargs.get("include", [])
         if "TAGS" in extras:
-            for repo in repos:
+            for repo in qs.results:
                 tags = self.get_tags(resourceArn=repo.arn)
                 if tags:
                     repo.Tags = tags
-        return repos
+        return qs
 
     return wrapper
 
@@ -168,8 +171,8 @@ def repo_get_add_tags(
 
 
 def image_list_images_ecr_images_only(
-    func: Callable[..., List["ImageIdentifier"]],
-) -> Callable[..., List["ECRImage"]]:
+    func: Callable[..., "PrimaryBoto3ModelQuerySet"],
+) -> Callable[..., "PrimaryBoto3ModelQuerySet"]:
     """
     Convert a list of ECR image identifiers returned by
     :py:meth:`botocraft.services.ecr.Image.list` into a list
@@ -177,19 +180,19 @@ def image_list_images_ecr_images_only(
     """
 
     @wraps(func)
-    def wrapper(self, *args, **kwargs) -> List["ECRImage"]:
-        identifiers: List["ImageIdentifier"] = func(self, *args, **kwargs)  # noqa: UP037
+    def wrapper(self, *args, **kwargs) -> "PrimaryBoto3ModelQuerySet":
+        qs: PrimaryBoto3ModelQuerySet = func(self, *args, **kwargs)
         images: List["ECRImage"] = []  # noqa: UP037
         # NOTE: to be honest i'm not sure if there is a per request limit
         # for the number of images that can be retrieved, but i'm going to
         # assume that there is a limit of 100 images per request.
-        for i in range(0, len(identifiers), 100):
+        for i in range(0, len(qs.results), 100):
             _images = self.get_many(
-                repositoryName=args[0], imageIds=identifiers[i : i + 100]
+                repositoryName=args[0], imageIds=qs.results[i : i + 100]
             )
             if _images:
                 images.extend(_images.images)
-        return images
+        return PrimaryBoto3ModelQuerySet(images)  # type: ignore[arg-type]
 
     return wrapper
 
