@@ -3,7 +3,10 @@ clean:
 	find . -name "*.pyc" | xargs rm
 	find . -name "__pycache__" | xargs rm -rf
 
-release: clean
+requirements.txt: uv.lock
+	@uv pip compile --output-file=requirements.txt
+
+release: clean requirements.txt
 	@bin/release.sh
 
 tox:
