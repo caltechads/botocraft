@@ -4,7 +4,7 @@ clean:
 	find . -name "__pycache__" | xargs rm -rf
 
 requirements.txt: uv.lock
-	@uv export --format=requirements-txt -o requirements.txt
+	@uv pip compile --group docs -o requirements.txt
 
 release: clean requirements.txt
 	@bin/release.sh
