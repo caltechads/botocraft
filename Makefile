@@ -4,7 +4,7 @@ clean:
 	find . -name "__pycache__" | xargs rm -rf
 
 requirements.txt: uv.lock
-	@uv pip compile --group docs -o requirements.txt
+	@uv pip compile pyproject.toml --group docs -o requirements.txt
 
 release: clean requirements.txt
 	@bin/release.sh
