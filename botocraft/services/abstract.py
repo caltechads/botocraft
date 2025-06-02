@@ -693,15 +693,15 @@ class Boto3ModelManagerFilter:
         filtered = Boto3ModelManagerFilter(instances, created_at__quarter=2)  # Q2
 
         # Filter using regular expressions
-        filtered = Boto3ModelManagerFilter(instances, name__regex=r"web-\d+")
-        filtered = Boto3ModelManagerFilter(instances, name__iregex=r"WEB-\d+")  # Case-insensitive
+        filtered = Boto3ModelManagerFilter(instances, name__regex=r"web-[0-9]+")
+        filtered = Boto3ModelManagerFilter(instances, name__iregex=r"WEB-[0-9]+")  # Case-insensitive
 
     Args:
         models: List of Boto3Model objects to filter
 
     Keyword Args:
         **filters: Django-style keyword arguments for filtering, e.g. name="value", status__exact="running"
-    """  # noqa: W605
+    """
 
     @staticmethod
     def _ensure_utc_datetime(dt_value: Any) -> datetime | None:
