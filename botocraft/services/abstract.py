@@ -392,8 +392,8 @@ class PrimaryBoto3Model(  # pylint: disable=abstract-method
             msg = "Cannot delete a model that has not been saved."
             raise ValueError(msg)
         if isinstance(self.pk, OrderedDict):
-            return self.manager.delete(**self.pk)
-        return self.manager.delete(self.pk)
+            return self.objects.delete(**self.pk)
+        return self.objects.delete(self.pk)
 
 
 class PrimaryBoto3ModelQuerySet:
