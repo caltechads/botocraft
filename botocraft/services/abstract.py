@@ -661,9 +661,9 @@ class Boto3ModelManagerFilter:
     """
     A filter class for Boto3Model objects that provides Django-like filtering capabilities.
 
-    This class allows you to filter a list of Boto3Model objects using familiar Django ORM-style
-    keyword arguments. It supports basic field lookups as well as more complex lookups using
-    the field__lookup syntax.
+    This class allows you to filter a list of :py:class:`Boto3Model` objects
+    using familiar Django ORM-style keyword arguments. It supports basic field
+    lookups as well as more complex lookups using the ``field__lookup`` syntax.
 
     Examples:
         # Filter instances where name equals "my-instance"

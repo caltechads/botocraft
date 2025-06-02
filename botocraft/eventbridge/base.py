@@ -1,4 +1,6 @@
-import boto3
+from typing import Any
+
+from pydantic import Field
 
 
 class EventBridgeEvent:
@@ -6,4 +8,4 @@ class EventBridgeEvent:
     Base class for all EventBridge events.
     """
 
-    session: boto3.session.Session | None = None
+    session: Any | None = Field(default=None, exclude=True)
