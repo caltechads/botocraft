@@ -30,6 +30,22 @@ Queue:
     receive_messages:
       boto3_name: receive_message
       response_attr: Messages
+      extra_args:
+        EventFactoryClass:
+          default: None
+          python_type: >-
+            Optional[Type[AbstractEventFactory]]
+          docstring: >-
+            The class to use to convert the message body to an event object.  If
+            not provided, the default
+            :py:class:`~botocraft.eventbridge.EventFactory` class will be used.
+          imports:
+            - from botocraft.eventbridge.factory import AbstractEventFactory, EventFactory
+      decorators:
+        - name: queue_recieve_messages_add_queue_url
+          import_path: botocraft.mixins.sqs
+        - name: queue_recieve_messages_add_event_factory
+          import_path: botocraft.mixins.sqs
     batch_send_messages:
       boto3_name: send_message_batch
       response_attr: None

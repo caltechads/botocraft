@@ -483,6 +483,9 @@ class MethodArgumentDefinition(BaseModel):
     docstring: str | None = None
     #: If supplied, use this as the python type for the argument.
     python_type: str | None = None
+    #: If supplied, this is a list of import strings to add to the top of the
+    #: of the file to support the python type.
+    imports: List[str] = Field(default_factory=list)
 
 
 class ManagerMethodDefinition(BaseModel):

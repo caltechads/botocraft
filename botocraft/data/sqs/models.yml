@@ -85,7 +85,25 @@ primary:
           - name: VisibilityTimeout
           - name: WaitTimeSeconds
           - name: ReceiveRequestAttemptId
+          - name: EventFactoryClass
   Message:
+    mixins:
+      - name: MessageModelMixin
+        import_path: botocraft.mixins.sqs
+    extra_fields:
+      QueueUrl:
+        python_type: str
+        default: None
+        docstring: >-
+          The URL of the queue. This is a unique identifier for the queue.
+      EventFactoryClass:
+        python_type: Type[AbstractEventFactory]
+        default: EventFactory
+        imports:
+          - from botocraft.eventbridge.factory import AbstractEventFactory, EventFactory
+        docstring: >-
+          The factory class for the event. This is used to create events
+          from messages received from the queue.
     properties:
       pk:
         docstring: >-

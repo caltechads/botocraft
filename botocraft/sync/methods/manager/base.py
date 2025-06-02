@@ -277,6 +277,11 @@ class ManagerMethodGenerator:
                         args[arg_name] = f"Optional[{arg_def.python_type}] = None"
                     else:
                         args[arg_name] = f"{arg_def.python_type} = {default}"
+                if arg_def.imports:
+                    # If the method definition has any imports, we need to add them
+                    # to our imports list.
+                    for import_path in arg_def.imports:
+                        self.imports.add(import_path)
         return args
 
     @property
