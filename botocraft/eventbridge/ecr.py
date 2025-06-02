@@ -34,6 +34,23 @@ class ECRImageActionEvent(EventBridgeEvent, RawECRImageActionEvent):
 
     """
 
+    def __str__(self) -> str:
+        """
+        Return a string representation of the event.
+        """
+        return (
+            f"<Event: ECR Image Action: account={self.account}, "
+            f"source={self.source}, "
+            f"time={self.time}, "
+            f"region={self.region}, "
+            f"resources={self.resources}, "
+            f"repository_name={self.detail.repository_name}, "
+            f"image_digest={self.detail.image_digest}, "
+            f"image_tag={self.detail.image_tag}, "
+            f"action_type={self.detail.action_type}, "
+            f"result={self.detail.result}>"
+        )
+
     @cached_property
     def image(self) -> Optional["ECRImage"]:
         """
@@ -56,6 +73,22 @@ class ECRImageScanEvent(EventBridgeEvent, RawECRImageScanEvent):
 
     """
 
+    def __str__(self) -> str:
+        """
+        Return a string representation of the event.
+        """
+        return (
+            f"<Event: ECR Scan Action: account={self.account}, "
+            f"source={self.source}, "
+            f"time={self.time}, "
+            f"region={self.region}, "
+            f"resources={self.resources}, "
+            f"repository_name={self.detail.repository_name}, "
+            f"image_digest={self.detail.image_digest}, "
+            f"image_tags={self.detail.image_tags}, "
+            f"scan_status={self.detail.scan_status}>"
+        )
+
     @cached_property
     def image(self) -> Optional["ECRImage"]:
         """
@@ -77,6 +110,22 @@ class ECRReferrerActionEvent(EventBridgeEvent, RawECRReferrerActionEvent):
     ECR Image Scan Event class.
 
     """
+
+    def __str__(self) -> str:
+        """
+        Return a string representation of the event.
+        """
+        return (
+            f"<Event: ECR Referrer Action: account={self.account}, "
+            f"source={self.source}, "
+            f"time={self.time}, "
+            f"region={self.region}, "
+            f"resources={self.resources}, "
+            f"repository_name={self.detail.repository_name}, "
+            f"image_digest={self.detail.image_digest}, "
+            f"image_tag={self.detail.image_tag}, "
+            f"result={self.detail.result}>"
+        )
 
     @cached_property
     def image(self) -> Optional["ECRImage"]:
@@ -117,6 +166,24 @@ class ECRPullThroughCacheActionEvent(
     unsuccessful.
     """
 
+    def __str__(self) -> str:
+        """
+        Return a string representation of the event.
+        """
+        return (
+            f"<Event: ECR PullThroughCache Action: account={self.account}, "
+            f"source={self.source}, "
+            f"time={self.time}, "
+            f"region={self.region}, "
+            f"resources={self.resources}, "
+            f"repository_name={self.detail.repository_name}, "
+            f"image_digest={self.detail.image_digest}, "
+            f"image_tag={self.detail.image_tag}, "
+            f"sync_status={self.detail.sync_status}, "
+            f"ecr_repository_prefix={self.detail.ecr_repository_prefix}, "
+            f"upstream_registry_url={self.detail.upstream_registry_url}>"
+        )
+
     @cached_property
     def image(self) -> Optional["ECRImage"]:
         """
@@ -153,6 +220,23 @@ class ECRReplicationActionEvent(EventBridgeEvent, RawECRReplicationActionEvent):
     including the image being replicated and the result status of the operation.
     """
 
+    def __str__(self) -> str:
+        """
+        Return a string representation of the event.
+        """
+        return (
+            f"<Event: ECR PullThroughCache Action: account={self.account}, "
+            f"source={self.source}, "
+            f"time={self.time}, "
+            f"region={self.region}, "
+            f"resources={self.resources}, "
+            f"repository_name={self.detail.repository_name}, "
+            f"image_digest={self.detail.image_digest}, "
+            f"image_tag={self.detail.image_tag}, "
+            f"action_type={self.detail.action_type}, "
+            f"result={self.detail.result}>"
+        )
+
     @cached_property
     def image(self) -> Optional["ECRImage"]:
         """
@@ -188,6 +272,22 @@ class ECRScanResourceChangeEvent(EventBridgeEvent, RawECRScanResourceChangeEvent
     changes. It contains details about the image and the new scan status.
     """
 
+    def __str__(self) -> str:
+        """
+        Return a string representation of the event.
+        """
+        return (
+            f"<Event: ECR Scan Resource Change: account={self.account}, "
+            f"source={self.source}, "
+            f"time={self.time}, "
+            f"region={self.region}, "
+            f"resources={self.resources}, "
+            f"repositories={self.detail.repositories}, "
+            f"scan_type={self.detail.scan_type}, "
+            f"resource_type={self.detail.resource_type}, "
+            f"action_type={self.detail.action_type}> "
+        )
+
     @cached_property
     def repositories(self) -> list["Repository"]:
         """
@@ -219,6 +319,18 @@ class ECRAWSAPICallViaCloudTrailEvent(
     and user agent.
     """
 
+    def __str__(self) -> str:
+        """
+        Return a string representation of the event.
+        """
+        return (
+            f"<Event: ECR AWS API Call Via CloudTrail: account={self.account}, "
+            f"source={self.source}, "
+            f"time={self.time}, "
+            f"region={self.region}, "
+            f"resources={self.resources}> "
+        )
+
     @cached_property
     def images(self) -> list["ECRImage"]:
         """
@@ -227,9 +339,9 @@ class ECRAWSAPICallViaCloudTrailEvent(
         from botocraft.services.ecr import ECRImage, ImageIdentifier
 
         return ECRImage.objects.using(self.session).get_many(  # type: ignore[attr-defined]
-            repository_name=self.detail.requestParameters.repositoryName,
+            repository_name=self.detail.requestParameters.repositoryName,  # type: ignore[attr-defined]
             imageIds=[
                 ImageIdentifier(imageTag=imageId.imageTag)
-                for imageId in self.detail.requestParameters.imageIds
+                for imageId in self.detail.requestParameters.imageIds  # type: ignore[attr-defined]
             ],
         )

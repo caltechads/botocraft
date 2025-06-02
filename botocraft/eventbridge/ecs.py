@@ -46,6 +46,23 @@ class ECSTaskStateChangeEvent(EventBridgeEvent, RawECSTaskStateChangeEvent):
     EventBridge event for ECS task state change.
     """
 
+    def __str__(self) -> str:
+        """
+        Return a string representation of the event.
+        """
+        cluster_name = self.detail.clusterArn.split("/")[-1]
+        family_and_revision = self.detail.taskDefinitionArn.split("/")[-1]
+        return (
+            f"<Event: ECS Task State Change: [{self.account}]: "
+            f"source={self.source}, "
+            f"time={self.time}, "
+            f"region={self.region}, "
+            f"resources={self.resources}, "
+            f"task_definition={family_and_revision}, "
+            f"cluster={cluster_name}, "
+            f"desired_status={self.detail.desiredStatus}>"
+        )
+
     @property
     def task_definition(self) -> "TaskDefinition":
         """
@@ -116,6 +133,23 @@ class ECSServiceActionEvent(EventBridgeEvent, RawECSServiceActionEvent):
     EventBridge event for ECS service action.
     """
 
+    def __str__(self) -> str:
+        """
+        Return a string representation of the event.
+        """
+        cluster_name = self.detail.clusterArn.split("/")[-1]
+        service_names = [resource.split("/")[-1] for resource in self.resources or []]
+        return (
+            f"<Event: ECS Task State Change: account={self.account}, "
+            f"source={self.source}, "
+            f"time={self.time}, "
+            f"region={self.region}, "
+            f"services={service_names}, "
+            f"cluster={cluster_name}, "
+            f"event_type={self.detail.eventType}, "
+            f"event_name={self.detail.eventName}>"
+        )
+
     @property
     def cluster(self) -> "Cluster":
         """
@@ -160,15 +194,18 @@ class ECSServiceActionEvent(EventBridgeEvent, RawECSServiceActionEvent):
         ]
 
     @property
-    def service(self) -> "Service":
+    def services(self) -> list["Service"]:
         """
         Get the service ARN from the event.
         """
         from botocraft.services.ecs import Service
 
-        return Service.objects.using(self.session).get(
-            service=self.resources[0], cluster=self.detail.clusterArn
-        )
+        return [
+            Service.objects.using(self.session).get(
+                service=service_arn, cluster=self.detail.clusterArn
+            )
+            for service_arn in self.resources or []
+        ]
 
     @property
     def event_type(self) -> str:
@@ -184,6 +221,22 @@ class ECSContainerInstanceStateChangeEvent(
     """
     EventBridge event for ECS container instance state change.
     """
+
+    def __str__(self) -> str:
+        """
+        Return a string representation of the event.
+        """
+        cluster_name = self.detail.clusterArn.split("/")[-1]
+        return (
+            f"<Event: ECS Container Instance State Change: account={self.account}, "
+            f"source={self.source}, "
+            f"time={self.time}, "
+            f"region={self.region}, "
+            f"cluster={cluster_name}, "
+            f"ec2_instance={self.detail.ec2InstanceId}, "
+            f"status={self.detail.status}, "
+            f"status_reason={self.detail.statusReason}>"
+        )
 
     @property
     def cluster(self) -> "Cluster":
@@ -242,6 +295,21 @@ class ECSServiceDeploymentStateChangeEvent(
     EventBridge event for ECS service deployment state change.
     """
 
+    def __str__(self) -> str:
+        """
+        Return a string representation of the event.
+        """
+        return (
+            f"<Event: ECS Service Deployment Change: account={self.account}, "
+            f"source={self.source}, "
+            f"time={self.time}, "
+            f"region={self.region}, "
+            f"resources={self.resources}, "
+            f"event_type={self.detail.eventType}, "
+            f"event_name={self.detail.eventName}, "
+            f"reason={self.detail.reason}>"
+        )
+
     @property
     def cluster(self) -> "Cluster":
         """
@@ -272,6 +340,20 @@ class ECSAWSAPICallViaCloudTrailEvent(
     """
     EventBridge event for ECS API call via CloudTrail.
     """
+
+    def __str__(self) -> str:
+        """
+        Return a string representation of the event.
+        """
+        return (
+            f"<Event: ECS API Call via CloudTrail: account={self.account}, "
+            f"source={self.source}, "
+            f"time={self.time}, "
+            f"region={self.region}, "
+            f"resources={self.resources}, "
+            f"event_type={self.detail.eventType}, "
+            f"event_name={self.detail.eventName}>"
+        )
 
     @property
     def clusters(self) -> list["Cluster"]:
