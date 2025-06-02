@@ -1,11 +1,9 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, Dict, List
+from datetime import datetime  # noqa: TC003
+from typing import Any, Dict, List
 
 from pydantic import BaseModel, Field
-
-if TYPE_CHECKING:
-    from datetime import datetime
 
 
 class RequestParametersItem(BaseModel):
@@ -66,7 +64,7 @@ class OverridesItem(BaseModel):
     #: The resource requirements for the container
     resourceRequirements: List[Dict[str, Any]] | None = None
     #: The environment variables for the container
-    environment: List[Dict[str, Any]]
+    environment: List[Dict[str, Any]] | None = None
     #: The memory override for the container
     memory: float | None = None
     #: The name of the container to override
@@ -145,7 +143,7 @@ class SessionContext(BaseModel):
     """Represents the session context for a user identity."""
 
     #: Web identity federation data, if applicable
-    webIdFederationData: Dict[str, Any]
+    webIdFederationData: Dict[str, Any] | None = None
     #: Information about the entity that issued the session
     sessionIssuer: SessionIssuer
     #: Session attributes like MFA status
@@ -184,7 +182,7 @@ class RequestParameters(BaseModel):
     #: Placement constraints for the task
     placementConstraints: List[RequestParametersItem] | None = None
     #: The cluster on which to run the task
-    cluster: str
+    cluster: str | None = None
     #: The reason for the request
     reason: str | None = None
     #: When task execution stopped, if applicable
@@ -280,7 +278,7 @@ class ResponseElements(BaseModel):
     #: The endpoint URL
     endpoint: str | None = None
     #: Any failures that occurred during the API call
-    failures: Dict[str, Any] | None = None
+    failures: List[Dict[str, Any]] | None = None
     #: The telemetry endpoint URL
     telemetryEndpoint: str | None = None
     #: The tasks returned in the response

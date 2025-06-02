@@ -1,11 +1,9 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, Dict, List
+from datetime import datetime  # noqa: TC003
+from typing import Any, Dict, List
 
 from pydantic import BaseModel, Field
-
-if TYPE_CHECKING:
-    from datetime import datetime
 
 
 class AWSAPICallViaCloudTrailItem(BaseModel):
