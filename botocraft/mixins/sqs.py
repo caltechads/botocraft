@@ -4,6 +4,7 @@ from typing import TYPE_CHECKING, Any, Callable, Generator, List, Optional, Unio
 if TYPE_CHECKING:
     from botocraft.eventbridge import AbstractEventFactory, EventBridgeEvent
     from botocraft.services.abstract import PrimaryBoto3ModelQuerySet
+    from botocraft.services.sqs import Message
 
 
 # ----------
@@ -27,6 +28,29 @@ def queue_list_urls_to_queues(
         urls = func(*args, **kwargs)
         names = [url.split("/")[-1] for url in urls]
         return PrimaryBoto3ModelQuerySet([self.get(QueueName=name) for name in names])
+
+    return wrapper
+
+
+def queue_recieve_messages_add_queue_url(
+    func: Callable[..., List["Message"]],
+) -> Callable[..., List["Message"]]:
+    """
+    Wraps a boto3 method that receives messages from an SQS queue to return
+    a list of :py:class:`~botocraft.services.sqs.Message` objects with the
+    queue URL added.
+    """
+
+    @wraps(func)
+    def wrapper(*args, **kwargs) -> List["Message"]:
+        queue_url = args[1]
+        messages = func(*args, **kwargs)
+
+        if not messages:
+            return []
+        for message in messages:
+            message.QueueUrl = queue_url
+        return messages
 
     return wrapper
 
