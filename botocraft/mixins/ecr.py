@@ -139,7 +139,7 @@ def repo_list_add_tags(
             for repo in qs.results:
                 tags = self.get_tags(resourceArn=repo.arn)
                 if tags:
-                    repo.Tags = tags
+                    repo.tags = tags
         return qs
 
     return wrapper
@@ -164,7 +164,7 @@ def repo_get_add_tags(
         if "TAGS" in extras:
             tags = self.get_tags(resourceArn=repo.arn)
             if tags:
-                repo.Tags = tags
+                repo.tags = tags
         return repo
 
     return wrapper
