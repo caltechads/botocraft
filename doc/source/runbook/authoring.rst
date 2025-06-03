@@ -15,148 +15,78 @@ Solution
 Find the botocore service alias
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Find the official alias of the service in botocore github repository.  Look here
-for the list of services: `botocore/services
-<https://github.com/boto/botocore/tree/develop/botocore/data>`_.  The alias is
-the name of the directory in the ``botocore/data`` directory.
+``botocraft`` has a command line tool that can help you find the botocore service
+alias for the service you want to add.  Run the following command:
 
-.. important::
+.. code-block:: bash
 
-    The github listing in that folder will look like this:
+    botocraft botocore services
 
-    .. thumbnail:: /_static/images/botocore_services.png
-       :width: 100%
-       :alt: botocore services
-
-    Now that we see stuff like ``accessanalyzer/2019-11-01``.  The alias is the
-    bit before the slash.  So in this case, the alias is ``accessanalyzer``.
-
-    If there are more dated definitions for the service, then you won't see
-    the date in the alias.  For example, ``cloudfront``.  In that case, just
-    use the name of the directory.
-
-From now on we will refer to the service as ``<service_name>``.
+Look through the list of services and find the one you want to add.  From now on
+we will refer to the service as ``<service_name>``.
 
 Add the service to botocraft
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-* Add a ``botocraft/data/<service_name>`` directory.  If this service was is
-  named ``elasticache`` in the AWS SDK, then the directory would be
-  ``botocraft/data/elasticache``.
-* Add a ``models.yml`` file to the ``botocraft/data/<service_name>`` directory.
-  This is a list of primary and secondary models for the service.
-* Add a ``manager.yml`` file to the ``botocraft/data/<service_name>`` directory.
-  This is a list of manager definitions for the primary models of the service.
+.. code-block:: bash
+
+    botocraft botocore bootstrap <service_name>
+
+This will create a new directory in ``botocraft/data/<service_name>`` with the
+following files:
+
+* A ``models.yml`` file to the ``botocraft/data/<service_name>`` directory.
+  This will hold a list of primary and secondary models for the service.
+* A ``manager.yml`` file to the ``botocraft/data/<service_name>`` directory.
+  This will hold a list of manager definitions for the primary models of the service.
 
 Find a primary model for the service and add a model definition
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-For this we can use the ``botocraft inspect models`` command to help us.  This
-will parse the botocore definitions for the service and give us a list all
-models in the file and their fields.   It can be a long list, because there will
-be models for resources, for substructures used as types for resource fields,
-request and response structures, exceptions, etc.
+For this we can use the ``botocraft botocore primary-models`` command to help
+us.  This will parse the botocore definitions for the service and give us a list
+all models in the file and their fields.   It can be a long list, because there
+will be models for resources, for substructures used as types for resource
+fields, request and response structures, exceptions, etc.
 
+Here's an example of what the output looks like for the ``sns`` service:
 
 .. code-block:: bash
 
-    $ botocraft inspect models elasticache
-    APICallRateForCustomerExceededFault:
-    AddTagsToResourceMessage:
-        ResourceName: string -> String
-        Tags: list -> TagList
-    AllowedNodeTypeModificationsMessage:
-        ScaleUpModifications: list -> NodeTypeList
-        ScaleDownModifications: list -> NodeTypeList
-    Authentication:
-        Type: string -> AuthenticationType
-        PasswordCount: integer -> IntegerOptional
-    AuthenticationMode:
-        Type: string -> InputAuthenticationType
-        Passwords: list -> PasswordListInput
-    AuthorizationAlreadyExistsFault:
-    AuthorizationNotFoundFault:
-    AuthorizeCacheSecurityGroupIngressMessage:
-        CacheSecurityGroupName: string -> String
-        EC2SecurityGroupName: string -> String
-        EC2SecurityGroupOwnerId: string -> String
-    AuthorizeCacheSecurityGroupIngressResult:
-        CacheSecurityGroup: structure -> CacheSecurityGroup
-    AvailabilityZone:
-        Name: string -> String
-    BatchApplyUpdateActionMessage:
-        ReplicationGroupIds: list -> ReplicationGroupIdList
-        CacheClusterIds: list -> CacheClusterIdList
-        ServiceUpdateName: string -> String
-    BatchStopUpdateActionMessage:
-        ReplicationGroupIds: list -> ReplicationGroupIdList
-        CacheClusterIds: list -> CacheClusterIdList
-        ServiceUpdateName: string -> String
-    CacheCluster:
-        CacheClusterId: string -> String
-        ConfigurationEndpoint: structure -> Endpoint
-        ClientDownloadLandingPage: string -> String
-        CacheNodeType: string -> String
-        Engine: string -> String
-        EngineVersion: string -> String
-        CacheClusterStatus: string -> String
-        NumCacheNodes: integer -> IntegerOptional
-        PreferredAvailabilityZone: string -> String
-        PreferredOutpostArn: string -> String
-        CacheClusterCreateTime: timestamp -> TStamp
-        PreferredMaintenanceWindow: string -> String
-        PendingModifiedValues: structure -> PendingModifiedValues
-        NotificationConfiguration: structure -> NotificationConfiguration
-        CacheSecurityGroups: list -> CacheSecurityGroupMembershipList
-        CacheParameterGroup: structure -> CacheParameterGroupStatus
-        CacheSubnetGroupName: string -> String
-        CacheNodes: list -> CacheNodeList
-        AutoMinorVersionUpgrade: boolean -> Boolean
-        SecurityGroups: list -> SecurityGroupMembershipList
-        ReplicationGroupId: string -> String
-        SnapshotRetentionLimit: integer -> IntegerOptional
-        SnapshotWindow: string -> String
-        AuthTokenEnabled: boolean -> BooleanOptional
-        AuthTokenLastModifiedDate: timestamp -> TStamp
-        TransitEncryptionEnabled: boolean -> BooleanOptional
-        AtRestEncryptionEnabled: boolean -> BooleanOptional
-        ARN: string -> String
-        ReplicationGroupLogDeliveryEnabled: boolean -> Boolean
-        LogDeliveryConfigurations: list -> LogDeliveryConfigurationList
-        NetworkType: string -> NetworkType
-        IpDiscovery: string -> IpDiscovery
-        TransitEncryptionMode: string -> TransitEncryptionMode
+    $ botocraft botocore primary-models sns
+    PlatformApplication
+        create_platform_application
+        delete_platform_application
+        get_platform_application_attributes
+        list_endpoints_by_platform_application
+        list_platform_applications
+    Endpoint
+        create_platform_endpoint
+        delete_endpoint
+        get_endpoint_attributes
+    SMSSandboxPhoneNumber
+        create_smssandbox_phone_number
+        delete_smssandbox_phone_number
+        list_smssandbox_phone_numbers
+    Topic
+        create_topic
+        delete_topic
+        get_topic_attributes
+        list_topics
+    Subscription: [READONLY]
+        get_subscription_attributes
+        list_subscriptions
+        list_subscriptions_by_topic
+    Tag: [READONLY]
+        list_tags_for_resource
 
     ...
 
-The non-indented bits are the model names.  The indented bits are the fields of
-the model.
+The non-indented bits are the model names.  The indented bits are the boto3
+methods that (probably) act on the model.
 
 .. note::
 
-  Note that the field types here are botocore ``Shape`` names, which are either
-  simple types like ``Boolean``, ``String``, ``Integer``, etc., or they are
-  references to other models in the file (e.g. ``CacheParameterGroupStatus``)
-
-We look through the list and find a model that represents a primary resource
-for the service.  For this you'll have to use your judgement by looking at the
-``boto3`` documentation for the service and seeing what kind of operations exist
-and what they act on.
-
-.. hint::
-
-  Let's say we are looking at the ``elasticache`` service.  We look at the ``boto3``
-  docs and see operations like
-
-  * ``create_cache_cluster``
-  * ``delete_cache_cluster``
-  * ``describe_cache_clusters``
-  * ``modify_cache_cluster``
-  * ``reboot_cache_cluster``
-
-  So there's a good chance that the ``CacheCluster`` model is a primary model for
-  the service.
-
-Generally, looking for a ``describe_*`` operation is a good place to start -- it means
-there's at least a readonly resource that you can get details about, and that makes it
-a primary model.
+    This is really just a guess -- we look through all the model names, lowercase and snake-case them, then look for boto3 methods that
+    have that string in them.  This is not a perfect heuristic, but it works
+    as a starting point for finding the primary models for a service.

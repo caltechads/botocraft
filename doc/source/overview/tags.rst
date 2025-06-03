@@ -86,7 +86,7 @@ For details on these restrictions, consult the AWS documentation for the
 specific service you're working with.
 
 Creating Resources with Tags
----------------------------
+----------------------------
 
 You can also set tags when creating a new resource:
 
@@ -102,7 +102,7 @@ You can also set tags when creating a new resource:
     instance.save()
 
 The ``TagsDictMixin``
---------------------
+---------------------
 
 For advanced users and contributors, the tags functionality is implemented
 through the ``TagsDictMixin`` class. This mixin adds the tags dictionary
@@ -118,7 +118,7 @@ In most cases, you won't need to interact with these implementation details
 directly, as the tags dictionary interface provides a clean abstraction.
 
 Conclusion
----------
+----------
 
 The consistent tags dictionary interface in ``botocraft`` makes it easy to work
 with tags across different AWS services, without having to worry about the

@@ -16,7 +16,8 @@ we mean things in AWS that you manage via the AWS API.  For example,
 There are three types of models in botocraft:
 
 Primary models
-  These are models that you can perform AWS API operations on directly.
+  These are models that you can perform AWS API operations on directly.  These are the
+  resources mentioned above.
 
 Secondary models
   These are models that are used to build out the sub-structure of primary
