@@ -1,5 +1,6 @@
 import re
 from collections import OrderedDict
+from pathlib import Path
 from textwrap import (
     indent as add_prefix,
 )
@@ -315,7 +316,7 @@ class ShapePrinter:
             )
         elif shape.type_name == "blob":
             output = self.render_blob(
-                cast("botocore.model.Shape", shape),
+                cast("botocore.model.Shape", shape),  # type: ignore[arg-type]
                 indent=indent,
                 prefix=prefix,
             )
@@ -583,3 +584,44 @@ def botocore_list_primary_models(service: str):
         click.echo(f"{click.style(model, fg='red')}{label}")
         for operation in operations:
             click.secho(f"    {camel_to_snake(operation)}", fg="cyan")
+
+
+@botocore_group.command(
+    "bootstrap",
+    short_help=(
+        "Bootstrap a botocore service model with empty yaml files in botocore/data"
+    ),
+)
+@click.argument("service")
+def botocore_bootstrap(service: str) -> None:
+    """
+    Bootstrap a botocore service model with empty yaml files in botocore/data.
+
+    First, run ``botocraft botocore services`` to list available services, and
+    find the botocore name for the service you want to bootstrap.  Then, run
+    this command to create the necessary files for the service.
+
+    Finally, go edit the files in `botocore/data/<service>` to add the primary
+    model definitions and any other necessary information.
+
+    Args:
+        service: the name of the botocore service to bootstrap
+
+    """
+    path = Path(__file__).resolve().parent.parent / "data" / service
+    if not path.exists():
+        path.mkdir(parents=True, exist_ok=False)
+    else:
+        click.secho(f"Path {path} already exists, not creating it.", fg="red")
+    models_yaml = path / "models.yaml"
+    models_yaml.touch(exist_ok=True)
+    managers_yaml = path / "managers.yaml"
+    managers_yaml.touch(exist_ok=True)
+    click.secho(
+        f"Created {models_yaml} and {managers_yaml}",
+        fg="green",
+    )
+    click.secho(
+        "Now edit the files to add the primary model definitions and their managers.",
+        fg="white",
+    )
