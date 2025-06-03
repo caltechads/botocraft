@@ -1,6 +1,6 @@
 [project]
 name = "botocraft"
-version = "0.17.2"
+version = "0.17.3"
 authors = [
     {name = "Caltech IMSS ADS", email = "imss-ads-staff@caltech.edu"},
 ]
@@ -36,7 +36,7 @@ dependencies = [
   "docker >= 7.1.0",
   "ipython >= 8.36.0",
   "psutil>=7.0.0",
-  "markdownify >= 0.17.2",
+  "markdownify >= 0.17.3",
   "pyyaml >= 6.0.2",
   "docformatter >= 1.7.5",
 ]
