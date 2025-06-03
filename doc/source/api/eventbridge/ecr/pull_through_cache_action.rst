@@ -12,7 +12,7 @@ for more information on when this might be emitted.
 Primary Model
 -------------
 
-.. autopydantic_model:: botocraft.eventbridge.ecr.ECRPullThroughCacheAction
+.. autopydantic_model:: botocraft.eventbridge.ecr.ECRPullThroughCacheActionEvent
     :show-inheritance:
     :inherited-members:
     :exclude-members: update_forward_refs, model_extra, model_fields_set, validate, schema_json, model_rebuild, model_post_init, model_parametrized_name, model_json_schema, copy, from_orm, dict, json, schema, schema_json, model_dump
@@ -21,7 +21,7 @@ Primary Model
 Raw Event Models from AWS Schema
 --------------------------------
 
-.. automodule:: botocraft.eventbridge.ecr.raw.ecr_pull_through_cache_action
+.. automodule:: botocraft.eventbridge.ecr.raw.pull_through_cache_action
     :members:
     :undoc-members:
     :show-inheritance:
