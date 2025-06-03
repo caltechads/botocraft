@@ -140,7 +140,7 @@ class ECSServiceActionEvent(EventBridgeEvent, RawECSServiceActionEvent):
         cluster_name = self.detail.clusterArn.split("/")[-1]
         service_names = [resource.split("/")[-1] for resource in self.resources or []]
         return (
-            f"<Event: ECS Task State Change: account={self.account}, "
+            f"<Event: ECS Service Action: account={self.account}, "
             f"source={self.source}, "
             f"time={self.time}, "
             f"region={self.region}, "
