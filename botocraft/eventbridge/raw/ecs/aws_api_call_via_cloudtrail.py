@@ -23,7 +23,7 @@ class RequestParametersItem1(BaseModel):
     #: The exit code of the container, if it has exited
     exitCode: float | None = None
     #: The network bindings for the container
-    networkBindings: List[Dict[str, Any]]
+    networkBindings: List[Dict[str, Any]] | None = None
     #: The status of the container
     status: str
 
@@ -215,7 +215,7 @@ class UserIdentity(BaseModel):
     """Represents the identity of the user that initiated the ECS API call."""
 
     #: The context of the session
-    sessionContext: SessionContext
+    sessionContext: SessionContext | None = None
     #: The access key ID used for the request
     accessKeyId: str
     #: The AWS account ID of the user
@@ -293,9 +293,9 @@ class AWSAPICallViaCloudTrail(BaseModel):
     """
 
     #: The API response
-    responseElements: ResponseElements
+    responseElements: ResponseElements | None = None
     #: The API request
-    requestParameters: RequestParameters
+    requestParameters: RequestParameters | None = None
     #: The identity of the user that initiated the event
     userIdentity: UserIdentity
     #: The ID of the event

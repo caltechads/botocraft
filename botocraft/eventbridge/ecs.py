@@ -363,6 +363,8 @@ class ECSAWSAPICallViaCloudTrailEvent(
         from botocraft.services.ecs import Cluster
 
         clusters: list[Cluster] = []
+        if not self.detail.responseElements:
+            return clusters
         if not self.detail.responseElements.tasks:
             return clusters
         for task in self.detail.responseElements.tasks:
@@ -379,6 +381,8 @@ class ECSAWSAPICallViaCloudTrailEvent(
         from botocraft.services.ecs import TaskDefinition
 
         task_definitions: list[TaskDefinition] = []
+        if not self.detail.responseElements:
+            return task_definitions
         if not self.detail.responseElements.tasks:
             return task_definitions
         for task in self.detail.responseElements.tasks:
@@ -397,6 +401,8 @@ class ECSAWSAPICallViaCloudTrailEvent(
         from botocraft.services.ecs import Task
 
         tasks: list[Task] = []
+        if not self.detail.responseElements:
+            return tasks
         if not self.detail.responseElements.tasks:
             return tasks
         for task in self.detail.responseElements.tasks:
@@ -415,6 +421,8 @@ class ECSAWSAPICallViaCloudTrailEvent(
         from botocraft.services.ecs import ContainerInstance
 
         container_instances: list[ContainerInstance] = []
+        if not self.detail.responseElements:
+            return container_instances
         if not self.detail.responseElements.tasks:
             return container_instances
         for task in self.detail.responseElements.tasks:
