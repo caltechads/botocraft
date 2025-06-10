@@ -128,6 +128,15 @@ TaskDefinition:
       boto3_name: deregister_task_definition
     get:
       boto3_name: describe_task_definition
+      response_attr: >-
+        None
+      decorators:
+        - name: ecs_task_definition_include_tags
+          import_path: botocraft.mixins.ecs
+      args:
+        include:
+          default: >-
+            ["TAGS"]
     list:
       boto3_name: list_task_definitions
       response_attr: taskDefinitionArns
