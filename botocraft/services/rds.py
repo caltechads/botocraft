@@ -8,17 +8,17 @@ from .abstract import (
     Boto3ModelManager,
     ReadonlyBoto3ModelManager,
 )
-from botocraft.services.ec2 import SecurityGroup, SecurityGroupManager
-from botocraft.services.ec2 import Vpc, VpcManager
-from functools import cached_property
-from botocraft.services.common import Tag
-from .abstract import PrimaryBoto3ModelQuerySet
-from botocraft.mixins.tags import TagsDictMixin
 from botocraft.services.common import Filter
-from pydantic import Field
-from datetime import datetime
-from collections import OrderedDict
+from .abstract import PrimaryBoto3ModelQuerySet
 from typing import ClassVar, Type, Optional, Literal, Dict, List, Union, Any, cast
+from datetime import datetime
+from botocraft.services.ec2 import Vpc, VpcManager
+from collections import OrderedDict
+from botocraft.services.common import Tag
+from botocraft.services.ec2 import SecurityGroup, SecurityGroupManager
+from functools import cached_property
+from pydantic import Field
+from botocraft.mixins.tags import TagsDictMixin
 
 # ===============
 # Managers

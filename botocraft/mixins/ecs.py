@@ -114,6 +114,28 @@ def ecs_clusters_only(
     return wrapper
 
 
+def ecs_task_definition_include_tags(
+    func: Callable[..., Optional["TaskDefinition"]],
+) -> Callable[..., Optional["TaskDefinition"]]:
+    """
+    Decorator to convert a :py:class:`botocraft.services.ecs.TaskDefinition` object
+    to a :py:class:`botocraft.services.ecs.TaskDefinition` object with tags included.
+    """
+
+    @wraps(func)
+    def wrapper(self, *args, **kwargs) -> Optional["TaskDefinition"]:
+        response = func(self, *args, **kwargs)
+        if not response:
+            return None
+        # If we got a TaskDefinition object, we need to convert it to a
+        # TaskDefinition with tags.
+        _td = response.taskDefinition
+        _td.tags = response.tags
+        return cast("TaskDefinition", _td)
+
+    return wrapper
+
+
 def ecs_task_definitions_only(
     func: Callable[..., List[str]],
 ) -> Callable[..., "PrimaryBoto3ModelQuerySet"]:
@@ -127,7 +149,18 @@ def ecs_task_definitions_only(
         from botocraft.services.abstract import PrimaryBoto3ModelQuerySet
 
         identifiers = func(self, *args, **kwargs)
-        tds = [self.get(identifier, include=["TAGS"]) for identifier in identifiers]
+        responses = [
+            self.get(identifier, include=["TAGS"]) for identifier in identifiers
+        ]
+        tds = []
+        for response in responses:
+            if not response:
+                continue
+            # If we got a TaskDefinition object, we need to convert it to a
+            # TaskDefinition with tags.
+            _td = response.taskDefinition
+            _td.tags = response.tags
+            tds.append(_td)
         return PrimaryBoto3ModelQuerySet(tds)
 
     return wrapper

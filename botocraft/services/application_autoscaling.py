@@ -8,16 +8,16 @@ from .abstract import (
     Boto3ModelManager,
     ReadonlyBoto3ModelManager,
 )
-from functools import cached_property
-from botocraft.mixins.application_autoscaling import scaling_policy_only
-from botocraft.mixins.application_autoscaling import scalable_target_only
 from .abstract import PrimaryBoto3ModelQuerySet
-from botocraft.mixins.tags import TagsDictMixin
-from pydantic import Field
-from datetime import datetime
-from botocraft.mixins.application_autoscaling import ScalableTargetModelMixin
-from collections import OrderedDict
+from botocraft.mixins.application_autoscaling import scalable_target_only
 from typing import ClassVar, Type, Optional, Literal, Dict, List, Union, Any, cast
+from botocraft.mixins.application_autoscaling import ScalableTargetModelMixin
+from datetime import datetime
+from collections import OrderedDict
+from botocraft.mixins.application_autoscaling import scaling_policy_only
+from functools import cached_property
+from pydantic import Field
+from botocraft.mixins.tags import TagsDictMixin
 
 # ===============
 # Managers

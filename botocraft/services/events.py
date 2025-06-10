@@ -8,18 +8,18 @@ from .abstract import (
     Boto3ModelManager,
     ReadonlyBoto3ModelManager,
 )
-from functools import cached_property
-from botocraft.mixins.events import DescribeRuleResponse_to_EventRule
-from botocraft.services.common import Tag
-from botocraft.mixins.events import DescribeEventBusResponse_to_EventBus
 from .abstract import PrimaryBoto3ModelQuerySet
-from botocraft.mixins.tags import TagsDictMixin
-from botocraft.mixins.events import EventRule_purge_CreatedBy_attribute
-from pydantic import Field
+from botocraft.mixins.events import DescribeEventBusResponse_to_EventBus
+from typing import ClassVar, Type, Optional, Literal, Dict, List, Union, Any, cast
 from botocraft.mixins.events import event_rules_only
+from botocraft.mixins.events import EventRule_purge_CreatedBy_attribute
 from datetime import datetime
 from collections import OrderedDict
-from typing import ClassVar, Type, Optional, Literal, Dict, List, Union, Any, cast
+from botocraft.mixins.events import DescribeRuleResponse_to_EventRule
+from botocraft.services.common import Tag
+from functools import cached_property
+from pydantic import Field
+from botocraft.mixins.tags import TagsDictMixin
 
 # ===============
 # Managers
