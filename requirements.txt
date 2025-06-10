@@ -10,6 +10,8 @@ autodoc-pydantic==2.2.0
     # via botocraft (pyproject.toml:docs)
 babel==2.17.0
     # via sphinx
+beautifulsoup4==4.13.4
+    # via markdownify
 boto3==1.38.25
     # via botocraft (pyproject.toml)
 botocore==1.38.25
@@ -22,7 +24,9 @@ certifi==2025.4.26
 cfgv==3.4.0
     # via pre-commit
 charset-normalizer==3.4.2
-    # via requests
+    # via
+    #   docformatter
+    #   requests
 click==8.2.1
     # via botocraft (pyproject.toml)
 decorator==5.2.1
@@ -31,6 +35,8 @@ diagrams==0.24.4
     # via botocraft (pyproject.toml:docs)
 distlib==0.3.9
     # via virtualenv
+docformatter==1.7.7
+    # via botocraft (pyproject.toml)
 docker==7.1.0
     # via botocraft (pyproject.toml)
 docutils==0.19
@@ -66,6 +72,8 @@ jmespath==1.0.1
     #   boto3
     #   botocore
 jsonpath-ng==1.7.0
+    # via botocraft (pyproject.toml)
+markdownify==1.1.0
     # via botocraft (pyproject.toml)
 markupsafe==3.0.2
     # via jinja2
@@ -114,7 +122,9 @@ python-dateutil==2.9.0.post0
 python-dotenv==1.1.0
     # via pydantic-settings
 pyyaml==6.0.2
-    # via pre-commit
+    # via
+    #   botocraft (pyproject.toml)
+    #   pre-commit
 requests==2.32.3
     # via
     #   docker
@@ -125,9 +135,13 @@ s3transfer==0.13.0
 setuptools==80.9.0
     # via botocraft (pyproject.toml:docs)
 six==1.17.0
-    # via python-dateutil
+    # via
+    #   markdownify
+    #   python-dateutil
 snowballstemmer==3.0.1
     # via sphinx
+soupsieve==2.7
+    # via beautifulsoup4
 sphinx==6.2.1
     # via
     #   botocraft (pyproject.toml:docs)
@@ -163,6 +177,7 @@ typeguard==4.4.2
     # via inflect
 typing-extensions==4.13.2
     # via
+    #   beautifulsoup4
     #   ipython
     #   pydantic
     #   pydantic-core
@@ -172,6 +187,8 @@ typing-inspection==0.4.1
     # via
     #   pydantic
     #   pydantic-settings
+untokenize==0.1.1
+    # via docformatter
 urllib3==2.4.0
     # via
     #   botocore
