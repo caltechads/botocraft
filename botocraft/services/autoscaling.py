@@ -35,7 +35,8 @@ class AutoScalingGroupManager(Boto3ModelManager):
         self,
         model: "AutoScalingGroup",
         InstanceId: str | None = None,
-        LifecycleHookSpecificationList: List["LifecycleHookSpecification"] | None = None,
+        LifecycleHookSpecificationList: List["LifecycleHookSpecification"]
+        | None = None,
         SkipZonalShiftValidation: bool | None = None,
     ) -> None:
         """
@@ -734,7 +735,9 @@ class AutoScalingInstanceRequirements(Boto3Model):
     """
     The minimum and maximum instance memory size for an instance type, in MiB.
     """
-    CpuManufacturers: List[Literal["intel", "amd", "amazon-web-services", "apple"]] | None = None
+    CpuManufacturers: (
+        List[Literal["intel", "amd", "amazon-web-services", "apple"]] | None
+    ) = None
     """
     Lists which specific CPU manufacturers to include.
     """
@@ -851,17 +854,20 @@ class AutoScalingInstanceRequirements(Boto3Model):
     The minimum and maximum number of accelerators (GPUs, FPGAs, or Amazon Web Services
     Inferentia chips) for an instance type.
     """
-    AcceleratorManufacturers: List[Literal["nvidia", "amd", "amazon-web-services", "xilinx"]] | None = None
+    AcceleratorManufacturers: (
+        List[Literal["nvidia", "amd", "amazon-web-services", "xilinx"]] | None
+    ) = None
     """
     Indicates whether instance types must have accelerators by specific manufacturers.
     """
-    AcceleratorNames: List[Literal["a100", "v100", "k80", "t4", "m60", "radeon-pro-v520", "vu9p"]] | None = None
+    AcceleratorNames: (
+        List[Literal["a100", "v100", "k80", "t4", "m60", "radeon-pro-v520", "vu9p"]]
+        | None
+    ) = None
     """
     Lists the accelerators that must be on an instance type.
     """
-    AcceleratorTotalMemoryMiB: AutoScalingAcceleratorTotalMemoryMiBRequest | None = (
-        None
-    )
+    AcceleratorTotalMemoryMiB: AutoScalingAcceleratorTotalMemoryMiBRequest | None = None
     """
     The minimum and maximum total memory size for the accelerators on an instance type,
     in MiB.
@@ -876,7 +882,9 @@ class AutoScalingInstanceRequirements(Boto3Model):
 
     All other instance types are ignored, even if they match your specified attributes.
     """
-    BaselinePerformanceFactors: AutoScalingBaselinePerformanceFactorsRequest | None = None
+    BaselinePerformanceFactors: AutoScalingBaselinePerformanceFactorsRequest | None = (
+        None
+    )
     """
     The baseline performance factors for the instance requirements.
     """
@@ -1276,7 +1284,9 @@ class AutoScalingAvailabilityZoneDistribution(Boto3Model):
     Describes an Availability Zone distribution.
     """
 
-    CapacityDistributionStrategy: Literal["balanced-only", "balanced-best-effort"] | None = None
+    CapacityDistributionStrategy: (
+        Literal["balanced-only", "balanced-best-effort"] | None
+    ) = None
     """
     If launches fail in an Availability Zone, the following strategies are available.
 
@@ -1294,7 +1304,9 @@ class AutoScalingAvailabilityZoneImpairmentPolicy(Boto3Model):
     """
     If ``true``, enable zonal shift for your Auto Scaling group.
     """
-    ImpairedZoneHealthCheckBehavior: Literal["ReplaceUnhealthy", "IgnoreUnhealthy"] | None = None
+    ImpairedZoneHealthCheckBehavior: (
+        Literal["ReplaceUnhealthy", "IgnoreUnhealthy"] | None
+    ) = None
     """
     Specifies the health check behavior for the impaired Availability Zone in an active
     zonal shift.
@@ -1332,7 +1344,15 @@ class AutoScalingCapacityReservationSpecification(Boto3Model):
     ``CapacityReservationPreference``, do not specify a ``CapacityReservationTarget``.
     """
 
-    CapacityReservationPreference: Literal["capacity-reservations-only", "capacity-reservations-first", "none", "default"] | None = None
+    CapacityReservationPreference: (
+        Literal[
+            "capacity-reservations-only",
+            "capacity-reservations-first",
+            "none",
+            "default",
+        ]
+        | None
+    ) = None
     """
     The capacity reservation preference.
 
@@ -1509,17 +1529,19 @@ operation is in progress.
     """
     An instance maintenance policy.
     """
-    AvailabilityZoneDistribution: AutoScalingAvailabilityZoneDistribution | None = (
-        None
-    )
+    AvailabilityZoneDistribution: AutoScalingAvailabilityZoneDistribution | None = None
     """
     The instance capacity distribution across Availability Zones.
     """
-    AvailabilityZoneImpairmentPolicy: AutoScalingAvailabilityZoneImpairmentPolicy | None = None
+    AvailabilityZoneImpairmentPolicy: (
+        AutoScalingAvailabilityZoneImpairmentPolicy | None
+    ) = None
     """
     The Availability Zone impairment policy.
     """
-    CapacityReservationSpecification: AutoScalingCapacityReservationSpecification | None = None
+    CapacityReservationSpecification: (
+        AutoScalingCapacityReservationSpecification | None
+    ) = None
     """
     The capacity reservation specification.
     """

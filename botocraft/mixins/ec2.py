@@ -10,6 +10,8 @@ from zoneinfo import ZoneInfo
 
 import psutil
 
+from botocraft.services.abstract import PrimaryBoto3ModelQuerySet
+
 if TYPE_CHECKING:
     from botocraft.services import (
         AMI,
@@ -19,7 +21,6 @@ if TYPE_CHECKING:
         Tag,
         TagSpecification,
     )
-    from botocraft.services.abstract import PrimaryBoto3ModelQuerySet
 
 
 #: The EC2 resource types.  We need this for specifying the proper tag for
@@ -184,7 +185,7 @@ class EC2TagsManagerMixin:
             ``None``.
 
         """
-        from botocraft.services import TagSpecification
+        from botocraft.services import TagSpecification  # noqa: PLC0415
 
         if tags is None:
             return None
@@ -614,7 +615,11 @@ class AMIModelMixin:
             A list of :py:class:`Finding` objects.
 
         """
-        from botocraft.services import FilterCriteria, Finding, StringFilter
+        from botocraft.services import (  # noqa: PLC0415
+            FilterCriteria,
+            Finding,
+            StringFilter,
+        )
 
         return Finding.objects.using(self.session).list(  # type: ignore[attr-defined]
             FilterCriteria(
@@ -642,7 +647,11 @@ class SubnetModelMixin:
             A list of :py:class:`Finding` objects.
 
         """
-        from botocraft.services import FilterCriteria, Finding, StringFilter
+        from botocraft.services import (  # noqa: PLC0415
+            FilterCriteria,
+            Finding,
+            StringFilter,
+        )
 
         return Finding.objects.using(self.session).list(  # type: ignore[attr-defined]
             filterCriteria=FilterCriteria(
@@ -670,7 +679,11 @@ class VpcModelMixin:
             A list of :py:class:`Finding` objects.
 
         """
-        from botocraft.services import FilterCriteria, Finding, StringFilter
+        from botocraft.services import (  # noqa: PLC0415
+            FilterCriteria,
+            Finding,
+            StringFilter,
+        )
 
         return Finding.objects.using(self.session).list(  # type: ignore[attr-defined]
             filterCriteria=FilterCriteria(
