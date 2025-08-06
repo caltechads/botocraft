@@ -599,11 +599,10 @@ class AMIModelMixin:
         """
         Return ``True`` if the AMI is in use by a running or stopped instance.
         """
-        from botocraft.services import Filter, Instance
-
-        _filters = [Filter(Name="image-id", Values=[self.ImageId])]  # type: ignore[attr-defined]
-        instances: List[Instance] = Instance.objects.all(Filters=_filters)
-        return bool(instances)
+        ids = self.objects.in_use(image_id=self.ImageId).values_list(  # type: ignore[attr-defined]
+            "ImageId", flat=True
+        )
+        return self.ImageId in ids  # type: ignore[attr-defined]
 
     @property
     def vulnerabilities(self) -> "PrimaryBoto3ModelQuerySet":
