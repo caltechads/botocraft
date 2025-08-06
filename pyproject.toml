@@ -188,6 +188,7 @@ ignore = [
     "S101",   # stop bugging me about asserts
     "N802",   # stop bugging me about camelCase names -- AWS uses camelCase
     "N815",   # stop bugging me about camelCase names -- AWS uses camelCase
+    "PLC0415"  # stop bugging me about imports not at top level -- we need this to avoid circular imports
 ]
 
 # Allow fix for all enabled rules (when `--fix`) is provided.
