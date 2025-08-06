@@ -154,6 +154,7 @@ primary:
         readonly: true
       Platform:
         readonly: true
+        python_type: Literal["Windows"] | None
       PlatformDetails:
         readonly: true
       UsageOperation:

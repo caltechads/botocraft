@@ -3103,7 +3103,7 @@ class AMI(TagsDictMixin, AMIModelMixin, PrimaryBoto3Model):
 
     Only applicable for machine images.
     """
-    Platform: Literal["Windows"] = Field(default=None, frozen=True)
+    Platform: Literal["Windows"] | None = Field(default=None, frozen=True)
     """
     This value is set to ``windows`` for Windows AMIs; otherwise, it is blank.
     """
