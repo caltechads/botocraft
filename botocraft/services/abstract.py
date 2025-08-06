@@ -656,6 +656,14 @@ class PrimaryBoto3ModelQuerySet:
             return new_results
         return self.__class__(new_results)
 
+    def __add__(
+        self, other: "PrimaryBoto3ModelQuerySet"
+    ) -> "PrimaryBoto3ModelQuerySet":
+        """
+        Add two querysets together.
+        """
+        return self.__class__(self.results + other.results)
+
 
 class Boto3ModelManagerFilter:
     """
