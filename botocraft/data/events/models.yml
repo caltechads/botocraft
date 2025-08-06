@@ -128,5 +128,5 @@ secondary:
     alternate_name: EventsAwsVpcConfiguration
   CapacityProviderStrategyItem:
     alternate_name: EventsCapacityProviderStrategyItem
-
-
+  LogConfig:
+    alternate_name: EventsLogConfig
