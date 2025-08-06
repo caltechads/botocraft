@@ -491,15 +491,17 @@ class SecurityGroupModelMixin:
 
 
 class AMIManagerMixin:
-    def in_use(
+    def in_use(  # noqa: PLR0912
         self,
         owners: List[str] | None = None,
         tags: Dict[str, str] | None = None,
         created_since: datetime | None = None,
-    ) -> List["AMI"]:
+        image_id: str | None = None,
+    ) -> "PrimaryBoto3ModelQuerySet":
         """
         Return a list of AMIs that are currently in use by a running or stopped
-        instance.
+        instance, or by an autoscaling group's launch configuration or launch
+        template.
 
         Keyword Args:
             owners: Scopes the results to images with the specified owners. You
@@ -510,9 +512,17 @@ class AMIManagerMixin:
                 default is ``self``.
             tags: Filters the AMIs to those who match the these tags.
             created_since: Filters the AMIs to those created since this date.
+            image_id: Filters the AMIs to those with the specified image ID.
 
         """
-        from botocraft.services import Filter, Instance
+        from botocraft.services import (  # noqa: PLC0415
+            AutoScalingGroup,
+            Filter,
+            Instance,
+            LaunchConfiguration,
+            LaunchTemplateVersion,
+            ResponseLaunchTemplateData,
+        )
 
         _owners = owners if owners else ["self"]
         _filters: List[Filter] | None = None
@@ -532,7 +542,10 @@ class AMIManagerMixin:
             _filters.append(
                 Filter(Name="creation-date", Values=[created_since.isoformat()])
             )
-        amis = self.list(Owners=_owners, Filters=_filters)  # type: ignore[attr-defined]
+        if not image_id:
+            amis = self.list(Owners=_owners, Filters=_filters)  # type: ignore[attr-defined]
+        else:
+            amis = [image_id]
         _filters = [Filter(Name="image-id", Values=[ami.ImageId for ami in amis])]
         instances: List[Instance] = Instance.objects.list(Filters=_filters)
         in_use_amis: List["AMI"] = []  # noqa: UP037
@@ -541,7 +554,43 @@ class AMIManagerMixin:
                 if instance.ImageId == ami.ImageId:
                     if ami not in in_use_amis:
                         in_use_amis.append(ami)
-        return list(in_use_amis)
+        # Now search for any AMIs that are used by an autoscaling group
+        _asg_filters = []
+        if tags:
+            for tag in tags:
+                _asg_filters.append(Filter(Name=f"tag:{tag}", Values=[tags[tag]]))  # noqa: PERF401
+        autoscaling_groups = AutoScalingGroup.objects.list(Filters=_asg_filters)
+        for autoscaling_group in autoscaling_groups:
+            autoscaling_group = cast("AutoScalingGroup", autoscaling_group)
+            for ami in amis:
+                # First check if the AMI is used by a launch configuration
+                if autoscaling_group.LaunchConfigurationName:
+                    if (
+                        cast(
+                            "LaunchConfiguration",
+                            autoscaling_group.launch_configuration,
+                        ).ImageId
+                        == ami.ImageId
+                    ):
+                        if ami not in in_use_amis:
+                            in_use_amis.append(ami)
+                    continue
+                # If there's no launch configuration, then the ASG uses a launch
+                # template.  Check if the AMI is used by the launch template.
+                template = cast(
+                    "LaunchTemplateVersion", autoscaling_group.launch_template
+                )
+                if template:
+                    if (
+                        cast(
+                            "ResponseLaunchTemplateData", template.LaunchTemplateData
+                        ).ImageId
+                        == ami.ImageId
+                    ):
+                        if ami not in in_use_amis:
+                            in_use_amis.append(ami)
+
+        return PrimaryBoto3ModelQuerySet(in_use_amis)  # type: ignore[arg-type]
 
 
 class AMIModelMixin:
