@@ -2,9 +2,10 @@
 from functools import wraps
 from typing import TYPE_CHECKING, Callable, List, Optional
 
+from botocraft.services.abstract import PrimaryBoto3ModelQuerySet
+
 if TYPE_CHECKING:
     from botocraft.services import DescribeRuleResponse, EventBus, EventRule
-    from botocraft.services.abstract import PrimaryBoto3ModelQuerySet
 
 
 def event_rules_only(
@@ -18,8 +19,6 @@ def event_rules_only(
 
     @wraps(func)
     def wrapper(self, *args, **kwargs) -> "PrimaryBoto3ModelQuerySet":
-        from botocraft.services.abstract import PrimaryBoto3ModelQuerySet
-
         names = func(self, *args, **kwargs)
         events = [self.get(name) for name in names]
         return PrimaryBoto3ModelQuerySet(events)

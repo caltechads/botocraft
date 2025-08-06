@@ -179,8 +179,48 @@ class QueueManager(QueueManagerMixin, Boto3ModelManager):
         self,
         QueueUrl: str,
         *,
-        AttributeNames: List[Literal["All", "Policy", "VisibilityTimeout", "MaximumMessageSize", "MessageRetentionPeriod", "ApproximateNumberOfMessages", "ApproximateNumberOfMessagesNotVisible", "CreatedTimestamp", "LastModifiedTimestamp", "QueueArn", "ApproximateNumberOfMessagesDelayed", "DelaySeconds", "ReceiveMessageWaitTimeSeconds", "RedrivePolicy", "FifoQueue", "ContentBasedDeduplication", "KmsMasterKeyId", "KmsDataKeyReusePeriodSeconds", "DeduplicationScope", "FifoThroughputLimit", "RedriveAllowPolicy", "SqsManagedSseEnabled"]] | None = None,
-        MessageSystemAttributeNames: List[Literal["All", "SenderId", "SentTimestamp", "ApproximateReceiveCount", "ApproximateFirstReceiveTimestamp", "SequenceNumber", "MessageDeduplicationId", "MessageGroupId", "AWSTraceHeader", "DeadLetterQueueSourceArn"]] | None = None,
+        AttributeNames: List[
+            Literal[
+                "All",
+                "Policy",
+                "VisibilityTimeout",
+                "MaximumMessageSize",
+                "MessageRetentionPeriod",
+                "ApproximateNumberOfMessages",
+                "ApproximateNumberOfMessagesNotVisible",
+                "CreatedTimestamp",
+                "LastModifiedTimestamp",
+                "QueueArn",
+                "ApproximateNumberOfMessagesDelayed",
+                "DelaySeconds",
+                "ReceiveMessageWaitTimeSeconds",
+                "RedrivePolicy",
+                "FifoQueue",
+                "ContentBasedDeduplication",
+                "KmsMasterKeyId",
+                "KmsDataKeyReusePeriodSeconds",
+                "DeduplicationScope",
+                "FifoThroughputLimit",
+                "RedriveAllowPolicy",
+                "SqsManagedSseEnabled",
+            ]
+        ]
+        | None = None,
+        MessageSystemAttributeNames: List[
+            Literal[
+                "All",
+                "SenderId",
+                "SentTimestamp",
+                "ApproximateReceiveCount",
+                "ApproximateFirstReceiveTimestamp",
+                "SequenceNumber",
+                "MessageDeduplicationId",
+                "MessageGroupId",
+                "AWSTraceHeader",
+                "DeadLetterQueueSourceArn",
+            ]
+        ]
+        | None = None,
         MessageAttributeNames: List[str] | None = None,
         MaxNumberOfMessages: int | None = None,
         VisibilityTimeout: int | None = None,
@@ -360,7 +400,10 @@ class MessageManager(Boto3ModelManager):
         *,
         DelaySeconds: int | None = None,
         MessageAttributes: Dict[str, "MessageAttributeValue"] | None = None,
-        MessageSystemAttributes: Dict[Literal["AWSTraceHeader"], "MessageSystemAttributeValue"] | None = None,
+        MessageSystemAttributes: Dict[
+            Literal["AWSTraceHeader"], "MessageSystemAttributeValue"
+        ]
+        | None = None,
         MessageDeduplicationId: str | None = None,
         MessageGroupId: str | None = None,
     ) -> str:
@@ -697,7 +740,24 @@ class Message(MessageModelMixin, PrimaryBoto3Model):
     """
     The message's contents (not URL-encoded).
     """
-    Attributes: Dict[Literal["All", "SenderId", "SentTimestamp", "ApproximateReceiveCount", "ApproximateFirstReceiveTimestamp", "SequenceNumber", "MessageDeduplicationId", "MessageGroupId", "AWSTraceHeader", "DeadLetterQueueSourceArn"], str] | None = None
+    Attributes: (
+        Dict[
+            Literal[
+                "All",
+                "SenderId",
+                "SentTimestamp",
+                "ApproximateReceiveCount",
+                "ApproximateFirstReceiveTimestamp",
+                "SequenceNumber",
+                "MessageDeduplicationId",
+                "MessageGroupId",
+                "AWSTraceHeader",
+                "DeadLetterQueueSourceArn",
+            ],
+            str,
+        ]
+        | None
+    ) = None
     """
     A map of the attributes requested in  ``ReceiveMessage``  to their respective
     values.
@@ -863,7 +923,9 @@ class SendMessageBatchRequestEntry(Boto3Model):
     `Amazon SQS message attributes <https://docs.aws.amazon.com/AWSSimpleQueueService/latest/SQSDeveloperGuide/sqs-message-metadata.html#sqs-
     message-attributes>`_ in the *Amazon SQS Developer Guide*.
     """
-    MessageSystemAttributes: Dict[Literal["AWSTraceHeader"], "MessageSystemAttributeValue"] | None = None
+    MessageSystemAttributes: (
+        Dict[Literal["AWSTraceHeader"], "MessageSystemAttributeValue"] | None
+    ) = None
     """
     The message system attribute to send Each message system attribute consists of a
     ``Name``, ``Type``, and ``Value``.

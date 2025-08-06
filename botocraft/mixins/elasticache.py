@@ -3,10 +3,10 @@ from typing import TYPE_CHECKING, List, cast
 
 import boto3
 
+from botocraft.services.abstract import PrimaryBoto3ModelQuerySet
+
 if TYPE_CHECKING:
     from botocraft.services import (
-        CacheCluster,
-        CacheSecurityGroup,
         CacheSecurityGroupMembership,
     )
 
@@ -51,7 +51,7 @@ class CacheClusterModelMixin:
     CacheSecurityGroups: List["CacheSecurityGroupMembership"]
 
     @property
-    def security_groups(self) -> List["CacheSecurityGroup"]:
+    def security_groups(self) -> "PrimaryBoto3ModelQuerySet":
         """
         List all the :py:class:`CacheCluster` objects that are part of this
         replication group.
@@ -60,10 +60,12 @@ class CacheClusterModelMixin:
         from botocraft.services import CacheSecurityGroup
 
         names = [x.CacheSecurityGroupName for x in self.CacheSecurityGroups]
-        return [
-            CacheSecurityGroup.objects.using(self.session).get(group_name)
-            for group_name in names
-        ]
+        return PrimaryBoto3ModelQuerySet(
+            [
+                CacheSecurityGroup.objects.using(self.session).get(group_name)
+                for group_name in names
+            ]
+        )  # type: ignore[arg-type]
 
     @cached_property
     def hostname(self) -> str:
@@ -115,7 +117,7 @@ class ReplicationGroupModelMixin:
     MemberClusters: List[str]
 
     @cached_property
-    def clusters(self) -> List["CacheCluster"]:
+    def clusters(self) -> "PrimaryBoto3ModelQuerySet":
         """
         List all the :py:class:`CacheCluster` objects that are part of this
         replication group.
@@ -123,10 +125,12 @@ class ReplicationGroupModelMixin:
         # We have to do the actual import here to avoid circular imports
         from botocraft.services import CacheCluster
 
-        return [
-            CacheCluster.objects.using(self.session).get(cluster_id)
-            for cluster_id in self.MemberClusters
-        ]
+        return PrimaryBoto3ModelQuerySet(
+            [
+                CacheCluster.objects.using(self.session).get(cluster_id)
+                for cluster_id in self.MemberClusters
+            ]
+        )  # type: ignore[arg-type]
 
     @property
     def engine_version(self) -> str:

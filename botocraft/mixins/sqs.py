@@ -1,9 +1,10 @@
 from functools import wraps
 from typing import TYPE_CHECKING, Any, Callable, Generator, List, Optional, Union
 
+from botocraft.services.abstract import PrimaryBoto3ModelQuerySet
+
 if TYPE_CHECKING:
     from botocraft.eventbridge import AbstractEventFactory, EventBridgeEvent
-    from botocraft.services.abstract import PrimaryBoto3ModelQuerySet
     from botocraft.services.sqs import Message
 
 
@@ -22,8 +23,6 @@ def queue_list_urls_to_queues(
 
     @wraps(func)
     def wrapper(*args, **kwargs) -> "PrimaryBoto3ModelQuerySet":
-        from botocraft.services.abstract import PrimaryBoto3ModelQuerySet
-
         self = args[0]
         urls = func(*args, **kwargs)
         names = [url.split("/")[-1] for url in urls]
@@ -34,51 +33,51 @@ def queue_list_urls_to_queues(
 
 def queue_recieve_messages_add_queue_url(
     func: Callable[..., List["Message"]],
-) -> Callable[..., List["Message"]]:
+) -> Callable[..., "PrimaryBoto3ModelQuerySet"]:
     """
     Wraps a boto3 method that receives messages from an SQS queue to return
-    a list of :py:class:`~botocraft.services.sqs.Message` objects with the
+    a queryset of :py:class:`~botocraft.services.sqs.Message` objects with the
     queue URL added.
     """
 
     @wraps(func)
-    def wrapper(*args, **kwargs) -> List["Message"]:
+    def wrapper(*args, **kwargs) -> "PrimaryBoto3ModelQuerySet":
         queue_url = args[1]
         messages = func(*args, **kwargs)
 
         if not messages:
-            return []
+            return PrimaryBoto3ModelQuerySet([])
         for message in messages:
             message.QueueUrl = queue_url
-        return messages
+        return PrimaryBoto3ModelQuerySet(messages)  # type: ignore[arg-type]
 
     return wrapper
 
 
 def queue_recieve_messages_add_event_factory(
     func: Callable[..., List["Message"]],
-) -> Callable[..., List["Message"]]:
+) -> Callable[..., "PrimaryBoto3ModelQuerySet"]:
     """
     Wraps a boto3 method that receives messages from an SQS queue to return
-    a list of :py:class:`~botocraft.services.sqs.Message` objects with the
+    a queryset of :py:class:`~botocraft.services.sqs.Message` objects with the
     EventFactoryClass added.  This is useful for converting the message body
     to an event object.
     """
 
     @wraps(func)
-    def wrapper(*args, **kwargs) -> List["Message"]:
+    def wrapper(*args, **kwargs) -> "PrimaryBoto3ModelQuerySet":
         from botocraft.eventbridge import EventFactory
 
         event_factory_class = kwargs.pop("EventFactoryClass", None)
         messages = func(*args, **kwargs)
 
         if not messages:
-            return []
+            return PrimaryBoto3ModelQuerySet([])
         if not event_factory_class:
             event_factory_class = EventFactory
         for message in messages:
             message.EventFactoryClass = event_factory_class
-        return messages
+        return PrimaryBoto3ModelQuerySet(messages)  # type: ignore[arg-type]
 
     return wrapper
 

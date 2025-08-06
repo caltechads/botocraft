@@ -2,15 +2,16 @@
 
 import time
 from collections import OrderedDict
-from typing import TYPE_CHECKING, ClassVar, List
+from typing import TYPE_CHECKING, ClassVar
 
 import boto3
 from botocore.exceptions import WaiterError
 
+from botocraft.services.abstract import PrimaryBoto3ModelQuerySet
+
 if TYPE_CHECKING:
     from botocraft.services import (
         AutoScalingGroupManager,
-        Instance,
     )
 
 
@@ -41,7 +42,7 @@ class AutoScalingGroupModelMixin:
     MaxSize: int
 
     @property
-    def ec2_instances(self) -> List["Instance"]:
+    def ec2_instances(self) -> PrimaryBoto3ModelQuerySet:
         """
         Return the running :py:class:`Instance` objects that belong to this
         group, if any.
@@ -59,8 +60,8 @@ class AutoScalingGroupModelMixin:
                     {"Name": "instance-state-name", "Values": ["running"]},
                 ]
             )
-            return Instance.objects.using(self.session).list(**pk)
-        return []
+            return Instance.objects.using(self.session).list(**pk)  # type: ignore[attr-defined]
+        return PrimaryBoto3ModelQuerySet([])
 
     @property
     def is_stable(self) -> bool:

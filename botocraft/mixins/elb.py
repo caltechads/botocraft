@@ -5,9 +5,10 @@ from typing import TYPE_CHECKING, Callable, Dict, List, Optional, cast
 
 import boto3
 
+from botocraft.services.abstract import PrimaryBoto3ModelQuerySet
+
 if TYPE_CHECKING:
-    from botocraft.services import ClassicELB, Instance
-    from botocraft.services.abstract import PrimaryBoto3ModelQuerySet
+    from botocraft.services import ClassicELB
 
 
 # ----------
@@ -111,6 +112,7 @@ def add_tags_for_list(
 
     @wraps(func)
     def wrapper(self, *args, **kwargs) -> "PrimaryBoto3ModelQuerySet":
+        # Avoid circular import
         from botocraft.services import ClassicELB
 
         elbs = func(self, *args, **kwargs)
@@ -240,7 +242,7 @@ class ClassicELBManagerMixin:
         from botocraft.services import (
             AdditionalAttribute,
             ClassicELBCrossZoneLoadBalancing,
-            LoadBalancerAttributes,
+            ClassicELBLoadBalancerAttributes,
         )
 
         additional_attributes = None
@@ -249,7 +251,7 @@ class ClassicELBManagerMixin:
                 AdditionalAttribute(Key=key, Value=value)
                 for key, value in elb.AdditionalAttributes.items()
             ]
-        attrs = LoadBalancerAttributes(
+        attrs = ClassicELBLoadBalancerAttributes(
             CrossZoneLoadBalancing=ClassicELBCrossZoneLoadBalancing(
                 Enabled=elb.CrossZoneLoadBalancing
             ),
@@ -544,14 +546,16 @@ class ClassicELBModelMixin:
     """
 
     @property
-    def ec2_instances(self) -> List["Instance"]:
+    def ec2_instances(self) -> "PrimaryBoto3ModelQuerySet":
         """
         List all the :py:class:`Instance` objects that are part of this ELB.
         """
         # We have to do the actual import here to avoid circular imports
         from botocraft.services import Instance
 
-        return [
-            Instance.objects.using(self.session).get(instance_id)
-            for instance_id in self.Instances
-        ]
+        return PrimaryBoto3ModelQuerySet(
+            [
+                Instance.objects.using(self.session).get(instance_id)
+                for instance_id in self.Instances
+            ]
+        )  # type: ignore[arg-type]

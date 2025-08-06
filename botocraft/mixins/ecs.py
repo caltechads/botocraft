@@ -6,18 +6,17 @@ from typing import TYPE_CHECKING, Callable, Dict, List, Literal, Optional, Set, 
 
 import click
 
+from botocraft.services.abstract import PrimaryBoto3ModelQuerySet
+
 if TYPE_CHECKING:
     from botocraft.services import (
         Cluster,
-        ContainerInstance,
-        LoadBalancer,
         Service,
         ServiceDeploymentBrief,
         Task,
         TaskDefinition,
         TaskManager,
     )
-    from botocraft.services.abstract import PrimaryBoto3ModelQuerySet  # noqa: TC004
 
 
 # ---------
@@ -64,8 +63,6 @@ def ecs_services_only(
 
     @wraps(func)
     def wrapper(self, *args, **kwargs) -> "PrimaryBoto3ModelQuerySet":
-        from botocraft.services.abstract import PrimaryBoto3ModelQuerySet
-
         arns = func(self, *args, **kwargs)
         services = []
         # We have to do this in batches of 10 because the get_many method,
@@ -97,8 +94,6 @@ def ecs_clusters_only(
 
     @wraps(func)
     def wrapper(self, *args, **kwargs) -> "PrimaryBoto3ModelQuerySet":
-        from botocraft.services.abstract import PrimaryBoto3ModelQuerySet
-
         arns = func(self, *args, **kwargs)
         clusters: list[Cluster] = []
         # We have to do this in batches of 100 because the get_many method,
@@ -146,8 +141,6 @@ def ecs_task_definitions_only(
 
     @wraps(func)
     def wrapper(self, *args, **kwargs) -> "PrimaryBoto3ModelQuerySet":
-        from botocraft.services.abstract import PrimaryBoto3ModelQuerySet
-
         identifiers = func(self, *args, **kwargs)
         responses = [
             self.get(identifier, include=["TAGS"]) for identifier in identifiers
@@ -179,8 +172,6 @@ def ecs_container_instances_only(
     """
 
     def wrapper(self, *args, **kwargs) -> "PrimaryBoto3ModelQuerySet":
-        from botocraft.services.abstract import PrimaryBoto3ModelQuerySet
-
         arns = func(self, *args, **kwargs)
         container_instances = []
         for i in range(0, len(arns), 100):
@@ -207,13 +198,14 @@ def ecs_container_instances_tasks_only(
 
     @wraps(func)
     def wrapper(self, *args, **kwargs) -> "PrimaryBoto3ModelQuerySet":
-        from botocraft.services.abstract import PrimaryBoto3ModelQuerySet
         from botocraft.services.ecs import Task
 
         arns = func(self, *args, **kwargs)
-        tasks = []
+        tasks: list[Task] = []
         for i in range(0, len(arns), 100):
-            tasks.extend(cast("TaskManager", Task.objects).get_many(arns[i : i + 100]))
+            tasks.extend(
+                cast("TaskManager", Task.objects).get_many(arns[i : i + 100]).results  # type: ignore[arg-type]
+            )
         return PrimaryBoto3ModelQuerySet(tasks)  # type: ignore[arg-type]
 
     return wrapper
@@ -229,7 +221,10 @@ def ecs_service_deployments_only(
 
     @wraps(func)
     def wrapper(self, *args, **kwargs) -> "PrimaryBoto3ModelQuerySet":
-        from botocraft.services.ecs import ServiceDeployment, ServiceDeploymentManager
+        from botocraft.services.ecs import (
+            ServiceDeployment,
+            ServiceDeploymentManager,
+        )
 
         response = func(self, *args, **kwargs)
         if response is None:
@@ -281,8 +276,8 @@ def ecs_task_populate_taskDefinition(
 
 
 def ecs_task_populate_taskDefinitions(
-    func: Callable[..., List["Task"]],
-) -> Callable[..., List["Task"]]:
+    func: Callable[..., "PrimaryBoto3ModelQuerySet"],
+) -> Callable[..., "PrimaryBoto3ModelQuerySet"]:
     """
     Wraps :py:meth:`botocraft.services.ecs.TaskManager.get_many` to
     populate the :py:attr:`botocraft.services.ecs.Task.taskDefinition` attribute
@@ -295,7 +290,7 @@ def ecs_task_populate_taskDefinitions(
     """
 
     @wraps(func)
-    def wrapper(self, *args, **kwargs) -> List["Task"]:
+    def wrapper(self, *args, **kwargs) -> "PrimaryBoto3ModelQuerySet":
         tasks = func(self, *args, **kwargs)
         for task in tasks:
             task.taskDefinition = extract_task_family_and_revision(
@@ -306,7 +301,9 @@ def ecs_task_populate_taskDefinitions(
     return wrapper
 
 
-def ecs_tasks_only(func: Callable[..., List[str]]) -> Callable[..., List["Task"]]:
+def ecs_tasks_only(
+    func: Callable[..., List[str]],
+) -> Callable[..., "PrimaryBoto3ModelQuerySet"]:
     """
     Wrap :py:meth:`botocraft.services.ecs.TaskManager.list` to return a list of
     :py:class:`botocraft.services.ecs.Task` objects instead of only a list of
@@ -314,7 +311,7 @@ def ecs_tasks_only(func: Callable[..., List[str]]) -> Callable[..., List["Task"]
     """
 
     @wraps(func)
-    def wrapper(self, *args, **kwargs) -> List["Task"]:
+    def wrapper(self, *args, **kwargs) -> "PrimaryBoto3ModelQuerySet":
         arns = func(self, *args, **kwargs)
         tasks = []
         # We have to do this in batches of 100 because the get_many method,
@@ -324,7 +321,7 @@ def ecs_tasks_only(func: Callable[..., List[str]]) -> Callable[..., List["Task"]
             tasks.extend(
                 self.get_many(cluster=kwargs["cluster"], tasks=arns[i : i + 100])
             )
-        return tasks
+        return PrimaryBoto3ModelQuerySet(tasks)  # type: ignore[arg-type]
 
     return wrapper
 
@@ -370,12 +367,14 @@ class ECSServiceModelMixin:
         return int(memory)
 
     @property
-    def container_instances(self) -> List["ContainerInstance"]:
+    def container_instances(self) -> "PrimaryBoto3ModelQuerySet":
         """
         Return the :py:class:`botocraft.services.ecs.ContainerInstance` objects which
         are running our tasks for the service.
         """
-        return [task.container_instance for task in self.tasks]  # type: ignore[attr-defined]
+        return PrimaryBoto3ModelQuerySet(
+            [task.container_instance for task in self.tasks]  # type: ignore[attr-defined]
+        )
 
     @property
     def is_stable(self) -> bool:
@@ -441,7 +440,7 @@ class ECSServiceModelMixin:
             )
 
     @property
-    def load_balancers(self) -> List["LoadBalancer"]:
+    def load_balancers(self) -> "PrimaryBoto3ModelQuerySet":
         """
         Return the :py:class:`LoadBalancer` objects that are associated with the
         service.
@@ -456,7 +455,7 @@ class ECSServiceModelMixin:
             return LoadBalancer.objects.using(self.session).list(
                 LoadBalancerArns=list(arns)
             )
-        return []
+        return PrimaryBoto3ModelQuerySet([])  # type: ignore[arg-type]
 
 
 class ECSServiceManagerMixin:
@@ -470,7 +469,7 @@ class ECSServiceManagerMixin:
         launchType: Literal["EC2", "FARGATE", "EXTERNAL"] | None = None,  # noqa: N803
         schedulingStrategy: Literal["REPLICA", "DAEMON"] | None = None,  # noqa: N803
         tags: Dict[str, str] | None = None,
-    ) -> List["Service"]:
+    ) -> "PrimaryBoto3ModelQuerySet":
         """
         Return all the services in the account.  This differs from
         :py:meth:`botocraft.services.ServiceManager.list` in that it iterates
@@ -508,7 +507,7 @@ class ECSServiceManagerMixin:
                         schedulingStrategy=schedulingStrategy,
                     )
                 )
-        return services
+        return PrimaryBoto3ModelQuerySet(services)  # type: ignore[arg-type]
 
 
 class ECSContainerInstanceModelMixin:
@@ -541,7 +540,7 @@ class TaskDefinitionManagerMixin:
         self,
         tags: Dict[str, str] | None = None,
         verbose: bool = False,
-    ) -> List["TaskDefinition"]:
+    ) -> "PrimaryBoto3ModelQuerySet":
         """
         Return a list of task definitions that are currently in use by a service
         or periodic task.  A periodic task is a task that is run via a
@@ -561,7 +560,11 @@ class TaskDefinitionManagerMixin:
             are currently in use.
 
         """
-        from botocraft.services import EventRule, Service, TaskDefinition
+        from botocraft.services import (
+            EventRule,
+            Service,
+            TaskDefinition,
+        )
 
         if not tags:
             tags = {}
@@ -614,7 +617,7 @@ class TaskDefinitionManagerMixin:
                     family_revision = task_definition.family_revision
                     if family_revision not in task_definitions:
                         task_definitions[family_revision] = task_definition
-        return list(task_definitions.values())
+        return PrimaryBoto3ModelQuerySet(list(task_definitions.values()))  # type: ignore[arg-type]
 
 
 class TaskDefinitionModelMixin:
@@ -674,7 +677,7 @@ class ServiceDeploymentModelMixin:
     """
 
     @property
-    def source_task_definitions(self) -> List["TaskDefinition"]:
+    def source_task_definitions(self) -> "PrimaryBoto3ModelQuerySet":
         """
         Return the task definition for the deployment.
         """
@@ -682,4 +685,6 @@ class ServiceDeploymentModelMixin:
 
         arns = [source.arn for source in self.sourceServiceRevisions]
 
-        return [TaskDefinition.objects.using(self.session).get(arn) for arn in arns]
+        return PrimaryBoto3ModelQuerySet(
+            [TaskDefinition.objects.using(self.session).get(arn) for arn in arns]
+        )  # type: ignore[arg-type]

@@ -25,11 +25,9 @@ if TYPE_CHECKING:
     from botocraft.services import (
         ECRImage,
         ECRImageManager,
-        Finding,
         ImageIdentifier,
         Repository,
         RepositoryManager,
-        Service,
         TaskDefinition,
     )
     from botocraft.services.abstract import PrimaryBoto3ModelQuerySet  # noqa: TC004
@@ -208,7 +206,7 @@ class RepositoryMixin:
     # properties
 
     @property
-    def images(self) -> List["ECRImage"] | None:
+    def images(self) -> "PrimaryBoto3ModelQuerySet":
         """
         Get a list of images for a given repository.
         """
@@ -312,7 +310,7 @@ class ECRImageManagerMixin:
         repositoryPrefix: str | None = None,  # noqa: N803
         tags: Dict[str, str] | None = None,
         verbose: bool = False,
-    ) -> List["ECRImage"]:
+    ) -> "PrimaryBoto3ModelQuerySet":
         """
         Return a list of :py:class:`botocraft.services.ECRImage` objects are
         currently in use by a service or periodic task.  A periodic task is a
@@ -442,7 +440,7 @@ class ECRImageManagerMixin:
 
         # TODO: We need to check other things that might use images, like Lambda
         # functions, when we get around to implementing the ``lambda`` service.
-        return list(used_images.values())
+        return PrimaryBoto3ModelQuerySet(list(used_images.values()))  # type: ignore[arg-type]
 
 
 class ECRImageMixin:
@@ -673,7 +671,7 @@ class ECRImageMixin:
         status: Literal["ACTIVE", "INACTIVE", "ALL"] | None = "ACTIVE",
         tags: Dict[str, str] | None = None,
         verbose: bool = False,
-    ) -> List["TaskDefinition"]:
+    ) -> "PrimaryBoto3ModelQuerySet":
         """
         Return a list of ECS task definitions that use this image.
 
@@ -724,14 +722,14 @@ class ECRImageMixin:
                     if tags.items() <= revision.tags.items()
                 ]
             )
-        return task_definitions
+        return PrimaryBoto3ModelQuerySet(task_definitions)  # type: ignore[arg-type]
 
     def services(
         self,
         status: Literal["ACTIVE", "INACTIVE", "ALL"] | None = "ACTIVE",
         tags: Dict[str, str] | None = None,
         verbose: bool = False,
-    ) -> List["Service"]:
+    ) -> "PrimaryBoto3ModelQuerySet":
         """
         Return a list of ECS Services that use this image.
 
@@ -776,10 +774,10 @@ class ECRImageMixin:
                     if tags.items() <= service.tags.items()
                 ]
             )
-        return services
+        return PrimaryBoto3ModelQuerySet(services)  # type: ignore[arg-type]
 
     @property
-    def vulnerabilities(self) -> List["Finding"]:
+    def vulnerabilities(self) -> "PrimaryBoto3ModelQuerySet":
         """
         Return a list of vulnerabilities for this image.  This is done by
         using the AWS Inspector2 service to scan the image and return the
@@ -799,7 +797,11 @@ class ECRImageMixin:
             A list of vulnerabilities for this image.
 
         """
-        from botocraft.services import FilterCriteria, Finding, StringFilter
+        from botocraft.services import (
+            FilterCriteria,
+            Finding,
+            StringFilter,
+        )
 
         return Finding.objects.using(self.session).list(  # type: ignore[attr-defined]
             filterCriteria=FilterCriteria(

@@ -1,13 +1,13 @@
 from functools import wraps
-from typing import TYPE_CHECKING, Callable, List, Optional
+from typing import TYPE_CHECKING, Callable, Optional
+
+from botocraft.services.abstract import PrimaryBoto3ModelQuerySet
 
 if TYPE_CHECKING:
-    from botocraft.services.abstract import PrimaryBoto3ModelQuerySet
     from botocraft.services.inspector2 import (
         CisScanConfiguration,
         DelegatedAdmin,
         DelegatedAdminAccount,
-        Vulnerability,
     )
 
 
@@ -54,7 +54,6 @@ def list_augment_delegated_admin_accounts(
 
     @wraps(func)
     def wrapper(*args, **kwargs) -> "PrimaryBoto3ModelQuerySet":
-        from botocraft.services.abstract import PrimaryBoto3ModelQuerySet
         from botocraft.services.inspector2 import DelegatedAdminAccount
 
         self = args[0]
@@ -129,7 +128,7 @@ class VulnerabilityManagerMixin:
     Mixin class for vulnerability model.
     """
 
-    def get(self, vulnerabilityId: str) -> List["Vulnerability"]:  # noqa: N803
+    def get(self, vulnerabilityId: str) -> "PrimaryBoto3ModelQuerySet":  # noqa: N803
         """
         Get a vulnerability by ID or name.
 
@@ -150,4 +149,4 @@ class VulnerabilityManagerMixin:
                 vulnerabilityIds=[vulnerabilityId]
             )
         )
-        return response.vulnerabilities
+        return PrimaryBoto3ModelQuerySet(response.vulnerabilities)  # type: ignore[arg-type]
