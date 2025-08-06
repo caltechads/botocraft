@@ -5,7 +5,7 @@ from contextlib import contextmanager
 from datetime import datetime
 from functools import wraps
 from ipaddress import ip_address
-from typing import TYPE_CHECKING, Callable, Dict, List, Literal, Optional, cast
+from typing import TYPE_CHECKING, Callable, List, Literal, Optional, cast
 from zoneinfo import ZoneInfo
 
 import psutil
@@ -158,9 +158,9 @@ def ec2_instance_only(
     return wrapper
 
 
-# -------------
-# Mixin classes
-# -------------
+# --------------
+# Manager mixins
+# --------------
 
 
 class EC2TagsManagerMixin:
@@ -185,11 +185,175 @@ class EC2TagsManagerMixin:
             ``None``.
 
         """
-        from botocraft.services import TagSpecification  # noqa: PLC0415
+        from botocraft.services import TagSpecification
 
         if tags is None:
             return None
         return TagSpecification(ResourceType=resource_type, Tags=tags)
+
+
+class AMIManagerMixin:
+    """
+    A mixin is used on :py:class:`botocraft.services.ec2.AMIManager` to add
+    miscellaneous methods to the class that are not normally part of the
+    object.
+    """
+
+    def _get_in_use_instance_amis(
+        self,
+        check_amis: list["AMI"],
+        amis: list["AMI"] | None = None,
+    ) -> list["AMI"]:
+        """
+        Return a list of AMIs that are in use by a running or stopped instance.
+
+        Args:
+            check_amis: the list of :py:class:`AMI` to check.
+
+        Keyword Args:
+            amis: the list of :py:class:`AMI` that have been identified so far as
+              being in use.
+
+        Returns:
+            A list of :py:class:`AMI` objects that are in use by a running or
+            stopped instance.
+
+        """
+        from botocraft.services import (
+            Filter,
+            Instance,
+        )
+
+        if not amis:
+            amis = []
+        found_amis: list[str] = Instance.objects.list(
+            Filters=[
+                Filter(Name="image-id", Values=[ami.ImageId for ami in check_amis])
+            ]
+        ).values_list("ImageId", flat=True)
+        amis.extend(
+            [ami for ami in check_amis if ami.ImageId in found_amis and ami not in amis]
+        )
+        return amis
+
+    def _get_in_use_asg_amis(
+        self,
+        check_amis: List["AMI"],
+        amis: List["AMI"] | None = None,
+    ) -> List["AMI"]:
+        """
+        Return a list of AMIs that are in use by an autoscaling group.
+        """
+        # Avoid circular import
+        from botocraft.services import (
+            AutoScalingGroup,
+            LaunchConfiguration,
+            LaunchTemplateVersion,
+            ResponseLaunchTemplateData,
+        )
+
+        if amis is None:
+            amis = []
+        # Now search for any AMIs that are used by an autoscaling group
+        autoscaling_groups = AutoScalingGroup.objects.list()
+        for autoscaling_group in autoscaling_groups:
+            autoscaling_group = cast("AutoScalingGroup", autoscaling_group)
+            for ami in check_amis:
+                # First check if the AMI is used by a launch configuration
+                if autoscaling_group.LaunchConfigurationName:
+                    if (
+                        cast(
+                            "LaunchConfiguration",
+                            autoscaling_group.launch_configuration,
+                        ).ImageId
+                        == ami.ImageId
+                    ):
+                        if ami not in amis:
+                            amis.append(ami)
+                    continue
+                # If there's no launch configuration, then the ASG uses a launch
+                # template.  Check if the AMI is used by the launch template.
+                template = cast(
+                    "LaunchTemplateVersion", autoscaling_group.launch_template
+                )
+                if template:
+                    if (
+                        cast(
+                            "ResponseLaunchTemplateData", template.LaunchTemplateData
+                        ).ImageId
+                        == ami.ImageId
+                    ):
+                        if ami not in amis:
+                            amis.append(ami)
+        return amis
+
+    def in_use(
+        self,
+        owners: list[str] | None = None,
+        tags: dict[str, str] | None = None,
+        created_since: datetime | None = None,
+        amis: list["AMI"] | None = None,
+    ) -> "PrimaryBoto3ModelQuerySet":
+        """
+        Return a list of AMIs that are currently in use by a running or stopped
+        instance, or by an autoscaling group's launch configuration or launch
+        template.
+
+        .. important::
+
+            We're not checking for AMIs in the following places:
+
+            - CloudFormation templates
+            - OpsWorks stacks
+            - Elastic Beanstalk environments
+            - Launch Template Versions not in use by an autoscaling group
+
+        Keyword Args:
+            owners: Scopes the results to AMIs with the specified owners. You
+                can specify a combination of Amazon Web Services account IDs,
+                ``self``, ``amazon``, and ``aws-marketplace``. If you omit this
+                parameter, the results include all images for which you have launch
+                permissions, regardless of ownership.  If not specified, the
+                default is ``self``.
+            tags: Filters the AMIs to those who match the these tags.
+            created_since: Filters the AMIs to those created since this date.
+            amis: Filters the AMIs to those in this list.  All other filters are
+                ignored if this is specified.
+
+        """
+        from botocraft.services import (
+            Filter,
+        )
+
+        _owners = owners if owners else ["self"]
+        if tags:
+            _filters = [
+                Filter(Name=f"tag:{key}", Values=[value]) for key, value in tags.items()
+            ]
+        if created_since:
+            # First convert the timezone to UTC if this is a timezone-aware
+            # datetime object.
+            if created_since.tzinfo:
+                created_since = created_since.astimezone(ZoneInfo("UTC"))
+            # Now append the filter to the list of filters for the AMI listing.
+            if _filters is None:
+                _filters = []
+            _filters.append(
+                Filter(Name="creation-date", Values=[created_since.isoformat()])
+            )
+        if amis is None:
+            check_amis = self.list(Owners=_owners, Filters=_filters)  # type: ignore[attr-defined]
+        else:
+            check_amis = amis
+
+        in_use_amis = self._get_in_use_instance_amis(check_amis)
+        in_use_amis = self._get_in_use_asg_amis(check_amis, amis=in_use_amis)
+        return PrimaryBoto3ModelQuerySet(in_use_amis)  # type: ignore[arg-type]
+
+
+# -------------
+# Model mixins
+# -------------
 
 
 class InstanceModelMixin:
@@ -491,109 +655,6 @@ class SecurityGroupModelMixin:
                     )
 
 
-class AMIManagerMixin:
-    def in_use(  # noqa: PLR0912
-        self,
-        owners: List[str] | None = None,
-        tags: Dict[str, str] | None = None,
-        created_since: datetime | None = None,
-        image_id: str | None = None,
-    ) -> "PrimaryBoto3ModelQuerySet":
-        """
-        Return a list of AMIs that are currently in use by a running or stopped
-        instance, or by an autoscaling group's launch configuration or launch
-        template.
-
-        Keyword Args:
-            owners: Scopes the results to images with the specified owners. You
-                can specify a combination of Amazon Web Services account IDs,
-                ``self``, ``amazon``, and ``aws-marketplace``. If you omit this
-                parameter, the results include all images for which you have launch
-                permissions, regardless of ownership.  If not specified, the
-                default is ``self``.
-            tags: Filters the AMIs to those who match the these tags.
-            created_since: Filters the AMIs to those created since this date.
-            image_id: Filters the AMIs to those with the specified image ID.
-
-        """
-        from botocraft.services import (  # noqa: PLC0415
-            AutoScalingGroup,
-            Filter,
-            Instance,
-            LaunchConfiguration,
-            LaunchTemplateVersion,
-            ResponseLaunchTemplateData,
-        )
-
-        _owners = owners if owners else ["self"]
-        _filters: List[Filter] | None = None
-        if tags:
-            _filters = [
-                Filter(Name=f"tag:{key}", Values=[value]) for key, value in tags.items()
-            ]
-
-        if created_since:
-            # First convert the timezone to UTC if this is a timezone-aware
-            # datetime object.
-            if created_since.tzinfo:
-                created_since = created_since.astimezone(ZoneInfo("UTC"))
-            # Now append the filter to the list of filters for the AMI listing.
-            if _filters is None:
-                _filters = []
-            _filters.append(
-                Filter(Name="creation-date", Values=[created_since.isoformat()])
-            )
-        if not image_id:
-            amis = self.list(Owners=_owners, Filters=_filters)  # type: ignore[attr-defined]
-        else:
-            amis = [image_id]
-        _filters = [Filter(Name="image-id", Values=[ami.ImageId for ami in amis])]
-        instances: List[Instance] = Instance.objects.list(Filters=_filters)
-        in_use_amis: List["AMI"] = []  # noqa: UP037
-        for instance in instances:
-            for ami in amis:
-                if instance.ImageId == ami.ImageId:
-                    if ami not in in_use_amis:
-                        in_use_amis.append(ami)
-        # Now search for any AMIs that are used by an autoscaling group
-        _asg_filters = []
-        if tags:
-            for tag in tags:
-                _asg_filters.append(Filter(Name=f"tag:{tag}", Values=[tags[tag]]))  # noqa: PERF401
-        autoscaling_groups = AutoScalingGroup.objects.list(Filters=_asg_filters)
-        for autoscaling_group in autoscaling_groups:
-            autoscaling_group = cast("AutoScalingGroup", autoscaling_group)
-            for ami in amis:
-                # First check if the AMI is used by a launch configuration
-                if autoscaling_group.LaunchConfigurationName:
-                    if (
-                        cast(
-                            "LaunchConfiguration",
-                            autoscaling_group.launch_configuration,
-                        ).ImageId
-                        == ami.ImageId
-                    ):
-                        if ami not in in_use_amis:
-                            in_use_amis.append(ami)
-                    continue
-                # If there's no launch configuration, then the ASG uses a launch
-                # template.  Check if the AMI is used by the launch template.
-                template = cast(
-                    "LaunchTemplateVersion", autoscaling_group.launch_template
-                )
-                if template:
-                    if (
-                        cast(
-                            "ResponseLaunchTemplateData", template.LaunchTemplateData
-                        ).ImageId
-                        == ami.ImageId
-                    ):
-                        if ami not in in_use_amis:
-                            in_use_amis.append(ami)
-
-        return PrimaryBoto3ModelQuerySet(in_use_amis)  # type: ignore[arg-type]
-
-
 class AMIModelMixin:
     @property
     def in_use(self) -> bool:
@@ -615,7 +676,7 @@ class AMIModelMixin:
             A list of :py:class:`Finding` objects.
 
         """
-        from botocraft.services import (  # noqa: PLC0415
+        from botocraft.services import (
             FilterCriteria,
             Finding,
             StringFilter,
@@ -647,7 +708,7 @@ class SubnetModelMixin:
             A list of :py:class:`Finding` objects.
 
         """
-        from botocraft.services import (  # noqa: PLC0415
+        from botocraft.services import (
             FilterCriteria,
             Finding,
             StringFilter,
@@ -679,7 +740,7 @@ class VpcModelMixin:
             A list of :py:class:`Finding` objects.
 
         """
-        from botocraft.services import (  # noqa: PLC0415
+        from botocraft.services import (
             FilterCriteria,
             Finding,
             StringFilter,
