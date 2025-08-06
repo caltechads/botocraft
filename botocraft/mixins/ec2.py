@@ -128,13 +128,13 @@ def ec2_instances_only(
 
     @wraps(func)
     def wrapper(*args, **kwargs) -> "PrimaryBoto3ModelQuerySet":
-        from botocraft.services.abstract import PrimaryBoto3ModelQuerySet
-
         qs = func(*args, **kwargs)
         instances: List["Instance"] = []  # noqa: UP037
-        for reservation in qs.results:
-            instances.extend(cast("List[Instance]", reservation.Instances))  # type: ignore[attr-defined]
-        return PrimaryBoto3ModelQuerySet(instances)  # type: ignore[arg-type]
+        if hasattr(qs, "results") and qs.results:
+            for reservation in qs.results:
+                instances.extend(cast("List[Instance]", reservation.Instances))  # type: ignore[attr-defined]
+            return PrimaryBoto3ModelQuerySet(instances)  # type: ignore[arg-type]
+        return PrimaryBoto3ModelQuerySet([])
 
     return wrapper
 
