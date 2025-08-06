@@ -145,7 +145,8 @@ class ModelRelationGenerator:
         Return the method body for a regex transformer.
         """
         assert self.property_def.transformer.regex is not None, (
-            f"Regex: no regex defined for property {self.property_name} on model {self.model_name}"
+            f"Regex: no regex defined for property {self.property_name} on "
+            f"model {self.model_name}"
         )
         if self.returns_many:
             code = f"""
@@ -172,7 +173,8 @@ class ModelRelationGenerator:
         Return the method body for a mapping transformer.
         """
         assert self.property_def.transformer.mapping is not None, (
-            f"Mapping: no mapping defined for property {self.property_name} on model {self.model_name}"
+            f"Mapping: no mapping defined for property {self.property_name} "
+            f"on model {self.model_name}"
         )
         self.generator.imports.add("from collections import OrderedDict")
         code = """

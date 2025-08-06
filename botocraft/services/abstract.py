@@ -990,7 +990,7 @@ class Boto3ModelManagerFilter:
             # Handle lists - automatically traverse all items
             if isinstance(value, (list, tuple)) and value:
                 # Get the remaining path to check
-                remaining_path = "__".join([part] + parts[i + 1 :])
+                remaining_path = "__".join([part, *parts[i + 1 :]])
 
                 # If this is the last part and all items have this attribute
                 if i == len(parts) - 1 and all(

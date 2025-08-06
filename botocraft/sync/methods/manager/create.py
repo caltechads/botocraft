@@ -28,10 +28,7 @@ class CreateMethodGenerator(ManagerMethodGenerator):
             The method signature for the method.
 
         """
-        if self.model_def.alternate_name:
-            model_name = self.model_def.alternate_name
-        else:
-            model_name = self.model_name
+        model_name = self.model_def.alternate_name or self.model_name
         signature = f'    def {self.method_name}(self, model: "{model_name}"'
         if self.explicit_args or self.explicit_kwargs:
             signature += ", "
