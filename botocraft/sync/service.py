@@ -775,6 +775,16 @@ class ModelGenerator(AbstractGenerator):
         """
         return self.{model_def.name_key}
 '''
+
+            if model_def.primary_key:
+                properties += f'''
+    def __hash__(self) -> int:
+        """
+        Return the hash of the model.   This is the value of the
+        :py:attr:`{model_def.primary_key}` attribute.
+        """
+        return hash(self.{model_def.primary_key})
+'''
         # Build any regular properties that were defined in the model definition
         for property_name in model_def.properties:
             if not properties:
