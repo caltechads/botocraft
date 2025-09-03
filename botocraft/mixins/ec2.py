@@ -326,6 +326,7 @@ class AMIManagerMixin:
         )
 
         _owners = owners if owners else ["self"]
+        _filters: list[Filter] = []
         if tags:
             _filters = [
                 Filter(Name=f"tag:{key}", Values=[value]) for key, value in tags.items()
@@ -336,8 +337,6 @@ class AMIManagerMixin:
             if created_since.tzinfo:
                 created_since = created_since.astimezone(ZoneInfo("UTC"))
             # Now append the filter to the list of filters for the AMI listing.
-            if _filters is None:
-                _filters = []
             _filters.append(
                 Filter(Name="creation-date", Values=[created_since.isoformat()])
             )
