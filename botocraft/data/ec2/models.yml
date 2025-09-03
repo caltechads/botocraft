@@ -195,6 +195,26 @@ primary:
           mapping:
             Filters: >-
               [{"Name": "image-id", "Values": [self.ImageId]}]
+    manager_methods:
+      enable_deregistration_protection:
+        manager_method: enable_deregistration_protection
+        docstring: >-
+          Enable deregistration protection for the AMI.
+        manager_method: enable_deregistration_protection
+        keyword_args:
+          - name: ImageId
+          - name: WithCooldown
+            value: "False"
+          - name: DryRun
+            value: "False"
+      disable_deregistration_protection:
+        manager_method: disable_deregistration_protection
+        docstring: >-
+          Disable deregistration protection for the AMI.
+        keyword_args:
+          - name: ImageId
+          - name: DryRun
+            value: "False"
   Instance:
     primary_key: InstanceId
     name_key: >-
@@ -595,3 +615,7 @@ secondary:
     alternate_name: EC2BaselinePerformanceFactors
   PublicIpDnsNameOptions:
     alternate_name: EC2PublicIpDnsNameOptions
+  EbsInstanceBlockDevice:
+    fields:
+      Status:
+        python_type: Literal["attaching", "attached", "detaching", "detached", "in-use"]
