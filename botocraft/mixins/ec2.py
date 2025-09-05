@@ -5,7 +5,7 @@ from contextlib import contextmanager
 from datetime import datetime
 from functools import wraps
 from ipaddress import ip_address
-from typing import TYPE_CHECKING, Callable, List, Literal, Optional, cast
+from typing import TYPE_CHECKING, Callable, Final, List, Literal, Optional, cast
 from zoneinfo import ZoneInfo
 
 import psutil
@@ -199,6 +199,9 @@ class AMIManagerMixin:
     object.
     """
 
+    #: The maximum number of filters that can be added to to :meth:`AMI.objects.list`.
+    MAX_AMI_FILTER_SIZE: Final[int] = 200
+
     def _get_in_use_instance_amis(
         self,
         check_amis: list["AMI"],
@@ -299,6 +302,9 @@ class AMIManagerMixin:
         instance, or by an autoscaling group's launch configuration or launch
         template.
 
+        If ``amis`` is specified, all other filters are ignored, because we expect
+        the user to know which AMIs they are submitting.
+
         .. important::
 
             We're not checking for AMIs in the following places:
@@ -340,8 +346,25 @@ class AMIManagerMixin:
             _filters.append(
                 Filter(Name="creation-date", Values=[created_since.isoformat()])
             )
-        if amis is None:
-            check_amis = self.list(Owners=_owners, Filters=_filters)  # type: ignore[attr-defined]
+        if amis is not None:
+            if len(amis) <= self.MAX_AMI_FILTER_SIZE:
+                _filters = [Filter(Name="image-id", Values=amis)]
+                check_amis = self.list(Filters=_filters)  # type: ignore[attr-defined]
+            else:
+                check_amis = []
+                for i in range(0, len(_filters), self.MAX_AMI_FILTER_SIZE):
+                    _filters = [
+                        Filter(
+                            Name="image-id",
+                            Values=amis[i : i + self.MAX_AMI_FILTER_SIZE],
+                        )
+                    ]
+                    check_amis.extend(
+                        self.list(  # type: ignore[attr-defined]
+                            Owners=_owners,
+                            Filters=_filters,
+                        )
+                    )
         else:
             check_amis = amis
 
