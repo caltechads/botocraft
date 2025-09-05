@@ -195,6 +195,14 @@ primary:
           mapping:
             Filters: >-
               [{"Name": "image-id", "Values": [self.ImageId]}]
+      snapshot:
+        primary_model_name: Snapshot
+        docstring: >-
+          Return the :py:class:`Snapshot` object that is associated with this image.
+        transformer:
+          mapping:
+            SnapshotId: >-
+              BlockDeviceMappings[0].Ebs.SnapshotId
     manager_methods:
       enable_deregistration_protection:
         manager_method: enable_deregistration_protection
@@ -500,6 +508,61 @@ primary:
           mapping:
             Filters: >-
               [{"Name": "instance-type", "Values": [self.InstanceType]}]
+  Snapshot:
+    primary_key: SnapshotId
+    name_key: >-
+      self.tags["Name"] if "Name" in self.tags else None
+    input_shapes:
+      - CreateSnapshotRequest
+    relations:
+      ami:
+        primary_model_name: AMI
+        docstring: >-
+          Return the :py:class:`AMI` object that this snapshot belongs to, if any.
+        transformer:
+          mapping:
+            ImageId: SnapshotId
+      instances:
+        primary_model_name: Instance
+        many: true
+        docstring: >-
+          Return the :py:class:`Instance` objects that this snapshot belongs to, if any.
+        transformer:
+          mapping:
+            Filters: >-
+              [{"Name": "block-device-mapping.snapshot-id", "Values": [self.SnapshotId]}]
+    manager_methods:
+      copy:
+        docstring: >-
+          Copy the snapshot.
+        manager_method: copy
+        args:
+          0:
+            name: SourceRegion
+            value: >-
+              self.SourceRegion
+          1:
+            name: SourceSnapshotId
+            value: >-
+              self.SourceSnapshotId
+      lock:
+        docstring: >-
+          Lock the snapshot.
+        manager_method: lock
+        args:
+          0:
+            name: SnapshotId
+            value: >-
+              self.SnapshotId
+      unlock:
+        docstring: >-
+          Unlock the snapshot.
+        manager_method: unlock
+        args:
+          0:
+            name: SnapshotId
+            value: >-
+              self.SnapshotId
 secondary:
   Monitoring:
     alternate_name: EC2DetailedMonitoring

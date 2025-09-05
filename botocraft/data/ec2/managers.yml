@@ -588,6 +588,101 @@ InstanceTypeInfo:
       args:
         DryRun:
           default: "False"
-
+Snapshot:
+  mixins:
+    - name: EC2TagsManagerMixin
+      import_path: botocraft.mixins.ec2
+  methods:
+    create:
+      boto3_name: create_snapshot
+      response_attr: None
+      args:
+        VolumeId:
+          required: true
+        TagSpecifications:
+          rename: Tags
+          python_type: Optional[List["Tag"]]
+          source_arg: >-
+            self.serialize(self.convert_tags(model.Tags, 'snapshot'))
+        DryRun:
+          default: "False"
+    get:
+      boto3_name: describe_snapshots
+      args:
+        Filters:
+          hidden: true
+        DryRun:
+          default: "False"
+        SnapshotIds:
+          required: true
+          rename: SnapshotId
+          python_type: str
+          source_arg: "[SnapshotId]"
+          docstring: >-
+            The IDs of the snapshots.
+    list:
+      boto3_name: describe_snapshots
+      args:
+        DryRun:
+          default: "False"
+    delete:
+      boto3_name: delete_snapshot
+      args:
+        SnapshotId:
+          required: true
+        DryRun:
+          default: "False"
+    enable_block_public_access:
+      boto3_name: enable_snapshot_block_public_access
+      response_attr: State
+      args:
+        DryRun:
+          default: "False"
+    disable_block_public_access:
+      boto3_name: disable_snapshot_block_public_access
+      response_attr: State
+      args:
+        DryRun:
+          default: "False"
+    get_public_access_block_state:
+      boto3_name: get_snapshot_block_public_access_state
+      response_attr: State
+      args:
+        DryRun:
+          default: "False"
+    lock:
+      boto3_name: lock_snapshot
+      response_attr: None
+      args:
+        SnapshotId:
+          required: true
+        LockMode:
+          required: true
+        DryRun:
+          default: "False"
+    list_locked:
+      boto3_name: describe_locked_snapshots
+      response_attr: Snapshots
+      args:
+        DryRun:
+          default: "False"
+    unlock:
+      boto3_name: unlock_snapshot
+      response_attr: SnapshotId
+      args:
+        SnapshotId:
+          required: true
+        DryRun:
+          default: "False"
+    copy:
+      boto3_name: copy_snapshot
+      response_attr: SnapshotId
+      args:
+        SourceSnapshotId:
+          required: true
+        SourceRegion:
+          required: true
+        DryRun:
+          default: "False"
 
 
