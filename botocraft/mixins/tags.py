@@ -171,10 +171,9 @@ class TagsDictMixin:
         assert self.tag_class is not None, (
             "The tag_class class attribute must be set before using tags."
         )
-        instance = self.tag_class()
         candidates = ["key", "Key"]
         for candidate in candidates:
-            if hasattr(instance, candidate):
+            if candidate in self.tag_class.__fields__:
                 return candidate
         msg = f"Could not find a key attribute in {self.tag_class.__name__}"
         raise RuntimeError(msg)
@@ -187,10 +186,9 @@ class TagsDictMixin:
         assert self.tag_class is not None, (
             "The tag_class class attribute must be set before using tags."
         )
-        instance = self.tag_class()
         candidates = ["value", "Value"]
         for candidate in candidates:
-            if hasattr(instance, candidate):
+            if candidate in self.tag_class.__fields__:
                 return candidate
         msg = f"Could not find a value attribute in {self.tag_class.__name__}"
         raise RuntimeError(msg)
