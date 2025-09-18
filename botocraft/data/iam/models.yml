@@ -1,0 +1,462 @@
+---
+primary:
+  AccessKey:
+    alternate_name: IAMAccessKey
+    name_key: AccessKeyId
+    primary_key: AccessKeyId
+    input_shapes:
+      - CreateAccessKeyRequest
+      - UpdateAccessKeyRequest
+    relations:
+      user:
+        primary_model_name: IAMUser
+        docstring: >-
+          Return the :py:class:`User` object that this access key belongs to.
+        transformer:
+          mapping:
+            UserName: UserName
+    manager_methods:
+      last_used:
+        manager_method: last_used
+        docstring: >-
+          Return the :py:class:`AccessKeyLastUsed` object that this access key was last used.
+        args:
+          0:
+            name: AccessKeyId
+            value: >-
+              cast(str, self.AccessKeyId)
+  Group:
+    alternate_name: IAMGroup
+    name_key: GroupName
+    arn_key: Arn
+    primary_key: GroupName
+    input_shapes:
+      - CreateGroupRequest
+      - UpdateGroupRequest
+    relations:
+      users:
+        primary_model_name: IAMUser
+        many: true
+        docstring: >-
+          Return the :py:class:`User` objects that are members of this group.
+        transformer:
+          mapping:
+            GroupName: GroupName
+    manager_methods:
+      add_user:
+        manager_method: add_user
+        docstring: >-
+          Add a user to this group.
+        args:
+          0:
+            name: GroupName
+            value: >-
+              cast(str, self.GroupName)
+        user_args:
+          1:
+            name: UserName
+            attr_type: str
+            value: >-
+              cast(str, self.UserName)
+      remove_user:
+        manager_method: remove_user
+        docstring: >-
+          Remove a user from this group.
+        args:
+          0:
+            name: GroupName
+            value: >-
+              cast(str, self.GroupName)
+        user_args:
+          1:
+            name: UserName
+            attr_type: str
+            value: >-
+              cast(str, self.UserName)
+      attach_policy:
+        manager_method: attach_policy
+        docstring: >-
+          Attach a policy to this group.
+        args:
+          0:
+            name: GroupName
+            value: >-
+              cast(str, self.GroupName)
+        user_args:
+          1:
+            name: PolicyArn
+            attr_type: str
+            value: >-
+              cast(str, self.PolicyArn)
+      detach_policy:
+        manager_method: detach_policy
+        docstring: >-
+          Detach a policy from this group.
+        args:
+          0:
+            name: GroupName
+            value: >-
+              cast(str, self.GroupName)
+        user_args:
+          1:
+            name: PolicyArn
+            attr_type: str
+            value: >-
+              cast(str, self.PolicyArn)
+      put_inline_policy:
+        manager_method: put_policy
+        docstring: >-
+          Put an inline policy to this group.
+        args:
+          0:
+            name: GroupName
+            value: >-
+              cast(str, self.GroupName)
+        user_args:
+          1:
+            name: PolicyName
+            attr_type: str
+            value: >-
+              cast(str, self.PolicyName)
+          2:
+            name: PolicyDocument
+            attr_type: str
+            value: >-
+              cast(str, self.PolicyDocument)
+      remove_inline_policy:
+        manager_method: delete_policy
+        docstring: >-
+          Remove an inline policy from this group.
+        args:
+          0:
+            name: GroupName
+            value: >-
+              cast(str, self.GroupName)
+        user_args:
+          1:
+            name: PolicyName
+            value: >-
+              cast(str, self.PolicyName)
+      attached_policies:
+        manager_method: list_attached_policies
+        many: true
+        docstring: >-
+          Return the :py:class:`Policy` objects that are attached to this group.
+        args:
+          0:
+            name: GroupName
+            value: >-
+              cast(str, self.GroupName)
+      inline_policies:
+        manager_method: list_policies
+        many: true
+        docstring: >-
+          Return the :py:class:`Policy` objects that are inline policies of this group.
+        args:
+          0:
+            name: GroupName
+            value: >-
+              cast(str, self.GroupName)
+  InstanceProfile:
+    name_key: InstanceProfileName
+    arn_key: Arn
+    primary_key: InstanceProfileName
+    input_shapes:
+      - CreateInstanceProfileRequest
+  LoginProfile:
+    alternate_name: IAMLoginProfile
+    name_key: UserName
+    primary_key: UserName
+    input_shapes:
+      - CreateLoginProfileRequest
+      - UpdateLoginProfileRequest
+  Policy:
+    alternate_name: IAMPolicy
+    name_key: PolicyName
+    arn_key: Arn
+    primary_key: Arn
+    input_shapes:
+      - CreatePolicyRequest
+    mixins:
+      - name: IAMPolicyMixin
+        import_path: botocraft.mixins.iam
+    manager_methods:
+      entities:
+        manager_method: list_entities
+        docstring: >-
+          Return the :py:class:`Entity` objects that are entities of this policy.
+        args:
+          0:
+            name: PolicyArn
+            value: >-
+              cast(str, self.Arn)
+      versions:
+        manager_method: list_versions
+        docstring: >-
+          Return the :py:class:`PolicyVersion` objects that are versions of this policy.
+        args:
+          0:
+            name: PolicyArn
+            value: >-
+              cast(str, self.Arn)
+      set_default_version:
+        manager_method: set_default_version
+        docstring: >-
+          Set the default version of this policy.
+        args:
+          0:
+            name: PolicyArn
+            value: >-
+              cast(str, self.Arn)
+        user_args:
+          1:
+            name: VersionId
+            attr_type: str
+  PolicyVersion:
+    alternate_name: IAMPolicyVersion
+    name_key: VersionId
+    primary_key: VersionId
+    input_shapes:
+      - CreatePolicyVersionRequest
+  Role:
+    alternate_name: IAMRole
+    name_key: RoleName
+    arn_key: Arn
+    primary_key: RoleName
+    input_shapes:
+      - CreateRoleRequest
+      - UpdateRoleRequest
+    fields:
+      AssumeRolePolicyDocument:
+        python_type: >-
+          dict[str, Any]
+    manager_methods:
+      attached_policies:
+        manager_method: list_attached_policies
+        many: true
+        docstring: >-
+          Return the :py:class:`Policy` objects that are attached to this role.
+        args:
+          0:
+            name: RoleName
+            value: >-
+              cast(str, self.RoleName)
+      inline_policies:
+        manager_method: list_policies
+        many: true
+        docstring: >-
+          Return the :py:class:`Policy` objects that are inline policies of this role.
+        args:
+          0:
+            name: RoleName
+            value: >-
+              cast(str, self.RoleName)
+      instance_profiles:
+        manager_method: list_instance_profiles
+        many: true
+        docstring: >-
+          Return the :py:class:`InstanceProfile` objects that are instance profiles of this role.
+        args:
+          0:
+            name: RoleName
+            value: >-
+              cast(str, self.RoleName)
+      update_assume_role_policy:
+        manager_method: update_assume_role_policy
+        docstring: >-
+          Update the assume role policy of this role.
+        args:
+          0:
+            name: RoleName
+            value: >-
+              cast(str, self.RoleName)
+        user_args:
+          1:
+            name: PolicyDocument
+            attr_type: str
+      attach_policy:
+        manager_method: attach_policy
+        docstring: >-
+          Attach a policy to this role.
+        args:
+          0:
+            name: RoleName
+            value: >-
+              cast(str, self.RoleName)
+        user_args:
+          1:
+            name: PolicyArn
+            attr_type: str
+            value: >-
+              cast(str, self.PolicyArn)
+      detach_policy:
+        manager_method: detach_policy
+        docstring: >-
+          Detach a policy from this role.
+        args:
+          0:
+            name: RoleName
+            value: >-
+              cast(str, self.RoleName)
+        user_args:
+          1:
+            name: PolicyArn
+            attr_type: str
+            value: >-
+              cast(str, self.PolicyArn)
+      add_policy:
+        manager_method: put_policy
+        docstring: >-
+          Put an inline policy to this role.
+        args:
+          0:
+            name: RoleName
+            value: >-
+              cast(str, self.RoleName)
+        user_args:
+          1:
+            name: PolicyName
+            attr_type: str
+            value: >-
+              cast(str, self.PolicyName)
+          2:
+            name: PolicyDocument
+            attr_type: str
+            value: >-
+              cast(str, self.PolicyDocument)
+      remove_policy:
+        manager_method: delete_policy
+        docstring: >-
+          Remove an inline policy from this role.
+        args:
+          0:
+            name: RoleName
+            value: >-
+              cast(str, self.RoleName)
+        user_args:
+          1:
+            name: PolicyName
+            value: >-
+              cast(str, self.PolicyName)
+  User:
+    alternate_name: IAMUser
+    name_key: UserName
+    arn_key: Arn
+    primary_key: UserName
+    input_shapes:
+      - CreateUserRequest
+      - UpdateUserRequest
+    manager_methods:
+      groups:
+        manager_method: list_groups
+        many: true
+        docstring: >-
+          Return the :py:class:`Group` objects that are groups of this user.
+        args:
+          0:
+            name: UserName
+            value: >-
+              cast(str, self.UserName)
+      add_to_group:
+        manager_method: add_to_group
+        docstring: >-
+          Add a user to a group.
+        args:
+          0:
+            name: UserName
+            value: >-
+              cast(str, self.UserName)
+        user_args:
+          1:
+            name: GroupName
+            attr_type: str
+            value: >-
+              cast(str, self.GroupName)
+      remove_from_group:
+        manager_method: remove_from_group
+        docstring: >-
+          Remove a user from a group.
+        args:
+          0:
+            name: UserName
+            value: >-
+              cast(str, self.UserName)
+        user_args:
+          1:
+            name: GroupName
+            attr_type: str
+            value: >-
+              cast(str, self.GroupName)
+      attached_policies:
+        manager_method: list_attached_policies
+        many: true
+        docstring: >-
+          Return the :py:class:`Policy` objects that are attached to this user.
+        args:
+          0:
+            name: UserName
+            value: >-
+              cast(str, self.UserName)
+      inline_policies:
+        manager_method: list_policies
+        many: true
+        docstring: >-
+          Return the :py:class:`Policy` objects that are inline policies of this user.
+        args:
+          0:
+            name: UserName
+            value: >-
+              cast(str, self.UserName)
+      add_policy:
+        manager_method: put_policy
+        docstring: >-
+          Put an inline policy to this user.
+        args:
+          0:
+            name: UserName
+            value: >-
+              cast(str, self.UserName)
+        user_args:
+          1:
+            name: PolicyName
+            attr_type: str
+            value: >-
+              cast(str, self.PolicyName)
+          2:
+            name: PolicyDocument
+            attr_type: str
+            value: >-
+              cast(str, self.PolicyDocument)
+      remove_policy:
+        manager_method: delete_policy
+        docstring: >-
+          Remove an inline policy from this user.
+        args:
+          0:
+            name: UserName
+            value: >-
+              cast(str, self.UserName)
+        user_args:
+          1:
+            name: PolicyName
+            value: >-
+              cast(str, self.PolicyName)
+  SSHPublicKey:
+    alternate_name: IAMSSHPublicKey
+    name_key: SSHPublicKeyId
+    input_shapes:
+      - UploadSSHPublicKeyRequest
+      - UpdateSSHPublicKeyRequest
+    properties:
+      pk:
+        transformer:
+          mapping:
+            UserName: UserName
+            SSHPublicKeyId: SSHPublicKeyId
+secondary:
+  Tag:
+    alternate_name: IAMTag
+  RoleLastUsed:
+    alternate_name: IAMRoleLastUsed
+  AccessKeyLastUsed:
+    alternate_name: IAMAccessKeyLastUsed

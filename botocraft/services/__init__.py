@@ -6,6 +6,7 @@ from .ecs import *  # noqa: F401,F403
 from .application_autoscaling import *  # noqa: F401,F403
 from .elb import *  # noqa: F401,F403
 from .sqs import *  # noqa: F401,F403
+from .iam import *  # noqa: F401,F403
 from .events import *  # noqa: F401,F403
 from .autoscaling import *  # noqa: F401,F403
 from .elbv2 import *  # noqa: F401,F403

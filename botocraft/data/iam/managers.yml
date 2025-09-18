@@ -1,0 +1,737 @@
+---
+AccessKey:
+  methods:
+    create:
+      boto3_name: create_access_key
+      docstring: >-
+        Create an AWS Access Key for a user
+      args:
+        UserName:
+          explicit: true
+    delete:
+      boto3_name: delete_access_key
+      docstring: >-
+        Delete an AWS Access Key from a user.
+      args:
+        UserName:
+          attribute: UserName
+        AccessKeyId:
+          attribute: AccessKeyId
+    list:
+      boto3_name: list_access_keys
+      response_attr: AccessKeyMetadata
+    update:
+      boto3_name: update_access_key
+    last_used:
+      boto3_name: get_access_key_last_used
+      response_attr: None
+      args:
+        AccessKeyId:
+          attribute: AccessKeyId
+Group:
+  methods:
+    create:
+      boto3_name: create_group
+      docstring: >-
+        Create an IAM group.
+      args:
+        GroupName:
+          attribute: GroupName
+        Path:
+          attribute: Path
+    delete:
+      boto3_name: delete_group
+      docstring: >-
+        Delete an IAM group.
+      args:
+        GroupName:
+          attribute: GroupName
+    delete_policy:
+      boto3_name: delete_group_policy
+      docstring: >-
+        Delete a policy from a group.
+      args:
+        GroupName:
+          required: true
+        PolicyName:
+          required: true
+    detach_policy:
+      boto3_name: detach_group_policy
+      docstring: >-
+        Detach a policy from a group.
+      args:
+        GroupName:
+          required: true
+        PolicyName:
+          required: true
+    get:
+      boto3_name: get_group
+      docstring: >-
+        Get an IAM group.
+      response_attr: Group
+      args:
+        GroupName:
+          required: true
+    get_policy:
+      boto3_name: get_group_policy
+      response_attr: None
+      args:
+        GroupName:
+          required: true
+        PolicyName:
+          required: true
+    list:
+      boto3_name: list_groups
+      response_attr: Groups
+    list_for_user:
+      boto3_name: list_groups_for_user
+      response_attr: Groups
+      args:
+        UserName:
+          required: true
+    list_policies:
+      decorators:
+        - name: group_inline_policies_only
+          import_path: botocraft.mixins.iam
+      boto3_name: list_group_policies
+      response_attr: PolicyNames
+      args:
+        GroupName:
+          required: true
+    list_attached_policies:
+      decorators:
+        - name: group_attached_policies_only
+          import_path: botocraft.mixins.iam
+      boto3_name: list_attached_group_policies
+      response_attr: AttachedPolicies
+      args:
+        GroupName:
+          required: true
+    update:
+      boto3_name: update_group
+      docstring: >-
+        Update an IAM group.
+      args:
+        GroupName:
+          attribute: GroupName
+    attach_policy:
+      boto3_name: attach_group_policy
+      docstring: >-
+        Attach a policy to a group.
+      args:
+        GroupName:
+          required: true
+        PolicyArn:
+          required: true
+    detach_policy:
+      boto3_name: detach_group_policy
+      docstring: >-
+        Detach a policy from a group.
+      args:
+        GroupName:
+          required: true
+        PolicyArn:
+          required: true
+    put_policy:
+      boto3_name: put_group_policy
+      docstring: >-
+        Attach a policy to a group.
+      args:
+        GroupName:
+          required: true
+        PolicyName:
+          required: true
+        PolicyDocument:
+          required: true
+    add_user:
+      boto3_name: add_user_to_group
+      docstring: >-
+        Add a user to a group.
+      args:
+        GroupName:
+          required: true
+        UserName:
+          required: true
+    remove_user:
+      boto3_name: remove_user_from_group
+      docstring: >-
+        Remove a user from a group.
+      args:
+        GroupName:
+          required: true
+        UserName:
+          required: true
+InstanceProfile:
+  methods:
+    create:
+      boto3_name: create_instance_profile
+      docstring: >-
+        Create an IAM instance profile.
+      args:
+        InstanceProfileName:
+          attribute: InstanceProfileName
+        Path:
+          attribute: Path
+    delete:
+      boto3_name: delete_instance_profile
+      docstring: >-
+        Delete an IAM instance profile.
+      args:
+        InstanceProfileName:
+          required: true
+    get:
+      boto3_name: get_instance_profile
+      response_attr: InstanceProfile
+      args:
+        InstanceProfileName:
+          required: true
+    list:
+      boto3_name: list_instance_profiles
+      response_attr: InstanceProfiles
+    list_for_role:
+      boto3_name: list_instance_profiles_for_role
+      response_attr: InstanceProfiles
+      args:
+        RoleName:
+          required: true
+    add_role:
+      boto3_name: add_role_to_instance_profile
+      docstring: >-
+        Add a role to an instance profile.
+      args:
+        InstanceProfileName:
+          required: true
+        RoleName:
+          required: true
+    remove_role:
+      boto3_name: remove_role_from_instance_profile
+      docstring: >-
+        Remove a role from an instance profile.
+      args:
+        InstanceProfileName:
+          required: true
+        RoleName:
+          required: true
+LoginProfile:
+  methods:
+    create:
+      boto3_name: create_login_profile
+      response_attr: LoginProfile
+      docstring: >-
+        Create a login profile for a user.
+      args:
+        UserName:
+          required: true
+        Password:
+          required: true
+    delete:
+      boto3_name: delete_login_profile
+      docstring: >-
+        Delete a login profile for a user.
+      args:
+        UserName:
+          required: true
+    get:
+      boto3_name: get_login_profile
+      response_attr: LoginProfile
+      args:
+        UserName:
+          required: true
+    update:
+      boto3_name: update_login_profile
+      docstring: >-
+        Update a login profile for a user.
+      args:
+        UserName:
+          required: true
+Policy:
+  mixins:
+    - name: IAMPolicyManagerMixin
+      import_path: botocraft.mixins.iam
+  methods:
+    create:
+      boto3_name: create_policy
+      docstring: >-
+        Create a policy.
+      args:
+        PolicyName:
+          attribute: PolicyName
+        PolicyDocument:
+          required: true
+        Path:
+          attribute: Path
+        Description:
+          attribute: Description
+        Tags:
+          attribute: Tags
+    delete:
+      boto3_name: delete_policy
+      docstring: >-
+        Delete a policy.
+      args:
+        PolicyArn:
+          required: true
+    get:
+      boto3_name: get_policy
+      response_attr: Policy
+      args:
+        PolicyArn:
+          required: true
+    list:
+      boto3_name: list_policies
+      response_attr: Policies
+    list_entities:
+      boto3_name: list_entities_for_policy
+      response_attr: None
+      args:
+        PolicyArn:
+          required: true
+    list_versions:
+      boto3_name: list_policy_versions
+      response_attr: Versions
+      args:
+        PolicyArn:
+          required: true
+    set_default_version:
+      boto3_name: set_default_policy_version
+      response_attr: None
+      args:
+        PolicyArn:
+          required: true
+        VersionId:
+          required: true
+PolicyVersion:
+  methods:
+    create:
+      boto3_name: create_policy_version
+      response_attr: PolicyVersion
+      args:
+        PolicyArn:
+          required: true
+        PolicyDocument:
+          required: true
+    delete:
+      boto3_name: delete_policy_version
+      response_attr: None
+      args:
+        PolicyArn:
+          required: true
+        VersionId:
+          required: true
+    get:
+      boto3_name: get_policy_version
+      response_attr: PolicyVersion
+      args:
+        PolicyArn:
+          required: true
+        VersionId:
+          required: true
+    list:
+      boto3_name: list_policy_versions
+      response_attr: Versions
+      args:
+        PolicyArn:
+          required: true
+    set_default:
+      boto3_name: set_default_policy_version
+      response_attr: None
+      args:
+        PolicyArn:
+          required: true
+        VersionId:
+          required: true
+Role:
+  methods:
+    create:
+      boto3_name: create_role
+      response_attr: Role
+      docstring: >-
+        Create a role.
+      args:
+        RoleName:
+          attribute: RoleName
+        AssumeRolePolicyDocument:
+          attribute: AssumeRolePolicyDocument
+        Path:
+          attribute: Path
+        Description:
+          attribute: Description
+        MaxSessionDuration:
+          attribute: MaxSessionDuration
+        PermissionsBoundary:
+          attribute: PermissionsBoundary
+        Tags:
+          attribute: Tags
+    create_service_linked_role:
+      boto3_name: create_service_linked_role
+      response_attr: Role
+      docstring: >-
+        Create a service linked role.
+      args:
+        AWSServiceName:
+          required: true
+    delete_service_linked_role:
+      boto3_name: delete_service_linked_role
+      response_attr: DeletionTaskId
+      docstring: >-
+        Delete a service linked role.
+      args:
+        RoleName:
+          required: true
+    delete:
+      boto3_name: delete_role
+      docstring: >-
+        Delete a role.
+      args:
+        RoleName:
+          required: true
+    delete_role_permissions_boundary:
+      boto3_name: delete_role_permissions_boundary
+      response_attr: None
+      args:
+        RoleName:
+          required: true
+    delete_policy:
+      boto3_name: delete_role_policy
+      response_attr: None
+      docstring: >-
+        Delete an inline policy from a role.
+      args:
+        RoleName:
+          required: true
+        PolicyName:
+          required: true
+    get:
+      boto3_name: get_role
+      response_attr: Role
+      args:
+        RoleName:
+          required: true
+    get_policy:
+      boto3_name: get_role_policy
+      response_attr: None
+      docstring: >-
+        Get an inline policy from a role.
+      args:
+        RoleName:
+          required: true
+        PolicyName:
+          required: true
+    list:
+      boto3_name: list_roles
+      response_attr: Roles
+    list_policies:
+      decorators:
+        - name: role_inline_policies_only
+          import_path: botocraft.mixins.iam
+      boto3_name: list_role_policies
+      response_attr: PolicyNames
+      docstring: >-
+        List the inline policies attached to a role.
+      args:
+        RoleName:
+          required: true
+    list_attached_policies:
+      decorators:
+        - name: role_attached_policies_only
+          import_path: botocraft.mixins.iam
+      boto3_name: list_attached_role_policies
+      response_attr: AttachedPolicies
+      docstring: >-
+        List the attached IAM policies for a role.
+      args:
+        RoleName:
+          required: true
+    list_instance_profiles:
+      boto3_name: list_instance_profiles_for_role
+      response_attr: InstanceProfiles
+      args:
+        RoleName:
+          required: true
+    update:
+      boto3_name: update_role
+      response_attr: >-
+        None
+      docstring: >-
+        Update a role.
+      args:
+        RoleName:
+          attribute: RoleName
+        Description:
+          attribute: Description
+        MaxSessionDuration:
+          attribute: MaxSessionDuration
+    update_assume_role_policy:
+      boto3_name: update_assume_role_policy
+      response_attr: None
+      args:
+        RoleName:
+          required: true
+        PolicyDocument:
+          required: true
+    update_description:
+      boto3_name: update_role_description
+      response_attr: None
+      args:
+        RoleName:
+          required: true
+        Description:
+          required: true
+    add_to_instance_profile:
+      boto3_name: add_role_to_instance_profile
+      response_attr: None
+      args:
+        InstanceProfileName:
+          required: true
+        RoleName:
+          required: true
+    remove_from_instance_profile:
+      boto3_name: remove_role_from_instance_profile
+      response_attr: None
+      args:
+        InstanceProfileName:
+          required: true
+        RoleName:
+          required: true
+    attach_policy:
+      boto3_name: attach_role_policy
+      response_attr: None
+      docstring: >-
+        Attach an IAM policy to a role.
+      args:
+        RoleName:
+          required: true
+        PolicyArn:
+          required: true
+    detach_policy:
+      boto3_name: detach_role_policy
+      response_attr: None
+      docstring: >-
+        Detach an IAM policy from a role.
+      args:
+        RoleName:
+          required: true
+        PolicyArn:
+          required: true
+    put_policy:
+      boto3_name: put_role_policy
+      response_attr: None
+      docstring: >-
+        Attach an inline policy to a role.
+      args:
+        RoleName:
+          required: true
+        PolicyName:
+          required: true
+        PolicyDocument:
+          required: true
+User:
+  methods:
+    create:
+      boto3_name: create_user
+      response_attr: User
+      docstring: >-
+        Create a user.
+      args:
+        UserName:
+          attribute: UserName
+    delete:
+      boto3_name: delete_user
+      response_attr: None
+      docstring: >-
+        Delete a user.
+      args:
+        UserName:
+          required: true
+    get:
+      boto3_name: get_user
+      response_attr: User
+      args:
+        UserName:
+          required: true
+    get_policy:
+      boto3_name: get_user_policy
+      response_attr: None
+      docstring: >-
+        Get an inline policy from a user.
+      args:
+        UserName:
+          required: true
+        PolicyName:
+          required: true
+    list:
+      boto3_name: list_users
+      response_attr: Users
+    update:
+      boto3_name: update_user
+      response_attr: None
+      docstring: >-
+        Update a user.
+      args:
+        UserName:
+          attribute: UserName
+    add_to_group:
+      boto3_name: add_user_to_group
+      response_attr: None
+      docstring: >-
+        Add a user to a group.
+      args:
+        UserName:
+          required: true
+        GroupName:
+          required: true
+    remove_from_group:
+      boto3_name: remove_user_from_group
+      response_attr: None
+      docstring: >-
+        Remove a user from a group.
+      args:
+        UserName:
+          required: true
+        GroupName:
+          required: true
+    list_groups:
+      boto3_name: list_groups_for_user
+      response_attr: Groups
+      args:
+        UserName:
+          required: true
+    attach_policy:
+      boto3_name: attach_user_policy
+      response_attr: None
+      docstring: >-
+        Attach an IAM policy to a user.
+      args:
+        UserName:
+          required: true
+        PolicyArn:
+          required: true
+    detach_policy:
+      boto3_name: detach_user_policy
+      response_attr: None
+      docstring: >-
+        Detach an IAM policy from a user.
+      args:
+        UserName:
+          required: true
+        PolicyArn:
+          required: true
+    list_policies:
+      decorators:
+        - name: user_inline_policies_only
+          import_path: botocraft.mixins.iam
+      boto3_name: list_user_policies
+      response_attr: PolicyNames
+      args:
+        UserName:
+          required: true
+    list_attached_policies:
+      decorators:
+        - name: iam_attached_policies_only
+          import_path: botocraft.mixins.iam
+      boto3_name: list_attached_user_policies
+      response_attr: AttachedPolicies
+      args:
+        UserName:
+          required: true
+    put_policy:
+      boto3_name: put_user_policy
+      response_attr: None
+      docstring: >-
+        Attach an inline policy to a user.
+      args:
+        UserName:
+          required: true
+        PolicyName:
+          required: true
+        PolicyDocument:
+          required: true
+    delete_policy:
+      boto3_name: delete_user_policy
+      response_attr: None
+      docstring: >-
+        Delete an inline policy from a user.
+      args:
+        UserName:
+          required: true
+        PolicyName:
+          required: true
+    list_policies:
+      boto3_name: list_user_policies
+      response_attr: PolicyNames
+      args:
+        UserName:
+          required: true
+    put_permission_boundary:
+      boto3_name: put_user_permissions_boundary
+      response_attr: None
+      docstring: >-
+        Attach a permissions boundary to a user.
+      args:
+        UserName:
+          required: true
+        PermissionsBoundary:
+          required: true
+    delete_permission_boundary:
+      boto3_name: delete_user_permissions_boundary
+      response_attr: None
+      docstring: >-
+        Delete a permissions boundary from a user.
+      args:
+        UserName:
+          required: true
+SSHPublicKey:
+  methods:
+    create:
+      boto3_name: upload_ssh_public_key
+      response_attr: SSHPublicKey
+      docstring: >-
+        Upload an SSH public key.
+      args:
+        UserName:
+          attribute: UserName
+        SSHPublicKeyBody:
+          attribute: SSHPublicKeyBody
+    delete:
+      boto3_name: delete_ssh_public_key
+      response_attr: None
+      docstring: >-
+        Delete an SSH public key.
+      args:
+        UserName:
+          attribute: UserName
+        SSHPublicKeyId:
+          attribute: SSHPublicKeyId
+    get:
+      boto3_name: get_ssh_public_key
+      response_attr: SSHPublicKey
+      docstring: >-
+        Get an SSH public key.
+      args:
+        UserName:
+          required: true
+        SSHPublicKeyId:
+          required: true
+        Encoding:
+          required: true
+    list:
+      boto3_name: list_ssh_public_keys
+      response_attr: SSHPublicKeys
+      docstring: >-
+        List SSH public keys.
+      args:
+        UserName:
+          required: true
+    update:
+      boto3_name: update_ssh_public_key
+      response_attr: SSHPublicKey
+      docstring: >-
+        Update an SSH public key.
+      args:
+        UserName:
+          attribute: UserName
+        SSHPublicKeyId:
+          attribute: SSHPublicKeyId
+          Status:
+            attribute: Status
+

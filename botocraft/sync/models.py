@@ -243,6 +243,9 @@ class ModelRelationshipDefinition(BaseModel):
             The input data for this model
 
         """
+        if "transformer" not in data:
+            msg = f"Transformer is required for ModelRelationshipDefinition: {data}"
+            raise ValueError(msg)
         if data["transformer"].get("alias") is not None:
             msg = (
                 "Alias transformers are not supported for relations. Use a regex "
