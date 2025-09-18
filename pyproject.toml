@@ -254,6 +254,7 @@ docstring-code-line-length = "dynamic"
     "F401",  # Something imported but not used
     "D213",  # Multi-line docstring summary should start at the second line
     "E501",  # Line too long
+    "F841",  # Unused variable
     "N803",  # Argument name should be lowercase
     "PLR0913",  # Too many arguments in function call
     "C408",  # Unnecessary dict call - rewrite
