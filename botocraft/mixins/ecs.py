@@ -4,12 +4,12 @@ import warnings
 from functools import cached_property, wraps
 from typing import TYPE_CHECKING, Callable, Dict, List, Literal, Optional, Set, cast
 
-from botocraft.services import DeleteTaskDefinitionsResponse
 from botocraft.services.abstract import PrimaryBoto3ModelQuerySet
 
 if TYPE_CHECKING:
     from botocraft.services import (
         Cluster,
+        DeleteTaskDefinitionsResponse,
         Failure,
         Service,
         ServiceDeploymentBrief,
@@ -331,6 +331,8 @@ def ecs_task_definition_delete_all(
     def wrapper(self, *args, **kwargs) -> "DeleteTaskDefinitionsResponse":
         # delete_task_definitions only accepts up to 10 task definitions at a time
         # So we need to delete them in batches
+        from botocraft.services import DeleteTaskDefinitionsResponse
+
         response: DeleteTaskDefinitionsResponse = DeleteTaskDefinitionsResponse(
             taskDefinitions=[],
             failures=[],
