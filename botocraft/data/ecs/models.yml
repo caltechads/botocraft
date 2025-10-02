@@ -161,6 +161,23 @@ primary:
         required: false
         docstring: >-
           The tags for the task definition.
+    manager_methods:
+      deregister:
+        manager_method: deregister
+        docstring: >-
+          Deregisters the specified task definition by family and revision. Upon
+          deregistration, the task definition is marked as ``INACTIVE``. Existing tasks
+          and services that reference an ``INACTIVE`` task definition continue to run
+          without disruption. Existing services that reference an ``INACTIVE`` task
+          definition can still scale up or down by modifying the service's desired count.
+          If you want to delete a task definition revision, you must first deregister the
+          task definition revision.
+        args:
+          0:
+            name: taskDefinition
+            value: >-
+              self.taskDefinitionArn
+
   Task:
     primary_key: taskArn
     arn_key: taskArn

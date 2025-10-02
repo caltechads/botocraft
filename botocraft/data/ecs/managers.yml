@@ -125,7 +125,12 @@ TaskDefinition:
     create:
       boto3_name: register_task_definition
     delete:
-      boto3_name: deregister_task_definition
+      boto3_name: delete_task_definitions
+      response_attr: >-
+        None
+      decorators:
+        - name: ecs_task_definition_delete_all
+          import_path: botocraft.mixins.ecs
     get:
       boto3_name: describe_task_definition
       response_attr: >-
@@ -145,6 +150,8 @@ TaskDefinition:
           import_path: botocraft.mixins.ecs
     update:
       boto3_name: register_task_definition
+    deregister:
+      boto3_name: deregister_task_definition
     families:
       boto3_name: list_task_definition_families
       response_attr: families

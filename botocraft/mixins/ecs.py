@@ -4,13 +4,13 @@ import warnings
 from functools import cached_property, wraps
 from typing import TYPE_CHECKING, Callable, Dict, List, Literal, Optional, Set, cast
 
-import click
-
+from botocraft.services import DeleteTaskDefinitionsResponse
 from botocraft.services.abstract import PrimaryBoto3ModelQuerySet
 
 if TYPE_CHECKING:
     from botocraft.services import (
         Cluster,
+        Failure,
         Service,
         ServiceDeploymentBrief,
         Task,
@@ -145,16 +145,7 @@ def ecs_task_definitions_only(
         responses = [
             self.get(identifier, include=["TAGS"]) for identifier in identifiers
         ]
-        tds = []
-        for response in responses:
-            if not response:
-                continue
-            # If we got a TaskDefinition object, we need to convert it to a
-            # TaskDefinition with tags.
-            _td = response.taskDefinition
-            _td.tags = response.tags
-            tds.append(_td)
-        return PrimaryBoto3ModelQuerySet(tds)
+        return PrimaryBoto3ModelQuerySet(responses)
 
     return wrapper
 
@@ -322,6 +313,40 @@ def ecs_tasks_only(
                 self.get_many(cluster=kwargs["cluster"], tasks=arns[i : i + 100])
             )
         return PrimaryBoto3ModelQuerySet(tasks)  # type: ignore[arg-type]
+
+    return wrapper
+
+
+def ecs_task_definition_delete_all(
+    func: Callable[..., "DeleteTaskDefinitionsResponse"],
+) -> Callable[..., "DeleteTaskDefinitionsResponse"]:
+    """
+    Decorator to delete all task definitions.  This is because the
+    :py:meth:`botocraft.services.ecs.TaskDefinitionManager.delete` method only
+    accepts up to 10 task definitions at a time, so we need to delete them in
+    batches of 10 if the user passes in more than 10 task definitions.
+    """
+
+    @wraps(func)
+    def wrapper(self, *args, **kwargs) -> "DeleteTaskDefinitionsResponse":
+        # delete_task_definitions only accepts up to 10 task definitions at a time
+        # So we need to delete them in batches
+        response: DeleteTaskDefinitionsResponse = DeleteTaskDefinitionsResponse(
+            taskDefinitions=[],
+            failures=[],
+        )
+        if len(args[0]) > 10:  # noqa: PLR2004
+            for i in range(0, len(args[0]), 10):
+                response = func(self, args[0][i : i + 10], **kwargs)
+                if response.taskDefinitions:
+                    cast("list[TaskDefinition]", response.taskDefinitions).extend(
+                        response.taskDefinitions
+                    )
+                if response.failures:
+                    cast("list[Failure]", response.failures).extend(response.failures)  # type: ignore[attr-defined]
+        else:
+            response = func(self, *args, **kwargs)
+        return response
 
     return wrapper
 
@@ -539,7 +564,6 @@ class TaskDefinitionManagerMixin:
     def in_use(
         self,
         tags: Dict[str, str] | None = None,
-        verbose: bool = False,
     ) -> "PrimaryBoto3ModelQuerySet":
         """
         Return a list of task definitions that are currently in use by a service
@@ -571,13 +595,10 @@ class TaskDefinitionManagerMixin:
 
         task_definitions: Dict[str, TaskDefinition] = {}
 
-        click.secho("Getting all services ...", fg="green")
         # First get all the services in the account
         services: List[Service] = Service.objects.using(self.session).all()
         ClientException = self.session.client("ecs").exceptions.ClientException  # noqa: N806
 
-        if verbose:
-            click.secho("Finding active Service task definitions ...", fg="green")
         # Now iterate through each service and get the append its task definition
         # to the list of task definitions if we have not already seen it
         for service in services:
@@ -595,8 +616,6 @@ class TaskDefinitionManagerMixin:
             if family_revision not in task_definitions:
                 task_definitions[family_revision] = task_definition
 
-        if verbose:
-            click.secho("Finding active periodic task definitions ...", fg="green")
         # Now deal with the periodc tasks
         rules = EventRule.objects.using(self.session).list()
         for rule in rules:
@@ -605,10 +624,10 @@ class TaskDefinitionManagerMixin:
                     try:
                         task_definition = TaskDefinition.objects.using(
                             self.session
-                        ).get(target.EcsParameters.taskDefinitionArn)
+                        ).get(target.EcsParameters.TaskDefinitionArn)
                     except ClientException:
                         warnings.warn(
-                            f"Task definition {target.EcsParameters.taskDefinitionArn} "
+                            f"Task definition {target.EcsParameters.TaskDefinitionArn} "
                             f"used by {rule.name} does not exist",
                             UserWarning,
                             stacklevel=2,

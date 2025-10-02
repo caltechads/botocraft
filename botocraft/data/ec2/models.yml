@@ -208,7 +208,6 @@ primary:
         manager_method: enable_deregistration_protection
         docstring: >-
           Enable deregistration protection for the AMI.
-        manager_method: enable_deregistration_protection
         keyword_args:
           - name: ImageId
           - name: WithCooldown
