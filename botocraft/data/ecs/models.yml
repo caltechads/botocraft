@@ -351,3 +351,7 @@ secondary:
         rename: Tags
   Resource:
     alternate_name: ContainerInstanceResource
+  RuntimePlatform:
+    fields:
+      cpuArchitecture:
+        python_type: Literal["x86_64", "ARM64"]
