@@ -333,19 +333,19 @@ def ecs_task_definition_delete_all(
         # So we need to delete them in batches
         from botocraft.services import DeleteTaskDefinitionsResponse
 
-        response: DeleteTaskDefinitionsResponse = DeleteTaskDefinitionsResponse(
-            taskDefinitions=[],
-            failures=[],
-        )
         if len(args[0]) > 10:  # noqa: PLR2004
+            response: DeleteTaskDefinitionsResponse = DeleteTaskDefinitionsResponse(
+                taskDefinitions=[],
+                failures=[],
+            )
             for i in range(0, len(args[0]), 10):
-                response = func(self, args[0][i : i + 10], **kwargs)
-                if response.taskDefinitions:
+                _response = func(self, args[0][i : i + 10], **kwargs)
+                if _response.taskDefinitions:
                     cast("list[TaskDefinition]", response.taskDefinitions).extend(
-                        response.taskDefinitions
+                        _response.taskDefinitions
                     )
-                if response.failures:
-                    cast("list[Failure]", response.failures).extend(response.failures)  # type: ignore[attr-defined]
+                if _response.failures:
+                    cast("list[Failure]", response.failures).extend(_response.failures)  # type: ignore[attr-defined]
         else:
             response = func(self, *args, **kwargs)
         return response
