@@ -690,6 +690,14 @@ class TaskDefinitionModelMixin:
             )
         return services
 
+    def delete(self) -> None:
+        """
+        Delete the task definition.   We're overriding the default delete method
+        because in this case, the manager method accepts a list of task definitions
+        to delete, so we need to pass in the task definition ARN as a list.
+        """
+        self.objects.using(self.session).delete([self.taskDefinitionArn])
+
 
 class ServiceDeploymentModelMixin:
     """
