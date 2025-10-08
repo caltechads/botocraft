@@ -1,0 +1,220 @@
+Bucket:
+  mixins:
+    - name: BucketManagerMixin
+      import_path: botocraft.mixins.s3
+  methods:
+    list:
+      boto3_name: list_buckets
+      response_attr: Buckets
+      decorators:
+        - name: bucket_list_names_to_buckets
+          import_path: botocraft.mixins.s3
+    get_bucket_policy:
+      boto3_name: get_bucket_policy
+      response_attr: Policy
+      args:
+        BucketName:
+          required: true
+    put_bucket_policy:
+      boto3_name: put_bucket_policy
+      response_attr: None
+      args:
+        BucketName:
+          required: true
+        Policy:
+          required: true
+    delete_bucket_policy:
+      boto3_name: delete_bucket_policy
+      response_attr: None
+      args:
+        BucketName:
+          required: true
+    get_website:
+      boto3_name: get_bucket_website
+      response_attr: None
+      args:
+        BucketName:
+          required: true
+    put_website:
+      boto3_name: put_bucket_website
+      response_attr: None
+      args:
+        BucketName:
+          required: true
+    delete_website:
+      boto3_name: delete_bucket_website
+      response_attr: None
+      args:
+        BucketName:
+          required: true
+    get_tags:
+      boto3_name: get_bucket_tagging
+      response_attr: TagSet
+      args:
+        BucketName:
+          required: true
+    put_tags:
+      boto3_name: put_bucket_tagging
+      response_attr: TagSet
+      args:
+        BucketName:
+          required: true
+        Tagging:
+          required: true
+    delete_tags:
+      boto3_name: delete_bucket_tagging
+      response_attr: None
+      args:
+        BucketName:
+          required: true
+    get_lifecycle:
+      boto3_name: get_bucket_lifecycle_configuration
+      response_attr: None
+      decorators:
+        - name: bucket_update_safe_get_lifecycle
+          import_path: botocraft.mixins.s3
+      args:
+        BucketName:
+          required: true
+    put_lifecycle:
+      boto3_name: put_bucket_lifecycle_configuration
+      response_attr: None
+      args:
+        BucketName:
+          required: true
+        LifecycleConfiguration:
+          required: true
+    delete_lifecycle:
+      boto3_name: delete_bucket_lifecycle
+      response_attr: None
+      args:
+        BucketName:
+          required: true
+    get_public_access_block:
+      boto3_name: get_public_access_block
+      response_attr: None
+      args:
+        BucketName:
+          required: true
+    put_public_access_block:
+      boto3_name: put_public_access_block
+      response_attr: None
+      args:
+        BucketName:
+          required: true
+        PublicAccessBlockConfiguration:
+          required: true
+    delete_public_access_block:
+      boto3_name: delete_public_access_block
+      response_attr: None
+      args:
+        BucketName:
+          required: true
+Object:
+  methods:
+    create:
+      boto3_name: put_object
+      decorators:
+        - name: object_update_add_tags
+          import_path: botocraft.mixins.s3
+      response_attr: None
+      args:
+        Tagging:
+          hidden: true
+    update:
+      boto3_name: put_object
+      decorators:
+        - name: object_update_add_tags
+          import_path: botocraft.mixins.s3
+      response_attr: None
+    get:
+      boto3_name: get_object
+      decorators:
+        - name: object_get_add_tags
+          import_path: botocraft.mixins.s3
+      response_attr: None
+      args:
+        Bucket:
+          required: true
+        Key:
+          required: true
+    list:
+      boto3_name: list_objects_v2
+      response_attr: Contents
+      decorators:
+        - name: object_list_add_bucket_name_and_tags
+          import_path: botocraft.mixins.s3
+      args:
+        Bucket:
+          required: true
+      extra_args:
+        Include:
+          python_type: Optional[List[Literal["TAGS"]]]
+          default: >-
+            None
+          docstring: >-
+            Extra things to include in the response.   Tags are expensive to
+            retrieve because they need a second, slow API call, so you have
+            to request them specifically.
+    copy:
+      boto3_name: copy_object
+      response_attr: None
+      args:
+        Bucket:
+          required: true
+        Key:
+          required: true
+        CopySource:
+          required: true
+    rename:
+      boto3_name: rename_object
+      response_attr: >-
+        None
+    restore:
+      boto3_name: restore_object
+      response_attr: RestoreOutputPath
+    select_content:
+      boto3_name: select_object_content
+      response_attr: Payload
+    delete:
+      boto3_name: delete_objects
+      response_attr: Deleted
+    get_tags:
+      boto3_name: get_object_tagging
+      response_attr: TagSet
+    put_tags:
+      boto3_name: put_object_tagging
+      response_attr: VersionId
+    delete_tags:
+      boto3_name: delete_object_tagging
+      response_attr: None
+    get_acl:
+      boto3_name: get_object_acl
+      response_attr: None
+    put_acl:
+      boto3_name: put_object_acl
+      response_attr: None
+    get_legal_hold:
+      boto3_name: get_object_legal_hold
+      response_attr: LegalHold
+    put_legal_hold:
+      boto3_name: put_object_legal_hold
+      response_attr: None
+    get_lock_configuration:
+      boto3_name: get_object_lock_configuration
+      response_attr: ObjectLockConfiguration
+    put_lock_configuration:
+      boto3_name: put_object_lock_configuration
+      response_attr: None
+    get_retention:
+      boto3_name: get_object_retention
+      response_attr: Retention
+    put_retention:
+      boto3_name: put_object_retention
+      response_attr: None
+    get_attributes:
+      boto3_name: get_object_attributes
+      response_attr: None
+    get_versions:
+      boto3_name: list_object_versions
+      response_attr: None

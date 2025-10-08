@@ -17,6 +17,7 @@
    api/services/kms
    api/services/rds
    api/services/route53
+   api/services/s3
    api/services/sqs
    api/services/ssm
    api/services/sts

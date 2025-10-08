@@ -1,0 +1,277 @@
+---
+primary:
+  Bucket:
+    primary_key: BucketName
+    name_key: BucketName
+    bespoke: true
+    extra_fields:
+      BucketName:
+        python_type: str
+        docstring: >-
+          The name of the bucket. This is a unique identifier for the bucket, globally.
+      BucketArn:
+        python_type: Optional[str]
+        readonly: true
+        docstring: >-
+          The ARN of the bucket. This is a unique identifier for the bucket.  Some older buckets don't have an ARN.
+      Region:
+        python_type: str
+        docstring: >-
+          The region of the bucket. This is the region of the bucket.
+      CreationDate:
+        python_type: datetime
+        readonly: true
+        docstring: >-
+          The creation date of the bucket. This is the date the bucket was created.
+      ACL:
+        python_type: Optional[Literal["private", "public-read", "public-read-write", "authenticated-read", "aws-exec-read", "bucket-owner-read", "bucket-owner-full-control"]]
+        default: >-
+          "private"
+        docstring: >-
+          The ACL for the bucket. This is the ACL for the bucket.
+      LoggingConfiguration:
+        python_type: >-
+          Optional["BucketLoggingConfiguration"]
+        docstring: >-
+          The logging configuration for the bucket.
+      VersioningEnabled:
+        python_type: bool
+        docstring: >-
+          Whether the bucket versioning is enabled.
+      MFADelete:
+        python_type: bool
+        default: >-
+          False
+        docstring: >-
+          Specifies whether MFA delete is enabled in the bucket versioning configuration.
+      ObjectOwnership:
+        python_type: Optional[Literal["BucketOwnerEnforced", "BucketOwnerPreferred", "ObjectWriter"]]
+        default: >-
+          "BucketOwnerPreferred"
+        docstring: >-
+          The object ownership configuration for the bucket.
+      CORSRules:
+        python_type: >-
+          Optional[List["S3CORSRule"]]
+        default: >-
+          None
+        docstring: >-
+          The CORS rules for the bucket.
+      Tags:
+        python_type: >-
+          List[Tag]
+        default: >-
+          None
+        docstring: >-
+          The tags of the queue. This is a list of Tag objects.
+    manager_methods:
+      get_policy:
+        manager_method: get_bucket_policy
+        args:
+          0:
+            name: Bucket
+            value: >-
+              cast(str, self.BucketName)
+      put_policy:
+        manager_method: put_bucket_policy
+        args:
+          0:
+            name: Bucket
+            attr_type: str
+            value: >-
+              cast(str, self.BucketName)
+        user_args:
+          1:
+            name: Policy
+            attr_type: str
+      delete_policy:
+        manager_method: delete_bucket_policy
+        args:
+          0:
+            name: Bucket
+            attr_type: str
+            value: >-
+              cast(str, self.BucketName)
+      get_website:
+        manager_method: get_website
+        args:
+          0:
+            name: Bucket
+            attr_type: str
+            value: >-
+              cast(str, self.BucketName)
+      put_website:
+        manager_method: put_website
+        args:
+          0:
+            name: Bucket
+            attr_type: str
+            value: >-
+              cast(str, self.BucketName)
+        user_args:
+          1:
+            name: WebsiteConfiguration
+            attr_type: "WebsiteConfiguration"
+      delete_website:
+        manager_method: delete_website
+        args:
+          0:
+            name: Bucket
+            attr_type: str
+            value: >-
+              cast(str, self.BucketName)
+      get_lifecycle:
+        manager_method: get_lifecycle
+        args:
+          0:
+            name: Bucket
+            attr_type: str
+            value: >-
+              cast(str, self.BucketName)
+      put_lifecycle:
+        manager_method: put_lifecycle
+        args:
+          0:
+            name: Bucket
+            attr_type: str
+            value: >-
+              cast(str, self.BucketName)
+        user_args:
+          1:
+            name: LifecycleConfiguration
+            attr_type: >-
+              "BucketLifecycleConfiguration"
+      delete_lifecycle:
+        manager_method: delete_lifecycle
+        args:
+          0:
+            name: Bucket
+            attr_type: str
+            value: >-
+              cast(str, self.BucketName)
+      get_public_access_block:
+        manager_method: get_public_access_block
+        args:
+          0:
+            name: Bucket
+            attr_type: str
+            value: >-
+              cast(str, self.BucketName)
+      put_public_access_block:
+        manager_method: put_public_access_block
+        args:
+          0:
+            name: Bucket
+            attr_type: str
+            value: >-
+              cast(str, self.BucketName)
+        user_args:
+          1:
+            name: PublicAccessBlockConfiguration
+            attr_type: >-
+              "S3PublicAccessBlockConfiguration"
+      delete_public_access_block:
+        manager_method: delete_public_access_block
+        args:
+          0:
+            name: Bucket
+            attr_type: str
+            value: >-
+              cast(str, self.BucketName)
+  Object:
+    name_key: Key
+    alternate_name: S3Object
+    input_shapes:
+      - GetObjectRequest
+      - PutObjectRequest
+    extra_fields:
+      BucketName:
+        python_type: str
+        docstring: >-
+          The name of the bucket. This is a unique identifier for the bucket, globally.
+      Tags:
+        python_type: Any
+        docstring: >-
+          The body of the object.
+    properties:
+      pk:
+        transformer:
+          mapping:
+            Bucket: BucketName
+            Key: Key
+secondary:
+  Owner:
+    alternate_name: S3Owner
+    force_create: true
+  LoggingEnabled:
+    alternate_name: BucketLoggingConfiguration
+    force_create: true
+  Grantee:
+    alternate_name: S3Grantee
+  SimplePrefix:
+    alternate_name: S3SimplePrefix
+  PartitionedPrefix:
+    alternate_name: S3PartitionedPrefix
+  TargetObjectKeyFormat:
+    alternate_name: S3TargetObjectKeyFormat
+  CORSRule:
+    alternate_name: S3CORSRule
+    force_create: true
+  ErrorDocument:
+    alternate_name: S3ErrorDocument
+  IndexDocument:
+    alternate_name: S3IndexDocument
+  RedirectAllRequestsTo:
+    alternate_name: S3RedirectAllRequestsTo
+  RedirectRule:
+    alternate_name: S3RedirectRule
+  RoutingRule:
+    alternate_name: S3RoutingRule
+  Condition:
+    alternate_name: S3Condition
+  RestoreStatus:
+    alternate_name: S3RestoreStatus
+  CopyObjectResult:
+    alternate_name: S3CopyObjectResult
+  GlacierJobParameters:
+    alternate_name: S3GlacierJobParameters
+  SelectParameters:
+    alternate_name: S3SelectParameters
+  Encryption:
+    alternate_name: S3Encryption
+  Tagging:
+    alternate_name: S3Tagging
+  OutputLocation:
+    alternate_name: S3OutputLocation
+  DefaultRetention:
+    alternate_name: S3DefaultRetention
+  ObjectLockConfiguration:
+    alternate_name: S3ObjectLockConfiguration
+  Retention:
+    alternate_name: S3Retention
+  StorageClassAnalysis:
+    alternate_name: S3StorageClassAnalysis
+  ObjectLockRule:
+    alternate_name: S3ObjectLockRule
+  ObjectLockLegalHold:
+    alternate_name: S3ObjectLockLegalHold
+  Checksum:
+    alternate_name: S3Checksum
+  CSVInput:
+    alternate_name: S3CSVInput
+    fields:
+      QuoteEscapeCharacter:
+        docstring: >-
+          A single character used for escaping the quote character inside an already escaped value.
+  NoncurrentVersionExpiration:
+    alternate_name: S3NoncurrentVersionExpiration
+  AbortIncompleteMultipartUpload:
+    alternate_name: S3AbortIncompleteMultipartUpload
+  BucketLifecycleConfiguration:
+    force_create: true
+  LifecycleRuleFilter:
+    fields:
+      Tag:
+        rename: RuleTag
+  PublicAccessBlockConfiguration:
+    alternate_name: S3PublicAccessBlockConfiguration
