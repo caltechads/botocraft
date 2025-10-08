@@ -403,6 +403,10 @@ class ModelDefinition(BaseModel):
     #: many AWS API calls.  This is used for things like S3 buckets
     #: and SQS queues, which have no full shapes in botocore.
     bespoke: bool = False
+    #: If ``True``, this is a secondary model that we want to force to be
+    #: created during sync.  This is used for things like S3 buckets
+    #: and SQS queues, which have no full shapes in botocore.
+    force_create: bool = False
 
     def unalias_field_name(self, field_name: str) -> str:
         """

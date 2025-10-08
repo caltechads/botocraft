@@ -677,6 +677,9 @@ class ModelGenerator(AbstractGenerator):
         """
         for model_name in self.service_def.primary_models:
             _ = self.generate_single_model(model_name)
+        for model_name in self.service_def.secondary_models:
+            if self.service_def.secondary_models[model_name].force_create:
+                _ = self.generate_single_model(model_name)
 
     def format_extra_fields_from_model_def(
         self, model_def: ModelDefinition
