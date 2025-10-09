@@ -2,8 +2,14 @@
 # mypy: disable-error-code="index, override, assignment, union-attr, misc"
 from datetime import datetime
 from botocraft.mixins.tags import TagsDictMixin
-from .abstract import PrimaryBoto3ModelQuerySet
+from functools import cached_property
+from botocraft.services.ec2 import SecurityGroup, SecurityGroupManager
+from botocraft.mixins.elbv2 import load_balancer_attributes_to_dict
+from botocraft.services.common import Tag
 from typing import ClassVar, Type, Optional, Literal, Dict, List, Union, Any, cast
+from botocraft.services.ec2 import Vpc, VpcManager
+from .abstract import PrimaryBoto3ModelQuerySet
+from pydantic import Field
 from .abstract import (
     Boto3Model,
     ReadonlyBoto3Model,
@@ -12,13 +18,7 @@ from .abstract import (
     Boto3ModelManager,
     ReadonlyBoto3ModelManager,
 )
-from functools import cached_property
 from collections import OrderedDict
-from botocraft.services.ec2 import Vpc, VpcManager
-from botocraft.mixins.elbv2 import load_balancer_attributes_to_dict
-from pydantic import Field
-from botocraft.services.common import Tag
-from botocraft.services.ec2 import SecurityGroup, SecurityGroupManager
 
 # ===============
 # Managers

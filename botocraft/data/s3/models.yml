@@ -199,7 +199,33 @@ primary:
           mapping:
             Bucket: BucketName
             Key: Key
+    manager_methods:
+      contents:
+        manager_method: get
+        args:
+          0:
+            name: Bucket
+            attr_type: str
+            value: >-
+              cast(str, self.BucketName)
+          1:
+            name: Key
+            attr_type: str
+            value: >-
+              cast(str, self.Key)
 secondary:
+  GetObjectOutput:
+    mixins:
+      - name: GetObjectOutputMixin
+        import_path: botocraft.mixins.s3
+    fields:
+      Body:
+        python_type: >-
+          StreamingBody
+        docstring: >-
+          The body of the object.
+        imports:
+          - from botocore.response import StreamingBody
   Owner:
     alternate_name: S3Owner
     force_create: true

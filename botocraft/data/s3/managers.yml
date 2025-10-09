@@ -114,24 +114,15 @@ Object:
   methods:
     create:
       boto3_name: put_object
-      decorators:
-        - name: object_update_add_tags
-          import_path: botocraft.mixins.s3
       response_attr: None
       args:
         Tagging:
           hidden: true
     update:
       boto3_name: put_object
-      decorators:
-        - name: object_update_add_tags
-          import_path: botocraft.mixins.s3
       response_attr: None
     get:
       boto3_name: get_object
-      decorators:
-        - name: object_get_add_tags
-          import_path: botocraft.mixins.s3
       response_attr: None
       args:
         Bucket:
@@ -218,3 +209,11 @@ Object:
     get_versions:
       boto3_name: list_object_versions
       response_attr: None
+    download:
+      boto3_name: get_object
+      response_attr: None
+      args:
+        Bucket:
+          required: true
+        Key:
+          required: true

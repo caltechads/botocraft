@@ -194,6 +194,8 @@ class BotocoreFieldsFormatter:
                 effective_model_name, field_name, field_def, model_shape
             )
             fields.extend(field_code)
+            if field_def.imports:
+                self.model_generator.imports.update(field_def.imports)
 
         return fields
 

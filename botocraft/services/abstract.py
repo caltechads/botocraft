@@ -1,8 +1,8 @@
+from collections.abc import Sequence
 from functools import cached_property
 import re
-import inspect
 from collections import OrderedDict
-from datetime import datetime, time, timezone as dt_timezone
+from datetime import datetime
 from zoneinfo import ZoneInfo
 from typing import (
     Any,
@@ -10,11 +10,7 @@ from typing import (
     Type,
     Callable,
     Iterator,
-    cast,
     Union,
-    Optional,
-    Dict,
-    Set,
 )
 
 import boto3
@@ -82,7 +78,7 @@ class Boto3Model(TransformMixin, BaseModel):
     The base class for all boto3 models.
     """
 
-    model_config = ConfigDict(validate_assignment=True)
+    model_config = ConfigDict(validate_assignment=True, arbitrary_types_allowed=True)
 
     #: The boto3 session to use for this model.  This is set by the manager,
     #: and is used in relationships.  We have to use ``Any`` here because we
@@ -201,7 +197,7 @@ class Boto3ModelManager(TransformMixin):
                     return
                 attrs = [
                     attr
-                    for attr in response.__fields__
+                    for attr in response.__class__.model_fields
                     if attr not in ["session", "objects"]
                 ]
                 for attr in attrs:
@@ -224,8 +220,9 @@ class Boto3ModelManager(TransformMixin):
                         for value in response.values():
                             self.sessionize(value)
                     # This is a list or tuple
-                    elif hasattr(response[0], "set_session"):
-                        [self.sessionize(obj) or obj for obj in response]  # type: ignore[func-returns-value]
+                    elif isinstance(response, Sequence):
+                        if hasattr(response[0], "set_session"):
+                            [self.sessionize(obj) or obj for obj in response]  # type: ignore[func-returns-value]
 
     def get(self, *args, **kwargs):
         raise NotImplementedError

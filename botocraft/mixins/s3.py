@@ -1,3 +1,4 @@
+import gzip
 from functools import wraps
 from typing import TYPE_CHECKING, Any, Callable, Optional
 
@@ -11,7 +12,7 @@ if TYPE_CHECKING:
         BucketLoggingConfiguration,
         GetBucketLifecycleConfigurationOutput,
         S3CORSRule,
-        S3Object,
+        GetObjectOutput,
     )
 
 # ----------
@@ -38,28 +39,6 @@ def bucket_list_names_to_buckets(
     return wrapper
 
 
-def object_get_add_tags(
-    func: Callable[..., "S3Object"],
-) -> Callable[..., "S3Object"]:
-    """
-    Wraps a boto3 method that returns an object to add the tags to the object.
-    """
-
-    @wraps(func)
-    def wrapper(self, *args, **kwargs) -> "S3Object":
-        from botocraft.services import S3Object
-
-        bucket_name = args[0]
-
-        obj = func(self, *args, **kwargs)
-        if obj:
-            obj.Tags = S3Object.objects.get_tags(Bucket=bucket_name, Key=obj.Key)
-        obj.BucketName = bucket_name
-        return obj
-
-    return wrapper
-
-
 def object_list_add_bucket_name_and_tags(
     func: Callable[..., "PrimaryBoto3ModelQuerySet"],
 ) -> Callable[..., "PrimaryBoto3ModelQuerySet"]:
@@ -68,7 +47,6 @@ def object_list_add_bucket_name_and_tags(
     and tags to the objects.
     """
 
-    @wraps(func)
     @wraps(func)
     def wrapper(self, *args, **kwargs) -> "PrimaryBoto3ModelQuerySet":
         from botocraft.services import S3Object
@@ -81,31 +59,6 @@ def object_list_add_bucket_name_and_tags(
             if "TAGS" in extras:
                 obj.Tags = S3Object.objects.get_tags(Bucket=obj.BucketName, Key=obj.Key)  # type: ignore[attr-defined]
         return qs
-
-    return wrapper
-
-
-def object_update_add_tags(
-    func: Callable[..., "S3Object"],
-) -> Callable[..., "S3Object"]:
-    """
-    Wraps a boto3 method that returns an object to add the tags to the object.
-    """
-
-    @wraps(func)
-    def wrapper(self, *args, **kwargs) -> "S3Object":
-        from botocraft.services import S3Object
-
-        bucket_name = kwargs.get("Bucket")
-
-        obj = func(self, *args, **kwargs)
-        if obj:
-            obj.Tags = S3Object.objects.put_tags(
-                Bucket=bucket_name, Key=obj.Key, Tags=obj.Tags
-            )
-            obj.Tags = S3Object.objects.get_tags(Bucket=bucket_name, Key=obj.Key)
-        obj.BucketName = bucket_name
-        return obj
 
     return wrapper
 
@@ -484,3 +437,40 @@ class BucketManagerMixin:
         s3.delete_website(BucketName=model.BucketName)  # type: ignore[attr-defined]
         s3.delete_bucket_lifecycle(BucketName=model.BucketName)  # type: ignore[attr-defined]
         s3.delete_bucket(Bucket=model.BucketName)
+
+
+class GetObjectOutputMixin:
+    """
+    Adds some convenience methods to the
+    :py:class:`~botocraft.services.s3.GetObjectOutput` class.
+    """
+
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+        self._body_cache: bytes | None = None
+
+    @property
+    def data(self) -> bytes:
+        """
+        Examine the :attr:`~botocraft.services.s3.GetObjectOutput.Body` of the
+        and determine if it is a gzip file.  If it is, return the decompressed
+        data.  If it is not, return the raw data.
+
+        Cache the decompressed data in :attr:`_body_cache`.  This is done because
+        the :attr:`~botocraft.services.s3.GetObjectOutput.Body` is a streaming
+        body that can only be read once -- all further attempts to read the body will
+        return ``b""``.
+
+        Returns:
+            The decompressed data.
+
+        """
+        if self._body_cache is not None:
+            return self._body_cache
+        if self.Body:
+            body = self.Body.read()
+            self._body_cache = body
+            if body.startswith(b"gz"):
+                self._body_cache = gzip.decompress(body)
+            return self._body_cache
+        return b""
