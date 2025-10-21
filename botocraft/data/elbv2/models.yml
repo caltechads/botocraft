@@ -203,3 +203,7 @@ secondary:
     alternate_name: ElbV2AdministrativeOverride
   IpamPools:
     alternate_name: ElbV2IpamPools
+  HostHeaderRewriteConfig:
+    alternate_name: ElbV2HostHeaderRewriteConfig
+  UrlRewriteConfig:
+    alternate_name: ElbV2UrlRewriteConfig
