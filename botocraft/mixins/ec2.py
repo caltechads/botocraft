@@ -348,7 +348,9 @@ class AMIManagerMixin:
             )
         if amis is not None:
             if len(amis) <= self.MAX_AMI_FILTER_SIZE:
-                _filters = [Filter(Name="image-id", Values=amis)]
+                _filters = [
+                    Filter(Name="image-id", Values=[ami.ImageId for ami in amis])
+                ]
                 check_amis = self.list(Filters=_filters)  # type: ignore[attr-defined]
             else:
                 check_amis = []
@@ -366,7 +368,7 @@ class AMIManagerMixin:
                         )
                     )
         else:
-            check_amis = amis
+            check_amis = amis if amis else []
 
         in_use_amis = self._get_in_use_instance_amis(check_amis)
         in_use_amis = self._get_in_use_asg_amis(check_amis, amis=in_use_amis)
