@@ -124,3 +124,7 @@ secondary:
     alternate_name: AutoScalingCpuPerformanceFactorRequest
   PerformanceFactorReferenceRequest:
     alternate_name: AutoScalingPerformanceFactorReferenceRequest
+  RetentionTriggers:
+    alternate_name: AutoScalingRetentionTriggers
+  InstanceLifecyclePolicy:
+    alternate_name: AutoScalingInstanceLifecyclePolicy
