@@ -118,3 +118,5 @@ secondary:
     alternate_name: RDSPendingModifiedValues
   PendingCloudwatchLogsExports:
     alternate_name: RDSPendingCloudwatchLogsExports
+  TagSpecification:
+    alternate_name: RDSTagSpecification
