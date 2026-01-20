@@ -206,6 +206,7 @@ class AMIManagerMixin:
         self,
         check_amis: list["AMI"],
         amis: list["AMI"] | None = None,
+        tags: dict[str, str] | None = None,
     ) -> list["AMI"]:
         """
         Return a list of AMIs that are in use by a running or stopped instance.
@@ -216,6 +217,7 @@ class AMIManagerMixin:
         Keyword Args:
             amis: the list of :py:class:`AMI` that have been identified so far as
               being in use.
+            tags: the tags to filter the AMIs by.
 
         Returns:
             A list of :py:class:`AMI` objects that are in use by a running or
@@ -229,27 +231,52 @@ class AMIManagerMixin:
 
         if not amis:
             amis = []
-        found_amis: list[str] = Instance.objects.list(
-            Filters=[
+        filters: list[Filter] = []
+        if tags:
+            filters.extend(
+                [
+                    Filter(Name=f"tag:{key}", Values=[value])
+                    for key, value in tags.items()
+                ]
+            )
+        if check_amis:
+            filters.append(
                 Filter(Name="image-id", Values=[ami.ImageId for ami in check_amis])
-            ]
-        ).values_list("ImageId", flat=True)
-        amis.extend(
-            [ami for ami in check_amis if ami.ImageId in found_amis and ami not in amis]
-        )
+            )
+        found_amis: list[AMI] = Instance.objects.list(Filters=filters).all()
+        seen_amis = set()
+        for ami in found_amis:
+            if ami.ImageId not in seen_amis and ami not in amis:
+                seen_amis.add(ami.ImageId)
+                amis.append(ami)
+        print(f"amis: {amis}")
         return amis
 
     def _get_in_use_asg_amis(
         self,
         check_amis: List["AMI"],
         amis: List["AMI"] | None = None,
+        tags: dict[str, str] | None = None,
     ) -> List["AMI"]:
         """
         Return a list of AMIs that are in use by an autoscaling group.
+
+        Args:
+            check_amis: the list of :py:class:`AMI` to check.
+
+        Keyword Args:
+            amis: the list of :py:class:`AMI` that have been identified so far as
+              being in use.
+            tags: the tags to filter the AMIs by.
+
+        Returns:
+            A list of :py:class:`AMI` objects that are in use by an autoscaling group.
+
         """
         # Avoid circular import
         from botocraft.services import (
             AutoScalingGroup,
+            Filter,
             LaunchConfiguration,
             LaunchTemplateVersion,
             ResponseLaunchTemplateData,
@@ -257,8 +284,16 @@ class AMIManagerMixin:
 
         if amis is None:
             amis = []
+        filters: list[Filter] = []
+        if tags:
+            filters.extend(
+                [
+                    Filter(Name=f"tag:{key}", Values=[value])
+                    for key, value in tags.items()
+                ]
+            )
         # Now search for any AMIs that are used by an autoscaling group
-        autoscaling_groups = AutoScalingGroup.objects.list()
+        autoscaling_groups = AutoScalingGroup.objects.list(Filters=filters)
         for autoscaling_group in autoscaling_groups:
             autoscaling_group = cast("AutoScalingGroup", autoscaling_group)
             for ami in check_amis:
@@ -370,7 +405,7 @@ class AMIManagerMixin:
         else:
             check_amis = amis if amis else []
 
-        in_use_amis = self._get_in_use_instance_amis(check_amis)
+        in_use_amis = self._get_in_use_instance_amis(check_amis, tags=tags)
         in_use_amis = self._get_in_use_asg_amis(check_amis, amis=in_use_amis)
         return PrimaryBoto3ModelQuerySet(in_use_amis)  # type: ignore[arg-type]
 
