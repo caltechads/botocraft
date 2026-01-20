@@ -249,7 +249,6 @@ class AMIManagerMixin:
             if ami.ImageId not in seen_amis and ami not in amis:
                 seen_amis.add(ami.ImageId)
                 amis.append(ami)
-        print(f"amis: {amis}")
         return amis
 
     def _get_in_use_asg_amis(
