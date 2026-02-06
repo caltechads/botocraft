@@ -165,6 +165,8 @@ class ModelRelationshipDefinition(BaseModel):
     Defines a property on a model that is a relationship to another model.
     """
 
+    #: If specified, import these modules into the generated file.
+    imports: List[Importable] = []
     #: The docstring for this property
     docstring: str | None = None
     #: If ``True``, make this property be cached

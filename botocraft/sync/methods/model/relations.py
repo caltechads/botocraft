@@ -51,6 +51,12 @@ class ModelRelationGenerator:
                 f"from {model_path} import {self.property_def.primary_model_name}, {manager_model_name}"  # noqa: E501
             )
 
+        if self.property_def.imports:
+            for import_ in self.property_def.imports:
+                self.generator.imports.add(
+                    f"from {import_.import_path} import {import_.name}"
+                )
+
     @property
     def returns_many(self) -> bool:
         """
