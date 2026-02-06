@@ -320,15 +320,44 @@ secondary:
         default: >-
           True
     properties:
-      repository_name:
+      full_repository_uri:
         docstring: >-
-          The name of the repository that houses the image that this container
-          definition uses.
+          The full repository URI of the image that this container definition uses.  For example: ``123456789012.dkr.ecr.us-east-1.amazonaws.com/my-group/my-image``.
         transformer:
           regex:
             attribute: image
             regex: >-
               ^(.+):.+$
+      repository_name:
+        docstring: >-
+          The name of the repository that houses the image that this container
+          definition uses.  For example: ``my-group/my-image``.
+        transformer:
+          regex:
+            attribute: image
+            regex: >-
+              ^.+?/(.+):.+$
+      image_tag:
+        docstring: >-
+          The tag of the image that this container definition uses.  For example: ``latest``.
+        transformer:
+          regex:
+            attribute: image
+            regex: >-
+              ^.+:(.+)$
+    relations:
+      image_object:
+        primary_model_name: ECRImage
+        imports:
+          - name: ImageIdentifier
+            import_path: botocraft.services.ecr
+        docstring: >-
+          Return the :class:`~botocraft.services.ecr.ECRImage` object that this container definition uses.
+        transformer:
+          mapping:
+            repositoryName: repository_name
+            imageId: >-
+              ImageIdentifier(imageTag=self.image_tag)
   LoadBalancer:
     alternate_name: LoadBalancerConfiguration
   Tag:
