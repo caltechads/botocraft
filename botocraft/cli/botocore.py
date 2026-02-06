@@ -360,11 +360,15 @@ def print_shape(
     """
     shape = service_model._shape_resolver.get_shape_by_name(shape_name)  # type: ignore[attr-defined]  # noqa: SLF001
     renderer = ShapePrinter()
-    output = renderer.render(
-        shape,
-        indent=indent,
-        prefix=prefix,
-    )
+    try:
+        output = renderer.render(
+            shape,
+            indent=indent,
+            prefix=prefix,
+        )
+    except RecursionError:
+        print(f"RecursionError: [shape_name={shape_name}]")
+        return
     print("\n".join(output))
 
 
