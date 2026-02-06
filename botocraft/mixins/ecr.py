@@ -313,12 +313,12 @@ class ECRImageManagerMixin:
     ) -> "PrimaryBoto3ModelQuerySet":
         """
         Return a list of :py:class:`botocraft.services.ECRImage` objects are
-        currently in use by a service or periodic task.  A periodic task is a
-        task that is run via a :py:class:`botocraft.services.events.EventRule`.
+        currently in use by a task definition.
 
         Important:
-            If you have tasks that are run ad-hoc, then this method will not
-            return those task definitions.
+            Purge any task definitions that are not in use before running this method,
+            otherwise you will get a lot of false positives and keep images from being
+            deleted.
 
         Keyword Args:
             repositoryNames: Look at only the repositories with these names.  This
@@ -334,8 +334,6 @@ class ECRImageManagerMixin:
 
         """
         from botocraft.services import (
-            EventRule,
-            Service,
             TaskDefinition,
         )
 
@@ -348,98 +346,80 @@ class ECRImageManagerMixin:
 
         # I'd like to use a set() here, but pydantic classes are not hashable
         # unless they are frozen, which ECRImage is not
-        used_images: Dict[str, "ECRImage"] = {}  # noqa: UP037
-        if verbose:
-            click.secho("Getting all services ...", fg="green")
-        # First get all the services in the account
-        services = Service.objects.using(self.session).all()
-        # Save the ClientException for later so that we don't have to use the
-        # long form of the exception
-        ClientException = Service.objects.using(  # noqa: N806
-            self.session
-        ).client.exceptions.ClientException
+        used_images: dict[str, "ECRImage"] = {}  # noqa: UP037
 
+        # First get all the task definitions and add their images to the
+        # used_images dictionary
         if verbose:
-            click.secho("Finding used images among the services ...", fg="green")
-        # Now iterate through each service and get the append its task definition
-        # to the list of task definitions
-        for service in services:
-            if verbose:
-                click.secho(
-                    f"   Service: {service.cluster_name}:{service.serviceName}",
-                    fg="cyan",
-                )
-            try:
-                task_definition = cast("TaskDefinition", service.task_definition)
-            except ClientException:
-                warnings.warn(
-                    f"Task definition {service.taskDefinition} in Service "
-                    f"{service.cluster_name}:{service.serviceName} does not exist",
-                    UserWarning,
-                    stacklevel=2,
-                )
-            for image_id in task_definition.container_images:
-                if image_id not in used_images:
-                    try:
-                        image = self.__filter_image(
-                            image_id,
-                            repositoryNames=repositoryNames,
-                            repositoryPrefix=repositoryPrefix,
-                            tags=tags,
-                        )
-                    except LookupError:
-                        service_name = f"{service.cluster_name}:{service.serviceName}"
-                        warnings.warn(
-                            f"Image {image_id} not found for service "
-                            f"{service_name} task definition "
-                            f"{task_definition.family_revision}",
-                            UserWarning,
-                            stacklevel=2,
-                        )
-                    else:
-                        if image:
-                            used_images[image_id] = image
-
+            click.secho(
+                "Listing all task definitions ...",
+                fg="green",
+            )
+        tds = TaskDefinition.objects.using(self.session).list()
         if verbose:
-            click.secho("Finding images in periodic tasks...", fg="green")
-        # Now deal with the periodic tasks
-        rules = EventRule.objects.using(self.session).list()
-        for rule in rules:
-            for target in rule.targets:
-                if target.EcsParameters is not None:
-                    try:
-                        task_definition = TaskDefinition.objects.using(
-                            self.session
-                        ).get(target.EcsParameters.TaskDefinitionArn)
-                    except ClientException:
-                        warnings.warn(
-                            f"Task definition {target.EcsParameters.TaskDefinitionArn} "
-                            f"for periodic EventRule {rule.arn} does not exist",
-                            UserWarning,
-                            stacklevel=2,
+            click.secho(
+                f"Found {len(tds)} task definitions.  Adding their images to the "
+                "used_images dictionary...",
+                fg="green",
+            )
+        for td in tds:
+            for image_object in td.image_objects:
+                if image_object is None:
+                    # An image object will be None if the task definition has a
+                    # container definition that uses an image that does not
+                    # exist.
+                    if verbose:
+                        click.secho(
+                            f"Task definition {td.family_revision} has a None "
+                            "image object. Which means the image does not exist.",
+                            fg="red",
                         )
+                        for cd in td.containerDefinitions:
+                            if cd.image_object is not None:
+                                continue
+                            click.secho(
+                                f"    Container definition: {cd.name}",
+                                fg="cyan",
+                            )
+                            click.secho(
+                                f"        Image: {cd.image}",
+                                fg="cyan",
+                            )
+                            click.secho(
+                                f"        Image object: {cd.image_object}",
+                                fg="cyan",
+                            )
                         continue
-                    for image_id in task_definition.container_images:
-                        try:
-                            image = self.__filter_image(
-                                image_id,
-                                repositoryNames=repositoryNames,
-                                repositoryPrefix=repositoryPrefix,
-                                tags=tags,
-                            )
-                        except LookupError:  # noqa: PERF203
-                            warnings.warn(
-                                f"Image {image_id} not found for periodic EventRule "
-                                f"{rule.arn}, task definition {task_definition.family_revision}",  # noqa: E501
-                                UserWarning,
-                                stacklevel=2,
-                            )
-                        else:
-                            if image:
-                                used_images[image_id] = image
+                if image_object.image_name in used_images:
+                    continue
+                used_images[image_object.image_name] = image_object
 
-        # TODO: We need to check other things that might use images, like Lambda
-        # functions, when we get around to implementing the ``lambda`` service.
+        # Now filter the images by the repository names, prefix, or tags, and
+        # add the remaining images to the _used_images dictionary
+        if verbose:
+            click.secho(
+                "Filtering the images by the repository names, prefix, or tags...",
+                fg="green",
+            )
+        _used_images = used_images.copy()
+        for image in used_images.values():
+            # Filter out images that are not in the list of desired repository
+            # names or match the repository prefix.
+            if repositoryNames and image.repositoryName not in repositoryNames:
+                del _used_images[image.image]
+            if repositoryPrefix and not image.repositoryName.startswith(
+                repositoryPrefix
+            ):
+                del _used_images[image.image]
+            # Image themselves don't have AWS tags, so instead we will look at
+            # the repository tags to see if it matches the supplied tags.
+            repo = image.repository
+            for tag in tags:
+                if tag not in repo.tags or tags[tag] != repo.tags[tag]:
+                    del _used_images[image.image]
+
+        # Now we should have a list of images that are in use by task definitions,
+        # so we can return a list of ECRImage objects as a PrimaryBoto3ModelQuerySet.
         return PrimaryBoto3ModelQuerySet(list(used_images.values()))  # type: ignore[arg-type]
 
 

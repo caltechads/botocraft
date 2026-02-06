@@ -10,6 +10,7 @@ if TYPE_CHECKING:
     from botocraft.services import (
         Cluster,
         DeleteTaskDefinitionsResponse,
+        ECRImage,
         Failure,
         Service,
         ServiceDeploymentBrief,
@@ -649,6 +650,29 @@ class TaskDefinitionModelMixin:
         ``<family>:<revision>``.
         """
         return f"{self.family}:{self.revision}"
+
+    @property
+    def image_objects(self) -> list["ECRImage"]:
+        """
+        Return the :class:`~botocraft.services.ecr.ECRImage` objects that this
+        task definition uses across all its container definitions.
+
+        Returns:
+            A list of :class:`~botocraft.services.ecr.ECRImage` objects.
+
+        """
+        return [container.image_object for container in self.containerDefinitions]
+
+    @property
+    def images(self) -> List[str]:
+        """
+        Return the container images as a list of strings.
+
+        Returns:
+            A list of container images.
+
+        """
+        return [container.image for container in self.containerDefinitions]  # type: ignore[attr-defined]
 
     @property
     def container_images(self) -> List[str]:
