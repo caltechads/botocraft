@@ -1,0 +1,18 @@
+---
+primary:
+  LogGroup:
+    primary_key: logGroupArn
+    name_key: logGroupName
+    imports:
+      - from botocraft.services.common import Tag
+    input_shapes:
+      - CreateLogGroupRequest
+    extra_fields:
+      Tags:
+        python_type: list[Tag]
+        docstring: >-
+          The tags associated with the log group.
+
+secondary:
+  Tags:
+    alternate_name: LogsTags

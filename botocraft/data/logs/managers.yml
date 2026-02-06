@@ -1,0 +1,47 @@
+---
+LogGroup:
+  mixins:
+    - name: LogGroupManagerMixin
+      import_path: botocraft.mixins.logs
+  methods:
+    create:
+      decorators:
+        - name: create_log_group_extended
+          import_path: botocraft.mixins.logs
+      boto3_name: create_log_group
+      return_type: None
+    delete:
+      boto3_name: delete_log_group
+      return_type: None
+      args:
+        LogGroupName:
+          required: true
+    get:
+      decorators:
+        - name: convert_log_group_tags
+          import_path: botocraft.mixins.logs
+      boto3_name: describe_log_groups
+      response_attr: logGroups
+      args:
+        logGroupNamePrefix:
+          hidden: true
+        logGroupAccessPattern:
+          hidden: true
+        logGroupClass:
+          hidden: true
+        logGroupIdentifiers:
+          rename: logGroupIdentifier
+          required: true
+          python_type: str
+          source_arg: "[logGroupIdentifier]"
+          docstring: >-
+            The identifier of the log group to get.  If this is in the same account you are querying, you can use the log group name, if you also set ``includeLinkedAccounts`` to ``true``, you must use the log group ARN.
+    list:
+      decorators:
+        - name: convert_log_groups_tags
+          import_path: botocraft.mixins.logs
+      boto3_name: describe_log_groups
+      response_attr: logGroups
+    get_fields:
+      boto3_name: get_log_group_fields
+      response_attr: logGroupFields
