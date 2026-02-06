@@ -1087,6 +1087,10 @@ class ModelGenerator(AbstractGenerator):
         # Get the model definition for this model from the service definition
         # file in ``botocraft/data/<service_name>/models.yml``.
         model_def = self.get_model_def(model_name)
+        # Add any imports for this model to the top of the file
+        if model_def.imports:
+            for import_ in model_def.imports:
+                self.imports.add(import_)
         # Handle the case where the model name is different from the
         # botocore model name.
         if model_def.alternate_name:

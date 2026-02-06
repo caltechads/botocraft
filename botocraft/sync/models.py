@@ -10,8 +10,11 @@ from pydantic import BaseModel, Field, ValidationInfo, field_validator, model_va
 
 from botocraft.sync.docstring import DocumentationFormatter
 
+#: The directory containing the data for the botocraft configuration
 DATA_DIR = Path(__file__).parent.parent / "data"
+#: The directory containing the services for the botocraft configuration
 SERVICES_DIR = Path(__file__).parent.parent / "services"
+#: The directory containing the documentation for the botocraft configuration
 DOCS_DIR = Path(__file__).parent.parent.parent / "doc" / "source"
 
 
@@ -166,7 +169,7 @@ class ModelRelationshipDefinition(BaseModel):
     """
 
     #: If specified, import these modules into the generated file.
-    imports: List[Importable] = []
+    imports: List[Importable] = Field(default_factory=list)
     #: The docstring for this property
     docstring: str | None = None
     #: If ``True``, make this property be cached
@@ -349,8 +352,10 @@ class ModelDefinition(BaseModel):
 
     #: The botocore model name
     name: str
+    #: A list of imports to add to the top of the file to support the model.
+    imports: List[str] | None = None
     #: A list of mixin classes to add to the model
-    mixins: List[Importable] = []
+    mixins: List[Importable] = Field(default_factory=list)
     #: If ``True``, make this model immutable.
     readonly: bool = False
     #: The plural form of our model name, if different from
@@ -379,12 +384,12 @@ class ModelDefinition(BaseModel):
     #: A list of field overrides for this model.  If a field name is not
     #: specified in this list, it will be generated verbatim from the
     #: botocore model attribute definition.
-    fields: Dict[str, ModelAttributeDefinition] = {}
+    fields: Dict[str, ModelAttributeDefinition] = Field(default_factory=dict)
     #: A list of extra fields for this model.  These are fields that are
     #: not in the botocore model, but are either are needed at create time
     #: or because they turn into something else in the response.  This is
     #: pretty rarely used.
-    extra_fields: Dict[str, ModelAttributeDefinition] = {}
+    extra_fields: Dict[str, ModelAttributeDefinition] = Field(default_factory=dict)
     #: The name of the output shape for the get method for this model.  We use
     #: this to add to the model any fields that appear in the get method
     #: response, but which are not present in the create method response.
@@ -394,12 +399,14 @@ class ModelDefinition(BaseModel):
     input_shapes: List[str] | None = None
     #: Computed properties.  These are all defined by us in the botocraft
     #: config.
-    properties: Dict[str, ModelPropertyDefinition] = {}
+    properties: Dict[str, ModelPropertyDefinition] = Field(default_factory=dict)
     #: Relationships to other models.  These are all defined by us in the
     #: botocraft config.
-    relations: Dict[str, ModelRelationshipDefinition] = {}
+    relations: Dict[str, ModelRelationshipDefinition] = Field(default_factory=dict)
     #: Methods on the model that call methods on the manager for the model.
-    manager_methods: Dict[str, ModelManagerMethodDefinition] = {}
+    manager_methods: Dict[str, ModelManagerMethodDefinition] = Field(
+        default_factory=dict
+    )
     #: If ``True``, this is a bespoke model.  This means that we
     #: don't have a botocore shape for it and are buiding it out of
     #: many AWS API calls.  This is used for things like S3 buckets
