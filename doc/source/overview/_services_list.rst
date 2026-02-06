@@ -10,6 +10,7 @@
 - :doc:`/api/services/iam`
 - :doc:`/api/services/inspector2`
 - :doc:`/api/services/kms`
+- :doc:`/api/services/logs`
 - :doc:`/api/services/rds`
 - :doc:`/api/services/route53`
 - :doc:`/api/services/s3`

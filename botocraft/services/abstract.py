@@ -11,6 +11,7 @@ from typing import (
     Callable,
     Iterator,
     Union,
+    cast,
 )
 
 import boto3
@@ -171,7 +172,7 @@ class Boto3ModelManager(TransformMixin):
             return [self.serialize(a) for a in arg]
         return arg
 
-    def sessionize(self, response: Any) -> None:
+    def sessionize(self, response: Any) -> None:  # noqa: PLR0912
         """
         Look through ``response`` for any object with ``set_session`` as
         an attribute and set the session on that object.
@@ -332,7 +333,7 @@ class ReadonlyPrimaryBoto3Model(  # pylint: disable=abstract-method
     ModelIdentityMixin, ReadonlyBoto3Model
 ):
     #: The manager for this model
-    manager_class: ClassVar[Type[Boto3ModelManager]]
+    manager_class: ClassVar[type[Boto3ModelManager]]
 
     #: Get the manager for this model, and set it as a class property
     objects: ClassVar[classproperty] = classproperty(lambda cls: cls.manager_class())
@@ -361,7 +362,7 @@ class PrimaryBoto3Model(  # pylint: disable=abstract-method
     """
 
     #: The manager for this model
-    manager_class: ClassVar[Type[Boto3ModelManager]]
+    manager_class: ClassVar[type[Boto3ModelManager]]
 
     #: Get the manager for this model, and set it as a class property
     objects: ClassVar[classproperty] = classproperty(lambda cls: cls.manager_class())
@@ -404,7 +405,7 @@ class PrimaryBoto3ModelQuerySet:
         self.results = results
         if not self.results:
             self.results = []
-        self._relationship_cache: Dict[str, Dict[int, Any]] = {}
+        self._relationship_cache: dict[str, dict[int, Any]] = {}
 
     def first(self) -> Boto3Model | None:
         """

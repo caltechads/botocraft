@@ -12,7 +12,6 @@ if TYPE_CHECKING:
         BucketLoggingConfiguration,
         GetBucketLifecycleConfigurationOutput,
         S3CORSRule,
-        GetObjectOutput,
     )
 
 # ----------

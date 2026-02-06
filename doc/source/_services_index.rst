@@ -15,6 +15,7 @@
    api/services/iam
    api/services/inspector2
    api/services/kms
+   api/services/logs
    api/services/rds
    api/services/route53
    api/services/s3
