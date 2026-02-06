@@ -1,0 +1,44 @@
+---
+CertificateDetail:
+  methods:
+    import_certificate:
+      boto3_name: import_certificate
+      response_attr: CertificateArn
+    delete:
+      boto3_name: delete_certificate
+      return_type: None
+      args:
+        CertificateArn:
+          required: true
+    get:
+      decorators:
+        - name: add_certificate_tags
+          import_path: botocraft.mixins.acm
+      boto3_name: describe_certificate
+      response_attr: Certificate
+      args:
+        CertificateArn:
+          required: true
+    list:
+      decorators:
+        - name: certificates_only
+          import_path: botocraft.mixins.acm
+      boto3_name: list_certificates
+      response_attr: CertificateSummaryList
+    renew:
+      boto3_name: renew_certificate
+      response_attr: None
+      args:
+        CertificateArn:
+          required: true
+    request:
+      boto3_name: request_certificate
+      response_attr: CertificateArn
+    revoke:
+      boto3_name: revoke_certificate
+      response_attr: CertificateArn
+      args:
+        CertificateArn:
+          required: true
+        RevocationReason:
+          required: true

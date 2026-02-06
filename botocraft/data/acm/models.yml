@@ -1,0 +1,35 @@
+---
+primary:
+  CertificateDetail:
+    arn_key: CertificateArn
+    alternate_name: ACMCertificate
+    primary_key: CertificateArn
+    name_key: DomainName
+    input_shapes:
+      - ImportCertificateRequest
+    fields:
+      KeyAlgorithm:
+        # Have to override the default type because the botocore model has a Literal[...] with the
+        # values using underscores, but the returned value from AWS uses hyphens.
+        python_type: str
+    extra_fields:
+      Tags:
+        python_type: list[Tag]
+        docstring: >-
+          The tags associated with the log group.
+
+secondary:
+  Tags:
+    alternate_name: LogsTags
+  ResourceRecord:
+    alternate_name: ACMResourceRecord
+  HttpRedirect:
+    alternate_name: ACMHttpRedirect
+  RenewalSummary:
+    alternate_name: ACMRenewalSummary
+  CertificateSummary:
+    fields:
+      KeyAlgorithm:
+        # Have to override the default type because the botocore model has a Literal[...] with the
+        # values using underscores, but the returned value from AWS uses hyphens.
+        python_type: str
