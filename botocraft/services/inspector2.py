@@ -8,15 +8,15 @@ from .abstract import (
     Boto3ModelManager,
     ReadonlyBoto3ModelManager,
 )
-from .abstract import PrimaryBoto3ModelQuerySet
-from botocraft.mixins.inspector2 import convert_delegated_admin
-from botocraft.mixins.inspector2 import list_augment_delegated_admin_accounts
-from typing import ClassVar, Type, Optional, Literal, Dict, List, Union, Any, cast
-from pydantic import Field
-from botocraft.mixins.inspector2 import CisScanConfigurationManagerMixin
-from datetime import datetime
-from botocraft.mixins.inspector2 import VulnerabilityManagerMixin
 from botocraft.mixins.tags import TagsDictMixin
+from datetime import datetime
+from pydantic import Field
+from botocraft.mixins.inspector2 import convert_delegated_admin
+from botocraft.mixins.inspector2 import VulnerabilityManagerMixin
+from typing import ClassVar, Type, Optional, Literal, Dict, List, Union, Any, cast
+from botocraft.mixins.inspector2 import CisScanConfigurationManagerMixin
+from botocraft.mixins.inspector2 import list_augment_delegated_admin_accounts
+from .abstract import PrimaryBoto3ModelQuerySet
 
 # ===============
 # Managers
@@ -1688,7 +1688,7 @@ class VulnerablePackage(Boto3Model):
     Information on the vulnerable package identified by a finding.
     """
 
-    packageManager: Literal["BUNDLER", "CARGO", "COMPOSER", "NPM", "NUGET", "PIPENV", "POETRY", "YARN", "GOBINARY", "GOMOD", "JAR", "OS", "PIP", "PYTHONPKG", "NODEPKG", "POM", "GEMSPEC", "DOTNET_CORE", "PYTHON", "RUST", "RUBY", "GOLANG", "JAVA", "NODEJS", "PHP", "DOTNET", "DOTNET5", "DOTNET6", "DOTNET7", "GENERIC"] | None = None
+    packageManager: None | Literal["BUNDLER", "CARGO", "COMPOSER", "NPM", "NUGET", "PIPENV", "POETRY", "YARN", "GOBINARY", "GOMOD", "JAR", "OS", "PIP", "PYTHONPKG", "NODEPKG", "POM", "GEMSPEC", "DOTNET_CORE", "PYTHON", "RUST", "RUBY", "GOLANG", "JAVA", "NODEJS", "PHP", "DOTNET", "DOTNET5", "DOTNET6", "DOTNET7", "GENERIC"] = None
     """
     The package manager of the vulnerable package.
     """
@@ -2117,7 +2117,7 @@ class DelegatedAdminAccount(ReadonlyPrimaryBoto3Model):
     The Amazon Web Services account ID of the Amazon Inspector delegated administrator
     for your organization.
     """
-    relationshipStatus: Literal["CREATED", "INVITED", "DISABLED", "ENABLED", "REMOVED", "RESIGNED", "DELETED", "EMAIL_VERIFICATION_IN_PROGRESS", "EMAIL_VERIFICATION_FAILED", "REGION_DISABLED", "ACCOUNT_SUSPENDED", "CANNOT_CREATE_DETECTOR_IN_ORG_MASTER"] | None = None
+    relationshipStatus: None | Literal["CREATED", "INVITED", "DISABLED", "ENABLED", "REMOVED", "RESIGNED", "DELETED", "EMAIL_VERIFICATION_IN_PROGRESS", "EMAIL_VERIFICATION_FAILED", "REGION_DISABLED", "ACCOUNT_SUSPENDED", "CANNOT_CREATE_DETECTOR_IN_ORG_MASTER"] = None
     """
     The status of the relationship.
     """

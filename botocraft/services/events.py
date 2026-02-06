@@ -8,18 +8,18 @@ from .abstract import (
     Boto3ModelManager,
     ReadonlyBoto3ModelManager,
 )
-from botocraft.mixins.events import EventRule_purge_CreatedBy_attribute
-from botocraft.services.common import Tag
-from botocraft.mixins.events import DescribeEventBusResponse_to_EventBus
-from .abstract import PrimaryBoto3ModelQuerySet
 from botocraft.mixins.events import DescribeRuleResponse_to_EventRule
-from botocraft.mixins.events import event_rules_only
+from botocraft.mixins.tags import TagsDictMixin
+from datetime import datetime
+from pydantic import Field
+from collections import OrderedDict
+from botocraft.mixins.events import DescribeEventBusResponse_to_EventBus
 from functools import cached_property
 from typing import ClassVar, Type, Optional, Literal, Dict, List, Union, Any, cast
-from pydantic import Field
-from datetime import datetime
-from collections import OrderedDict
-from botocraft.mixins.tags import TagsDictMixin
+from botocraft.mixins.events import event_rules_only
+from botocraft.services.common import Tag
+from botocraft.mixins.events import EventRule_purge_CreatedBy_attribute
+from .abstract import PrimaryBoto3ModelQuerySet
 
 # ===============
 # Managers
@@ -767,7 +767,7 @@ class EventRule(PrimaryBoto3Model):
 
     If you omit this, the default event bus is used.
     """
-    CreatedBy: str | None = None
+    CreatedBy: None | str = None
 
     @property
     def pk(self) -> str | None:
