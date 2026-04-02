@@ -1,0 +1,69 @@
+---
+SecretListEntry:
+  methods:
+    create:
+      boto3_name: create_secret
+      response_attr: >-
+        None
+      args:
+        ForceOverwriteReplicaSecret:
+          default: "False"
+    update:
+      boto3_name: update_secret
+      response_attr: >-
+        None
+    get:
+      boto3_name: describe_secret
+      response_attr: >-
+        None
+    list:
+      boto3_name: list_secrets
+      return_type: >-
+        List["Secret"]
+      response_attr: SecretList
+    delete:
+      boto3_name: delete_secret
+    set_value:
+      boto3_name: put_secret_value
+      response_attr: >-
+        None
+    get_value:
+      boto3_name: get_secret_value
+      response_attr: >-
+        None
+    set_resource_policy:
+      boto3_name: put_resource_policy
+      response_attr: >-
+        None
+    get_resource_policy:
+      boto3_name: get_resource_policy
+      response_attr: >-
+        None
+    delete_resource_policy:
+      boto3_name: delete_resource_policy
+      response_attr: >-
+        None
+    rotate:
+      boto3_name: rotate_secret
+      response_attr: >-
+        None
+    cancel_rotation:
+      boto3_name: cancel_rotate_secret
+      response_attr: >-
+        None
+    restore:
+      boto3_name: restore_secret
+      response_attr: >-
+        None
+    random_password:
+      boto3_name: get_random_password
+      response_attr: RandomPassword
+    update_version_stage:
+      boto3_name: update_secret_version_stage
+      response_attr: >-
+        None
+SecretVersionsListEntry:
+  methods:
+    list:
+      boto3_name: list_secret_version_ids
+      response_attr: Versions

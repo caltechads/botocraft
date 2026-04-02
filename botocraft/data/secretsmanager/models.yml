@@ -1,0 +1,71 @@
+---
+primary:
+  SecretListEntry:
+    alternate_name: Secret
+    primary_key: ARN
+    arn_key: ARN
+    name_key: Name
+    input_shapes:
+      - CreateSecretRequest
+      - UpdateSecretRequest
+    fields:
+      Name:
+        required: true
+    manager_methods:
+      get_value:
+        docstring: >-
+          Get the value of the secret.
+        manager_method: get_value
+        args:
+          0:
+            name: SecretId
+            value: >-
+              self.ARN
+        user_keyword_args:
+          - name: VersionId
+            value: >-
+              None
+          - name: VersionStage
+            value: "AWSCURRENT"
+      set_value:
+        docstring: >-
+          Set the value of the secret.
+        manager_method: set_value
+        args:
+          0:
+            name: SecretId
+            value: >-
+              self.ARN
+        user_keyword_args:
+          - name: ClientRequestToken
+            python_type: str
+            value: >-
+              None
+          - name: SecretBinary
+            python_type: bytes
+            value: >-
+              None
+          - name: SecretString
+            python_type: str
+            value: >-
+              None
+          - name: VersionStages
+            python_type: List[str]
+            value: >-
+              ["AWSCURRENT"]
+          - name: RotationToken
+            python_type: str
+            value: >-
+              None
+  SecretVersionsListEntry:
+    alternate_name: SecretVersion
+    primary_key: VersionId
+    name_key: VersionId
+secondary:
+  Filter:
+    alternate_name: SecretsFilter
+    fields:
+      Key:
+        required: true
+      Values:
+        required: true

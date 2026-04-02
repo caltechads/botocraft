@@ -15,6 +15,7 @@
 - :doc:`/api/services/rds`
 - :doc:`/api/services/route53`
 - :doc:`/api/services/s3`
+- :doc:`/api/services/secretsmanager`
 - :doc:`/api/services/sqs`
 - :doc:`/api/services/ssm`
 - :doc:`/api/services/sts`

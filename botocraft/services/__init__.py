@@ -1,4 +1,5 @@
 from .ssm import *  # noqa: F401,F403
+from .secretsmanager import *  # noqa: F401,F403
 from .kms import *  # noqa: F401,F403
 from .s3 import *  # noqa: F401,F403
 from .inspector2 import *  # noqa: F401,F403
