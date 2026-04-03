@@ -8,15 +8,15 @@ from .abstract import (
     Boto3ModelManager,
     ReadonlyBoto3ModelManager,
 )
+from botocraft.mixins.logs import convert_log_groups_tags
 from typing import ClassVar, Type, Optional, Literal, Dict, List, Union, Any, cast
 from botocraft.mixins.logs import LogGroupManagerMixin
-from botocraft.mixins.logs import convert_log_group_tags
-from botocraft.mixins.tags import TagsDictMixin
-from botocraft.mixins.logs import create_log_group_extended
 from pydantic import Field
-from datetime import datetime
+from botocraft.mixins.tags import TagsDictMixin
 from .abstract import PrimaryBoto3ModelQuerySet
-from botocraft.mixins.logs import convert_log_groups_tags
+from botocraft.mixins.logs import create_log_group_extended
+from datetime import datetime
+from botocraft.mixins.logs import convert_log_group_tags
 from botocraft.services.common import Tag
 
 # ===============

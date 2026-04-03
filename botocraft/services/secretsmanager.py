@@ -8,11 +8,12 @@ from .abstract import (
     Boto3ModelManager,
     ReadonlyBoto3ModelManager,
 )
+from botocraft.mixins.secretsmanager import secrets_only
 from typing import ClassVar, Type, Optional, Literal, Dict, List, Union, Any, cast
-from botocraft.mixins.tags import TagsDictMixin
 from pydantic import Field
-from datetime import datetime
+from botocraft.mixins.tags import TagsDictMixin
 from .abstract import PrimaryBoto3ModelQuerySet
+from datetime import datetime
 from botocraft.services.common import Tag
 
 # ===============
@@ -114,6 +115,7 @@ class SecretManager(Boto3ModelManager):
         self.sessionize(response)
         return cast("UpdateSecretResponse", response)
 
+    @secrets_only
     def get(self, SecretId: str) -> Optional["Secret"]:
         """
         Retrieves the details of a secret. It does not include the encrypted secret
@@ -613,7 +615,7 @@ class SecretVersionManager(Boto3ModelManager):
         MaxResults: int | None = None,
         NextToken: str | None = None,
         IncludeDeprecated: bool | None = None,
-    ) -> List["str"]:
+    ) -> PrimaryBoto3ModelQuerySet:
         """
         Lists the versions of a secret. Secrets Manager uses staging labels to indicate the different versions of a secret. For
         more information, see  `Secrets Manager concepts:

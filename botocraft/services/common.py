@@ -5,9 +5,22 @@ want to keep redefining it.
 """
 
 # pylint: disable=anomalous-backslash-in-string
-from typing import Optional, List
+from dataclasses import dataclass
+from typing import List
 
 from .abstract import Boto3Model
+
+
+@dataclass
+class Credentials:
+    """
+    A class that represents the credentials for an RDS or DocumentDB instance.
+    """
+
+    #: The username for the RDS or DocumentDB instance.
+    username: str
+    #: The password for the RDS or DocumentDB instance.
+    password: str
 
 
 class Tag(Boto3Model):
