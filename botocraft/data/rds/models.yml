@@ -1,6 +1,9 @@
 ---
 primary:
   DBInstance:
+    mixins:
+      - name: RDSInstanceModelMixin
+        import_path: botocraft.mixins.rds
     primary_key: DBInstanceArn
     arn_key: DBInstanceArn
     name_key: DBInstanceIdentifier
