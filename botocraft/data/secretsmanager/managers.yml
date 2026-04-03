@@ -13,6 +13,9 @@ SecretListEntry:
       response_attr: >-
         None
     get:
+      decorators:
+        - name: secrets_only
+          import_path: botocraft.mixins.secretsmanager
       boto3_name: describe_secret
       response_attr: >-
         None
