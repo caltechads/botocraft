@@ -25,7 +25,7 @@ primary:
       Tags:
         docstring: >-
           The AWS tags associated with the repository.
-        python_type: List["Tag"]
+        python_type: "builtins.list[Tag]"
         default: None
   Image:
     alternate_name: ECRImage
@@ -89,12 +89,10 @@ secondary:
         # For some reason the botocore shape doesn't have "UNTRIAGED" as a
         # possible key so we have to override the type here
         python_type: >-
-          Optional[
-            Dict[
-                Literal["INFORMATIONAL", "LOW", "MEDIUM", "HIGH", "CRITICAL", "UNDEFINED", "UNTRIAGED"],
-                int,
-            ]
-          ]
+          dict[
+              Literal['INFORMATIONAL', 'LOW', 'MEDIUM', 'HIGH', 'CRITICAL', 'UNDEFINED', 'UNTRIAGED'],
+              int,
+          ] | None
   ListTagsForResourceResponse:
     fields:
       tags:

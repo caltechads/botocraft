@@ -1,5 +1,5 @@
 import json
-from typing import TYPE_CHECKING, Any, Union, cast
+from typing import TYPE_CHECKING, Any, cast
 
 import boto3.session
 
@@ -38,7 +38,7 @@ class AbstractEventFactory:
     def __init__(self, session: boto3.session.Session | None = None) -> None:
         self.session = session
 
-    def new(self, event_data: str) -> Union["EventBridgeEvent", dict[str, Any]]:
+    def new(self, event_data: str) -> "EventBridgeEvent | dict[str, Any]":
         """
         Return an event class of the type identified by ``event_data``.
 
@@ -67,7 +67,7 @@ class EventFactory(AbstractEventFactory):
 
     """
 
-    def new(self, event_data: str) -> Union["EventBridgeEvent", dict[str, Any]]:  # noqa: PLR0911, PLR0912
+    def new(self, event_data: str) -> "EventBridgeEvent | dict[str, Any]":  # noqa: PLR0911, PLR0912
         """
         Return an event class of the type identified by ``event_data``.
 

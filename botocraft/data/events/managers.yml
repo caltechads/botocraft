@@ -26,7 +26,7 @@ Rule:
       boto3_name: describe_rule
       response_attr: None
       return_type: >-
-        Optional["DescribeRuleResponse"]
+        "DescribeRuleResponse | None"
       decorators:
         - name: DescribeRuleResponse_to_EventRule
           import_path: botocraft.mixins.events
@@ -113,7 +113,7 @@ EventBus:
       boto3_name: describe_event_bus
       response_attr: None
       return_type: >-
-        Optional["EventBus"]
+        "EventBus | None"
       decorators:
         - name: DescribeEventBusResponse_to_EventBus
           import_path: botocraft.mixins.events
@@ -127,4 +127,4 @@ EventBus:
       boto3_name: list_rules
       response_attr: Rules
       return_type: >-
-        List["EventRule"]
+        builtins.list["EventRule"]

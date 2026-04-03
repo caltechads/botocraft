@@ -1,7 +1,7 @@
 # mypy: disable-error-code="attr-defined"
 import warnings
 from functools import wraps
-from typing import TYPE_CHECKING, Callable, Dict, List, Optional, cast
+from typing import TYPE_CHECKING, Callable, cast
 
 import boto3
 
@@ -79,8 +79,8 @@ def add_attributes_for_list(
 
 
 def add_tags_for_get(
-    func: Callable[..., Optional["ClassicELB"]],
-) -> Callable[..., Optional["ClassicELB"]]:
+    func: Callable[..., "ClassicELB | None"],
+) -> Callable[..., "ClassicELB | None"]:
     """
     Wraps :py:meth:`botocraft.services.ecs.ServiceManager.list` to return a list of
     :py:class:`botocraft.services.ecs.Service` objects instead of only a list of
@@ -88,7 +88,7 @@ def add_tags_for_get(
     """
 
     @wraps(func)
-    def wrapper(self, *args, **kwargs) -> Optional["ClassicELB"]:
+    def wrapper(self, *args, **kwargs) -> "ClassicELB | None":
         elb = func(self, *args, **kwargs)
         if elb:
             tags = elb.objects.using(self.session).describe_tags(
@@ -170,7 +170,7 @@ class ClassicELBManagerMixin:
             The newly created :py:class:`ClassicELB` object
 
         """
-        tags: List[Dict[str, str]] | None = None
+        tags: list[dict[str, str]] | None = None
         if elb.Tags:
             tags = [{"Key": key, "Value": value} for key, value in elb.Tags.items()]
         # Since we use .create() directly on the manager, any .using(session) should
@@ -291,8 +291,8 @@ class ClassicELBManagerMixin:
                     Tags=[{"Key": key} for key in old_elb.Tags],
                 )
             else:
-                old_tags = cast("Dict[str, str]", old_elb.Tags)
-                new_tags = cast("Dict[str, str]", new_elb.Tags)
+                old_tags = cast("dict[str, str]", old_elb.Tags)
+                new_tags = cast("dict[str, str]", new_elb.Tags)
                 # First get the tags that need to be deleted by finding keys that
                 # are in old_elb.Tags but not in new_elb.Tags
                 keys_to_delete = set(old_tags.keys()) - set(new_tags.keys())
@@ -371,10 +371,10 @@ class ClassicELBManagerMixin:
 
         """
         manager = self.using(old_elb.session)
-        old_azs = set()
+        old_azs = set[str]()
         if old_elb.AvailabilityZones:
             old_azs = set(old_elb.AvailabilityZones)
-        new_azs = set()
+        new_azs = set[str]()
         if new_elb.AvailabilityZones:
             new_azs = set(new_elb.AvailabilityZones)
         azs_to_add = new_azs - old_azs
@@ -518,7 +518,7 @@ class ClassicELBManagerMixin:
 
         # Deal with security groups
         if _elb.SecurityGroups != elb.SecurityGroups:
-            security_groups = elb.SecurityGroups if elb.SecurityGroups else []
+            security_groups = elb.SecurityGroups or []
             elb.apply_security_groups(security_groups)
 
         # Scheme

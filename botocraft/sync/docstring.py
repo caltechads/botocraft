@@ -1,15 +1,15 @@
 import re
 from dataclasses import dataclass, field
 from textwrap import wrap
-from typing import List, Literal, Tuple
+from typing import Literal
 
 from markdownify import markdownify
 
 
 @dataclass
 class FormatterArgs:
-    line_range: Tuple[int, int] | None = None
-    length_range: Tuple[int, int] | None = None
+    line_range: tuple[int, int] | None = None
+    length_range: tuple[int, int] | None = None
     black: bool = True
     style: Literal["sphinx", "epytext"] = "sphinx"
     force_wrap: bool = False
@@ -22,7 +22,7 @@ class FormatterArgs:
     tab_width: int = 4
     wrap_summaries: int = 88
     wrap_descriptions: int = 88
-    non_cap: List[str] = field(default_factory=list)
+    non_cap: list[str] = field(default_factory=list)
 
 
 class DocumentationFormatter:

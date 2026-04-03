@@ -80,7 +80,7 @@ class ModelRelationGenerator:
                 field_name,
                 field_shape=fields[field_name].botocore_shape,
             )
-            if "List[" in attr_python_type:
+            if "list[" in attr_python_type:
                 many = True
         return many
 
@@ -107,8 +107,8 @@ class ModelRelationGenerator:
         """
         related_model_name = self.property_def.primary_model_name
         if self.returns_many:
-            return f'Optional[List["{related_model_name}"]]'
-        return f'Optional["{related_model_name}"]'
+            return f'"list[{related_model_name}] | None"'
+        return f'"{related_model_name} | None"'
 
     @property
     def docstring(self) -> str:

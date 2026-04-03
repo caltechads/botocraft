@@ -4,7 +4,7 @@ from pathlib import Path
 from textwrap import (
     indent as add_prefix,
 )
-from typing import Dict, Final, List, Literal, cast
+from typing import Final, Literal, cast
 
 import botocore.model
 import botocore.session
@@ -38,7 +38,7 @@ class ShapePrinter:
         shape: botocore.model.StringShape,
         indent: int = 0,
         prefix: str | None = None,
-    ) -> List[str]:
+    ) -> list[str]:
         """
         Render a string shape as a descriptive string.
 
@@ -82,7 +82,7 @@ class ShapePrinter:
         shape: botocore.model.StringShape,
         indent: int = 0,
         prefix: str | None = None,
-    ) -> List[str]:
+    ) -> list[str]:
         """
         Render a blob shape as a descriptive string.  According to the botocore
         documentation::
@@ -126,7 +126,7 @@ class ShapePrinter:
         indent: int = 0,
         prefix: str | None = None,
         int_type: IntType = "int",
-    ) -> List[str]:
+    ) -> list[str]:
         """
         Render a integer shape as a descriptive string.
 
@@ -166,7 +166,7 @@ class ShapePrinter:
         shape: botocore.model.ListShape,
         indent: int = 0,
         prefix: str | None = None,
-    ) -> List[str]:
+    ) -> list[str]:
         """
         Render a list shape as a descriptive string.
 
@@ -183,11 +183,11 @@ class ShapePrinter:
         if prefix is not None:
             output.append(
                 f"{click.style(prefix, fg='cyan')}: list -> "
-                f"{click.style(shape.name, fg='blue')} (List[{member.name}])"
+                f"{click.style(shape.name, fg='blue')} (list[{member.name}])"
             )
         else:
             output.append(
-                f"{click.style(shape.name, fg='red')}: list -> {click.style(shape.name, fg='blue')} (List[{member.name}])"  # noqa: E501
+                f"{click.style(shape.name, fg='red')}: list -> {click.style(shape.name, fg='blue')} (list[{member.name}])"  # noqa: E501
             )
         output.extend(self.render(member, indent=self.SHAPE_INDENT))
         if indent:
@@ -199,7 +199,7 @@ class ShapePrinter:
         shape: botocore.model.MapShape,
         indent: int = 0,
         prefix: str | None = None,
-    ) -> List[str]:
+    ) -> list[str]:
         """
         Render a map shape as a descriptive string.
 
@@ -234,7 +234,7 @@ class ShapePrinter:
         shape: botocore.model.StructureShape,
         indent: int = 0,
         prefix: str | None = None,
-    ) -> List[str]:
+    ) -> list[str]:
         """
         Render a structure shape as a string.
 
@@ -277,7 +277,7 @@ class ShapePrinter:
         shape: botocore.model.Shape,
         indent: int = 0,
         prefix: str | None = None,
-    ) -> List[str]:
+    ) -> list[str]:
         """
         Render a shape as a string.
 
@@ -542,7 +542,7 @@ def botocore_list_primary_models(service: str):
     """
     session = botocore.session.get_session()
     service_model = session.get_service_model(service)
-    operation_names: List[str] = list(service_model.operation_names)
+    operation_names: list[str] = list(service_model.operation_names)
     prefixes = (
         "Put",
         "Get",
@@ -557,7 +557,7 @@ def botocore_list_primary_models(service: str):
     # First pass: list all shapes
     # Second pass: assign operations to the most specific shape
     # Then print the shapes with their operations
-    models: Dict[str, List[str]] = {}
+    models: dict[str, list[str]] = {}
     names = list(service_model.shape_names)
     names.sort(key=lambda x: len(x))
     names.reverse()

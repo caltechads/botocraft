@@ -1,5 +1,5 @@
 from functools import wraps
-from typing import TYPE_CHECKING, Any, Callable, Generator, List, Optional, Union
+from typing import TYPE_CHECKING, Any, Callable, Generator
 
 from botocraft.services.abstract import PrimaryBoto3ModelQuerySet
 
@@ -14,7 +14,7 @@ if TYPE_CHECKING:
 
 
 def queue_list_urls_to_queues(
-    func: Callable[..., List["str"]],
+    func: Callable[..., list["str"]],
 ) -> Callable[..., "PrimaryBoto3ModelQuerySet"]:
     """
     Wraps a boto3 method that returns a list of SQS queue URLs to return a list
@@ -32,7 +32,7 @@ def queue_list_urls_to_queues(
 
 
 def queue_recieve_messages_add_queue_url(
-    func: Callable[..., List["Message"]],
+    func: Callable[..., list["Message"]],
 ) -> Callable[..., "PrimaryBoto3ModelQuerySet"]:
     """
     Wraps a boto3 method that receives messages from an SQS queue to return
@@ -55,7 +55,7 @@ def queue_recieve_messages_add_queue_url(
 
 
 def queue_recieve_messages_add_event_factory(
-    func: Callable[..., List["Message"]],
+    func: Callable[..., list["Message"]],
 ) -> Callable[..., "PrimaryBoto3ModelQuerySet"]:
     """
     Wraps a boto3 method that receives messages from an SQS queue to return
@@ -151,7 +151,7 @@ class QueueModelMixin:
 
     def poll(
         self,
-        EventFactoryClass: Optional["AbstractEventFactory"] = None,  # noqa: N803
+        EventFactoryClass: "AbstractEventFactory | None" = None,  # noqa: N803
     ) -> Generator["Message", None, None]:
         """
         Eternally poll for messages in the queue, and yield them as
@@ -186,7 +186,7 @@ class MessageModelMixin:
     """
 
     @property
-    def event(self) -> Union["EventBridgeEvent", dict[str, Any]]:
+    def event(self) -> "EventBridgeEvent | dict[str, Any]":
         """
         Convert the message body to an event object using the
         :py:class:`~botocraft.eventbridge.EventFactory` class.

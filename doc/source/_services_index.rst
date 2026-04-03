@@ -6,6 +6,7 @@
    api/services/acm
    api/services/application_autoscaling
    api/services/autoscaling
+   api/services/docdb
    api/services/ec2
    api/services/ecr
    api/services/ecs

@@ -6,7 +6,6 @@ want to keep redefining it.
 
 # pylint: disable=anomalous-backslash-in-string
 from dataclasses import dataclass
-from typing import List
 
 from .abstract import Boto3Model
 
@@ -76,4 +75,4 @@ class Filter(Boto3Model):
     #: The name of the filter. Filter names are case-sensitive.
     Name: str
     #: One or more filter values. Filter values are case-sensitive.
-    Values: List[str]
+    Values: list[str]

@@ -154,7 +154,7 @@ primary:
         readonly: true
       Platform:
         readonly: true
-        python_type: Literal["windows"] | None
+        python_type: "Literal['windows'] | None"
       PlatformDetails:
         readonly: true
       UsageOperation:
@@ -236,7 +236,7 @@ primary:
         readonly: false
       Tunnels:
         python_type: >-
-          Dict[str, List[Dict[str, Any]]]
+          dict[str, builtins.list[dict[str, Any]]]
         docstring: >-
           The tunnels that are open for this instance.  This is used by
           :py:meth:`start_tunnel` and :py:meth:`stop_tunnel`.
@@ -275,7 +275,7 @@ primary:
         transformer:
           mapping:
             GroupIds: >-
-              [identifier.GroupId for identifier in cast(List["GroupIdentifier"], self.SecurityGroups)]
+              [identifier.GroupId for identifier in cast("builtins.list[GroupIdentifier]", self.SecurityGroups)]
       network_interfaces:
         primary_model_name: NetworkInterface
         many: true
@@ -420,7 +420,7 @@ primary:
       - CreateNetworkInterfaceRequest
     fields:
       InterfaceType:
-        python_type: Optional[str]
+        python_type: str | None
     relations:
       subnet:
         primary_model_name: Subnet
@@ -439,7 +439,7 @@ primary:
         transformer:
           mapping:
             GroupIds: >-
-              [identifier.GroupId for identifier in cast(List["GroupIdentifier"], self.Groups)]
+              [identifier.GroupId for identifier in cast("builtins.list[GroupIdentifier]", self.Groups)]
     manager_methods:
       reset:
         docstring: >-
@@ -680,4 +680,4 @@ secondary:
   EbsInstanceBlockDevice:
     fields:
       Status:
-        python_type: Literal["attaching", "attached", "detaching", "detached", "in-use"]
+        python_type: "Literal['attaching', 'attached', 'detaching', 'detached', 'in-use']"

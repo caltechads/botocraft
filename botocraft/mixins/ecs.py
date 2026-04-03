@@ -2,7 +2,7 @@
 import re
 import warnings
 from functools import cached_property, wraps
-from typing import TYPE_CHECKING, Callable, Dict, List, Literal, Optional, Set, cast
+from typing import TYPE_CHECKING, Callable, Literal, cast
 
 from botocraft.services.abstract import PrimaryBoto3ModelQuerySet
 
@@ -84,7 +84,7 @@ def ecs_services_only(
 
 
 def ecs_clusters_only(
-    func: Callable[..., List[str]],
+    func: Callable[..., list[str]],
 ) -> Callable[..., "PrimaryBoto3ModelQuerySet"]:
     """
     Wraps :py:meth:`botocraft.services.ecs.ClusterManager.list` to return a list
@@ -111,15 +111,15 @@ def ecs_clusters_only(
 
 
 def ecs_task_definition_include_tags(
-    func: Callable[..., Optional["TaskDefinition"]],
-) -> Callable[..., Optional["TaskDefinition"]]:
+    func: Callable[..., "TaskDefinition | None"],
+) -> Callable[..., "TaskDefinition | None"]:
     """
     Decorator to convert a :py:class:`botocraft.services.ecs.TaskDefinition` object
     to a :py:class:`botocraft.services.ecs.TaskDefinition` object with tags included.
     """
 
     @wraps(func)
-    def wrapper(self, *args, **kwargs) -> Optional["TaskDefinition"]:
+    def wrapper(self, *args, **kwargs) -> "TaskDefinition | None":
         response = func(self, *args, **kwargs)
         if not response:
             return None
@@ -133,7 +133,7 @@ def ecs_task_definition_include_tags(
 
 
 def ecs_task_definitions_only(
-    func: Callable[..., List[str]],
+    func: Callable[..., list[str]],
 ) -> Callable[..., "PrimaryBoto3ModelQuerySet"]:
     """
     Decorator to convert a list of ECS task definition identifiers to a list of
@@ -155,7 +155,7 @@ def ecs_task_definitions_only(
 
 
 def ecs_container_instances_only(
-    func: Callable[..., List[str]],
+    func: Callable[..., list[str]],
 ) -> Callable[..., "PrimaryBoto3ModelQuerySet"]:
     """
     Decorator to convert a list of ECS container instance arns to a
@@ -181,7 +181,7 @@ def ecs_container_instances_only(
 
 
 def ecs_container_instances_tasks_only(
-    func: Callable[..., List[str]],
+    func: Callable[..., list[str]],
 ) -> Callable[..., "PrimaryBoto3ModelQuerySet"]:
     """
     Decorator to convert a list of ECS container instance arns to a list of
@@ -204,7 +204,7 @@ def ecs_container_instances_tasks_only(
 
 
 def ecs_service_deployments_only(
-    func: Callable[..., List["ServiceDeploymentBrief"]],
+    func: Callable[..., list["ServiceDeploymentBrief"]],
 ) -> Callable[..., "PrimaryBoto3ModelQuerySet"]:
     """
     Decorator to convert a list of service deployment arns to a list of
@@ -243,8 +243,8 @@ def ecs_service_deployments_only(
 
 # Task
 def ecs_task_populate_taskDefinition(
-    func: Callable[..., Optional["Task"]],
-) -> Callable[..., Optional["Task"]]:
+    func: Callable[..., "Task | None"],
+) -> Callable[..., "Task | None"]:
     """
     Wraps :py:meth:`botocraft.services.ecs.TaskManager.get` to populate the
     :py:attr:`botocraft.services.ecs.Task.taskDefinition` attribute.
@@ -256,7 +256,7 @@ def ecs_task_populate_taskDefinition(
     """
 
     @wraps(func)
-    def wrapper(self, *args, **kwargs) -> Optional["Task"]:
+    def wrapper(self, *args, **kwargs) -> "Task | None":
         task = func(self, *args, **kwargs)
         if task:
             task.taskDefinition = extract_task_family_and_revision(
@@ -294,7 +294,7 @@ def ecs_task_populate_taskDefinitions(
 
 
 def ecs_tasks_only(
-    func: Callable[..., List[str]],
+    func: Callable[..., list[str]],
 ) -> Callable[..., "PrimaryBoto3ModelQuerySet"]:
     """
     Wrap :py:meth:`botocraft.services.ecs.TaskManager.list` to return a list of
@@ -475,7 +475,7 @@ class ECSServiceModelMixin:
         """
         from botocraft.services import LoadBalancer
 
-        arns: Set[str] = set()
+        arns: set[str] = set()
         for tg in self.target_groups:  # type: ignore[attr-defined]
             for arn in tg.LoadBalancerArns:
                 arns.add(arn)
@@ -496,7 +496,7 @@ class ECSServiceManagerMixin:
         self,
         launchType: Literal["EC2", "FARGATE", "EXTERNAL"] | None = None,  # noqa: N803
         schedulingStrategy: Literal["REPLICA", "DAEMON"] | None = None,  # noqa: N803
-        tags: Dict[str, str] | None = None,
+        tags: dict[str, str] | None = None,
     ) -> "PrimaryBoto3ModelQuerySet":
         """
         Return all the services in the account.  This differs from
@@ -525,7 +525,7 @@ class ECSServiceManagerMixin:
             tags = {}
 
         clusters = Cluster.objects.using(self.session).list()
-        services: List["Service"] = []  # noqa: UP037
+        services: list["Service"] = []  # noqa: UP037
         for cluster in clusters:
             if tags.items() <= cluster.tags.items():
                 services.extend(
@@ -566,7 +566,7 @@ class ECSContainerInstanceModelMixin:
 class TaskDefinitionManagerMixin:
     def in_use(
         self,
-        tags: Dict[str, str] | None = None,
+        tags: dict[str, str] | None = None,
     ) -> "PrimaryBoto3ModelQuerySet":
         """
         Return a list of task definitions that are currently in use by a service
@@ -596,10 +596,10 @@ class TaskDefinitionManagerMixin:
         if not tags:
             tags = {}
 
-        task_definitions: Dict[str, TaskDefinition] = {}
+        task_definitions: dict[str, TaskDefinition] = {}
 
         # First get all the services in the account
-        services: List[Service] = Service.objects.using(self.session).all()
+        services: list[Service] = Service.objects.using(self.session).all()
         ClientException = self.session.client("ecs").exceptions.ClientException  # noqa: N806
 
         # Now iterate through each service and get the append its task definition
@@ -664,7 +664,7 @@ class TaskDefinitionModelMixin:
         return [container.image_object for container in self.containerDefinitions]
 
     @property
-    def images(self) -> List[str]:
+    def images(self) -> list[str]:
         """
         Return the container images as a list of strings.
 
@@ -675,7 +675,7 @@ class TaskDefinitionModelMixin:
         return [container.image for container in self.containerDefinitions]  # type: ignore[attr-defined]
 
     @property
-    def container_images(self) -> List[str]:
+    def container_images(self) -> list[str]:
         """
         Return the container images as a list of strings.
 
@@ -686,7 +686,7 @@ class TaskDefinitionModelMixin:
         return [container.image for container in self.containerDefinitions]  # type: ignore[attr-defined]
 
     @cached_property
-    def services(self) -> List["Service"]:
+    def services(self) -> list["Service"]:
         """
         Return the services that use this task definition revision.
 
@@ -705,7 +705,7 @@ class TaskDefinitionModelMixin:
         from botocraft.services import Cluster, Service
 
         clusters = Cluster.objects.using(self.session).list()
-        services: List[Service] = []
+        services: list[Service] = []
         for cluster in clusters:
             services.extend(
                 service

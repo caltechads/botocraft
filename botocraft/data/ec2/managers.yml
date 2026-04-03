@@ -120,7 +120,7 @@ SecurityGroup:
           default: "False"
     revoke_ingress:
       boto3_name: revoke_security_group_ingress
-      return_type: Optional[bool]
+      return_type: bool | None
       response_attr: Return
       args:
         GroupName:
@@ -147,7 +147,7 @@ SecurityGroup:
           required: true
     authorize_ingress:
       boto3_name: authorize_security_group_ingress
-      return_type: Optional[bool]
+      return_type: bool | None
       response_attr: Return
       args:
         GroupName:
@@ -172,7 +172,7 @@ SecurityGroup:
           required: true
         TagSpecifications:
           rename: Tags
-          python_type: Optional[List["Tag"]]
+          python_type: "builtins.list[Tag] | None"
           source_arg: >-
             self.serialize(self.convert_tags(Tags, 'security-group-rule'))
 NetworkAcl:
@@ -188,7 +188,7 @@ NetworkAcl:
           default: "False"
         TagSpecifications:
           rename: Tags
-          python_type: Optional[List["Tag"]]
+          python_type: "builtins.list[Tag] | None"
           source_arg: >-
             self.serialize(self.convert_tags(model.Tags, 'network-acl'))
     delete:
@@ -234,7 +234,7 @@ Image:
           default: "False"
         TagSpecifications:
           rename: Tags
-          python_type: Optional[List["Tag"]]
+          python_type: "builtins.list[Tag] | None"
           source_arg: >-
             self.serialize(self.convert_tags(model.Tags, 'image'))
     delete:
@@ -321,13 +321,15 @@ Instance:
             "terminate"
         TagSpecifications:
           rename: Tags
-          python_type: Optional[List["Tag"]]
+          python_type: >-
+            "builtins.list[Tag] | None"
           source_arg: >-
             self.serialize(self.convert_tags(model.Tags, 'instance'))
     get:
       boto3_name: describe_instances
       response_attr: Reservations
-      return_type: Optional["Reservation"]
+      return_type: >-
+        "Reservation | None"
       args:
         Filters:
           hidden: true
@@ -346,7 +348,8 @@ Instance:
     list:
       boto3_name: describe_instances
       response_attr: Reservations
-      return_type: List["Reservation"]
+      return_type: >-
+        "builtins.list[Reservation]"
       args:
         DryRun:
           default: "False"
@@ -356,7 +359,8 @@ Instance:
     start:
       boto3_name: start_instances
       response_attr: StartingInstances
-      return_type: Optional[List["InstanceStateChange"]]
+      return_type: >-
+        "builtins.list[InstanceStateChange] | None"
       args:
         InstanceIds:
           required: true
@@ -369,7 +373,8 @@ Instance:
     stop:
       boto3_name: stop_instances
       response_attr: StoppingInstances
-      return_type: Optional[List["InstanceStateChange"]]
+      return_type: >-
+        "builtins.list[InstanceStateChange] | None"
       args:
         InstanceIds:
           required: true
@@ -388,7 +393,8 @@ Instance:
           default: "False"
     terminate:
       boto3_name: terminate_instances
-      return_type: Optional[List["InstanceStateChange"]]
+      return_type: >-
+        "builtins.list[InstanceStateChange] | None"
       response_attr: TerminatingInstances
       args:
         InstanceIds:
@@ -408,7 +414,7 @@ LaunchTemplate:
           default: "False"
         TagSpecifications:
           rename: Tags
-          python_type: Optional[List["Tag"]]
+          python_type: "builtins.list[Tag] | None"
           source_arg: >-
             self.serialize(self.convert_tags(model.Tags, 'launch-template'))
     delete:
@@ -499,7 +505,8 @@ NetworkInterface:
           default: "False"
         TagSpecifications:
           rename: Tags
-          python_type: Optional[List["Tag"]]
+          python_type: >-
+            "builtins.list[Tag] | None"
           source_arg: >-
             self.serialize(self.convert_tags(model.Tags, 'network-interface'))
     delete:
@@ -601,7 +608,7 @@ Snapshot:
           required: true
         TagSpecifications:
           rename: Tags
-          python_type: Optional[List["Tag"]]
+          python_type: "builtins.list[Tag] | None"
           source_arg: >-
             self.serialize(self.convert_tags(model.Tags, 'snapshot'))
         DryRun:

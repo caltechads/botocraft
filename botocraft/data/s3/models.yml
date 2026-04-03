@@ -10,7 +10,7 @@ primary:
         docstring: >-
           The name of the bucket. This is a unique identifier for the bucket, globally.
       BucketArn:
-        python_type: Optional[str]
+        python_type: str | None
         readonly: true
         docstring: >-
           The ARN of the bucket. This is a unique identifier for the bucket.  Some older buckets don't have an ARN.
@@ -24,14 +24,14 @@ primary:
         docstring: >-
           The creation date of the bucket. This is the date the bucket was created.
       ACL:
-        python_type: Optional[Literal["private", "public-read", "public-read-write", "authenticated-read", "aws-exec-read", "bucket-owner-read", "bucket-owner-full-control"]]
+        python_type: "Literal['private', 'public-read', 'public-read-write', 'authenticated-read', 'aws-exec-read', 'bucket-owner-read', 'bucket-owner-full-control'] | None"
         default: >-
           "private"
         docstring: >-
           The ACL for the bucket. This is the ACL for the bucket.
       LoggingConfiguration:
         python_type: >-
-          Optional["BucketLoggingConfiguration"]
+          "BucketLoggingConfiguration | None"
         docstring: >-
           The logging configuration for the bucket.
       VersioningEnabled:
@@ -45,21 +45,21 @@ primary:
         docstring: >-
           Specifies whether MFA delete is enabled in the bucket versioning configuration.
       ObjectOwnership:
-        python_type: Optional[Literal["BucketOwnerEnforced", "BucketOwnerPreferred", "ObjectWriter"]]
+        python_type: "Literal['BucketOwnerEnforced', 'BucketOwnerPreferred', 'ObjectWriter'] | None"
         default: >-
           "BucketOwnerPreferred"
         docstring: >-
           The object ownership configuration for the bucket.
       CORSRules:
         python_type: >-
-          Optional[List["S3CORSRule"]]
+          "builtins.list[S3CORSRule] | None"
         default: >-
           None
         docstring: >-
           The CORS rules for the bucket.
       Tags:
         python_type: >-
-          List[Tag]
+          builtins.list[Tag]
         default: >-
           None
         docstring: >-

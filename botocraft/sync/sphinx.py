@@ -1,5 +1,5 @@
 from pathlib import Path
-from typing import TYPE_CHECKING, List
+from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from botocraft.sync.service import ServiceGenerator
@@ -112,7 +112,7 @@ class ServiceSphinxDocBuilder:
    :show-inheritance:
 """
 
-    def classes(self, names: List[str], pydantic: bool = True) -> str:
+    def classes(self, names: list[str], pydantic: bool = True) -> str:
         """
         The Sphinx documentation for the managers.
         """

@@ -103,7 +103,7 @@ DelegatedAdminAccount:
       boto3_name: list_delegated_admin_accounts
       response_attr: delegatedAdminAccounts
       return_type: >-
-        Optional["DelegatedAdmin"]
+        "DelegatedAdmin | None"
       decorators:
         - name: list_augment_delegated_admin_accounts
           import_path: botocraft.mixins.inspector2
@@ -111,7 +111,7 @@ DelegatedAdminAccount:
       boto3_name: get_delegated_admin_account
       response_attr: delegatedAdmin
       return_type: >-
-        Optional["DelegatedAdmin"]
+        "DelegatedAdmin | None"
       decorators:
         - name: convert_delegated_admin
           import_path: botocraft.mixins.inspector2

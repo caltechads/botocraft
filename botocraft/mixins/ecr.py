@@ -3,17 +3,13 @@
 import base64
 import datetime
 import re
-import warnings
 from functools import cached_property, wraps
 from typing import (
     TYPE_CHECKING,
     Any,
     Callable,
     ClassVar,
-    Dict,
-    List,
     Literal,
-    Optional,
     cast,
 )
 
@@ -28,7 +24,6 @@ if TYPE_CHECKING:
         ImageIdentifier,
         Repository,
         RepositoryManager,
-        TaskDefinition,
     )
     from botocraft.services.abstract import PrimaryBoto3ModelQuerySet  # noqa: TC004
 
@@ -75,7 +70,7 @@ class ImageInfo(BaseModel):
     size: int
     #: This is a dictionary of port mappings.  The key is the port
     #: and the value is i'm not sure what
-    ports: Dict[str, Dict[str, Any]] = {}
+    ports: dict[str, dict[str, Any]] = {}
     #: Docker Version used to build the image
     docker_version: str
     #: The user that the image runs as
@@ -103,7 +98,7 @@ def repo_list_images_ecr_images_only(
         from botocraft.services.abstract import PrimaryBoto3ModelQuerySet
 
         qs: "PrimaryBoto3ModelQuerySet" = func(self, *args, **kwargs)  # noqa: UP037
-        images: List["ECRImage"] = []  # noqa: UP037
+        images: list["ECRImage"] = []  # noqa: UP037
         # NOTE: to be honest i'm not sure if there is a per request limit
         # for the number of images that can be retrieved, but i'm going to
         # assume that there is a limit of 100 images per request.
@@ -144,8 +139,8 @@ def repo_list_add_tags(
 
 
 def repo_get_add_tags(
-    func: Callable[..., Optional["Repository"]],
-) -> Callable[..., Optional["Repository"]]:
+    func: Callable[..., "Repository | None"],
+) -> Callable[..., "Repository | None"]:
     """
     Add tags to a :py:class:`botocraft.services.ecr.Repository` object returned
     by :py:meth:`botocraft.services.ecr.RepositoryManager.get`.  This has to
@@ -154,7 +149,7 @@ def repo_get_add_tags(
     """
 
     @wraps(func)
-    def wrapper(self, *args, **kwargs) -> Optional["Repository"]:
+    def wrapper(self, *args, **kwargs) -> "Repository | None":
         repo = func(self, *args, **kwargs)
         if repo is None:
             return None
@@ -170,7 +165,7 @@ def repo_get_add_tags(
 
 def image_list_images_ecr_images_only(
     func: Callable[..., "PrimaryBoto3ModelQuerySet"],
-) -> Callable[..., "PrimaryBoto3ModelQuerySet"]:
+) -> Callable[..., "list[ECRImage]"]:
     """
     Convert a list of ECR image identifiers returned by
     :py:meth:`botocraft.services.ecr.Image.list` into a list
@@ -178,9 +173,9 @@ def image_list_images_ecr_images_only(
     """
 
     @wraps(func)
-    def wrapper(self, *args, **kwargs) -> "PrimaryBoto3ModelQuerySet":
-        qs: PrimaryBoto3ModelQuerySet = func(self, *args, **kwargs)
-        images: List["ECRImage"] = []  # noqa: UP037
+    def wrapper(self, *args, **kwargs) -> "list[ECRImage]":
+        qs: "PrimaryBoto3ModelQuerySet" = func(self, *args, **kwargs)  # noqa: UP037
+        images: list["ECRImage"] = []  # noqa: UP037
         # NOTE: to be honest i'm not sure if there is a per request limit
         # for the number of images that can be retrieved, but i'm going to
         # assume that there is a limit of 100 images per request.
@@ -216,7 +211,7 @@ class RepositoryMixin:
 
     # methods
 
-    def get_image(self, imageId: "ImageIdentifier") -> Optional["ECRImage"]:  # noqa: N803
+    def get_image(self, imageId: "ImageIdentifier") -> "ECRImage | None":  # noqa: N803
         """
         Get an image object for a given repository and image identifier.
 
@@ -244,10 +239,10 @@ class ECRImageManagerMixin:
     def __filter_image(
         self,
         image_id: str,
-        repositoryNames: List[str] | None = None,  # noqa: N803
+        repositoryNames: list[str] | None = None,  # noqa: N803
         repositoryPrefix: str | None = None,  # noqa: N803
-        tags: Dict[str, str] | None = None,
-    ) -> Optional["ECRImage"]:
+        tags: dict[str, str] | None = None,
+    ) -> "ECRImage | None":
         """
         Filter an image by repository name, prefix, or tags.   If no filters are
         provided, then the image is returned.
@@ -306,9 +301,9 @@ class ECRImageManagerMixin:
 
     def in_use(  # noqa: PLR0912
         self,
-        repositoryNames: List[str] | None = None,  # noqa: N803
+        repositoryNames: list[str] | None = None,  # noqa: N803
         repositoryPrefix: str | None = None,  # noqa: N803
-        tags: Dict[str, str] | None = None,
+        tags: dict[str, str] | None = None,
         verbose: bool = False,
     ) -> "PrimaryBoto3ModelQuerySet":
         """
@@ -604,7 +599,7 @@ class ECRImageMixin:
         return docker_image
 
     @cached_property
-    def history(self) -> List[Dict[str, Any]]:
+    def history(self) -> list[dict[str, Any]]:
         """
         Return the build history for this image.  You can use this to reconstruct
         **most** of the Dockerfile that was used to build the image.   You won't
@@ -649,7 +644,7 @@ class ECRImageMixin:
     def task_definitions(
         self,
         status: Literal["ACTIVE", "INACTIVE", "ALL"] | None = "ACTIVE",
-        tags: Dict[str, str] | None = None,
+        tags: dict[str, str] | None = None,
         verbose: bool = False,
     ) -> "PrimaryBoto3ModelQuerySet":
         """
@@ -683,7 +678,7 @@ class ECRImageMixin:
         # First get the families
         families = TaskDefinition.objects.using(self.session).families(status=status)
 
-        task_definitions: List[TaskDefinition] = []
+        task_definitions: list[TaskDefinition] = []
 
         # Now iterate through each family and revision
         for family in families:
@@ -707,7 +702,7 @@ class ECRImageMixin:
     def services(
         self,
         status: Literal["ACTIVE", "INACTIVE", "ALL"] | None = "ACTIVE",
-        tags: Dict[str, str] | None = None,
+        tags: dict[str, str] | None = None,
         verbose: bool = False,
     ) -> "PrimaryBoto3ModelQuerySet":
         """
@@ -743,7 +738,7 @@ class ECRImageMixin:
 
         # There's no way to directly list all services in an account.  We have
         # to list all clusters, then check each service in each cluster.
-        services: List[Service] = []
+        services: list[Service] = []
         clusters = Cluster.objects.using(self.session).list()
         for cluster in clusters:
             services.extend(

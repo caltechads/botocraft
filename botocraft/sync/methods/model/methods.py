@@ -1,5 +1,5 @@
 from collections import OrderedDict
-from typing import TYPE_CHECKING, Dict, List, cast
+from typing import TYPE_CHECKING, cast
 
 from botocraft.sync.models import MethodArgumentDefinition, MethodDocstringDefinition
 
@@ -124,7 +124,7 @@ class ModelManagerMethodGenerator:
             The decorators for the method, or ``None`` if there are none.
 
         """
-        decorators: List[str] = []
+        decorators: list[str] = []
         if self.method_def.decorators:
             for decorator in self.method_def.decorators:
                 decorators.append(f"    @{decorator.name}")
@@ -316,7 +316,7 @@ class ModelManagerMethodGenerator:
             The method arguments.
 
         """
-        args_dict: Dict[int, "ModelManagerMethodArgDefinition"] = (  # noqa: UP037
+        args_dict: dict[int, "ModelManagerMethodArgDefinition"] = (  # noqa: UP037
             self.method_def.args | self.method_def.user_args
         )
         if not args_dict:
@@ -363,7 +363,7 @@ class ModelManagerMethodGenerator:
             The method keyword arguments.
 
         """
-        kwargs: List[str] = []
+        kwargs: list[str] = []
         if self.method_def.keyword_args:
             for arg in self.method_def.keyword_args:
                 if arg.value is not None:

@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, Literal, Optional
+from typing import TYPE_CHECKING, Literal
 
 import boto3
 
@@ -40,7 +40,7 @@ class HostedZoneModelMixin:
         self,
         RecordName: str,  # noqa: N803
         RecordType: Route53RecordType = "A",  # noqa: N803
-    ) -> Optional["Route53ResourceRecordSet"]:
+    ) -> "Route53ResourceRecordSet | None":
         """
         Look for a record in this hosted zone with the given name and type.
 

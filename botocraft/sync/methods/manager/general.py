@@ -94,8 +94,8 @@ class GeneralMethodGenerator(ManagerMethodGenerator):
         response_iterator = paginator.paginate(**{{k: v for k, v in args.items() if v is not None}})
 """  # noqa: E501
             return_type = copy(self.return_type)
-            if not return_type.startswith("Optional["):
-                return_type = f"Optional[{return_type}]"
+            if not return_type.endswith(" | None"):
+                return_type = f'"{return_type} | None"'
             code += f"""
         results: {self.return_type} = []
 """
@@ -121,8 +121,8 @@ class GeneralMethodGenerator(ManagerMethodGenerator):
             if self.return_type in ("None", '"None"'):
                 return ""
             return_type = copy(self.return_type)
-            if not return_type.startswith("Optional["):
-                return_type = f"Optional[{return_type}]"
+            if not return_type.endswith(" | None"):
+                return_type = f'"{return_type} | None"'
             code += f"""
         results: {self.return_type} = None
         if response is not None:"""

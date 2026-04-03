@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from datetime import datetime  # noqa: TC003
-from typing import Any, Dict, List
+from typing import Any
 
 from pydantic import BaseModel, Field
 
@@ -67,13 +67,13 @@ class RequestParameters(BaseModel):
     """
 
     #: The media types that the API client accepts
-    acceptedMediaTypes: List[str]
+    acceptedMediaTypes: list[str]
     #: The AWS account ID that owns the ECR registry
     registryId: str
     #: The name of the ECR repository being accessed
     repositoryName: str
     #: The list of image identifiers being requested
-    imageIds: List[RequestParametersItem]
+    imageIds: list[RequestParametersItem]
 
 
 class SessionContext(BaseModel):
@@ -83,7 +83,7 @@ class SessionContext(BaseModel):
     """
 
     #: Federation data if the session was created through web identity federation
-    webIdFederationData: Dict[str, Any]
+    webIdFederationData: dict[str, Any]
     #: Information about the entity that issued the session
     sessionIssuer: SessionIssuer
     #: Session attributes like MFA status and creation time
@@ -131,13 +131,13 @@ class AWSAPICallViaCloudTrail(BaseModel):
     #: The version of the CloudTrail event format
     eventVersion: str
     #: The response elements returned by the API
-    responseElements: Dict[str, Any]
+    responseElements: dict[str, Any]
     #: The IP address where the request originated from
     sourceIPAddress: str
     #: The AWS service that the request was made to (e.g., "ecr.amazonaws.com")
     eventSource: str
     #: The resources involved in the API call
-    resources: List[AWSAPICallViaCloudTrailItem]
+    resources: list[AWSAPICallViaCloudTrailItem]
     #: The user agent of the client that made the request
     userAgent: str
     #: The type of the event (e.g., "AwsApiCall")
@@ -161,7 +161,7 @@ class ECRAWSAPICallViaCloudTrailEvent(BaseModel):
     #: The human-readable type of the event (e.g., "AWS API Call via CloudTrail")
     detail_type: str = Field(..., alias="detail-type")
     #: The AWS resources involved in the event
-    resources: List[str]
+    resources: list[str]
     #: The unique identifier of the event
     id: str
     #: The source of the event (e.g., "aws.ecr")

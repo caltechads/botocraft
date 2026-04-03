@@ -33,7 +33,7 @@ Repository:
             The name of the ECR repository to describe.
       extra_args:
         include:
-          python_type: Optional[List[Literal["TAGS"]]]
+          python_type: "builtins.list[Literal['TAGS']] | None"
           default: >-
             None
           docstring: >-
@@ -49,7 +49,7 @@ Repository:
           import_path: botocraft.mixins.ecr
       extra_args:
         include:
-          python_type: Optional[List[Literal["TAGS"]]]
+          python_type: "builtins.list[Literal['TAGS']] | None"
           default: >-
             None
           docstring: >-
@@ -71,7 +71,7 @@ Repository:
     get_images:
       boto3_name: batch_get_image
       return_type: >-
-        Optional[List["ECRImage"]]
+        "list[ECRImage] | None"
       response_attr: images
       args:
         registryId:
@@ -120,7 +120,7 @@ Image:
     get:
       boto3_name: batch_get_image
       return_type: >-
-        Optional["ECRImage"]
+        "ECRImage | None"
       response_attr: images
       args:
         registryId:
@@ -195,7 +195,7 @@ Image:
     scan_findings:
       boto3_name: describe_image_scan_findings
       return_type: >-
-        List["DescribeImageScanFindingsResponse"]
+        "list[DescribeImageScanFindingsResponse]"
       response_attr: None
       args:
         registryId:

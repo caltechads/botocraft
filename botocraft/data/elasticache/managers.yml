@@ -189,14 +189,16 @@ Parameter:
     get:
       boto3_name: describe_cache_parameters
       response_attr: Parameters
-      return_type: Optional["CacheParameter"]
+      return_type: >-
+        "CacheParameter | None"
       args:
         CacheParameterGroupName:
           required: true
     List:
       boto3_name: describe_cache_parameters
       response_attr: Parameters
-      return_type: List["CacheParameter"]
+      return_type: >-
+        "builtins.list[CacheParameter]"
       args:
         CacheParameterGroupName:
           required: true

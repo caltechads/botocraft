@@ -33,7 +33,7 @@ Parameter:
     list:
       boto3_name: describe_parameters
       return_type: >-
-        List["ParameterMetadata"]
+        "builtins.list[ParameterMetadata]"
       response_attr: Parameters
     delete:
       boto3_name: delete_parameter

@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 from datetime import datetime  # noqa: TC003
-from typing import List
 
 from pydantic import BaseModel, Field
 
@@ -46,7 +45,7 @@ class ECRReplicationActionEvent(BaseModel):
     #: The AWS region where the event occurred
     region: str
     #: The AWS resources involved in this event, typically the repository ARN
-    resources: List[str]
+    resources: list[str]
     #: The source of the event (typically "aws.ecr")
     source: str
     #: The timestamp when the event was generated, in UTC

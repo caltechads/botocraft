@@ -7,10 +7,8 @@ from zoneinfo import ZoneInfo
 from typing import (
     Any,
     ClassVar,
-    Type,
     Callable,
     Iterator,
-    Union,
     cast,
 )
 
@@ -635,7 +633,7 @@ class PrimaryBoto3ModelQuerySet:
         """
         return self.results
 
-    def __getitem__(self, index) -> Union["PrimaryBoto3ModelQuerySet", Boto3Model]:
+    def __getitem__(self, index) -> "PrimaryBoto3ModelQuerySet | Boto3Model":
         """
         Enable indexed access to the filtered results.
 
@@ -729,30 +727,32 @@ class Boto3ModelManagerFilter:
     LOOKUPS: ClassVar[dict[str, Callable[[Any, Any], bool]]] = {
         # String lookups
         "exact": lambda field_val, filter_val: field_val == filter_val,
-        "iexact": lambda field_val, filter_val: str(field_val).lower()
-        == str(filter_val).lower(),
+        "iexact": lambda field_val, filter_val: (
+            str(field_val).lower() == str(filter_val).lower()
+        ),
         "contains": lambda field_val, filter_val: str(filter_val) in str(field_val),
-        "icontains": lambda field_val, filter_val: str(filter_val).lower()
-        in str(field_val).lower(),
+        "icontains": lambda field_val, filter_val: (
+            str(filter_val).lower() in str(field_val).lower()
+        ),
         "startswith": lambda field_val, filter_val: str(field_val).startswith(
             str(filter_val)
         ),
-        "istartswith": lambda field_val, filter_val: str(field_val)
-        .lower()
-        .startswith(str(filter_val).lower()),
+        "istartswith": lambda field_val, filter_val: (
+            str(field_val).lower().startswith(str(filter_val).lower())
+        ),
         "endswith": lambda field_val, filter_val: str(field_val).endswith(
             str(filter_val)
         ),
-        "iendswith": lambda field_val, filter_val: str(field_val)
-        .lower()
-        .endswith(str(filter_val).lower()),
+        "iendswith": lambda field_val, filter_val: (
+            str(field_val).lower().endswith(str(filter_val).lower())
+        ),
         # Regular expression lookups
-        "regex": lambda field_val, filter_val: re.search(filter_val, str(field_val))
-        is not None,
-        "iregex": lambda field_val, filter_val: re.search(
-            filter_val, str(field_val), re.IGNORECASE
-        )
-        is not None,
+        "regex": lambda field_val, filter_val: (
+            re.search(filter_val, str(field_val)) is not None
+        ),
+        "iregex": lambda field_val, filter_val: (
+            re.search(filter_val, str(field_val), re.IGNORECASE) is not None
+        ),
         # Collection lookups
         "in": lambda field_val, filter_val: field_val in filter_val,
         # Comparison lookups
@@ -763,8 +763,9 @@ class Boto3ModelManagerFilter:
         # Null lookups
         "isnull": lambda field_val, filter_val: (field_val is None) == filter_val,
         # Dictionary lookups
-        "has_key": lambda field_val, filter_val: isinstance(field_val, dict)
-        and filter_val in field_val,
+        "has_key": lambda field_val, filter_val: (
+            isinstance(field_val, dict) and filter_val in field_val
+        ),
         # Date/time lookups
         "date": lambda field_val, filter_val: (
             isinstance(field_val, datetime)

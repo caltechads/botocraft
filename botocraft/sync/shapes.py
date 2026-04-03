@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, Dict, Final, Type, cast
+from typing import TYPE_CHECKING, Final, cast
 
 import botocore.model
 
@@ -188,9 +188,9 @@ class ListShapeConverter(AbstractShapeConverter):
             raise WrongConverterError(shape, self)
         element_shape = cast("botocore.model.ListShape", shape).member
         inner_model_name = self.shape_converter.convert(
-            element_shape, quote=True, name_only=name_only
+            element_shape, quote=False, name_only=name_only
         )
-        return f"List[{inner_model_name}]"
+        return f'"builtins.list[{inner_model_name}]"'
 
 
 class MapShapeConverter(AbstractShapeConverter):
@@ -234,7 +234,8 @@ class MapShapeConverter(AbstractShapeConverter):
         key_type = self.shape_converter.convert(
             shape.key, quote=True, name_only=name_only
         )
-        return f"Dict[{key_type}, {value_type}]"
+        value_type = value_type.strip('"')
+        return f"dict[{key_type}, {value_type}]"
 
 
 class StructureShapeConverter(AbstractShapeConverter):
@@ -373,7 +374,7 @@ class BinaryShapeConverter(AbstractShapeConverter):
 
 
 class PythonTypeShapeConverter:
-    CONVERTERS: Final[Dict[str, Type[AbstractShapeConverter]]] = {
+    CONVERTERS: Final[dict[str, type[AbstractShapeConverter]]] = {
         "string": StringShapeConverter,
         "boolean": BooleanShapeConverter,
         "integer": IntegerShapeConverter,
@@ -393,7 +394,7 @@ class PythonTypeShapeConverter:
         #: models out of a structure shape
         self.service_generator = service_generator
         self.model_generator = model_generator
-        self.converters: Dict[str, AbstractShapeConverter] = {
+        self.converters: dict[str, AbstractShapeConverter] = {
             key: converter_class(self)
             for key, converter_class in self.CONVERTERS.items()
         }

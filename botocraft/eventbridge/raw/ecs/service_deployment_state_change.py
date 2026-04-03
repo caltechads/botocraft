@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 from datetime import datetime  # noqa: TC003
-from typing import List
 
 from pydantic import BaseModel, Field
 
@@ -43,7 +42,7 @@ class ECSServiceDeploymentStateChangeEvent(BaseModel):
     #: The human readable name of the event
     detail_type: str = Field(..., alias="detail-type")
     #: The resources the event applies to.  This will be a list of ARNs
-    resources: List[str]
+    resources: list[str]
     #: The ID of the event
     id: str
     #: The source of the event, e.g. "aws.ecs"

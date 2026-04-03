@@ -6,7 +6,7 @@ clean:
 requirements.txt: uv.lock
 	@uv pip compile pyproject.toml --group docs -o requirements.txt
 
-release: clean requirements.txt
+release: clean
 	@bin/release.sh
 
 tox:

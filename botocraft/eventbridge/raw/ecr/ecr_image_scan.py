@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 from datetime import datetime  # noqa: TC003
-from typing import List
 
 from pydantic import BaseModel, Field
 
@@ -35,7 +34,7 @@ class ECRImageScan(BaseModel):
     #: The SHA256 digest of the image that was scanned
     image_digest: str | None = Field(None, alias="image-digest")
     #: The list of tags associated with the scanned image
-    image_tags: List[str] | None = Field(None, alias="image-tags")
+    image_tags: list[str] | None = Field(None, alias="image-tags")
     #: The name of the ECR repository containing the scanned image
     repository_name: str = Field(..., alias="repository-name")
     #: The status of the scan operation (e.g., "COMPLETE", "FAILED")
@@ -63,7 +62,7 @@ class ECRImageScanEvent(BaseModel):
     #: The AWS region where the scan was performed
     region: str
     #: The AWS resources involved in this event, typically the repository ARN
-    resources: List[str]
+    resources: list[str]
     #: The source of the event (typically "aws.ecr")
     source: str
     #: The timestamp when the scan was completed and event generated, in UTC

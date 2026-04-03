@@ -34,7 +34,7 @@ primary:
         readonly: true
     extra_fields:
       Tags:
-        python_type: Dict[str, str]
+        python_type: dict[str, str]
         docstring: >-
           The tags associated with the load balancer.
       CrossZoneLoadBalancing:
@@ -67,7 +67,7 @@ primary:
       AdditionalAttributes:
         docstring: >-
           Additional attributes for the load balancer.
-        python_type: "Dict[str, str]"
+        python_type: "dict[str, str]"
         default: >-
           None
     relations:
@@ -117,7 +117,7 @@ primary:
         user_args:
           1:
             name: Listeners
-            attr_type: List["ClassicELBListener"]
+            attr_type: "builtins.list[ClassicELBListener]"
       remove_listeners:
         docstring: >-
           Remove listeners from the load balancer.
@@ -130,7 +130,7 @@ primary:
         user_args:
           1:
             name: LoadBalancerPorts
-            attr_type: List[int]
+            attr_type: builtins.list[int]
       set_ssl_certificate:
         docstring: >-
           Set the SSL certificate for a listener on the load balancer.
@@ -162,7 +162,7 @@ primary:
             attr_type: int
           2:
             name: PolicyNames
-            attr_type: List[str]
+            attr_type: builtins.list[str]
       set_backend_policies:
         docstring: >-
           Set the policies for a backend server on the load balancer.
@@ -178,7 +178,7 @@ primary:
             attr_type: int
           2:
             name: PolicyNames
-            attr_type: List[str]
+            attr_type: builtins.list[str]
       add_policy:
         docstring: >-
           Add a policy to the load balancer.
@@ -197,7 +197,7 @@ primary:
             attr_type: str
         user_keyword_args:
           - name: PolicyAttributes
-            attr_type: Optional[List["PolicyAttribute"]]
+            attr_type: "builtins.list[PolicyAttribute] | None"
       policies:
         docstring: >-
           Return the policies associated with this load balancer.  This is excludes
@@ -233,7 +233,7 @@ primary:
         user_args:
           1:
             name: Instances
-            attr_type: List["ClassicELBInstance"]
+            attr_type: "builtins.list[ClassicELBInstance]"
       remove_instances:
         docstring: >-
           Remove instances from the load balancer.
@@ -246,7 +246,7 @@ primary:
         user_args:
           1:
             name: Instances
-            attr_type: List["ClassicELBInstance"]
+            attr_type: "builtins.list[ClassicELBInstance]"
 secondary:
   Listener:
     alternate_name: ClassicELBListener

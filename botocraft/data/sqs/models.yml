@@ -17,7 +17,7 @@ primary:
         docstring: >-
           The name of the queue. This is a unique identifier for the queue.
       Attributes:
-        python_type: Optional[Dict[str, str]]
+        python_type: dict[str, str] | None
         default: None
         docstring: >-
           The attributes of the queue. This is a dictionary of attribute names
@@ -25,7 +25,7 @@ primary:
       tags:
         rename: Tags
         python_type: >-
-          List[Tag]
+          builtins.list[Tag]
         default: >-
           None
         docstring: >-
@@ -97,7 +97,7 @@ primary:
         docstring: >-
           The URL of the queue. This is a unique identifier for the queue.
       EventFactoryClass:
-        python_type: Type[AbstractEventFactory]
+        python_type: "type[AbstractEventFactory]"
         default: EventFactory
         imports:
           - from botocraft.eventbridge.factory import AbstractEventFactory, EventFactory
@@ -131,7 +131,7 @@ primary:
         keyword_args:
           - name: MessageAttributes
             value: >-
-              cast(Optional[Dict[str, MessageAttributeValue]], self.MessageAttributes)
+              cast("dict[str, MessageAttributeValue] | None", self.MessageAttributes)
         user_keyword_args:
           - name: DelaySeconds
           - name: MessageDeduplicationId

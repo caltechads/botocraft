@@ -2,7 +2,6 @@ from __future__ import annotations
 
 from datetime import datetime  # noqa: TC003
 from enum import Enum
-from typing import List
 
 from pydantic import BaseModel, Field
 
@@ -62,7 +61,7 @@ class ScanResourceChange(BaseModel):
     #: The type of scan resource change action (e.g., "SCAN_FREQUENCY_CHANGE")
     action_type: str = Field(..., alias="action-type")
     #: List of repositories affected by the scan resource change
-    repositories: List[Repository] = Field(default_factory=list)
+    repositories: list[Repository] = Field(default_factory=list)
     #: The type of resource affected by the scan change (typically "REPOSITORY")
     resource_type: str = Field(..., alias="resource-type")
     #: The type of scan configured (ENHANCED or BASIC)
@@ -92,4 +91,4 @@ class ECRScanResourceChangeEvent(BaseModel):
     #: The AWS region where the event occurred
     region: str
     #: The AWS resources involved in this event, typically repository ARNs
-    resources: List[str]
+    resources: list[str]

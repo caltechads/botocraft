@@ -34,7 +34,7 @@ Queue:
         EventFactoryClass:
           default: None
           python_type: >-
-            Optional[Type[AbstractEventFactory]]
+            "type[AbstractEventFactory] | None"
           docstring: >-
             The class to use to convert the message body to an event object.  If
             not provided, the default

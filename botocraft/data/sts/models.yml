@@ -9,37 +9,37 @@ primary:
       Subject:
         docstring: >-
           The subject of the assumed role.
-        python_type: Optional[str]
+        python_type: str | None
         default: None
       SubjectType:
         docstring: >-
           The type of the subject of the assumed role (SAML only).
-        python_type: Optional[str]
+        python_type: str | None
         default: None
       Issuer:
         docstring: >-
           The issuer of the assumed role (SAML Only).
-        python_type: Optional[str]
+        python_type: str | None
         default: None
       Provider:
         docstring: >-
           The provider of the assumed role (Web Identity Only).
-        python_type: Optional[str]
+        python_type: str | None
         default: None
       Audience:
         docstring: >-
           The audience of the assumed role (SAML Only).
-        python_type: Optional[str]
+        python_type: str | None
         default: None
       NameQualifier:
         docstring: >-
           The name qualifier of the assumed role (SAML Only).
-        python_type: Optional[str]
+        python_type: str | None
         default: None
       SubjectFromWebIdentityToken:
         docstring: >-
           The subject from the web identity token (Web Identity Only).
-        python_type: Optional[str]
+        python_type: str | None
         default: None
   GetCallerIdentityResponse:
     alternate_name: CallerIdentity

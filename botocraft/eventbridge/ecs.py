@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import TYPE_CHECKING, Optional, cast
+from typing import TYPE_CHECKING, cast
 
 from .base import EventBridgeEvent
 from .raw import (
@@ -87,7 +87,7 @@ class ECSTaskStateChangeEvent(EventBridgeEvent, RawECSTaskStateChangeEvent):
         return Cluster.objects.using(self.session).get(cluster=self.detail.clusterArn)
 
     @property
-    def container_instance(self) -> Optional["ContainerInstance"]:
+    def container_instance(self) -> "ContainerInstance | None":
         """
         Get the container instance ARN from the event.
         """

@@ -53,7 +53,7 @@ primary:
           Info about the S3 bucket to which to send the report.
       filterCriteria:
         python_type: >-
-          Optional["FilterCriteria"]
+          "FilterCriteria | None"
         default: None
         docstring: >-
           The criteria for the report.
@@ -68,7 +68,7 @@ primary:
     extra_fields:
       relationshipStatus:
         python_type: >-
-          Optional[Literal["CREATED", "INVITED", "DISABLED", "ENABLED", "REMOVED", "RESIGNED", "DELETED", "EMAIL_VERIFICATION_IN_PROGRESS", "EMAIL_VERIFICATION_FAILED", "REGION_DISABLED", "ACCOUNT_SUSPENDED", "CANNOT_CREATE_DETECTOR_IN_ORG_MASTER"]]
+          Literal["CREATED", "INVITED", "DISABLED", "ENABLED", "REMOVED", "RESIGNED", "DELETED", "EMAIL_VERIFICATION_IN_PROGRESS", "EMAIL_VERIFICATION_FAILED", "REGION_DISABLED", "ACCOUNT_SUSPENDED", "CANNOT_CREATE_DETECTOR_IN_ORG_MASTER"] | None
         docstring: >-
           The status of the relationship.
         default: None
@@ -107,4 +107,4 @@ secondary:
     fields:
       packageManager:
         python_type: >-
-          Optional[Literal["BUNDLER", "CARGO", "COMPOSER", "NPM", "NUGET", "PIPENV", "POETRY", "YARN", "GOBINARY", "GOMOD", "JAR", "OS", "PIP", "PYTHONPKG", "NODEPKG", "POM", "GEMSPEC", "DOTNET_CORE", "PYTHON", "RUST", "RUBY", "GOLANG", "JAVA", "NODEJS", "PHP", "DOTNET", "DOTNET5", "DOTNET6", "DOTNET7", "GENERIC"]]
+          Literal["BUNDLER", "CARGO", "COMPOSER", "NPM", "NUGET", "PIPENV", "POETRY", "YARN", "GOBINARY", "GOMOD", "JAR", "OS", "PIP", "PYTHONPKG", "NODEPKG", "POM", "GEMSPEC", "DOTNET_CORE", "PYTHON", "RUST", "RUBY", "GOLANG", "JAVA", "NODEJS", "PHP", "DOTNET", "DOTNET5", "DOTNET6", "DOTNET7", "GENERIC"] | None

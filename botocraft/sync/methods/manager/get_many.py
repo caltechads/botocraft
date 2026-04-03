@@ -29,15 +29,16 @@ class GetManyMethodGenerator(ManagerMethodGenerator):
 
         """
         _ = self.response_class
-        return_type = f'Union[PrimaryBoto3ModelQuerySet, "{self.response_class}"]'
+        return_type = f"PrimaryBoto3ModelQuerySet | {self.response_class}"
         if (
             self.response_attr
             and self.response_attr not in self.output_shape.required_members
         ):
-            return_type = f"Optional[{return_type}]"
+            return_type = f"{return_type} | None"
         if self.method_def.return_type:
             return_type = self.method_def.return_type
-        return return_type
+        return_type = return_type.strip('"')
+        return f'"{return_type}"'
 
     @property
     def body(self) -> str:

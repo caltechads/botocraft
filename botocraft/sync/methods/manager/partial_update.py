@@ -46,8 +46,8 @@ class PartialUpdateMethodGenerator(ManagerMethodGenerator):
         """
         return_type = super().return_type
         # Sometimes the return type is a list of the model, e.g.
-        # ``elbv2:create_load_balancer``, so we need to strip the ``List`` part of the
+        # ``elbv2:create_load_balancer``, so we need to strip the ``list[]`` part of the
         # return type, because we want to return just the model, if possible.
-        if return_type.startswith("List["):
-            return_type = re.sub(r"List\[(.*)\]", r"\1", return_type)
+        if return_type.startswith("list["):
+            return_type = re.sub(r"list\[(.*)\]", r"\1", return_type)
         return return_type

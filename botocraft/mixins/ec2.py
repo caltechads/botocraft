@@ -5,7 +5,7 @@ from contextlib import contextmanager
 from datetime import datetime
 from functools import wraps
 from ipaddress import ip_address
-from typing import TYPE_CHECKING, Callable, Final, List, Literal, Optional, cast
+from typing import TYPE_CHECKING, Callable, Final, Literal, cast
 from zoneinfo import ZoneInfo
 
 import psutil
@@ -130,10 +130,10 @@ def ec2_instances_only(
     @wraps(func)
     def wrapper(*args, **kwargs) -> "PrimaryBoto3ModelQuerySet":
         qs = func(*args, **kwargs)
-        instances: List["Instance"] = []  # noqa: UP037
+        instances: list["Instance"] = []  # noqa: UP037
         if hasattr(qs, "results") and qs.results:
             for reservation in qs.results:
-                instances.extend(cast("List[Instance]", reservation.Instances))  # type: ignore[attr-defined]
+                instances.extend(cast("list[Instance]", reservation.Instances))  # type: ignore[attr-defined]
             return PrimaryBoto3ModelQuerySet(instances)  # type: ignore[arg-type]
         return PrimaryBoto3ModelQuerySet([])
 
@@ -141,19 +141,19 @@ def ec2_instances_only(
 
 
 def ec2_instance_only(
-    func: Callable[..., Optional["Reservation"]],
-) -> Callable[..., Optional["Instance"]]:
+    func: Callable[..., "Reservation | None"],
+) -> Callable[..., "Instance | None"]:
     """
     Wraps a boto3 method that returns a list of :py:class:`Reservation` objects
     to return a single :py:class:`Instance` object instead.
     """
 
     @wraps(func)
-    def wrapper(*args, **kwargs) -> Optional["Instance"]:
+    def wrapper(*args, **kwargs) -> "Instance | None":
         reservation = func(*args, **kwargs)
         if not reservation:
             return None
-        return cast("List[Instance]", reservation.Instances)[0]
+        return cast("list[Instance]", reservation.Instances)[0]
 
     return wrapper
 
@@ -170,8 +170,8 @@ class EC2TagsManagerMixin:
     """
 
     def convert_tags(
-        self, tags: List["Tag"] | None, resource_type: ResourceType
-    ) -> Optional["TagSpecification"]:
+        self, tags: list["Tag"] | None, resource_type: ResourceType
+    ) -> "TagSpecification | None":
         """
         Given a TagList, convert it to a TagSpecification with ResourceType of
         ``resource_type``.
@@ -253,10 +253,10 @@ class AMIManagerMixin:
 
     def _get_in_use_asg_amis(
         self,
-        check_amis: List["AMI"],
-        amis: List["AMI"] | None = None,
+        check_amis: list["AMI"],
+        amis: list["AMI"] | None = None,
         tags: dict[str, str] | None = None,
-    ) -> List["AMI"]:
+    ) -> list["AMI"]:
         """
         Return a list of AMIs that are in use by an autoscaling group.
 
@@ -757,7 +757,7 @@ class SubnetModelMixin:
     """
 
     @property
-    def vulnerabilities(self) -> List["Finding"]:
+    def vulnerabilities(self) -> list["Finding"]:
         """
         Return a list of vulnerabilities for the instance.  This is a
         convenience method to get the vulnerabilities for the instance.
@@ -789,7 +789,7 @@ class VpcModelMixin:
     """
 
     @property
-    def vulnerabilities(self) -> List["Finding"]:
+    def vulnerabilities(self) -> list["Finding"]:
         """
         Return a list of vulnerabilities for the instance.  This is a
         convenience method to get the vulnerabilities for the instance.

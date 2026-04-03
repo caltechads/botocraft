@@ -22,7 +22,7 @@ SecretListEntry:
     list:
       boto3_name: list_secrets
       return_type: >-
-        List["Secret"]
+        builtins.list["Secret"]
       response_attr: SecretList
     delete:
       boto3_name: delete_secret

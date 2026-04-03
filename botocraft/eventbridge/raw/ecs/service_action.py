@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 from datetime import datetime  # noqa: TC003
-from typing import List
 
 from pydantic import BaseModel, Field
 
@@ -12,7 +11,7 @@ class ECSServiceAction(BaseModel):
     """
 
     #: A list of ARNs of the capacity providers associated with the service.
-    capacityProviderArns: List[str] | None = None
+    capacityProviderArns: list[str] | None = None
     #: The ARN of the cluster associated with the service.
     clusterArn: str
     #: The time the event was created
@@ -28,19 +27,19 @@ class ECSServiceAction(BaseModel):
     #: The container port of the service  (What if I have multiple ports?)
     containerPort: float | None = None
     #: The list of task ARNs associated with the service
-    taskArns: List[str] | None = None
+    taskArns: list[str] | None = None
     #: The list of task set ARNs associated with the service
-    taskSetArns: List[str] | None = None
+    taskSetArns: list[str] | None = None
     #: The list of container instance ARNs associated with the service
-    containerInstanceArns: List[str] | None = None
+    containerInstanceArns: list[str] | None = None
     #: The list of EC2 instance IDs associated with the service
-    ec2InstanceIds: List[str] | None = None
+    ec2InstanceIds: list[str] | None = None
     #: The list of target group ARNs associated with the service
-    targetGroupArns: List[str] | None = None
+    targetGroupArns: list[str] | None = None
     #: The list of service registry ARNs associated with the service
-    serviceRegistryArns: List[str] | None = None
+    serviceRegistryArns: list[str] | None = None
     #: Not sure what this is
-    targets: List[str] | None = None
+    targets: list[str] | None = None
 
 
 class ECSServiceActionEvent(BaseModel):
@@ -55,7 +54,7 @@ class ECSServiceActionEvent(BaseModel):
     #: The region the event was generated in
     region: str
     #: The resources the event applies to.  This will be a list of ARNs
-    resources: List[str]
+    resources: list[str]
     #: The source of the event, e.g. "aws.ecs"
     source: str
     #: The time the event was generated, in UTC

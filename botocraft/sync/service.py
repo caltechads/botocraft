@@ -6,7 +6,7 @@ from collections import OrderedDict
 from copy import deepcopy
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Dict, Final, List, Set, Type, cast
+from typing import Any, Final, cast
 
 import boto3
 import botocore.model
@@ -78,10 +78,10 @@ class AbstractGenerator:
         self.classes: OrderedDict[str, str] = OrderedDict()
         #: A list of imports we need for our classes to function properly.  They'll
         #: be added to the top of the file.
-        self.imports: Set[str] = set()
+        self.imports: set[str] = set()
 
     @property
-    def shapes(self) -> List[str]:
+    def shapes(self) -> list[str]:
         """
         List the names of all the shapes in the service model.
 
@@ -116,7 +116,7 @@ class AbstractGenerator:
             model_name = self.service_def.resolve_model_name(name)
             return self.service_model.shape_for(model_name)
 
-    def get_metadata(self) -> Dict[str, Any]:
+    def get_metadata(self) -> dict[str, Any]:
         """
         Get the metadata for the botocore service definition.
 
@@ -157,7 +157,7 @@ class BotocoreFieldsFormatter:
         model_name: str,
         model_def: ModelDefinition,
         model_shape: botocore.model.Shape | None = None,
-    ) -> List[str]:
+    ) -> list[str]:
         """
         Return the Python code representing all the fields for a model from the
         botocore shape.
@@ -173,7 +173,7 @@ class BotocoreFieldsFormatter:
             strings
 
         """
-        fields: List[str] = []
+        fields: list[str] = []
         # Get all field definitions for this model
         model_fields = self.model_generator.botocore_shape_field_defs(model_name)
 
@@ -205,7 +205,7 @@ class BotocoreFieldsFormatter:
         field_name: str,
         field_def: ModelAttributeDefinition,
         model_shape: botocore.model.Shape,
-    ) -> List[str]:
+    ) -> list[str]:
         """
         Generate code for a single field in a model.
 
@@ -216,7 +216,7 @@ class BotocoreFieldsFormatter:
             model_shape: The model shape
 
         Returns:
-            List of lines of code for the field
+            list of lines of code for the field
 
         """
         # Get field shape and determine if it's required
@@ -333,13 +333,16 @@ class BotocoreFieldsFormatter:
         default = None
         if not required:
             if not field_def.readonly and not field_def.rename:
-                python_type = f"Optional[{python_type}]"
+                if not python_type.endswith(" | None"):
+                    python_type = python_type.strip('"')
+                    python_type = f'"{python_type} | None"'
             default = "None" if field_def.default is None else field_def.default
 
         # Determine displayed field name (could be renamed)
         display_name = field_def.rename or field_name
 
         # Start building the field line
+        python_type = python_type.replace('""', '"')
         field_line = f"    {display_name}: {python_type}"
 
         # Determine if we need pydantic Field
@@ -347,10 +350,13 @@ class BotocoreFieldsFormatter:
         field_class_args = []
 
         if default:
-            if python_type.startswith("List[") and default == "None":
+            if (
+                python_type.startswith(("builtins.list[", '"builtins.list['))
+                and default == "None"
+            ):
                 field_class_args.append("default_factory=list")
                 needs_field_class = True
-            elif python_type.startswith("Dict[") and default == "None":
+            elif python_type.startswith(("dict[", '"dict[')) and default == "None":
                 field_class_args.append("default_factory=dict")
                 needs_field_class = True
             else:
@@ -396,7 +402,7 @@ class ExtraFieldsFormatter:
         #: The documentation formatter used to format field docstrings
         self.docformatter = self.model_generator.docformatter
 
-    def format_fields(self, model_def: ModelDefinition) -> List[str]:
+    def format_fields(self, model_def: ModelDefinition) -> list[str]:
         """
         Build out the manually defined extra fields for a model.
 
@@ -410,7 +416,7 @@ class ExtraFieldsFormatter:
             A list of formatted field code lines
 
         """
-        fields: List[str] = []
+        fields: list[str] = []
 
         # Get the extra_fields attribute or return empty list if not present
         extra_fields = getattr(model_def, "extra_fields", {})
@@ -428,7 +434,7 @@ class ExtraFieldsFormatter:
 
     def _format_single_field(
         self, field_name: str, field_def: ModelAttributeDefinition
-    ) -> List[str]:
+    ) -> list[str]:
         """
         Format a single extra field into Python code.
 
@@ -483,7 +489,7 @@ class ExtraFieldsFormatter:
         self, field_def: ModelAttributeDefinition
     ) -> bool:
         """
-        Check if field is a container type (List or Dict) with None default.
+        Check if field is a container type (list or dict) with None default.
 
         Args:
             field_def: The field definition to check
@@ -493,8 +499,8 @@ class ExtraFieldsFormatter:
 
         """
         return (
-            field_def.python_type.startswith("List[")
-            or field_def.python_type.startswith("Dict[")
+            field_def.python_type.startswith(("builtins.list[", '"builtins.list['))
+            or field_def.python_type.startswith(("dict[", '"dict['))
         ) and field_def.default == "None"
 
     def _get_container_factory(self, field_def: ModelAttributeDefinition) -> str:
@@ -508,9 +514,9 @@ class ExtraFieldsFormatter:
             String with the default_factory configuration
 
         """
-        if field_def.python_type.startswith("List["):
+        if field_def.python_type.startswith(("builtins.list[", '"builtins.list[')):
             return "default_factory=list"
-        if field_def.python_type.startswith("Dict["):
+        if field_def.python_type.startswith(("dict[", '"dict[')):
             return "default_factory=dict"
         return f"default={field_def.default}"
 
@@ -561,8 +567,8 @@ class ModelGenerator(AbstractGenerator):
         return ModelDefinition(base_class="Boto3Model", name=model_name)
 
     def add_extra_fields_from_output_shape(
-        self, model_name: str, model_fields: Dict[str, ModelAttributeDefinition]
-    ) -> Dict[str, ModelAttributeDefinition]:
+        self, model_name: str, model_fields: dict[str, ModelAttributeDefinition]
+    ) -> dict[str, ModelAttributeDefinition]:
         """
         Extract extra fields from the output shape of a get or list method.
         These are fields that are in the output of the get/list methods but not
@@ -591,8 +597,8 @@ class ModelGenerator(AbstractGenerator):
         return model_fields
 
     def mark_readonly_fields(
-        self, model_name: str, model_fields: Dict[str, ModelAttributeDefinition]
-    ) -> Dict[str, ModelAttributeDefinition]:
+        self, model_name: str, model_fields: dict[str, ModelAttributeDefinition]
+    ) -> dict[str, ModelAttributeDefinition]:
         """
         Mark model fields as readonly if they are not in any of the input shapes
         defined for the model.  Such fields are returned by AWS but are not
@@ -611,7 +617,7 @@ class ModelGenerator(AbstractGenerator):
             return model_fields
         # First include any fields that were manually set to writable
         # in the botocraft model definition
-        writable_fields: Set[str] = {
+        writable_fields: set[str] = {
             field_name
             for field_name in model_def.fields
             if model_def.fields[field_name].readonly is False
@@ -629,7 +635,7 @@ class ModelGenerator(AbstractGenerator):
 
     def botocore_shape_field_defs(
         self, model_name: str
-    ) -> Dict[str, ModelAttributeDefinition]:
+    ) -> dict[str, ModelAttributeDefinition]:
         """
         Return the fields for a botocore shape as a dictionary of field names to
         botocraft field definitions.  This incorporates settings from the
@@ -656,7 +662,7 @@ class ModelGenerator(AbstractGenerator):
         if model_def.bespoke:
             return model_def.extra_fields
         model_shape = self.get_shape(model_name)
-        fields: Dict[str, ModelAttributeDefinition] = deepcopy(model_def.fields)
+        fields: dict[str, ModelAttributeDefinition] = deepcopy(model_def.fields)
         if hasattr(model_shape, "members"):
             for field, field_shape in model_shape.members.items():
                 if field not in fields:
@@ -685,7 +691,7 @@ class ModelGenerator(AbstractGenerator):
 
     def format_extra_fields_from_model_def(
         self, model_def: ModelDefinition
-    ) -> List[str]:
+    ) -> list[str]:
         """
         Build out the manually defined extra fields for a model.
 
@@ -741,7 +747,7 @@ class ModelGenerator(AbstractGenerator):
                 # ``pk`` property that is an alias for the primary key.
                 properties = f'''
     @property
-    def pk(self) -> Optional[str]:
+    def pk(self) -> str | None:
         """
         Return the primary key of the model.   This is the value of the
         :py:attr:`{model_def.primary_key}` attribute.
@@ -755,7 +761,7 @@ class ModelGenerator(AbstractGenerator):
                 properties += f'''
 
     @property
-    def arn(self) -> Optional[str]:
+    def arn(self) -> str | None:
         """
         Return the ARN of the model.   This is the value of the
         :py:attr:`{model_def.arn_key}` attribute.
@@ -770,7 +776,7 @@ class ModelGenerator(AbstractGenerator):
                 properties += f'''
 
     @property
-    def name(self) -> Optional[str]:
+    def name(self) -> str | None:
         """
         Return the name of the model.   This is the value of the
         :py:attr:`{model_def.name_key}` attribute.
@@ -897,7 +903,7 @@ class ModelGenerator(AbstractGenerator):
         """
         if python_type is None:
             raise NoPythonTypeError(field_name, model_name)
-        name = field_def.rename if field_def.rename else field_name
+        name = field_def.rename or field_name
         if python_type == name or f"[{name}]" in python_type:
             # If our type annotation is for a model with the same name as the field
             # we'll get recursion errors when trying to import the file.  Quoting
@@ -946,7 +952,7 @@ class ModelGenerator(AbstractGenerator):
         model_name: str,
         model_def: ModelDefinition,
         model_shape: botocore.model.Shape | None = None,
-    ) -> List[str]:
+    ) -> list[str]:
         """
         Return the python code representing all the fields for a model from the
         botocore shape.  This is used to generate the fields for a model when we
@@ -1038,14 +1044,14 @@ class ModelGenerator(AbstractGenerator):
                 tag_class = self.get_python_type_for_field(
                     model_name, tag_attr, model_fields[tag_attr]
                 )
-            if tag_class == "Dict[str, str]":
-                # Almost all tags are stored as List[Dict[str, str]] in the
+            if tag_class == "dict[str, str]":
+                # Almost all tags are stored as list[dict[str, str]] in the
                 # botocore model, but some oddballs are actually stored in
-                # the exact form we want: Dict[str, str].  In this case, we
+                # the exact form we want: dict[str, str].  In this case, we
                 # don't need to add the TagsDictMixin class.
                 tag_class = None
             else:
-                tag_class = re.sub(r"List\[(.*)\]", r"\1", tag_class)
+                tag_class = re.sub(r"builtins.list\[(.*)\]", r"\1", tag_class)
                 tag_class = re.sub(r'"(.*)"', r"\1", tag_class)
                 base_class = f"TagsDictMixin, {base_class}"
         return ModelTagsDAO(base_class=base_class, tag_class=tag_class)
@@ -1082,7 +1088,7 @@ class ModelGenerator(AbstractGenerator):
 
         # The list of Python code lines for this model representing the
         # pydantic model fields.
-        field_code: List[str] = []
+        field_code: list[str] = []
 
         # Get the model definition for this model from the service definition
         # file in ``botocraft/data/<service_name>/models.yml``.
@@ -1132,7 +1138,7 @@ class ModelGenerator(AbstractGenerator):
         else:
             # If we don't have a botocore shape for this model, get the
             # docstring from the botocraft model definition, if it exists.
-            _docstring = model_def.docstring if model_def.docstring else None
+            _docstring = model_def.docstring or None
             if _docstring:
                 docstring = self.docformatter.format_docstring(_docstring)
             else:
@@ -1145,13 +1151,15 @@ class ModelGenerator(AbstractGenerator):
             # The ``tag_class`` attribute is the class that will be used to
             # represent the tags in the model.  This is used by TagsDictMixin
             # to convert the tags to a dictionary of tag key/value pairs.
-            code += f"    tag_class: ClassVar[Type] = {tags_dao.tag_class}\n"
+            code += (
+                f"    tag_class: ClassVar[type[Boto3Model]] = {tags_dao.tag_class}\n"
+            )
         if "PrimaryBoto3Model" in base_class:
             if model_def.alternate_name:
                 manager_name = f"{model_def.alternate_name}Manager"
             else:
                 manager_name = f"{model_name}Manager"
-            code += f"    manager_class: ClassVar[Type[Boto3ModelManager]] = {manager_name}\n\n"  # noqa: E501
+            code += f"    manager_class: ClassVar[type[Boto3ModelManager]] = {manager_name}\n\n"  # noqa: E501
         if field_code:
             code += "\n".join(field_code)
         if properties:
@@ -1180,7 +1188,7 @@ class ManagerGenerator(AbstractGenerator):
 
     #: A mapping of botocore operation names to the method generator class that
     #: will generate the code for that method.
-    METHOD_GENERATORS: Final[Dict[str, Type[ManagerMethodGenerator]]] = {
+    METHOD_GENERATORS: Final[dict[str, type[ManagerMethodGenerator]]] = {
         "create": CreateMethodGenerator,
         "update": UpdateMethodGenerator,
         "partial_update": PartialUpdateMethodGenerator,
@@ -1302,9 +1310,10 @@ class ServiceGenerator:
         #: The botocraft interface object, where we will collect all our global data
         self.interface = service_def.interface
         #: A set of model imports we need to add to the top of the file
-        self.imports: Set[str] = {
+        self.imports: set[str] = {
+            "import builtins",
             "from datetime import datetime",
-            "from typing import ClassVar, Type, Optional, Literal, Dict, List, Union, Any, cast",  # noqa: E501
+            "from typing import ClassVar, Literal, Any, cast",
             "from pydantic import Field",
             "from .abstract import Boto3Model, ReadonlyBoto3Model, PrimaryBoto3Model, "
             "ReadonlyPrimaryBoto3Model, Boto3ModelManager, ReadonlyBoto3ModelManager",
@@ -1312,13 +1321,13 @@ class ServiceGenerator:
         }
         #: A dictionary of model names to class code.  This is populated by
         #: service models
-        self.model_classes: Dict[str, str] = {}
+        self.model_classes: dict[str, str] = {}
         #: A dictionary of botocore response classes names to class code. This
         #: is populated when we build the manager classes
-        self.response_classes: Dict[str, str] = {}
+        self.response_classes: dict[str, str] = {}
         #: A dictionary of manager classes names to class code. This is populated
         #: when we build the manager classes
-        self.manager_classes: Dict[str, str] = {}
+        self.manager_classes: dict[str, str] = {}
         #: The :py:class:`ModelGenerator` class we will use to generate models
         self.model_generator = ModelGenerator(self)
         #: The :py:class:`ManagerGenerator` class we will use to generate managers
@@ -1353,7 +1362,7 @@ class ServiceGenerator:
         return self.model_generator.service_model.metadata["serviceId"]
 
     @property
-    def classes(self) -> Dict[str, str]:
+    def classes(self) -> dict[str, str]:
         """
         Return a dictionary of all the classes we have generated.
         """

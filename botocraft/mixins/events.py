@@ -1,6 +1,6 @@
 # mypy: disable-error-code="attr-defined"
 from functools import wraps
-from typing import TYPE_CHECKING, Callable, List, Optional
+from typing import TYPE_CHECKING, Callable
 
 from botocraft.services.abstract import PrimaryBoto3ModelQuerySet
 
@@ -9,7 +9,7 @@ if TYPE_CHECKING:
 
 
 def event_rules_only(
-    func: Callable[..., List[str]],
+    func: Callable[..., list[str]],
 ) -> Callable[..., "PrimaryBoto3ModelQuerySet"]:
     """
     Wraps :py:meth:`botocraft.services.events.EventRuleManager.list_by_target`
@@ -27,8 +27,8 @@ def event_rules_only(
 
 
 def DescribeRuleResponse_to_EventRule(
-    func: Callable[..., Optional["DescribeRuleResponse"]],
-) -> Callable[..., Optional["EventRule"]]:
+    func: Callable[..., "DescribeRuleResponse | None"],
+) -> Callable[..., "EventRule | None"]:
     """
     The boto3 call describe_rule does not actually return a rule object, but
     instead a DescribeRuleResponse object. This decorator wraps the function
@@ -36,7 +36,7 @@ def DescribeRuleResponse_to_EventRule(
     """
 
     @wraps(func)
-    def wrapper(self, *args, **kwargs) -> Optional["EventRule"]:
+    def wrapper(self, *args, **kwargs) -> "EventRule | None":
         from botocraft.services import EventRule
 
         response = func(self, *args, **kwargs)
@@ -68,8 +68,8 @@ def EventRule_purge_CreatedBy_attribute(
 
 
 def DescribeEventBusResponse_to_EventBus(
-    func: Callable[..., Optional["DescribeRuleResponse"]],
-) -> Callable[..., Optional["EventBus"]]:
+    func: Callable[..., "DescribeRuleResponse | None"],
+) -> Callable[..., "EventBus | None"]:
     """
     The boto3 call describe_rule does not actually return a rule object, but
     instead a DescribeRuleResponse object. This decorator wraps the function
@@ -77,7 +77,7 @@ def DescribeEventBusResponse_to_EventBus(
     """
 
     @wraps(func)
-    def wrapper(self, *args, **kwargs) -> Optional["EventRule"]:
+    def wrapper(self, *args, **kwargs) -> "EventRule | None":
         from botocraft.services.events import EventBus
 
         response = func(self, *args, **kwargs)

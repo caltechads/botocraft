@@ -1,5 +1,5 @@
 from functools import cached_property
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING
 
 from .base import EventBridgeEvent
 from .raw import (
@@ -52,7 +52,7 @@ class ECRImageActionEvent(EventBridgeEvent, RawECRImageActionEvent):
         )
 
     @cached_property
-    def image(self) -> Optional["ECRImage"]:
+    def image(self) -> "ECRImage | None":
         """
         Return the ECR image object named by the event.
         """
@@ -90,7 +90,7 @@ class ECRImageScanEvent(EventBridgeEvent, RawECRImageScanEvent):
         )
 
     @cached_property
-    def image(self) -> Optional["ECRImage"]:
+    def image(self) -> "ECRImage | None":
         """
         Return the ECR image object named by the event.
         """
@@ -128,7 +128,7 @@ class ECRReferrerActionEvent(EventBridgeEvent, RawECRReferrerActionEvent):
         )
 
     @cached_property
-    def image(self) -> Optional["ECRImage"]:
+    def image(self) -> "ECRImage | None":
         """
         Return the ECR image object named by the event.
         """
@@ -143,7 +143,7 @@ class ECRReferrerActionEvent(EventBridgeEvent, RawECRReferrerActionEvent):
         )
 
     @cached_property
-    def repository(self) -> Optional["Repository"]:
+    def repository(self) -> "Repository | None":
         """
         Return the ECR repository object named by the event.
         """
@@ -185,7 +185,7 @@ class ECRPullThroughCacheActionEvent(
         )
 
     @cached_property
-    def image(self) -> Optional["ECRImage"]:
+    def image(self) -> "ECRImage | None":
         """
         Return the ECR image object named by the event.
         """
@@ -200,7 +200,7 @@ class ECRPullThroughCacheActionEvent(
         )
 
     @cached_property
-    def repository(self) -> Optional["Repository"]:
+    def repository(self) -> "Repository | None":
         """
         Return the ECR repository object named by the event.
         """
@@ -238,7 +238,7 @@ class ECRReplicationActionEvent(EventBridgeEvent, RawECRReplicationActionEvent):
         )
 
     @cached_property
-    def image(self) -> Optional["ECRImage"]:
+    def image(self) -> "ECRImage | None":
         """
         Return the ECR image object named by the event.
         """
@@ -253,7 +253,7 @@ class ECRReplicationActionEvent(EventBridgeEvent, RawECRReplicationActionEvent):
         )
 
     @cached_property
-    def repository(self) -> Optional["Repository"]:
+    def repository(self) -> "Repository | None":
         """
         Return the ECR repository object named by the event.
         """
@@ -289,7 +289,7 @@ class ECRScanResourceChangeEvent(EventBridgeEvent, RawECRScanResourceChangeEvent
         )
 
     @cached_property
-    def repositories(self) -> list["Repository"]:
+    def repositories(self) -> "list[Repository] | None":
         """
         Return the ECR image object named by the event.
         """

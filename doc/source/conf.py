@@ -1,6 +1,5 @@
-import os
+import os  # noqa: INP001
 import sys
-from typing import Dict, List, Optional, Tuple
 
 import sphinx_rtd_theme  # pylint: disable=unused-import  # noqa:F401
 
@@ -36,7 +35,7 @@ release = "0.23.2"
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
-extensions: List[str] = [
+extensions: list[str] = [
     "sphinx.ext.autodoc",
     "sphinx.ext.napoleon",
     "sphinx.ext.viewcode",
@@ -49,23 +48,23 @@ extensions: List[str] = [
 source_suffix: str = ".rst"
 
 # Add any paths that contain templates here, relative to this directory.
-templates_path: List[str] = ["_templates"]
+templates_path: list[str] = ["_templates"]
 
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
 # This pattern also affects html_static_path and html_extra_path.
-exclude_patterns: List[str] = ["_build"]
+exclude_patterns: list[str] = ["_build"]
 
 add_function_parentheses: bool = False
 add_module_names: bool = True
 
 autodoc_member_order: str = "groupwise"
-autodoc_type_aliases: Dict[str, str] = {}
+autodoc_type_aliases: dict[str, str] = {}
 autodoc_model_show_json: bool = False
 
 
 # the locations and names of other projects that should be linked to this one
-intersphinx_mapping: Dict[str, Tuple[str, Optional[str]]] = {
+intersphinx_mapping: dict[str, tuple[str, str | None]] = {
     "python": ("https://docs.python.org/3", None),
     "docker": ("https://docker-py.readthedocs.io/en/stable/", None),
 }

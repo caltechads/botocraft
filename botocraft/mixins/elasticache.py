@@ -1,5 +1,5 @@
 from functools import cached_property
-from typing import TYPE_CHECKING, List, cast
+from typing import TYPE_CHECKING, cast
 
 import boto3
 
@@ -48,7 +48,7 @@ class CacheClusterModelMixin:
     """
 
     session: boto3.session.Session
-    CacheSecurityGroups: List["CacheSecurityGroupMembership"]
+    CacheSecurityGroups: list["CacheSecurityGroupMembership"]
 
     @property
     def security_groups(self) -> "PrimaryBoto3ModelQuerySet":
@@ -114,7 +114,7 @@ class ReplicationGroupModelMixin:
     """
 
     session: boto3.session.Session
-    MemberClusters: List[str]
+    MemberClusters: list[str]
 
     @cached_property
     def clusters(self) -> "PrimaryBoto3ModelQuerySet":

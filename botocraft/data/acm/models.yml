@@ -14,7 +14,7 @@ primary:
         python_type: str
     extra_fields:
       Tags:
-        python_type: list[Tag]
+        python_type: builtins.list[Tag]
         docstring: >-
           The tags associated with the log group.
 

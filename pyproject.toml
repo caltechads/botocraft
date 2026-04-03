@@ -263,4 +263,7 @@ docstring-code-line-length = "dynamic"
     "ARG002",  # Unused argument
     "RUF001",  # Ambiguous line separator
     "RUF002",  # Doctring contains ambiguous characters
+    "TC001",  # Move import into type checking block
+    "TC002",  # Move 3rd party imports into type checking block
+    "TC003",  # Move standard library imports into type checking block
 ]

@@ -8,15 +8,15 @@ AssumeRoleResponse:
       boto3_name: assume_role_with_saml
       response_attr: >-
         None
-      return_type:
-        Optional["AssumeRole"]
+      return_type: >-
+        "AssumeRole | None"
       response_class: AssumeRole
     assume_with_web_identity:
       boto3_name: assume_role_with_web_identity
       response_attr: >-
         None
-      return_type:
-        Optional["AssumeRole"]
+      return_type: >-
+        "AssumeRole | None"
       response_class:
         AssumeRole
 CallerIdentity:

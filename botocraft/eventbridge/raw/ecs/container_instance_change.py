@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 from datetime import datetime  # noqa: TC003
-from typing import List
 
 from pydantic import BaseModel, Field
 
@@ -43,7 +42,7 @@ class AttachmentDetails(BaseModel):
     #: The status of the attachment
     status: str | None = None
     #: The details of the attachment
-    details: List[Detail] | None = None
+    details: list[Detail] | None = None
 
 
 class AttributesDetails(BaseModel):
@@ -82,7 +81,7 @@ class ResourceDetails(BaseModel):
     #: The name of the resource
     name: str
     #: A string value of the resource
-    stringSetValue: List[str] | None = None
+    stringSetValue: list[str] | None = None
     #: The type of the resource
     type: str
 
@@ -97,13 +96,13 @@ class ECSContainerInstanceStateChange(BaseModel):
     #: The ID of the EC2 instance
     ec2InstanceId: str | None = None
     #: Any attachments associated with the container instance
-    attachments: List[AttachmentDetails] | None = None
+    attachments: list[AttachmentDetails] | None = None
     #: The list of registered resources associated with the container instance
     #: e.g. CPU, memory, etc.
-    registeredResources: List[ResourceDetails]
+    registeredResources: list[ResourceDetails]
     #: The list of remaining resources associated with the container instance
     #: e.g. CPU, memory, etc.
-    remainingResources: List[ResourceDetails]
+    remainingResources: list[ResourceDetails]
     #: How many tasks are running on the container instance
     runningTasksCount: float | None = None
     #: The time the container instance was registered
@@ -119,7 +118,7 @@ class ECSContainerInstanceStateChange(BaseModel):
     #: The ARN of the ECS cluster the container instance is registered to
     clusterArn: str
     #: The attributes associated with the container instance
-    attributes: List[AttributesDetails] | None = None
+    attributes: list[AttributesDetails] | None = None
     #: The ARN of the container instance
     containerInstanceArn: str
     #: The status of the container instance
@@ -138,7 +137,7 @@ class ECSContainerInstanceStateChangeEvent(BaseModel):
     #: The human readable name of the event
     detail_type: str = Field(..., alias="detail-type")
     #: The resources the event applies to.  This will be a list of ARNs
-    resources: List[str]
+    resources: list[str]
     #: The ID of the event
     id: str
     #: The source of the event, e.g. "aws.ecs"

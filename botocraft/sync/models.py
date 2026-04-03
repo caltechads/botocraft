@@ -3,7 +3,7 @@ from collections import OrderedDict
 from dataclasses import dataclass, field
 from pathlib import Path
 from textwrap import indent
-from typing import Any, Dict, List
+from typing import Any
 
 import yaml
 from pydantic import BaseModel, Field, ValidationInfo, field_validator, model_validator
@@ -99,7 +99,7 @@ class AttributeTransformerDefinition(BaseModel):
     regex: RegexTransformer | None = None
     #: If specified, use this mapping of attribute values to
     #: output keys to generate the output
-    mapping: Dict[str, str] | None = None
+    mapping: dict[str, str] | None = None
     #: If specified, use this property as an alias for this
     #: attribute.  This may be an alias on another related
     #: model
@@ -169,7 +169,7 @@ class ModelRelationshipDefinition(BaseModel):
     """
 
     #: If specified, import these modules into the generated file.
-    imports: List[Importable] = Field(default_factory=list)
+    imports: list[Importable] = Field(default_factory=list)
     #: The docstring for this property
     docstring: str | None = None
     #: If ``True``, make this property be cached
@@ -298,21 +298,21 @@ class ModelManagerMethodDefinition(BaseModel):
     #: model and map them to args on the manager method in the proper : order.
     #: The key is the position of the argument in the manager method signature,
     #: value is the name of the attribute on the model.
-    args: Dict[int, ModelManagerMethodArgDefinition] = Field(default_factory=dict)
+    args: dict[int, ModelManagerMethodArgDefinition] = Field(default_factory=dict)
     #: Args the users must supply.  The key is the position of the argument in
     #: the manager method signature, and the value is the name of the argument
     #: to add to the model method signature.
-    user_args: Dict[int, ModelManagerMethodArgDefinition] = Field(default_factory=dict)
+    user_args: dict[int, ModelManagerMethodArgDefinition] = Field(default_factory=dict)
     #: The keyword arguments for the method.  These should refer to attributes
     #: on the model and map them to kwargs on the manager method with the proper
     #: keyword.
-    keyword_args: List[ModelManagerMethodKwargDefinition] = Field(default_factory=list)
+    keyword_args: list[ModelManagerMethodKwargDefinition] = Field(default_factory=list)
     #: Keyword arguments the users can supply
-    user_keyword_args: List[ModelManagerMethodKwargDefinition] = Field(
+    user_keyword_args: list[ModelManagerMethodKwargDefinition] = Field(
         default_factory=list
     )
     #: A list of decorators to wrap the method in
-    decorators: List[Importable] = Field(default_factory=list)
+    decorators: list[Importable] = Field(default_factory=list)
 
 
 class ModelAttributeDefinition(BaseModel):
@@ -339,7 +339,7 @@ class ModelAttributeDefinition(BaseModel):
     python_type: str | None = None
     #: If specified, the list of imports to add to the top of the
     #: to support the python type.
-    imports: List[str] = []
+    imports: list[str] = []
     #: This is not defined in the YAML file, but is set by
     #: :py:meth:`ModelGenerator.fields` during generation.
     botocore_shape: Any | None = None
@@ -353,9 +353,9 @@ class ModelDefinition(BaseModel):
     #: The botocore model name
     name: str
     #: A list of imports to add to the top of the file to support the model.
-    imports: List[str] | None = None
+    imports: list[str] | None = None
     #: A list of mixin classes to add to the model
-    mixins: List[Importable] = Field(default_factory=list)
+    mixins: list[Importable] = Field(default_factory=list)
     #: If ``True``, make this model immutable.
     readonly: bool = False
     #: The plural form of our model name, if different from
@@ -384,27 +384,27 @@ class ModelDefinition(BaseModel):
     #: A list of field overrides for this model.  If a field name is not
     #: specified in this list, it will be generated verbatim from the
     #: botocore model attribute definition.
-    fields: Dict[str, ModelAttributeDefinition] = Field(default_factory=dict)
+    fields: dict[str, ModelAttributeDefinition] = Field(default_factory=dict)
     #: A list of extra fields for this model.  These are fields that are
     #: not in the botocore model, but are either are needed at create time
     #: or because they turn into something else in the response.  This is
     #: pretty rarely used.
-    extra_fields: Dict[str, ModelAttributeDefinition] = Field(default_factory=dict)
+    extra_fields: dict[str, ModelAttributeDefinition] = Field(default_factory=dict)
     #: The name of the output shape for the get method for this model.  We use
     #: this to add to the model any fields that appear in the get method
     #: response, but which are not present in the create method response.
     output_shape: str | None = None
     #: The names of the request shapes for the writable methods for this model.
     #: We use these to determine which fields on the model are writable.
-    input_shapes: List[str] | None = None
+    input_shapes: list[str] | None = None
     #: Computed properties.  These are all defined by us in the botocraft
     #: config.
-    properties: Dict[str, ModelPropertyDefinition] = Field(default_factory=dict)
+    properties: dict[str, ModelPropertyDefinition] = Field(default_factory=dict)
     #: Relationships to other models.  These are all defined by us in the
     #: botocraft config.
-    relations: Dict[str, ModelRelationshipDefinition] = Field(default_factory=dict)
+    relations: dict[str, ModelRelationshipDefinition] = Field(default_factory=dict)
     #: Methods on the model that call methods on the manager for the model.
-    manager_methods: Dict[str, ModelManagerMethodDefinition] = Field(
+    manager_methods: dict[str, ModelManagerMethodDefinition] = Field(
         default_factory=dict
     )
     #: If ``True``, this is a bespoke model.  This means that we
@@ -501,7 +501,7 @@ class MethodArgumentDefinition(BaseModel):
     python_type: str | None = None
     #: If supplied, this is a list of import strings to add to the top of the
     #: of the file to support the python type.
-    imports: List[str] = Field(default_factory=list)
+    imports: list[str] = Field(default_factory=list)
 
 
 class ManagerMethodDefinition(BaseModel):
@@ -528,7 +528,7 @@ class ManagerMethodDefinition(BaseModel):
     #: A list of argument overrides for this method.  If an argument name
     #: is not specified as a key in this dict, it will be generated as is
     #: appropriate for the operation type
-    args: Dict[str, MethodArgumentDefinition] = {}
+    args: dict[str, MethodArgumentDefinition] = {}
     #: The attribute name on the response class to use in building our
     #: method return object(s).  If not specified, we'll use the lowercased
     #: model name, pluralizing if necessary.
@@ -549,12 +549,12 @@ class ManagerMethodDefinition(BaseModel):
     #: set, we'll use the model name, pluralizing if necessary.
     return_type: str | None = None
     #: Extra arguments for the method call
-    extra_args: Dict[str, MethodArgumentDefinition] = {}
+    extra_args: dict[str, MethodArgumentDefinition] = {}
     #: Decorators to wrap the method in
-    decorators: List[Importable] = []
+    decorators: list[Importable] = []
 
     @property
-    def explicit_args(self) -> List[str]:
+    def explicit_args(self) -> list[str]:
         """
         Return a list of positional arguments that should be explicitly
         included in the method signature.  This is useful for methods
@@ -576,7 +576,7 @@ class ManagerMethodDefinition(BaseModel):
         return positional_args
 
     @property
-    def explicit_kwargs(self) -> List[str]:
+    def explicit_kwargs(self) -> list[str]:
         """
         Return a list of keyword arguments that should be explicitly
         included in the method signature.  This is useful for methods
@@ -702,12 +702,12 @@ class ManagerDefinition(BaseModel):
     #: The name of the model this manager is for
     name: str
     #: The methods to generate on this manager
-    methods: Dict[str, ManagerMethodDefinition] = {}
+    methods: dict[str, ManagerMethodDefinition] = {}
     #: If ``True``, make this manager use the :py:class:`ReadonlyBoto3ModelManager`
     #: superclass
     readonly: bool = False
     #: Mixin classes to add to the manager
-    mixins: List[Importable] = []
+    mixins: list[Importable] = []
 
 
 # --------
@@ -726,17 +726,17 @@ class ServiceDefinition(BaseModel):
     name: str
     #: The models to generate for this service.  These are specifically models
     #: that have managers.
-    primary_models: Dict[str, ModelDefinition] = {}
+    primary_models: dict[str, ModelDefinition] = {}
     #: These are models that are used as attributes on other models, or as
     #: response or request classes.  These models don't have managers, but
     #: we sometimes define them to override the default botocore model
     #: configuration, making them readonly or to rename them, for instance.
-    secondary_models: Dict[str, ModelDefinition] = {}
+    secondary_models: dict[str, ModelDefinition] = {}
     #: The managers to generate for this service
-    managers: Dict[str, ManagerDefinition] = {}
+    managers: dict[str, ManagerDefinition] = {}
 
     @property
-    def models(self) -> Dict[str, ModelDefinition]:
+    def models(self) -> dict[str, ModelDefinition]:
         """
         Return all of the models we've specifically named in the definition for
         this service, both primary and secondary.
@@ -762,7 +762,7 @@ class ServiceDefinition(BaseModel):
             The loaded service definition
 
         """
-        managers: Dict[str, ManagerDefinition] | None = None
+        managers: dict[str, ManagerDefinition] | None = None
         model_path = DATA_DIR / name / "models.yml"
         manager_path = DATA_DIR / name / "managers.yml"
         with model_path.open(encoding="utf-8") as f:
@@ -832,9 +832,9 @@ class ServiceDefinition(BaseModel):
 
 class BotocraftInterface(BaseModel):
     #: The services to generate
-    services: Dict[str, ServiceDefinition] = {}
+    services: dict[str, ServiceDefinition] = {}
     #: The model name to import path mappings
-    models: Dict[str, str] = {
+    models: dict[str, str] = {
         # Tag is defined in so many services that we manually
         # defined it in the botocraft.models.tagging module and
         # define it here so it doesn't get generated.

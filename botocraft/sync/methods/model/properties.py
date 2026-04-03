@@ -64,10 +64,10 @@ class ModelPropertyGenerator:
         Return the return type annotation for the method.
         """
         if self.property_def.transformer.regex:
-            return_type = "Optional[str]"
+            return_type = "str | None"
             num_groups = re.compile(self.property_def.transformer.regex.regex).groups
             if num_groups > 1:
-                return_type = "Optional[Dict[str, str]]"
+                return_type = "dict[str, str] | None"
         elif self.property_def.transformer.mapping:
             # TODO: it'd be nice to do something like a typed dict here
             return_type = "OrderedDict[str, Any]"

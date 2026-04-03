@@ -3,7 +3,6 @@ from collections import OrderedDict
 from typing import (
     TYPE_CHECKING,
     Final,
-    List,
     Literal,
     cast,
 )
@@ -53,7 +52,7 @@ class ManagerMethodGenerator:
 
     #: A list of arguments that various boto3 calls use for pagination.  We
     #: want to hide them automatically sometimes.
-    PAGINATOR_ARGS: Final[List[str]] = [
+    PAGINATOR_ARGS: Final[list[str]] = [
         "nextToken",
         "maxResults",
         "MaxResults",
@@ -253,9 +252,10 @@ class ManagerMethodGenerator:
                 if self.is_required(arg_name, location=location):
                     args[_arg_name] = python_type
             elif not self.is_required(arg_name, location=location):
-                default: str | None = arg_def.default if arg_def.default else "None"
+                default: str | None = arg_def.default or "None"
                 if default == "None":
-                    args[_arg_name] = f"Optional[{python_type}] = None"
+                    python_type = python_type.strip('"')
+                    args[_arg_name] = f'"{python_type} | None" = None'
                 else:
                     args[_arg_name] = f"{python_type} = {default}"
         if location == "method":
@@ -272,9 +272,10 @@ class ManagerMethodGenerator:
                     if arg_def.required is True:
                         args[arg_name] = arg_def.python_type
                 elif arg_def.required is False:
-                    default = arg_def.default if arg_def.default else "None"
+                    default = arg_def.default or "None"
                     if default == "None":
-                        args[arg_name] = f"Optional[{arg_def.python_type}] = None"
+                        python_type = arg_def.python_type.strip('"')
+                        args[arg_name] = f'"{python_type} | None" = None'
                     else:
                         args[arg_name] = f"{arg_def.python_type} = {default}"
                 if arg_def.imports:
@@ -326,7 +327,8 @@ class ManagerMethodGenerator:
                 )
                 arg_def = self.method_def.args.get(arg_name, MethodArgumentDefinition())
                 if arg_def.default in [None, "None"]:
-                    args[arg_name] = f"Optional[{args[arg_name]}]"
+                    python_type = args[arg_name].strip('"')
+                    args[arg_name] = f'"{python_type} | None"'
         return args
 
     def args(
@@ -341,7 +343,7 @@ class ManagerMethodGenerator:
 
                 {
                     'arg1': 'str'
-                    'arg2': 'List[str]'
+                    'arg2': 'list[str]'
                 }
 
         Keyword Args:
@@ -371,7 +373,7 @@ class ManagerMethodGenerator:
 
                 {
                     'arg1': 'str = "default"',
-                    'arg2': 'Optional[str] = None'
+                    'arg2': 'str | None = None'
                 }
 
         Keyword Args:
@@ -403,7 +405,7 @@ class ManagerMethodGenerator:
         if args and kwargs:
             arg_str += ", "
         arg_str += ", ".join([f"{arg}={self.serialize(arg)}" for arg in kwargs])
-        return f"args: Dict[str, Any] = dict({arg_str})"
+        return f"args: dict[str, Any] = dict({arg_str})"
 
     @property
     def operation_call(self) -> str:

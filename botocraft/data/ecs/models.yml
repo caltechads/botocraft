@@ -157,7 +157,7 @@ primary:
           "awsvpc"
     extra_fields:
       Tags:
-        python_type: List["ECSTag"]
+        python_type: "builtins.list[ECSTag]"
         required: false
         docstring: >-
           The tags for the task definition.
@@ -319,6 +319,9 @@ secondary:
         required: true
         default: >-
           True
+      secrets:
+        python_type: >-
+          "builtins.list[ECSContainerDefinitionSecret] | None"
     properties:
       full_repository_uri:
         docstring: >-
@@ -383,4 +386,6 @@ secondary:
   RuntimePlatform:
     fields:
       cpuArchitecture:
-        python_type: Literal["x86_64", "ARM64"]
+        python_type: "Literal['x86_64', 'ARM64']"
+  Secret:
+    alternate_name: ECSContainerDefinitionSecret

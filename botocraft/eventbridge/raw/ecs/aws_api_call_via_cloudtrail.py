@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from datetime import datetime  # noqa: TC003
-from typing import Any, Dict, List
+from typing import Any
 
 from pydantic import BaseModel, Field
 
@@ -23,7 +23,7 @@ class RequestParametersItem1(BaseModel):
     #: The exit code of the container, if it has exited
     exitCode: float | None = None
     #: The network bindings for the container
-    networkBindings: List[Dict[str, Any]] | None = None
+    networkBindings: list[dict[str, Any]] | None = None
     #: The status of the container
     status: str
 
@@ -34,7 +34,7 @@ class ResponseElementsItemItem1(BaseModel):
     #: The Docker image used by the container
     image: str
     #: The network interfaces attached to the container
-    networkInterfaces: List[Dict[str, Any]]
+    networkInterfaces: list[dict[str, Any]]
     #: The memory allocated to the container
     memory: str | None = None
     #: The ARN of the task this container belongs to
@@ -55,16 +55,16 @@ class AwsvpcConfiguration(BaseModel):
     #: Whether to assign a public IP address to the task
     assignPublicIp: str | None = None
     #: The subnets in which to launch the task
-    subnets: List[str] | None = None
+    subnets: list[str] | None = None
 
 
 class OverridesItem(BaseModel):
     """Represents overrides for a container in the ECS request."""
 
     #: The resource requirements for the container
-    resourceRequirements: List[Dict[str, Any]] | None = None
+    resourceRequirements: list[dict[str, Any]] | None = None
     #: The environment variables for the container
-    environment: List[Dict[str, Any]] | None = None
+    environment: list[dict[str, Any]] | None = None
     #: The memory override for the container
     memory: float | None = None
     #: The name of the container to override
@@ -72,7 +72,7 @@ class OverridesItem(BaseModel):
     #: The CPU override for the container
     cpu: float | None = None
     #: The command override for the container
-    command: List[str] | None = None
+    command: list[str] | None = None
 
 
 class SessionIssuer(BaseModel):
@@ -103,9 +103,9 @@ class Overrides1Item(BaseModel):
     """Represents overrides for a container in the ECS response."""
 
     #: The resource requirements for the container
-    resourceRequirements: List[Dict[str, Any]] | None = None
+    resourceRequirements: list[dict[str, Any]] | None = None
     #: The environment variables for the container
-    environment: List[Dict[str, Any]] | None = None
+    environment: list[dict[str, Any]] | None = None
     #: The memory override for the container
     memory: float | None = None
     #: The name of the container to override
@@ -113,7 +113,7 @@ class Overrides1Item(BaseModel):
     #: The CPU override for the container
     cpu: float | None = None
     #: The command override for the container
-    command: List[str] | None = None
+    command: list[str] | None = None
 
 
 class ResponseElementsItemItemItem(BaseModel):
@@ -136,14 +136,14 @@ class Overrides(BaseModel):
     """Represents container overrides for an ECS request."""
 
     #: The overrides for individual containers
-    containerOverrides: List[OverridesItem] | None = None
+    containerOverrides: list[OverridesItem] | None = None
 
 
 class SessionContext(BaseModel):
     """Represents the session context for a user identity."""
 
     #: Web identity federation data, if applicable
-    webIdFederationData: Dict[str, Any] | None = None
+    webIdFederationData: dict[str, Any] | None = None
     #: Information about the entity that issued the session
     sessionIssuer: SessionIssuer
     #: Session attributes like MFA status
@@ -154,16 +154,16 @@ class Overrides1(BaseModel):
     """Represents container and inference accelerator overrides for an ECS response."""
 
     #: The overrides for individual containers
-    containerOverrides: List[Overrides1Item]
+    containerOverrides: list[Overrides1Item]
     #: The overrides for inference accelerators
-    inferenceAcceleratorOverrides: List[Dict[str, Any]]
+    inferenceAcceleratorOverrides: list[dict[str, Any]]
 
 
 class ResponseElementsItemItem(BaseModel):
     """Represents an attachment for an ECS response element."""
 
     #: The details of the attachment
-    details: List[ResponseElementsItemItemItem]
+    details: list[ResponseElementsItemItemItem]
     #: The ID of the attachment
     id: str
     #: The type of the attachment
@@ -180,7 +180,7 @@ class RequestParameters(BaseModel):
     #: Overrides for the task
     overrides: Overrides | None = None
     #: Placement constraints for the task
-    placementConstraints: List[RequestParametersItem] | None = None
+    placementConstraints: list[RequestParametersItem] | None = None
     #: The cluster on which to run the task
     cluster: str | None = None
     #: The reason for the request
@@ -200,7 +200,7 @@ class RequestParameters(BaseModel):
     #: The container instance on which to run the task
     containerInstance: str | None = None
     #: The containers to include in the task
-    containers: List[RequestParametersItem1] | None = None
+    containers: list[RequestParametersItem1] | None = None
     #: The task definition to use
     taskDefinition: str | None = None
     #: Whether to enable ECS managed tags
@@ -238,7 +238,7 @@ class ResponseElementsItem(BaseModel):
     #: The task memory
     memory: str
     #: Attachments to the task
-    attachments: List[ResponseElementsItemItem]
+    attachments: list[ResponseElementsItemItem]
     #: The ARN of the role or user that submitted the request
     startedBy: str | None = None
     #: The ARN of the task
@@ -248,7 +248,7 @@ class ResponseElementsItem(BaseModel):
     #: The version number of the task
     version: float
     #: The tags associated with the task
-    tags: List[Dict[str, Any]]
+    tags: list[dict[str, Any]]
     #: When the task was created
     createdAt: str
     #: The ARN of the cluster in which the task is running
@@ -258,7 +258,7 @@ class ResponseElementsItem(BaseModel):
     #: The platform version (FARGATE only)
     platformVersion: str | None = None
     #: A list of container definitions
-    containers: List[ResponseElementsItemItem1]
+    containers: list[ResponseElementsItemItem1]
     #: The ARN of the container instance on which the task is running
     #: (Fargate tasks have no container instance)
     containerInstanceArn: str | None = None
@@ -278,11 +278,11 @@ class ResponseElements(BaseModel):
     #: The endpoint URL
     endpoint: str | None = None
     #: Any failures that occurred during the API call
-    failures: List[Dict[str, Any]] | None = None
+    failures: list[dict[str, Any]] | None = None
     #: The telemetry endpoint URL
     telemetryEndpoint: str | None = None
     #: The tasks returned in the response
-    tasks: List[ResponseElementsItem] | None = None
+    tasks: list[ResponseElementsItem] | None = None
     #: The acknowledgment message, if any
     acknowledgment: str | None = None
 

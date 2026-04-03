@@ -50,7 +50,7 @@ primary:
             value: >-
               None
           - name: VersionStages
-            python_type: List[str]
+            python_type: builtins.list[str]
             value: >-
               ["AWSCURRENT"]
           - name: RotationToken

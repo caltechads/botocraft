@@ -48,9 +48,9 @@ class GetMethodGenerator(ManagerMethodGenerator):
         if self.method_def.return_type:
             return_type = self.method_def.return_type
         elif self.model_def.alternate_name:
-            return_type = f'Optional["{self.model_def.alternate_name}"]'
+            return_type = f'"{self.model_def.alternate_name} | None"'
         else:
-            return_type = f'Optional["{self.model_name}"]'
+            return_type = f'"{self.model_name} | None"'
         return return_type
 
     @property

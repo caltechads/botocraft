@@ -1,6 +1,5 @@
 import re
 from datetime import datetime
-from typing import Optional
 
 import pytest
 from pydantic import Field
@@ -330,7 +329,7 @@ class RelatedModel(Boto3Model):
     priority: int = 0
 
     @property
-    def child(self) -> Optional["NestedRelatedModel"]:
+    def child(self) -> "NestedRelatedModel | None":
         """A relationship to a nested model for testing multi-level traversal."""
         if self.id.startswith("has-child"):
             return NestedRelatedModel(

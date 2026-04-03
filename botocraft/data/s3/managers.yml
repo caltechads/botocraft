@@ -140,7 +140,7 @@ Object:
           required: true
       extra_args:
         Include:
-          python_type: Optional[List[Literal["TAGS"]]]
+          python_type: "builtins.list[Literal['TAGS']] | None"
           default: >-
             None
           docstring: >-

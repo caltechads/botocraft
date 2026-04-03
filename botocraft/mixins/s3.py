@@ -1,6 +1,6 @@
 import gzip
 from functools import wraps
-from typing import TYPE_CHECKING, Any, Callable, Optional
+from typing import TYPE_CHECKING, Any, Callable
 
 from typing_extensions import Literal
 
@@ -64,7 +64,7 @@ def object_list_add_bucket_name_and_tags(
 
 def bucket_update_safe_get_lifecycle(
     func: Callable[..., "GetBucketLifecycleConfigurationOutput"],
-) -> Callable[..., Optional["GetBucketLifecycleConfigurationOutput"]]:
+) -> Callable[..., "GetBucketLifecycleConfigurationOutput | None"]:
     """
     Wraps a boto3 method that returns an object to add the lifecycle to the object.
     """
@@ -72,7 +72,7 @@ def bucket_update_safe_get_lifecycle(
     @wraps(func)
     def wrapper(
         self, *args, **kwargs
-    ) -> Optional["GetBucketLifecycleConfigurationOutput"]:
+    ) -> "GetBucketLifecycleConfigurationOutput | None":
         try:
             lifecycle = func(self, *args, **kwargs)
         except self.client.exceptions.ClientError as e:
@@ -100,7 +100,7 @@ class BucketManagerMixin:
 
     def _get_bucket_logging_configuration(
         self, bucket_name: str
-    ) -> Optional["BucketLoggingConfiguration"]:
+    ) -> "BucketLoggingConfiguration | None":
         """
         Get the logging configuration for a bucket.
         """
@@ -153,7 +153,7 @@ class BucketManagerMixin:
             )
         return _logging
 
-    def _get_cors_rules(self, bucket_name: str) -> list["S3CORSRule"] | None:
+    def _get_cors_rules(self, bucket_name: str) -> "list[S3CORSRule] | None":
         """
         Get the CORS rules for a bucket.
 
@@ -297,7 +297,7 @@ class BucketManagerMixin:
 
         # Get the current region
         region = self.session.region_name  # type: ignore[attr-defined]
-        _region = model.Region if model.Region else region
+        _region = model.Region or region
         s3 = self.client  # type: ignore[attr-defined]
         create_bucket_configuration = {
             "LocationConstraint": _region,

@@ -9,7 +9,7 @@ primary:
       - PutRuleRequest
     extra_fields:
       CreatedBy:
-        python_type: Optional[str]
+        python_type: str | None
         default: None
     relations:
       targets:
