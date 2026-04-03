@@ -1,0 +1,180 @@
+---
+DBCluster:
+  methods:
+    create:
+      decorators:
+        - name: single_docdb_cluster_include_tags
+          import_path: botocraft.mixins.docdb
+      boto3_name: create_db_cluster
+      response_attr: DBCluster
+      args:
+        EnableCloudwatchLogsExports:
+          attribute: EnabledCloudwatchLogsExports
+    update:
+      decorators:
+        - name: single_docdb_cluster_include_tags
+          import_path: botocraft.mixins.docdb
+      boto3_name: modify_db_cluster
+      response_attr: DBCluster
+    delete:
+      boto3_name: delete_db_cluster
+      response_attr: DBCluster
+    get:
+      decorators:
+        - name: single_docdb_cluster_include_tags
+          import_path: botocraft.mixins.docdb
+      boto3_name: describe_db_clusters
+      args:
+        DBInstanceIdentifier:
+          required: true
+        Filters:
+          hidden: true
+    list:
+      decorators:
+        - name: multiple_docdb_cluster_include_tags
+          import_path: botocraft.mixins.docdb
+      boto3_name: describe_db_clusters
+      response_attr: DBClusters
+    failover:
+      decorators:
+        - name: single_docdb_cluster_include_tags
+          import_path: botocraft.mixins.docdb
+      boto3_name: failover_db_cluster
+      response_attr: DBCluster
+    restore_to_point_in_time:
+      decorators:
+        - name: single_docdb_cluster_include_tags
+          import_path: botocraft.mixins.docdb
+      boto3_name: restore_db_cluster_to_point_in_time
+      response_attr: DBCluster
+    start:
+      decorators:
+        - name: single_docdb_cluster_include_tags
+          import_path: botocraft.mixins.docdb
+      boto3_name: start_db_cluster
+      response_attr: DBCluster
+    stop:
+      decorators:
+        - name: single_docdb_cluster_include_tags
+          import_path: botocraft.mixins.docdb
+      boto3_name: stop_db_cluster
+      response_attr: DBCluster
+DBInstance:
+  methods:
+    create:
+      decorators:
+        - name: single_docdb_instance_include_tags
+          import_path: botocraft.mixins.docdb
+      boto3_name: create_db_instance
+      response_attr: DBInstance
+      args:
+        EnablePerformanceInsights:
+          attribute: PerformanceInsightsEnabled
+    update:
+      decorators:
+        - name: single_docdb_instance_include_tags
+          import_path: botocraft.mixins.docdb
+      boto3_name: modify_db_instance
+      response_attr: DBInstance
+      args:
+        EnablePerformanceInsights:
+          attribute: PerformanceInsightsEnabled
+    delete:
+      boto3_name: delete_db_instance
+      response_attr: DBInstance
+      args:
+        DBInstanceIdentifier:
+          required: true
+    list:
+      decorators:
+        - name: multiple_docdb_instance_include_tags
+          import_path: botocraft.mixins.docdb
+      boto3_name: describe_db_instances
+      response_attr: DBInstances
+    get:
+      decorators:
+        - name: single_docdb_instance_include_tags
+          import_path: botocraft.mixins.docdb
+      boto3_name: describe_db_instances
+      args:
+        DBInstanceIdentifier:
+          required: true
+        Filters:
+          hidden: true
+    reboot:
+      decorators:
+        - name: single_docdb_instance_include_tags
+          import_path: botocraft.mixins.docdb
+      boto3_name: reboot_db_instance
+      response_attr: DBInstance
+      args:
+        DBInstanceIdentifier:
+          required: true
+DBSubnetGroup:
+  methods:
+    create:
+      decorators:
+        - name: single_docdb_subnet_group_include_tags
+          import_path: botocraft.mixins.docdb
+      boto3_name: create_db_subnet_group
+      response_attr: DBSubnetGroup
+    update:
+      decorators:
+        - name: single_docdb_subnet_group_include_tags
+          import_path: botocraft.mixins.docdb
+      boto3_name: modify_db_subnet_group
+      response_attr: DBSubnetGroup
+    delete:
+      boto3_name: delete_db_subnet_group
+      response_attr: DBSubnetGroup
+    get:
+      decorators:
+        - name: single_docdb_subnet_group_include_tags
+          import_path: botocraft.mixins.docdb
+      boto3_name: describe_db_subnet_groups
+      args:
+        DBSubnetGroupName:
+          required: true
+        Filters:
+          hidden: true
+    list:
+      decorators:
+        - name: multiple_docdb_subnet_group_include_tags
+          import_path: botocraft.mixins.docdb
+      boto3_name: describe_db_subnet_groups
+  DBClusterParameterGroup:
+    methods:
+      create:
+        boto3_name: create_db_parameter_group
+        response_attr: DBParameterGroup
+      update:
+        boto3_name: modify_db_parameter_group
+        response_attr: DBParameterGroup
+      delete:
+        boto3_name: delete_db_parameter_group
+        response_attr: DBParameterGroup
+      get:
+        boto3_name: describe_db_parameter_groups
+        args:
+          DBParameterGroupName:
+            required: true
+        Filters:
+          hidden: true
+      list:
+        boto3_name: describe_db_parameter_groups
+        response_attr: DBParameterGroups
+      copy:
+        boto3_name: copy_db_cluster_parameter_group
+        response_attr: DBClusterParameterGroup
+      reset:
+        boto3_name: reset_db_cluster_parameter_group
+        response_attr: DBClusterParameterGroupName
+
+
+
+
+
+
+
+
+

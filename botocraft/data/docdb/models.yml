@@ -1,0 +1,213 @@
+---
+primary:
+  DBCluster:
+    mixins:
+      - name: DocDBClusterModelMixin
+        import_path: botocraft.mixins.docdb
+    alternate_name: DocDBCluster
+    primary_key: DBClusterIdentifier
+    arn_key: DBClusterArn
+    name_key: DBClusterIdentifier
+    input_shapes:
+      - CreateDBClusterMessage
+      - ModifyDBClusterMessage
+    fields:
+      DBSubnetGroup:
+        readonly: false
+    extra_fields:
+      Tags:
+        python_type: builtins.list[Tag]
+        docstring: >-
+          The tags associated with the DocumentDB cluster.
+    relations:
+      subnet_group:
+        primary_model_name: DocDBSubnetGroup
+        docstring: >-
+          Return the subnet group that this DB instance is in, if any.
+        transformer:
+          mapping:
+            DBSubnetGroupName: >-
+              self.DBSubnetGroup
+      security_groups:
+        primary_model_name: SecurityGroup
+        docstring: >-
+          Return the security groups that this DB instance is in, if any.
+        many: true
+        transformer:
+          mapping:
+            GroupIds: >-
+              [g.VpcSecurityGroupId for g in self.VpcSecurityGroups if g.VpcSecurityGroupId]
+      vpc:
+        primary_model_name: Vpc
+        docstring: >-
+          Return the VPC that this DB instance is in, if any.
+        transformer:
+          mapping:
+            VpcId: >-
+              self.subnet_group.VpcId
+      kms_key:
+        primary_model_name: KMSKey
+        docstring: >-
+          Return the KMS key that is used to encrypt the data in the DB cluster.
+        transformer:
+          mapping:
+            KeyId: >-
+              self.KmsKeyId
+    manager_methods:
+      start:
+        manager_method: start
+        args:
+          0:
+            name: DBClusterIdentifier
+            value: >-
+              self.DBClusterIdentifier
+      stop:
+        manager_method: stop
+        args:
+          0:
+            name: DBClusterIdentifier
+            value: >-
+              self.DBClusterIdentifier
+      failover:
+        manager_method: failover
+        args:
+          0:
+            name: DBClusterIdentifier
+            value: >-
+              self.DBClusterIdentifier
+        user_keyword_args:
+          - name: TargetDBInstanceIdentifier
+            value: "None"
+  DBInstance:
+    alternate_name: DocDBInstance
+    primary_key: DBInstanceIdentifier
+    arn_key: DBInstanceArn
+    name_key: DBInstanceIdentifier
+    input_shapes:
+      - CreateDBInstanceMessage
+      - ModifyDBInstanceMessage
+    fields:
+      DBSubnetGroup:
+        readonly: false
+    extra_fields:
+      Tags:
+        python_type: builtins.list[Tag]
+        docstring: >-
+          The tags associated with the log group.
+    relations:
+      subnet_group:
+        primary_model_name: DocDBSubnetGroup
+        docstring: >-
+          Return the subnet group that this DB instance is in, if any.
+        transformer:
+          mapping:
+            DBSubnetGroupName: >-
+              self.DBSubnetGroup
+      security_groups:
+        primary_model_name: SecurityGroup
+        docstring: >-
+          Return the security groups that this DB instance is in, if any.
+        many: true
+        transformer:
+          mapping:
+            GroupIds: >-
+              [g.VpcSecurityGroupId for g in self.VpcSecurityGroups if g.VpcSecurityGroupId]
+      vpc:
+        primary_model_name: Vpc
+        docstring: >-
+          Return the VPC that this DB instance is in, if any.
+        transformer:
+          mapping:
+            VpcId: >-
+              self.subnet_group.VpcId
+      kms_key:
+        primary_model_name: KMSKey
+        docstring: >-
+          Return the KMS key that is used to encrypt the data in the DB cluster.
+        transformer:
+          mapping:
+            KeyId: >-
+              self.KmsKeyId
+    manager_methods:
+      reboot:
+        manager_method: reboot
+        args:
+          0:
+            name: DBInstanceIdentifier
+            docstring: >-
+              The identifier of the DB instance to reboot.
+            value: >-
+              self.DBInstanceIdentifier
+        user_keyword_args:
+          - name: ForceFailover
+            value: "False"
+  DBSubnetGroup:
+    alternate_name: DocDBSubnetGroup
+    primary_key: DBSubnetGroupArn
+    arn_key: DBSubnetGroupArn
+    name_key: DBSubnetGroupName
+    input_shapes:
+      - CreateDBSubnetGroupMessage
+      - ModifyDBSubnetGroupMessage
+    fields:
+      DBSubnetGroupName:
+        required: true
+      DBSubnetGroupDescription:
+        required: true
+      Subnets:
+        required: true
+      VpcId:
+        required: true
+      SubnetGroupStatus:
+        default: >-
+          "Complete"
+    DBClusterParameterGroup:
+      alternate_name: DocDBClusterParameterGroup
+      primary_key: DBClusterParameterGroupArn
+      arn_key: DBClusterParameterGroupArn
+      name_key: DBClusterParameterGroupName
+      input_shapes:
+        - CreateDBClusterParameterGroupMessage
+        - ModifyDBClusterParameterGroupMessage
+      extra_fields:
+        Tags:
+          python_type: builtins.list[Tag]
+          docstring: >-
+            The tags associated with the parameter group.
+secondary:
+  Endpoint:
+    alternate_name: DocDBEndpoint
+  PendingCloudwatchLogsExports:
+    alternate_name: DocDBPendingCloudwatchLogsExports
+  PendingModifiedValues:
+    alternate_name: DocDBPendingModifiedValues
+  CertificateDetails:
+    alternate_name: DocDBCertificateDetails
+  CreateDBInstanceResult:
+    alternate_name: DocDBCreateDBInstanceResult
+  ModifyDBInstanceResult:
+    alternate_name: DocDBModifyDBInstanceResult
+  DeleteDBInstanceResult:
+    alternate_name: DocDBDeleteDBInstanceResult
+  CreateDBSubnetGroupResult:
+    alternate_name: DocDBCreateDBSubnetGroupResult
+  ModifyDBSubnetGroupResult:
+    alternate_name: DocDBModifyDBSubnetGroupResult
+  DeleteDBSubnetGroupResult:
+    alternate_name: DocDBDeleteDBSubnetGroupResult
+  CreateDBClusterParameterGroupResult:
+    alternate_name: DocDBCreateDBClusterParameterGroupResult
+  ModifyDBClusterParameterGroupResult:
+    alternate_name: DocDBModifyDBClusterParameterGroupResult
+  DeleteDBClusterParameterGroupResult:
+    alternate_name: DocDBDeleteDBClusterParameterGroupResult
+  DBInstanceMessage:
+    alternate_name: DocDBInstanceMessage
+  DBClusterMessage:
+    alternate_name: DocDBClusterMessage
+  DBClusterParameterGroupMessage:
+    alternate_name: DocDBClusterParameterGroupMessage
+  DBSubnetGroupMessage:
+    alternate_name: DocDBSubnetGroupMessage
+  DBInstanceParameterGroupMessage:
+    alternate_name: DocDBInstanceParameterGroupMessage
