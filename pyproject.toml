@@ -14,6 +14,7 @@ keywords = ["aws"]
 classifiers = [
     "Development Status :: 5 - Production/Stable",
     "Intended Audience :: Developers",
+    "Intended Audience :: System Administrators",
     "Operating System :: OS Independent",
     "Framework :: Pydantic",
     "Framework :: Pydantic :: 2",
@@ -23,8 +24,11 @@ classifiers = [
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
     "Topic :: Software Development :: Code Generators",
+    "Topic :: Software Development :: Libraries",
     "Topic :: Software Development :: Libraries :: Python Modules",
+    "Typing :: Typed",
 ]
 dependencies = [
   "boto3>=1.35.58",
@@ -88,7 +92,7 @@ build-backend = "setuptools.build_meta"
 
 [tool.uv]
 python-preference = "only-system"
-default-groups = ["docs", "build"]
+default-groups = ["docs", "test", "build"]
 
 [tool.setuptools]
 # ...
