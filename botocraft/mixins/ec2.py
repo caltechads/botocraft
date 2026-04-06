@@ -206,7 +206,6 @@ class AMIManagerMixin:
         self,
         check_amis: list["AMI"],
         amis: list["AMI"] | None = None,
-        tags: dict[str, str] | None = None,
     ) -> list["AMI"]:
         """
         Return a list of AMIs that are in use by a running or stopped instance.
@@ -217,7 +216,6 @@ class AMIManagerMixin:
         Keyword Args:
             amis: the list of :py:class:`AMI` that have been identified so far as
               being in use.
-            tags: the tags to filter the AMIs by.
 
         Returns:
             A list of :py:class:`AMI` objects that are in use by a running or
@@ -231,31 +229,24 @@ class AMIManagerMixin:
 
         if not amis:
             amis = []
-        filters: list[Filter] = []
-        if tags:
-            filters.extend(
-                [
-                    Filter(Name=f"tag:{key}", Values=[value])
-                    for key, value in tags.items()
-                ]
-            )
-        if check_amis:
-            filters.append(
-                Filter(Name="image-id", Values=[ami.ImageId for ami in check_amis])
-            )
-        found_amis: list[AMI] = Instance.objects.list(Filters=filters).all()
-        seen_amis = set()
-        for ami in found_amis:
-            if ami.ImageId not in seen_amis and ami not in amis:
-                seen_amis.add(ami.ImageId)
-                amis.append(ami)
+        if not check_amis:
+            return amis
+
+        ami_by_id = {ami.ImageId: ami for ami in check_amis}
+        filters = [Filter(Name="image-id", Values=list(ami_by_id.keys()))]
+        instances = Instance.objects.list(Filters=filters)
+        seen_amis = {ami.ImageId for ami in amis}
+        for instance in instances:
+            image_id = getattr(instance, "ImageId", None)
+            if image_id in ami_by_id and image_id not in seen_amis:
+                seen_amis.add(image_id)
+                amis.append(ami_by_id[image_id])
         return amis
 
     def _get_in_use_asg_amis(
         self,
         check_amis: list["AMI"],
         amis: list["AMI"] | None = None,
-        tags: dict[str, str] | None = None,
     ) -> list["AMI"]:
         """
         Return a list of AMIs that are in use by an autoscaling group.
@@ -266,7 +257,6 @@ class AMIManagerMixin:
         Keyword Args:
             amis: the list of :py:class:`AMI` that have been identified so far as
               being in use.
-            tags: the tags to filter the AMIs by.
 
         Returns:
             A list of :py:class:`AMI` objects that are in use by an autoscaling group.
@@ -275,7 +265,6 @@ class AMIManagerMixin:
         # Avoid circular import
         from botocraft.services import (
             AutoScalingGroup,
-            Filter,
             LaunchConfiguration,
             LaunchTemplateVersion,
             ResponseLaunchTemplateData,
@@ -283,45 +272,36 @@ class AMIManagerMixin:
 
         if amis is None:
             amis = []
-        filters: list[Filter] = []
-        if tags:
-            filters.extend(
-                [
-                    Filter(Name=f"tag:{key}", Values=[value])
-                    for key, value in tags.items()
-                ]
-            )
+        if not check_amis:
+            return amis
+
+        ami_by_id = {ami.ImageId: ami for ami in check_amis}
+        seen_amis = {ami.ImageId for ami in amis}
         # Now search for any AMIs that are used by an autoscaling group
-        autoscaling_groups = AutoScalingGroup.objects.list(Filters=filters)
+        autoscaling_groups = AutoScalingGroup.objects.list()
         for autoscaling_group in autoscaling_groups:
             autoscaling_group = cast("AutoScalingGroup", autoscaling_group)
-            for ami in check_amis:
-                # First check if the AMI is used by a launch configuration
-                if autoscaling_group.LaunchConfigurationName:
-                    if (
-                        cast(
-                            "LaunchConfiguration",
-                            autoscaling_group.launch_configuration,
-                        ).ImageId
-                        == ami.ImageId
-                    ):
-                        if ami not in amis:
-                            amis.append(ami)
-                    continue
+            image_id = None
+            # First check if the AMI is used by a launch configuration
+            if autoscaling_group.LaunchConfigurationName:
+                launch_configuration = cast(
+                    "LaunchConfiguration",
+                    autoscaling_group.launch_configuration,
+                )
+                image_id = launch_configuration.ImageId
+            else:
                 # If there's no launch configuration, then the ASG uses a launch
-                # template.  Check if the AMI is used by the launch template.
+                # template. Check if the AMI is used by the launch template.
                 template = cast(
                     "LaunchTemplateVersion", autoscaling_group.launch_template
                 )
-                if template:
-                    if (
-                        cast(
-                            "ResponseLaunchTemplateData", template.LaunchTemplateData
-                        ).ImageId
-                        == ami.ImageId
-                    ):
-                        if ami not in amis:
-                            amis.append(ami)
+                if template and template.LaunchTemplateData:
+                    image_id = cast(
+                        "ResponseLaunchTemplateData", template.LaunchTemplateData
+                    ).ImageId
+            if image_id in ami_by_id and image_id not in seen_amis:
+                seen_amis.add(image_id)
+                amis.append(ami_by_id[image_id])
         return amis
 
     def in_use(
@@ -365,7 +345,7 @@ class AMIManagerMixin:
             Filter,
         )
 
-        _owners = owners if owners else ["self"]
+        _owners = owners or ["self"]
         _filters: list[Filter] = []
         if tags:
             _filters = [
@@ -381,30 +361,13 @@ class AMIManagerMixin:
                 Filter(Name="creation-date", Values=[created_since.isoformat()])
             )
         if amis is not None:
-            if len(amis) <= self.MAX_AMI_FILTER_SIZE:
-                _filters = [
-                    Filter(Name="image-id", Values=[ami.ImageId for ami in amis])
-                ]
-                check_amis = self.list(Filters=_filters)  # type: ignore[attr-defined]
-            else:
-                check_amis = []
-                for i in range(0, len(_filters), self.MAX_AMI_FILTER_SIZE):
-                    _filters = [
-                        Filter(
-                            Name="image-id",
-                            Values=amis[i : i + self.MAX_AMI_FILTER_SIZE],
-                        )
-                    ]
-                    check_amis.extend(
-                        self.list(  # type: ignore[attr-defined]
-                            Owners=_owners,
-                            Filters=_filters,
-                        )
-                    )
+            check_amis = amis
+        elif _filters:
+            check_amis = self.list(Owners=_owners, Filters=_filters)  # type: ignore[attr-defined]
         else:
-            check_amis = amis if amis else []
+            check_amis = self.list(Owners=_owners)  # type: ignore[attr-defined]
 
-        in_use_amis = self._get_in_use_instance_amis(check_amis, tags=tags)
+        in_use_amis = self._get_in_use_instance_amis(list(check_amis))
         in_use_amis = self._get_in_use_asg_amis(check_amis, amis=in_use_amis)
         return PrimaryBoto3ModelQuerySet(in_use_amis)  # type: ignore[arg-type]
 
