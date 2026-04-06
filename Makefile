@@ -3,8 +3,8 @@ clean:
 	find . -name "*.pyc" | xargs rm
 	find . -name "__pycache__" | xargs rm -rf
 
-requirements.txt: uv.lock
-	@uv pip compile pyproject.toml --group docs -o requirements.txt
+compile: uv.lock
+	@uv pip compile --group docs pyproject.toml -o requirements.txt
 
 release: clean
 	@bin/release.sh
@@ -15,3 +15,11 @@ tox:
 	# activate that ve before running this
 	@tox
 
+napoleon-gate:
+	@python bin/check_napoleon_gate.py
+
+napoleon-gate-strict:
+	@python bin/check_napoleon_gate.py --strict
+
+napoleon-gate-baseline:
+	@python bin/check_napoleon_gate.py --write-baseline
