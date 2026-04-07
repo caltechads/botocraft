@@ -1,5 +1,8 @@
 ---
 LoadBalancer:
+  mixins:
+    - name: LoadBalancerManagerMixin
+      import_path: botocraft.mixins.elbv2
   methods:
     create:
       boto3_name: create_load_balancer
@@ -13,21 +16,6 @@ LoadBalancer:
           required: true
     delete:
       boto3_name: delete_load_balancer
-    get:
-      boto3_name: describe_load_balancers
-      args:
-        LoadBalancerArns:
-          rename: LoadBalancerArn
-          python_type: str
-          source_arg: "[LoadBalancerArn]"
-          docstring: >-
-            The Amazon Resource Names (ARN) of the load balancer.
-        Names:
-          rename: Name
-          python_type: str
-          source_arg: "[Name]"
-          docstring: >-
-            The names of the load balancer.
     list:
       boto3_name: describe_load_balancers
     attributes:
