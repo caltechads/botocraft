@@ -202,8 +202,68 @@ Parameter:
       args:
         CacheParameterGroupName:
           required: true
-
-
+User:
+  methods:
+    create:
+      boto3_name: create_user
+      response_attr: >-
+        None
+    update:
+      boto3_name: modify_user
+      response_attr: >-
+        None
+    delete:
+      boto3_name: delete_user
+      response_attr: >-
+        None
+    get:
+      decorators:
+        - name: elasticache_user_add_tags
+          import_path: botocraft.mixins.elasticache
+      boto3_name: describe_users
+      response_attr: Users
+      args:
+        UserId:
+          required: true
+        Filters:
+          hidden: true
+    list:
+      decorators:
+        - name: elasticache_users_get_add_tags
+          import_path: botocraft.mixins.elasticache
+      boto3_name: describe_users
+      response_attr: Users
+UserGroup:
+  methods:
+    create:
+      boto3_name: create_user_group
+      response_attr: >-
+        None
+    update:
+      boto3_name: modify_user_group
+      response_attr: >-
+        None
+    delete:
+      boto3_name: delete_user_group
+      response_attr: >-
+        None
+    get:
+      decorators:
+        - name: elasticache_user_group_add_tags
+          import_path: botocraft.mixins.elasticache
+      boto3_name: describe_user_groups
+      response_attr: UserGroups
+      args:
+        UserGroupId:
+          required: true
+        Filters:
+          hidden: true
+    list:
+      decorators:
+        - name: elasticache_user_groups_get_add_tags
+          import_path: botocraft.mixins.elasticache
+      boto3_name: describe_user_groups
+      response_attr: UserGroups
 
 
 

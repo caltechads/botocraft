@@ -1,4 +1,5 @@
-from functools import cached_property
+from collections.abc import Callable
+from functools import cached_property, wraps
 from typing import TYPE_CHECKING, cast
 
 import boto3
@@ -9,6 +10,79 @@ if TYPE_CHECKING:
     from botocraft.services import (
         CacheSecurityGroupMembership,
     )
+
+# ------------
+# Decorators
+# ------------
+
+
+def elasticache_user_add_tags(func: Callable) -> Callable:
+    """
+    A decorator to add tags to the elasticache user.
+    """
+
+    @wraps(func)
+    def wrapper(self, *args, **kwargs):
+        result = func(self, *args, **kwargs)
+        tags = self.objects.client.list_tags_for_resource(ResourceName=result.arn)
+        result.Tags = tags["Tags"]
+        return result
+
+    return wrapper
+
+
+def elasticache_users_get_add_tags(func: Callable) -> Callable:
+    """
+    A decorator to add tags to the elasticache users.
+    """
+
+    @wraps(func)
+    def wrapper(self, *args, **kwargs):
+        result = func(self, *args, **kwargs)
+        for user in result:
+            tags = self.objects.client.list_tags_for_resource(ResourceName=user.Arn)
+            user.Tags = tags["Tags"]
+        return PrimaryBoto3ModelQuerySet(result)
+
+    return wrapper
+
+
+def elasticache_user_group_add_tags(func: Callable) -> Callable:
+    """
+    A decorator to add tags to the elasticache user group.
+    """
+
+    @wraps(func)
+    def wrapper(self, *args, **kwargs):
+        result = func(self, *args, **kwargs)
+        tags = self.objects.client.list_tags_for_resource(ResourceName=result.arn)
+        result.Tags = tags["Tags"]
+        return result
+
+    return wrapper
+
+
+def elasticache_user_groups_get_add_tags(func: Callable) -> Callable:
+    """
+    A decorator to add tags to the elasticache user groups.
+    """
+
+    @wraps(func)
+    def wrapper(self, *args, **kwargs):
+        result = func(self, *args, **kwargs)
+        for user_group in result:
+            tags = self.objects.client.list_tags_for_resource(
+                ResourceName=user_group.arn
+            )
+            user_group.Tags = tags["Tags"]
+        return PrimaryBoto3ModelQuerySet(result)
+
+    return wrapper
+
+
+# -----------
+# Mixins
+# ----------
 
 
 class ElastiCacheManagerTagsMixin:

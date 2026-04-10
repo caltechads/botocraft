@@ -1,12 +1,16 @@
 ---
 primary:
   LogGroup:
-    primary_key: logGroupArn
+    primary_key: Arn
     name_key: logGroupName
+    arn_key: Arn
     imports:
       - from botocraft.services.common import Tag
     input_shapes:
       - CreateLogGroupRequest
+    fields:
+      arn:
+        rename: Arn
     extra_fields:
       Tags:
         python_type: builtins.list[Tag]

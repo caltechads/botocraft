@@ -149,7 +149,43 @@ primary:
     readonly: true
     primary_key: ParameterName
     name_key: ParameterName
+  User:
+    alternate_name: ElastiCacheUser
+    primary_key: ARN
+    arn_key: ARN
+    name_key: UserId
+    input_shapes:
+      - CreateUserMessage
+      - ModifyUserMessage
+    fields:
+      Status:
+        default: >-
+          "active"
+    extra_fields:
+      Tags:
+        python_type: builtins.list[Tag]
+        docstring: >-
+          The tags associated with the user.
+  UserGroup:
+    alternate_name: ElastiCacheUserGroup
+    primary_key: ARN
+    arn_key: ARN
+    name_key: UserGroupId
+    input_shapes:
+      - CreateUserGroupMessage
+      - ModifyUserGroupMessage
+    fields:
+      Status:
+        default: >-
+          "active"
+    extra_fields:
+      Tags:
+        python_type: builtins.list[Tag]
+        docstring: >-
+          The tags associated with the user group.
 secondary:
+  Authentication:
+    alternate_name: ElastiCacheAuthentication
   DestinationDetails:
     alternate_name: ElastiCacheDestinationDetails
   PendingModifiedValues:
