@@ -90,13 +90,13 @@ TargetGroup:
         TargetGroupArns:
           rename: TargetGroupArn
           python_type: str
-          source_arg: "[TargetGroupArn]"
+          source_arg: "[TargetGroupArn] if TargetGroupArn else None"
           docstring: >-
             The Amazon Resource Names (ARN) of the target group.
         Names:
           rename: Name
           python_type: str
-          source_arg: "[Name]"
+          source_arg: "[Name] if Name else None"
           docstring: >-
             The name of the target group.
     list:
