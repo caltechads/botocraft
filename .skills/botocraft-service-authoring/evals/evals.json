@@ -1,0 +1,23 @@
+{
+  "skill_name": "botocraft-service-authoring",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Add Botocraft support for AWS Backup. Follow the repository's documented service-authoring workflow, inspect the botocore service alias and likely primary models first, then author the first one or two high-confidence primary models with appropriate managers, properties, and relations. Ask me if you hit a real choice about readonly vs CRUDL coverage or whether a resource should be bespoke.",
+      "expected_output": "The skill should inspect botocore discovery surfaces, choose a narrow first-pass scope, author Botocraft YAML rather than generated files, and enforce full regeneration plus shell smoke testing.",
+      "files": []
+    },
+    {
+      "id": 2,
+      "prompt": "Add support for a new AWS service whose main resources are effectively readonly and where the list operations return ARNs rather than full objects. I want Botocraft list methods to return model instances, not identifiers. Build the first pass of the service and only add handwritten helpers if the generated methods are not enough.",
+      "expected_output": "The skill should bias toward readonly managers, generated read/list methods, and decorators that convert identifier lists into model instances instead of exposing raw ARNs.",
+      "files": []
+    },
+    {
+      "id": 3,
+      "prompt": "Author a new Botocraft service for an AWS API where several shapes are likely to collide with names already used in other services, and where at least one field's inferred type may match the field name. Inspect existing patterns first, then implement the service carefully so full botocraft sync succeeds cleanly.",
+      "expected_output": "The skill should check for cross-service naming conflicts, use alternate_name or field renames when needed, and treat generator type/collision failures as first-class authoring concerns.",
+      "files": []
+    }
+  ]
+}
