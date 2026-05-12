@@ -59,8 +59,8 @@ dev = [
   "mypy>=1.15.0",
 ]
 docs = [
-  "sphinx<7",
-  "sphinx_rtd_theme == 2.0.0",
+  "sphinx<9",
+  "sphinx_rtd_theme >= 2.0.0",
   "sphinxcontrib-images >= 0.9.4",
   "autodoc_pydantic >= 2.0.0",
   "diagrams >= 0.23.3",

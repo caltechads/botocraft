@@ -21,7 +21,7 @@ Primary Model
 Raw Event Models from AWS Schema
 --------------------------------
 
-.. automodule:: botocraft.eventbridge.ecs.raw.task_state_change
+.. automodule:: botocraft.eventbridge.raw.ecs.task_state_change
     :members:
     :undoc-members:
     :show-inheritance:

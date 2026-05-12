@@ -22,7 +22,7 @@ Primary Model
 Raw Event Models from AWS Schema
 --------------------------------
 
-.. automodule:: botocraft.eventbridge.ecs.raw.service_deployment_state_change
+.. automodule:: botocraft.eventbridge.raw.ecs.service_deployment_state_change
     :members:
     :undoc-members:
     :show-inheritance:

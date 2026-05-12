@@ -21,7 +21,7 @@ Primary Model
 Raw Event Models from AWS Schema
 --------------------------------
 
-.. automodule:: botocraft.eventbridge.ecr.raw.ecr_image_scan
+.. automodule:: botocraft.eventbridge.raw.ecr.ecr_image_scan
     :members:
     :undoc-members:
     :show-inheritance:
