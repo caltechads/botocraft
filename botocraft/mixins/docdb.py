@@ -6,10 +6,12 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from botocraft.services.abstract import PrimaryBoto3ModelQuerySet
     from botocraft.services.common import Credentials
-    from botocraft.services.docdb import DocDBCluster
-    from botocraft.services.docdb import DocDBInstance
-    from botocraft.services.docdb import DocDBSubnetGroup
-    from botocraft.services.docdb import DocDBParameterGroup
+    from botocraft.services.docdb import (
+        DocDBCluster,
+        DocDBInstance,
+        DocDBParameterGroup,
+        DocDBSubnetGroup,
+    )
 
 # ----------
 # Decorators

@@ -134,7 +134,7 @@ class QueueManagerMixin:
         queue = Queue(
             QueueName=QueueName,
             QueueUrl=queue_url,
-            Attributes=attributes if attributes else None,
+            Attributes=attributes or None,
             Tags=tags["Tags"],
         )
         queue.set_session(self.session)  # type: ignore[attr-defined]

@@ -559,7 +559,7 @@ def botocore_list_primary_models(service: str):
     # Then print the shapes with their operations
     models: dict[str, list[str]] = {}
     names = list(service_model.shape_names)
-    names.sort(key=lambda x: len(x))
+    names.sort(key=len)
     names.reverse()
     taken = []
     for shape_name in names:

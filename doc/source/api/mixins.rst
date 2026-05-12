@@ -38,11 +38,11 @@ Decorators
 Application autoscaling
 ~~~~~~~~~~~~~~~~~~~~~~~
 
-.. autofunction:: botocraft.mixins.autoscaling.scaling_policy_only
+.. autofunction:: botocraft.mixins.application_autoscaling.scaling_policy_only
 
-.. autofunction:: botocraft.mixins.autoscaling.scalable_target_only
+.. autofunction:: botocraft.mixins.application_autoscaling.scalable_target_only
 
-.. autofunction:: botocraft.mixins.autoscaling.scheduled_action_only
+.. autofunction:: botocraft.mixins.application_autoscaling.scheduled_action_only
 
 EC2
 ~~~
@@ -101,7 +101,7 @@ Any
 Application AutoScaling
 ~~~~~~~~~~~~~~~~~~~~~~~
 
-.. autoclass:: botocraft.mixins.autoscaling.ScalableTargetModelMixin
+.. autoclass:: botocraft.mixins.application_autoscaling.ScalableTargetModelMixin
    :members:
 
 AutoScaling

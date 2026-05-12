@@ -279,7 +279,7 @@ class ECRImageManagerMixin:
 
         # break image_id into its parts: repository_name, image_tag
         image_tag = image_id.split(":")[1]
-        repository_name = image_id.split(".com/")[1].split(":")[0]
+        repository_name = image_id.split(".com/")[1].split(":", maxsplit=1)[0]
         _image = self.using(self.session).get(
             repository_name,
             imageId=ImageIdentifier(imageTag=image_tag),

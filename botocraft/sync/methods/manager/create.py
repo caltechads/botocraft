@@ -178,9 +178,7 @@ class CreateMethodGenerator(ManagerMethodGenerator):
         """
         docstrings: MethodDocstringDefinition = MethodDocstringDefinition()
         docstrings.method = (
-            self.method_def.docstring
-            if self.method_def.docstring
-            else self.operation_model.documentation
+            self.method_def.docstring or self.operation_model.documentation
         )
         docstrings.args["model"] = f"The :py:class:`{self.model_name}` to create."
         for arg in self.explicit_args:

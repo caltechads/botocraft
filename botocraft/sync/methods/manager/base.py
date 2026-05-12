@@ -698,9 +698,7 @@ class ManagerMethodGenerator:
         """
         docstrings: MethodDocstringDefinition = MethodDocstringDefinition()
         docstrings.method = (
-            self.method_def.docstring
-            if self.method_def.docstring
-            else self.operation_model.documentation
+            self.method_def.docstring or self.operation_model.documentation
         )
         for arg in self.args():
             docstrings.args[arg] = self.get_arg_docstring(arg)

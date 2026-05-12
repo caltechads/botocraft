@@ -2,7 +2,6 @@ from functools import wraps
 from typing import TYPE_CHECKING, Any, Callable
 
 if TYPE_CHECKING:
-    import builtins
 
     from botocraft.services.abstract import PrimaryBoto3ModelQuerySet
     from botocraft.services.elbv2 import LoadBalancer

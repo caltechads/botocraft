@@ -195,7 +195,7 @@ class ModelRelationGenerator:
             "{key}": {_value},
 """
         if self.returns_many:
-            method = self.property_def.method if self.property_def.method else "list"
+            method = self.property_def.method or "list"
             code += f"""
             }})
         except AttributeError:
@@ -203,7 +203,7 @@ class ModelRelationGenerator:
         return {self.property_def.primary_model_name}.objects.using(self.session).{method}(**pk)  # type: ignore[arg-type]
 """  # noqa: E501
         else:
-            method = self.property_def.method if self.property_def.method else "get"
+            method = self.property_def.method or "get"
             code += f"""
         }})
         except AttributeError:

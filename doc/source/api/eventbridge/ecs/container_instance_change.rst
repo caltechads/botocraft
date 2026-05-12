@@ -13,7 +13,7 @@ for more information on when this might be emitted.
 Primary Model
 -------------
 
-.. autopydantic_model:: botocraft.eventbridge.ecs.ECSContainerInstanceChangeEvent
+.. autopydantic_model:: botocraft.eventbridge.ecs.ECSContainerInstanceStateChangeEvent
     :show-inheritance:
     :inherited-members:
     :exclude-members: update_forward_refs, model_extra, model_fields_set, validate, schema_json, model_rebuild, model_post_init, model_parametrized_name, model_json_schema, copy, from_orm, dict, json, schema, schema_json, model_dump
@@ -26,7 +26,7 @@ Primary Model
 Raw Event Models from AWS Schema
 --------------------------------
 
-.. automodule:: botocraft.eventbridge.ecs.raw.container_instance_change
+.. automodule:: botocraft.eventbridge.raw.ecs.container_instance_change
     :members:
     :undoc-members:
     :show-inheritance:

@@ -17,6 +17,7 @@ botocraft
 
    runbook/contributing
    runbook/authoring
+   runbook/service_authoring_reference
    runbook/eventbridge_event_from_schema
    runbook/eventbrdge_event_from_example
 

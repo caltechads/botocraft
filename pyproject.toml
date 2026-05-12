@@ -39,7 +39,8 @@ dependencies = [
   "docker >= 7.1.0",
   "ipython >= 8.36.0",
   "psutil>=7.0.0",
-  "docformatter >= 1.7.5",
+  # docformatter 1.7.8 changed some internals that we need to remediate in our codebase
+  "docformatter == 1.7.7",
   "inflect >= 7.4.0",
   "markdownify >= 0.25.1",
   "pyyaml >= 6.0.2",
@@ -55,6 +56,7 @@ dev = [
   "types-PyYAML >= 6.0.2",
   "types-requests>=2.32.0.20240914",
   "ruff>=0.11.11",
+  "mypy>=1.15.0",
 ]
 docs = [
   "sphinx<7",

@@ -9,6 +9,10 @@ directory and generate the service and manager classes that are used by the
 botocraft library.  They are used directly by ``botocraft sync`` to generate the
 service and manager classes.
 
+For a maintainer-oriented walkthrough of adding a new AWS service and choosing
+between models, managers, properties, relations, mixins, and decorators, see
+:doc:`../runbook/authoring` and :doc:`../runbook/service_authoring_reference`.
+
 .. important::
 
    These models are not intended to be used directly in your code.  They are
