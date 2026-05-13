@@ -54,6 +54,32 @@ class GetMethodGenerator(ManagerMethodGenerator):
         return return_type
 
     @property
+    def response_class(self) -> str:
+        """
+        For ``get`` methods without a nested response attribute, hydrate the
+        primary model directly instead of the botocore output wrapper, unless
+        the method explicitly declares a different response model.
+
+        Returns:
+            The response class to instantiate from the boto3 payload.
+
+        """
+        if self.output_shape is None:
+            return "None"
+        if self.response_attr is None:
+            if self.method_def.return_type:
+                explicit_return_type = self.method_def.return_type.strip('"')
+                primary_return_types = {
+                    self.real_model_name,
+                    f"{self.real_model_name} | None",
+                }
+                if explicit_return_type not in primary_return_types:
+                    return super().response_class
+            self.model_generator.generate_single_model(self.model_name)
+            return self.real_model_name
+        return super().response_class
+
+    @property
     def body(self) -> str:
         """
         Generate the code for the get method.

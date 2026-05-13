@@ -967,6 +967,45 @@ class BotocraftInterface(BaseModel):
             with init_path.open("a", encoding="utf-8") as f:
                 f.write(f"{import_line}\n")
 
+    def update_services_toc(self, service: str) -> None:
+        """
+        Update the services toctree with the given service if it is not present.
+
+        Args:
+            service: The name of the service to add to the services toctree.
+
+        """
+        path = DOCS_DIR / "_services_index.rst"
+        line = f"   api/services/{self.services[service].safe_service_name}"
+        if not path.exists():
+            self.populate_services_toc()
+            return
+        with path.open(encoding="utf-8") as f:
+            contents = f.read()
+        if line not in contents:
+            with path.open("a", encoding="utf-8") as f:
+                f.write(f"{line}\n")
+
+    def update_services_list(self, service: str) -> None:
+        """
+        Update the services overview list with the given service if it is not
+        present.
+
+        Args:
+            service: The name of the service to add to the overview list.
+
+        """
+        path = DOCS_DIR / "overview" / "_services_list.rst"
+        line = f"- :doc:`/api/services/{self.services[service].safe_service_name}`"
+        if not path.exists():
+            self.populate_services_list()
+            return
+        with path.open(encoding="utf-8") as f:
+            contents = f.read()
+        if line not in contents:
+            with path.open("a", encoding="utf-8") as f:
+                f.write(f"{line}\n")
+
     def purge_docs(self) -> None:
         """
         Purge all the previously generated documentation.
@@ -994,8 +1033,6 @@ class BotocraftInterface(BaseModel):
         """
         from .service import ServiceGenerator
 
-        # First purge all the previously generated documentation
-        self.purge_docs()
         if service:
             assert service in self.services, (
                 f'No service definition for AWS Service "{service}"'
@@ -1004,7 +1041,11 @@ class BotocraftInterface(BaseModel):
             generator = ServiceGenerator(self.services[service])
             generator.generate()
             self.update_init_py(service)
+            self.update_services_toc(service)
+            self.update_services_list(service)
         else:
+            # First purge all the previously generated documentation
+            self.purge_docs()
             for service_name, _service in self.services.items():
                 print(f"Generating {service_name} service interface")
                 generator = ServiceGenerator(_service)

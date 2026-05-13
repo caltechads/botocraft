@@ -100,12 +100,33 @@ class AbstractShapeConverter:
 
 
 class StringShapeConverter(AbstractShapeConverter):
+    """
+    Convert botocore string shapes to Python type hints.
+    """
+
     def to_python(
         self,
         shape: botocore.model.Shape,
         quote: bool = False,  # noqa: ARG002
         name_only: bool = False,  # noqa: ARG002
     ) -> str:
+        """
+        Convert a string shape to ``str`` or a ``Literal`` enum.
+
+        Args:
+            shape: the botocore shape to convert
+
+        Keyword Args:
+            quote: unused for string conversion
+            name_only: unused for string conversion
+
+        Raises:
+            WrongConverterError: this is not a string shape
+
+        Returns:
+            The Python type for the shape.
+
+        """
         if shape.type_name == "string" or shape.name == "String":
             value = cast("botocore.model.StringShape", shape)
             if value.enum:
@@ -118,42 +139,142 @@ class StringShapeConverter(AbstractShapeConverter):
 
 
 class BooleanShapeConverter(AbstractShapeConverter):
+    """
+    Convert botocore boolean shapes to Python type hints.
+    """
+
     def to_python(
         self,
         shape: botocore.model.Shape,
         quote: bool = False,  # noqa: ARG002
         name_only: bool = False,  # noqa: ARG002
     ) -> str:
+        """
+        Convert a boolean shape to ``bool``.
+
+        Args:
+            shape: the botocore shape to convert
+
+        Keyword Args:
+            quote: unused for boolean conversion
+            name_only: unused for boolean conversion
+
+        Raises:
+            WrongConverterError: this is not a boolean shape
+
+        Returns:
+            The Python type for the shape.
+
+        """
         if shape.type_name == "boolean":
             return "bool"
         raise WrongConverterError(shape, self)
 
 
 class IntegerShapeConverter(AbstractShapeConverter):
+    """
+    Convert botocore integer-like shapes to Python type hints.
+    """
+
     def to_python(
         self,
         shape: botocore.model.Shape,
         quote: bool = False,  # noqa: ARG002
         name_only: bool = False,  # noqa: ARG002
     ) -> str:
+        """
+        Convert an integer-like shape to ``int``.
+
+        Args:
+            shape: the botocore shape to convert
+
+        Keyword Args:
+            quote: unused for integer conversion
+            name_only: unused for integer conversion
+
+        Raises:
+            WrongConverterError: this is not an integer-like shape
+
+        Returns:
+            The Python type for the shape.
+
+        """
         if shape.type_name in ["integer", "long"]:
             return "int"
         raise WrongConverterError(shape, self)
 
 
 class DoubleShapeConverter(AbstractShapeConverter):
+    """
+    Convert botocore double shapes to Python type hints.
+    """
+
     def to_python(
         self,
         shape: botocore.model.Shape,
         quote: bool = False,  # noqa: ARG002
         name_only: bool = False,  # noqa: ARG002
     ) -> str:
+        """
+        Convert a double shape to ``float``.
+
+        Args:
+            shape: the botocore shape to convert
+
+        Keyword Args:
+            quote: unused for double conversion
+            name_only: unused for double conversion
+
+        Raises:
+            WrongConverterError: this is not a double shape
+
+        Returns:
+            The Python type for the shape.
+
+        """
         if shape.type_name == "double":
             return "float"
         raise WrongConverterError(shape, self)
 
 
+class FloatShapeConverter(AbstractShapeConverter):
+    """
+    Convert botocore float shapes to Python type hints.
+    """
+
+    def to_python(
+        self,
+        shape: botocore.model.Shape,
+        quote: bool = False,  # noqa: ARG002
+        name_only: bool = False,  # noqa: ARG002
+    ) -> str:
+        """
+        Convert a float shape to ``float``.
+
+        Args:
+            shape: the botocore shape to convert
+
+        Keyword Args:
+            quote: unused for float conversion
+            name_only: unused for float conversion
+
+        Raises:
+            WrongConverterError: this is not a float shape
+
+        Returns:
+            The Python type for the shape.
+
+        """
+        if shape.type_name == "float":
+            return "float"
+        raise WrongConverterError(shape, self)
+
+
 class ListShapeConverter(AbstractShapeConverter):
+    """
+    Convert botocore list shapes to Python list type hints.
+    """
+
     def to_python(
         self,
         shape: botocore.model.Shape,
@@ -194,6 +315,10 @@ class ListShapeConverter(AbstractShapeConverter):
 
 
 class MapShapeConverter(AbstractShapeConverter):
+    """
+    Convert botocore map shapes to Python mapping type hints.
+    """
+
     def to_python(
         self,
         shape: botocore.model.Shape,
@@ -239,6 +364,10 @@ class MapShapeConverter(AbstractShapeConverter):
 
 
 class StructureShapeConverter(AbstractShapeConverter):
+    """
+    Convert botocore structure shapes to generated model type hints.
+    """
+
     def to_python(
         self, shape: botocore.model.Shape, quote: bool = False, name_only: bool = False
     ) -> str:
@@ -300,6 +429,10 @@ class StructureShapeConverter(AbstractShapeConverter):
 
 
 class TimestampShapeConverter(AbstractShapeConverter):
+    """
+    Convert botocore timestamp shapes to ``datetime`` type hints.
+    """
+
     def to_python(
         self,
         shape: botocore.model.Shape,
@@ -339,6 +472,10 @@ class TimestampShapeConverter(AbstractShapeConverter):
 
 
 class BinaryShapeConverter(AbstractShapeConverter):
+    """
+    Convert botocore blob shapes to ``bytes`` type hints.
+    """
+
     def to_python(
         self,
         shape: botocore.model.Shape,
@@ -374,6 +511,16 @@ class BinaryShapeConverter(AbstractShapeConverter):
 
 
 class PythonTypeShapeConverter:
+    """
+    Dispatch botocore shapes to the converter that knows how to type them.
+
+    Args:
+        service_generator: the service generator coordinating output
+        model_generator: the model generator for nested shape expansion
+
+    """
+
+    #: The converter classes keyed by botocore ``type_name``.
     CONVERTERS: Final[dict[str, type[AbstractShapeConverter]]] = {
         "string": StringShapeConverter,
         "boolean": BooleanShapeConverter,
@@ -381,6 +528,7 @@ class PythonTypeShapeConverter:
         "structure": StructureShapeConverter,
         "timestamp": TimestampShapeConverter,
         "double": DoubleShapeConverter,
+        "float": FloatShapeConverter,
         "list": ListShapeConverter,
         "map": MapShapeConverter,
         "blob": BinaryShapeConverter,
@@ -389,11 +537,21 @@ class PythonTypeShapeConverter:
     def __init__(
         self, service_generator: "ServiceGenerator", model_generator: "ModelGenerator"
     ) -> None:
+        """
+        Build the converter registry for one service generation run.
+
+        Args:
+            service_generator: the service generator coordinating output
+            model_generator: the model generator for nested shape expansion
+
+        """
         #: The service generator.  We use this for accessing the
         #: model generator in case we need to build pydantic
         #: models out of a structure shape
         self.service_generator = service_generator
+        #: The model generator used for nested structure generation.
         self.model_generator = model_generator
+        #: Instantiated converter helpers keyed by botocore ``type_name``.
         self.converters: dict[str, AbstractShapeConverter] = {
             key: converter_class(self)
             for key, converter_class in self.CONVERTERS.items()
