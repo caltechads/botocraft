@@ -16,7 +16,7 @@ class GeneralMethodGenerator(ManagerMethodGenerator):
         we'll exclude the pagination arguments.
         """
         args = super().kwargs(location=location)
-        if self.client.can_paginate(self.boto3_name):
+        if self.client.can_paginate(self.boto3_name) and self.response_attr is not None:
             _args: OrderedDict[str, str] = OrderedDict()
             for _arg, arg_type in super().kwargs(location=location).items():
                 if _arg not in self.PAGINATOR_ARGS:
@@ -136,7 +136,7 @@ class GeneralMethodGenerator(ManagerMethodGenerator):
 """
             return code
 
-        if self.client.can_paginate(self.boto3_name):
+        if self.client.can_paginate(self.boto3_name) and self.response_attr is not None:
             code = generate_paginator_code()
         else:
             code = f"""

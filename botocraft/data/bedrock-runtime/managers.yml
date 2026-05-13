@@ -1,0 +1,37 @@
+---
+ConverseResponse:
+  readonly: true
+  mixins:
+    - name: ConversationManagerMixin
+      import_path: botocraft.mixins.bedrock_runtime
+  methods:
+    converse:
+      boto3_name: converse
+      response_attr: None
+    converse_stream:
+      boto3_name: converse_stream
+      response_attr: None
+    count_tokens:
+      boto3_name: count_tokens
+      response_attr: None
+    invoke_model:
+      boto3_name: invoke_model
+      response_attr: None
+    invoke_model_with_response_stream:
+      boto3_name: invoke_model_with_response_stream
+      response_attr: None
+    start_async_invoke:
+      boto3_name: start_async_invoke
+      response_attr: None
+    get_async_invoke:
+      boto3_name: get_async_invoke
+      response_attr: None
+    list_async_invokes:
+      boto3_name: list_async_invokes
+      response_attr: None
+ApplyGuardrailResponse:
+  readonly: true
+  methods:
+    apply:
+      boto3_name: apply_guardrail
+      response_attr: None

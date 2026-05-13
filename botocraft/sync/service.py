@@ -1226,6 +1226,11 @@ class ManagerGenerator(AbstractGenerator):
         else:
             manager_name = f"{model_name}Manager"
 
+        # If this is a readonly manager, we need to use the readonly manager
+        # base class
+        if manager_def.readonly:
+            base_class = "ReadonlyBoto3ModelManager"
+
         # Add any botocraft defined mixins to the class inheritance
         if manager_def.mixins:
             for mixin in manager_def.mixins:
@@ -1233,11 +1238,6 @@ class ManagerGenerator(AbstractGenerator):
             base_class = ", ".join(
                 [mixin.name for mixin in manager_def.mixins] + [base_class]
             )
-
-        # If this is a readonly manager, we need to use the readonly manager
-        # base class
-        if manager_def.readonly:
-            base_class = "ReadonlyBoto3ModelManager"
         code = f"""
 
 

@@ -522,13 +522,10 @@ LoggingConfig:
       boto3_name: delete_model_invocation_logging_configuration
       response_attr: None
 ResourcePolicy:
+  mixins:
+    - name: ResourcePolicyManagerMixin
+      import_path: botocraft.mixins.bedrock
   methods:
-    get:
-      boto3_name: get_resource_policy
-      response_attr: resourcePolicy
-      args:
-        resourceArn:
-          required: true
     put:
       boto3_name: put_resource_policy
       response_attr: resourceArn

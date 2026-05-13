@@ -1,0 +1,67 @@
+---
+primary:
+  ConverseResponse:
+    alternate_name: Conversation
+    readonly: true
+    primary_key: stopReason
+  ApplyGuardrailResponse:
+    alternate_name: GuardrailApplication
+    readonly: true
+    primary_key: action
+secondary:
+  CountTokensResponse:
+    alternate_name: TokenCount
+  Message:
+    alternate_name: BedrockMessage
+  ToolResultBlockDelta:
+    fields:
+      json:
+        rename: jsonData
+  ToolResultContentBlock:
+    fields:
+      json:
+        rename: jsonData
+  ToolInputSchema:
+    fields:
+      json:
+        rename: jsonSchema
+  JsonSchemaDefinition:
+    fields:
+      schema:
+        rename: schemaDefinition
+  AudioSource:
+    fields:
+      bytes:
+        rename: data
+  BidirectionalInputPayloadPart:
+    fields:
+      bytes:
+        rename: data
+  BidirectionalOutputPayloadPart:
+    fields:
+      bytes:
+        rename: data
+  DocumentSource:
+    fields:
+      bytes:
+        rename: data
+  GuardrailConverseImageSource:
+    fields:
+      bytes:
+        rename: data
+  GuardrailImageSource:
+    fields:
+      bytes:
+        rename: data
+  ImageSource:
+    fields:
+      bytes:
+        rename: data
+  PayloadPart:
+    fields:
+      bytes:
+        rename: data
+  VideoSource:
+    fields:
+      bytes:
+        rename: data

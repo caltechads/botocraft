@@ -6,6 +6,22 @@ primary:
     primary_key: modelId
     arn_key: modelArn
     name_key: modelName
+    mixins:
+      - name: FoundationModelRuntimeMixin
+        import_path: botocraft.mixins.bedrock_runtime
+    fields:
+      inputModalities:
+        python_type: >-
+          "builtins.list[Literal['TEXT', 'IMAGE', 'EMBEDDING', 'VIDEO', 'SPEECH']] | None"
+      outputModalities:
+        python_type: >-
+          "builtins.list[Literal['TEXT', 'IMAGE', 'EMBEDDING', 'VIDEO', 'SPEECH']] | None"
+      customizationsSupported:
+        python_type: >-
+          "builtins.list[Literal['FINE_TUNING', 'CONTINUED_PRE_TRAINING', 'DISTILLATION']] | None"
+      inferenceTypesSupported:
+        python_type: >-
+          "builtins.list[Literal['ON_DEMAND', 'PROVISIONED', 'INFERENCE_PROFILE']] | None"
   FoundationModelAgreement:
     bespoke: true
     primary_key: modelId
@@ -43,8 +59,13 @@ primary:
     alternate_name: Guardrail
     primary_key: guardrailId
     arn_key: guardrailArn
-    name_key: name
+    name_key: guardrailName
+    mixins:
+      - name: GuardrailRuntimeMixin
+        import_path: botocraft.mixins.bedrock_runtime
     fields:
+      name:
+        rename: guardrailName
       blockedInputMessaging:
         required: false
         default: None
@@ -70,7 +91,10 @@ primary:
     alternate_name: AutomatedReasoningPolicy
     primary_key: policyArn
     arn_key: policyArn
-    name_key: name
+    name_key: policyName
+    fields:
+      name:
+        rename: policyName
     manager_methods:
       create_version:
         docstring: >-
@@ -142,7 +166,10 @@ primary:
   GetAutomatedReasoningPolicyAnnotationsResponse:
     alternate_name: AutomatedReasoningPolicyAnnotations
     primary_key: buildWorkflowId
-    name_key: buildWorkflowId
+    name_key: policyName
+    fields:
+      name:
+        rename: policyName
   PromptRouterSummary:
     alternate_name: PromptRouter
     primary_key: promptRouterArn

@@ -1,3 +1,5 @@
+import subprocess
+import sys
 from datetime import datetime, timezone
 from unittest.mock import MagicMock, patch
 
@@ -16,6 +18,8 @@ from botocraft.services.bedrock import (
     ModelInvocationLoggingConfiguration,
     ModelInvocationLoggingConfigurationManager,
     Offer,
+    ResourcePolicy,
+    ResourcePolicyManager,
 )
 
 
@@ -78,6 +82,40 @@ class TestFoundationModelManager:
         assert isinstance(models[0], FoundationModel)
         assert models[0].providerName == "Anthropic"
 
+    @patch("boto3.client")
+    def test_list_foundation_models_accepts_new_bedrock_capability_values(
+        self,
+        mock_boto3_client,
+    ):
+        mock_client = MagicMock()
+        mock_client.list_foundation_models.return_value = {
+            "modelSummaries": [
+                {
+                    "modelArn": "arn:aws:bedrock:us-west-2::foundation-model/openai.gpt-4.1-mini",
+                    "modelId": "openai.gpt-4.1-mini",
+                    "modelName": "GPT-4.1 mini",
+                    "providerName": "OpenAI",
+                    "inputModalities": ["TEXT", "VIDEO"],
+                    "outputModalities": ["TEXT", "IMAGE"],
+                    "responseStreamingSupported": True,
+                    "customizationsSupported": ["DISTILLATION"],
+                    "inferenceTypesSupported": ["ON_DEMAND", "INFERENCE_PROFILE"],
+                    "modelLifecycle": {"status": "ACTIVE"},
+                }
+            ]
+        }
+        mock_boto3_client.return_value = mock_client
+
+        manager = FoundationModelManager()
+        models = manager.list()
+
+        assert len(models) == 1
+        assert models[0].inputModalities == ["TEXT", "VIDEO"]
+        assert models[0].inferenceTypesSupported == [
+            "ON_DEMAND",
+            "INFERENCE_PROFILE",
+        ]
+
 
 class TestFoundationModelAgreementManager:
     @patch("boto3.client")
@@ -108,6 +146,25 @@ class TestFoundationModelAgreementManager:
         assert len(offers) == 1
         assert isinstance(offers[0], Offer)
         assert offers[0].offerToken == "token-1"
+
+
+class TestResourcePolicyManager:
+    @patch("boto3.client")
+    def test_get_resource_policy_returns_bespoke_model(self, mock_boto3_client):
+        mock_client = MagicMock()
+        mock_client.get_resource_policy.return_value = {
+            "resourcePolicy": '{"Version":"2012-10-17"}'
+        }
+        mock_boto3_client.return_value = mock_client
+
+        manager = ResourcePolicyManager()
+        policy = manager.get("arn:aws:bedrock:us-west-2:123456789012:guardrail/gr-123")
+
+        mock_client.get_resource_policy.assert_called_once_with(
+            resourceArn="arn:aws:bedrock:us-west-2:123456789012:guardrail/gr-123"
+        )
+        assert isinstance(policy, ResourcePolicy)
+        assert policy.resourcePolicy == '{"Version":"2012-10-17"}'
 
 
 class TestCustomModelManager:
@@ -240,6 +297,36 @@ class TestAutomatedReasoningPolicyVersionMethods:
         assert export_policy_arn == "policy-arn"
         assert version == "3"
         assert isinstance(definition, AutomatedReasoningPolicyDefinition)
+
+
+class TestBedrockShadowedFieldAliases:
+    def test_primary_model_name_property_uses_renamed_field(self):
+        guardrail = Guardrail.model_construct(
+            guardrailId="gr-123",
+            guardrailName="Test Guardrail",
+            session=None,
+        )
+        policy = AutomatedReasoningPolicy.model_construct(
+            policyArn="policy-arn",
+            policyName="Test Policy",
+            session=None,
+        )
+
+        assert guardrail.name == "Test Guardrail"
+        assert guardrail.model_dump(by_alias=True)["name"] == "Test Guardrail"
+        assert policy.name == "Test Policy"
+        assert policy.model_dump(by_alias=True)["name"] == "Test Policy"
+
+    def test_service_imports_do_not_emit_shadow_warnings(self):
+        result = subprocess.run(
+            [sys.executable, "-Wdefault", "-c", "from botocraft.services import *"],
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+
+        assert result.returncode == 0, result.stderr
+        assert "shadows an attribute" not in result.stderr
 
 
 class TestModelInvocationLoggingConfigurationManager:
