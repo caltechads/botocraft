@@ -123,6 +123,12 @@ answer directly.
 - Do not hand-edit generated files in `botocraft/services/` or generated docs.
 - Prefer direct source-of-truth fixes over runtime workarounds.
 - Keep first pass narrow: one or two high-confidence primary models.
+- Prefer the narrow resource or summary shape as the primary model when
+  `get()` or `list()` can hydrate it cleanly.
+- Do not use wrapper response classes such as `Get*Response` as the primary
+  model when a nested shape or summary shape represents the actual resource.
+- Keep richer wrapper response classes only when the narrower shape would lose
+  required fields needed for the supported create, update, or get surface.
 - `.get()` and `.list()` should return model instances, not raw identifiers.
 - Normalize Botocraft tag field names to `Tags`.
 
