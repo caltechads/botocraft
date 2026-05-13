@@ -1,281 +1,137 @@
 ---
 name: botocraft-service-authoring
-description: Add support for a new AWS service in Botocraft by inspecting botocore models, authoring botocraft/data/<service>/models.yml and managers.yml, adding mixins or decorators only when generation is not enough, regenerating all services, and asking the user to choose whenever there are meaningful modeling or API tradeoffs. Use this whenever the user asks to add support for an AWS service, build out Botocraft support for a service, author a new Botocraft service, scaffold service definitions, or extend Botocraft's AWS surface, even if they do not explicitly mention skills.
+description: Coordinate Botocraft AWS service authoring by doing repo preflight, checking dirty generated-tree risk, choosing the correct authoring leaf skill, and routing to focused references instead of carrying every edge case inline. Use this whenever the user wants to add a new AWS service to Botocraft, expand an existing Botocraft service, scaffold `models.yml` or `managers.yml`, inspect botocore shapes for Botocraft authoring, or reason about service-authoring tradeoffs, even if they do not explicitly mention skills.
 ---
 
 # Botocraft Service Authoring
 
-Use this skill when the user wants Botocraft to support a new AWS service.
-This is a repo-specific authoring workflow, not a generic AWS SDK task.
+Use this skill as router and guardrail for Botocraft service authoring.
+Do repo-specific setup here, then load one focused leaf skill first.
 
-The goal is to produce maintainable Botocraft service definitions that feel
-natural at the object layer and survive full regeneration cleanly.
+## First moves
 
-## Operating Contract
-
-Inspect first, then implement.
-
-Do not jump straight into YAML edits after seeing a service name. First inspect:
-
-- the botocore service alias
-- the raw botocore shapes
-- candidate primary models
-- existing Botocraft patterns that are closest to this service
-
-Ask the user concise questions whenever there are real choices that materially
-change the authored API. In this repository, that usually means:
-
-- multiple plausible botocore service aliases
-- several plausible primary models and no obvious first choice
-- a model that could be readonly or CRUDL-capable
-- bespoke model vs shape-backed model
-- relation vs plain property vs leaving raw identifier data alone
-- decorator vs manager mixin vs handwritten manager method
-- convenience methods whose ergonomics are subjective rather than obvious
-
-Do not ask questions that the repository or botocore inspection can answer.
-
-## Required Repo Preflight
-
-Before authoring, provide concise evidence of:
+Before planning or editing, provide concise preflight evidence for:
 
 1. `memory_search` for prior Botocraft context.
-2. At least one `aidex` call. If AiDex is broken in the environment, say so
-   explicitly and continue with direct repo inspection.
-3. At least one `code-index` call for generator or CLI touchpoints.
-4. `context7` when current boto3 or botocore behavior is relevant.
+2. At least one `aidex` call. If AiDex is broken, say so explicitly and fall
+   back to direct repo inspection.
+3. At least one `code-index` call for generator, mixin, or CLI touchpoints.
+4. `context7` when current boto3 or botocore behavior matters.
 
-Also inspect these repo references before making decisions:
+Also inspect:
 
 - `doc/source/runbook/authoring.rst`
 - `doc/source/runbook/service_authoring_reference.rst`
-- `botocraft/data/ecs/models.yml`
-- `botocraft/data/ecs/managers.yml`
-- `botocraft/data/s3/models.yml`
-- `botocraft/data/s3/managers.yml`
-- `botocraft/mixins/ecs.py`
-- `botocraft/mixins/s3.py`
+- one strong service pattern pair from `botocraft/data`
+- one strong handwritten mixin example when decorators or mixins seem likely
 
-Use those files as the default patterns instead of inventing a new style.
+In an early progress update, name each preflight tool and what it returned.
 
-## Core Rules
+## Dirty-tree safeguard
 
-Follow these Botocraft-specific rules:
+Run `git status --short` before reasoning about regeneration.
+
+If generated services or generated docs are already dirty:
+
+- pause before proposing full `botocraft sync`
+- explain why generated-tree churn makes service authoring hard to reason about
+- ask user to confirm checkpoint/stash/continue only when sync is actually next
+
+Do not pretend service-scoped reasoning is safe when full sync would rewrite
+many already-dirty generated files.
+
+## Routing rule
+
+Load exactly one core leaf skill first:
+
+- `../botocraft-service-discovery/SKILL.md`
+- `../botocraft-model-authoring/SKILL.md`
+- `../botocraft-manager-authoring/SKILL.md`
+- `../botocraft-service-verification/SKILL.md`
+
+Escalate to an advanced leaf only when concrete signals appear:
+
+- collisions, `alternate_name`, field/type-name conflicts
+- properties, relations, composite `pk`, or bespoke models
+- decorators, manager mixins, identifier-only lists, context-required list/get
+- two-step disable/delete flows or irregular non-CRUD methods
+
+Advanced leaves:
+
+- `../botocraft-model-advanced/SKILL.md`
+- `../botocraft-manager-advanced/SKILL.md`
+
+## Leaf selection heuristics
+
+Start with `botocraft-service-discovery` when task is still about:
+
+- botocore alias
+- likely primary models
+- readonly vs CRUDL classification
+- first safe scope
+- manager naming or operation inventory
+
+Start with `botocraft-model-authoring` when task is mainly about:
+
+- `models.yml`
+- `primary_key`, `arn_key`, `name_key`
+- `input_shapes`, `output_shape`
+- field overrides or `Tags`
+
+Start with `botocraft-manager-authoring` when task is mainly about:
+
+- `managers.yml`
+- `get`, `list`, `create`, `update`, `delete`
+- return-shape decisions
+- readonly/writable/updatable manager contract
+
+Start with `botocraft-service-verification` when YAML already exists and task is
+about regeneration, inspection, smoke testing, or quality gates.
+
+## Reference loading
+
+Do not keep catalogs inline. Load only needed references from `references/`:
+
+- `common-manager-patterns.md`
+- `model-collision-and-tags.md`
+- `relations-properties-bespoke.md`
+- `ec2-case-study.md`
+- `service-gaps-and-exceptions.md`
+- `monolith-snapshot.md` when comparing against old single-skill baseline
+
+Prefer one reference first. Load more only when task clearly crosses domains.
+
+## Decision pauses
+
+Ask user only when repo inspection cannot settle a meaningful product tradeoff.
+Typical real pauses:
+
+- multiple plausible primary resources
+- shape-backed vs bespoke model
+- readonly vs writable public contract
+- relation vs property vs leave raw identifier
+- decorator vs manager mixin when both are credible
+
+Do not ask questions that botocore, repo patterns, or generator behavior can
+answer directly.
+
+## Global rules
 
 - Author source of truth in `botocraft/data/<service>/models.yml` and
   `botocraft/data/<service>/managers.yml`.
-- Put handwritten helpers only in `botocraft/mixins/<service>.py`.
+- Put handwritten helpers in `botocraft/mixins/<service>.py`.
 - Do not hand-edit generated files in `botocraft/services/` or generated docs.
-- Always run full `botocraft sync`, not just service-scoped sync, after
-  meaningful authoring changes.
-- Run `botocraft shell` after sync to catch import and forward-reference issues.
+- Prefer direct source-of-truth fixes over runtime workarounds.
+- Keep first pass narrow: one or two high-confidence primary models.
+- `.get()` and `.list()` should return model instances, not raw identifiers.
+- Normalize Botocraft tag field names to `Tags`.
 
-Object API rules:
+## Output expectations
 
-- `.get()` and `.list()` should return model instances, not raw names or ARNs.
-- If AWS returns identifiers from a list operation, prefer a decorator that
-  converts them into model instances.
-- `.create()` should take the model instance as the primary parameter, with
-  extra keyword args only when truly required by the AWS API.
-- Read-only resources should expose read/list-oriented managers instead of fake
-  write methods.
-- Use manager shortcut methods on models when an operation is naturally scoped
-  to the instance.
+By end of task, summary should name:
 
-Modeling rules:
-
-- Start with one or two high-confidence primary models. Expand only after sync
-  succeeds and the generated API looks healthy.
-- Prefer shape-backed models plus targeted overrides before reaching for
-  `bespoke: true`.
-- Use `input_shapes` as the main source of writability inference.
-- Use `output_shape` when get/list responses add fields that are useful on the
-  object but absent from the base shape.
-- Infer useful relations from model attributes when there is a stable manager
-  lookup path to another primary model.
-- Prefer simple YAML properties for derived data. Escalate to a model mixin
-  only when the behavior needs real Python logic.
-- Prefer mapping-based relations. Treat regex-backed relations as exceptional,
-  not the default path.
-
-Collision and typing rules:
-
-- Check for cross-service model name collisions before finalizing public names.
-- Resolve collisions with `alternate_name`, field `rename`, or targeted type
-  overrides.
-- Be alert for field/type equality problems where a field's inferred type name
-  matches the field name itself. Those often need `alternate_name` or field
-  renaming to avoid generator failures.
-- If the service alias contains a hyphen, remember that the generated module
-  name uses underscores.
-
-## Workflow
-
-### 1. Confirm the service target
-
-If the user gave a plain English AWS service name, discover the botocore alias.
-Use the alias as the canonical service directory name under `botocraft/data/`.
-
-If more than one alias is plausible, stop and ask the user which one they want.
-
-### 2. Inspect botocore before authoring
-
-Use the CLI workflow from the runbook:
-
-- `botocraft botocore services`
-- `botocraft botocore models <service>`
-- `botocraft botocore model <service> <shape> --dependencies --operations`
-- `botocraft botocore primary-models <service>`
-
-Use this pass to identify:
-
-- real resources vs nested helper structures
-- likely CRUDL models
-- likely read-only models
-- list operations that return identifiers instead of full objects
-- input/output shape mismatches
-- likely secondary models that may need overrides or renames
-
-### 3. Choose the first primary models
-
-Prefer starting with one or two primary models that have most of these traits:
-
-- clear resource identity
-- at least `get` or `list` style operations
-- understandable request and response shapes
-- a plausible primary key and, ideally, ARN or name fields
-
-If the service has several plausible entry points, ask the user to choose the
-first scope rather than authoring the whole service blindly.
-
-### 4. Author `models.yml`
-
-Start with the smallest useful definition set.
-
-For each primary model, determine:
-
-- `primary_key`
-- `arn_key` when present
-- `name_key` when present
-- `input_shapes`
-- `output_shape` when needed
-- field overrides
-- properties
-- relations
-- `manager_methods`
-- model mixins only if YAML is not enough
-
-Only add explicit secondary model configuration when it materially improves the
-generated output, such as:
-
-- `alternate_name`
-- `force_create`
-- field overrides
-- better nested type behavior
-- mixins or properties on secondary models
-
-### 5. Author `managers.yml`
-
-For each primary model, prefer generated methods first:
-
-- `get`
-- `list`
-- `create` when creation is natural
-- `update` or `partial_update` when the API supports it
-- `delete` when deletion is supported
-
-For read-only resources, prefer `get`, `get_many`, `list`, and other clearly
-useful read helpers instead of forcing CRUDL symmetry.
-
-Check for each method:
-
-- correct `boto3_name`
-- correct `response_attr`
-- argument overrides that line up with the input shape
-- return behavior that yields model instances when appropriate
-
-Add other useful manager methods only when they provide genuine ergonomic value,
-such as:
-
-- family or namespace lookups
-- service-specific list variants
-- instance-scoped helpers that the model should expose through
-  `manager_methods`
-
-### 6. Decide when handwritten code is necessary
-
-Use a property when a small YAML transformer is enough.
-
-Use a relation when the object should naturally resolve to another primary
-resource and a stable lookup path exists.
-
-Use a decorator when the generated AWS call is basically correct but the return
-value needs reshaping, especially when:
-
-- a list returns identifiers and should return model instances
-- a response needs light post-processing
-- a missing-result exception should become an expected empty result
-- batching is needed around an AWS per-call limit
-
-Use a manager mixin when:
-
-- a method requires multiple AWS API calls
-- the AWS API is too irregular for generated methods to feel natural
-- the manager needs higher-level workflows beyond direct boto3 wrappers
-
-Use a model mixin when:
-
-- behavior belongs on the object
-- logic depends on several fields or related resources
-- the YAML property system would become contorted
-
-### 7. Regenerate and smoke test
-
-After authoring changes:
-
-1. Run full `botocraft sync`.
-2. Inspect the generated service module and generated service docs.
-3. Run `botocraft shell`.
-4. Fix naming, import, type, relation, or collision issues before expanding the
-   service further.
-
-Do not skip full regeneration. Cross-service collisions are part of normal
-authoring in this repository.
-
-### 8. Summarize clearly
-
-At the end, summarize:
-
-- which primary models were added first
-- which methods were authored
-- which relations, properties, mixins, and decorators were added
-- any unresolved follow-up candidates for later expansion
-- any questions that still need a human decision
-
-## Decision Defaults
-
-When the repository evidence does not force a different answer, prefer:
-
-- YAML-first authoring
-- direct product-code changes over workaround architecture
-- generated CRUDL or read/list methods before handwritten logic
-- decorators over heavier manager rewrites for list/get result reshaping
-- mapping relations over regex relations
-- one or two primary models first, not maximal first-pass scope
-- object methods only when they are clearly instance-scoped and ergonomic
-
-## Example Requests
-
-- "Add Botocraft support for AWS Backup."
-- "Build out Botocraft support for the AWS Glue Data Catalog service."
-- "Author a new Botocraft service for AWS Bedrock Agents, starting with the
-  read-only resources."
-- "Add support for an AWS service where list returns ARNs and make sure list
-  returns model instances."
-
-## Out of Scope
-
-This skill is primarily for adding a brand-new AWS service.
-
-You can reuse the same workflow for adding another model to an existing service,
-but do not treat that as the primary trigger or main description of the skill.
+- chosen leaf skills and references
+- first primary models and why
+- authored methods, relations, properties, mixins, or decorators
+- any unresolved human choices
+- verification results and any report-only generated-file gate noise

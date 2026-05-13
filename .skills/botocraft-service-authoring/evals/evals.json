@@ -3,20 +3,38 @@
   "evals": [
     {
       "id": 1,
-      "prompt": "Add Botocraft support for AWS Backup. Follow the repository's documented service-authoring workflow, inspect the botocore service alias and likely primary models first, then author the first one or two high-confidence primary models with appropriate managers, properties, and relations. Ask me if you hit a real choice about readonly vs CRUDL coverage or whether a resource should be bespoke.",
-      "expected_output": "The skill should inspect botocore discovery surfaces, choose a narrow first-pass scope, author Botocraft YAML rather than generated files, and enforce full regeneration plus shell smoke testing.",
+      "prompt": "Add Botocraft support for AWS Backup. Start with discovery, identify the service alias and one or two high-confidence primary models, then author the first CRUDL-capable slice using repository patterns instead of generic AWS guesses.",
+      "expected_output": "The skill should route through discovery first, keep first scope narrow, and produce Botocraft-specific model and manager decisions for a straightforward CRUDL service.",
       "files": []
     },
     {
       "id": 2,
-      "prompt": "Add support for a new AWS service whose main resources are effectively readonly and where the list operations return ARNs rather than full objects. I want Botocraft list methods to return model instances, not identifiers. Build the first pass of the service and only add handwritten helpers if the generated methods are not enough.",
-      "expected_output": "The skill should bias toward readonly managers, generated read/list methods, and decorators that convert identifier lists into model instances instead of exposing raw ARNs.",
+      "prompt": "Add support for a new AWS service whose resources are readonly and whose list APIs mostly return ARNs rather than full objects. I still want Botocraft list methods to return model instances. Add only the minimum handwritten shaping needed.",
+      "expected_output": "The skill should route to discovery and advanced manager guidance, recognize readonly contract, and choose decorator-first identifier-to-model conversion patterns.",
       "files": []
     },
     {
       "id": 3,
-      "prompt": "Author a new Botocraft service for an AWS API where several shapes are likely to collide with names already used in other services, and where at least one field's inferred type may match the field name. Inspect existing patterns first, then implement the service carefully so full botocraft sync succeeds cleanly.",
-      "expected_output": "The skill should check for cross-service naming conflicts, use alternate_name or field renames when needed, and treat generator type/collision failures as first-class authoring concerns.",
+      "prompt": "Author a new Botocraft service where several model names collide with existing services and one nested field's type would likely have the same name as the field itself. Walk carefully so sync survives the first pass.",
+      "expected_output": "The skill should route into advanced model guidance, use alternate_name or targeted field/type fixes, and treat collisions as first-class source-of-truth work.",
+      "files": []
+    },
+    {
+      "id": 4,
+      "prompt": "Build Botocraft support for an AWS API whose main user-facing resource does not map cleanly to one botocore shape and probably needs assembled state from several calls. Decide whether the primary model should be bespoke and explain why.",
+      "expected_output": "The skill should escalate to advanced model guidance, compare shape-backed versus bespoke options, and choose bespoke only when simpler YAML patterns are insufficient.",
+      "files": []
+    },
+    {
+      "id": 5,
+      "prompt": "Help me design a Botocraft service as complicated as EC2: multiple primary models, cross-service name collisions, tags that need conversion, decorator-shaped get/list methods, relations, and extra lifecycle helpers. Keep context lean and load the EC2-specific guidance only when needed.",
+      "expected_output": "The skill should keep parent routing thin, load reference material instead of bloating active instructions, and choose existing Botocraft EC2/ECS-style patterns rather than generic AWS advice.",
+      "files": []
+    },
+    {
+      "id": 6,
+      "prompt": "Add a Botocraft service where some resources do not have a clean global get, and list only works when you first supply a parent context such as a bucket or rule. I want the skill to model that honestly rather than forcing fake CRUDL symmetry.",
+      "expected_output": "The skill should recognize service gaps and exceptions, route to advanced manager guidance when needed, and preserve honest context-required manager methods.",
       "files": []
     }
   ]
