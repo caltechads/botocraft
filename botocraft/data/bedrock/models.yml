@@ -1,0 +1,368 @@
+---
+primary:
+  FoundationModelSummary:
+    alternate_name: FoundationModel
+    readonly: true
+    primary_key: modelId
+    arn_key: modelArn
+    name_key: modelName
+  FoundationModelAgreement:
+    bespoke: true
+    primary_key: modelId
+    name_key: modelId
+    extra_fields:
+      modelId:
+        python_type: str
+        required: true
+        docstring: >-
+          Foundation model identifier for agreement lifecycle calls.
+  CustomModelSummary:
+    alternate_name: CustomModel
+    primary_key: modelArn
+    arn_key: modelArn
+    name_key: modelName
+    fields:
+      baseModelName:
+        python_type: str | None
+        required: false
+        default: None
+        docstring: >-
+          Base model name when available from list responses.
+      ownerAccountId:
+        python_type: str | None
+        required: false
+        default: None
+        docstring: >-
+          Owning AWS account ID when available from list responses.
+  ImportedModelSummary:
+    alternate_name: ImportedModel
+    primary_key: modelArn
+    arn_key: modelArn
+    name_key: modelName
+  GetGuardrailResponse:
+    alternate_name: Guardrail
+    primary_key: guardrailId
+    arn_key: guardrailArn
+    name_key: name
+    fields:
+      blockedInputMessaging:
+        required: false
+        default: None
+      blockedOutputsMessaging:
+        required: false
+        default: None
+    manager_methods:
+      create_version:
+        docstring: >-
+          Create a version of this guardrail.
+        manager_method: create_version
+        args:
+          0:
+            name: guardrailIdentifier
+            value: >-
+              cast(str, self.guardrailId)
+        user_keyword_args:
+          - name: description
+            attr_type: str | None
+            default: >-
+              None
+  AutomatedReasoningPolicySummary:
+    alternate_name: AutomatedReasoningPolicy
+    primary_key: policyArn
+    arn_key: policyArn
+    name_key: name
+    manager_methods:
+      create_version:
+        docstring: >-
+          Create a version of this automated reasoning policy.
+        manager_method: create_version
+        args:
+          0:
+            name: policyArn
+            value: >-
+              cast(str, self.policyArn)
+        user_args:
+          1:
+            name: lastUpdatedDefinitionHash
+            attr_type: str
+      export_version:
+        docstring: >-
+          Export this automated reasoning policy version.
+        manager_method: export_version
+        args:
+          0:
+            name: policyArn
+            value: >-
+              cast(str, self.policyArn)
+      start_build_workflow:
+        docstring: >-
+          Start a build workflow for this automated reasoning policy.
+        manager_method: start_build_workflow
+        args:
+          0:
+            name: policyArn
+            value: >-
+              cast(str, self.policyArn)
+        user_args:
+          1:
+            name: buildWorkflowType
+            attr_type: str
+          2:
+            name: sourceContent
+            attr_type: >-
+              "AutomatedReasoningPolicyBuildWorkflowSource"
+        user_keyword_args:
+          - name: clientRequestToken
+            attr_type: str | None
+            default: >-
+              None
+  GetAutomatedReasoningPolicyBuildWorkflowResponse:
+    alternate_name: AutomatedReasoningPolicyBuildWorkflow
+    primary_key: buildWorkflowId
+    name_key: buildWorkflowId
+  AutomatedReasoningPolicyTestCase:
+    primary_key: testCaseId
+    name_key: testCaseId
+    input_shapes:
+      - CreateAutomatedReasoningPolicyTestCaseRequest
+      - UpdateAutomatedReasoningPolicyTestCaseRequest
+  AutomatedReasoningPolicyTestResult:
+    readonly: true
+    primary_key: testCase
+  GetAutomatedReasoningPolicyNextScenarioResponse:
+    alternate_name: AutomatedReasoningPolicyNextScenario
+    readonly: true
+    primary_key: policyArn
+    arn_key: policyArn
+  GetAutomatedReasoningPolicyBuildWorkflowResultAssetsResponse:
+    alternate_name: AutomatedReasoningPolicyBuildWorkflowResultAssets
+    readonly: true
+    primary_key: buildWorkflowId
+    name_key: buildWorkflowId
+  GetAutomatedReasoningPolicyAnnotationsResponse:
+    alternate_name: AutomatedReasoningPolicyAnnotations
+    primary_key: buildWorkflowId
+    name_key: buildWorkflowId
+  PromptRouterSummary:
+    alternate_name: PromptRouter
+    primary_key: promptRouterArn
+    arn_key: promptRouterArn
+    name_key: promptRouterName
+  GetEvaluationJobResponse:
+    alternate_name: EvaluationJob
+    primary_key: jobArn
+    arn_key: jobArn
+    name_key: jobName
+    fields:
+      roleArn:
+        required: false
+        default: None
+      evaluationConfig:
+        python_type: Any | None
+        required: false
+        default: None
+      inferenceConfig:
+        python_type: Any | None
+        required: false
+        default: None
+      outputDataConfig:
+        python_type: Any | None
+        required: false
+        default: None
+  AccountEnforcedGuardrailOutputConfiguration:
+    alternate_name: EnforcedGuardrailsConfiguration
+    primary_key: configId
+    name_key: configId
+  InferenceProfileSummary:
+    alternate_name: InferenceProfile
+    primary_key: inferenceProfileArn
+    arn_key: inferenceProfileArn
+    name_key: inferenceProfileName
+  GetModelCustomizationJobResponse:
+    alternate_name: ModelCustomizationJob
+    primary_key: jobArn
+    arn_key: jobArn
+    name_key: jobName
+    fields:
+      outputModelName:
+        required: false
+        default: None
+      roleArn:
+        required: false
+        default: None
+      trainingDataConfig:
+        required: false
+        default: None
+      validationDataConfig:
+        required: false
+        default: None
+      outputDataConfig:
+        required: false
+        default: None
+  ModelCopyJobSummary:
+    alternate_name: ModelCopyJob
+    primary_key: jobArn
+    arn_key: jobArn
+    name_key: jobArn
+  ModelInvocationJobSummary:
+    alternate_name: ModelInvocationJob
+    primary_key: jobArn
+    arn_key: jobArn
+    name_key: jobName
+  LoggingConfig:
+    alternate_name: ModelInvocationLoggingConfiguration
+    bespoke: true
+    primary_key: singletonId
+    name_key: singletonId
+    extra_fields:
+      singletonId:
+        python_type: str
+        default: >-
+          "account"
+        docstring: >-
+          Singleton identity for model invocation logging configuration.
+      audioDataDeliveryEnabled:
+        python_type: bool | None
+        default: None
+      cloudWatchConfig:
+        python_type: Any | None
+        default: None
+      embeddingDataDeliveryEnabled:
+        python_type: bool | None
+        default: None
+      imageDataDeliveryEnabled:
+        python_type: bool | None
+        default: None
+      s3Config:
+        python_type: Any | None
+        default: None
+      textDataDeliveryEnabled:
+        python_type: bool | None
+        default: None
+      videoDataDeliveryEnabled:
+        python_type: bool | None
+        default: None
+  ResourcePolicy:
+    bespoke: true
+    primary_key: resourceArn
+    arn_key: resourceArn
+    name_key: resourceArn
+    extra_fields:
+      resourceArn:
+        python_type: str
+        required: true
+        docstring: >-
+          Resource ARN associated with this policy.
+      resourcePolicy:
+        python_type: str | None
+        default: None
+        docstring: >-
+          JSON policy document for this resource.
+  MarketplaceModelEndpoint:
+    primary_key: endpointArn
+    arn_key: endpointArn
+    name_key: endpointArn
+    fields:
+      endpointConfig:
+        required: false
+        default: None
+      endpointStatus:
+        required: false
+        default: None
+  ProvisionedModelSummary:
+    alternate_name: ProvisionedModelThroughput
+    primary_key: provisionedModelArn
+    arn_key: provisionedModelArn
+    name_key: provisionedModelName
+secondary:
+  GetFoundationModelResponse:
+    fields:
+      modelDetails:
+        python_type: >-
+          "FoundationModel | None"
+  ListFoundationModelsResponse:
+    fields:
+      modelSummaries:
+        python_type: >-
+          "builtins.list[FoundationModel] | None"
+  ListCustomModelsResponse:
+    fields:
+      modelSummaries:
+        python_type: >-
+          "builtins.list[CustomModel] | None"
+  ListImportedModelsResponse:
+    fields:
+      modelSummaries:
+        python_type: >-
+          "builtins.list[ImportedModel] | None"
+  ListGuardrailsResponse:
+    fields:
+      guardrails:
+        python_type: >-
+          "builtins.list[Guardrail] | None"
+  ListAutomatedReasoningPoliciesResponse:
+    fields:
+      automatedReasoningPolicySummaries:
+        python_type: >-
+          "builtins.list[AutomatedReasoningPolicy] | None"
+  ListAutomatedReasoningPolicyBuildWorkflowsResponse:
+    fields:
+      automatedReasoningPolicyBuildWorkflowSummaries:
+        python_type: >-
+          "builtins.list[AutomatedReasoningPolicyBuildWorkflow] | None"
+  GetAutomatedReasoningPolicyTestCaseResponse:
+    fields:
+      testCase:
+        python_type: >-
+          "AutomatedReasoningPolicyTestCase | None"
+  GetAutomatedReasoningPolicyTestResultResponse:
+    fields:
+      testResult:
+        python_type: >-
+          "AutomatedReasoningPolicyTestResult | None"
+  ListEvaluationJobsResponse:
+    fields:
+      jobSummaries:
+        python_type: >-
+          "builtins.list[EvaluationJob] | None"
+  ListInferenceProfilesResponse:
+    fields:
+      inferenceProfileSummaries:
+        python_type: >-
+          "builtins.list[InferenceProfile] | None"
+  ListModelCopyJobsResponse:
+    fields:
+      modelCopyJobSummaries:
+        python_type: >-
+          "builtins.list[ModelCopyJob] | None"
+  ListModelCustomizationJobsResponse:
+    fields:
+      modelCustomizationJobSummaries:
+        python_type: >-
+          "builtins.list[ModelCustomizationJob] | None"
+  ListModelInvocationJobsResponse:
+    fields:
+      invocationJobSummaries:
+        python_type: >-
+          "builtins.list[ModelInvocationJob] | None"
+  GetModelInvocationLoggingConfigurationResponse:
+    fields:
+      loggingConfig:
+        python_type: >-
+          "ModelInvocationLoggingConfiguration | None"
+  GetResourcePolicyResponse:
+    alternate_name: BedrockGetResourcePolicyResponse
+  PutResourcePolicyResponse:
+    alternate_name: BedrockPutResourcePolicyResponse
+  DeleteResourcePolicyResponse:
+    alternate_name: BedrockDeleteResourcePolicyResponse
+  ListMarketplaceModelEndpointsResponse:
+    fields:
+      marketplaceModelEndpoints:
+        python_type: >-
+          "builtins.list[MarketplaceModelEndpoint] | None"
+  ListProvisionedModelThroughputsResponse:
+    fields:
+      provisionedModelSummaries:
+        python_type: >-
+          "builtins.list[ProvisionedModelThroughput] | None"

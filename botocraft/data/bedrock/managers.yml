@@ -1,0 +1,625 @@
+---
+FoundationModelSummary:
+  readonly: true
+  methods:
+    get:
+      boto3_name: get_foundation_model
+      response_attr: modelDetails
+      args:
+        modelIdentifier:
+          required: true
+          rename: modelId
+          source_arg: modelId
+          python_type: str
+    list:
+      boto3_name: list_foundation_models
+      response_attr: modelSummaries
+    get_availability:
+      boto3_name: get_foundation_model_availability
+      response_attr: None
+      args:
+        modelId:
+          required: true
+FoundationModelAgreement:
+  methods:
+    create:
+      boto3_name: create_foundation_model_agreement
+      response_attr: modelId
+      args:
+        offerToken:
+          required: true
+    delete:
+      boto3_name: delete_foundation_model_agreement
+      response_attr: None
+      args:
+        modelId:
+          required: true
+    list_offers:
+      boto3_name: list_foundation_model_agreement_offers
+      response_attr: offers
+      args:
+        modelId:
+          required: true
+CustomModelSummary:
+  methods:
+    create:
+      boto3_name: create_custom_model
+      response_attr: modelArn
+    get:
+      boto3_name: get_custom_model
+      response_attr: None
+      args:
+        modelIdentifier:
+          required: true
+          rename: modelArn
+          source_arg: modelArn
+          python_type: str
+    list:
+      boto3_name: list_custom_models
+      response_attr: modelSummaries
+    delete:
+      boto3_name: delete_custom_model
+      response_attr: None
+      args:
+        modelIdentifier:
+          required: true
+          rename: modelArn
+          source_arg: modelArn
+          python_type: str
+ImportedModelSummary:
+  methods:
+    get:
+      boto3_name: get_imported_model
+      response_attr: None
+      args:
+        modelIdentifier:
+          required: true
+          rename: modelArn
+          source_arg: modelArn
+          python_type: str
+    list:
+      boto3_name: list_imported_models
+      response_attr: modelSummaries
+    delete:
+      boto3_name: delete_imported_model
+      response_attr: None
+      args:
+        modelIdentifier:
+          required: true
+          rename: modelArn
+          source_arg: modelArn
+          python_type: str
+GetGuardrailResponse:
+  methods:
+    create:
+      boto3_name: create_guardrail
+      response_attr: guardrailArn
+    get:
+      boto3_name: get_guardrail
+      response_attr: None
+      args:
+        guardrailIdentifier:
+          required: true
+          rename: guardrailId
+          source_arg: guardrailId
+          python_type: str
+        guardrailVersion:
+          default: >-
+            None
+    list:
+      boto3_name: list_guardrails
+      response_attr: guardrails
+    update:
+      boto3_name: update_guardrail
+      response_attr: guardrailArn
+      args:
+        guardrailIdentifier:
+          required: true
+          rename: guardrailId
+          attribute: guardrailId
+    delete:
+      boto3_name: delete_guardrail
+      response_attr: None
+      args:
+        guardrailIdentifier:
+          required: true
+          rename: guardrailId
+          source_arg: guardrailId
+          python_type: str
+        guardrailVersion:
+          default: >-
+            None
+    create_version:
+      boto3_name: create_guardrail_version
+      response_attr: version
+      args:
+        guardrailIdentifier:
+          required: true
+          rename: guardrailId
+          source_arg: guardrailId
+          python_type: str
+AutomatedReasoningPolicySummary:
+  methods:
+    create:
+      boto3_name: create_automated_reasoning_policy
+      response_attr: policyArn
+    get:
+      boto3_name: get_automated_reasoning_policy
+      response_attr: None
+      args:
+        policyArn:
+          required: true
+    list:
+      boto3_name: list_automated_reasoning_policies
+      response_attr: automatedReasoningPolicySummaries
+    update:
+      boto3_name: update_automated_reasoning_policy
+      response_attr: policyArn
+      args:
+        policyArn:
+          required: true
+          attribute: policyArn
+    delete:
+      boto3_name: delete_automated_reasoning_policy
+      response_attr: None
+      args:
+        policyArn:
+          required: true
+    create_version:
+      boto3_name: create_automated_reasoning_policy_version
+      response_attr: version
+      args:
+        policyArn:
+          required: true
+        lastUpdatedDefinitionHash:
+          required: true
+    export_version:
+      boto3_name: export_automated_reasoning_policy_version
+      response_attr: policyDefinition
+      args:
+        policyArn:
+          required: true
+    start_build_workflow:
+      boto3_name: start_automated_reasoning_policy_build_workflow
+      response_attr: buildWorkflowId
+      args:
+        policyArn:
+          required: true
+        buildWorkflowType:
+          required: true
+        sourceContent:
+          required: true
+GetAutomatedReasoningPolicyBuildWorkflowResponse:
+  methods:
+    get:
+      boto3_name: get_automated_reasoning_policy_build_workflow
+      response_attr: None
+      args:
+        policyArn:
+          required: true
+        buildWorkflowId:
+          required: true
+    list:
+      boto3_name: list_automated_reasoning_policy_build_workflows
+      response_attr: automatedReasoningPolicyBuildWorkflowSummaries
+      args:
+        policyArn:
+          required: true
+    cancel:
+      boto3_name: cancel_automated_reasoning_policy_build_workflow
+      response_attr: None
+      args:
+        policyArn:
+          required: true
+        buildWorkflowId:
+          required: true
+    delete:
+      boto3_name: delete_automated_reasoning_policy_build_workflow
+      response_attr: None
+      args:
+        policyArn:
+          required: true
+        buildWorkflowId:
+          required: true
+        lastUpdatedAt:
+          required: true
+    start_test_workflow:
+      boto3_name: start_automated_reasoning_policy_test_workflow
+      response_attr: policyArn
+      args:
+        policyArn:
+          required: true
+        buildWorkflowId:
+          required: true
+AutomatedReasoningPolicyTestCase:
+  methods:
+    create:
+      boto3_name: create_automated_reasoning_policy_test_case
+      response_attr: testCaseId
+      args:
+        policyArn:
+          required: true
+    get:
+      boto3_name: get_automated_reasoning_policy_test_case
+      response_attr: testCase
+      args:
+        policyArn:
+          required: true
+        testCaseId:
+          required: true
+    list:
+      boto3_name: list_automated_reasoning_policy_test_cases
+      response_attr: testCases
+      args:
+        policyArn:
+          required: true
+    update:
+      boto3_name: update_automated_reasoning_policy_test_case
+      response_attr: testCaseId
+      args:
+        policyArn:
+          required: true
+        testCaseId:
+          required: true
+          attribute: testCaseId
+        lastUpdatedAt:
+          required: true
+    delete:
+      boto3_name: delete_automated_reasoning_policy_test_case
+      response_attr: None
+      args:
+        policyArn:
+          required: true
+        testCaseId:
+          required: true
+        lastUpdatedAt:
+          required: true
+AutomatedReasoningPolicyTestResult:
+  readonly: true
+  methods:
+    get:
+      boto3_name: get_automated_reasoning_policy_test_result
+      response_attr: testResult
+      args:
+        policyArn:
+          required: true
+        buildWorkflowId:
+          required: true
+        testCaseId:
+          required: true
+    list:
+      boto3_name: list_automated_reasoning_policy_test_results
+      response_attr: testResults
+      args:
+        policyArn:
+          required: true
+        buildWorkflowId:
+          required: true
+GetAutomatedReasoningPolicyNextScenarioResponse:
+  readonly: true
+  methods:
+    get:
+      boto3_name: get_automated_reasoning_policy_next_scenario
+      response_attr: None
+      args:
+        policyArn:
+          required: true
+        buildWorkflowId:
+          required: true
+GetAutomatedReasoningPolicyBuildWorkflowResultAssetsResponse:
+  readonly: true
+  methods:
+    get:
+      boto3_name: get_automated_reasoning_policy_build_workflow_result_assets
+      response_attr: None
+      args:
+        policyArn:
+          required: true
+        buildWorkflowId:
+          required: true
+        assetType:
+          required: true
+GetAutomatedReasoningPolicyAnnotationsResponse:
+  methods:
+    get:
+      boto3_name: get_automated_reasoning_policy_annotations
+      response_attr: None
+      args:
+        policyArn:
+          required: true
+        buildWorkflowId:
+          required: true
+    update:
+      boto3_name: update_automated_reasoning_policy_annotations
+      response_attr: annotationSetHash
+      args:
+        policyArn:
+          required: true
+        buildWorkflowId:
+          required: true
+        annotations:
+          required: true
+          attribute: annotations
+        lastUpdatedAnnotationSetHash:
+          required: true
+PromptRouterSummary:
+  methods:
+    create:
+      boto3_name: create_prompt_router
+      response_attr: promptRouterArn
+    get:
+      boto3_name: get_prompt_router
+      response_attr: None
+      args:
+        promptRouterArn:
+          required: true
+    list:
+      boto3_name: list_prompt_routers
+      response_attr: promptRouterSummaries
+    delete:
+      boto3_name: delete_prompt_router
+      response_attr: None
+      args:
+        promptRouterArn:
+          required: true
+GetEvaluationJobResponse:
+  methods:
+    create:
+      boto3_name: create_evaluation_job
+      response_attr: jobArn
+      args:
+        evaluationConfig:
+          python_type: Any
+        inferenceConfig:
+          python_type: Any
+        outputDataConfig:
+          python_type: Any
+    get:
+      boto3_name: get_evaluation_job
+      response_attr: None
+      args:
+        jobIdentifier:
+          required: true
+          rename: jobArn
+          source_arg: jobArn
+          python_type: str
+    list:
+      boto3_name: list_evaluation_jobs
+      response_attr: jobSummaries
+    stop:
+      boto3_name: stop_evaluation_job
+      response_attr: None
+      args:
+        jobIdentifier:
+          required: true
+          rename: jobArn
+          source_arg: jobArn
+          python_type: str
+    batch_delete:
+      boto3_name: batch_delete_evaluation_job
+      response_attr: None
+      args:
+        jobIdentifiers:
+          required: true
+          rename: jobArns
+          source_arg: jobArns
+          python_type: builtins.list[str]
+AccountEnforcedGuardrailOutputConfiguration:
+  methods:
+    list:
+      boto3_name: list_enforced_guardrails_configuration
+      response_attr: guardrailsConfig
+    put:
+      boto3_name: put_enforced_guardrail_configuration
+      response_attr: configId
+    delete:
+      boto3_name: delete_enforced_guardrail_configuration
+      response_attr: None
+      args:
+        configId:
+          required: true
+GetModelCustomizationJobResponse:
+  methods:
+    create:
+      boto3_name: create_model_customization_job
+      response_attr: jobArn
+    get:
+      boto3_name: get_model_customization_job
+      response_attr: None
+      args:
+        jobIdentifier:
+          required: true
+          rename: jobArn
+          source_arg: jobArn
+          python_type: str
+    list:
+      boto3_name: list_model_customization_jobs
+      response_attr: modelCustomizationJobSummaries
+    stop:
+      boto3_name: stop_model_customization_job
+      response_attr: None
+      args:
+        jobIdentifier:
+          required: true
+          rename: jobArn
+          source_arg: jobArn
+          python_type: str
+InferenceProfileSummary:
+  methods:
+    create:
+      boto3_name: create_inference_profile
+      response_attr: inferenceProfileArn
+    get:
+      boto3_name: get_inference_profile
+      response_attr: None
+      args:
+        inferenceProfileIdentifier:
+          required: true
+          rename: inferenceProfileArn
+          source_arg: inferenceProfileArn
+          python_type: str
+    list:
+      boto3_name: list_inference_profiles
+      response_attr: inferenceProfileSummaries
+    delete:
+      boto3_name: delete_inference_profile
+      response_attr: None
+      args:
+        inferenceProfileIdentifier:
+          required: true
+          rename: inferenceProfileArn
+          source_arg: inferenceProfileArn
+          python_type: str
+ModelCopyJobSummary:
+  methods:
+    create:
+      boto3_name: create_model_copy_job
+      response_attr: jobArn
+    get:
+      boto3_name: get_model_copy_job
+      response_attr: None
+      args:
+        jobArn:
+          required: true
+    list:
+      boto3_name: list_model_copy_jobs
+      response_attr: modelCopyJobSummaries
+ModelInvocationJobSummary:
+  methods:
+    create:
+      boto3_name: create_model_invocation_job
+      response_attr: jobArn
+    get:
+      boto3_name: get_model_invocation_job
+      response_attr: None
+      args:
+        jobIdentifier:
+          required: true
+          rename: jobArn
+          source_arg: jobArn
+          python_type: str
+    list:
+      boto3_name: list_model_invocation_jobs
+      response_attr: invocationJobSummaries
+    stop:
+      boto3_name: stop_model_invocation_job
+      response_attr: None
+      args:
+        jobIdentifier:
+          required: true
+          rename: jobArn
+          source_arg: jobArn
+          python_type: str
+LoggingConfig:
+  methods:
+    get:
+      boto3_name: get_model_invocation_logging_configuration
+      response_attr: loggingConfig
+    put:
+      boto3_name: put_model_invocation_logging_configuration
+      response_attr: None
+    delete:
+      boto3_name: delete_model_invocation_logging_configuration
+      response_attr: None
+ResourcePolicy:
+  methods:
+    get:
+      boto3_name: get_resource_policy
+      response_attr: resourcePolicy
+      args:
+        resourceArn:
+          required: true
+    put:
+      boto3_name: put_resource_policy
+      response_attr: resourceArn
+      args:
+        resourcePolicy:
+          required: true
+    delete:
+      boto3_name: delete_resource_policy
+      response_attr: None
+      args:
+        resourceArn:
+          required: true
+MarketplaceModelEndpoint:
+  methods:
+    create:
+      boto3_name: create_marketplace_model_endpoint
+      response_attr: marketplaceModelEndpoint
+    get:
+      boto3_name: get_marketplace_model_endpoint
+      response_attr: marketplaceModelEndpoint
+      args:
+        endpointArn:
+          required: true
+    list:
+      boto3_name: list_marketplace_model_endpoints
+      response_attr: marketplaceModelEndpoints
+    update:
+      boto3_name: update_marketplace_model_endpoint
+      response_attr: marketplaceModelEndpoint
+      args:
+        endpointArn:
+          required: true
+          attribute: endpointArn
+    delete:
+      boto3_name: delete_marketplace_model_endpoint
+      response_attr: None
+      args:
+        endpointArn:
+          required: true
+    register:
+      boto3_name: register_marketplace_model_endpoint
+      response_attr: marketplaceModelEndpoint
+      args:
+        endpointIdentifier:
+          required: true
+          rename: endpointArn
+          source_arg: endpointArn
+          python_type: str
+        modelSourceIdentifier:
+          required: true
+    deregister:
+      boto3_name: deregister_marketplace_model_endpoint
+      response_attr: None
+      args:
+        endpointIdentifier:
+          required: true
+          rename: endpointArn
+          source_arg: endpointArn
+          python_type: str
+ProvisionedModelSummary:
+  methods:
+    create:
+      boto3_name: create_provisioned_model_throughput
+      response_attr: provisionedModelArn
+    get:
+      boto3_name: get_provisioned_model_throughput
+      response_attr: None
+      args:
+        provisionedModelId:
+          required: true
+          rename: provisionedModelArn
+          source_arg: provisionedModelArn
+          python_type: str
+    list:
+      boto3_name: list_provisioned_model_throughputs
+      response_attr: provisionedModelSummaries
+    update:
+      boto3_name: update_provisioned_model_throughput
+      response_attr: None
+      args:
+        provisionedModelId:
+          required: true
+          rename: provisionedModelArn
+          attribute: provisionedModelArn
+          python_type: str
+    delete:
+      boto3_name: delete_provisioned_model_throughput
+      response_attr: None
+      args:
+        provisionedModelId:
+          required: true
+          rename: provisionedModelArn
+          source_arg: provisionedModelArn
+          python_type: str
