@@ -183,20 +183,25 @@ model.
         ]
     )
 
-    if response.stream is None:
-        raise LookupError("No stream payload returned.")
+    for event in response:
+        if event.messageStart is not None:
+            print(event.messageStart.role)
 
-    if response.stream.messageStart is not None:
-        print(response.stream.messageStart.role)
+        if (
+            event.contentBlockDelta is not None
+            and event.contentBlockDelta.delta.text is not None
+        ):
+            print(event.contentBlockDelta.delta.text)
 
-    if (
-        response.stream.contentBlockDelta is not None
-        and response.stream.contentBlockDelta.delta.text is not None
-    ):
-        print(response.stream.contentBlockDelta.delta.text)
+        if event.messageStop is not None:
+            print(event.messageStop.stopReason)
 
-    if response.stream.messageStop is not None:
-        print(response.stream.messageStop.stopReason)
+    response.close()
+
+.. note::
+
+   ``converse_stream`` exposes true Bedrock streaming semantics. Iterate
+   over the response (or ``response.stream``) to consume events as they arrive.
 
 Token Counting
 --------------
@@ -298,13 +303,21 @@ for provider-specific raw requests that return a streaming response body.
         accept="application/json",
     )
 
-    if response.body.chunk is not None:
-        print(response.body.chunk.data.decode("utf-8"))
+    for event in response:
+        if event.chunk is not None:
+            print(event.chunk.data.decode("utf-8"))
 
-    if response.body.modelStreamErrorException is not None:
-        raise RuntimeError(
-            response.body.modelStreamErrorException.message or "Stream error"
-        )
+        if event.modelStreamErrorException is not None:
+            raise RuntimeError(
+                event.modelStreamErrorException.message or "Stream error"
+            )
+
+    response.close()
+
+.. note::
+
+   ``invoke_model_with_response_stream`` yields typed raw Bedrock stream events.
+   ``event.chunk.data`` remains provider-specific response bytes.
 
 Async Invocation Helpers
 ------------------------

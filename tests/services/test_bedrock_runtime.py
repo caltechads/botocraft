@@ -10,6 +10,7 @@ from botocraft.services.bedrock_runtime import (
     AsyncInvokeSummary,
     Conversation,
     ConversationManager,
+    ConverseStreamOutput,
     ConverseStreamResponse,
     Document,
     GetAsyncInvokeResponse,
@@ -19,11 +20,24 @@ from botocraft.services.bedrock_runtime import (
     InvokeModelWithResponseStreamResponse,
     JsonSchemaDefinition,
     ListAsyncInvokesResponse,
+    ResponseStream,
     StartAsyncInvokeResponse,
     TokenCount,
     ToolInputSchema,
     ToolResultContentBlock,
 )
+
+
+class FakeEventStream:
+    def __init__(self, events):
+        self.events = list(events)
+        self.closed = False
+
+    def __iter__(self):
+        return iter(self.events)
+
+    def close(self):
+        self.closed = True
 
 
 class TestConversationManager:
@@ -93,9 +107,19 @@ class TestConversationManager:
     @patch("boto3.client")
     def test_converse_stream(self, mock_boto3_client):
         mock_client = MagicMock()
-        mock_client.converse_stream.return_value = {
-            "stream": {"messageStart": {"role": "assistant"}}
-        }
+        raw_stream = FakeEventStream(
+            [
+                {"messageStart": {"role": "assistant"}},
+                {
+                    "contentBlockDelta": {
+                        "contentBlockIndex": 0,
+                        "delta": {"text": "hello"},
+                    }
+                },
+                {"messageStop": {"stopReason": "end_turn"}},
+            ]
+        )
+        mock_client.converse_stream.return_value = {"stream": raw_stream}
         mock_boto3_client.return_value = mock_client
 
         manager = ConversationManager()
@@ -109,7 +133,17 @@ class TestConversationManager:
             messages=[{"role": "user", "content": [{"text": "hello"}]}],
         )
         assert isinstance(response, ConverseStreamResponse)
-        assert response.stream.messageStart.role == "assistant"
+        assert response.stream is not None
+        stream_events = list(response.stream)
+        response_events = list(response)
+        assert all(isinstance(event, ConverseStreamOutput) for event in response_events)
+        assert response_events == stream_events
+        assert response_events[0].messageStart.role == "assistant"
+        assert response_events[1].contentBlockDelta.delta.text == "hello"
+        assert response_events[2].messageStop.stopReason == "end_turn"
+
+        response.close()
+        assert raw_stream.closed is True
 
     @patch("boto3.client")
     def test_invoke_model(self, mock_boto3_client):
@@ -138,8 +172,14 @@ class TestConversationManager:
     @patch("boto3.client")
     def test_invoke_model_with_response_stream(self, mock_boto3_client):
         mock_client = MagicMock()
+        raw_stream = FakeEventStream(
+            [
+                {"chunk": {"bytes": b"chunk-1"}},
+                {"chunk": {"bytes": b"chunk-2"}},
+            ]
+        )
         mock_client.invoke_model_with_response_stream.return_value = {
-            "body": {"chunk": {"bytes": b"chunk-1"}},
+            "body": raw_stream,
             "contentType": "application/json",
         }
         mock_boto3_client.return_value = mock_client
@@ -157,7 +197,38 @@ class TestConversationManager:
             contentType="application/json",
         )
         assert isinstance(response, InvokeModelWithResponseStreamResponse)
-        assert response.body.chunk.data == b"chunk-1"
+        assert response.body is not None
+        stream_events = list(response.body)
+        response_events = list(response)
+        assert all(isinstance(event, ResponseStream) for event in response_events)
+        assert response_events == stream_events
+        assert [event.chunk.data for event in response_events] == [b"chunk-1", b"chunk-2"]
+
+        response.close()
+        assert raw_stream.closed is True
+
+    def test_converse_stream_response_accepts_single_event_dict(self):
+        response = ConverseStreamResponse.model_validate(
+            {"stream": {"messageStart": {"role": "assistant"}}}
+        )
+
+        assert response.stream is not None
+        events = list(response)
+        assert len(events) == 1
+        assert events[0].messageStart.role == "assistant"
+
+    def test_invoke_model_with_response_stream_response_accepts_single_event_dict(self):
+        response = InvokeModelWithResponseStreamResponse.model_validate(
+            {
+                "body": {"chunk": {"bytes": b"chunk-1"}},
+                "contentType": "application/json",
+            }
+        )
+
+        assert response.body is not None
+        events = list(response)
+        assert len(events) == 1
+        assert events[0].chunk.data == b"chunk-1"
 
     @patch("boto3.client")
     def test_start_async_invoke(self, mock_boto3_client):
@@ -391,6 +462,44 @@ class TestBedrockRuntimeMixins:
         }
         assert result is response
 
+    def test_foundation_model_converse_stream_preserves_iterable_response(self):
+        model = FoundationModel.model_construct(modelId="model-1", session=None)
+        response = ConverseStreamResponse.model_validate(
+            {
+                "stream": [
+                    {"messageStart": {"role": "assistant"}},
+                    {
+                        "contentBlockDelta": {
+                            "contentBlockIndex": 0,
+                            "delta": {"text": "hello"},
+                        }
+                    },
+                ]
+            }
+        )
+        with (
+            patch.object(
+                ConversationManager,
+                "using",
+                autospec=True,
+                side_effect=lambda self, _session: self,
+            ),
+            patch.object(
+                ConversationManager,
+                "converse_stream",
+                autospec=True,
+                return_value=response,
+            ),
+        ):
+            result = model.converse_stream(
+                messages=[{"role": "user", "content": [{"text": "hello"}]}]
+            )
+
+        assert result is response
+        assert [event.contentBlockDelta.delta.text for event in result if event.contentBlockDelta] == [
+            "hello"
+        ]
+
     def test_foundation_model_invoke_model(self):
         model = FoundationModel.model_construct(modelId="model-1", session=None)
         response = InvokeModelResponse.model_construct(
@@ -429,6 +538,44 @@ class TestBedrockRuntimeMixins:
             "serviceTier": None,
         }
         assert result is response
+
+    def test_foundation_model_invoke_model_with_response_stream_preserves_iterable_response(
+        self,
+    ):
+        model = FoundationModel.model_construct(modelId="model-1", session=None)
+        response = InvokeModelWithResponseStreamResponse.model_validate(
+            {
+                "body": [
+                    {"chunk": {"bytes": b"chunk-1"}},
+                    {"chunk": {"bytes": b"chunk-2"}},
+                ],
+                "contentType": "application/json",
+            }
+        )
+        with (
+            patch.object(
+                ConversationManager,
+                "using",
+                autospec=True,
+                side_effect=lambda self, _session: self,
+            ),
+            patch.object(
+                ConversationManager,
+                "invoke_model_with_response_stream",
+                autospec=True,
+                return_value=response,
+            ),
+        ):
+            result = model.invoke_model_with_response_stream(
+                body=b'{"prompt":"hello"}',
+                contentType="application/json",
+            )
+
+        assert result is response
+        assert [event.chunk.data for event in result if event.chunk] == [
+            b"chunk-1",
+            b"chunk-2",
+        ]
 
     def test_foundation_model_get_async_invoke_requires_model_arn(self):
         model = FoundationModel.model_construct(modelId="model-1", session=None)

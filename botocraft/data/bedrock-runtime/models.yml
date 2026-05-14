@@ -11,8 +11,32 @@ primary:
 secondary:
   CountTokensResponse:
     alternate_name: TokenCount
+  ConverseStreamOutput:
+    force_create: true
+  ConverseStreamResponse:
+    imports:
+      - from botocraft.mixins.bedrock_runtime import ConverseStreamResponseMixin
+      - from botocraft.mixins.bedrock_runtime import ConverseStream
+    mixins:
+      - name: ConverseStreamResponseMixin
+        import_path: botocraft.mixins.bedrock_runtime
+    fields:
+      stream:
+        python_type: '"ConverseStream | None"'
+  InvokeModelWithResponseStreamResponse:
+    imports:
+      - from botocraft.mixins.bedrock_runtime import InvokeModelWithResponseStreamResponseMixin
+      - from botocraft.mixins.bedrock_runtime import InvokeModelResponseStream
+    mixins:
+      - name: InvokeModelWithResponseStreamResponseMixin
+        import_path: botocraft.mixins.bedrock_runtime
+    fields:
+      body:
+        python_type: '"InvokeModelResponseStream"'
   Message:
     alternate_name: BedrockMessage
+  ResponseStream:
+    force_create: true
   ToolResultBlockDelta:
     fields:
       json:

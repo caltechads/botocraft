@@ -1,18 +1,34 @@
 # ruff: noqa: N803, PLR0913
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Literal, cast
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    Generic,
+    Iterable,
+    Iterator,
+    Literal,
+    TypeVar,
+    cast,
+)
+
+from pydantic_core import core_schema
 
 if TYPE_CHECKING:
     from datetime import datetime
 
     from boto3.session import Session
+    from botocore.eventstream import EventStream
+    from pydantic import GetCoreSchemaHandler
+    from pydantic_core import CoreSchema
+
     from botocraft.services.bedrock import Guardrail
     from botocraft.services.bedrock_runtime import (
         AsyncInvokeOutputDataConfig,
         BedrockMessage,
         Conversation,
         ConversationManager,
+        ConverseStreamOutput,
         ConverseStreamResponse,
         CountTokensInput,
         Document,
@@ -30,12 +46,16 @@ if TYPE_CHECKING:
         OutputConfig,
         PerformanceConfiguration,
         PromptVariableValues,
+        ResponseStream,
         ServiceTier,
         StartAsyncInvokeResponse,
         SystemContentBlock,
         TokenCount,
         ToolConfiguration,
     )
+
+#: Generic typed event yielded by Bedrock stream adapters.
+TEvent = TypeVar("TEvent")
 
 
 def _guardrail_identifier_and_version(
@@ -66,6 +86,263 @@ def _guardrail_identifier_and_version(
         msg = "guardrailVersion is required when guardrail has no version."
         raise ValueError(msg)
     return guardrail_identifier, guardrail_version
+
+
+class BedrockEventStream(Generic[TEvent]):
+    """
+    Lazy adapter around boto3 Bedrock Runtime event streams.
+
+    Args:
+        source: Raw boto3 event stream, generic iterable of raw Bedrock event
+            dictionaries, single raw event dictionary, or existing typed event.
+
+    """
+
+    #: Raw stream source yielded by boto3 or tests.
+    _source: EventStream | Iterable[Any] | dict[str, Any] | TEvent | None = None
+
+    def __init__(
+        self,
+        source: EventStream | Iterable[Any] | dict[str, Any] | TEvent,
+    ) -> None:
+        """
+        Store raw Bedrock stream source for lazy iteration.
+
+        Args:
+            source: Raw stream source yielded by boto3 or tests.
+
+        """
+        #: Raw stream source yielded by boto3 or tests.
+        self._source = source
+
+    @classmethod
+    def __get_pydantic_core_schema__(
+        cls,
+        _source_type: Any,
+        _handler: GetCoreSchemaHandler,
+    ) -> CoreSchema:
+        """
+        Build pydantic schema that coerces raw Bedrock streams into wrappers.
+
+        Args:
+            _source_type: Source type pydantic is building a schema for.
+            _handler: Pydantic schema handler for nested schemas.
+
+        Returns:
+            Pydantic core schema for this wrapper type.
+
+        """
+        return core_schema.no_info_plain_validator_function(cls._validate)
+
+    @classmethod
+    def _validate(cls, value: Any) -> BedrockEventStream[Any]:
+        """
+        Coerce pydantic field input into stream wrapper instance.
+
+        Args:
+            value: Raw value assigned to stream wrapper field.
+
+        Returns:
+            Stream wrapper instance.
+
+        """
+        if isinstance(value, cls):
+            return value
+        return cls(value)
+
+    @classmethod
+    def _event_model_type(cls) -> type[TEvent]:
+        """
+        Return concrete typed event model for this Bedrock stream wrapper.
+
+        Raises:
+            NotImplementedError: Subclass does not provide event model type.
+
+        Returns:
+            Event model class.
+
+        """
+        msg = f"{cls.__name__} must define _event_model_type()."
+        raise NotImplementedError(msg)
+
+    def _iter_source(self) -> Iterator[Any]:
+        """
+        Normalize raw stream source into iterator of raw Bedrock events.
+
+        Returns:
+            Iterator of raw event payloads.
+
+        """
+        from botocraft.services.abstract import Boto3Model
+
+        if isinstance(self._source, dict | Boto3Model):
+            yield self._source
+            return
+        yield from cast("Iterable[Any]", self._source)
+
+    def _coerce_event(self, event: Any) -> TEvent:
+        """
+        Convert raw Bedrock event payload into typed event model.
+
+        Args:
+            event: Raw Bedrock event payload.
+
+        Returns:
+            Typed event model.
+
+        """
+        event_model = self._event_model_type()
+        if isinstance(event, event_model):
+            return event
+        if isinstance(event, dict):
+            return event_model(**event)
+        msg = (
+            f"{self.__class__.__name__} expected dict or {event_model.__name__} "
+            f"event, got {type(event).__name__}."
+        )
+        raise TypeError(msg)
+
+    def __iter__(self) -> Iterator[TEvent]:
+        """
+        Yield typed Bedrock stream events lazily.
+
+        Yields:
+            Typed Bedrock Runtime event objects.
+
+        """
+        for event in self._iter_source():
+            yield self._coerce_event(event)
+
+    def close(self) -> None:
+        """
+        Close underlying raw Bedrock stream when supported.
+
+        Side Effects:
+            Closes underlying boto3 event stream body when it exposes
+            ``close()``.
+
+        """
+        close = getattr(self._source, "close", None)
+        if callable(close):
+            close()
+
+
+class ConverseStream(BedrockEventStream["ConverseStreamOutput"]):
+    """
+    Typed iterator for ``converse_stream`` events.
+
+    Args:
+        source: Raw Bedrock Converse event stream source.
+
+    """
+
+    @classmethod
+    def _event_model_type(cls) -> type[ConverseStreamOutput]:
+        """
+        Return typed event model for converse streaming.
+
+        Returns:
+            ``ConverseStreamOutput`` model class.
+
+        """
+        from botocraft.services.bedrock_runtime import ConverseStreamOutput
+
+        return ConverseStreamOutput
+
+
+class InvokeModelResponseStream(BedrockEventStream["ResponseStream"]):
+    """
+    Typed iterator for ``invoke_model_with_response_stream`` events.
+
+    Args:
+        source: Raw Bedrock invoke response stream source.
+
+    """
+
+    @classmethod
+    def _event_model_type(cls) -> type[ResponseStream]:
+        """
+        Return typed event model for raw invoke streaming.
+
+        Returns:
+            ``ResponseStream`` model class.
+
+        """
+        from botocraft.services.bedrock_runtime import ResponseStream
+
+        return ResponseStream
+
+
+class ConverseStreamResponseMixin:
+    """
+    Iterable helpers for Bedrock Converse streaming responses.
+
+    Args:
+        No constructor arguments. This mixin expects ``stream`` attribute on
+        response model.
+
+    """
+
+    def __iter__(self) -> Iterator[ConverseStreamOutput]:
+        """
+        Iterate typed Bedrock Converse events from response wrapper.
+
+        Yields:
+            Typed converse stream events.
+
+        """
+        stream = getattr(self, "stream", None)
+        if stream is None:
+            return
+        yield from stream
+
+    def close(self) -> None:
+        """
+        Close underlying Bedrock Converse stream if present.
+
+        Side Effects:
+            Closes underlying boto3 event stream when response contains one.
+
+        """
+        stream = getattr(self, "stream", None)
+        if stream is not None:
+            stream.close()
+
+
+class InvokeModelWithResponseStreamResponseMixin:
+    """
+    Iterable helpers for raw Bedrock invoke streaming responses.
+
+    Args:
+        No constructor arguments. This mixin expects ``body`` attribute on
+        response model.
+
+    """
+
+    def __iter__(self) -> Iterator[ResponseStream]:
+        """
+        Iterate typed raw invoke stream events from response wrapper.
+
+        Yields:
+            Typed raw invoke stream events.
+
+        """
+        body = getattr(self, "body", None)
+        if body is None:
+            return
+        yield from body
+
+    def close(self) -> None:
+        """
+        Close underlying raw invoke stream if present.
+
+        Side Effects:
+            Closes underlying boto3 event stream when response contains one.
+
+        """
+        body = getattr(self, "body", None)
+        if body is not None:
+            body.close()
 
 
 class ConversationManagerMixin:
@@ -262,7 +539,7 @@ class FoundationModelRuntimeMixin:
             ValueError: Guardrail object has no version.
 
         Returns:
-            Streaming conversation response.
+            Iterable streaming conversation response.
 
         """
         from botocraft.services.bedrock_runtime import ConversationManager
@@ -403,7 +680,7 @@ class FoundationModelRuntimeMixin:
             serviceTier: Optional Bedrock service tier.
 
         Returns:
-            Streaming model invocation response.
+            Iterable streaming model invocation response.
 
         """
         from botocraft.services.bedrock_runtime import ConversationManager
