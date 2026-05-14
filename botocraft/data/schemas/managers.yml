@@ -1,0 +1,145 @@
+---
+RegistrySummary:
+  methods:
+    create:
+      boto3_name: create_registry
+      response_attr: None
+      decorators:
+        - name: registry_response_to_registry
+          import_path: botocraft.mixins.schemas
+    update:
+      boto3_name: update_registry
+      response_attr: None
+      decorators:
+        - name: registry_response_to_registry
+          import_path: botocraft.mixins.schemas
+    delete:
+      boto3_name: delete_registry
+      return_type: None
+      args:
+        RegistryName:
+          required: true
+    get:
+      boto3_name: describe_registry
+      response_attr: None
+      return_type: >-
+        "DescribeRegistryResponse | None"
+      decorators:
+        - name: registry_response_to_registry
+          import_path: botocraft.mixins.schemas
+      args:
+        RegistryName:
+          required: true
+    list:
+      boto3_name: list_registries
+      response_attr: Registries
+DiscovererSummary:
+  methods:
+    create:
+      boto3_name: create_discoverer
+      response_attr: None
+      decorators:
+        - name: discoverer_response_to_discoverer
+          import_path: botocraft.mixins.schemas
+    update:
+      boto3_name: update_discoverer
+      response_attr: None
+      decorators:
+        - name: discoverer_response_to_discoverer
+          import_path: botocraft.mixins.schemas
+    delete:
+      boto3_name: delete_discoverer
+      return_type: None
+      args:
+        DiscovererId:
+          required: true
+    get:
+      boto3_name: describe_discoverer
+      response_attr: None
+      return_type: >-
+        "DescribeDiscovererResponse | None"
+      decorators:
+        - name: discoverer_response_to_discoverer
+          import_path: botocraft.mixins.schemas
+      args:
+        DiscovererId:
+          required: true
+    list:
+      boto3_name: list_discoverers
+      response_attr: Discoverers
+    start:
+      boto3_name: start_discoverer
+      response_attr: None
+      args:
+        DiscovererId:
+          required: true
+    stop:
+      boto3_name: stop_discoverer
+      response_attr: None
+      args:
+        DiscovererId:
+          required: true
+SchemaSummary:
+  methods:
+    create:
+      boto3_name: create_schema
+      response_attr: None
+      decorators:
+        - name: schema_response_to_schema
+          import_path: botocraft.mixins.schemas
+    update:
+      boto3_name: update_schema
+      response_attr: None
+      decorators:
+        - name: schema_response_to_schema
+          import_path: botocraft.mixins.schemas
+    delete:
+      boto3_name: delete_schema
+      return_type: None
+      args:
+        RegistryName:
+          required: true
+        SchemaName:
+          required: true
+    get:
+      boto3_name: describe_schema
+      response_attr: None
+      return_type: >-
+        "DescribeSchemaResponse | None"
+      decorators:
+        - name: schema_response_to_schema
+          import_path: botocraft.mixins.schemas
+      args:
+        RegistryName:
+          required: true
+        SchemaName:
+          required: true
+    list:
+      boto3_name: list_schemas
+      response_attr: Schemas
+      decorators:
+        - name: schema_list_add_registry_name
+          import_path: botocraft.mixins.schemas
+      args:
+        RegistryName:
+          required: true
+    list_versions:
+      boto3_name: list_schema_versions
+      response_attr: SchemaVersions
+      args:
+        RegistryName:
+          required: true
+        SchemaName:
+          required: true
+    export:
+      boto3_name: export_schema
+      response_attr: None
+      return_type: >-
+        "ExportSchemaResponse | None"
+      args:
+        RegistryName:
+          required: true
+        SchemaName:
+          required: true
+        Type:
+          required: true

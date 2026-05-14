@@ -1,0 +1,69 @@
+---
+primary:
+  RegistrySummary:
+    alternate_name: Registry
+    primary_key: RegistryName
+    name_key: RegistryName
+    arn_key: RegistryArn
+    input_shapes:
+      - CreateRegistryRequest
+      - UpdateRegistryRequest
+    output_shape: DescribeRegistryResponse
+  DiscovererSummary:
+    alternate_name: Discoverer
+    primary_key: DiscovererId
+    arn_key: DiscovererArn
+    input_shapes:
+      - CreateDiscovererRequest
+      - UpdateDiscovererRequest
+    output_shape: DescribeDiscovererResponse
+  SchemaSummary:
+    alternate_name: Schema
+    primary_key: SchemaArn
+    name_key: SchemaName
+    arn_key: SchemaArn
+    input_shapes:
+      - CreateSchemaRequest
+      - UpdateSchemaRequest
+    output_shape: DescribeSchemaResponse
+    extra_fields:
+      RegistryName:
+        python_type: str
+        docstring: >-
+          The registry that owns this schema.
+    manager_methods:
+      versions:
+        manager_method: list_versions
+        docstring: >-
+          Return the versions that belong to this schema.
+        args:
+          0:
+            name: RegistryName
+            value: >-
+              cast(str, self.RegistryName)
+          1:
+            name: SchemaName
+            value: >-
+              cast(str, self.SchemaName)
+      export:
+        manager_method: export
+        docstring: >-
+          Export this schema in the requested format.
+        args:
+          0:
+            name: RegistryName
+            value: >-
+              cast(str, self.RegistryName)
+          1:
+            name: SchemaName
+            value: >-
+              cast(str, self.SchemaName)
+          2:
+            name: Type
+            value: >-
+              "OpenApi3"
+        user_keyword_args:
+          - name: SchemaVersion
+            attr_type: str | None
+            default: >-
+              None
