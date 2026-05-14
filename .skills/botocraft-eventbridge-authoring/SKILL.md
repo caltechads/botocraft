@@ -35,19 +35,22 @@ Default behavior:
 - schema prefix defaults to `aws.<service>`
 - raw modules land in `botocraft/eventbridge/raw/<service>/`
 
-If default registry returns no schemas, fail clearly and retry with explicit
-`--registry-name`.
+If the queried AWS Schema Registry returns no schemas for the requested service,
+stop and tell the user there are no schemas in the registry. Do not continue to
+manual schema authoring or wrapper work inside this skill.
 
 ## Workflow
 
 1. Export raw schemas with CLI.
-2. Inspect generated raw models in `botocraft/eventbridge/raw/<service>/`.
-3. Author or update `botocraft/eventbridge/<service>.py` wrapper classes.
-4. Expose one mapping constant in wrapper module for factory consumption.
-5. Update `botocraft/eventbridge/factory.py` only through declarative mapping
+2. If no schemas are returned, stop and report that the AWS Schema Registry has
+   no schemas for the requested service.
+3. Inspect generated raw models in `botocraft/eventbridge/raw/<service>/`.
+4. Author or update `botocraft/eventbridge/<service>.py` wrapper classes.
+5. Expose one mapping constant in wrapper module for factory consumption.
+6. Update `botocraft/eventbridge/factory.py` only through declarative mapping
    composition, not nested `if` chains.
-6. Update docs or runbook references for newly supported event types.
-7. Extend event registration or caller paths that consume new wrapper types.
+7. Update docs or runbook references for newly supported event types.
+8. Extend event registration or caller paths that consume new wrapper types.
 
 ## Wrapper authoring rules
 
