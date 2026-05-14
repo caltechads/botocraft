@@ -39,6 +39,18 @@ Specifically:
 4. Architecture and code correctness take priority over avoiding documentation
    churn.
 
+## Generated Service Boundaries (Required)
+
+When debugging or implementing service behavior in this repository:
+
+1. Do not edit anything under `botocraft.services`. That code is generated and
+   will be overwritten.
+2. Make service-behavior changes in handwritten code under `botocraft.mixins`
+   and service configuration under `botocraft/data`, then regenerate services.
+3. If you believe `botocraft.sync` must change, stop and explain the proposed
+   change to the user before editing it. Do not proceed without explicit user
+   approval.
+
 ## Human-Comprehensible Architecture Preference (Required)
 
 For most non-trivial behavior in this repository, prefer implementing cohesive,
