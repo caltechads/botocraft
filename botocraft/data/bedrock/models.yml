@@ -50,6 +50,14 @@ primary:
         default: None
         docstring: >-
           Owning AWS account ID when available from list responses.
+    relations:
+      base_model:
+        primary_model_name: FoundationModel
+        docstring: >-
+          Return the foundation model that this custom model was derived from, if any.
+        transformer:
+          mapping:
+            modelId: baseModelArn
   ImportedModelSummary:
     alternate_name: ImportedModel
     primary_key: modelArn
@@ -72,6 +80,14 @@ primary:
       blockedOutputsMessaging:
         required: false
         default: None
+    relations:
+      kms_key:
+        primary_model_name: KMSKey
+        docstring: >-
+          Return the KMS key that encrypts this guardrail, if any.
+        transformer:
+          mapping:
+            KeyId: kmsKeyArn
     manager_methods:
       create_version:
         docstring: >-
@@ -92,9 +108,29 @@ primary:
     primary_key: policyArn
     arn_key: policyArn
     name_key: policyName
+    mixins:
+      - name: AutomatedReasoningPolicyModelMixin
+        import_path: botocraft.mixins.bedrock
     fields:
       name:
         rename: policyName
+    relations:
+      build_workflows:
+        primary_model_name: AutomatedReasoningPolicyBuildWorkflow
+        many: true
+        docstring: >-
+          Return the automated reasoning build workflows for this policy.
+        transformer:
+          mapping:
+            policyArn: policyArn
+      test_cases:
+        primary_model_name: AutomatedReasoningPolicyTestCase
+        many: true
+        docstring: >-
+          Return the automated reasoning test cases for this policy.
+        transformer:
+          mapping:
+            policyArn: policyArn
     manager_methods:
       create_version:
         docstring: >-
@@ -144,6 +180,14 @@ primary:
     alternate_name: AutomatedReasoningPolicyBuildWorkflow
     primary_key: buildWorkflowId
     name_key: buildWorkflowId
+    relations:
+      policy:
+        primary_model_name: AutomatedReasoningPolicy
+        docstring: >-
+          Return the automated reasoning policy that owns this build workflow, if any.
+        transformer:
+          mapping:
+            policyArn: policyArn
   AutomatedReasoningPolicyTestCase:
     primary_key: testCaseId
     name_key: testCaseId
@@ -163,6 +207,22 @@ primary:
     readonly: true
     primary_key: buildWorkflowId
     name_key: buildWorkflowId
+    relations:
+      policy:
+        primary_model_name: AutomatedReasoningPolicy
+        docstring: >-
+          Return the automated reasoning policy that owns these build workflow assets, if any.
+        transformer:
+          mapping:
+            policyArn: policyArn
+      build_workflow:
+        primary_model_name: AutomatedReasoningPolicyBuildWorkflow
+        docstring: >-
+          Return the automated reasoning build workflow that produced these assets, if any.
+        transformer:
+          mapping:
+            policyArn: policyArn
+            buildWorkflowId: buildWorkflowId
   GetAutomatedReasoningPolicyAnnotationsResponse:
     alternate_name: AutomatedReasoningPolicyAnnotations
     primary_key: buildWorkflowId
@@ -170,11 +230,38 @@ primary:
     fields:
       name:
         rename: policyName
+    relations:
+      policy:
+        primary_model_name: AutomatedReasoningPolicy
+        docstring: >-
+          Return the automated reasoning policy that these annotations belong to, if any.
+        transformer:
+          mapping:
+            policyArn: policyArn
+      build_workflow:
+        primary_model_name: AutomatedReasoningPolicyBuildWorkflow
+        docstring: >-
+          Return the automated reasoning build workflow that these annotations belong to, if any.
+        transformer:
+          mapping:
+            policyArn: policyArn
+            buildWorkflowId: buildWorkflowId
   PromptRouterSummary:
     alternate_name: PromptRouter
     primary_key: promptRouterArn
     arn_key: promptRouterArn
     name_key: promptRouterName
+    mixins:
+      - name: PromptRouterModelMixin
+        import_path: botocraft.mixins.bedrock
+    relations:
+      fallback_model:
+        primary_model_name: FoundationModel
+        docstring: >-
+          Return the fallback foundation model for this prompt router, if any.
+        transformer:
+          mapping:
+            modelId: fallbackModel.modelArn
   GetEvaluationJobResponse:
     alternate_name: EvaluationJob
     primary_key: jobArn
@@ -196,15 +283,36 @@ primary:
         python_type: Any | None
         required: false
         default: None
+    relations:
+      role:
+        primary_model_name: IAMRole
+        docstring: >-
+          Return the IAM role used by this evaluation job, if any.
+        transformer:
+          regex:
+            attribute: roleArn
+            regex: >-
+              ^arn:aws[a-zA-Z-]*:iam::\d+:role/(?P<RoleName>.+)$
   AccountEnforcedGuardrailOutputConfiguration:
     alternate_name: EnforcedGuardrailsConfiguration
     primary_key: configId
     name_key: configId
+    relations:
+      guardrail:
+        primary_model_name: Guardrail
+        docstring: >-
+          Return the enforced guardrail, if any.
+        transformer:
+          mapping:
+            guardrailId: guardrailId
   InferenceProfileSummary:
     alternate_name: InferenceProfile
     primary_key: inferenceProfileArn
     arn_key: inferenceProfileArn
     name_key: inferenceProfileName
+    mixins:
+      - name: InferenceProfileModelMixin
+        import_path: botocraft.mixins.bedrock
   GetModelCustomizationJobResponse:
     alternate_name: ModelCustomizationJob
     primary_key: jobArn
@@ -226,6 +334,53 @@ primary:
       outputDataConfig:
         required: false
         default: None
+    relations:
+      role:
+        primary_model_name: IAMRole
+        docstring: >-
+          Return the IAM role used by this customization job, if any.
+        transformer:
+          regex:
+            attribute: roleArn
+            regex: >-
+              ^arn:aws[a-zA-Z-]*:iam::\d+:role/(?P<RoleName>.+)$
+      base_model:
+        primary_model_name: FoundationModel
+        docstring: >-
+          Return the foundation model used for this customization job.
+        transformer:
+          mapping:
+            modelId: baseModelArn
+      output_model:
+        primary_model_name: CustomModel
+        docstring: >-
+          Return the output custom model produced by this customization job, if any.
+        transformer:
+          mapping:
+            modelArn: outputModelArn
+      output_model_kms_key:
+        primary_model_name: KMSKey
+        docstring: >-
+          Return the KMS key that encrypts the output model, if any.
+        transformer:
+          mapping:
+            KeyId: outputModelKmsKeyArn
+      subnets:
+        primary_model_name: Subnet
+        many: true
+        docstring: >-
+          Return the subnets configured for this customization job, if any.
+        transformer:
+          mapping:
+            SubnetIds: vpcConfig.subnetIds
+      security_groups:
+        primary_model_name: SecurityGroup
+        many: true
+        docstring: >-
+          Return the security groups configured for this customization job, if any.
+        transformer:
+          mapping:
+            GroupIds: vpcConfig.securityGroupIds
   ModelCopyJobSummary:
     alternate_name: ModelCopyJob
     primary_key: jobArn
@@ -236,11 +391,47 @@ primary:
     primary_key: jobArn
     arn_key: jobArn
     name_key: jobName
+    relations:
+      role:
+        primary_model_name: IAMRole
+        docstring: >-
+          Return the IAM role used by this invocation job.
+        transformer:
+          regex:
+            attribute: roleArn
+            regex: >-
+              ^arn:aws[a-zA-Z-]*:iam::\d+:role/(?P<RoleName>.+)$
+      subnets:
+        primary_model_name: Subnet
+        many: true
+        docstring: >-
+          Return the subnets configured for this invocation job, if any.
+        transformer:
+          mapping:
+            SubnetIds: vpcConfig.subnetIds
+      security_groups:
+        primary_model_name: SecurityGroup
+        many: true
+        docstring: >-
+          Return the security groups configured for this invocation job, if any.
+        transformer:
+          mapping:
+            GroupIds: vpcConfig.securityGroupIds
+      foundation_model:
+        primary_model_name: FoundationModel
+        docstring: >-
+          Return the foundation model invoked by this batch job.
+        transformer:
+          mapping:
+            modelId: modelId
   LoggingConfig:
     alternate_name: ModelInvocationLoggingConfiguration
     bespoke: true
     primary_key: singletonId
     name_key: singletonId
+    mixins:
+      - name: ModelInvocationLoggingConfigurationModelMixin
+        import_path: botocraft.mixins.bedrock
     extra_fields:
       singletonId:
         python_type: str

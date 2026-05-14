@@ -168,7 +168,10 @@ class ModelRelationGenerator:
             code = f"""
         if self.{self.property_def.transformer.regex.attribute} is None:
             return None
-        pk = self.transform(value, r"{self.property_def.transformer.regex.regex}")
+        pk = self.transform(
+            "{self.property_def.transformer.regex.attribute}",
+            r"{self.property_def.transformer.regex.regex}",
+        )
         return {self.property_def.primary_model_name}.objects.using(self.session).get(**pk)
 """  # noqa: E501
         return code

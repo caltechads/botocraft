@@ -6,21 +6,52 @@ from unittest.mock import MagicMock, patch
 from botocraft.services.abstract import PrimaryBoto3ModelQuerySet
 from botocraft.services.bedrock import (
     AutomatedReasoningPolicy,
+    AutomatedReasoningPolicyAnnotations,
+    AutomatedReasoningPolicyAnnotationsManager,
+    AutomatedReasoningPolicyBuildWorkflow,
+    AutomatedReasoningPolicyBuildWorkflowManager,
+    AutomatedReasoningPolicyBuildWorkflowResultAssets,
+    AutomatedReasoningPolicyBuildWorkflowResultAssetsManager,
     AutomatedReasoningPolicyDefinition,
     AutomatedReasoningPolicyManager,
+    AutomatedReasoningPolicyNextScenario,
+    AutomatedReasoningPolicyNextScenarioManager,
+    AutomatedReasoningPolicyTestCase,
+    AutomatedReasoningPolicyTestCaseManager,
+    AutomatedReasoningPolicyTestResult,
+    AutomatedReasoningPolicyTestResultManager,
     CustomModel,
     CustomModelManager,
+    EnforcedGuardrailsConfiguration,
+    EvaluationJob,
     FoundationModel,
     FoundationModelAgreementManager,
     FoundationModelManager,
     Guardrail,
     GuardrailManager,
+    InferenceProfile,
+    InferenceProfileModel,
+    ModelCustomizationJob,
+    ModelInvocationJob,
     ModelInvocationLoggingConfiguration,
     ModelInvocationLoggingConfigurationManager,
     Offer,
+    PromptRouter,
+    PromptRouterTargetModel,
     ResourcePolicy,
     ResourcePolicyManager,
+    VpcConfig,
 )
+from botocraft.services.ec2 import (
+    SecurityGroup,
+    SecurityGroupManager,
+    Subnet,
+    SubnetManager,
+)
+from botocraft.services.iam import IAMRole, IAMRoleManager
+from botocraft.services.kms import KMSKey, KMSKeyManager
+from botocraft.services.logs import LogGroup, LogGroupManager
+from botocraft.services.s3 import Bucket, BucketManager
 
 
 class TestFoundationModelManager:
@@ -347,3 +378,1005 @@ class TestModelInvocationLoggingConfigurationManager:
         mock_client.get_model_invocation_logging_configuration.assert_called_once_with()
         assert isinstance(config, ModelInvocationLoggingConfiguration)
         assert config.textDataDeliveryEnabled is True
+
+
+class TestBedrockRelations:
+    def test_custom_model_base_model_relation(self):
+        model = CustomModel.model_construct(
+            modelArn="arn:aws:bedrock:us-west-2:123456789012:custom-model/test",
+            baseModelArn="arn:aws:bedrock:us-west-2::foundation-model/base",
+            session=None,
+        )
+        foundation_model = FoundationModel.model_construct(
+            modelId="base",
+            session=None,
+        )
+
+        with (
+            patch.object(
+                FoundationModelManager,
+                "using",
+                autospec=True,
+                side_effect=lambda self, _session: self,
+            ) as using,
+            patch.object(
+                FoundationModelManager,
+                "get",
+                autospec=True,
+                return_value=foundation_model,
+            ) as get,
+        ):
+            related = model.base_model
+
+        using.assert_called_once()
+        get.assert_called_once()
+        assert get.call_args.kwargs == {
+            "modelId": "arn:aws:bedrock:us-west-2::foundation-model/base",
+        }
+        assert related is foundation_model
+
+    def test_build_workflow_policy_relation(self):
+        workflow = AutomatedReasoningPolicyBuildWorkflow.model_construct(
+            policyArn="policy-arn",
+            buildWorkflowId="workflow-1",
+            session=None,
+        )
+        policy = AutomatedReasoningPolicy.model_construct(
+            policyArn="policy-arn",
+            session=None,
+        )
+
+        with (
+            patch.object(
+                AutomatedReasoningPolicyManager,
+                "using",
+                autospec=True,
+                side_effect=lambda self, _session: self,
+            ) as using,
+            patch.object(
+                AutomatedReasoningPolicyManager,
+                "get",
+                autospec=True,
+                return_value=policy,
+            ) as get,
+        ):
+            related = workflow.policy
+
+        using.assert_called_once()
+        get.assert_called_once()
+        assert get.call_args.kwargs == {"policyArn": "policy-arn"}
+        assert related is policy
+
+    def test_build_workflow_result_assets_policy_relation(self):
+        assets = AutomatedReasoningPolicyBuildWorkflowResultAssets.model_construct(
+            policyArn="policy-arn",
+            buildWorkflowId="workflow-1",
+            session=None,
+        )
+        policy = AutomatedReasoningPolicy.model_construct(
+            policyArn="policy-arn",
+            session=None,
+        )
+
+        with (
+            patch.object(
+                AutomatedReasoningPolicyManager,
+                "using",
+                autospec=True,
+                side_effect=lambda self, _session: self,
+            ) as using,
+            patch.object(
+                AutomatedReasoningPolicyManager,
+                "get",
+                autospec=True,
+                return_value=policy,
+            ) as get,
+        ):
+            related = assets.policy
+
+        using.assert_called_once()
+        get.assert_called_once()
+        assert get.call_args.kwargs == {"policyArn": "policy-arn"}
+        assert related is policy
+
+    def test_build_workflow_result_assets_build_workflow_relation(self):
+        assets = AutomatedReasoningPolicyBuildWorkflowResultAssets.model_construct(
+            policyArn="policy-arn",
+            buildWorkflowId="workflow-1",
+            session=None,
+        )
+        workflow = AutomatedReasoningPolicyBuildWorkflow.model_construct(
+            policyArn="policy-arn",
+            buildWorkflowId="workflow-1",
+            session=None,
+        )
+
+        with (
+            patch.object(
+                AutomatedReasoningPolicyBuildWorkflowManager,
+                "using",
+                autospec=True,
+                side_effect=lambda self, _session: self,
+            ) as using,
+            patch.object(
+                AutomatedReasoningPolicyBuildWorkflowManager,
+                "get",
+                autospec=True,
+                return_value=workflow,
+            ) as get,
+        ):
+            related = assets.build_workflow
+
+        using.assert_called_once()
+        get.assert_called_once()
+        assert get.call_args.kwargs == {
+            "policyArn": "policy-arn",
+            "buildWorkflowId": "workflow-1",
+        }
+        assert related is workflow
+
+    def test_annotations_policy_relation(self):
+        annotations = AutomatedReasoningPolicyAnnotations.model_construct(
+            policyArn="policy-arn",
+            buildWorkflowId="workflow-1",
+            policyName="test-policy",
+            session=None,
+        )
+        policy = AutomatedReasoningPolicy.model_construct(
+            policyArn="policy-arn",
+            session=None,
+        )
+
+        with (
+            patch.object(
+                AutomatedReasoningPolicyManager,
+                "using",
+                autospec=True,
+                side_effect=lambda self, _session: self,
+            ) as using,
+            patch.object(
+                AutomatedReasoningPolicyManager,
+                "get",
+                autospec=True,
+                return_value=policy,
+            ) as get,
+        ):
+            related = annotations.policy
+
+        using.assert_called_once()
+        get.assert_called_once()
+        assert get.call_args.kwargs == {"policyArn": "policy-arn"}
+        assert related is policy
+
+    def test_annotations_build_workflow_relation(self):
+        annotations = AutomatedReasoningPolicyAnnotations.model_construct(
+            policyArn="policy-arn",
+            buildWorkflowId="workflow-1",
+            policyName="test-policy",
+            session=None,
+        )
+        workflow = AutomatedReasoningPolicyBuildWorkflow.model_construct(
+            policyArn="policy-arn",
+            buildWorkflowId="workflow-1",
+            session=None,
+        )
+
+        with (
+            patch.object(
+                AutomatedReasoningPolicyBuildWorkflowManager,
+                "using",
+                autospec=True,
+                side_effect=lambda self, _session: self,
+            ) as using,
+            patch.object(
+                AutomatedReasoningPolicyBuildWorkflowManager,
+                "get",
+                autospec=True,
+                return_value=workflow,
+            ) as get,
+        ):
+            related = annotations.build_workflow
+
+        using.assert_called_once()
+        get.assert_called_once()
+        assert get.call_args.kwargs == {
+            "policyArn": "policy-arn",
+            "buildWorkflowId": "workflow-1",
+        }
+        assert related is workflow
+
+    def test_evaluation_job_role_relation(self):
+        job = EvaluationJob.model_construct(
+            jobArn="job-arn",
+            jobName="eval-job",
+            status="Completed",
+            jobType="Human",
+            creationTime=datetime.now(tz=timezone.utc),
+            roleArn="arn:aws:iam::123456789012:role/service-role/bedrock-eval-role",
+            session=None,
+        )
+        role = IAMRole.model_construct(
+            RoleName="service-role/bedrock-eval-role",
+            Arn="arn:aws:iam::123456789012:role/service-role/bedrock-eval-role",
+            session=None,
+        )
+
+        with (
+            patch.object(
+                IAMRoleManager,
+                "using",
+                autospec=True,
+                side_effect=lambda self, _session: self,
+            ) as using,
+            patch.object(
+                IAMRoleManager,
+                "get",
+                autospec=True,
+                return_value=role,
+            ) as get,
+        ):
+            related = job.role
+
+        using.assert_called_once()
+        get.assert_called_once()
+        assert get.call_args.kwargs == {"RoleName": "service-role/bedrock-eval-role"}
+        assert related is role
+
+    def test_model_customization_job_role_relation(self):
+        job = ModelCustomizationJob.model_construct(
+            jobArn="job-arn",
+            jobName="customization-job",
+            status="Completed",
+            baseModelArn="arn:aws:bedrock:us-west-2::foundation-model/base",
+            creationTime=datetime.now(tz=timezone.utc),
+            roleArn="arn:aws:iam::123456789012:role/service-role/bedrock-customize-role",
+            session=None,
+        )
+        role = IAMRole.model_construct(
+            RoleName="service-role/bedrock-customize-role",
+            Arn="arn:aws:iam::123456789012:role/service-role/bedrock-customize-role",
+            session=None,
+        )
+
+        with (
+            patch.object(
+                IAMRoleManager,
+                "using",
+                autospec=True,
+                side_effect=lambda self, _session: self,
+            ) as using,
+            patch.object(
+                IAMRoleManager,
+                "get",
+                autospec=True,
+                return_value=role,
+            ) as get,
+        ):
+            related = job.role
+
+        using.assert_called_once()
+        get.assert_called_once()
+        assert get.call_args.kwargs == {
+            "RoleName": "service-role/bedrock-customize-role"
+        }
+        assert related is role
+
+    def test_model_invocation_job_role_relation(self):
+        job = ModelInvocationJob.model_construct(
+            jobArn="job-arn",
+            roleArn="arn:aws:iam::123456789012:role/service-role/bedrock-invoke-role",
+            submitTime=datetime.now(tz=timezone.utc),
+            inputDataConfig={},
+            outputDataConfig={},
+            session=None,
+        )
+        role = IAMRole.model_construct(
+            RoleName="service-role/bedrock-invoke-role",
+            Arn="arn:aws:iam::123456789012:role/service-role/bedrock-invoke-role",
+            session=None,
+        )
+
+        with (
+            patch.object(
+                IAMRoleManager,
+                "using",
+                autospec=True,
+                side_effect=lambda self, _session: self,
+            ) as using,
+            patch.object(
+                IAMRoleManager,
+                "get",
+                autospec=True,
+                return_value=role,
+            ) as get,
+        ):
+            related = job.role
+
+        using.assert_called_once()
+        get.assert_called_once()
+        assert get.call_args.kwargs == {"RoleName": "service-role/bedrock-invoke-role"}
+        assert related is role
+
+    def test_guardrail_kms_key_relation(self):
+        guardrail = Guardrail.model_construct(
+            guardrailId="gr-123",
+            guardrailArn="guardrail-arn",
+            guardrailName="Guardrail",
+            kmsKeyArn="arn:aws:kms:us-west-2:123456789012:key/key-123",
+            session=None,
+        )
+        kms_key = KMSKey.model_construct(
+            KeyId="arn:aws:kms:us-west-2:123456789012:key/key-123",
+            Arn="arn:aws:kms:us-west-2:123456789012:key/key-123",
+            session=None,
+        )
+
+        with (
+            patch.object(
+                KMSKeyManager,
+                "using",
+                autospec=True,
+                side_effect=lambda self, _session: self,
+            ) as using,
+            patch.object(
+                KMSKeyManager,
+                "get",
+                autospec=True,
+                return_value=kms_key,
+            ) as get,
+        ):
+            related = guardrail.kms_key
+
+        using.assert_called_once()
+        get.assert_called_once()
+        assert get.call_args.kwargs == {
+            "KeyId": "arn:aws:kms:us-west-2:123456789012:key/key-123"
+        }
+        assert related is kms_key
+
+    def test_policy_build_workflows_relation(self):
+        policy = AutomatedReasoningPolicy.model_construct(
+            policyArn="policy-arn",
+            policyName="Policy",
+            version="1",
+            policyId="policy-id",
+            createdAt=datetime.now(tz=timezone.utc),
+            updatedAt=datetime.now(tz=timezone.utc),
+            session=None,
+        )
+        workflows = PrimaryBoto3ModelQuerySet(
+            [
+                AutomatedReasoningPolicyBuildWorkflow.model_construct(
+                    policyArn="policy-arn",
+                    buildWorkflowId="workflow-1",
+                    session=None,
+                )
+            ]
+        )
+
+        with (
+            patch.object(
+                AutomatedReasoningPolicyBuildWorkflowManager,
+                "using",
+                autospec=True,
+                side_effect=lambda self, _session: self,
+            ) as using,
+            patch.object(
+                AutomatedReasoningPolicyBuildWorkflowManager,
+                "list",
+                autospec=True,
+                return_value=workflows,
+            ) as list_,
+        ):
+            related = policy.build_workflows
+
+        using.assert_called_once()
+        list_.assert_called_once()
+        assert list_.call_args.kwargs == {"policyArn": "policy-arn"}
+        assert related is workflows
+
+    def test_policy_test_cases_relation(self):
+        policy = AutomatedReasoningPolicy.model_construct(
+            policyArn="policy-arn",
+            policyName="Policy",
+            version="1",
+            policyId="policy-id",
+            createdAt=datetime.now(tz=timezone.utc),
+            updatedAt=datetime.now(tz=timezone.utc),
+            session=None,
+        )
+        test_cases = PrimaryBoto3ModelQuerySet(
+            [
+                AutomatedReasoningPolicyTestCase.model_construct(
+                    testCaseId="test-case-1",
+                    session=None,
+                )
+            ]
+        )
+
+        with (
+            patch.object(
+                AutomatedReasoningPolicyTestCaseManager,
+                "using",
+                autospec=True,
+                side_effect=lambda self, _session: self,
+            ) as using,
+            patch.object(
+                AutomatedReasoningPolicyTestCaseManager,
+                "list",
+                autospec=True,
+                return_value=test_cases,
+            ) as list_,
+        ):
+            related = policy.test_cases
+
+        using.assert_called_once()
+        list_.assert_called_once()
+        assert list_.call_args.kwargs == {"policyArn": "policy-arn"}
+        assert related is test_cases
+
+    def test_policy_helper_methods(self):
+        policy = AutomatedReasoningPolicy.model_construct(
+            policyArn="policy-arn",
+            policyName="Policy",
+            version="1",
+            policyId="policy-id",
+            createdAt=datetime.now(tz=timezone.utc),
+            updatedAt=datetime.now(tz=timezone.utc),
+            session=None,
+        )
+        test_results = PrimaryBoto3ModelQuerySet(
+            [
+                AutomatedReasoningPolicyTestResult.model_construct(
+                    policyArn="policy-arn",
+                    buildWorkflowId="workflow-1",
+                    testCase="test-case-1",
+                    session=None,
+                )
+            ]
+        )
+        next_scenario = AutomatedReasoningPolicyNextScenario.model_construct(
+            policyArn="policy-arn",
+            buildWorkflowId="workflow-1",
+            session=None,
+        )
+        assets = AutomatedReasoningPolicyBuildWorkflowResultAssets.model_construct(
+            policyArn="policy-arn",
+            buildWorkflowId="workflow-1",
+            session=None,
+        )
+        annotations = AutomatedReasoningPolicyAnnotations.model_construct(
+            policyArn="policy-arn",
+            buildWorkflowId="workflow-1",
+            policyName="Policy",
+            session=None,
+        )
+
+        with (
+            patch.object(
+                AutomatedReasoningPolicyTestResultManager,
+                "using",
+                autospec=True,
+                side_effect=lambda self, _session: self,
+            ) as test_results_using,
+            patch.object(
+                AutomatedReasoningPolicyTestResultManager,
+                "list",
+                autospec=True,
+                return_value=test_results,
+            ) as list_results,
+            patch.object(
+                AutomatedReasoningPolicyNextScenarioManager,
+                "using",
+                autospec=True,
+                side_effect=lambda self, _session: self,
+            ) as next_using,
+            patch.object(
+                AutomatedReasoningPolicyNextScenarioManager,
+                "get",
+                autospec=True,
+                return_value=next_scenario,
+            ) as get_next,
+            patch.object(
+                AutomatedReasoningPolicyBuildWorkflowResultAssetsManager,
+                "using",
+                autospec=True,
+                side_effect=lambda self, _session: self,
+            ) as assets_using,
+            patch.object(
+                AutomatedReasoningPolicyBuildWorkflowResultAssetsManager,
+                "get",
+                autospec=True,
+                return_value=assets,
+            ) as get_assets,
+            patch.object(
+                AutomatedReasoningPolicyAnnotationsManager,
+                "using",
+                autospec=True,
+                side_effect=lambda self, _session: self,
+            ) as annotations_using,
+            patch.object(
+                AutomatedReasoningPolicyAnnotationsManager,
+                "get",
+                autospec=True,
+                return_value=annotations,
+            ) as get_annotations,
+        ):
+            related_results = policy.test_results("workflow-1")
+            related_next = policy.next_scenario("workflow-1")
+            related_assets = policy.build_workflow_result_assets(
+                "workflow-1", "POLICY"
+            )
+            related_annotations = policy.annotations("workflow-1")
+
+        test_results_using.assert_called_once()
+        list_results.assert_called_once()
+        assert list_results.call_args.kwargs == {
+            "policyArn": "policy-arn",
+            "buildWorkflowId": "workflow-1",
+        }
+        next_using.assert_called_once()
+        get_next.assert_called_once()
+        assert get_next.call_args.kwargs == {
+            "policyArn": "policy-arn",
+            "buildWorkflowId": "workflow-1",
+        }
+        assets_using.assert_called_once()
+        get_assets.assert_called_once()
+        assert get_assets.call_args.kwargs == {
+            "policyArn": "policy-arn",
+            "buildWorkflowId": "workflow-1",
+            "assetType": "POLICY",
+        }
+        annotations_using.assert_called_once()
+        get_annotations.assert_called_once()
+        assert get_annotations.call_args.kwargs == {
+            "policyArn": "policy-arn",
+            "buildWorkflowId": "workflow-1",
+        }
+        assert related_results is test_results
+        assert related_next is next_scenario
+        assert related_assets is assets
+        assert related_annotations is annotations
+
+    def test_model_customization_job_model_relations(self):
+        job = ModelCustomizationJob.model_construct(
+            jobArn="job-arn",
+            jobName="customization-job",
+            status="Completed",
+            baseModelArn="arn:aws:bedrock:us-west-2::foundation-model/base",
+            outputModelArn="arn:aws:bedrock:us-west-2:123456789012:custom-model/out",
+            outputModelKmsKeyArn="arn:aws:kms:us-west-2:123456789012:key/output",
+            creationTime=datetime.now(tz=timezone.utc),
+            session=None,
+        )
+        foundation_model = FoundationModel.model_construct(
+            modelId="arn:aws:bedrock:us-west-2::foundation-model/base",
+            session=None,
+        )
+        custom_model = CustomModel.model_construct(
+            modelArn="arn:aws:bedrock:us-west-2:123456789012:custom-model/out",
+            session=None,
+        )
+        kms_key = KMSKey.model_construct(
+            KeyId="arn:aws:kms:us-west-2:123456789012:key/output",
+            Arn="arn:aws:kms:us-west-2:123456789012:key/output",
+            session=None,
+        )
+
+        with (
+            patch.object(
+                FoundationModelManager,
+                "using",
+                autospec=True,
+                side_effect=lambda self, _session: self,
+            ) as foundation_using,
+            patch.object(
+                FoundationModelManager,
+                "get",
+                autospec=True,
+                return_value=foundation_model,
+            ) as get_foundation,
+            patch.object(
+                CustomModelManager,
+                "using",
+                autospec=True,
+                side_effect=lambda self, _session: self,
+            ) as custom_using,
+            patch.object(
+                CustomModelManager,
+                "get",
+                autospec=True,
+                return_value=custom_model,
+            ) as get_custom,
+            patch.object(
+                KMSKeyManager,
+                "using",
+                autospec=True,
+                side_effect=lambda self, _session: self,
+            ) as kms_using,
+            patch.object(
+                KMSKeyManager,
+                "get",
+                autospec=True,
+                return_value=kms_key,
+            ) as get_kms,
+        ):
+            related_base_model = job.base_model
+            related_output_model = job.output_model
+            related_output_kms_key = job.output_model_kms_key
+
+        foundation_using.assert_called_once()
+        get_foundation.assert_called_once()
+        assert get_foundation.call_args.kwargs == {
+            "modelId": "arn:aws:bedrock:us-west-2::foundation-model/base"
+        }
+        custom_using.assert_called_once()
+        get_custom.assert_called_once()
+        assert get_custom.call_args.kwargs == {
+            "modelArn": "arn:aws:bedrock:us-west-2:123456789012:custom-model/out"
+        }
+        kms_using.assert_called_once()
+        get_kms.assert_called_once()
+        assert get_kms.call_args.kwargs == {
+            "KeyId": "arn:aws:kms:us-west-2:123456789012:key/output"
+        }
+        assert related_base_model is foundation_model
+        assert related_output_model is custom_model
+        assert related_output_kms_key is kms_key
+
+    def test_model_customization_job_network_relations(self):
+        job = ModelCustomizationJob.model_construct(
+            jobArn="job-arn",
+            jobName="customization-job",
+            status="Completed",
+            baseModelArn="arn:aws:bedrock:us-west-2::foundation-model/base",
+            creationTime=datetime.now(tz=timezone.utc),
+            vpcConfig=VpcConfig.model_construct(
+                subnetIds=["subnet-1"],
+                securityGroupIds=["sg-1"],
+            ),
+            session=None,
+        )
+        subnets = PrimaryBoto3ModelQuerySet(
+            [Subnet.model_construct(SubnetId="subnet-1", session=None)]
+        )
+        security_groups = PrimaryBoto3ModelQuerySet(
+            [SecurityGroup.model_construct(GroupId="sg-1", GroupName="sg", session=None)]
+        )
+
+        with (
+            patch.object(
+                SubnetManager,
+                "using",
+                autospec=True,
+                side_effect=lambda self, _session: self,
+            ) as subnet_using,
+            patch.object(
+                SubnetManager,
+                "list",
+                autospec=True,
+                return_value=subnets,
+            ) as list_subnets,
+            patch.object(
+                SecurityGroupManager,
+                "using",
+                autospec=True,
+                side_effect=lambda self, _session: self,
+            ) as sg_using,
+            patch.object(
+                SecurityGroupManager,
+                "list",
+                autospec=True,
+                return_value=security_groups,
+            ) as list_security_groups,
+        ):
+            related_subnets = job.subnets
+            related_security_groups = job.security_groups
+
+        subnet_using.assert_called_once()
+        list_subnets.assert_called_once()
+        assert list_subnets.call_args.kwargs == {"SubnetIds": ["subnet-1"]}
+        sg_using.assert_called_once()
+        list_security_groups.assert_called_once()
+        assert list_security_groups.call_args.kwargs == {"GroupIds": ["sg-1"]}
+        assert related_subnets is subnets
+        assert related_security_groups is security_groups
+
+    def test_model_invocation_job_relations(self):
+        job = ModelInvocationJob.model_construct(
+            jobArn="job-arn",
+            roleArn="arn:aws:iam::123456789012:role/service-role/bedrock-invoke-role",
+            modelId="arn:aws:bedrock:us-west-2::foundation-model/base",
+            submitTime=datetime.now(tz=timezone.utc),
+            inputDataConfig={},
+            outputDataConfig={},
+            vpcConfig=VpcConfig.model_construct(
+                subnetIds=["subnet-1"],
+                securityGroupIds=["sg-1"],
+            ),
+            session=None,
+        )
+        foundation_model = FoundationModel.model_construct(
+            modelId="arn:aws:bedrock:us-west-2::foundation-model/base",
+            session=None,
+        )
+        subnets = PrimaryBoto3ModelQuerySet(
+            [Subnet.model_construct(SubnetId="subnet-1", session=None)]
+        )
+        security_groups = PrimaryBoto3ModelQuerySet(
+            [SecurityGroup.model_construct(GroupId="sg-1", GroupName="sg", session=None)]
+        )
+
+        with (
+            patch.object(
+                FoundationModelManager,
+                "using",
+                autospec=True,
+                side_effect=lambda self, _session: self,
+            ) as foundation_using,
+            patch.object(
+                FoundationModelManager,
+                "get",
+                autospec=True,
+                return_value=foundation_model,
+            ) as get_foundation,
+            patch.object(
+                SubnetManager,
+                "using",
+                autospec=True,
+                side_effect=lambda self, _session: self,
+            ) as subnet_using,
+            patch.object(
+                SubnetManager,
+                "list",
+                autospec=True,
+                return_value=subnets,
+            ) as list_subnets,
+            patch.object(
+                SecurityGroupManager,
+                "using",
+                autospec=True,
+                side_effect=lambda self, _session: self,
+            ) as sg_using,
+            patch.object(
+                SecurityGroupManager,
+                "list",
+                autospec=True,
+                return_value=security_groups,
+            ) as list_security_groups,
+        ):
+            related_model = job.foundation_model
+            related_subnets = job.subnets
+            related_security_groups = job.security_groups
+
+        foundation_using.assert_called_once()
+        get_foundation.assert_called_once()
+        assert get_foundation.call_args.kwargs == {
+            "modelId": "arn:aws:bedrock:us-west-2::foundation-model/base"
+        }
+        subnet_using.assert_called_once()
+        list_subnets.assert_called_once()
+        assert list_subnets.call_args.kwargs == {"SubnetIds": ["subnet-1"]}
+        sg_using.assert_called_once()
+        list_security_groups.assert_called_once()
+        assert list_security_groups.call_args.kwargs == {"GroupIds": ["sg-1"]}
+        assert related_model is foundation_model
+        assert related_subnets is subnets
+        assert related_security_groups is security_groups
+
+    def test_enforced_guardrails_guardrail_relation(self):
+        config = EnforcedGuardrailsConfiguration.model_construct(
+            configId="config-1",
+            guardrailArn="guardrail-arn",
+            guardrailId="gr-123",
+            session=None,
+        )
+        guardrail = Guardrail.model_construct(
+            guardrailId="gr-123",
+            guardrailArn="guardrail-arn",
+            guardrailName="Guardrail",
+            session=None,
+        )
+
+        with (
+            patch.object(
+                GuardrailManager,
+                "using",
+                autospec=True,
+                side_effect=lambda self, _session: self,
+            ) as using,
+            patch.object(
+                GuardrailManager,
+                "get",
+                autospec=True,
+                return_value=guardrail,
+            ) as get,
+        ):
+            related = config.guardrail
+
+        using.assert_called_once()
+        get.assert_called_once()
+        assert get.call_args.kwargs == {"guardrailId": "gr-123"}
+        assert related is guardrail
+
+    def test_inference_profile_model_objects(self):
+        profile = InferenceProfile.model_construct(
+            inferenceProfileArn="profile-arn",
+            inferenceProfileName="Profile",
+            inferenceProfileId="profile-id",
+            status="ACTIVE",
+            type="APPLICATION",
+            models=[
+                InferenceProfileModel.model_construct(
+                    modelArn="arn:aws:bedrock:us-west-2::foundation-model/base"
+                ),
+                InferenceProfileModel.model_construct(
+                    modelArn="arn:aws:bedrock:us-west-2:123456789012:custom-model/out"
+                ),
+            ],
+            session=None,
+        )
+        foundation_model = FoundationModel.model_construct(
+            modelId="arn:aws:bedrock:us-west-2::foundation-model/base",
+            session=None,
+        )
+        custom_model = CustomModel.model_construct(
+            modelArn="arn:aws:bedrock:us-west-2:123456789012:custom-model/out",
+            session=None,
+        )
+
+        with (
+            patch.object(
+                FoundationModelManager,
+                "using",
+                autospec=True,
+                side_effect=lambda self, _session: self,
+            ) as foundation_using,
+            patch.object(
+                FoundationModelManager,
+                "get",
+                autospec=True,
+                return_value=foundation_model,
+            ) as get_foundation,
+            patch.object(
+                CustomModelManager,
+                "using",
+                autospec=True,
+                side_effect=lambda self, _session: self,
+            ) as custom_using,
+            patch.object(
+                CustomModelManager,
+                "get",
+                autospec=True,
+                return_value=custom_model,
+            ) as get_custom,
+        ):
+            related = profile.model_objects
+
+        foundation_using.assert_called_once()
+        get_foundation.assert_called_once()
+        custom_using.assert_called_once()
+        get_custom.assert_called_once()
+        assert related == [foundation_model, custom_model]
+
+    def test_prompt_router_relations_and_model_objects(self):
+        router = PromptRouter.model_construct(
+            promptRouterArn="router-arn",
+            promptRouterName="Router",
+            routingCriteria={},
+            models=[
+                PromptRouterTargetModel.model_construct(
+                    modelArn="arn:aws:bedrock:us-west-2::foundation-model/base"
+                )
+            ],
+            fallbackModel=PromptRouterTargetModel.model_construct(
+                modelArn="arn:aws:bedrock:us-west-2::foundation-model/fallback"
+            ),
+            status="AVAILABLE",
+            type="custom",
+            session=None,
+        )
+        fallback_model = FoundationModel.model_construct(
+            modelId="arn:aws:bedrock:us-west-2::foundation-model/fallback",
+            session=None,
+        )
+        listed_model = FoundationModel.model_construct(
+            modelId="arn:aws:bedrock:us-west-2::foundation-model/base",
+            session=None,
+        )
+
+        with (
+            patch.object(
+                FoundationModelManager,
+                "using",
+                autospec=True,
+                side_effect=lambda self, _session: self,
+            ) as using,
+            patch.object(
+                FoundationModelManager,
+                "get",
+                autospec=True,
+                side_effect=[fallback_model, listed_model],
+            ) as get,
+        ):
+            related_fallback = router.fallback_model
+            related_models = router.model_objects
+
+        assert using.call_count == 2
+        assert get.call_args_list[0].kwargs == {
+            "modelId": "arn:aws:bedrock:us-west-2::foundation-model/fallback"
+        }
+        assert get.call_args_list[1].kwargs == {
+            "modelId": "arn:aws:bedrock:us-west-2::foundation-model/base"
+        }
+        assert related_fallback is fallback_model
+        assert related_models == [listed_model]
+
+    def test_logging_configuration_related_resources(self):
+        config = ModelInvocationLoggingConfiguration.model_construct(
+            singletonId="account",
+            cloudWatchConfig={"logGroupName": "bedrock-logs"},
+            s3Config={"bucketName": "bedrock-bucket"},
+            session=None,
+        )
+        log_group = LogGroup.model_construct(
+            Arn="log-group-arn",
+            logGroupName="bedrock-logs",
+            session=None,
+        )
+        bucket = Bucket.model_construct(
+            BucketName="bedrock-bucket",
+            Region="us-west-2",
+            CreationDate=datetime.now(tz=timezone.utc),
+            session=None,
+        )
+
+        with (
+            patch.object(
+                LogGroupManager,
+                "using",
+                autospec=True,
+                side_effect=lambda self, _session: self,
+            ) as log_using,
+            patch.object(
+                LogGroupManager,
+                "get",
+                autospec=True,
+                return_value=log_group,
+            ) as get_log_group,
+            patch.object(
+                BucketManager,
+                "using",
+                autospec=True,
+                side_effect=lambda self, _session: self,
+            ) as bucket_using,
+            patch.object(
+                BucketManager,
+                "get",
+                autospec=True,
+                return_value=bucket,
+            ) as get_bucket,
+        ):
+            related_log_group = config.log_group
+            related_bucket = config.bucket
+
+        log_using.assert_called_once()
+        get_log_group.assert_called_once()
+        assert get_log_group.call_args.kwargs == {"logGroupIdentifier": "bedrock-logs"}
+        bucket_using.assert_called_once()
+        get_bucket.assert_called_once()
+        assert get_bucket.call_args.kwargs == {"BucketName": "bedrock-bucket"}
+        assert related_log_group is log_group
+        assert related_bucket is bucket
+
+    def test_logging_configuration_related_resources_return_none_when_unset(self):
+        config = ModelInvocationLoggingConfiguration.model_construct(
+            singletonId="account",
+            cloudWatchConfig={},
+            s3Config={},
+            session=None,
+        )
+
+        assert config.log_group is None
+        assert config.bucket is None
