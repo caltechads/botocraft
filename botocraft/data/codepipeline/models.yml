@@ -1,0 +1,140 @@
+---
+primary:
+  PipelineDeclaration:
+    alternate_name: Pipeline
+    primary_key: pipelineName
+    name_key: pipelineName
+    fields:
+      name:
+        rename: pipelineName
+      roleArn:
+        required: false
+      stages:
+        required: false
+    extra_fields:
+      pipelineArn:
+        python_type: str | None
+        default: None
+        docstring: >-
+          The ARN of the pipeline when returned by detail APIs.
+    manager_methods:
+      start_execution:
+        manager_method: start_execution
+        docstring: >-
+          Start a new execution for this pipeline.
+        args:
+          0:
+            name: name
+            value: >-
+              cast(str, self.name)
+        user_keyword_args:
+          - name: variables
+            attr_type: builtins.list[PipelineVariable] | None
+            default: >-
+              None
+          - name: clientRequestToken
+            attr_type: str | None
+            default: >-
+              None
+          - name: sourceRevisions
+            attr_type: builtins.list[SourceRevisionOverride] | None
+            default: >-
+              None
+
+  PipelineExecution:
+    readonly: true
+    fields:
+      pipelineName:
+        required: false
+    properties:
+      pk:
+        docstring: >-
+          The composite primary key for this pipeline execution.
+        transformer:
+          mapping:
+            pipelineName: pipelineName
+            pipelineExecutionId: pipelineExecutionId
+
+  ActionType:
+    extra_fields:
+      description:
+        python_type: str | None
+        default: None
+        docstring: >-
+          The description returned by detail APIs.
+      executor:
+        python_type: builtins.dict[str, Any] | None
+        default: None
+        docstring: >-
+          The executor configuration returned by detail APIs.
+        imports:
+          - from typing import Any
+      permissions:
+        python_type: builtins.dict[str, Any] | None
+        default: None
+        docstring: >-
+          The permissions returned by detail APIs.
+        imports:
+          - from typing import Any
+      properties:
+        python_type: builtins.list[builtins.dict[str, Any]] | None
+        default: None
+        docstring: >-
+          The action-type properties returned by detail APIs.
+        imports:
+          - from typing import Any
+      urls:
+        python_type: builtins.dict[str, Any] | None
+        default: None
+        docstring: >-
+          The URLs returned by detail APIs.
+        imports:
+          - from typing import Any
+    properties:
+      pk:
+        docstring: >-
+          The identity accepted by custom-action delete operations.
+        transformer:
+          mapping:
+            category: id.category
+            provider: id.provider
+            version: id.version
+secondary:
+  GitPushFilter:
+    fields:
+      tags:
+        rename: Tags
+  RuleTypeId:
+    fields:
+      owner:
+        docstring: >-
+          The owner for this rule type.
+  CreatePipelineOutput:
+    fields:
+      pipeline:
+        docstring: >-
+          The created pipeline definition.
+      tags:
+        rename: Tags
+  UpdatePipelineOutput:
+    fields:
+      pipeline:
+        docstring: >-
+          The updated pipeline definition.
+  GetPipelineOutput:
+    fields:
+      pipeline:
+        docstring: >-
+          The requested pipeline definition.
+      metadata:
+        docstring: >-
+          Metadata returned for the requested pipeline.
+  ActionTypeExecutor:
+    fields:
+      type:
+        docstring: >-
+          The executor type used by this action type.
+  CreateCustomActionTypeOutput:
+    fields:
+      tags:
+        rename: Tags

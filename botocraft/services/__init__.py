@@ -7,6 +7,7 @@ from .inspector2 import *  # noqa: F401,F403
 from .ecr import *  # noqa: F401,F403
 from .ecs import *  # noqa: F401,F403
 from .application_autoscaling import *  # noqa: F401,F403
+from .codepipeline import *  # noqa: F401,F403
 from .elb import *  # noqa: F401,F403
 from .schemas import *  # noqa: F401,F403
 from .sqs import *  # noqa: F401,F403

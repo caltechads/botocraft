@@ -3,6 +3,7 @@
 - :doc:`/api/services/autoscaling`
 - :doc:`/api/services/bedrock`
 - :doc:`/api/services/bedrock_runtime`
+- :doc:`/api/services/codepipeline`
 - :doc:`/api/services/docdb`
 - :doc:`/api/services/ec2`
 - :doc:`/api/services/ecr`

@@ -1,0 +1,167 @@
+---
+PipelineDeclaration:
+  methods:
+    create:
+      boto3_name: create_pipeline
+      response_attr: None
+      decorators:
+        - name: pipeline_response_to_pipeline
+          import_path: botocraft.mixins.codepipeline
+      args:
+        pipeline:
+          value: >-
+            {"name": data.get("name"), **{key: data.get(key) for key in ["roleArn", "artifactStore", "artifactStores", "stages", "version", "executionMode", "pipelineType", "variables", "triggers"] if data.get(key) not in (None, [], {})}} if data.get("name") is not None else None
+          raw_value: true
+    update:
+      boto3_name: update_pipeline
+      response_attr: None
+      decorators:
+        - name: pipeline_response_to_pipeline
+          import_path: botocraft.mixins.codepipeline
+      args:
+        pipeline:
+          value: >-
+            {"name": data.get("name"), **{key: data.get(key) for key in ["roleArn", "artifactStore", "artifactStores", "stages", "version", "executionMode", "pipelineType", "variables", "triggers"] if data.get(key) not in (None, [], {})}} if data.get("name") is not None else None
+          raw_value: true
+    delete:
+      boto3_name: delete_pipeline
+      return_type: None
+      args:
+        name:
+          required: true
+    get:
+      boto3_name: get_pipeline
+      response_attr: None
+      return_type: >-
+        "GetPipelineOutput | None"
+      decorators:
+        - name: pipeline_response_to_pipeline
+          import_path: botocraft.mixins.codepipeline
+      args:
+        name:
+          required: true
+    list:
+      boto3_name: list_pipelines
+      response_attr: pipelines
+      decorators:
+        - name: pipeline_summaries_to_pipelines
+          import_path: botocraft.mixins.codepipeline
+    start_execution:
+      boto3_name: start_pipeline_execution
+      response_attr: pipelineExecutionId
+      args:
+        name:
+          required: true
+    stop_execution:
+      boto3_name: stop_pipeline_execution
+      response_attr: pipelineExecutionId
+      args:
+        pipelineName:
+          required: true
+        pipelineExecutionId:
+          required: true
+
+PipelineExecution:
+  readonly: true
+  methods:
+    get:
+      boto3_name: get_pipeline_execution
+      response_attr: None
+      return_type: >-
+        "GetPipelineExecutionOutput | None"
+      decorators:
+        - name: pipeline_execution_response_to_pipeline_execution
+          import_path: botocraft.mixins.codepipeline
+      args:
+        pipelineName:
+          required: true
+        pipelineExecutionId:
+          required: true
+    list:
+      boto3_name: list_pipeline_executions
+      response_attr: pipelineExecutionSummaries
+      decorators:
+        - name: pipeline_execution_list_add_pipeline_name
+          import_path: botocraft.mixins.codepipeline
+      args:
+        pipelineName:
+          required: true
+    stop:
+      boto3_name: stop_pipeline_execution
+      response_attr: pipelineExecutionId
+      args:
+        pipelineName:
+          required: true
+        pipelineExecutionId:
+          required: true
+
+ActionType:
+  methods:
+    create:
+      boto3_name: create_custom_action_type
+      response_attr: None
+      decorators:
+        - name: action_type_response_to_action_type
+          import_path: botocraft.mixins.codepipeline
+      args:
+        category:
+          value: >-
+            data.get("id", {}).get("category")
+          raw_value: true
+        provider:
+          value: >-
+            data.get("id", {}).get("provider")
+          raw_value: true
+        version:
+          value: >-
+            data.get("id", {}).get("version")
+          raw_value: true
+        settings:
+          attribute: settings
+        configurationProperties:
+          value: >-
+            data.get("actionConfigurationProperties")
+          raw_value: true
+        inputArtifactDetails:
+          attribute: inputArtifactDetails
+        outputArtifactDetails:
+          attribute: outputArtifactDetails
+    delete:
+      boto3_name: delete_custom_action_type
+      return_type: None
+      args:
+        category:
+          required: true
+        provider:
+          required: true
+        version:
+          required: true
+    get:
+      boto3_name: get_action_type
+      response_attr: None
+      return_type: >-
+        "GetActionTypeOutput | None"
+      decorators:
+        - name: action_type_declaration_response_to_action_type
+          import_path: botocraft.mixins.codepipeline
+      args:
+        category:
+          required: true
+        owner:
+          required: true
+        provider:
+          required: true
+        version:
+          required: true
+    list:
+      boto3_name: list_action_types
+      response_attr: actionTypes
+    update:
+      boto3_name: update_action_type
+      response_attr: None
+      return_type: None
+      args:
+        actionType:
+          value: >-
+            {key: data.get(key) for key in ["description", "executor", "id", "inputArtifactDetails", "outputArtifactDetails", "permissions", "properties", "urls"] if data.get(key) is not None}
+          raw_value: true
