@@ -617,9 +617,9 @@ def botocore_bootstrap(service: str) -> None:
         path.mkdir(parents=True, exist_ok=False)
     else:
         click.secho(f"Path {path} already exists, not creating it.", fg="red")
-    models_yaml = path / "models.yaml"
+    models_yaml = path / "models.yml"
     models_yaml.touch(exist_ok=True)
-    managers_yaml = path / "managers.yaml"
+    managers_yaml = path / "managers.yml"
     managers_yaml.touch(exist_ok=True)
     click.secho(
         f"Created {models_yaml} and {managers_yaml}",
