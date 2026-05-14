@@ -10,6 +10,7 @@ botocraft
    overview/queryset
    overview/tags
    overview/events
+   overview/bedrock
 
 .. toctree::
    :caption: Runbook
