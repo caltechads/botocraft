@@ -40,3 +40,19 @@ ECS
 
 SSM
     * :doc:`/api/eventbridge/ssm/calendar_state_change`
+    * :doc:`/api/eventbridge/ssm/change_request_status_update`
+    * :doc:`/api/eventbridge/ssm/configuration_compliance_state_change`
+    * :doc:`/api/eventbridge/ssm/ec2_automation_execution_status_change_notification`
+    * :doc:`/api/eventbridge/ssm/ec2_automation_step_status_change_notification`
+    * :doc:`/api/eventbridge/ssm/ec2_command_invocation_status_change_notification`
+    * :doc:`/api/eventbridge/ssm/ec2_command_status_change_notification`
+    * :doc:`/api/eventbridge/ssm/ec2_state_manager_association_state_change`
+    * :doc:`/api/eventbridge/ssm/ec2_state_manager_instance_association_state_change`
+    * :doc:`/api/eventbridge/ssm/maintenance_window_execution_state_change_notification`
+    * :doc:`/api/eventbridge/ssm/maintenance_window_state_change_notification`
+    * :doc:`/api/eventbridge/ssm/maintenance_window_target_registration_notification`
+    * :doc:`/api/eventbridge/ssm/maintenance_window_task_execution_state_change_notification`
+    * :doc:`/api/eventbridge/ssm/maintenance_window_task_target_invocation_state_change_notification`
+    * :doc:`/api/eventbridge/ssm/opsitem_create`
+    * :doc:`/api/eventbridge/ssm/opsitem_update`
+    * :doc:`/api/eventbridge/ssm/parameter_store_change`
