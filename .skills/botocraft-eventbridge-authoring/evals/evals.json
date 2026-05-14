@@ -1,0 +1,23 @@
+{
+  "skill_name": "botocraft-eventbridge-authoring",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Add Botocraft EventBridge support for CloudTrail. Export raw schemas from the default AWS schema registry, inspect what landed under botocraft/eventbridge/raw/cloudtrail, then wire wrapper classes and factory mappings so new events instantiate cleanly.",
+      "expected_output": "The skill should start with the shared export CLI, keep default registry behavior explicit, and follow through from raw models to wrapper and factory registration.",
+      "files": []
+    },
+    {
+      "id": 2,
+      "prompt": "I tried exporting EventBridge schemas for a service and nothing showed up in aws.events. Help me diagnose whether the service has no schema-library coverage, tell me when to retry with explicit --registry-name, and avoid pretending the default registry is universal.",
+      "expected_output": "The skill should treat missing schema-library coverage honestly, surface the explicit registry retry path, and avoid inventing wrapper work before raw schemas exist.",
+      "files": []
+    },
+    {
+      "id": 3,
+      "prompt": "Use the raw EventBridge models already generated for a service, author the handwritten wrapper module, update docs, and extend EventFactory without adding another nested source/detail-type if chain.",
+      "expected_output": "The skill should share the repo's declarative mapping pattern, keep wrappers cohesive, and include docs plus factory follow-through rather than stopping at codegen.",
+      "files": []
+    }
+  ]
+}
