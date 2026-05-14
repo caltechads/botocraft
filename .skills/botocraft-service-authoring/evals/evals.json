@@ -36,6 +36,24 @@
       "prompt": "Add a Botocraft service where some resources do not have a clean global get, and list only works when you first supply a parent context such as a bucket or rule. I want the skill to model that honestly rather than forcing fake CRUDL symmetry.",
       "expected_output": "The skill should recognize service gaps and exceptions, route to advanced manager guidance when needed, and preserve honest context-required manager methods.",
       "files": []
+    },
+    {
+      "id": 7,
+      "prompt": "Help me add Botocraft support for an AWS service whose relation guesses will need AWS docs. First prefer aws-knowledge-mcp-server if it is available. If it is not installed, tell me that and ask whether I want to install it. If I say no, continue with official AWS docs on the web instead of stalling.",
+      "expected_output": "The skill should prefer aws-knowledge-mcp-server when available, explicitly ask about installation when it is missing, and proceed with official AWS web docs if the user declines installation.",
+      "files": []
+    },
+    {
+      "id": 8,
+      "prompt": "I want help adding relations for a new Botocraft service. Please inspect the primary models, suggest likely relations first, let me review and reject bad ones, and only then tell me what should go into `relations:`.",
+      "expected_output": "The skill should use a two-stage relation workflow, stop after candidate review in stage 1, and avoid jumping straight to YAML edits before user approval.",
+      "files": []
+    },
+    {
+      "id": 9,
+      "prompt": "Find likely Botocraft relations for a service where fields include its own ResourceArn and ResourceId, plus nested TargetGroupArns and a composite ResourceId that might point at another AWS resource. I only want relations that truly target primary models, and I want weak guesses left raw.",
+      "expected_output": "The skill should exclude self-identity fields, use doc-assisted fuzzy discovery for the composite identifier, suggest only primary-model relations, and keep low-confidence candidates unimplemented until approved.",
+      "files": []
     }
   ]
 }

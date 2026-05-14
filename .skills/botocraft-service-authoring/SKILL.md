@@ -27,6 +27,27 @@ Also inspect:
 
 In an early progress update, name each preflight tool and what it returned.
 
+## AWS docs preference
+
+When AWS service semantics, field meaning, operation behavior, or relation
+guessing needs external docs:
+
+- prefer `aws-knowledge-mcp-server` if it is available in the current tool set
+- check available tools or tool discovery before falling back to generic search
+- if `aws-knowledge-mcp-server` is not installed, say so plainly and ask
+  whether the user wants to install it
+- if the user says no, continue with web search against official AWS docs
+  instead of blocking
+- prefer official AWS domains such as `docs.aws.amazon.com`,
+  `boto3.amazonaws.com`, and `botocore.amazonaws.com`
+- do not repeatedly re-ask about installation in the same task once the user
+  has declined
+
+Example:
+
+> I don't have `aws-knowledge-mcp-server` in this session. Do you want to
+> install it? If not, I'll continue with official AWS docs on the web.
+
 ## Dirty-tree safeguard
 
 Run `git status --short` before reasoning about regeneration.
@@ -94,12 +115,37 @@ Do not keep catalogs inline. Load only needed references from `references/`:
 
 - `common-manager-patterns.md`
 - `model-collision-and-tags.md`
+- `relation-discovery.md`
 - `relations-properties-bespoke.md`
 - `ec2-case-study.md`
 - `service-gaps-and-exceptions.md`
 - `monolith-snapshot.md` when comparing against old single-skill baseline
 
 Prefer one reference first. Load more only when task clearly crosses domains.
+
+## Relation workflow
+
+When task includes identifying, proposing, reviewing, or implementing
+`relations:` for primary models, use a two-stage workflow:
+
+1. discovery and review
+2. implementation after user approval
+
+Stage 1 must:
+
+- inspect primary-model fields and nested shapes for likely foreign identifiers
+- use AWS docs when needed for fuzzy or non-obvious relationships
+- produce candidate relations with confidence and evidence
+- stop for user keep/drop review before editing YAML
+
+Stage 2 must:
+
+- implement only approved relations
+- leave rejected or low-confidence candidates as raw identifiers or properties
+- explain why any candidate was not implemented
+
+Do not jump straight from "I found a likely relation" to editing `models.yml`
+unless the user explicitly says to skip review.
 
 ## Decision pauses
 
@@ -110,6 +156,7 @@ Typical real pauses:
 - shape-backed vs bespoke model
 - readonly vs writable public contract
 - relation vs property vs leave raw identifier
+- keep/drop review of suggested relations
 - decorator vs manager mixin when both are credible
 
 Do not ask questions that botocore, repo patterns, or generator behavior can
