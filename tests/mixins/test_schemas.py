@@ -3,7 +3,7 @@ from botocraft.mixins.schemas import (
     schema_response_to_schema,
 )
 from botocraft.services.abstract import PrimaryBoto3ModelQuerySet
-from botocraft.services.schemas import DescribeSchemaResponse, Schema
+from botocraft.services.schemas import DescribeSchemaResponse, Schema, SchemaManager
 
 
 class DummyManager:
@@ -12,6 +12,23 @@ class DummyManager:
 
     def sessionize(self, value: object) -> None:
         self.sessionized.append(value)
+
+
+class FakePaginator:
+    def __init__(self, responses: list[dict[str, object]]) -> None:
+        self.responses = responses
+
+    def paginate(self, **_: object) -> list[dict[str, object]]:
+        return self.responses
+
+
+class FakeSchemasClient:
+    def __init__(self, paginator: FakePaginator) -> None:
+        self.paginator = paginator
+
+    def get_paginator(self, name: str) -> FakePaginator:
+        assert name == "list_schemas"
+        return self.paginator
 
 
 def test_schema_response_to_schema_preserves_registry_name() -> None:
@@ -68,3 +85,17 @@ def test_schema_list_add_registry_name_marks_each_result() -> None:
         "aws.events",
         "aws.events",
     ]
+
+
+def test_schema_manager_list_returns_empty_queryset_for_empty_results() -> None:
+    manager = SchemaManager.__new__(SchemaManager)
+    manager.client = FakeSchemasClient(FakePaginator([{}]))
+    manager.session = None
+
+    results = manager.list(
+        RegistryName="aws.events",
+        SchemaNamePrefix="aws.cloudtrail",
+    )
+
+    assert isinstance(results, PrimaryBoto3ModelQuerySet)
+    assert results.results == []

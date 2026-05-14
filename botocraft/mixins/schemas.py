@@ -139,8 +139,12 @@ def schema_list_add_registry_name(
 
     @wraps(func)
     def wrapper(self, *args, **kwargs) -> "PrimaryBoto3ModelQuerySet":
+        from botocraft.services.abstract import PrimaryBoto3ModelQuerySet
+
         registry_name = _registry_name_from_call(args, kwargs)
         results = func(self, *args, **kwargs)
+        if not isinstance(results, PrimaryBoto3ModelQuerySet):
+            results = PrimaryBoto3ModelQuerySet(results)
         for schema in results.results:
             cast("Schema", schema).RegistryName = registry_name
         return results
