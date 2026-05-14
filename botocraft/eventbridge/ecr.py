@@ -3,6 +3,9 @@ from typing import TYPE_CHECKING
 
 from .base import EventBridgeEvent
 from .raw import (
+    ECRAWSAPICallViaCloudTrailEvent as RawECRAWSAPICallViaCloudTrailEvent,
+)
+from .raw import (
     ECRImageActionEvent as RawECRImageActionEvent,
 )
 from .raw import (
@@ -19,9 +22,6 @@ from .raw import (
 )
 from .raw import (
     ECRScanResourceChangeEvent as RawECRScanResourceChangeEvent,
-)
-from .raw import (
-    ECSAWSAPICallViaCloudTrailEvent as RawECSAWSAPICallViaCloudTrailEvent,
 )
 
 if TYPE_CHECKING:
@@ -309,7 +309,7 @@ class ECRScanResourceChangeEvent(EventBridgeEvent, RawECRScanResourceChangeEvent
 
 
 class ECRAWSAPICallViaCloudTrailEvent(
-    EventBridgeEvent, RawECSAWSAPICallViaCloudTrailEvent
+    EventBridgeEvent, RawECRAWSAPICallViaCloudTrailEvent
 ):
     """
     ECR AWS API Call Via CloudTrail Event class.
@@ -345,3 +345,15 @@ class ECRAWSAPICallViaCloudTrailEvent(
                 for imageId in self.detail.requestParameters.imageIds  # type: ignore[attr-defined]
             ],
         )
+
+
+#: Declarative mapping from EventBridge source/detail-type pairs to wrappers.
+EVENT_CLASS_MAP = {
+    ("aws.ecr", "ECR Image Action"): ECRImageActionEvent,
+    ("aws.ecr", "ECR Image Scan"): ECRImageScanEvent,
+    ("aws.ecr", "ECR Referrer Action"): ECRReferrerActionEvent,
+    ("aws.ecr", "ECR Pull Through Cache Action"): ECRPullThroughCacheActionEvent,
+    ("aws.ecr", "ECR Replication Action"): ECRReplicationActionEvent,
+    ("aws.ecr", "ECR Scan Resource Change"): ECRScanResourceChangeEvent,
+    ("aws.ecr", "AWS API Call via CloudTrail"): ECRAWSAPICallViaCloudTrailEvent,
+}

@@ -23,6 +23,7 @@
    api/services/rds
    api/services/route53
    api/services/s3
+   api/services/schemas
    api/services/secretsmanager
    api/services/sqs
    api/services/ssm

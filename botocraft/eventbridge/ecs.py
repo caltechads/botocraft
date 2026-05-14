@@ -434,3 +434,16 @@ class ECSAWSAPICallViaCloudTrailEvent(
                     )
                 )
         return container_instances
+
+
+#: Declarative mapping from EventBridge source/detail-type pairs to wrappers.
+EVENT_CLASS_MAP = {
+    ("aws.ecs", "ECS Task State Change"): ECSTaskStateChangeEvent,
+    ("aws.ecs", "ECS Service Action"): ECSServiceActionEvent,
+    ("aws.ecs", "ECS Deployment State Change"): ECSServiceDeploymentStateChangeEvent,
+    (
+        "aws.ecs",
+        "ECS Container Instance State Change",
+    ): ECSContainerInstanceStateChangeEvent,
+    ("aws.ecs", "AWS API Call via CloudTrail"): ECSAWSAPICallViaCloudTrailEvent,
+}

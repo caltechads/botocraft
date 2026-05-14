@@ -1,24 +1,10 @@
 import json
-from typing import TYPE_CHECKING, Any, cast
+from typing import TYPE_CHECKING, Any, ClassVar
 
 import boto3.session
 
-from .ecr import (
-    ECRAWSAPICallViaCloudTrailEvent,
-    ECRImageActionEvent,
-    ECRImageScanEvent,
-    ECRPullThroughCacheActionEvent,
-    ECRReferrerActionEvent,
-    ECRReplicationActionEvent,
-    ECRScanResourceChangeEvent,
-)
-from .ecs import (
-    ECSAWSAPICallViaCloudTrailEvent,
-    ECSContainerInstanceStateChangeEvent,
-    ECSServiceActionEvent,
-    ECSServiceDeploymentStateChangeEvent,
-    ECSTaskStateChangeEvent,
-)
+from .ecr import EVENT_CLASS_MAP as ECR_EVENT_CLASS_MAP
+from .ecs import EVENT_CLASS_MAP as ECS_EVENT_CLASS_MAP
 
 if TYPE_CHECKING:
     from . import EventBridgeEvent
@@ -26,8 +12,7 @@ if TYPE_CHECKING:
 
 class AbstractEventFactory:
     """
-    An abstract factory class that returns the proper EventBridge event class
-    based on the event type.
+    Return the proper EventBridge event class for a raw JSON payload.
 
     Keyword Args:
         session: The boto3 session to use for sessionizing the event class.
@@ -35,8 +20,34 @@ class AbstractEventFactory:
 
     """
 
+    #: Mapping from ``(source, detail-type)`` pairs to event classes.
+    event_class_map: ClassVar[dict[tuple[str, str], type["EventBridgeEvent"]]] = {}
+
     def __init__(self, session: boto3.session.Session | None = None) -> None:
+        """
+        Initialize factory with an optional boto3 session.
+
+        Keyword Args:
+            session: Session attached to created event objects.
+
+        """
+        #: Session attached to created event objects.
         self.session = session
+
+    def _deserialize_event_data(self, event_data: str) -> dict[str, Any]:
+        """
+        Decode raw EventBridge JSON and attach the active session.
+
+        Args:
+            event_data: The raw JSON data of the event.
+
+        Returns:
+            Deserialized event payload with ``session`` attached.
+
+        """
+        data = json.loads(event_data)
+        data["session"] = self.session
+        return data
 
     def new(self, event_data: str) -> "EventBridgeEvent | dict[str, Any]":
         """
@@ -50,16 +61,16 @@ class AbstractEventFactory:
             data (with a "session" key added) if the type is not recognized.
 
         """
-        data = json.loads(event_data)
-        data["session"] = self.session
-
-        return data
+        data = self._deserialize_event_data(event_data)
+        event_class = self.event_class_map.get((data["source"], data["detail-type"]))
+        if event_class is None:
+            return data
+        return event_class(**data)
 
 
 class EventFactory(AbstractEventFactory):
     """
-    A factory class that returns the proper EventBridge event class to
-    based on the event type.
+    Default EventBridge factory backed by declarative wrapper mappings.
 
     Keyword Args:
         session: The boto3 session to use for sessionizing the event class.
@@ -67,45 +78,8 @@ class EventFactory(AbstractEventFactory):
 
     """
 
-    def new(self, event_data: str) -> "EventBridgeEvent | dict[str, Any]":  # noqa: PLR0911, PLR0912
-        """
-        Return an event class of the type identified by ``event_data``.
-
-        Args:
-            event_data: The raw JSON data of the event.
-
-        Returns:
-            An event class of the specified type, or the raw event
-            data (with a "session" key added) if the type is not recognized.
-
-        """
-        data = cast("dict[str, Any]", super().new(event_data))
-
-        if data["source"] == "aws.ecs":
-            if data["detail-type"] == "ECS Task State Change":
-                return ECSTaskStateChangeEvent(**data)
-            if data["detail-type"] == "ECS Service Action":
-                return ECSServiceActionEvent(**data)
-            if data["detail-type"] == "ECS Deployment State Change":
-                return ECSServiceDeploymentStateChangeEvent(**data)
-            if data["detail-type"] == "ECS Container Instance State Change":
-                return ECSContainerInstanceStateChangeEvent(**data)
-            if data["detail-type"] == "AWS API Call via CloudTrail":
-                return ECSAWSAPICallViaCloudTrailEvent(**data)
-        if data["source"] == "aws.ecr":
-            if data["detail-type"] == "ECR Image Action":
-                return ECRImageActionEvent(**data)
-            if data["detail-type"] == "ECR Image Scan":
-                return ECRImageScanEvent(**data)
-            if data["detail-type"] == "ECR Referrer Action":
-                return ECRReferrerActionEvent(**data)
-            if data["detail-type"] == "ECR Pull Through Cache Action":
-                return ECRPullThroughCacheActionEvent(**data)
-            if data["detail-type"] == "ECR Replication Action":
-                return ECRReplicationActionEvent(**data)
-            if data["detail-type"] == "ECR Scan Resource Change":
-                return ECRScanResourceChangeEvent(**data)
-            if data["detail-type"] == "AWS API Call via CloudTrail":
-                return ECRAWSAPICallViaCloudTrailEvent(**data)
-
-        return data
+    #: Default EventBridge wrapper mapping for supported services.
+    event_class_map: ClassVar[dict[tuple[str, str], type["EventBridgeEvent"]]] = {
+        **ECS_EVENT_CLASS_MAP,
+        **ECR_EVENT_CLASS_MAP,
+    }
