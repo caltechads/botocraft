@@ -3,20 +3,26 @@
   "evals": [
     {
       "id": 1,
-      "prompt": "Add Botocraft EventBridge support for CloudTrail. Export raw schemas from the default AWS schema registry, inspect what landed under botocraft/eventbridge/raw/cloudtrail, then wire wrapper classes and factory mappings so new events instantiate cleanly.",
-      "expected_output": "The skill should start with the shared export CLI, keep default registry behavior explicit, and follow through from raw models to wrapper and factory registration.",
+      "prompt": "Add Botocraft EventBridge support for CloudTrail. Start with `botocraft eventbridge export-service cloudtrail --dry-run`, use the schema-library path if the needed event is present, inspect what lands under `botocraft/eventbridge/raw/cloudtrail`, then wire wrapper classes and factory mappings so new events instantiate cleanly.",
+      "expected_output": "The skill should start with `--dry-run`, branch honestly to the schema-library path when coverage exists, and follow through from raw models to wrapper, factory, docs, and targeted test work.",
       "files": []
     },
     {
       "id": 2,
-      "prompt": "I tried exporting EventBridge schemas for a service and nothing showed up in aws.events. Help me diagnose whether the service has no schema-library coverage, tell me when to retry with explicit --registry-name, and avoid pretending the default registry is universal.",
-      "expected_output": "The skill should treat missing schema-library coverage honestly, surface the explicit registry retry path, and avoid inventing wrapper work before raw schemas exist.",
+      "prompt": "I ran `botocraft eventbridge export-service rds --dry-run` and the default `aws.events` registry did not show the event I need. Walk me through what to do next, including when to retry with explicit `--registry-name` values and when to switch to building raw models from an AWS documentation example payload instead of stopping.",
+      "expected_output": "The skill should treat missing schema-library coverage honestly, mention explicit registry retries when appropriate, and switch to the example-payload fallback instead of hard-stopping when registry discovery is empty.",
       "files": []
     },
     {
       "id": 3,
+      "prompt": "An AWS service only documents an EventBridge event as an example message, not as a schema-library export. Show me the full Botocraft maintainer workflow: dry-run first, generate an OpenAPI 3.0 schema from the example payload, run `datamodel-codegen` and `bump-pydantic`, move the raw module into `botocraft/eventbridge/raw/<service>/`, then finish wrapper, `EVENT_CLASS_MAP`, docs, and targeted tests.",
+      "expected_output": "The skill should cover the manual build-from-example path end to end, including raw package re-exports, then rejoin the shared declarative wrapper and factory workflow instead of treating raw generation as final step.",
+      "files": []
+    },
+    {
+      "id": 4,
       "prompt": "Use the raw EventBridge models already generated for a service, author the handwritten wrapper module, update docs, and extend EventFactory without adding another nested source/detail-type if chain.",
-      "expected_output": "The skill should share the repo's declarative mapping pattern, keep wrappers cohesive, and include docs plus factory follow-through rather than stopping at codegen.",
+      "expected_output": "The skill should preserve the repo's declarative mapping pattern, keep wrappers cohesive, and include docs plus factory and targeted test follow-through rather than stopping at codegen or raw-model inspection.",
       "files": []
     }
   ]

@@ -1,12 +1,13 @@
 ---
 name: botocraft-eventbridge-authoring
-description: Author Botocraft EventBridge wrappers from AWS schema registry exports, including raw schema export, wrapper module updates, factory registration, and docs follow-through. Use this whenever the user wants to add or expand `botocraft.eventbridge` support for an AWS service, export EventBridge schemas, generate raw event models, wire new wrapper classes, or extend EventFactory mappings.
+description: Author Botocraft EventBridge support for AWS services, whether schemas come from AWS Schema Registry or must be built from AWS documentation examples. Use this whenever the user wants to add or expand `botocraft.eventbridge` support, export EventBridge schemas, diagnose missing schema-library coverage, generate raw event models from example payloads, wire wrapper classes, extend EventFactory mappings, or finish docs and test follow-through for new event types.
 ---
 
 # Botocraft EventBridge Authoring
 
 Use this skill when task is specifically about Botocraft EventBridge support.
-Keep raw schema export, wrapper authoring, docs, and factory wiring on one path.
+Keep raw-model acquisition, wrapper authoring, docs, and factory wiring on one
+maintainer path.
 
 ## First moves
 
@@ -20,37 +21,92 @@ Keep raw schema export, wrapper authoring, docs, and factory wiring on one path.
    - `botocraft/eventbridge/factory.py`
    - one existing wrapper module such as `botocraft/eventbridge/ecs.py`
    - one raw package such as `botocraft/eventbridge/raw/ecs/`
+4. Read both maintainer runbooks before choosing path:
+   - `doc/source/runbook/eventbridge_event_from_schema.rst`
+   - `doc/source/runbook/eventbridge_event_from_example.rst`
 
-## Shared implementation path
+## Start with dry run
 
-Use shared exporter path first:
+Always begin with schema-library discovery:
 
 ```bash
-botocraft eventbridge export-service <service>
+botocraft eventbridge export-service <service> --dry-run
 ```
 
-Default behavior:
+If dry run shows the event you need, stay on schema-library path.
+
+If dry run returns nothing useful, or only misses the event you need, switch to
+build-from-example path. Do not stop merely because the default registry is
+empty.
+
+Default exporter behavior:
 
 - registry search defaults to `aws.events`
 - schema prefix defaults to `aws.<service>`
 - raw modules land in `botocraft/eventbridge/raw/<service>/`
 
-If the queried AWS Schema Registry returns no schemas for the requested service,
-stop and tell the user there are no schemas in the registry. Do not continue to
-manual schema authoring or wrapper work inside this skill.
+If `aws.events` misses, say so plainly. Retry with explicit `--registry-name`
+values only when user intent or docs suggest alternate registry coverage. If no
+registry path yields the event, continue with manual fallback when AWS docs
+provide a trustworthy example payload.
 
-## Workflow
+## Path 1: schema-library workflow
 
-1. Export raw schemas with CLI.
-2. If no schemas are returned, stop and report that the AWS Schema Registry has
-   no schemas for the requested service.
-3. Inspect generated raw models in `botocraft/eventbridge/raw/<service>/`.
-4. Author or update `botocraft/eventbridge/<service>.py` wrapper classes.
-5. Expose one mapping constant in wrapper module for factory consumption.
-6. Update `botocraft/eventbridge/factory.py` only through declarative mapping
+1. Run real export with CLI:
+
+   ```bash
+   botocraft eventbridge export-service <service>
+   ```
+
+2. Inspect generated raw models in `botocraft/eventbridge/raw/<service>/`.
+3. Clean up only small readability or import issues after generation.
+4. Continue to shared wrapper workflow below.
+
+## Path 2: build from example
+
+Use this fallback when registry discovery cannot supply the event.
+
+1. Find AWS service documentation for EventBridge events.
+2. Copy example payload for missing event into local buffer or file.
+3. Capture event's human-facing name and `detail-type`.
+4. Generate OpenAPI 3.0 schema from example payload, including nested fields,
+   reasonable required properties, and concrete types.
+5. Save schema locally, for example as `schema.yaml`.
+6. Generate raw models with same local toolchain used by exporter:
+
+   ```bash
+   datamodel-codegen \
+     --input schema.yaml \
+     --input-file-type openapi \
+     --output-model-type pydantic_v2.BaseModel \
+     --output generated_event.py
+
+   bump-pydantic generated_event.py
+   ```
+
+7. Inspect generated file and rename primary event class to Botocraft's
+   service-prefixed convention, such as `ECRScanResourceChangeEvent`.
+8. Move module into `botocraft/eventbridge/raw/<service>/`.
+9. Update re-exports in:
+   - `botocraft/eventbridge/raw/<service>/__init__.py`
+   - `botocraft/eventbridge/raw/__init__.py`
+10. Continue to shared wrapper workflow below.
+
+Stop only when neither registry exports nor a trustworthy documented example
+payload can provide raw-model input.
+
+## Shared wrapper workflow
+
+Once raw module exists from either path:
+
+1. Add or update `botocraft/eventbridge/<service>.py` wrapper classes.
+2. Expose one flat `EVENT_CLASS_MAP` constant in wrapper module for factory
+   consumption.
+3. Update `botocraft/eventbridge/factory.py` only through declarative mapping
    composition, not nested `if` chains.
-7. Update docs or runbook references for newly supported event types.
-8. Extend event registration or caller paths that consume new wrapper types.
+4. Update docs or runbook references for newly supported event types.
+5. Extend targeted tests for factory mapping, wrappers, and authoring helpers.
+6. Verify that `EventFactory` now decodes supported event types cleanly.
 
 ## Wrapper authoring rules
 
@@ -67,11 +123,18 @@ manual schema authoring or wrapper work inside this skill.
 - `EventFactory` merges those constants.
 - Unknown events still fall back to raw dict payloads.
 
+## Caveat
+
+Example-derived OpenAPI schemas are starting points, not full contracts.
+Optional fields may look required, some real-world fields may be missing, and
+nested shapes may need cleanup after real traffic appears.
+
 ## Output
 
 End-of-task summary should name:
 
-- raw schemas exported
+- whether raw model came from schema-library export or example fallback
+- raw schemas exported or generated
 - wrapper modules authored
 - factory mappings added
 - docs or registration follow-through completed
