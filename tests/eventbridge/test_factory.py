@@ -27,8 +27,7 @@ def test_event_factory_builds_ecs_event() -> None:
                     ),
                     "taskArn": "arn:aws:ecs:us-west-2:123456789012:task/default/abc",
                     "taskDefinitionArn": (
-                        "arn:aws:ecs:us-west-2:123456789012:"
-                        "task-definition/family:1"
+                        "arn:aws:ecs:us-west-2:123456789012:task-definition/family:1"
                     ),
                     "overrides": {"containerOverrides": []},
                     "desiredStatus": "RUNNING",
