@@ -1,11 +1,14 @@
 from pathlib import Path
-from typing import Callable, Sequence
+from typing import Callable, Sequence, cast
 
 from click.testing import CliRunner
 
 from botocraft.cli import cli
 from botocraft.eventbridge.authoring import EventBridgeServiceExporter
-from botocraft.services.abstract import Boto3Model, PrimaryBoto3ModelQuerySet
+from botocraft.services.abstract import (
+    Boto3Model,
+    PrimaryBoto3ModelQuerySet,
+)
 
 
 class FakeVersion:
@@ -45,7 +48,7 @@ class FakeSchemaManager:
             for schema in self.schemas_by_registry.get(RegistryName, [])
             if schema.SchemaName.startswith(SchemaNamePrefix)
         ]
-        return PrimaryBoto3ModelQuerySet(schemas)
+        return PrimaryBoto3ModelQuerySet(cast("list[Boto3Model]", schemas))
 
     def export(
         self,
@@ -61,18 +64,15 @@ class FakeSchemaManager:
             "AWS API Call via CloudTrail",
         )
         content = (
-            "openapi: 3.0.0\n"
-            "info:\n"
-            f"  title: {title}\n"
-            "paths: {}\n"
-            "components:\n"
-            "  schemas:\n"
-            "    Event:\n"
-            "      title: Event\n"
-            "      type: object\n"
-            "      properties:\n"
-            "        detail:\n"
-            "          type: string\n"
+            "{\n"
+            f'  "title": "{title}",\n'
+            '  "type": "object",\n'
+            '  "properties": {\n'
+            '    "detail": {\n'
+            '      "type": "string"\n'
+            "    }\n"
+            "  }\n"
+            "}\n"
         )
         return FakeExportResponse(content=content, schema_version=SchemaVersion or "3")
 
@@ -137,10 +137,11 @@ def test_eventbridge_export_service_uses_default_registry(
             "aws.events",
             "aws.cloudtrail.AWSAPICallViaCloudTrail",
             "3",
-            "OpenApi3",
+            "JSONSchemaDraft4",
         )
     ]
     assert commands[0][0] == "datamodel-codegen"
+    assert commands[0][commands[0].index("--input-file-type") + 1] == "jsonschema"
     generated = tmp_path / "raw" / "cloudtrail" / "aws_api_call_via_cloudtrail.py"
     assert generated.exists()
     assert "class CloudtrailAWSAPICallViaCloudTrailEvent" in generated.read_text(
@@ -233,3 +234,46 @@ def test_eventbridge_export_service_supports_registry_override_and_idempotent_ex
         "from .aws_api_call_via_cloudtrail import "
         "CloudtrailAWSAPICallViaCloudTrailEvent  # noqa: F401"
     ) == 1
+
+
+def test_rename_primary_class_prefers_root_event_model(tmp_path) -> None:
+    def run(command: Sequence[str]) -> None:
+        command_list = list(command)
+        if command_list[0] == "datamodel-codegen":
+            output_path = Path(command_list[command_list.index("--output") + 1])
+            output_path.write_text(
+                (
+                    "from pydantic import BaseModel, Field\n\n\n"
+                    "class SSMCalendarStateChangeEvent(BaseModel):\n"
+                    "    state: str\n\n\n"
+                    "class CalendarStateChangeModel(BaseModel):\n"
+                    "    detail: SSMCalendarStateChangeEvent\n"
+                    "    detail_type: str = Field(..., alias='detail-type')\n"
+                ),
+                encoding="utf-8",
+            )
+
+    exporter = EventBridgeServiceExporter(
+        schema_manager=FakeSchemaManager(
+            {
+                "aws.events": [
+                    FakeSchema(
+                        RegistryName="aws.events",
+                        SchemaName="aws.ssm.CalendarStateChange",
+                    ),
+                ]
+            }
+        ),
+        command_runner=run,
+    )
+    exporter.export_service(
+        "ssm",
+        registry_names=("aws.events",),
+        raw_root=tmp_path / "raw",
+    )
+
+    file_path = tmp_path / "raw" / "ssm" / "calendarstatechange.py"
+    contents = file_path.read_text(encoding="utf-8")
+    assert "class SSMCalendarStateChangeEventDetail(BaseModel):" in contents
+    assert "detail: SSMCalendarStateChangeEventDetail" in contents
+    assert "class SSMCalendarStateChangeEvent(BaseModel):" in contents

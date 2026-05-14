@@ -4,7 +4,7 @@ import subprocess
 import tempfile
 from dataclasses import dataclass
 from pathlib import Path
-from typing import TYPE_CHECKING, Callable, Protocol, Sequence
+from typing import TYPE_CHECKING, Callable, Protocol, Sequence, cast
 
 import yaml
 
@@ -270,29 +270,31 @@ class EventBridgeServiceExporter:
             Metadata for the generated module.
 
         """
+        registry_name = cast("str", schema.RegistryName)
+        schema_name = cast("str", schema.SchemaName)
         schema_version = self._latest_schema_version(schema)
         export = self.schema_manager.export(
-            RegistryName=schema.RegistryName,
-            SchemaName=schema.SchemaName,
+            RegistryName=registry_name,
+            SchemaName=schema_name,
             SchemaVersion=schema_version,
-            Type="OpenApi3",
+            Type="JSONSchemaDraft4",
         )
         if export is None or export.Content is None:
             msg = (
-                f"Schema export returned no content for {schema.RegistryName}/"
-                f"{schema.SchemaName}."
+                f"Schema export returned no content for {registry_name}/"
+                f"{schema_name}."
             )
             raise EventBridgeAuthoringError(msg)
         module_stem, desired_class_name = self._module_names(
             service=service,
-            schema_name=schema.SchemaName,
+            schema_name=schema_name,
             content=export.Content,
         )
         file_path = service_root / f"{module_stem}.py"
         if not dry_run:
             service_root.mkdir(parents=True, exist_ok=True)
             self._generate_python_module(
-                openapi_content=export.Content,
+                schema_content=export.Content,
                 file_path=file_path,
             )
             self._rename_primary_class(
@@ -300,8 +302,8 @@ class EventBridgeServiceExporter:
                 desired_class_name=desired_class_name,
             )
         return ExportedEventModule(
-            registry_name=schema.RegistryName,
-            schema_name=schema.SchemaName,
+            registry_name=registry_name,
+            schema_name=schema_name,
             schema_version=schema_version,
             file_path=file_path,
             class_name=desired_class_name,
@@ -358,7 +360,7 @@ class EventBridgeServiceExporter:
         Keyword Args:
             service: AWS service name used for class prefixing.
             schema_name: EventBridge schema name.
-            content: Exported OpenAPI document.
+            content: Exported schema document.
 
         Returns:
             Tuple of ``(module_stem, class_name)``.
@@ -374,10 +376,10 @@ class EventBridgeServiceExporter:
 
     def _schema_title(self, content: str) -> str | None:
         """
-        Extract OpenAPI title from exported schema content.
+        Extract schema title from exported schema content.
 
         Args:
-            content: Exported OpenAPI document.
+            content: Exported schema document.
 
         Returns:
             Schema title when present.
@@ -386,11 +388,15 @@ class EventBridgeServiceExporter:
         parsed = yaml.safe_load(content)
         if not isinstance(parsed, dict):
             return None
+        title = parsed.get("title")
+        if isinstance(title, str):
+            return title
         info = parsed.get("info")
-        if not isinstance(info, dict):
-            return None
-        title = info.get("title")
-        return title if isinstance(title, str) else None
+        if isinstance(info, dict):
+            nested_title = info.get("title")
+            if isinstance(nested_title, str):
+                return nested_title
+        return None
 
     def _snake_case_title(self, title: str) -> str:
         """
@@ -446,15 +452,15 @@ class EventBridgeServiceExporter:
             if part
         )
 
-    def _generate_python_module(self, *, openapi_content: str, file_path: Path) -> None:
+    def _generate_python_module(self, *, schema_content: str, file_path: Path) -> None:
         """
-        Run external code generators for one exported OpenAPI schema.
+        Run external code generators for one exported EventBridge schema.
 
         Side Effects:
             Creates and rewrites ``file_path``.
 
         Keyword Args:
-            openapi_content: Exported OpenAPI schema content.
+            schema_content: Exported schema content.
             file_path: Target Python module path.
 
         Raises:
@@ -462,15 +468,15 @@ class EventBridgeServiceExporter:
 
         """
         with tempfile.TemporaryDirectory() as temp_dir:
-            openapi_path = Path(temp_dir) / "schema.yaml"
-            openapi_path.write_text(openapi_content, encoding="utf-8")
+            schema_path = Path(temp_dir) / "schema.json"
+            schema_path.write_text(schema_content, encoding="utf-8")
             self.command_runner(
                 [
                     "datamodel-codegen",
                     "--input",
-                    str(openapi_path),
+                    str(schema_path),
                     "--input-file-type",
-                    "openapi",
+                    "jsonschema",
                     "--output-model-type",
                     "pydantic_v2.BaseModel",
                     "--output",
@@ -498,13 +504,26 @@ class EventBridgeServiceExporter:
         """
         contents = file_path.read_text(encoding="utf-8")
         class_names = self._top_level_class_names(contents)
-        if not class_names or desired_class_name in class_names:
+        if not class_names:
             return
-        source_class_name = class_names[0]
+        source_class_name = class_names[-1]
+        renamed = contents
+        if (
+            desired_class_name in class_names
+            and source_class_name != desired_class_name
+        ):
+            helper_class_name = f"{desired_class_name}Detail"
+            renamed = re.sub(
+                rf"\b{re.escape(desired_class_name)}\b",
+                helper_class_name,
+                renamed,
+            )
+        if source_class_name == desired_class_name:
+            return
         renamed = re.sub(
             rf"\b{re.escape(source_class_name)}\b",
             desired_class_name,
-            contents,
+            renamed,
         )
         file_path.write_text(renamed, encoding="utf-8")
 

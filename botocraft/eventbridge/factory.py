@@ -5,6 +5,7 @@ import boto3.session
 
 from .ecr import EVENT_CLASS_MAP as ECR_EVENT_CLASS_MAP
 from .ecs import EVENT_CLASS_MAP as ECS_EVENT_CLASS_MAP
+from .ssm import EVENT_CLASS_MAP as SSM_EVENT_CLASS_MAP
 
 if TYPE_CHECKING:
     from . import EventBridgeEvent
@@ -82,4 +83,5 @@ class EventFactory(AbstractEventFactory):
     event_class_map: ClassVar[dict[tuple[str, str], type["EventBridgeEvent"]]] = {
         **ECS_EVENT_CLASS_MAP,
         **ECR_EVENT_CLASS_MAP,
+        **SSM_EVENT_CLASS_MAP,
     }

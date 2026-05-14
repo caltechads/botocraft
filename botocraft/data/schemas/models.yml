@@ -61,7 +61,7 @@ primary:
           2:
             name: Type
             value: >-
-              "OpenApi3"
+              "JSONSchemaDraft4"
         user_keyword_args:
           - name: SchemaVersion
             attr_type: str | None

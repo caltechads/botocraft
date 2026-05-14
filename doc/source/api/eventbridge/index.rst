@@ -37,3 +37,6 @@ ECS
     * :doc:`/api/eventbridge/ecs/service_action`
     * :doc:`/api/eventbridge/ecs/service_deployment_state_change`
     * :doc:`/api/eventbridge/ecs/task_state_change`
+
+SSM
+    * :doc:`/api/eventbridge/ssm/calendar_state_change`

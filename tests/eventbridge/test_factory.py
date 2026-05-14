@@ -7,6 +7,7 @@ from botocraft.eventbridge.base import EventBridgeEvent
 from botocraft.eventbridge.ecr import ECRImageActionEvent
 from botocraft.eventbridge.ecs import ECSTaskStateChangeEvent
 from botocraft.eventbridge.factory import EventFactory
+from botocraft.eventbridge.ssm import SSMCalendarStateChangeEvent
 
 
 def test_event_factory_builds_ecs_event() -> None:
@@ -71,6 +72,39 @@ def test_event_factory_builds_ecr_event() -> None:
     )
 
     assert isinstance(event, ECRImageActionEvent)
+
+
+def test_event_factory_builds_ssm_event() -> None:
+    event = EventFactory().new(
+        json.dumps(
+            {
+                "version": "0",
+                "id": "1",
+                "detail-type": "Calendar State Change",
+                "source": "aws.ssm",
+                "account": "123456789012",
+                "time": "2024-01-01T00:00:00Z",
+                "region": "us-west-2",
+                "resources": [
+                    (
+                        "arn:aws:ssm:us-west-2:123456789012:"
+                        "document/MyChangeCalendar"
+                    )
+                ],
+                "detail": {
+                    "atTime": "2024-01-01T00:00:00Z",
+                    "nextTransitionTime": "2024-01-01T01:00:00Z",
+                    "state": "OPEN",
+                },
+            }
+        )
+    )
+
+    assert isinstance(event, SSMCalendarStateChangeEvent)
+    assert event.calendar_arn == (
+        "arn:aws:ssm:us-west-2:123456789012:document/MyChangeCalendar"
+    )
+    assert event.is_open is True
 
 
 def test_event_factory_supports_declarative_extension() -> None:
