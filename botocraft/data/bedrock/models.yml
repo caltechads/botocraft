@@ -493,6 +493,9 @@ primary:
     arn_key: provisionedModelArn
     name_key: provisionedModelName
 secondary:
+  VpcConfig:
+    alternate_name: BedrockVpcConfig
+    force_create: true
   GetFoundationModelResponse:
     fields:
       modelDetails:

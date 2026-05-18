@@ -298,6 +298,22 @@ class TestCapacityProviderManager:
 
 class TestTaskSetManager:
     @patch("boto3.client")
+    def test_list_without_task_sets_returns_empty(self, mock_boto3_client):
+        mock_client = MagicMock()
+        mock_boto3_client.return_value = mock_client
+
+        manager = TaskSetManager()
+        task_sets = manager.list(
+            service="service-arn",
+            cluster="cluster-arn",
+            include=["TAGS"],
+        )
+
+        assert isinstance(task_sets, PrimaryBoto3ModelQuerySet)
+        assert len(task_sets) == 0
+        mock_client.describe_task_sets.assert_not_called()
+
+    @patch("boto3.client")
     def test_list_scoped_describe(self, mock_boto3_client):
         mock_client = MagicMock()
         mock_client.describe_task_sets.return_value = {
@@ -319,6 +335,7 @@ class TestTaskSetManager:
             service="service-arn",
             cluster="cluster-arn",
             include=["TAGS"],
+            taskSets=["ts-arn-1"],
         )
 
         assert isinstance(task_sets, PrimaryBoto3ModelQuerySet)
@@ -329,6 +346,7 @@ class TestTaskSetManager:
             service="service-arn",
             cluster="cluster-arn",
             include=["TAGS"],
+            taskSets=["ts-arn-1"],
         )
 
 

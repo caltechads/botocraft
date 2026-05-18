@@ -20,6 +20,7 @@ from botocraft.services.bedrock import (
     AutomatedReasoningPolicyTestCaseManager,
     AutomatedReasoningPolicyTestResult,
     AutomatedReasoningPolicyTestResultManager,
+    BedrockVpcConfig,
     CustomModel,
     CustomModelManager,
     EnforcedGuardrailsConfiguration,
@@ -40,7 +41,6 @@ from botocraft.services.bedrock import (
     PromptRouterTargetModel,
     ResourcePolicy,
     ResourcePolicyManager,
-    VpcConfig,
 )
 from botocraft.services.ec2 import (
     SecurityGroup,
@@ -1032,7 +1032,7 @@ class TestBedrockRelations:
             status="Completed",
             baseModelArn="arn:aws:bedrock:us-west-2::foundation-model/base",
             creationTime=datetime.now(tz=timezone.utc),
-            vpcConfig=VpcConfig.model_construct(
+            vpcConfig=BedrockVpcConfig.model_construct(
                 subnetIds=["subnet-1"],
                 securityGroupIds=["sg-1"],
             ),
@@ -1091,7 +1091,7 @@ class TestBedrockRelations:
             submitTime=datetime.now(tz=timezone.utc),
             inputDataConfig={},
             outputDataConfig={},
-            vpcConfig=VpcConfig.model_construct(
+            vpcConfig=BedrockVpcConfig.model_construct(
                 subnetIds=["subnet-1"],
                 securityGroupIds=["sg-1"],
             ),

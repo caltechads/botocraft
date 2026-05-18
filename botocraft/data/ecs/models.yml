@@ -141,7 +141,10 @@ primary:
         many: true
         docstring: >-
           Return the :py:class:`TaskSet` objects associated with this service,
-          if any.
+          if any. Task sets are used only when the service deployment
+          controller is ``EXTERNAL``; services that use the ``ECS``
+          deployment controller do not populate :py:attr:`taskSets` on
+          describe responses, so this property is usually empty for them.
         transformer:
           mapping:
             service: serviceName
@@ -671,6 +674,10 @@ primary:
   TaskSet:
     primary_key: taskSetArn
     arn_key: taskSetArn
+    docstring: >-
+      Describes a task set for a service that uses the ``EXTERNAL`` deployment
+      controller. Standard ``ECS`` deployment-controller services do not use
+      task sets.
     input_shapes:
       - CreateTaskSetRequest
     fields:

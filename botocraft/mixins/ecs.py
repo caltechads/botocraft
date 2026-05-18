@@ -610,8 +610,20 @@ class TaskSetManagerMixin:
     A mixin for :py:class:`botocraft.services.ecs.TaskSetManager`.
 
     This mixin provides a scoped list operation because
-    ``describe_task_sets`` requires both service and cluster context and does
-    not have a standalone paginator-backed list API.
+    ``describe_task_sets`` requires service and cluster context, requires a
+    non-empty ``taskSets`` argument at runtime, and does not have a standalone
+    paginator-backed list API.
+
+    .. note::
+
+        Task sets apply only to services that use the ``EXTERNAL`` deployment
+        controller. Services that use the default ``ECS`` deployment controller
+        (including rolling and blue/green deployments managed by ECS) do not
+        expose task sets on
+        :py:meth:`~botocraft.services.ecs.ServiceManager.get_many` or
+        :py:attr:`~botocraft.services.ecs.Service.taskSets`, so
+        :py:meth:`list` and :py:attr:`~botocraft.services.ecs.Service.task_sets`
+        typically return empty results for those services.
     """
 
     def list(
@@ -625,25 +637,31 @@ class TaskSetManagerMixin:
         """
         Return task sets for a service and cluster.
 
+        Task sets exist only for ``EXTERNAL`` deployment-controller services.
+        For ``ECS`` deployment-controller services, omitting ``taskSets`` is
+        expected and returns an empty queryset without calling AWS.
+
         Keyword Args:
             service: The service name or ARN that owns the task sets.
             cluster: The cluster name or ARN that owns the task sets.
             include: Optional extra fields to include in the response.
-            taskSets: Optional task set names or ARNs to describe directly.
+            taskSets: Task set names or ARNs to describe. Although botocore marks
+                this argument optional, ECS rejects omitted, ``None``, and empty
+                values with ``InvalidParameterException``.
 
         Returns:
             A list of :py:class:`botocraft.services.ecs.TaskSet` objects.
 
         """
-        if taskSets:
-            return self.get_many(  # type: ignore[attr-defined]
-                service=service,
-                cluster=cluster,
-                include=include,
-                taskSets=taskSets,
-            )
+        if not taskSets:
+            return PrimaryBoto3ModelQuerySet([])  # type: ignore[arg-type]
 
-        return PrimaryBoto3ModelQuerySet([])  # type: ignore[arg-type]
+        return self.get_many(  # type: ignore[attr-defined]
+            cluster=cluster,
+            service=service,
+            include=include,
+            taskSets=taskSets,
+        )
 
 
 class ServiceRevisionManagerMixin:
