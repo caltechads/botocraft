@@ -6,6 +6,16 @@ from botocraft.services.ecs import (
     Cluster,
     ClusterManager,
     ContainerInstance,
+    Daemon,
+    DaemonDeployment,
+    DaemonDeploymentManager,
+    DaemonManager,
+    DaemonRevision,
+    DaemonRevisionManager,
+    DaemonTaskDefinition,
+    DaemonTaskDefinitionManager,
+    ExpressGatewayService,
+    ExpressGatewayServiceManager,
     PrimaryBoto3ModelQuerySet,
     Service,
     ServiceDeployment,
@@ -322,6 +332,412 @@ class TestTaskSetManager:
         )
 
 
+class TestDaemonManager:
+    @patch("boto3.client")
+    def test_list_paginates_and_hydrates(self, mock_boto3_client):
+        mock_client = MagicMock()
+        mock_client.list_daemons.side_effect = [
+            {
+                "daemonSummariesList": [
+                    {
+                        "daemonArn": "daemon-arn-1",
+                        "clusterArn": "cluster-arn",
+                    }
+                ],
+                "nextToken": "token-1",
+            },
+            {
+                "daemonSummariesList": [
+                    {
+                        "daemonArn": "daemon-arn-2",
+                        "clusterArn": "cluster-arn",
+                    }
+                ]
+            },
+        ]
+        mock_boto3_client.return_value = mock_client
+
+        manager = DaemonManager()
+        manager.get = MagicMock(
+            side_effect=[
+                Daemon(daemonArn="daemon-arn-1", clusterArn="cluster-arn"),
+                Daemon(daemonArn="daemon-arn-2", clusterArn="cluster-arn"),
+            ]
+        )
+
+        daemons = manager.list(clusterArn="cluster-arn")
+
+        assert isinstance(daemons, PrimaryBoto3ModelQuerySet)
+        assert [daemon.daemonArn for daemon in daemons] == ["daemon-arn-1", "daemon-arn-2"]
+        assert mock_client.list_daemons.call_args_list[0].kwargs == {
+            "clusterArn": "cluster-arn",
+            "maxResults": 100,
+        }
+        assert mock_client.list_daemons.call_args_list[1].kwargs == {
+            "clusterArn": "cluster-arn",
+            "maxResults": 100,
+            "nextToken": "token-1",
+        }
+        manager.get.assert_any_call(daemonArn="daemon-arn-1")
+        manager.get.assert_any_call(daemonArn="daemon-arn-2")
+
+    @patch("boto3.client")
+    def test_create_update_delete_use_follow_up_contract(self, mock_boto3_client):
+        mock_client = MagicMock()
+        mock_client.create_daemon.return_value = {
+            "daemonArn": "daemon-arn-1",
+        }
+        mock_client.update_daemon.return_value = {
+            "daemonArn": "daemon-arn-1",
+        }
+        mock_client.delete_daemon.return_value = {
+            "daemonArn": "daemon-arn-1",
+        }
+        mock_boto3_client.return_value = mock_client
+
+        manager = DaemonManager()
+        created = Daemon(
+            daemonArn="daemon-arn-1",
+            daemonName="daemon-1",
+            clusterArn="cluster-arn",
+            daemonTaskDefinitionArn="task-def-arn-1",
+            capacityProviderArns=["cp-arn-1"],
+        )
+        manager.get = MagicMock(return_value=created)
+
+        daemon = Daemon(
+            daemonName="daemon-1",
+            clusterArn="cluster-arn",
+            daemonTaskDefinitionArn="task-def-arn-1",
+            capacityProviderArns=["cp-arn-1"],
+        )
+        assert manager.create(daemon) is created
+        mock_client.create_daemon.assert_called_once_with(
+            daemonName="daemon-1",
+            clusterArn="cluster-arn",
+            daemonTaskDefinitionArn="task-def-arn-1",
+            capacityProviderArns=["cp-arn-1"],
+        )
+        manager.get.assert_called_with(daemonArn="daemon-arn-1")
+
+        manager.get.reset_mock(return_value=True, side_effect=True)
+        manager.get.return_value = created
+        daemon.daemonArn = "daemon-arn-1"
+        assert manager.update(daemon) is created
+        mock_client.update_daemon.assert_called_once_with(
+            daemonArn="daemon-arn-1",
+            daemonTaskDefinitionArn="task-def-arn-1",
+            capacityProviderArns=["cp-arn-1"],
+        )
+        manager.get.assert_called_with(daemonArn="daemon-arn-1")
+
+        manager.get.reset_mock(return_value=True, side_effect=True)
+        manager.get.return_value = created
+        assert manager.delete(created) is created
+        manager.get.assert_called_with(daemonArn="daemon-arn-1")
+        mock_client.delete_daemon.assert_called_once_with(daemonArn="daemon-arn-1")
+
+
+class TestDaemonTaskDefinitionManager:
+    @patch("boto3.client")
+    def test_list_hydrates_from_summaries(self, mock_boto3_client):
+        mock_client = MagicMock()
+        mock_client.list_daemon_task_definitions.side_effect = [
+            {
+                "daemonTaskDefinitions": [
+                    {
+                        "daemonTaskDefinitionArn": "daemon-task-def-arn-1",
+                    }
+                ],
+                "nextToken": "token-1",
+            },
+            {
+                "daemonTaskDefinitions": [
+                    {
+                        "daemonTaskDefinitionArn": "daemon-task-def-arn-2",
+                    }
+                ]
+            },
+        ]
+        mock_boto3_client.return_value = mock_client
+
+        manager = DaemonTaskDefinitionManager()
+        manager.get = MagicMock(
+            side_effect=[
+                DaemonTaskDefinition(daemonTaskDefinitionArn="daemon-task-def-arn-1"),
+                DaemonTaskDefinition(daemonTaskDefinitionArn="daemon-task-def-arn-2"),
+            ]
+        )
+
+        task_definitions = manager.list(familyPrefix="agent")
+
+        assert isinstance(task_definitions, PrimaryBoto3ModelQuerySet)
+        assert [td.daemonTaskDefinitionArn for td in task_definitions] == [
+            "daemon-task-def-arn-1",
+            "daemon-task-def-arn-2",
+        ]
+        assert mock_client.list_daemon_task_definitions.call_args_list[0].kwargs == {
+            "familyPrefix": "agent",
+            "maxResults": 100,
+        }
+        assert mock_client.list_daemon_task_definitions.call_args_list[1].kwargs == {
+            "familyPrefix": "agent",
+            "maxResults": 100,
+            "nextToken": "token-1",
+        }
+        manager.get.assert_any_call(
+            daemonTaskDefinition="daemon-task-def-arn-1"
+        )
+        manager.get.assert_any_call(
+            daemonTaskDefinition="daemon-task-def-arn-2"
+        )
+
+    @patch("boto3.client")
+    def test_create_and_delete_use_follow_up_contract(self, mock_boto3_client):
+        mock_client = MagicMock()
+        mock_client.register_daemon_task_definition.return_value = {
+            "daemonTaskDefinitionArn": "daemon-task-def-arn-1",
+        }
+        mock_client.delete_daemon_task_definition.return_value = {
+            "daemonTaskDefinitionArn": "daemon-task-def-arn-1",
+        }
+        mock_boto3_client.return_value = mock_client
+
+        manager = DaemonTaskDefinitionManager()
+        created = DaemonTaskDefinition(
+            daemonTaskDefinitionArn="daemon-task-def-arn-1",
+            family="agent",
+            containerDefinitions=[],
+        )
+        manager.get = MagicMock(return_value=created)
+
+        task_definition = DaemonTaskDefinition(
+            family="agent",
+            containerDefinitions=[],
+        )
+        assert manager.create(task_definition) is created
+        mock_client.register_daemon_task_definition.assert_called_once_with(
+            family="agent",
+            containerDefinitions=[],
+        )
+        manager.get.assert_called_with(
+            daemonTaskDefinition="daemon-task-def-arn-1"
+        )
+
+        manager.get.reset_mock(return_value=True, side_effect=True)
+        manager.get.return_value = created
+        assert manager.delete(created) is created
+        manager.get.assert_called_with(
+            daemonTaskDefinition="daemon-task-def-arn-1"
+        )
+        mock_client.delete_daemon_task_definition.assert_called_once_with(
+            daemonTaskDefinition="daemon-task-def-arn-1"
+        )
+
+
+class TestDaemonRevisionManager:
+    @patch("boto3.client")
+    def test_get_many(self, mock_boto3_client):
+        mock_client = MagicMock()
+        mock_client.describe_daemon_revisions.return_value = {
+            "daemonRevisions": [
+                {
+                    "daemonRevisionArn": "daemon-revision-arn-1",
+                    "daemonArn": "daemon-arn-1",
+                    "clusterArn": "cluster-arn",
+                    "daemonTaskDefinitionArn": "task-def-arn-1",
+                },
+                {
+                    "daemonRevisionArn": "daemon-revision-arn-2",
+                    "daemonArn": "daemon-arn-1",
+                    "clusterArn": "cluster-arn",
+                    "daemonTaskDefinitionArn": "task-def-arn-2",
+                },
+            ],
+            "failures": [],
+        }
+        mock_boto3_client.return_value = mock_client
+
+        manager = DaemonRevisionManager()
+        revisions = manager.get_many(
+            daemonRevisionArns=["daemon-revision-arn-1", "daemon-revision-arn-2"]
+        )
+
+        assert isinstance(revisions, PrimaryBoto3ModelQuerySet)
+        assert [revision.daemonRevisionArn for revision in revisions] == [
+            "daemon-revision-arn-1",
+            "daemon-revision-arn-2",
+        ]
+        mock_client.describe_daemon_revisions.assert_called_once_with(
+            daemonRevisionArns=["daemon-revision-arn-1", "daemon-revision-arn-2"]
+        )
+
+
+class TestDaemonDeploymentManager:
+    @patch("boto3.client")
+    def test_list(self, mock_boto3_client):
+        mock_client = MagicMock()
+        mock_client.list_daemon_deployments.return_value = {
+            "daemonDeployments": [
+                {
+                    "daemonDeploymentArn": "deployment-arn-1",
+                    "daemonArn": "daemon-arn-1",
+                    "clusterArn": "cluster-arn",
+                    "targetDaemonRevisionArn": "daemon-revision-arn-1",
+                }
+            ],
+            "nextToken": "token-1",
+        }
+        mock_boto3_client.return_value = mock_client
+
+        manager = DaemonDeploymentManager()
+        deployments = manager.list(
+            daemonArn="daemon-arn-1",
+            status=["IN_PROGRESS"],
+            createdAt={"before": "2026-05-18T00:00:00Z"},
+            maxResults=5,
+            nextToken="token-0",
+        )
+
+        assert isinstance(deployments, PrimaryBoto3ModelQuerySet)
+        assert deployments[0].daemonDeploymentArn == "deployment-arn-1"
+        mock_client.list_daemon_deployments.assert_called_once_with(
+            daemonArn="daemon-arn-1",
+            status=["IN_PROGRESS"],
+            createdAt={"before": "2026-05-18T00:00:00Z"},
+            maxResults=5,
+            nextToken="token-0",
+        )
+
+
+class TestExpressGatewayServiceManager:
+    @patch("boto3.client")
+    def test_list_hydrates_namespace_scope(self, mock_boto3_client):
+        mock_client = MagicMock()
+        mock_client.list_services_by_namespace.return_value = {
+            "serviceArns": ["service-arn-1", "service-arn-2"],
+            "nextToken": "token-1",
+        }
+        mock_boto3_client.return_value = mock_client
+
+        manager = ExpressGatewayServiceManager()
+        manager.get = MagicMock(
+            side_effect=[
+                ExpressGatewayService(serviceArn="service-arn-1", serviceName="svc-1"),
+                ExpressGatewayService(serviceArn="service-arn-2", serviceName="svc-2"),
+            ]
+        )
+
+        services = manager.list(namespace="team-a", maxResults=10, nextToken="token-0")
+
+        assert isinstance(services, PrimaryBoto3ModelQuerySet)
+        assert [service.serviceArn for service in services] == [
+            "service-arn-1",
+            "service-arn-2",
+        ]
+        mock_client.list_services_by_namespace.assert_called_once_with(
+            namespace="team-a",
+            maxResults=10,
+            nextToken="token-0",
+        )
+        manager.get.assert_any_call(serviceArn="service-arn-1")
+        manager.get.assert_any_call(serviceArn="service-arn-2")
+
+    @patch("boto3.client")
+    def test_update_uses_follow_up_get(self, mock_boto3_client):
+        mock_client = MagicMock()
+        mock_client.update_express_gateway_service.return_value = {
+            "service": {
+                "serviceArn": "service-arn-1",
+            }
+        }
+        mock_boto3_client.return_value = mock_client
+
+        manager = ExpressGatewayServiceManager()
+        expected = ExpressGatewayService(
+            serviceArn="service-arn-1",
+            serviceName="svc-1",
+            cluster="cluster-arn",
+            cpu="1024",
+        )
+        manager.get = MagicMock(return_value=expected)
+
+        model = ExpressGatewayService(
+            serviceArn="service-arn-1",
+            serviceName="svc-1",
+            cluster="cluster-arn",
+            cpu="1024",
+        )
+        assert manager.update(model) is expected
+        mock_client.update_express_gateway_service.assert_called_once_with(
+            serviceArn="service-arn-1",
+            cpu="1024",
+        )
+        manager.get.assert_called_once_with(serviceArn="service-arn-1")
+
+    @patch("boto3.client")
+    def test_create_get_delete_wire_requests_and_responses(self, mock_boto3_client):
+        mock_client = MagicMock()
+        mock_client.create_express_gateway_service.return_value = {
+            "service": {
+                "serviceArn": "service-arn-1",
+                "serviceName": "svc-1",
+                "cluster": "cluster-arn",
+            }
+        }
+        mock_client.describe_express_gateway_service.return_value = {
+            "service": {
+                "serviceArn": "service-arn-1",
+                "serviceName": "svc-1",
+                "cluster": "cluster-arn",
+            }
+        }
+        mock_client.delete_express_gateway_service.return_value = {
+            "service": {
+                "serviceArn": "service-arn-1",
+                "serviceName": "svc-1",
+                "cluster": "cluster-arn",
+            }
+        }
+        mock_boto3_client.return_value = mock_client
+
+        manager = ExpressGatewayServiceManager()
+        model = ExpressGatewayService(
+            serviceName="svc-1",
+            cluster="cluster-arn",
+            infrastructureRoleArn="arn:aws:iam::123456789012:role/infra",
+        )
+        created = manager.create(
+            model,
+            executionRoleArn="arn:aws:iam::123456789012:role/exec",
+            primaryContainer={
+                "image": "123456789012.dkr.ecr.us-west-2.amazonaws.com/app:1"
+            },
+        )
+        loaded = manager.get(serviceArn="service-arn-1")
+        deleted = manager.delete(serviceArn="service-arn-1")
+
+        mock_client.create_express_gateway_service.assert_called_once_with(
+            executionRoleArn="arn:aws:iam::123456789012:role/exec",
+            infrastructureRoleArn="arn:aws:iam::123456789012:role/infra",
+            serviceName="svc-1",
+            cluster="cluster-arn",
+            primaryContainer={
+                "image": "123456789012.dkr.ecr.us-west-2.amazonaws.com/app:1"
+            },
+            tags=[],
+        )
+        mock_client.describe_express_gateway_service.assert_called_once_with(
+            serviceArn="service-arn-1"
+        )
+        mock_client.delete_express_gateway_service.assert_called_once_with(
+            serviceArn="service-arn-1"
+        )
+        assert isinstance(created, ExpressGatewayService)
+        assert isinstance(loaded, ExpressGatewayService)
+        assert isinstance(deleted, ExpressGatewayService)
+
+
 class TestServiceRevisionManager:
     @patch("boto3.client")
     def test_list_delegates_to_get_many(self, mock_boto3_client):
@@ -438,7 +854,7 @@ class TestECSRelations:
 
         manager.list.assert_called_once_with(
             capacityProviders=["cp-1", "cp-2"],
-            cluster="cluster-arn",
+            cluster="cluster-name",
         )
 
     def test_task_capacity_provider(self):
@@ -652,3 +1068,153 @@ class TestECSRelations:
         )
         cluster_manager.get.assert_called_once_with(cluster="cluster-arn")
         task_definition_manager.get.assert_called_once_with(taskDefinition="family:1")
+
+    def test_daemon_relations(self):
+        session = MagicMock()
+        daemon = Daemon(
+            daemonArn="daemon-arn",
+            clusterArn="cluster-arn",
+            currentRevisions=[{"arn": "daemon-revision-arn-1"}, {"arn": "daemon-revision-arn-2"}],
+        )
+        daemon.set_session(session)
+        cluster = Cluster(clusterArn="cluster-arn", clusterName="cluster-name")
+        revisions = PrimaryBoto3ModelQuerySet(
+            [
+                DaemonRevision(daemonRevisionArn="daemon-revision-arn-1"),
+                DaemonRevision(daemonRevisionArn="daemon-revision-arn-2"),
+            ]
+        )
+
+        cluster_objects, cluster_manager = _manager_proxy("get", cluster)
+        revision_objects, revision_manager = _manager_proxy("list", revisions)
+
+        with patch.object(Cluster, "objects", cluster_objects):
+            assert daemon.cluster is cluster
+
+        with patch.object(DaemonRevision, "objects", revision_objects):
+            assert daemon.current_revisions is revisions
+
+        cluster_manager.get.assert_called_once_with(cluster="cluster-arn")
+        revision_manager.list.assert_called_once_with(
+            daemonRevisionArns=["daemon-revision-arn-1", "daemon-revision-arn-2"]
+        )
+
+    def test_daemon_revision_relations(self):
+        session = MagicMock()
+        revision = DaemonRevision(
+            daemonRevisionArn="daemon-revision-arn-1",
+            daemonArn="daemon-arn",
+            clusterArn="cluster-arn",
+            daemonTaskDefinitionArn="task-def-arn-1",
+        )
+        revision.set_session(session)
+        daemon = Daemon(daemonArn="daemon-arn", clusterArn="cluster-arn")
+        cluster = Cluster(clusterArn="cluster-arn", clusterName="cluster-name")
+        task_definition = DaemonTaskDefinition(
+            daemonTaskDefinitionArn="task-def-arn-1"
+        )
+
+        daemon_objects, daemon_manager = _manager_proxy("get", daemon)
+        cluster_objects, cluster_manager = _manager_proxy("get", cluster)
+        task_definition_objects, task_definition_manager = _manager_proxy(
+            "get", task_definition
+        )
+
+        with (
+            patch.object(Daemon, "objects", daemon_objects),
+            patch.object(Cluster, "objects", cluster_objects),
+            patch.object(DaemonTaskDefinition, "objects", task_definition_objects),
+        ):
+            assert revision.daemon is daemon
+            assert revision.cluster is cluster
+            assert revision.daemon_task_definition is task_definition
+
+        daemon_manager.get.assert_called_once_with(daemonArn="daemon-arn")
+        cluster_manager.get.assert_called_once_with(cluster="cluster-arn")
+        task_definition_manager.get.assert_called_once_with(
+            daemonTaskDefinition="task-def-arn-1"
+        )
+
+    def test_daemon_deployment_relations(self):
+        session = MagicMock()
+        deployment = DaemonDeployment(
+            daemonDeploymentArn="deployment-arn",
+            daemonArn="daemon-arn",
+            clusterArn="cluster-arn",
+            targetDaemonRevisionArn="daemon-revision-arn-1",
+        )
+        deployment.set_session(session)
+        daemon = Daemon(daemonArn="daemon-arn", clusterArn="cluster-arn")
+        cluster = Cluster(clusterArn="cluster-arn", clusterName="cluster-name")
+        revision = DaemonRevision(daemonRevisionArn="daemon-revision-arn-1")
+
+        daemon_objects, daemon_manager = _manager_proxy("get", daemon)
+        cluster_objects, cluster_manager = _manager_proxy("get", cluster)
+        revision_objects, revision_manager = _manager_proxy("get", revision)
+
+        with (
+            patch.object(Daemon, "objects", daemon_objects),
+            patch.object(Cluster, "objects", cluster_objects),
+            patch.object(DaemonRevision, "objects", revision_objects),
+        ):
+            assert deployment.daemon is daemon
+            assert deployment.cluster is cluster
+            assert deployment.target_revision is revision
+
+        daemon_manager.get.assert_called_once_with(daemonArn="daemon-arn")
+        cluster_manager.get.assert_called_once_with(cluster="cluster-arn")
+        revision_manager.get.assert_called_once_with(
+            daemonRevisionArn="daemon-revision-arn-1"
+        )
+
+    def test_express_gateway_service_relations(self):
+        session = MagicMock()
+        express_service = ExpressGatewayService(
+            serviceArn="service-arn",
+            serviceName="svc",
+            cluster="cluster-arn",
+            activeConfigurations=[
+                {"serviceRevisionArn": "revision-arn-1"},
+                {"serviceRevisionArn": "revision-arn-2"},
+            ],
+        )
+        express_service.set_session(session)
+
+        cluster = Cluster(clusterArn="cluster-arn", clusterName="cluster-name")
+        service = Service(
+            serviceName="svc",
+            taskDefinition="family:1",
+            clusterArn="cluster-arn",
+            desiredCount=1,
+            launchType="FARGATE",
+            schedulingStrategy="REPLICA",
+            serviceArn="service-arn",
+        )
+        revisions = PrimaryBoto3ModelQuerySet(
+            [
+                ServiceRevision(serviceRevisionArn="revision-arn-1"),
+                ServiceRevision(serviceRevisionArn="revision-arn-2"),
+            ]
+        )
+
+        cluster_objects, cluster_manager = _manager_proxy("get", cluster)
+        service_objects, service_manager = _manager_proxy("get", service)
+        revision_objects, revision_manager = _manager_proxy("list", revisions)
+
+        with patch.object(Cluster, "objects", cluster_objects):
+            assert express_service.cluster is cluster
+
+        with patch.object(Service, "objects", service_objects):
+            assert express_service.service is service
+
+        with patch.object(ServiceRevision, "objects", revision_objects):
+            assert express_service.active_service_revisions is revisions
+
+        cluster_manager.get.assert_called_once_with(cluster="cluster-arn")
+        service_manager.get.assert_called_once_with(
+            service="service-arn",
+            cluster="cluster-arn",
+        )
+        revision_manager.list.assert_called_once_with(
+            serviceRevisionArns=["revision-arn-1", "revision-arn-2"]
+        )

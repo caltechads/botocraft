@@ -384,3 +384,77 @@ ServiceRevision:
     get_many:
       boto3_name: describe_service_revisions
       response_attr: serviceRevisions
+Daemon:
+  mixins:
+    - name: DaemonManagerMixin
+      import_path: botocraft.mixins.ecs
+  methods:
+    get:
+      boto3_name: describe_daemon
+      response_attr: daemon
+      args:
+        daemon:
+          rename: daemonArn
+          required: true
+          python_type: str
+          docstring: >-
+            The full Amazon Resource Name (ARN) of the daemon to describe.
+DaemonTaskDefinition:
+  mixins:
+    - name: DaemonTaskDefinitionManagerMixin
+      import_path: botocraft.mixins.ecs
+  methods:
+    get:
+      boto3_name: describe_daemon_task_definition
+      response_attr: daemonTaskDefinition
+      args:
+        daemonTaskDefinition:
+          required: true
+          python_type: str
+          docstring: >-
+            The daemon task definition ARN to describe.
+DaemonRevision:
+  readonly: true
+  methods:
+    get:
+      boto3_name: describe_daemon_revisions
+      response_attr: daemonRevisions
+      args:
+        daemonRevisionArns:
+          rename: daemonRevisionArn
+          required: true
+          python_type: str
+          source_arg: "[daemonRevisionArn]"
+          docstring: >-
+            The full Amazon Resource Name (ARN) of the daemon revision to
+            describe.
+    get_many:
+      boto3_name: describe_daemon_revisions
+      response_attr: daemonRevisions
+DaemonDeployment:
+  readonly: true
+  mixins:
+    - name: DaemonDeploymentManagerMixin
+      import_path: botocraft.mixins.ecs
+ExpressGatewayService:
+  mixins:
+    - name: ExpressGatewayServiceManagerMixin
+      import_path: botocraft.mixins.ecs
+  methods:
+    create:
+      boto3_name: create_express_gateway_service
+      response_attr: service
+    get:
+      boto3_name: describe_express_gateway_service
+      response_attr: service
+      args:
+        service:
+          rename: serviceArn
+          required: true
+          python_type: str
+          docstring: >-
+            The full Amazon Resource Name (ARN) of the Express gateway service
+            to describe.
+    delete:
+      boto3_name: delete_express_gateway_service
+      response_attr: service

@@ -2,7 +2,10 @@
 # mypy: disable-error-code="index, override, assignment, union-attr, misc"
 import builtins
 from typing import ClassVar, Literal, Any, cast
-from pydantic import Field
+from botocraft.services.common import Tag
+from datetime import datetime
+from .abstract import PrimaryBoto3ModelQuerySet
+from botocraft.mixins.kms import kms_keys_only
 from .abstract import (
     Boto3Model,
     ReadonlyBoto3Model,
@@ -11,11 +14,8 @@ from .abstract import (
     Boto3ModelManager,
     ReadonlyBoto3ModelManager,
 )
-from .abstract import PrimaryBoto3ModelQuerySet
-from botocraft.services.common import Tag
-from botocraft.mixins.kms import kms_keys_only
-from datetime import datetime
 from botocraft.mixins.tags import TagsDictMixin
+from pydantic import Field
 
 # ===============
 # Managers

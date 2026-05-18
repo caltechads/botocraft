@@ -2,15 +2,18 @@
 import re
 import warnings
 from functools import cached_property, wraps
-from typing import TYPE_CHECKING, Callable, Literal, cast
+from typing import TYPE_CHECKING, Any, Callable, Literal, cast
 
 from botocraft.services.abstract import PrimaryBoto3ModelQuerySet
 
 if TYPE_CHECKING:
     from botocraft.services import (
         Cluster,
+        Daemon,
+        DaemonTaskDefinition,
         DeleteTaskDefinitionsResponse,
         ECRImage,
+        ExpressGatewayService,
         Failure,
         Service,
         ServiceDeploymentBrief,
@@ -632,8 +635,6 @@ class TaskSetManagerMixin:
             A list of :py:class:`botocraft.services.ecs.TaskSet` objects.
 
         """
-        from botocraft.services import TaskSet
-
         if taskSets:
             return self.get_many(  # type: ignore[attr-defined]
                 service=service,
@@ -642,17 +643,7 @@ class TaskSetManagerMixin:
                 taskSets=taskSets,
             )
 
-        args = {
-            "service": service,
-            "cluster": cluster,
-            "include": include,
-        }
-        response = self.client.describe_task_sets(
-            **{key: value for key, value in args.items() if value is not None}
-        )
-        task_sets = [TaskSet(**task_set) for task_set in response.get("taskSets", [])]
-        self.sessionize(task_sets)  # type: ignore[attr-defined]
-        return PrimaryBoto3ModelQuerySet(task_sets)  # type: ignore[arg-type]
+        return PrimaryBoto3ModelQuerySet([])  # type: ignore[arg-type]
 
 
 class ServiceRevisionManagerMixin:
@@ -684,6 +675,469 @@ class ServiceRevisionManagerMixin:
         return self.get_many(  # type: ignore[attr-defined]
             serviceRevisionArns=serviceRevisionArns
         )
+
+
+class DaemonManagerMixin:
+    """
+    A mixin for :py:class:`botocraft.services.ecs.DaemonManager`.
+
+    This mixin preserves a model-centric daemon contract even though the ECS
+    daemon APIs return partial objects for create, update, delete, and list.
+    """
+
+    def _create_args(self, model: "Daemon") -> dict[str, Any]:
+        """
+        Build create-daemon request arguments from a daemon model.
+
+        Args:
+            model: The daemon model to serialize.
+
+        Returns:
+            The request arguments for ``create_daemon``.
+
+        """
+        args: dict[str, Any] = {
+            "daemonName": model.daemonName,
+            "clusterArn": model.clusterArn,
+            "daemonTaskDefinitionArn": model.daemonTaskDefinitionArn,
+            "capacityProviderArns": model.capacityProviderArns,
+            "propagateTags": model.propagateTags,
+            "enableECSManagedTags": model.enableECSManagedTags,
+            "enableExecuteCommand": model.enableExecuteCommand,
+        }
+        if model.deploymentConfiguration:
+            args["deploymentConfiguration"] = self.serialize(
+                model.deploymentConfiguration
+            )
+        if model.Tags:
+            args["tags"] = self.serialize(model.Tags)
+        return {key: value for key, value in args.items() if value is not None}
+
+    def _update_args(self, model: "Daemon") -> dict[str, Any]:
+        """
+        Build update-daemon request arguments from a daemon model.
+
+        Args:
+            model: The daemon model to serialize.
+
+        Returns:
+            The request arguments for ``update_daemon``.
+
+        """
+        args: dict[str, Any] = {
+            "daemonArn": model.daemonArn,
+            "daemonTaskDefinitionArn": model.daemonTaskDefinitionArn,
+            "capacityProviderArns": model.capacityProviderArns,
+            "propagateTags": model.propagateTags,
+            "enableECSManagedTags": model.enableECSManagedTags,
+            "enableExecuteCommand": model.enableExecuteCommand,
+        }
+        if model.deploymentConfiguration:
+            args["deploymentConfiguration"] = self.serialize(
+                model.deploymentConfiguration
+            )
+        return {key: value for key, value in args.items() if value is not None}
+
+    def get_many(
+        self,
+        daemonArns: list[str],  # noqa: N803
+    ) -> "PrimaryBoto3ModelQuerySet":
+        """
+        Return daemons for the given ARNs.
+
+        Args:
+            daemonArns: The daemon ARNs to hydrate.
+
+        Returns:
+            A list of :py:class:`botocraft.services.ecs.Daemon` objects.
+
+        """
+        daemons = [self.get(daemonArn=daemon_arn) for daemon_arn in daemonArns]  # type: ignore[attr-defined]
+        return PrimaryBoto3ModelQuerySet([daemon for daemon in daemons if daemon])
+
+    def list(
+        self,
+        *,
+        clusterArn: str | None = None,  # noqa: N803
+        capacityProviderArns: list[str] | None = None,  # noqa: N803
+    ) -> "PrimaryBoto3ModelQuerySet":
+        """
+        Return daemons for the given ECS scope.
+
+        Keyword Args:
+            clusterArn: Optional cluster ARN to scope the daemon listing.
+            capacityProviderArns: Optional capacity provider ARNs to filter by.
+
+        Returns:
+            A list of :py:class:`botocraft.services.ecs.Daemon` objects.
+
+        """
+        daemon_arns: list[str] = []
+        next_token: str | None = None
+        while True:
+            args = {
+                "clusterArn": clusterArn,
+                "capacityProviderArns": capacityProviderArns,
+                "maxResults": 100,
+                "nextToken": next_token,
+            }
+            response = self.client.list_daemons(
+                **{key: value for key, value in args.items() if value is not None}
+            )
+            daemon_arns.extend(
+                summary["daemonArn"]
+                for summary in response.get("daemonSummariesList", [])
+                if summary.get("daemonArn")
+            )
+            next_token = response.get("nextToken")
+            if not next_token:
+                break
+        daemons = [self.get(daemonArn=daemon_arn) for daemon_arn in daemon_arns]  # type: ignore[attr-defined]
+        return PrimaryBoto3ModelQuerySet(
+            [cast("Daemon", daemon) for daemon in daemons if daemon]
+        )
+
+    def create(self, model: "Daemon") -> "Daemon":
+        """
+        Create a daemon and return hydrated model.
+
+        Args:
+            model: The daemon to create.
+
+        Side Effects:
+            Calls ``create_daemon`` against AWS.
+
+        Returns:
+            The created :py:class:`botocraft.services.ecs.Daemon`.
+
+        """
+        response = self.client.create_daemon(**self._create_args(model))
+        return self.get(daemonArn=response["daemonArn"])  # type: ignore[attr-defined]
+
+    def update(self, model: "Daemon") -> "Daemon":
+        """
+        Update a daemon and return hydrated model.
+
+        Args:
+            model: The daemon to update.
+
+        Side Effects:
+            Calls ``update_daemon`` against AWS.
+
+        Returns:
+            The updated :py:class:`botocraft.services.ecs.Daemon`.
+
+        """
+        response = self.client.update_daemon(**self._update_args(model))
+        return self.get(daemonArn=response["daemonArn"])  # type: ignore[attr-defined]
+
+    def delete(self, model: "Daemon") -> "Daemon":
+        """
+        Delete a daemon and return pre-delete snapshot.
+
+        Args:
+            model: The daemon to delete.
+
+        Side Effects:
+            Calls ``delete_daemon`` against AWS.
+
+        Returns:
+            The prefetched :py:class:`botocraft.services.ecs.Daemon`.
+
+        """
+        daemon = self.get(daemonArn=model.daemonArn)  # type: ignore[attr-defined]
+        self.client.delete_daemon(daemonArn=model.daemonArn)
+        return cast("Daemon", daemon)
+
+
+class DaemonTaskDefinitionManagerMixin:
+    """
+    A mixin for :py:class:`botocraft.services.ecs.DaemonTaskDefinitionManager`.
+
+    This mixin hydrates identifier-centric daemon task definition workflows into
+    full Botocraft models.
+    """
+
+    def _create_args(self, model: "DaemonTaskDefinition") -> dict[str, Any]:
+        """
+        Build register-daemon-task-definition request arguments.
+
+        Args:
+            model: The daemon task definition model to serialize.
+
+        Returns:
+            The request arguments for ``register_daemon_task_definition``.
+
+        """
+        args: dict[str, Any] = {
+            "family": model.family,
+            "taskRoleArn": model.taskRoleArn,
+            "executionRoleArn": model.executionRoleArn,
+            "containerDefinitions": self.serialize(model.containerDefinitions),
+            "cpu": model.cpu,
+            "memory": model.memory,
+        }
+        if model.volumes:
+            args["volumes"] = self.serialize(model.volumes)
+        if model.Tags:
+            args["tags"] = self.serialize(model.Tags)
+        return {key: value for key, value in args.items() if value is not None}
+
+    def get_many(
+        self,
+        daemonTaskDefinitions: list[str],  # noqa: N803
+    ) -> "PrimaryBoto3ModelQuerySet":
+        """
+        Return daemon task definitions for the given identifiers.
+
+        Args:
+            daemonTaskDefinitions: The daemon task definition identifiers to
+                hydrate.
+
+        Returns:
+            A list of :py:class:`botocraft.services.ecs.DaemonTaskDefinition`
+            objects.
+
+        """
+        task_definitions = [
+            self.get(daemonTaskDefinition=identifier)  # type: ignore[attr-defined]
+            for identifier in daemonTaskDefinitions
+        ]
+        return PrimaryBoto3ModelQuerySet(
+            [task_definition for task_definition in task_definitions if task_definition]
+        )
+
+    def list(
+        self,
+        *,
+        familyPrefix: str | None = None,  # noqa: N803
+        family: str | None = None,
+        revision: str | None = None,
+        status: str | None = None,
+        sort: str | None = None,
+    ) -> "PrimaryBoto3ModelQuerySet":
+        """
+        Return daemon task definitions for the given ECS scope.
+
+        Keyword Args:
+            familyPrefix: Optional family prefix filter.
+            family: Optional exact family filter.
+            revision: Optional revision filter.
+            status: Optional status filter.
+            sort: Optional sort order.
+
+        Returns:
+            A list of :py:class:`botocraft.services.ecs.DaemonTaskDefinition`
+            objects.
+
+        """
+        identifiers: list[str] = []
+        next_token: str | None = None
+        while True:
+            args = {
+                "familyPrefix": familyPrefix,
+                "family": family,
+                "revision": revision,
+                "status": status,
+                "sort": sort,
+                "maxResults": 100,
+                "nextToken": next_token,
+            }
+            response = self.client.list_daemon_task_definitions(
+                **{key: value for key, value in args.items() if value is not None}
+            )
+            identifiers.extend(
+                summary["daemonTaskDefinitionArn"]
+                for summary in response.get("daemonTaskDefinitions", [])
+                if summary.get("daemonTaskDefinitionArn")
+            )
+            next_token = response.get("nextToken")
+            if not next_token:
+                break
+        return self.get_many(identifiers)
+
+    def create(self, model: "DaemonTaskDefinition") -> "DaemonTaskDefinition":
+        """
+        Register daemon task definition and return hydrated model.
+
+        Args:
+            model: The daemon task definition to register.
+
+        Side Effects:
+            Calls ``register_daemon_task_definition`` against AWS.
+
+        Returns:
+            The created :py:class:`botocraft.services.ecs.DaemonTaskDefinition`.
+
+        """
+        response = self.client.register_daemon_task_definition(
+            **self._create_args(model)
+        )
+        return self.get(  # type: ignore[attr-defined]
+            daemonTaskDefinition=response["daemonTaskDefinitionArn"]
+        )
+
+    def delete(self, model: "DaemonTaskDefinition") -> "DaemonTaskDefinition":
+        """
+        Delete daemon task definition and return pre-delete snapshot.
+
+        Args:
+            model: The daemon task definition to delete.
+
+        Side Effects:
+            Calls ``delete_daemon_task_definition`` against AWS.
+
+        Returns:
+            The prefetched
+            :py:class:`botocraft.services.ecs.DaemonTaskDefinition`.
+
+        """
+        task_definition = self.get(  # type: ignore[attr-defined]
+            daemonTaskDefinition=model.daemonTaskDefinitionArn
+        )
+        self.client.delete_daemon_task_definition(
+            daemonTaskDefinition=model.daemonTaskDefinitionArn
+        )
+        return cast("DaemonTaskDefinition", task_definition)
+
+
+class DaemonDeploymentManagerMixin:
+    """
+    A mixin for :py:class:`botocraft.services.ecs.DaemonDeploymentManager`.
+
+    This mixin models daemon deployments as a scoped read-only list surface.
+    """
+
+    def list(
+        self,
+        *,
+        daemonArn: str,  # noqa: N803
+        status: list[str] | None = None,
+        createdAt: dict[str, Any] | None = None,  # noqa: N803
+        nextToken: str | None = None,  # noqa: N803
+        maxResults: int | None = None,  # noqa: N803
+    ) -> "PrimaryBoto3ModelQuerySet":
+        """
+        Return daemon deployments for a daemon scope.
+
+        Keyword Args:
+            daemonArn: The daemon ARN that owns the deployments.
+            status: Optional deployment status filters.
+            createdAt: Optional created-at filter object accepted by AWS.
+            nextToken: Optional pagination token.
+            maxResults: Optional page size.
+
+        Returns:
+            A list of :py:class:`botocraft.services.ecs.DaemonDeployment`
+            objects.
+
+        """
+        from botocraft.services import DaemonDeployment
+
+        args = {
+            "daemonArn": daemonArn,
+            "status": status,
+            "createdAt": createdAt,
+            "nextToken": nextToken,
+            "maxResults": maxResults,
+        }
+        response = self.client.list_daemon_deployments(
+            **{key: value for key, value in args.items() if value is not None}
+        )
+        deployments = [
+            DaemonDeployment(**deployment)
+            for deployment in response.get("daemonDeployments", [])
+        ]
+        self.sessionize(deployments)  # type: ignore[attr-defined]
+        return PrimaryBoto3ModelQuerySet(deployments)  # type: ignore[arg-type]
+
+
+class ExpressGatewayServiceManagerMixin:
+    """
+    A mixin for :py:class:`botocraft.services.ecs.ExpressGatewayServiceManager`.
+
+    This mixin preserves scoped list semantics and hydrates partial update
+    responses into full Botocraft models.
+    """
+
+    def _update_args(self, model: "ExpressGatewayService") -> dict[str, Any]:
+        """
+        Build update-express-gateway-service request arguments.
+
+        Args:
+            model: The Express gateway service model to serialize.
+
+        Returns:
+            The request arguments for ``update_express_gateway_service``.
+
+        """
+        args = {
+            "serviceArn": model.serviceArn,
+            "executionRoleArn": model.executionRoleArn,
+            "healthCheckPath": model.healthCheckPath,
+            "primaryContainer": self.serialize(model.primaryContainer),
+            "taskRoleArn": model.taskRoleArn,
+            "networkConfiguration": self.serialize(model.networkConfiguration),
+            "cpu": model.cpu,
+            "memory": model.memory,
+            "scalingTarget": self.serialize(model.scalingTarget),
+        }
+        return {key: value for key, value in args.items() if value is not None}
+
+    def list(
+        self,
+        *,
+        namespace: str,
+        nextToken: str | None = None,  # noqa: N803
+        maxResults: int | None = None,  # noqa: N803
+    ) -> "PrimaryBoto3ModelQuerySet":
+        """
+        Return Express gateway services for a namespace scope.
+
+        Keyword Args:
+            namespace: The namespace that scopes the service list.
+            nextToken: Optional pagination token.
+            maxResults: Optional page size.
+
+        Returns:
+            A list of :py:class:`botocraft.services.ecs.ExpressGatewayService`
+            objects.
+
+        """
+        services = []
+        args = {
+            "namespace": namespace,
+            "nextToken": nextToken,
+            "maxResults": maxResults,
+        }
+        response = self.client.list_services_by_namespace(
+            **{key: value for key, value in args.items() if value is not None}
+        )
+        for service_arn in response.get("serviceArns", []):
+            service = self.get(serviceArn=service_arn)  # type: ignore[attr-defined]
+            if service:
+                services.append(service)
+        return PrimaryBoto3ModelQuerySet(services)
+
+    def update(self, model: "ExpressGatewayService") -> "ExpressGatewayService":
+        """
+        Update Express gateway service and return hydrated model.
+
+        Args:
+            model: The Express gateway service to update.
+
+        Side Effects:
+            Calls ``update_express_gateway_service`` against AWS.
+
+        Returns:
+            The updated :py:class:`botocraft.services.ecs.ExpressGatewayService`.
+
+        """
+        response = self.client.update_express_gateway_service(
+            **self._update_args(model)
+        )
+        service_arn = response["service"]["serviceArn"]
+        return self.get(serviceArn=service_arn)  # type: ignore[attr-defined]
 
 
 class ECSContainerInstanceModelMixin:

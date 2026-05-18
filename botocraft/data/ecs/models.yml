@@ -161,6 +161,12 @@ primary:
           "default"
       tags:
         rename: Tags
+    properties:
+      cluster_name:
+        docstring: >-
+          The name of the cluster.
+        transformer:
+          alias: clusterName
     relations:
       services:
         primary_model_name: Service
@@ -189,7 +195,7 @@ primary:
         transformer:
           mapping:
             capacityProviders: capacityProviders
-            cluster: clusterArn
+            cluster: cluster_name
   TaskDefinition:
     primary_key: taskDefinitionArn
     arn_key: taskDefinitionArn
@@ -448,6 +454,220 @@ primary:
           mapping:
             taskDefinition: >-
               self.target_service_revision.taskDefinition
+  DaemonDetail:
+    alternate_name: Daemon
+    primary_key: daemonArn
+    arn_key: daemonArn
+    extra_fields:
+      daemonName:
+        python_type: str | None
+        default: None
+        docstring: >-
+          The name to assign to the daemon when creating it.
+      daemonTaskDefinitionArn:
+        python_type: str | None
+        default: None
+        docstring: >-
+          The daemon task definition ARN to use for this daemon.
+      capacityProviderArns:
+        python_type: builtins.list[str] | None
+        default: None
+        docstring: >-
+          The capacity provider ARNs that back this daemon.
+      deploymentConfiguration:
+        python_type: dict[str, builtins.object] | None
+        default: None
+        docstring: >-
+          The deployment configuration to apply when creating or updating this
+          daemon.
+      propagateTags:
+        python_type: str | None
+        default: None
+        docstring: >-
+          Controls how tags are propagated to daemon tasks.
+      enableECSManagedTags:
+        python_type: bool | None
+        default: None
+        docstring: >-
+          Whether ECS managed tags are enabled for daemon tasks.
+      enableExecuteCommand:
+        python_type: bool | None
+        default: None
+        docstring: >-
+          Whether ECS Exec is enabled for daemon tasks.
+      Tags:
+        python_type: "builtins.list[ECSTag] | None"
+        default: None
+        docstring: >-
+          The tags associated with this daemon.
+    relations:
+      cluster:
+        primary_model_name: Cluster
+        docstring: >-
+          Return the :py:class:`Cluster` object that owns this daemon, if any.
+        transformer:
+          mapping:
+            cluster: clusterArn
+      current_revisions:
+        primary_model_name: DaemonRevision
+        many: true
+        docstring: >-
+          Return the current :py:class:`DaemonRevision` objects for this daemon,
+          if any.
+        transformer:
+          mapping:
+            daemonRevisionArns: >-
+              [revision.arn for revision in self.currentRevisions if revision.arn]
+  DaemonTaskDefinition:
+    primary_key: daemonTaskDefinitionArn
+    arn_key: daemonTaskDefinitionArn
+    input_shapes:
+      - RegisterDaemonTaskDefinitionRequest
+    extra_fields:
+      Tags:
+        python_type: "builtins.list[ECSTag] | None"
+        default: None
+        docstring: >-
+          The tags associated with this daemon task definition.
+  DaemonRevision:
+    primary_key: daemonRevisionArn
+    arn_key: daemonRevisionArn
+    readonly: true
+    relations:
+      daemon:
+        primary_model_name: Daemon
+        docstring: >-
+          Return the :py:class:`Daemon` object for this daemon revision, if any.
+        transformer:
+          mapping:
+            daemonArn: daemonArn
+      cluster:
+        primary_model_name: Cluster
+        docstring: >-
+          Return the :py:class:`Cluster` object for this daemon revision, if any.
+        transformer:
+          mapping:
+            cluster: clusterArn
+      daemon_task_definition:
+        primary_model_name: DaemonTaskDefinition
+        docstring: >-
+          Return the :py:class:`DaemonTaskDefinition` object for this daemon
+          revision, if any.
+        transformer:
+          mapping:
+            daemonTaskDefinition: daemonTaskDefinitionArn
+  DaemonDeploymentSummary:
+    alternate_name: DaemonDeployment
+    primary_key: daemonDeploymentArn
+    arn_key: daemonDeploymentArn
+    readonly: true
+    relations:
+      daemon:
+        primary_model_name: Daemon
+        docstring: >-
+          Return the :py:class:`Daemon` object that owns this deployment, if
+          any.
+        transformer:
+          mapping:
+            daemonArn: daemonArn
+      cluster:
+        primary_model_name: Cluster
+        docstring: >-
+          Return the :py:class:`Cluster` object that owns this daemon deployment,
+          if any.
+        transformer:
+          mapping:
+            cluster: clusterArn
+      target_revision:
+        primary_model_name: DaemonRevision
+        docstring: >-
+          Return the target :py:class:`DaemonRevision` object for this daemon
+          deployment, if any.
+        transformer:
+          mapping:
+            daemonRevisionArn: targetDaemonRevisionArn
+  ECSExpressGatewayService:
+    alternate_name: ExpressGatewayService
+    primary_key: serviceArn
+    arn_key: serviceArn
+    name_key: serviceName
+    input_shapes:
+      - CreateExpressGatewayServiceRequest
+      - UpdateExpressGatewayServiceRequest
+    fields:
+      cluster:
+        rename: clusterArn
+      tags:
+        rename: Tags
+    extra_fields:
+      executionRoleArn:
+        python_type: str | None
+        default: None
+        docstring: >-
+          The execution role ARN to use for this Express gateway service.
+      taskRoleArn:
+        python_type: str | None
+        default: None
+        docstring: >-
+          The task role ARN to use for this Express gateway service.
+      healthCheckPath:
+        python_type: str | None
+        default: None
+        docstring: >-
+          The health check path to use for this Express gateway service.
+      primaryContainer:
+        python_type: ExpressGatewayContainer | None
+        default: None
+        docstring: >-
+          The primary container configuration for this Express gateway service.
+      networkConfiguration:
+        python_type: ExpressGatewayServiceNetworkConfiguration | None
+        default: None
+        docstring: >-
+          The network configuration for this Express gateway service.
+      cpu:
+        python_type: str | None
+        default: None
+        docstring: >-
+          The CPU units for this Express gateway service.
+      memory:
+        python_type: str | None
+        default: None
+        docstring: >-
+          The memory setting for this Express gateway service.
+      scalingTarget:
+        python_type: ExpressGatewayScalingTarget | None
+        default: None
+        docstring: >-
+          The autoscaling target configuration for this Express gateway service.
+    relations:
+      cluster:
+        primary_model_name: Cluster
+        docstring: >-
+          Return the :py:class:`Cluster` object that owns this Express gateway
+          service, if any.
+        transformer:
+          mapping:
+            cluster: clusterArn
+      service:
+        primary_model_name: Service
+        docstring: >-
+          Return the backing :py:class:`Service` object for this Express gateway
+          service, if any.
+        transformer:
+          mapping:
+            service: serviceArn
+            cluster: clusterArn
+      active_service_revisions:
+        primary_model_name: ServiceRevision
+        many: true
+        docstring: >-
+          Return the active :py:class:`ServiceRevision` objects for this Express
+          gateway service, if any.
+        transformer:
+          mapping:
+            serviceRevisionArns: >-
+              [config.serviceRevisionArn for config in self.activeConfigurations if config.serviceRevisionArn]
   TaskSet:
     primary_key: taskSetArn
     arn_key: taskSetArn
