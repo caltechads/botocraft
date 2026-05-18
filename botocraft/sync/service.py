@@ -707,7 +707,13 @@ class ModelGenerator(AbstractGenerator):
         """
         return self.extra_fields_formatter.format_fields(model_def)
 
-    def get_properties(self, model_def: ModelDefinition, base_class: str) -> str | None:
+    def get_properties(
+        self,
+        model_def: ModelDefinition,
+        base_class: str,
+        *,
+        model_field_names: set[str] | None = None,
+    ) -> str | None:
         """
         Handle the special properties and methods for primary models.  A primary
         model is a model that has either ``PrimaryBoto3Model`` or
@@ -730,12 +736,18 @@ class ModelGenerator(AbstractGenerator):
             model_def: the botocraft model definition for this model
             base_class: the base class for this model
 
+        Keyword Args:
+            model_field_names: The set of generated field names for this model.
+                When a convenience property would collide with a real field of
+                the same name, we skip emitting the duplicate property.
+
         Returns:
             The properties for this model, or ``None`` if this is not a primary
             model.
 
         """
         properties: str = ""
+        model_field_names = model_field_names or set()
         if base_class in ["PrimaryBoto3Model", "ReadonlyPrimaryBoto3Model"]:
             assert model_def.primary_key or "pk" in model_def.properties, (
                 f'Primary service model "{model_def.name}" has no primary key defined'
@@ -757,7 +769,11 @@ class ModelGenerator(AbstractGenerator):
         """
         return self.{model_def.primary_key}
 '''
-            if model_def.arn_key:
+            should_emit_arn_property = (
+                bool(model_def.arn_key)
+                and not (model_def.arn_key == "arn" and "arn" in model_field_names)
+            )
+            if should_emit_arn_property:
                 properties += f'''
 
     @property
@@ -772,7 +788,11 @@ class ModelGenerator(AbstractGenerator):
         return self.{model_def.arn_key}
 '''
 
-            if model_def.name_key:
+            should_emit_name_property = (
+                bool(model_def.name_key)
+                and not (model_def.name_key == "name" and "name" in model_field_names)
+            )
+            if should_emit_name_property:
                 properties += f'''
 
     @property
@@ -1119,7 +1139,11 @@ class ModelGenerator(AbstractGenerator):
             )
 
         # Add any botocraft defined properties.  This includes relations.
-        properties = self.get_properties(model_def, base_class)
+        properties = self.get_properties(
+            model_def,
+            base_class,
+            model_field_names=set(self.botocore_shape_field_defs(orig_model_name)),
+        )
 
         # Add any botocraft defined mixins to the class inheritance
         if model_def.mixins:
