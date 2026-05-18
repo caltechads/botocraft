@@ -1,6 +1,29 @@
 from unittest.mock import MagicMock, patch
 
-from botocraft.services.ecs import Cluster, ClusterManager, PrimaryBoto3ModelQuerySet
+from botocraft.services.ecs import (
+    CapacityProvider,
+    CapacityProviderManager,
+    Cluster,
+    ClusterManager,
+    ContainerInstance,
+    PrimaryBoto3ModelQuerySet,
+    Service,
+    ServiceDeployment,
+    ServiceRevision,
+    ServiceRevisionManager,
+    Task,
+    TaskDefinition,
+    TaskSet,
+    TaskSetManager,
+)
+
+
+def _manager_proxy(method_name: str, return_value):
+    manager = MagicMock()
+    setattr(manager, method_name, MagicMock(return_value=return_value))
+    objects = MagicMock()
+    objects.using.return_value = manager
+    return objects, manager
 
 
 class TestClusterManager:
@@ -185,3 +208,447 @@ class TestClusterManager:
         assert isinstance(clusters, PrimaryBoto3ModelQuerySet)
         assert len(clusters) == 0
         assert bool(clusters) is False
+
+
+class TestCapacityProviderManager:
+    @patch("boto3.client")
+    def test_list_unfiltered_paginates(self, mock_boto3_client):
+        mock_client = MagicMock()
+        mock_client.describe_capacity_providers.side_effect = [
+            {
+                "capacityProviders": [
+                    {
+                        "capacityProviderArn": "cp-arn-1",
+                        "name": "cp-1",
+                        "status": "ACTIVE",
+                        "tags": [{"key": "Environment", "value": "prod"}],
+                    }
+                ],
+                "nextToken": "token-1",
+            },
+            {
+                "capacityProviders": [
+                    {
+                        "capacityProviderArn": "cp-arn-2",
+                        "name": "cp-2",
+                        "status": "ACTIVE",
+                        "tags": [{"key": "Environment", "value": "test"}],
+                    }
+                ]
+            },
+        ]
+        mock_boto3_client.return_value = mock_client
+
+        manager = CapacityProviderManager()
+        providers = manager.list(
+            cluster="cluster-arn",
+            include=["TAGS"],
+        )
+
+        assert isinstance(providers, PrimaryBoto3ModelQuerySet)
+        assert [provider.name for provider in providers] == ["cp-1", "cp-2"]
+        assert providers[0].Tags[0].key == "Environment"
+        assert mock_client.describe_capacity_providers.call_count == 2
+        first_call = mock_client.describe_capacity_providers.call_args_list[0]
+        second_call = mock_client.describe_capacity_providers.call_args_list[1]
+        assert first_call.kwargs == {
+            "cluster": "cluster-arn",
+            "include": ["TAGS"],
+            "maxResults": 100,
+        }
+        assert second_call.kwargs == {
+            "cluster": "cluster-arn",
+            "include": ["TAGS"],
+            "maxResults": 100,
+            "nextToken": "token-1",
+        }
+
+    @patch("boto3.client")
+    def test_list_filtered_delegates_to_get_many(self, mock_boto3_client):
+        mock_boto3_client.return_value = MagicMock()
+        manager = CapacityProviderManager()
+        expected = PrimaryBoto3ModelQuerySet(
+            [CapacityProvider(capacityProviderArn="cp-arn-1", name="cp-1")]
+        )
+        manager.get_many = MagicMock(return_value=expected)
+
+        result = manager.list(
+            capacityProviders=["cp-1"],
+            cluster="cluster-arn",
+            include=["TAGS"],
+        )
+
+        assert result is expected
+        manager.get_many.assert_called_once_with(
+            capacityProviders=["cp-1"],
+            cluster="cluster-arn",
+            include=["TAGS"],
+        )
+
+
+class TestTaskSetManager:
+    @patch("boto3.client")
+    def test_list_scoped_describe(self, mock_boto3_client):
+        mock_client = MagicMock()
+        mock_client.describe_task_sets.return_value = {
+            "taskSets": [
+                {
+                    "taskSetArn": "ts-arn-1",
+                    "serviceArn": "service-arn",
+                    "clusterArn": "cluster-arn",
+                    "taskDefinition": "family:1",
+                    "status": "ACTIVE",
+                    "tags": [{"key": "Team", "value": "infra"}],
+                }
+            ]
+        }
+        mock_boto3_client.return_value = mock_client
+
+        manager = TaskSetManager()
+        task_sets = manager.list(
+            service="service-arn",
+            cluster="cluster-arn",
+            include=["TAGS"],
+        )
+
+        assert isinstance(task_sets, PrimaryBoto3ModelQuerySet)
+        assert len(task_sets) == 1
+        assert task_sets[0].taskSetArn == "ts-arn-1"
+        assert task_sets[0].Tags[0].key == "Team"
+        mock_client.describe_task_sets.assert_called_once_with(
+            service="service-arn",
+            cluster="cluster-arn",
+            include=["TAGS"],
+        )
+
+
+class TestServiceRevisionManager:
+    @patch("boto3.client")
+    def test_list_delegates_to_get_many(self, mock_boto3_client):
+        mock_boto3_client.return_value = MagicMock()
+        manager = ServiceRevisionManager()
+        expected = PrimaryBoto3ModelQuerySet(
+            [ServiceRevision(serviceRevisionArn="revision-arn-1")]
+        )
+        manager.get_many = MagicMock(return_value=expected)
+
+        result = manager.list(serviceRevisionArns=["revision-arn-1"])
+
+        assert result is expected
+        manager.get_many.assert_called_once_with(
+            serviceRevisionArns=["revision-arn-1"]
+        )
+
+
+class TestECSRelations:
+    def test_service_current_service_deployment(self):
+        session = MagicMock()
+        service = Service(
+            serviceName="svc",
+            taskDefinition="family:1",
+            clusterArn="cluster-arn",
+            desiredCount=1,
+            launchType="FARGATE",
+            schedulingStrategy="REPLICA",
+            currentServiceDeployment="deployment-arn",
+        )
+        service.set_session(session)
+        deployment = ServiceDeployment(serviceDeploymentArn="deployment-arn")
+        objects, manager = _manager_proxy("get", deployment)
+
+        with patch.object(ServiceDeployment, "objects", objects):
+            assert service.current_service_deployment is deployment
+
+        manager.get.assert_called_once_with(serviceDeploymentArn="deployment-arn")
+
+    def test_service_current_service_revisions(self):
+        session = MagicMock()
+        service = Service(
+            serviceName="svc",
+            taskDefinition="family:1",
+            clusterArn="cluster-arn",
+            desiredCount=1,
+            launchType="FARGATE",
+            schedulingStrategy="REPLICA",
+            currentServiceRevisions=[{"arn": "revision-arn-1"}, {"arn": "revision-arn-2"}],
+        )
+        service.set_session(session)
+        revisions = PrimaryBoto3ModelQuerySet(
+            [
+                ServiceRevision(serviceRevisionArn="revision-arn-1"),
+                ServiceRevision(serviceRevisionArn="revision-arn-2"),
+            ]
+        )
+        objects, manager = _manager_proxy("list", revisions)
+
+        with patch.object(ServiceRevision, "objects", objects):
+            assert service.current_service_revisions is revisions
+
+        manager.list.assert_called_once_with(
+            serviceRevisionArns=["revision-arn-1", "revision-arn-2"]
+        )
+
+    def test_service_task_sets(self):
+        session = MagicMock()
+        service = Service(
+            serviceName="svc",
+            taskDefinition="family:1",
+            clusterArn="cluster-arn",
+            desiredCount=1,
+            launchType="FARGATE",
+            schedulingStrategy="REPLICA",
+            taskSets=[{"taskSetArn": "task-set-arn-1"}, {"taskSetArn": "task-set-arn-2"}],
+        )
+        service.set_session(session)
+        task_sets = PrimaryBoto3ModelQuerySet(
+            [
+                TaskSet(taskSetArn="task-set-arn-1"),
+                TaskSet(taskSetArn="task-set-arn-2"),
+            ]
+        )
+        objects, manager = _manager_proxy("list", task_sets)
+
+        with patch.object(TaskSet, "objects", objects):
+            assert service.task_sets is task_sets
+
+        manager.list.assert_called_once_with(
+            service="svc",
+            cluster="cluster-arn",
+            taskSets=["task-set-arn-1", "task-set-arn-2"],
+        )
+
+    def test_cluster_capacity_providers(self):
+        session = MagicMock()
+        cluster = Cluster(
+            clusterArn="cluster-arn",
+            clusterName="cluster-name",
+            capacityProviders=["cp-1", "cp-2"],
+        )
+        cluster.set_session(session)
+        providers = PrimaryBoto3ModelQuerySet(
+            [
+                CapacityProvider(capacityProviderArn="cp-arn-1", name="cp-1"),
+                CapacityProvider(capacityProviderArn="cp-arn-2", name="cp-2"),
+            ]
+        )
+        objects, manager = _manager_proxy("list", providers)
+
+        with patch.object(CapacityProvider, "objects", objects):
+            assert cluster.capacity_providers is providers
+
+        manager.list.assert_called_once_with(
+            capacityProviders=["cp-1", "cp-2"],
+            cluster="cluster-arn",
+        )
+
+    def test_task_capacity_provider(self):
+        session = MagicMock()
+        task = Task(
+            clusterArn="cluster-arn",
+            taskDefinition="family:1",
+            capacityProviderName="cp-1",
+        )
+        task.set_session(session)
+        provider = CapacityProvider(capacityProviderArn="cp-arn-1", name="cp-1")
+        objects, manager = _manager_proxy("get", provider)
+
+        with patch.object(CapacityProvider, "objects", objects):
+            assert task.capacity_provider is provider
+
+        manager.get.assert_called_once_with(
+            capacityProvider="cp-1",
+            cluster="cluster-arn",
+        )
+
+    def test_container_instance_cluster(self):
+        session = MagicMock()
+        instance = ContainerInstance(
+            containerInstanceArn=(
+                "arn:aws:ecs:us-west-2:123456789012:container-instance/"
+                "cluster-name/0123456789abcdef"
+            )
+        )
+        instance.set_session(session)
+        cluster = Cluster(clusterArn="cluster-arn", clusterName="cluster-name")
+        objects, manager = _manager_proxy("get", cluster)
+
+        with patch.object(Cluster, "objects", objects):
+            assert instance.cluster is cluster
+
+        manager.get.assert_called_once_with(cluster="cluster-name")
+
+    def test_container_instance_capacity_provider(self):
+        session = MagicMock()
+        instance = ContainerInstance(
+            containerInstanceArn=(
+                "arn:aws:ecs:us-west-2:123456789012:container-instance/"
+                "cluster-name/0123456789abcdef"
+            ),
+            capacityProviderName="cp-1",
+        )
+        instance.set_session(session)
+        provider = CapacityProvider(capacityProviderArn="cp-arn-1", name="cp-1")
+        objects, manager = _manager_proxy("get", provider)
+
+        with patch.object(CapacityProvider, "objects", objects):
+            assert instance.capacity_provider is provider
+
+        manager.get.assert_called_once_with(
+            capacityProvider="cp-1",
+            cluster="cluster-name",
+        )
+
+    def test_service_deployment_relations(self):
+        session = MagicMock()
+        deployment = ServiceDeployment(
+            serviceDeploymentArn="deployment-arn",
+            serviceArn="service-arn",
+            clusterArn="cluster-arn",
+            targetServiceRevision={"arn": "revision-arn-1"},
+            sourceServiceRevisions=[{"arn": "revision-arn-2"}, {"arn": "revision-arn-3"}],
+        )
+        deployment.set_session(session)
+
+        service = Service(
+            serviceName="svc",
+            taskDefinition="family:1",
+            clusterArn="cluster-arn",
+            desiredCount=1,
+            launchType="FARGATE",
+            schedulingStrategy="REPLICA",
+            serviceArn="service-arn",
+        )
+        cluster = Cluster(clusterArn="cluster-arn", clusterName="cluster-name")
+        target_revision = ServiceRevision(
+            serviceRevisionArn="revision-arn-1",
+            taskDefinition="family:1",
+        )
+        source_revisions = PrimaryBoto3ModelQuerySet(
+            [
+                ServiceRevision(serviceRevisionArn="revision-arn-2"),
+                ServiceRevision(serviceRevisionArn="revision-arn-3"),
+            ]
+        )
+
+        service_objects, service_manager = _manager_proxy("get", service)
+        cluster_objects, cluster_manager = _manager_proxy("get", cluster)
+        target_objects, target_manager = _manager_proxy("get", target_revision)
+        source_objects, source_manager = _manager_proxy("list", source_revisions)
+
+        with (
+            patch.object(Service, "objects", service_objects),
+            patch.object(Cluster, "objects", cluster_objects),
+            patch.object(ServiceRevision, "objects", target_objects),
+        ):
+            assert deployment.service is service
+            assert deployment.cluster is cluster
+            assert deployment.target_service_revision is target_revision
+
+        with patch.object(ServiceRevision, "objects", source_objects):
+            assert deployment.source_service_revisions is source_revisions
+
+        service_manager.get.assert_called_once_with(
+            service="service-arn",
+            cluster="cluster-arn",
+        )
+        cluster_manager.get.assert_called_once_with(cluster="cluster-arn")
+        target_manager.get.assert_called_once_with(
+            serviceRevisionArn="revision-arn-1"
+        )
+        source_manager.list.assert_called_once_with(
+            serviceRevisionArns=["revision-arn-2", "revision-arn-3"]
+        )
+
+    def test_task_set_relations(self):
+        session = MagicMock()
+        task_set = TaskSet(
+            taskSetArn="task-set-arn",
+            serviceArn="service-arn",
+            clusterArn="cluster-arn",
+            taskDefinition="family:1",
+        )
+        task_set.set_session(session)
+        service = Service(
+            serviceName="svc",
+            taskDefinition="family:1",
+            clusterArn="cluster-arn",
+            desiredCount=1,
+            launchType="FARGATE",
+            schedulingStrategy="REPLICA",
+            serviceArn="service-arn",
+        )
+        cluster = Cluster(clusterArn="cluster-arn", clusterName="cluster-name")
+        task_definition = TaskDefinition(
+            taskDefinitionArn="arn:aws:ecs:us-west-2:123456789012:task-definition/family:1",
+            family="family",
+            containerDefinitions=[],
+        )
+
+        service_objects, service_manager = _manager_proxy("get", service)
+        cluster_objects, cluster_manager = _manager_proxy("get", cluster)
+        task_definition_objects, task_definition_manager = _manager_proxy(
+            "get", task_definition
+        )
+
+        with (
+            patch.object(Service, "objects", service_objects),
+            patch.object(Cluster, "objects", cluster_objects),
+            patch.object(TaskDefinition, "objects", task_definition_objects),
+        ):
+            assert task_set.service is service
+            assert task_set.cluster is cluster
+            assert task_set.task_definition is task_definition
+
+        service_manager.get.assert_called_once_with(
+            service="service-arn",
+            cluster="cluster-arn",
+        )
+        cluster_manager.get.assert_called_once_with(cluster="cluster-arn")
+        task_definition_manager.get.assert_called_once_with(taskDefinition="family:1")
+
+    def test_service_revision_relations(self):
+        session = MagicMock()
+        revision = ServiceRevision(
+            serviceRevisionArn="revision-arn",
+            serviceArn="service-arn",
+            clusterArn="cluster-arn",
+            taskDefinition="family:1",
+        )
+        revision.set_session(session)
+        service = Service(
+            serviceName="svc",
+            taskDefinition="family:1",
+            clusterArn="cluster-arn",
+            desiredCount=1,
+            launchType="FARGATE",
+            schedulingStrategy="REPLICA",
+            serviceArn="service-arn",
+        )
+        cluster = Cluster(clusterArn="cluster-arn", clusterName="cluster-name")
+        task_definition = TaskDefinition(
+            taskDefinitionArn="arn:aws:ecs:us-west-2:123456789012:task-definition/family:1",
+            family="family",
+            containerDefinitions=[],
+        )
+
+        service_objects, service_manager = _manager_proxy("get", service)
+        cluster_objects, cluster_manager = _manager_proxy("get", cluster)
+        task_definition_objects, task_definition_manager = _manager_proxy(
+            "get", task_definition
+        )
+
+        with (
+            patch.object(Service, "objects", service_objects),
+            patch.object(Cluster, "objects", cluster_objects),
+            patch.object(TaskDefinition, "objects", task_definition_objects),
+        ):
+            assert revision.service is service
+            assert revision.cluster is cluster
+            assert revision.task_definition is task_definition
+
+        service_manager.get.assert_called_once_with(
+            service="service-arn",
+            cluster="cluster-arn",
+        )
+        cluster_manager.get.assert_called_once_with(cluster="cluster-arn")
+        task_definition_manager.get.assert_called_once_with(taskDefinition="family:1")

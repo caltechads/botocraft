@@ -1,4 +1,33 @@
 ---
+CapacityProvider:
+  mixins:
+    - name: CapacityProviderManagerMixin
+      import_path: botocraft.mixins.ecs
+  methods:
+    create:
+      boto3_name: create_capacity_provider
+      response_attr: capacityProvider
+    get:
+      boto3_name: describe_capacity_providers
+      response_attr: capacityProviders
+      args:
+        capacityProviders:
+          rename: capacityProvider
+          required: true
+          python_type: str
+          source_arg: "[capacityProvider]"
+          docstring: >-
+            The short name or full Amazon Resource Name (ARN) of the capacity
+            provider to describe.
+    get_many:
+      boto3_name: describe_capacity_providers
+      response_attr: capacityProviders
+    update:
+      boto3_name: update_capacity_provider
+      response_attr: capacityProvider
+    delete:
+      boto3_name: delete_capacity_provider
+      response_attr: capacityProvider
 Service:
   mixins:
     - name: ECSServiceManagerMixin
@@ -257,6 +286,56 @@ Task:
           attribute: clusterArn
     delete:
       boto3_name: stop_task
+TaskSet:
+  mixins:
+    - name: TaskSetManagerMixin
+      import_path: botocraft.mixins.ecs
+  methods:
+    create:
+      boto3_name: create_task_set
+      response_attr: taskSet
+      args:
+        service:
+          attribute: serviceArn
+        cluster:
+          attribute: clusterArn
+    get:
+      boto3_name: describe_task_sets
+      response_attr: taskSets
+      args:
+        cluster:
+          required: true
+        service:
+          required: true
+        taskSets:
+          rename: taskSet
+          required: true
+          python_type: str
+          source_arg: "[taskSet]"
+          docstring: >-
+            The short name or full Amazon Resource Name (ARN) of the task set
+            to describe.
+    get_many:
+      boto3_name: describe_task_sets
+      response_attr: taskSets
+      args:
+        cluster:
+          required: true
+        service:
+          required: true
+    update:
+      boto3_name: update_task_set
+      response_attr: taskSet
+      args:
+        cluster:
+          attribute: clusterArn
+        service:
+          attribute: serviceArn
+        taskSet:
+          attribute: taskSetArn
+    delete:
+      boto3_name: delete_task_set
+      response_attr: taskSet
 ServiceDeployment:
   readonly: true
   methods:
@@ -284,3 +363,24 @@ ServiceDeployment:
     stop:
       boto3_name: stop_service_deployment
       response_attr: serviceDeploymentArn
+ServiceRevision:
+  readonly: true
+  mixins:
+    - name: ServiceRevisionManagerMixin
+      import_path: botocraft.mixins.ecs
+  methods:
+    get:
+      boto3_name: describe_service_revisions
+      response_attr: serviceRevisions
+      args:
+        serviceRevisionArns:
+          rename: serviceRevisionArn
+          required: true
+          python_type: str
+          source_arg: "[serviceRevisionArn]"
+          docstring: >-
+            The full Amazon Resource Name (ARN) of the service revision to
+            describe.
+    get_many:
+      boto3_name: describe_service_revisions
+      response_attr: serviceRevisions

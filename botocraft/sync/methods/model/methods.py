@@ -1,5 +1,5 @@
 from collections import OrderedDict
-from typing import TYPE_CHECKING, cast
+from typing import TYPE_CHECKING, Any, cast
 
 from botocraft.sync.models import MethodArgumentDefinition, MethodDocstringDefinition
 
@@ -147,9 +147,10 @@ class ModelManagerMethodGenerator:
         """
         if self.manager_method_def.return_type is not None:
             return self.manager_method_def.return_type
-        if self.method_generator.output_shape is not None:
-            output_shape = self.method_generator.output_shape
-            response_attr = self.method_generator.response_attr
+        method_generator = cast("Any", self.method_generator)
+        if method_generator.output_shape is not None:
+            output_shape = method_generator.output_shape
+            response_attr = method_generator.response_attr
             _return_shape = None
             if response_attr is not None:
                 try:

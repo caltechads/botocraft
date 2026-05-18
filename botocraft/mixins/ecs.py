@@ -538,6 +538,154 @@ class ECSServiceManagerMixin:
         return PrimaryBoto3ModelQuerySet(services)  # type: ignore[arg-type]
 
 
+class CapacityProviderManagerMixin:
+    """
+    A mixin for :py:class:`botocraft.services.ecs.CapacityProviderManager`.
+
+    This mixin provides list behavior for capacity providers because
+    ``describe_capacity_providers`` is both the detail endpoint and the only
+    API that can enumerate all capacity providers, including paginated
+    unfiltered results.
+    """
+
+    def list(
+        self,
+        *,
+        capacityProviders: list[str] | None = None,  # noqa: N803
+        cluster: str | None = None,
+        include: list[Literal["TAGS"]] | None = None,
+    ) -> "PrimaryBoto3ModelQuerySet":
+        """
+        Return capacity providers for the given scope.
+
+        Keyword Args:
+            capacityProviders: Optional capacity provider names or ARNs to
+                resolve directly.
+            cluster: Optional cluster name or ARN to scope the describe call.
+            include: Optional extra fields to include in the response.
+
+        Returns:
+            A list of :py:class:`botocraft.services.ecs.CapacityProvider`
+            objects.
+
+        """
+        from botocraft.services import CapacityProvider
+
+        if capacityProviders:
+            return self.get_many(  # type: ignore[attr-defined]
+                capacityProviders=capacityProviders,
+                cluster=cluster,
+                include=include,
+            )
+
+        providers: list[CapacityProvider] = []
+        next_token: str | None = None
+        while True:
+            args = {
+                "cluster": cluster,
+                "include": include,
+                "maxResults": 100,
+                "nextToken": next_token,
+            }
+            response = self.client.describe_capacity_providers(
+                **{key: value for key, value in args.items() if value is not None}
+            )
+            page = [
+                CapacityProvider(**provider)
+                for provider in response.get("capacityProviders", [])
+            ]
+            self.sessionize(page)  # type: ignore[attr-defined]
+            providers.extend(page)
+            next_token = response.get("nextToken")
+            if not next_token:
+                break
+        return PrimaryBoto3ModelQuerySet(providers)  # type: ignore[arg-type]
+
+
+class TaskSetManagerMixin:
+    """
+    A mixin for :py:class:`botocraft.services.ecs.TaskSetManager`.
+
+    This mixin provides a scoped list operation because
+    ``describe_task_sets`` requires both service and cluster context and does
+    not have a standalone paginator-backed list API.
+    """
+
+    def list(
+        self,
+        *,
+        service: str,
+        cluster: str,
+        include: list[Literal["TAGS"]] | None = None,
+        taskSets: list[str] | None = None,  # noqa: N803
+    ) -> "PrimaryBoto3ModelQuerySet":
+        """
+        Return task sets for a service and cluster.
+
+        Keyword Args:
+            service: The service name or ARN that owns the task sets.
+            cluster: The cluster name or ARN that owns the task sets.
+            include: Optional extra fields to include in the response.
+            taskSets: Optional task set names or ARNs to describe directly.
+
+        Returns:
+            A list of :py:class:`botocraft.services.ecs.TaskSet` objects.
+
+        """
+        from botocraft.services import TaskSet
+
+        if taskSets:
+            return self.get_many(  # type: ignore[attr-defined]
+                service=service,
+                cluster=cluster,
+                include=include,
+                taskSets=taskSets,
+            )
+
+        args = {
+            "service": service,
+            "cluster": cluster,
+            "include": include,
+        }
+        response = self.client.describe_task_sets(
+            **{key: value for key, value in args.items() if value is not None}
+        )
+        task_sets = [TaskSet(**task_set) for task_set in response.get("taskSets", [])]
+        self.sessionize(task_sets)  # type: ignore[attr-defined]
+        return PrimaryBoto3ModelQuerySet(task_sets)  # type: ignore[arg-type]
+
+
+class ServiceRevisionManagerMixin:
+    """
+    A mixin for :py:class:`botocraft.services.ecs.ServiceRevisionManager`.
+
+    This mixin preserves relation ergonomics for service revisions by exposing a
+    list method that delegates to ``get_many`` with ARN batches.
+    """
+
+    def list(
+        self,
+        *,
+        serviceRevisionArns: list[str] | None = None,  # noqa: N803
+    ) -> "PrimaryBoto3ModelQuerySet":
+        """
+        Return service revisions for the given ARNs.
+
+        Keyword Args:
+            serviceRevisionArns: The service revision ARNs to describe.
+
+        Returns:
+            A list of :py:class:`botocraft.services.ecs.ServiceRevision`
+            objects.
+
+        """
+        if not serviceRevisionArns:
+            return PrimaryBoto3ModelQuerySet([])  # type: ignore[arg-type]
+        return self.get_many(  # type: ignore[attr-defined]
+            serviceRevisionArns=serviceRevisionArns
+        )
+
+
 class ECSContainerInstanceModelMixin:
     @property
     def free_cpu(self) -> int:

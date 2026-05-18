@@ -270,6 +270,24 @@ class ReadonlyBoto3ModelManager(Boto3ModelManager):
 
 
 class ModelIdentityMixin:
+    def _get_identity_field_value(self, field_name: str) -> Any | None:
+        """
+        Return the stored value for a real identity field when it exists.
+
+        Args:
+            field_name: The model field name to read directly from the pydantic
+                instance storage.
+
+        Returns:
+            The stored field value when the model declares that field,
+            otherwise ``None``.
+
+        """
+        model_class = cast("type[BaseModel]", self.__class__)
+        if field_name not in model_class.model_fields:
+            return None
+        return self.__dict__.get(field_name)
+
     @property
     def pk(self) -> str | OrderedDict | None:
         """
@@ -289,7 +307,12 @@ class ModelIdentityMixin:
         Returns:
             The ARN of the model instance.
 
+        Raises:
+            ValueError: If the model has no ARN identity field.
+
         """
+        if arn := self._get_identity_field_value("arn"):
+            return cast("str", arn)
         msg = "The model does not have an ARN."
         raise ValueError(msg)
 
@@ -301,7 +324,12 @@ class ModelIdentityMixin:
         Returns:
             The name of the model instance.
 
+        Raises:
+            ValueError: If the model has no name identity field.
+
         """
+        if name := self._get_identity_field_value("name"):
+            return cast("str", name)
         msg = "The model does not have a name."
         raise ValueError(msg)
 

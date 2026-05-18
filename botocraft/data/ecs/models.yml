@@ -1,5 +1,16 @@
 ---
 primary:
+  CapacityProvider:
+    primary_key: capacityProviderArn
+    arn_key: capacityProviderArn
+    name_key: Name
+    input_shapes:
+      - CreateCapacityProviderRequest
+    fields:
+      name:
+        rename: Name
+      tags:
+        rename: Tags
   Service:
     arn_key: serviceArn
     name_key: serviceName
@@ -107,6 +118,36 @@ primary:
           mapping:
             service: serviceName
             cluster: clusterArn
+      current_service_deployment:
+        primary_model_name: ServiceDeployment
+        docstring: >-
+          Return the current :py:class:`ServiceDeployment` object for this
+          service, if any.
+        transformer:
+          mapping:
+            serviceDeploymentArn: currentServiceDeployment
+      current_service_revisions:
+        primary_model_name: ServiceRevision
+        many: true
+        docstring: >-
+          Return the current :py:class:`ServiceRevision` objects for this
+          service, if any.
+        transformer:
+          mapping:
+            serviceRevisionArns: >-
+              [revision.arn for revision in self.currentServiceRevisions if revision.arn]
+      task_sets:
+        primary_model_name: TaskSet
+        many: true
+        docstring: >-
+          Return the :py:class:`TaskSet` objects associated with this service,
+          if any.
+        transformer:
+          mapping:
+            service: serviceName
+            cluster: clusterArn
+            taskSets: >-
+              [task_set.taskSetArn for task_set in self.taskSets if task_set.taskSetArn]
   Cluster:
     primary_key: clusterArn
     arn_key: clusterArn
@@ -138,6 +179,16 @@ primary:
           cluster, if any.
         transformer:
           mapping:
+            cluster: clusterArn
+      capacity_providers:
+        primary_model_name: CapacityProvider
+        many: true
+        docstring: >-
+          Return the :py:class:`CapacityProvider` objects associated with this
+          cluster, if any.
+        transformer:
+          mapping:
+            capacityProviders: capacityProviders
             cluster: clusterArn
   TaskDefinition:
     primary_key: taskDefinitionArn
@@ -242,6 +293,15 @@ primary:
           mapping:
             service: serviceName
             cluster: clusterArn
+      capacity_provider:
+        primary_model_name: CapacityProvider
+        docstring: >-
+          Return the :py:class:`CapacityProvider` object that runs this task,
+          if any.
+        transformer:
+          mapping:
+            capacityProvider: capacityProviderName
+            cluster: clusterArn
   ContainerInstance:
     primary_key: containerInstanceArn
     arn_key: containerInstanceArn
@@ -291,11 +351,94 @@ primary:
             containerInstance: containerInstanceArn
             desiredStatus: >-
               "RUNNING"
+      cluster:
+        primary_model_name: Cluster
+        docstring: >-
+          Return the :py:class:`Cluster` object that this container instance
+          belongs to, if any.
+        transformer:
+          mapping:
+            cluster: clusterName
+      capacity_provider:
+        primary_model_name: CapacityProvider
+        docstring: >-
+          Return the :py:class:`CapacityProvider` object associated with this
+          container instance, if any.
+        transformer:
+          mapping:
+            capacityProvider: capacityProviderName
+            cluster: clusterName
+  ServiceRevision:
+    primary_key: serviceRevisionArn
+    arn_key: serviceRevisionArn
+    readonly: true
+    relations:
+      service:
+        primary_model_name: Service
+        docstring: >-
+          Return the :py:class:`Service` object for this service revision, if
+          any.
+        transformer:
+          mapping:
+            service: serviceArn
+            cluster: clusterArn
+      cluster:
+        primary_model_name: Cluster
+        docstring: >-
+          Return the :py:class:`Cluster` object for this service revision, if
+          any.
+        transformer:
+          mapping:
+            cluster: clusterArn
+      task_definition:
+        primary_model_name: TaskDefinition
+        docstring: >-
+          Return the :py:class:`TaskDefinition` object for this service
+          revision, if any.
+        transformer:
+          mapping:
+            taskDefinition: taskDefinition
   ServiceDeployment:
     primary_key: serviceDeploymentArn
     arn_key: serviceDeploymentArn
     readonly: true
     relations:
+      service:
+        primary_model_name: Service
+        docstring: >-
+          Return the :py:class:`Service` object that owns this deployment, if
+          any.
+        transformer:
+          mapping:
+            service: serviceArn
+            cluster: clusterArn
+      cluster:
+        primary_model_name: Cluster
+        docstring: >-
+          Return the :py:class:`Cluster` object that owns this deployment, if
+          any.
+        transformer:
+          mapping:
+            cluster: clusterArn
+      target_service_revision:
+        primary_model_name: ServiceRevision
+        docstring: >-
+          Return the target :py:class:`ServiceRevision` object for this
+          deployment, if any.
+        transformer:
+          mapping:
+            serviceRevisionArn: >-
+              self.targetServiceRevision.arn
+      source_service_revisions:
+        primary_model_name: ServiceRevision
+        many: true
+        docstring: >-
+          Return the source :py:class:`ServiceRevision` objects for this
+          deployment, if any.
+        transformer:
+          mapping:
+            serviceRevisionArns: >-
+              [revision.arn for revision in self.sourceServiceRevisions if revision.arn]
       target_task_definition:
         primary_model_name: TaskDefinition
         docstring: >-
@@ -304,7 +447,41 @@ primary:
         transformer:
           mapping:
             taskDefinition: >-
-              self.targetServiceRevision.arn
+              self.target_service_revision.taskDefinition
+  TaskSet:
+    primary_key: taskSetArn
+    arn_key: taskSetArn
+    input_shapes:
+      - CreateTaskSetRequest
+    fields:
+      tags:
+        rename: Tags
+    relations:
+      service:
+        primary_model_name: Service
+        docstring: >-
+          Return the :py:class:`Service` object that owns this task set, if
+          any.
+        transformer:
+          mapping:
+            service: serviceArn
+            cluster: clusterArn
+      cluster:
+        primary_model_name: Cluster
+        docstring: >-
+          Return the :py:class:`Cluster` object that owns this task set, if
+          any.
+        transformer:
+          mapping:
+            cluster: clusterArn
+      task_definition:
+        primary_model_name: TaskDefinition
+        docstring: >-
+          Return the :py:class:`TaskDefinition` object for this task set, if
+          any.
+        transformer:
+          mapping:
+            taskDefinition: taskDefinition
 
 secondary:
   Deployment:
@@ -363,12 +540,30 @@ secondary:
               ImageIdentifier(imageTag=self.image_tag)
   LoadBalancer:
     alternate_name: LoadBalancerConfiguration
+  ProxyConfiguration:
+    alternate_name: ECSProxyConfiguration
+  VCpuCountRangeRequest:
+    alternate_name: ECSVCpuCountRangeRequest
+  MemoryMiBRequest:
+    alternate_name: ECSMemoryMiBRequest
+  MemoryGiBPerVCpuRequest:
+    alternate_name: ECSMemoryGiBPerVCpuRequest
+  NetworkInterfaceCountRequest:
+    alternate_name: ECSNetworkInterfaceCountRequest
+  TotalLocalStorageGBRequest:
+    alternate_name: ECSTotalLocalStorageGBRequest
+  BaselineEbsBandwidthMbpsRequest:
+    alternate_name: ECSBaselineEbsBandwidthMbpsRequest
+  AcceleratorCountRequest:
+    alternate_name: ECSAcceleratorCountRequest
+  AcceleratorTotalMemoryMiBRequest:
+    alternate_name: ECSAcceleratorTotalMemoryMiBRequest
+  NetworkBandwidthGbpsRequest:
+    alternate_name: ECSNetworkBandwidthGbpsRequest
+  InstanceRequirementsRequest:
+    alternate_name: ECSInstanceRequirementsRequest
   Tag:
     alternate_name: ECSTag
-  TaskSet:
-    fields:
-      tags:
-        rename: Tags
   RegisterTaskDefinitionResponse:
     fields:
       tags:
