@@ -1,6 +1,6 @@
 [project]
 name = "botocraft"
-version = "0.26.0"
+version = "0.27.0"
 authors = [
     {name = "Caltech IMSS ADS", email = "imss-ads-staff@caltech.edu"},
 ]
@@ -42,7 +42,7 @@ dependencies = [
   # docformatter 1.7.8 changed some internals that we need to remediate in our codebase
   "docformatter == 1.7.7",
   "inflect >= 7.4.0",
-  "markdownify >= 0.26.0",
+  "markdownify >= 0.27.0",
   "pyyaml >= 6.0.2",
 ]
 
