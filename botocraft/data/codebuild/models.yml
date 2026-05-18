@@ -1,0 +1,147 @@
+---
+primary:
+  Project:
+    primary_key: projectName
+    arn_key: Arn
+    input_shapes:
+      - CreateProjectInput
+      - UpdateProjectInput
+    fields:
+      name:
+        rename: projectName
+      tags:
+        rename: Tags
+      arn:
+        rename: Arn
+
+  Build:
+    readonly: true
+    primary_key: id
+    name_key: projectName
+    arn_key: Arn
+    fields:
+      arn:
+        rename: Arn
+
+  BuildBatch:
+    primary_key: id
+    arn_key: Arn
+    input_shapes:
+      - StartBuildBatchInput
+    fields:
+      arn:
+        rename: Arn
+
+  Fleet:
+    primary_key: fleetName
+    arn_key: Arn
+    input_shapes:
+      - CreateFleetInput
+      - UpdateFleetInput
+    fields:
+      name:
+        rename: fleetName
+      tags:
+        rename: Tags
+      arn:
+        rename: Arn
+
+  ReportGroup:
+    primary_key: Arn
+    arn_key: Arn
+    input_shapes:
+      - CreateReportGroupInput
+      - UpdateReportGroupInput
+    fields:
+      name:
+        rename: reportGroupName
+      tags:
+        rename: Tags
+      arn:
+        rename: Arn
+
+  Report:
+    readonly: true
+    primary_key: Arn
+    arn_key: Arn
+    fields:
+      name:
+        rename: reportName
+      arn:
+        rename: Arn
+
+  Webhook:
+    primary_key: url
+    fields:
+      filterGroups:
+        python_type: Any
+        imports:
+          - from typing import Any
+    extra_fields:
+      projectName:
+        python_type: str | None
+        default: None
+        docstring: >-
+          The owning project name when returned from create/update APIs.
+    properties:
+      pk:
+        docstring: >-
+          Composite identity for webhook operations scoped to a project.
+        transformer:
+          mapping:
+            projectName: projectName
+            url: url
+
+  SourceCredentialsInfo:
+    alternate_name: SourceCredentials
+    primary_key: Arn
+    arn_key: Arn
+    fields:
+      arn:
+        rename: Arn
+
+  Sandbox:
+    primary_key: id
+    arn_key: Arn
+    fields:
+      arn:
+        rename: Arn
+
+  CommandExecution:
+    readonly: true
+    primary_key: id
+    properties:
+      pk:
+        docstring: >-
+          Composite primary key scoped to a sandbox.
+        transformer:
+          mapping:
+            sandboxId: sandboxId
+            id: id
+
+  CodeCoverage:
+    readonly: true
+    primary_key: id
+
+  TestCase:
+    alternate_name: CodeBuildTestCase
+    readonly: true
+    primary_key: testRawDataPath
+    name_key: Name
+    fields:
+      name:
+        rename: Name
+    properties:
+      pk:
+        docstring: >-
+          Composite identity for a test case within a report.
+        transformer:
+          mapping:
+            reportArn: reportArn
+            name: Name
+
+  EnvironmentPlatform:
+    alternate_name: CodeBuildEnvironmentPlatform
+    readonly: true
+    primary_key: platform
+

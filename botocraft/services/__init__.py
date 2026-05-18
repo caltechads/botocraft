@@ -1,4 +1,5 @@
 from .bedrock_runtime import *  # noqa: F401,F403
+from .codebuild import *  # noqa: F401,F403
 from .ssm import *  # noqa: F401,F403
 from .secretsmanager import *  # noqa: F401,F403
 from .kms import *  # noqa: F401,F403

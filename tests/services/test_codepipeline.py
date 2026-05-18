@@ -67,16 +67,80 @@ class TestPipelineManager:
                 }
             ]
         )
+        mock_client.get_pipeline.return_value = {
+            "pipeline": {
+                "name": "demo",
+                "roleArn": "arn:aws:iam::123456789012:role/DemoPipeline",
+                "stages": [{"name": "Source", "actions": []}],
+                "version": 3,
+                "pipelineType": "V2",
+                "executionMode": "PARALLEL",
+            },
+            "metadata": {
+                "pipelineArn": (
+                    "arn:aws:codepipeline:us-west-2:123456789012:demo"
+                ),
+            },
+        }
         mock_boto3_client.return_value = mock_client
 
         manager = PipelineManager()
         pipelines = manager.list()
 
         mock_client.get_paginator.assert_called_once_with("list_pipelines")
+        mock_client.get_pipeline.assert_called_once_with(name="demo")
         assert isinstance(pipelines, PrimaryBoto3ModelQuerySet)
         assert len(pipelines) == 1
         assert isinstance(pipelines[0], Pipeline)
         assert pipelines[0].pipelineName == "demo"
+        assert pipelines[0].version == 3
+        assert pipelines[0].roleArn == "arn:aws:iam::123456789012:role/DemoPipeline"
+        assert pipelines[0].pipelineArn == (
+            "arn:aws:codepipeline:us-west-2:123456789012:demo"
+        )
+
+    @patch("boto3.client")
+    def test_list_pipelines_version_pins_get_pipeline(
+        self, mock_boto3_client
+    ) -> None:
+        mock_client = MagicMock()
+        mock_client.get_paginator.return_value = FakePaginator(
+            [
+                {
+                    "pipelines": [
+                        {
+                            "name": "demo",
+                            "version": 9,
+                            "pipelineType": "V2",
+                            "executionMode": "PARALLEL",
+                        }
+                    ]
+                }
+            ]
+        )
+        mock_client.get_pipeline.return_value = {
+            "pipeline": {
+                "name": "demo",
+                "roleArn": "arn:aws:iam::123456789012:role/DemoPipeline",
+                "stages": [{"name": "Source", "actions": []}],
+                "version": 3,
+                "pipelineType": "V2",
+                "executionMode": "PARALLEL",
+            },
+            "metadata": {
+                "pipelineArn": (
+                    "arn:aws:codepipeline:us-west-2:123456789012:demo"
+                ),
+            },
+        }
+        mock_boto3_client.return_value = mock_client
+
+        manager = PipelineManager()
+        pipelines = manager.list(version=3)
+
+        mock_client.get_pipeline.assert_called_once_with(name="demo", version=3)
+        assert isinstance(pipelines, PrimaryBoto3ModelQuerySet)
+        assert len(pipelines) == 1
         assert pipelines[0].version == 3
 
     @patch("boto3.client")

@@ -43,6 +43,20 @@ PipelineDeclaration:
     list:
       boto3_name: list_pipelines
       response_attr: pipelines
+      docstring: >-
+        Returns every pipeline in the account. Each entry is loaded with
+        ``GetPipeline`` after listing, so models include the full definition
+        (stages, artifact stores, variables, triggers, ``pipelineArn``, etc.),
+        not only ``ListPipelines`` summary fields. Optional ``version`` pins the
+        pipeline revision fetched for every name; omit it to load the latest
+        revision for each pipeline.
+      extra_args:
+        version:
+          default: None
+          python_type: int | None
+          docstring: >-
+            When set, each pipeline is loaded with ``GetPipeline`` using this
+            version number. When omitted, the current (latest) revision is used.
       decorators:
         - name: pipeline_summaries_to_pipelines
           import_path: botocraft.mixins.codepipeline

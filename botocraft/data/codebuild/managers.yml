@@ -1,0 +1,451 @@
+---
+Project:
+  methods:
+    create:
+      boto3_name: create_project
+      response_attr: project
+      decorators:
+        - name: project_response_to_project
+          import_path: botocraft.mixins.codebuild
+    update:
+      boto3_name: update_project
+      response_attr: project
+      decorators:
+        - name: project_response_to_project
+          import_path: botocraft.mixins.codebuild
+    delete:
+      boto3_name: delete_project
+      return_type: None
+      args:
+        name:
+          required: true
+    get:
+      boto3_name: batch_get_projects
+      response_attr: projects
+      args:
+        names:
+          required: true
+          rename: name
+          python_type: str
+          source_arg: "[name]"
+          docstring: >-
+            The name of the project to retrieve.
+    list:
+      boto3_name: list_projects
+      response_attr: projects
+      decorators:
+        - name: project_names_to_projects
+          import_path: botocraft.mixins.codebuild
+    list_shared:
+      boto3_name: list_shared_projects
+      response_attr: projects
+      decorators:
+        - name: project_names_to_projects
+          import_path: botocraft.mixins.codebuild
+    invalidate_cache:
+      boto3_name: invalidate_project_cache
+      return_type: None
+      args:
+        name:
+          required: true
+    update_visibility:
+      boto3_name: update_project_visibility
+      return_type: None
+      args:
+        projectArn:
+          required: true
+        projectVisibility:
+          required: true
+        resourceAccessRole:
+          default: >-
+            None
+    get_resource_policy:
+      boto3_name: get_resource_policy
+      response_attr: None
+      args:
+        resourceArn:
+          required: true
+    put_resource_policy:
+      boto3_name: put_resource_policy
+      return_type: None
+      args:
+        resourceArn:
+          required: true
+        policy:
+          required: true
+    delete_resource_policy:
+      boto3_name: delete_resource_policy
+      return_type: None
+      args:
+        resourceArn:
+          required: true
+
+Build:
+  methods:
+    get:
+      boto3_name: batch_get_builds
+      response_attr: builds
+      args:
+        ids:
+          required: true
+          rename: id
+          python_type: str
+          source_arg: "[[id]]"
+          docstring: >-
+            The build identifier returned by list and start operations.
+    list:
+      boto3_name: list_builds
+      response_attr: ids
+      decorators:
+        - name: build_ids_to_builds
+          import_path: botocraft.mixins.codebuild
+    list_for_project:
+      boto3_name: list_builds_for_project
+      response_attr: ids
+      decorators:
+        - name: build_ids_to_builds_with_project
+          import_path: botocraft.mixins.codebuild
+      args:
+        projectName:
+          required: true
+    start:
+      boto3_name: start_build
+      response_attr: build
+      decorators:
+        - name: build_response_to_build
+          import_path: botocraft.mixins.codebuild
+    stop:
+      boto3_name: stop_build
+      response_attr: build
+      decorators:
+        - name: build_response_to_build
+          import_path: botocraft.mixins.codebuild
+    retry:
+      boto3_name: retry_build
+      response_attr: build
+      decorators:
+        - name: build_response_to_build
+          import_path: botocraft.mixins.codebuild
+    batch_delete:
+      boto3_name: batch_delete_builds
+      response_attr: None
+      args:
+        ids:
+          required: true
+
+BuildBatch:
+  methods:
+    create:
+      boto3_name: start_build_batch
+      response_attr: buildBatch
+      decorators:
+        - name: build_batch_response_to_build_batch
+          import_path: botocraft.mixins.codebuild
+    get:
+      boto3_name: batch_get_build_batches
+      response_attr: buildBatches
+      args:
+        ids:
+          required: true
+          rename: id
+          python_type: str
+          source_arg: "[[id]]"
+          docstring: >-
+            The build batch identifier.
+    list:
+      boto3_name: list_build_batches
+      response_attr: ids
+      decorators:
+        - name: build_batch_ids_to_build_batches
+          import_path: botocraft.mixins.codebuild
+    list_for_project:
+      boto3_name: list_build_batches_for_project
+      response_attr: ids
+      decorators:
+        - name: build_batch_ids_to_build_batches_with_project
+          import_path: botocraft.mixins.codebuild
+      args:
+        projectName:
+          required: true
+    delete:
+      boto3_name: delete_build_batch
+      return_type: None
+      args:
+        id:
+          required: true
+    stop:
+      boto3_name: stop_build_batch
+      response_attr: buildBatch
+      decorators:
+        - name: build_batch_response_to_build_batch
+          import_path: botocraft.mixins.codebuild
+    retry:
+      boto3_name: retry_build_batch
+      response_attr: buildBatch
+      decorators:
+        - name: build_batch_response_to_build_batch
+          import_path: botocraft.mixins.codebuild
+
+Fleet:
+  methods:
+    create:
+      boto3_name: create_fleet
+      response_attr: fleet
+      decorators:
+        - name: fleet_response_to_fleet
+          import_path: botocraft.mixins.codebuild
+    update:
+      boto3_name: update_fleet
+      response_attr: fleet
+      decorators:
+        - name: fleet_response_to_fleet
+          import_path: botocraft.mixins.codebuild
+    delete:
+      boto3_name: delete_fleet
+      return_type: None
+      args:
+        name:
+          required: true
+    get:
+      boto3_name: batch_get_fleets
+      response_attr: fleets
+      args:
+        names:
+          required: true
+          rename: name
+          python_type: str
+          source_arg: "[[name]]"
+          docstring: >-
+            The fleet name to retrieve.
+    list:
+      boto3_name: list_fleets
+      response_attr: fleets
+      decorators:
+        - name: fleet_names_to_fleets
+          import_path: botocraft.mixins.codebuild
+
+ReportGroup:
+  methods:
+    create:
+      boto3_name: create_report_group
+      response_attr: reportGroup
+      decorators:
+        - name: report_group_response_to_report_group
+          import_path: botocraft.mixins.codebuild
+    update:
+      boto3_name: update_report_group
+      response_attr: reportGroup
+      decorators:
+        - name: report_group_response_to_report_group
+          import_path: botocraft.mixins.codebuild
+    delete:
+      boto3_name: delete_report_group
+      return_type: None
+      args:
+        arn:
+          required: true
+    get:
+      boto3_name: batch_get_report_groups
+      response_attr: reportGroups
+      args:
+        reportGroupArns:
+          required: true
+          rename: arn
+          python_type: str
+          source_arg: "[[arn]]"
+          docstring: >-
+            The ARN of the report group to retrieve.
+    list:
+      boto3_name: list_report_groups
+      response_attr: reportGroups
+      decorators:
+        - name: report_group_arns_to_report_groups
+          import_path: botocraft.mixins.codebuild
+    list_shared:
+      boto3_name: list_shared_report_groups
+      response_attr: reportGroups
+      decorators:
+        - name: report_group_arns_to_report_groups
+          import_path: botocraft.mixins.codebuild
+    get_trend:
+      boto3_name: get_report_group_trend
+      response_attr: None
+
+Report:
+  methods:
+    get:
+      boto3_name: batch_get_reports
+      response_attr: reports
+      args:
+        reportArns:
+          required: true
+          rename: arn
+          python_type: str
+          source_arg: "[[arn]]"
+          docstring: >-
+            The ARN of the report to retrieve.
+    list:
+      boto3_name: list_reports
+      response_attr: reports
+      decorators:
+        - name: report_arns_to_reports
+          import_path: botocraft.mixins.codebuild
+    list_for_report_group:
+      boto3_name: list_reports_for_report_group
+      response_attr: reports
+      decorators:
+        - name: report_arns_to_reports_with_group
+          import_path: botocraft.mixins.codebuild
+      args:
+        reportGroupArn:
+          required: true
+    delete:
+      boto3_name: delete_report
+      return_type: None
+      args:
+        arn:
+          required: true
+
+Webhook:
+  methods:
+    create:
+      boto3_name: create_webhook
+      response_attr: webhook
+      decorators:
+        - name: webhook_response_with_project_name
+          import_path: botocraft.mixins.codebuild
+    update:
+      boto3_name: update_webhook
+      response_attr: webhook
+      decorators:
+        - name: webhook_response_with_project_name
+          import_path: botocraft.mixins.codebuild
+    delete:
+      boto3_name: delete_webhook
+      return_type: None
+      args:
+        projectName:
+          required: true
+
+SourceCredentialsInfo:
+  methods:
+    import_credentials:
+      boto3_name: import_source_credentials
+      response_attr: arn
+    list:
+      boto3_name: list_source_credentials
+      response_attr: sourceCredentialsInfos
+    delete:
+      boto3_name: delete_source_credentials
+      return_type: None
+      args:
+        arn:
+          required: true
+
+Sandbox:
+  methods:
+    get:
+      boto3_name: batch_get_sandboxes
+      response_attr: sandboxes
+      args:
+        ids:
+          required: true
+          rename: id
+          python_type: str
+          source_arg: "[[id]]"
+          docstring: >-
+            The sandbox identifier.
+    list:
+      boto3_name: list_sandboxes
+      response_attr: ids
+      decorators:
+        - name: sandbox_ids_to_sandboxes
+          import_path: botocraft.mixins.codebuild
+    list_for_project:
+      boto3_name: list_sandboxes_for_project
+      response_attr: ids
+      decorators:
+        - name: sandbox_ids_to_sandboxes_with_project
+          import_path: botocraft.mixins.codebuild
+      args:
+        projectName:
+          required: true
+    start:
+      boto3_name: start_sandbox
+      response_attr: sandbox
+      decorators:
+        - name: sandbox_response_to_sandbox
+          import_path: botocraft.mixins.codebuild
+      args:
+        projectName:
+          required: true
+        idempotencyToken:
+          default: >-
+            None
+    stop:
+      boto3_name: stop_sandbox
+      response_attr: sandbox
+      decorators:
+        - name: sandbox_response_to_sandbox
+          import_path: botocraft.mixins.codebuild
+      args:
+        id:
+          required: true
+    start_connection:
+      boto3_name: start_sandbox_connection
+      response_attr: None
+      args:
+        sandboxId:
+          required: true
+
+CommandExecution:
+  methods:
+    get:
+      boto3_name: batch_get_command_executions
+      response_attr: commandExecutions
+      args:
+        sandboxId:
+          required: true
+        commandExecutionIds:
+          required: true
+          rename: id
+          python_type: str
+          source_arg: "[[id]]"
+          docstring: >-
+            The command execution identifier.
+    list_for_sandbox:
+      boto3_name: list_command_executions_for_sandbox
+      response_attr: commandExecutions
+      args:
+        sandboxId:
+          required: true
+    start:
+      boto3_name: start_command_execution
+      response_attr: commandExecution
+      decorators:
+        - name: command_execution_response_to_command_execution
+          import_path: botocraft.mixins.codebuild
+
+CodeCoverage:
+  methods:
+    list:
+      boto3_name: describe_code_coverages
+      response_attr: codeCoverages
+      args:
+        reportArn:
+          required: true
+
+TestCase:
+  methods:
+    list:
+      boto3_name: describe_test_cases
+      response_attr: testCases
+      args:
+        reportArn:
+          required: true
+
+EnvironmentPlatform:
+  methods:
+    list_curated:
+      boto3_name: list_curated_environment_images
+      response_attr: platforms

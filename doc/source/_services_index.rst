@@ -8,6 +8,7 @@
    api/services/autoscaling
    api/services/bedrock
    api/services/bedrock_runtime
+   api/services/codebuild
    api/services/codepipeline
    api/services/docdb
    api/services/ec2

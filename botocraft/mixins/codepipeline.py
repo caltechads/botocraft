@@ -103,24 +103,43 @@ def pipeline_summaries_to_pipelines(
     """
     Convert list summaries into public Pipeline models.
 
+    ``ListPipelines`` returns only summary fields. After collecting summaries,
+    this wrapper calls :py:meth:`PipelineManager.get` once per pipeline so each
+    result is a full :py:class:`Pipeline` (stages, artifact stores, variables,
+    triggers, ``pipelineArn``, and related fields from ``GetPipeline``). When
+    the wrapped ``list`` method is called with ``version`` set, that value is
+    forwarded to each ``get``; when ``version`` is omitted, each ``get`` loads
+    the latest revision.
+
     Args:
         func: Generated list method returning summary-like pipeline entries.
 
     Returns:
-        Wrapped list method returning Pipeline models.
+        Wrapped list method returning fully hydrated Pipeline models.
+
+    Side Effects:
+        Performs one ``GetPipeline`` call per listed pipeline, in order, after
+        ``ListPipelines`` pagination completes.
 
     """
 
     @wraps(func)
     def wrapper(self, *args, **kwargs) -> "PrimaryBoto3ModelQuerySet":
+        hydrate_version = kwargs.get("version")
         results = func(self, *args, **kwargs)
         if not isinstance(results, PrimaryBoto3ModelQuerySet):
             results = PrimaryBoto3ModelQuerySet(results)
-        pipelines = [
-            _pipeline_from_payload(item.model_dump(exclude_none=True))
-            for item in results.results
-        ]
-        query_set = PrimaryBoto3ModelQuerySet(cast("list[Boto3Model]", pipelines))
+        pipelines: list[Boto3Model] = []
+        for item in results.results:
+            thin = _pipeline_from_payload(item.model_dump(exclude_none=True))
+            pipeline_name = thin.pipelineName
+            if pipeline_name:
+                full = self.get(pipeline_name, version=hydrate_version)
+                if full is not None:
+                    pipelines.append(full)
+                    continue
+            pipelines.append(thin)
+        query_set = PrimaryBoto3ModelQuerySet(pipelines)
         self.sessionize(query_set)
         return query_set
 

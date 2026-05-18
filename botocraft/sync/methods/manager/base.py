@@ -228,36 +228,35 @@ class ManagerMethodGenerator:
 
         """
         args: OrderedDict[str, str] = OrderedDict()
-        if self.input_shape is None:
-            return args
-        mapping = self.method_def.args
-        for arg_name, arg_shape in self.input_shape.members.items():
-            arg_def = mapping.get(arg_name, MethodArgumentDefinition())
-            _arg_name = arg_name
-            if location == "method" and arg_def.rename:
-                _arg_name = arg_def.rename
-            if arg_def.hidden:
-                # This is a hidden argument, so we don't want to expose it
-                # in the method signature or the boto3 call.
-                continue
-            if location == "method" and arg_def.value:
-                # This argument has a specific value, so we don't want to
-                # expose it in the method signature
-                continue
-            if arg_def.python_type:
-                python_type = cast("str", arg_def.python_type)
-            else:
-                python_type = self.shape_converter.convert(arg_shape, quote=True)
-            if kind == "args":
-                if self.is_required(arg_name, location=location):
-                    args[_arg_name] = python_type
-            elif not self.is_required(arg_name, location=location):
-                default: str | None = arg_def.default or "None"
-                if default == "None":
-                    python_type = python_type.strip('"')
-                    args[_arg_name] = f'"{python_type} | None" = None'
+        if self.input_shape is not None:
+            mapping = self.method_def.args
+            for arg_name, arg_shape in self.input_shape.members.items():
+                arg_def = mapping.get(arg_name, MethodArgumentDefinition())
+                _arg_name = arg_name
+                if location == "method" and arg_def.rename:
+                    _arg_name = arg_def.rename
+                if arg_def.hidden:
+                    # This is a hidden argument, so we don't want to expose it
+                    # in the method signature or the boto3 call.
+                    continue
+                if location == "method" and arg_def.value:
+                    # This argument has a specific value, so we don't want to
+                    # expose it in the method signature
+                    continue
+                if arg_def.python_type:
+                    python_type = cast("str", arg_def.python_type)
                 else:
-                    args[_arg_name] = f"{python_type} = {default}"
+                    python_type = self.shape_converter.convert(arg_shape, quote=True)
+                if kind == "args":
+                    if self.is_required(arg_name, location=location):
+                        args[_arg_name] = python_type
+                elif not self.is_required(arg_name, location=location):
+                    default: str | None = arg_def.default or "None"
+                    if default == "None":
+                        python_type = python_type.strip('"')
+                        args[_arg_name] = f'"{python_type} | None" = None'
+                    else:
+                        args[_arg_name] = f"{python_type} = {default}"
         if location == "method":
             for arg_name, arg_def in self.method_def.extra_args.items():
                 assert arg_name not in args, (
@@ -682,6 +681,9 @@ class ManagerMethodGenerator:
                 break
         if arg_def.docstring:
             return arg_def.docstring
+        extra_def = self.method_def.extra_args.get(arg)
+        if extra_def is not None and extra_def.docstring:
+            return extra_def.docstring
         if self.input_shape is not None:
             if _arg_name in self.input_shape.members:
                 return self.input_shape.members[_arg_name].documentation
