@@ -27,6 +27,11 @@ from botocraft.services.elasticache import (
     ReplicationGroup,
     SecurityGroupMembership,
 )
+from botocraft.services.opensearch import (
+    OpenSearchDomain,
+    OpenSearchDomainManager,
+    OpenSearchVpcEndpoint,
+)
 from botocraft.services.rds import (
     DBInstance,
     RDSDBSubnetGroup,
@@ -64,7 +69,9 @@ class TestTunnelNetworkRelations:
         cluster = CacheCluster(
             CacheClusterId="cache-main",
             CacheSubnetGroupName="cache-subnets",
-            SecurityGroups=[SecurityGroupMembership.model_construct(SecurityGroupId="sg-1")],
+            SecurityGroups=[
+                SecurityGroupMembership.model_construct(SecurityGroupId="sg-1")
+            ],
             session=None,
         )
         subnet_group = cast("CacheSubnetGroup", object.__new__(CacheSubnetGroup))
@@ -83,9 +90,7 @@ class TestTunnelNetworkRelations:
         subnets = [cast("Subnet", object.__new__(Subnet))]
         object.__setattr__(subnets[0], "SubnetId", "subnet-1")
         object.__setattr__(subnets[0], "session", None)
-        security_groups = [
-            cast("SecurityGroup", object.__new__(SecurityGroup))
-        ]
+        security_groups = [cast("SecurityGroup", object.__new__(SecurityGroup))]
         object.__setattr__(security_groups[0], "GroupId", "sg-1")
         object.__setattr__(security_groups[0], "GroupName", "app")
         object.__setattr__(security_groups[0], "session", None)
@@ -172,9 +177,7 @@ class TestTunnelNetworkRelations:
         subnets = [cast("Subnet", object.__new__(Subnet))]
         object.__setattr__(subnets[0], "SubnetId", "subnet-1")
         object.__setattr__(subnets[0], "session", None)
-        security_groups = [
-            cast("SecurityGroup", object.__new__(SecurityGroup))
-        ]
+        security_groups = [cast("SecurityGroup", object.__new__(SecurityGroup))]
         object.__setattr__(security_groups[0], "GroupId", "sg-1")
         object.__setattr__(security_groups[0], "GroupName", "app")
         object.__setattr__(security_groups[0], "session", None)
@@ -301,3 +304,112 @@ class TestTunnelNetworkRelations:
         list_subnets.assert_called_once()
         assert list_subnets.call_args.kwargs == {"SubnetIds": ["subnet-1"]}
         assert related_subnets is subnets
+
+    def test_opensearch_domain_network_relations(self) -> None:
+        """Resolve OpenSearch domain VPC, subnets, and security groups."""
+        domain = cast("OpenSearchDomain", object.__new__(OpenSearchDomain))
+        object.__setattr__(
+            domain,
+            "VPCOptions",
+            SimpleNamespace(
+                VPCId="vpc-123",
+                SubnetIds=["subnet-1"],
+                SecurityGroupIds=["sg-1"],
+            ),
+        )
+        object.__setattr__(domain, "session", None)
+        vpc = cast("Vpc", object.__new__(Vpc))
+        object.__setattr__(vpc, "VpcId", "vpc-123")
+        object.__setattr__(vpc, "session", None)
+        subnets = [cast("Subnet", object.__new__(Subnet))]
+        object.__setattr__(subnets[0], "SubnetId", "subnet-1")
+        object.__setattr__(subnets[0], "session", None)
+        security_groups = [cast("SecurityGroup", object.__new__(SecurityGroup))]
+        object.__setattr__(security_groups[0], "GroupId", "sg-1")
+        object.__setattr__(security_groups[0], "GroupName", "app")
+        object.__setattr__(security_groups[0], "session", None)
+
+        with (
+            patch.object(
+                VpcManager,
+                "using",
+                autospec=True,
+                side_effect=lambda _self, _session: _self,
+            ),
+            patch.object(
+                VpcManager,
+                "get",
+                autospec=True,
+                return_value=vpc,
+            ) as get_vpc,
+            patch.object(
+                SubnetManager,
+                "using",
+                autospec=True,
+                side_effect=lambda _self, _session: _self,
+            ),
+            patch.object(
+                SubnetManager,
+                "list",
+                autospec=True,
+                return_value=subnets,
+            ) as list_subnets,
+            patch.object(
+                SecurityGroupManager,
+                "using",
+                autospec=True,
+                side_effect=lambda _self, _session: _self,
+            ),
+            patch.object(
+                SecurityGroupManager,
+                "list",
+                autospec=True,
+                return_value=security_groups,
+            ) as list_security_groups,
+        ):
+            related_vpc = domain.vpc
+            related_subnets = domain.subnets
+            related_security_groups = domain.security_groups
+
+        get_vpc.assert_called_once()
+        assert get_vpc.call_args.kwargs == {"VpcId": "vpc-123"}
+        list_subnets.assert_called_once()
+        assert list_subnets.call_args.kwargs == {"SubnetIds": ["subnet-1"]}
+        list_security_groups.assert_called_once()
+        assert list_security_groups.call_args.kwargs == {"GroupIds": ["sg-1"]}
+        assert related_vpc is vpc
+        assert related_subnets is subnets
+        assert related_security_groups is security_groups
+
+    def test_opensearch_vpc_endpoint_domain_relation(self) -> None:
+        """Resolve the OpenSearch domain from a VPC endpoint domain ARN."""
+        endpoint = cast("OpenSearchVpcEndpoint", object.__new__(OpenSearchVpcEndpoint))
+        object.__setattr__(
+            endpoint,
+            "DomainArn",
+            "arn:aws:es:us-west-2:123456789012:domain/search-main",
+        )
+        object.__setattr__(endpoint, "session", None)
+        domain = cast("OpenSearchDomain", object.__new__(OpenSearchDomain))
+        object.__setattr__(domain, "DomainName", "search-main")
+        object.__setattr__(domain, "session", None)
+
+        with (
+            patch.object(
+                OpenSearchDomainManager,
+                "using",
+                autospec=True,
+                side_effect=lambda _self, _session: _self,
+            ),
+            patch.object(
+                OpenSearchDomainManager,
+                "get",
+                autospec=True,
+                return_value=domain,
+            ) as get_domain,
+        ):
+            related_domain = endpoint.domain
+
+        get_domain.assert_called_once()
+        assert get_domain.call_args.kwargs == {"DomainName": "search-main"}
+        assert related_domain is domain

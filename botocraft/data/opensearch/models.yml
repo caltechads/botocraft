@@ -1,0 +1,201 @@
+---
+primary:
+  DomainStatus:
+    alternate_name: OpenSearchDomain
+    primary_key: DomainName
+    arn_key: ARN
+    name_key: DomainName
+    input_shapes:
+      - CreateDomainRequest
+    mixins:
+      - name: DomainModelMixin
+        import_path: botocraft.mixins.opensearch
+    extra_fields:
+      Tags:
+        python_type: builtins.list[Tag]
+        docstring: >-
+          The tags associated with the OpenSearch domain.
+    relations:
+      vpc:
+        primary_model_name: Vpc
+        docstring: >-
+          Return the VPC that this OpenSearch domain is in, if any.
+        transformer:
+          mapping:
+            VpcId: >-
+              self.VPCOptions.VPCId if self.VPCOptions else None
+      subnets:
+        primary_model_name: Subnet
+        docstring: >-
+          Return the EC2 subnets associated with this OpenSearch domain, if any.
+        many: true
+        transformer:
+          mapping:
+            SubnetIds: >-
+              list(self.VPCOptions.SubnetIds) if self.VPCOptions and self.VPCOptions.SubnetIds else []
+      security_groups:
+        primary_model_name: SecurityGroup
+        docstring: >-
+          Return the EC2 security groups associated with this OpenSearch domain,
+          if any.
+        many: true
+        transformer:
+          mapping:
+            GroupIds: >-
+              list(self.VPCOptions.SecurityGroupIds) if self.VPCOptions and self.VPCOptions.SecurityGroupIds else []
+  VpcEndpoint:
+    alternate_name: OpenSearchVpcEndpoint
+    primary_key: VpcEndpointId
+    name_key: VpcEndpointId
+    input_shapes:
+      - CreateVpcEndpointRequest
+      - UpdateVpcEndpointRequest
+    relations:
+      domain:
+        primary_model_name: OpenSearchDomain
+        docstring: >-
+          Return the OpenSearch domain associated with this VPC endpoint, if any.
+        transformer:
+          mapping:
+            DomainName: >-
+              self.DomainArn.rsplit("/", 1)[-1] if self.DomainArn else None
+      vpc:
+        primary_model_name: Vpc
+        docstring: >-
+          Return the VPC that this OpenSearch VPC endpoint is in, if any.
+        transformer:
+          mapping:
+            VpcId: >-
+              self.VpcOptions.VPCId if self.VpcOptions else None
+      subnets:
+        primary_model_name: Subnet
+        docstring: >-
+          Return the EC2 subnets associated with this OpenSearch VPC endpoint, if
+          any.
+        many: true
+        transformer:
+          mapping:
+            SubnetIds: >-
+              list(self.VpcOptions.SubnetIds) if self.VpcOptions and self.VpcOptions.SubnetIds else []
+      security_groups:
+        primary_model_name: SecurityGroup
+        docstring: >-
+          Return the EC2 security groups associated with this OpenSearch VPC
+          endpoint, if any.
+        many: true
+        transformer:
+          mapping:
+            GroupIds: >-
+              list(self.VpcOptions.SecurityGroupIds) if self.VpcOptions and self.VpcOptions.SecurityGroupIds else []
+  PackageDetails:
+    alternate_name: OpenSearchPackage
+    primary_key: PackageID
+    name_key: PackageName
+    input_shapes:
+      - CreatePackageRequest
+      - UpdatePackageRequest
+secondary:
+  AWSDomainInformation:
+    alternate_name: OpenSearchAWSDomainInformation
+  AdvancedSecurityOptions:
+    alternate_name: OpenSearchAdvancedSecurityOptions
+  AutoTuneDetails:
+    alternate_name: OpenSearchAutoTuneDetails
+  AutoTuneOptions:
+    alternate_name: OpenSearchAutoTuneOptions
+  AutomatedSnapshotPauseOptions:
+    alternate_name: OpenSearchAutomatedSnapshotPauseOptions
+  ChangeProgressDetails:
+    alternate_name: OpenSearchChangeProgressDetails
+  ClusterConfig:
+    alternate_name: OpenSearchClusterConfig
+  CognitoOptions:
+    alternate_name: OpenSearchCognitoOptions
+  ColdStorageOptions:
+    alternate_name: OpenSearchColdStorageOptions
+  ConnectionProperties:
+    alternate_name: OpenSearchConnectionProperties
+  DataSourceType:
+    alternate_name: OpenSearchDataSourceType
+  DeploymentStrategyOptions:
+    alternate_name: OpenSearchDeploymentStrategyOptions
+  DomainEndpointOptions:
+    alternate_name: OpenSearchDomainEndpointOptions
+  DomainPackageDetails:
+    alternate_name: OpenSearchDomainPackageDetails
+  DryRunProgressStatus:
+    alternate_name: OpenSearchDryRunProgressStatus
+  DryRunResults:
+    alternate_name: OpenSearchDryRunResults
+  Duration:
+    alternate_name: OpenSearchDuration
+  EBSOptions:
+    alternate_name: OpenSearchEBSOptions
+  EncryptionAtRestOptions:
+    alternate_name: OpenSearchEncryptionAtRestOptions
+  ErrorDetails:
+    alternate_name: OpenSearchErrorDetails
+  IdentityCenterOptions:
+    alternate_name: OpenSearchIdentityCenterOptions
+  InstanceCountLimits:
+    alternate_name: OpenSearchInstanceCountLimits
+  InstanceLimits:
+    alternate_name: OpenSearchInstanceLimits
+  KeyStoreAccessOption:
+    alternate_name: OpenSearchKeyStoreAccessOption
+  MasterUserOptions:
+    alternate_name: OpenSearchMasterUserOptions
+  ModifyingProperties:
+    alternate_name: OpenSearchModifyingProperties
+  NodeConfig:
+    alternate_name: OpenSearchNodeConfig
+  NodeToNodeEncryptionOptions:
+    alternate_name: OpenSearchNodeToNodeEncryptionOptions
+  OffPeakWindow:
+    alternate_name: OpenSearchOffPeakWindow
+  OffPeakWindowOptions:
+    alternate_name: OpenSearchOffPeakWindowOptions
+  PackageConfiguration:
+    alternate_name: OpenSearchPackageConfiguration
+  PackageEncryptionOptions:
+    alternate_name: OpenSearchPackageEncryptionOptions
+  PackageVendingOptions:
+    alternate_name: OpenSearchPackageVendingOptions
+  PluginProperties:
+    alternate_name: OpenSearchPluginProperties
+  RollbackServiceSoftwareOptions:
+    alternate_name: OpenSearchRollbackServiceSoftwareOptions
+  S3GlueDataCatalog:
+    alternate_name: OpenSearchS3GlueDataCatalog
+  S3VectorsEngine:
+    alternate_name: OpenSearchS3VectorsEngine
+  ScheduledAction:
+    alternate_name: OpenSearchScheduledAction
+  ScheduledAutoTuneDetails:
+    alternate_name: OpenSearchScheduledAutoTuneDetails
+  ServerlessVectorAcceleration:
+    alternate_name: OpenSearchServerlessVectorAcceleration
+  ServiceOptions:
+    alternate_name: OpenSearchServiceOptions
+  ServiceSoftwareOptions:
+    alternate_name: OpenSearchServiceSoftwareOptions
+  SnapshotOptions:
+    alternate_name: OpenSearchSnapshotOptions
+  SoftwareUpdateOptions:
+    alternate_name: OpenSearchSoftwareUpdateOptions
+  VPCOptions:
+    alternate_name: OpenSearchVPCOptions
+  WindowStartTime:
+    alternate_name: OpenSearchWindowStartTime
+  ZoneAwarenessConfig:
+    alternate_name: OpenSearchZoneAwarenessConfig
+  Endpoint:
+    alternate_name: OpenSearchEndpoint
+  Limit:
+    alternate_name: OpenSearchLimit
+  VpcEndpointSummary:
+    alternate_name: OpenSearchVpcEndpointSummary
+  DomainConfig:
+    alternate_name: OpenSearchDomainConfig
+  VPCDerivedInfo:
+    alternate_name: OpenSearchVPCDerivedInfo

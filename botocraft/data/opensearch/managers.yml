@@ -1,0 +1,72 @@
+---
+DomainStatus:
+  mixins:
+    - name: OpenSearchDomainManagerMixin
+      import_path: botocraft.mixins.opensearch
+  methods:
+    create:
+      decorators:
+        - name: single_opensearch_domain_include_tags
+          import_path: botocraft.mixins.opensearch
+      boto3_name: create_domain
+      response_attr: DomainStatus
+    update:
+      decorators:
+        - name: single_opensearch_domain_update_include_tags
+          import_path: botocraft.mixins.opensearch
+      boto3_name: update_domain_config
+      response_attr: None
+      return_type: >-
+        "OpenSearchDomain"
+    delete:
+      boto3_name: delete_domain
+      response_attr: DomainStatus
+    get:
+      decorators:
+        - name: single_opensearch_domain_include_tags
+          import_path: botocraft.mixins.opensearch
+      boto3_name: describe_domain
+      response_attr: DomainStatus
+      args:
+        DomainName:
+          required: true
+VpcEndpoint:
+  methods:
+    create:
+      boto3_name: create_vpc_endpoint
+      response_attr: VpcEndpoint
+    update:
+      boto3_name: update_vpc_endpoint
+      response_attr: VpcEndpoint
+    delete:
+      boto3_name: delete_vpc_endpoint
+      response_attr: VpcEndpointSummary
+    get:
+      boto3_name: describe_vpc_endpoints
+      response_attr: VpcEndpoints
+      args:
+        VpcEndpointIds:
+          required: true
+          rename: VpcEndpointId
+          python_type: str
+          source_arg: "[VpcEndpointId]"
+    list:
+      boto3_name: describe_vpc_endpoints
+      response_attr: VpcEndpoints
+PackageDetails:
+  mixins:
+    - name: OpenSearchPackageManagerMixin
+      import_path: botocraft.mixins.opensearch
+  methods:
+    create:
+      boto3_name: create_package
+      response_attr: PackageDetails
+    update:
+      boto3_name: update_package
+      response_attr: PackageDetails
+    delete:
+      boto3_name: delete_package
+      response_attr: PackageDetails
+    list:
+      boto3_name: describe_packages
+      response_attr: PackageDetailsList
