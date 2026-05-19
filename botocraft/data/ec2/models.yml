@@ -686,6 +686,14 @@ primary:
   FlowLog:
     primary_key: FlowLogId
     name_key: FlowLogId
+    input_shapes:
+      - CreateFlowLogsRequest
+    extra_fields:
+      ResourceIds:
+        python_type: builtins.list[str]
+      ResourceType:
+        python_type: >-
+          Literal['VPC', 'Subnet', 'NetworkInterface', 'TransitGateway', 'TransitGatewayAttachment', 'RegionalNatGateway'] | None
 secondary:
   Monitoring:
     alternate_name: EC2DetailedMonitoring
@@ -857,6 +865,8 @@ secondary:
     alternate_name: EC2CloudWatchLogOptions
   ProvisionedBandwidth:
     alternate_name: EC2ProvisionedBandwidth
+  VolumeModification:
+    alternate_name: EC2VolumeModification
   EbsInstanceBlockDevice:
     fields:
       Status:

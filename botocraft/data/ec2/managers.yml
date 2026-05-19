@@ -175,6 +175,63 @@ SecurityGroup:
           python_type: "builtins.list[Tag] | None"
           source_arg: >-
             self.serialize(self.convert_tags(Tags, 'security-group-rule'))
+    revoke_egress:
+      boto3_name: revoke_security_group_egress
+      return_type: bool | None
+      response_attr: Return
+      args:
+        GroupName:
+          hidden: true
+        GroupId:
+          required: true
+        DryRun:
+          default: "False"
+        FromPort:
+          hidden: true
+        ToPort:
+          hidden: true
+        CidrIp:
+          hidden: true
+        IpProtocol:
+          hidden: true
+        SourceSecurityGroupName:
+          hidden: true
+        SourceSecurityGroupOwnerId:
+          hidden: true
+        SecurityGroupRuleIds:
+          hidden: true
+        IpPermissions:
+          required: true
+    authorize_egress:
+      boto3_name: authorize_security_group_egress
+      return_type: bool | None
+      response_attr: Return
+      args:
+        GroupName:
+          hidden: true
+        GroupId:
+          required: true
+        DryRun:
+          default: "False"
+        FromPort:
+          hidden: true
+        ToPort:
+          hidden: true
+        CidrIp:
+          hidden: true
+        IpProtocol:
+          hidden: true
+        SourceSecurityGroupName:
+          hidden: true
+        SourceSecurityGroupOwnerId:
+          hidden: true
+        IpPermissions:
+          required: true
+        TagSpecifications:
+          rename: Tags
+          python_type: "builtins.list[Tag] | None"
+          source_arg: >-
+            self.serialize(self.convert_tags(Tags, 'security-group-rule'))
 NetworkAcl:
   mixins:
     - name: EC2TagsManagerMixin
@@ -215,6 +272,50 @@ NetworkAcl:
     list:
       boto3_name: describe_network_acls
       args:
+        DryRun:
+          default: "False"
+    create_entry:
+      boto3_name: create_network_acl_entry
+      return_type: None
+      args:
+        NetworkAclId:
+          required: true
+        RuleNumber:
+          required: true
+        Protocol:
+          required: true
+        RuleAction:
+          required: true
+        Egress:
+          required: true
+        DryRun:
+          default: "False"
+    replace_entry:
+      boto3_name: replace_network_acl_entry
+      return_type: None
+      args:
+        NetworkAclId:
+          required: true
+        RuleNumber:
+          required: true
+        Protocol:
+          required: true
+        RuleAction:
+          required: true
+        Egress:
+          required: true
+        DryRun:
+          default: "False"
+    delete_entry:
+      boto3_name: delete_network_acl_entry
+      return_type: None
+      args:
+        NetworkAclId:
+          required: true
+        RuleNumber:
+          required: true
+        Egress:
+          required: true
         DryRun:
           default: "False"
 Image:
@@ -568,6 +669,30 @@ NetworkInterface:
     permissions:
       boto3_name: describe_network_interface_permissions
       response_attr: NetworkInterfacePermissions
+      args:
+        NetworkInterfaceId:
+          required: true
+        DryRun:
+          default: "False"
+    assign_private_ips:
+      boto3_name: assign_private_ip_addresses
+      response_attr: None
+      args:
+        NetworkInterfaceId:
+          required: true
+        DryRun:
+          default: "False"
+    unassign_private_ips:
+      boto3_name: unassign_private_ip_addresses
+      return_type: None
+      args:
+        NetworkInterfaceId:
+          required: true
+        DryRun:
+          default: "False"
+    modify:
+      boto3_name: modify_network_interface_attribute
+      return_type: None
       args:
         NetworkInterfaceId:
           required: true
@@ -1054,6 +1179,31 @@ Volume:
           required: true
         DryRun:
           default: "False"
+    update:
+      boto3_name: modify_volume
+      response_attr: VolumeModification
+    attach:
+      boto3_name: attach_volume
+      response_attr: None
+      args:
+        VolumeId:
+          required: true
+        InstanceId:
+          required: true
+        Device:
+          required: true
+        DryRun:
+          default: "False"
+    detach:
+      boto3_name: detach_volume
+      response_attr: None
+      args:
+        VolumeId:
+          required: true
+        DryRun:
+          default: "False"
+        Force:
+          default: "False"
 RouteTable:
   mixins:
     - name: EC2TagsManagerMixin
@@ -1093,6 +1243,47 @@ RouteTable:
       boto3_name: delete_route_table
       args:
         RouteTableId:
+          required: true
+        DryRun:
+          default: "False"
+    create_route:
+      boto3_name: create_route
+      return_type: bool | None
+      response_attr: Return
+      args:
+        RouteTableId:
+          required: true
+        DryRun:
+          default: "False"
+    delete_route:
+      boto3_name: delete_route
+      return_type: None
+      args:
+        RouteTableId:
+          required: true
+        DryRun:
+          default: "False"
+    replace_route:
+      boto3_name: replace_route
+      return_type: None
+      args:
+        RouteTableId:
+          required: true
+        DryRun:
+          default: "False"
+    associate:
+      boto3_name: associate_route_table
+      response_attr: None
+      args:
+        RouteTableId:
+          required: true
+        DryRun:
+          default: "False"
+    disassociate:
+      boto3_name: disassociate_route_table
+      return_type: None
+      args:
+        AssociationId:
           required: true
         DryRun:
           default: "False"
@@ -1242,6 +1433,15 @@ VpcEndpoint:
           source_arg: "[VpcEndpointId]"
         DryRun:
           default: "False"
+    modify:
+      boto3_name: modify_vpc_endpoint
+      return_type: bool | None
+      response_attr: Return
+      args:
+        VpcEndpointId:
+          required: true
+        DryRun:
+          default: "False"
 VpnConnection:
   mixins:
     - name: EC2TagsManagerMixin
@@ -1285,8 +1485,30 @@ VpnConnection:
         DryRun:
           default: "False"
 FlowLog:
-  readonly: true
   methods:
+    create:
+      boto3_name: create_flow_logs
+      response_attr: None
+      args:
+        ResourceIds:
+          required: true
+        ResourceType:
+          required: true
+        DryRun:
+          default: "False"
+    delete:
+      boto3_name: delete_flow_logs
+      return_type: >-
+        "DeleteFlowLogsResult"
+      response_attr: None
+      args:
+        FlowLogIds:
+          required: true
+          rename: FlowLogId
+          python_type: str
+          source_arg: "[FlowLogId]"
+        DryRun:
+          default: "False"
     get:
       boto3_name: describe_flow_logs
       response_attr: FlowLogs
