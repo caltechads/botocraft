@@ -122,6 +122,27 @@ EC2
 .. autoclass:: botocraft.mixins.ec2.SecurityGroupModelMixin
    :members:
 
+RDS
+~~~
+
+.. autoclass:: botocraft.mixins.rds.RDSInstanceModelMixin
+   :members:
+
+DocumentDB
+~~~~~~~~~~
+
+.. autoclass:: botocraft.mixins.docdb.DocDBClusterModelMixin
+   :members:
+
+ElastiCache
+~~~~~~~~~~~
+
+.. autoclass:: botocraft.mixins.elasticache.CacheClusterModelMixin
+   :members:
+
+.. autoclass:: botocraft.mixins.elasticache.ReplicationGroupModelMixin
+   :members:
+
 ECR
 ~~~
 

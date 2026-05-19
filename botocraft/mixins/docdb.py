@@ -3,10 +3,19 @@ from collections.abc import Callable
 from functools import wraps
 from typing import TYPE_CHECKING
 
+from botocraft.connectivity import (
+    ConnectionResolutionError,
+    TunnelAwareConnectionResolver,
+)
+
 if TYPE_CHECKING:
+    import boto3
+
+    from botocraft.connectivity import ResolvedConnectionTarget
     from botocraft.services.abstract import PrimaryBoto3ModelQuerySet
     from botocraft.services.common import Credentials
     from botocraft.services.docdb import (
+        ClusterMasterUserSecret,
         DocDBCluster,
         DocDBInstance,
         DocDBParameterGroup,
@@ -221,6 +230,17 @@ class DocDBClusterModelMixin:
     some additional methods that we can't auto generate.
     """
 
+    #: DocumentDB cluster identifier used in errors and connection labels.
+    DBClusterIdentifier: str
+    #: Cluster endpoint hostname.
+    Endpoint: str | None
+    #: Cluster endpoint port.
+    Port: int | None
+    #: Secret metadata for the master user credentials.
+    MasterUserSecret: "ClusterMasterUserSecret | None"
+    #: Boto3 session associated with this resource.
+    session: "boto3.session.Session | None"
+
     @property
     def credentials(self) -> "Credentials":
         """
@@ -247,3 +267,52 @@ class DocDBClusterModelMixin:
         value = secret.get_value()
         data = json.loads(value.SecretString)
         return Credentials(username=data["username"], password=data["password"])
+
+    def open_connection_target(
+        self,
+        *,
+        profile: str | None = None,
+    ) -> "ResolvedConnectionTarget":
+        """
+        Resolve a direct or tunneled connection target for the cluster.
+
+        Keyword Args:
+            profile: Optional AWS profile override forwarded to the tunnel host
+                tunnel helper. Defaults to the active session profile when
+                available.
+
+        Raises:
+            ConnectionResolutionError: The cluster does not expose a usable endpoint
+                or VPC.
+
+        Returns:
+            Context-managed connection target for this DocumentDB cluster.
+
+        """
+        if not self.Endpoint or not self.Port:
+            msg = (
+                f"DocumentDB cluster '{self.DBClusterIdentifier}' does not have a "
+                "usable endpoint."
+            )
+            raise ConnectionResolutionError(msg)
+
+        vpc = getattr(self, "vpc", None)
+        vpc_id = getattr(vpc, "VpcId", None)
+        if not vpc_id:
+            msg = (
+                f"DocumentDB cluster '{self.DBClusterIdentifier}' does not have a "
+                "resolvable VPC."
+            )
+            raise ConnectionResolutionError(msg)
+
+        session = getattr(self, "session", None)
+        resolved_profile = profile or getattr(session, "profile_name", None)
+        resolver = TunnelAwareConnectionResolver()
+        return resolver.open_connection_target(
+            host=str(self.Endpoint),
+            port=int(self.Port),
+            vpc_id=str(vpc_id),
+            session=session,
+            profile=resolved_profile,
+            resource_label=f"DocumentDB cluster '{self.DBClusterIdentifier}'",
+        )
