@@ -1,6 +1,8 @@
+import shutil
 import socket
 import subprocess
 import time
+import warnings
 from contextlib import contextmanager
 from datetime import datetime
 from functools import wraps
@@ -442,6 +444,7 @@ class InstanceModelMixin:
         remote_port: int,
         local_port: int | None = None,
         profile: str | None = None,
+        ready_timeout_seconds: int = 10,
     ):
         """
         A context manager for opening and closing a tunnel.
@@ -454,6 +457,8 @@ class InstanceModelMixin:
             remote_port: The remote port to connect to.
             local_port: The local port to use. If None, an unused port will be chosen.
             profile: The AWS profile to use. If None, the default profile will be used.
+            ready_timeout_seconds: Maximum number of seconds to wait for the local
+                forwarded port to open.
 
         Raises:
             ValueError: If the local port is already in use.
@@ -469,6 +474,7 @@ class InstanceModelMixin:
             remote_port=remote_port,
             local_port=local_port,
             profile=profile,
+            ready_timeout_seconds=ready_timeout_seconds,
         )
         try:
             yield local_port
@@ -481,6 +487,7 @@ class InstanceModelMixin:
         remote_port: int,
         local_port: int | None = None,
         profile: str | None = None,
+        ready_timeout_seconds: int = 10,
     ) -> int:
         """
         Open a tunnel to the instance using SSM and SSH. This is useful for
@@ -501,6 +508,8 @@ class InstanceModelMixin:
             local_port: The local port to connect to.
             profile: The AWS profile to use. If not specified, the default
                 profile will be used.
+            ready_timeout_seconds: Maximum number of seconds to wait for the local
+                forwarded port to open.
 
         Raises:
             ValueError: If the local port is already in use.
@@ -511,6 +520,8 @@ class InstanceModelMixin:
             The local port that was used for the tunnel.
 
         """
+        self.__ensure_aws_cli_supports_ssm_start_session()
+
         # Find an unused local port if local_port is None
         if local_port is None:
             local_port = self.__find_open_port(8800)
@@ -538,19 +549,22 @@ class InstanceModelMixin:
         if profile:
             ssm_command.extend(["--profile", profile])
 
-        try:
-            # Start the SSM session
-            ssm_process = subprocess.Popen(
-                ssm_command,
-                stdout=subprocess.PIPE,
-                stderr=subprocess.PIPE,
-            )
-        except FileNotFoundError as e:
-            msg = "AWS CLI is not installed or not in PATH"
-            raise RuntimeError(msg) from e
+        # Start the SSM session
+        ssm_process = subprocess.Popen(
+            ssm_command,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+        )
 
         # Wait for the port to be open
-        for _ in range(40):
+        checks = max(1, ready_timeout_seconds * 4)
+        for _ in range(checks):
+            self.__raise_if_tunnel_process_exited(
+                ssm_process,
+                host_ip=host_ip,
+                remote_port=remote_port,
+                local_port=local_port,
+            )
             with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
                 if sock.connect_ex(("127.0.0.1", local_port)) == 0:
                     break
@@ -558,10 +572,13 @@ class InstanceModelMixin:
         else:
             # If the port is not open after 10 seconds, kill the process
             ssm_process.kill()
+            stderr = self.__read_process_stderr(ssm_process)
             msg = (
                 f"Failed to open tunnel to {host_ip}:{remote_port} on local "
                 f"port {local_port}."
             )
+            if stderr:
+                msg = f"{msg} AWS CLI stderr: {stderr}"
             raise RuntimeError(msg)
 
         # Store the processes for later management
@@ -576,6 +593,89 @@ class InstanceModelMixin:
             }
         )
         return local_port
+
+    def __ensure_aws_cli_supports_ssm_start_session(self) -> None:
+        """
+        Ensure the local AWS CLI can open SSM sessions.
+
+        Raises:
+            RuntimeError: The AWS CLI is missing or does not expose
+                ``aws ssm start-session``.
+
+        """
+        aws_path = shutil.which("aws")
+        if aws_path is None:
+            msg = "AWS CLI is not installed or not in PATH."
+            warnings.warn(msg, RuntimeWarning, stacklevel=2)
+            raise RuntimeError(msg)
+
+        result = subprocess.run(
+            [aws_path, "ssm", "help"],
+            check=False,
+            capture_output=True,
+            text=True,
+        )
+        help_text = f"{result.stdout}\n{result.stderr}"
+        if result.returncode != 0 or "start-session" not in help_text:
+            msg = (
+                "AWS CLI does not support `aws ssm start-session`. Install AWS CLI "
+                "v2 with Session Manager support and try again."
+            )
+            warnings.warn(msg, RuntimeWarning, stacklevel=2)
+            raise RuntimeError(msg)
+
+    def __read_process_stderr(self, process: subprocess.Popen[bytes]) -> str:
+        """
+        Return decoded stderr from one subprocess when available.
+
+        Args:
+            process: Subprocess whose stderr should be decoded.
+
+        Returns:
+            Decoded stderr text, or an empty string when none is available.
+
+        """
+        try:
+            _stdout, stderr = process.communicate(timeout=0.1)
+        except subprocess.TimeoutExpired:
+            return ""
+        if not stderr:
+            return ""
+        return stderr.decode(errors="replace").strip()
+
+    def __raise_if_tunnel_process_exited(
+        self,
+        process: subprocess.Popen[bytes],
+        *,
+        host_ip: str,
+        remote_port: int,
+        local_port: int,
+    ) -> None:
+        """
+        Raise a clear error when the tunnel subprocess dies during startup.
+
+        Args:
+            process: SSM tunnel subprocess being monitored.
+
+        Keyword Args:
+            host_ip: Resolved destination host IP.
+            remote_port: Remote destination port.
+            local_port: Local forwarded port.
+
+        Raises:
+            RuntimeError: The tunnel subprocess exited before the local port opened.
+
+        """
+        if process.poll() is None:
+            return
+        stderr = self.__read_process_stderr(process)
+        msg = (
+            f"Failed to open tunnel to {host_ip}:{remote_port} on local port "
+            f"{local_port}."
+        )
+        if stderr:
+            msg = f"{msg} AWS CLI stderr: {stderr}"
+        raise RuntimeError(msg)
 
     def close_tunnel(self, host: str, local_port: int | None = None) -> None:
         """

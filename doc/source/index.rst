@@ -11,6 +11,7 @@ botocraft
    overview/tags
    overview/events
    overview/bedrock
+   overview/connectivity
 
 .. toctree::
    :caption: Runbook
@@ -21,6 +22,7 @@ botocraft
    runbook/service_authoring_reference
    runbook/eventbridge_event_from_schema
    runbook/eventbrdge_event_from_example
+   runbook/tunneling
 
 .. toctree::
    :caption: Reference
