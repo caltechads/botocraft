@@ -67,6 +67,28 @@ def _is_test_path(path: Path) -> bool:
     return "tests" in path.parts or path.name.startswith("test_")
 
 
+def _is_botocraft_services_path(path: Path) -> bool:
+    """
+    Return whether a path is under the generated ``botocraft.services`` package.
+
+    Generated service modules are excluded from this gate; documentation quality
+    for those modules is enforced via generator changes rather than gate noise on
+    files that must not be edited by hand.
+
+    Args:
+        path: Path to inspect.
+
+    Returns:
+        True when the path is inside ``botocraft/services/``.
+
+    """
+    parts = path.parts
+    for index, part in enumerate(parts):
+        if part == "services" and index > 0 and parts[index - 1] == "botocraft":
+            return True
+    return False
+
+
 def _iter_python_files(targets: list[Path]) -> list[Path]:
     """
     Collect Python files under the requested targets, excluding tests.
@@ -83,10 +105,11 @@ def _iter_python_files(targets: list[Path]) -> list[Path]:
         if not target.exists():
             continue
         if target.is_file() and target.suffix == ".py" and not _is_test_path(target):
-            files.append(target)
+            if not _is_botocraft_services_path(target):
+                files.append(target)
             continue
         for path in sorted(target.rglob("*.py")):
-            if _is_test_path(path):
+            if _is_test_path(path) or _is_botocraft_services_path(path):
                 continue
             files.append(path)
     return files

@@ -691,5 +691,620 @@ Snapshot:
           required: true
         DryRun:
           default: "False"
-
-
+KeyPair:
+  mixins:
+    - name: EC2TagsManagerMixin
+      import_path: botocraft.mixins.ec2
+  methods:
+    create:
+      boto3_name: create_key_pair
+      response_attr: None
+      args:
+        DryRun:
+          default: "False"
+        TagSpecifications:
+          rename: Tags
+          python_type: "builtins.list[Tag] | None"
+          source_arg: >-
+            self.serialize(self.convert_tags(model.Tags, 'key-pair'))
+    get:
+      boto3_name: describe_key_pairs
+      args:
+        KeyNames:
+          hidden: true
+        Filters:
+          hidden: true
+        KeyPairIds:
+          required: true
+          rename: KeyPairId
+          python_type: str
+          source_arg: "[KeyPairId]"
+          docstring: >-
+            The ID of the key pair.
+        IncludePublicKey:
+          default: "True"
+        DryRun:
+          default: "False"
+    list:
+      boto3_name: describe_key_pairs
+      args:
+        IncludePublicKey:
+          default: "True"
+        DryRun:
+          default: "False"
+    delete:
+      boto3_name: delete_key_pair
+      args:
+        KeyName:
+          hidden: true
+        KeyPairId:
+          required: true
+        DryRun:
+          default: "False"
+    import_key_pair:
+      boto3_name: import_key_pair
+      response_attr: None
+      args:
+        KeyName:
+          required: true
+        PublicKeyMaterial:
+          required: true
+        DryRun:
+          default: "False"
+        TagSpecifications:
+          rename: Tags
+          python_type: "builtins.list[Tag] | None"
+          source_arg: >-
+            self.serialize(self.convert_tags(Tags, 'key-pair'))
+PlacementGroup:
+  mixins:
+    - name: EC2TagsManagerMixin
+      import_path: botocraft.mixins.ec2
+  methods:
+    create:
+      boto3_name: create_placement_group
+      response_attr: PlacementGroupInstance
+      args:
+        DryRun:
+          default: "False"
+        TagSpecifications:
+          rename: Tags
+          python_type: "builtins.list[Tag] | None"
+          source_arg: >-
+            self.serialize(self.convert_tags(model.Tags, 'placement-group'))
+    get:
+      boto3_name: describe_placement_groups
+      args:
+        GroupIds:
+          hidden: true
+        Filters:
+          hidden: true
+        GroupNames:
+          required: true
+          rename: GroupName
+          python_type: str
+          source_arg: "[GroupName]"
+          docstring: >-
+            The name of the placement group.
+        DryRun:
+          default: "False"
+    list:
+      boto3_name: describe_placement_groups
+      args:
+        DryRun:
+          default: "False"
+    delete:
+      boto3_name: delete_placement_group
+      args:
+        GroupName:
+          required: true
+        DryRun:
+          default: "False"
+DhcpOptions:
+  mixins:
+    - name: EC2TagsManagerMixin
+      import_path: botocraft.mixins.ec2
+  methods:
+    create:
+      boto3_name: create_dhcp_options
+      response_attr: DhcpOptionsInstance
+      args:
+        DryRun:
+          default: "False"
+        TagSpecifications:
+          rename: Tags
+          python_type: "builtins.list[Tag] | None"
+          source_arg: >-
+            self.serialize(self.convert_tags(model.Tags, 'dhcp-options'))
+    get:
+      boto3_name: describe_dhcp_options
+      args:
+        Filters:
+          hidden: true
+        DryRun:
+          default: "False"
+        DhcpOptionsIds:
+          required: true
+          rename: DhcpOptionsId
+          python_type: str
+          source_arg: "[DhcpOptionsId]"
+          docstring: >-
+            The ID of the DHCP options set.
+    list:
+      boto3_name: describe_dhcp_options
+      args:
+        DryRun:
+          default: "False"
+    delete:
+      boto3_name: delete_dhcp_options
+      args:
+        DhcpOptionsId:
+          required: true
+        DryRun:
+          default: "False"
+CustomerGateway:
+  mixins:
+    - name: EC2TagsManagerMixin
+      import_path: botocraft.mixins.ec2
+  methods:
+    create:
+      boto3_name: create_customer_gateway
+      response_attr: CustomerGatewayInstance
+      args:
+        PublicIp:
+          attribute: IpAddress
+        IpAddress:
+          hidden: true
+        DryRun:
+          default: "False"
+        TagSpecifications:
+          rename: Tags
+          python_type: "builtins.list[Tag] | None"
+          source_arg: >-
+            self.serialize(self.convert_tags(model.Tags, 'customer-gateway'))
+    get:
+      boto3_name: describe_customer_gateways
+      args:
+        Filters:
+          hidden: true
+        DryRun:
+          default: "False"
+        CustomerGatewayIds:
+          required: true
+          rename: CustomerGatewayId
+          python_type: str
+          source_arg: "[CustomerGatewayId]"
+          docstring: >-
+            The ID of the customer gateway.
+    list:
+      boto3_name: describe_customer_gateways
+      args:
+        DryRun:
+          default: "False"
+    delete:
+      boto3_name: delete_customer_gateway
+      args:
+        CustomerGatewayId:
+          required: true
+        DryRun:
+          default: "False"
+VpnGateway:
+  mixins:
+    - name: EC2TagsManagerMixin
+      import_path: botocraft.mixins.ec2
+  methods:
+    create:
+      boto3_name: create_vpn_gateway
+      response_attr: VpnGatewayInstance
+      args:
+        DryRun:
+          default: "False"
+        TagSpecifications:
+          rename: Tags
+          python_type: "builtins.list[Tag] | None"
+          source_arg: >-
+            self.serialize(self.convert_tags(model.Tags, 'vpn-gateway'))
+    get:
+      boto3_name: describe_vpn_gateways
+      args:
+        Filters:
+          hidden: true
+        DryRun:
+          default: "False"
+        VpnGatewayIds:
+          required: true
+          rename: VpnGatewayId
+          python_type: str
+          source_arg: "[VpnGatewayId]"
+          docstring: >-
+            The ID of the virtual private gateway.
+    list:
+      boto3_name: describe_vpn_gateways
+      args:
+        DryRun:
+          default: "False"
+    delete:
+      boto3_name: delete_vpn_gateway
+      args:
+        VpnGatewayId:
+          required: true
+        DryRun:
+          default: "False"
+    attach:
+      boto3_name: attach_vpn_gateway
+      response_attr: VpcAttachment
+      args:
+        VpnGatewayId:
+          required: true
+        VpcId:
+          required: true
+        DryRun:
+          default: "False"
+    detach:
+      boto3_name: detach_vpn_gateway
+      return_type: None
+      args:
+        VpnGatewayId:
+          required: true
+        VpcId:
+          required: true
+        DryRun:
+          default: "False"
+InternetGateway:
+  mixins:
+    - name: EC2TagsManagerMixin
+      import_path: botocraft.mixins.ec2
+  methods:
+    create:
+      boto3_name: create_internet_gateway
+      response_attr: InternetGatewayInstance
+      args:
+        DryRun:
+          default: "False"
+        TagSpecifications:
+          rename: Tags
+          python_type: "builtins.list[Tag] | None"
+          source_arg: >-
+            self.serialize(self.convert_tags(model.Tags, 'internet-gateway'))
+    get:
+      boto3_name: describe_internet_gateways
+      args:
+        Filters:
+          hidden: true
+        DryRun:
+          default: "False"
+        InternetGatewayIds:
+          required: true
+          rename: InternetGatewayId
+          python_type: str
+          source_arg: "[InternetGatewayId]"
+          docstring: >-
+            The ID of the internet gateway.
+    list:
+      boto3_name: describe_internet_gateways
+      args:
+        DryRun:
+          default: "False"
+    delete:
+      boto3_name: delete_internet_gateway
+      args:
+        InternetGatewayId:
+          required: true
+        DryRun:
+          default: "False"
+    attach:
+      boto3_name: attach_internet_gateway
+      return_type: None
+      args:
+        InternetGatewayId:
+          required: true
+        VpcId:
+          required: true
+        DryRun:
+          default: "False"
+    detach:
+      boto3_name: detach_internet_gateway
+      return_type: None
+      args:
+        InternetGatewayId:
+          required: true
+        VpcId:
+          required: true
+        DryRun:
+          default: "False"
+Volume:
+  mixins:
+    - name: EC2TagsManagerMixin
+      import_path: botocraft.mixins.ec2
+  methods:
+    create:
+      boto3_name: create_volume
+      response_attr: None
+      args:
+        DryRun:
+          default: "False"
+        TagSpecifications:
+          rename: Tags
+          python_type: "builtins.list[Tag] | None"
+          source_arg: >-
+            self.serialize(self.convert_tags(model.Tags, 'volume'))
+    get:
+      boto3_name: describe_volumes
+      args:
+        Filters:
+          hidden: true
+        DryRun:
+          default: "False"
+        VolumeIds:
+          required: true
+          rename: VolumeId
+          python_type: str
+          source_arg: "[VolumeId]"
+          docstring: >-
+            The ID of the volume.
+    list:
+      boto3_name: describe_volumes
+      args:
+        DryRun:
+          default: "False"
+    delete:
+      boto3_name: delete_volume
+      args:
+        VolumeId:
+          required: true
+        DryRun:
+          default: "False"
+RouteTable:
+  mixins:
+    - name: EC2TagsManagerMixin
+      import_path: botocraft.mixins.ec2
+  methods:
+    create:
+      boto3_name: create_route_table
+      response_attr: RouteTableInstance
+      args:
+        DryRun:
+          default: "False"
+        TagSpecifications:
+          rename: Tags
+          python_type: "builtins.list[Tag] | None"
+          source_arg: >-
+            self.serialize(self.convert_tags(model.Tags, 'route-table'))
+    get:
+      boto3_name: describe_route_tables
+      args:
+        Filters:
+          hidden: true
+        DryRun:
+          default: "False"
+        RouteTableIds:
+          required: true
+          rename: RouteTableId
+          python_type: str
+          source_arg: "[RouteTableId]"
+          docstring: >-
+            The ID of the route table.
+    list:
+      boto3_name: describe_route_tables
+      args:
+        DryRun:
+          default: "False"
+    delete:
+      boto3_name: delete_route_table
+      args:
+        RouteTableId:
+          required: true
+        DryRun:
+          default: "False"
+NatGateway:
+  mixins:
+    - name: EC2TagsManagerMixin
+      import_path: botocraft.mixins.ec2
+  methods:
+    create:
+      boto3_name: create_nat_gateway
+      response_attr: NatGatewayInstance
+      args:
+        DryRun:
+          default: "False"
+        TagSpecifications:
+          rename: Tags
+          python_type: "builtins.list[Tag] | None"
+          source_arg: >-
+            self.serialize(self.convert_tags(model.Tags, 'natgateway'))
+    get:
+      boto3_name: describe_nat_gateways
+      args:
+        Filters:
+          hidden: true
+        DryRun:
+          default: "False"
+        NatGatewayIds:
+          required: true
+          rename: NatGatewayId
+          python_type: str
+          source_arg: "[NatGatewayId]"
+          docstring: >-
+            The ID of the NAT gateway.
+    list:
+      boto3_name: describe_nat_gateways
+      args:
+        DryRun:
+          default: "False"
+    delete:
+      boto3_name: delete_nat_gateway
+      args:
+        NatGatewayId:
+          required: true
+        DryRun:
+          default: "False"
+VpcPeeringConnection:
+  mixins:
+    - name: EC2TagsManagerMixin
+      import_path: botocraft.mixins.ec2
+  methods:
+    create:
+      boto3_name: create_vpc_peering_connection
+      response_attr: VpcPeeringConnectionInstance
+      args:
+        DryRun:
+          default: "False"
+        TagSpecifications:
+          rename: Tags
+          python_type: "builtins.list[Tag] | None"
+          source_arg: >-
+            self.serialize(self.convert_tags(model.Tags, 'vpc-peering-connection'))
+    get:
+      boto3_name: describe_vpc_peering_connections
+      args:
+        Filters:
+          hidden: true
+        DryRun:
+          default: "False"
+        VpcPeeringConnectionIds:
+          required: true
+          rename: VpcPeeringConnectionId
+          python_type: str
+          source_arg: "[VpcPeeringConnectionId]"
+          docstring: >-
+            The ID of the VPC peering connection.
+    list:
+      boto3_name: describe_vpc_peering_connections
+      args:
+        DryRun:
+          default: "False"
+    accept:
+      boto3_name: accept_vpc_peering_connection
+      response_attr: VpcPeeringConnectionInstance
+      args:
+        VpcPeeringConnectionId:
+          required: true
+        DryRun:
+          default: "False"
+    reject:
+      boto3_name: reject_vpc_peering_connection
+      response_attr: Return
+      return_type: bool
+      args:
+        VpcPeeringConnectionId:
+          required: true
+        DryRun:
+          default: "False"
+    delete:
+      boto3_name: delete_vpc_peering_connection
+      args:
+        VpcPeeringConnectionId:
+          required: true
+        DryRun:
+          default: "False"
+VpcEndpoint:
+  mixins:
+    - name: EC2TagsManagerMixin
+      import_path: botocraft.mixins.ec2
+  methods:
+    create:
+      boto3_name: create_vpc_endpoint
+      response_attr: VpcEndpointInstance
+      args:
+        DryRun:
+          default: "False"
+        TagSpecifications:
+          rename: Tags
+          python_type: "builtins.list[Tag] | None"
+          source_arg: >-
+            self.serialize(self.convert_tags(model.Tags, 'vpc-endpoint'))
+    get:
+      boto3_name: describe_vpc_endpoints
+      args:
+        Filters:
+          hidden: true
+        DryRun:
+          default: "False"
+        VpcEndpointIds:
+          required: true
+          rename: VpcEndpointId
+          python_type: str
+          source_arg: "[VpcEndpointId]"
+          docstring: >-
+            The ID of the VPC endpoint.
+    list:
+      boto3_name: describe_vpc_endpoints
+      args:
+        DryRun:
+          default: "False"
+    delete:
+      boto3_name: delete_vpc_endpoints
+      args:
+        VpcEndpointIds:
+          required: true
+          rename: VpcEndpointId
+          python_type: str
+          source_arg: "[VpcEndpointId]"
+        DryRun:
+          default: "False"
+VpnConnection:
+  mixins:
+    - name: EC2TagsManagerMixin
+      import_path: botocraft.mixins.ec2
+  methods:
+    create:
+      boto3_name: create_vpn_connection
+      response_attr: VpnConnectionInstance
+      args:
+        DryRun:
+          default: "False"
+        TagSpecifications:
+          rename: Tags
+          python_type: "builtins.list[Tag] | None"
+          source_arg: >-
+            self.serialize(self.convert_tags(model.Tags, 'vpn-connection'))
+    get:
+      boto3_name: describe_vpn_connections
+      args:
+        Filters:
+          hidden: true
+        DryRun:
+          default: "False"
+        VpnConnectionIds:
+          required: true
+          rename: VpnConnectionId
+          python_type: str
+          source_arg: "[VpnConnectionId]"
+          docstring: >-
+            The ID of the VPN connection.
+    list:
+      boto3_name: describe_vpn_connections
+      args:
+        DryRun:
+          default: "False"
+    delete:
+      boto3_name: delete_vpn_connection
+      args:
+        VpnConnectionId:
+          required: true
+        DryRun:
+          default: "False"
+FlowLog:
+  readonly: true
+  methods:
+    get:
+      boto3_name: describe_flow_logs
+      response_attr: FlowLogs
+      args:
+        Filter:
+          hidden: true
+        FlowLogIds:
+          required: true
+          rename: FlowLogId
+          python_type: str
+          source_arg: "[FlowLogId]"
+          docstring: >-
+            The ID of the flow log.
+        DryRun:
+          default: "False"
+    list:
+      boto3_name: describe_flow_logs
+      response_attr: FlowLogs
+      args:
+        DryRun:
+          default: "False"

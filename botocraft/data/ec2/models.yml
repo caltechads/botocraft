@@ -562,6 +562,130 @@ primary:
             name: SnapshotId
             value: >-
               self.SnapshotId
+  KeyPair:
+    primary_key: KeyPairId
+    name_key: KeyName
+    input_shapes:
+      - CreateKeyPairRequest
+      - ImportKeyPairRequest
+    output_shape: KeyPairInfo
+    fields:
+      Tags:
+        readonly: false
+  PlacementGroup:
+    primary_key: GroupName
+    arn_key: GroupArn
+    name_key: GroupName
+    input_shapes:
+      - CreatePlacementGroupRequest
+    fields:
+      Tags:
+        readonly: false
+  DhcpOptions:
+    primary_key: DhcpOptionsId
+    name_key: DhcpOptionsId
+    input_shapes:
+      - CreateDhcpOptionsRequest
+    fields:
+      Tags:
+        readonly: false
+  CustomerGateway:
+    primary_key: CustomerGatewayId
+    name_key: CustomerGatewayId
+    input_shapes:
+      - CreateCustomerGatewayRequest
+    fields:
+      IpAddress:
+        readonly: false
+      BgpAsn:
+        python_type: int | None
+      BgpAsnExtended:
+        python_type: int | None
+      Tags:
+        readonly: false
+  VpnGateway:
+    primary_key: VpnGatewayId
+    name_key: VpnGatewayId
+    input_shapes:
+      - CreateVpnGatewayRequest
+    fields:
+      Tags:
+        readonly: false
+  InternetGateway:
+    primary_key: InternetGatewayId
+    name_key: InternetGatewayId
+    input_shapes:
+      - CreateInternetGatewayRequest
+    fields:
+      Tags:
+        readonly: false
+  Volume:
+    primary_key: VolumeId
+    name_key: VolumeId
+    input_shapes:
+      - CreateVolumeRequest
+    extra_fields:
+      AllocationId:
+        python_type: str | None
+    fields:
+      Tags:
+        readonly: false
+  RouteTable:
+    primary_key: RouteTableId
+    name_key: RouteTableId
+    input_shapes:
+      - CreateRouteTableRequest
+    fields:
+      Tags:
+        readonly: false
+  NatGateway:
+    primary_key: NatGatewayId
+    name_key: NatGatewayId
+    input_shapes:
+      - CreateNatGatewayRequest
+    extra_fields:
+      AllocationId:
+        python_type: str | None
+    fields:
+      Tags:
+        readonly: false
+  VpcPeeringConnection:
+    primary_key: VpcPeeringConnectionId
+    name_key: VpcPeeringConnectionId
+    input_shapes:
+      - CreateVpcPeeringConnectionRequest
+    extra_fields:
+      VpcId:
+        python_type: str
+      PeerVpcId:
+        python_type: str | None
+      PeerOwnerId:
+        python_type: str | None
+      PeerRegion:
+        python_type: str | None
+    fields:
+      Tags:
+        readonly: false
+  VpcEndpoint:
+    alternate_name: EC2VpcEndpoint
+    primary_key: VpcEndpointId
+    name_key: VpcEndpointId
+    input_shapes:
+      - CreateVpcEndpointRequest
+    fields:
+      Tags:
+        readonly: false
+  VpnConnection:
+    primary_key: VpnConnectionId
+    name_key: VpnConnectionId
+    input_shapes:
+      - CreateVpnConnectionRequest
+    fields:
+      Tags:
+        readonly: false
+  FlowLog:
+    primary_key: FlowLogId
+    name_key: FlowLogId
 secondary:
   Monitoring:
     alternate_name: EC2DetailedMonitoring
@@ -571,6 +695,8 @@ secondary:
     alternate_name: EC2StateReason
   BlockDeviceMapping:
     alternate_name: EC2BlockDeviceMapping
+  CidrBlock:
+    alternate_name: EC2CidrBlockAssociation
   LaunchTemplateSpecification:
     alternate_name: EC2LaunchTemplateSpecification
   HibernationOptions:
@@ -625,6 +751,52 @@ secondary:
     fields:
       LaunchTemplateVersion:
         rename: LaunchTemplateVersionInstance
+  CreatePlacementGroupResult:
+    fields:
+      PlacementGroup:
+        rename: PlacementGroupInstance
+  CreateDhcpOptionsResult:
+    fields:
+      DhcpOptions:
+        rename: DhcpOptionsInstance
+  CreateCustomerGatewayResult:
+    fields:
+      CustomerGateway:
+        rename: CustomerGatewayInstance
+  CreateVpnGatewayResult:
+    fields:
+      VpnGateway:
+        rename: VpnGatewayInstance
+  CreateInternetGatewayResult:
+    fields:
+      InternetGateway:
+        rename: InternetGatewayInstance
+  CreateRouteTableResult:
+    fields:
+      RouteTable:
+        rename: RouteTableInstance
+  CreateNatGatewayResult:
+    fields:
+      NatGateway:
+        rename: NatGatewayInstance
+  CreateVpcPeeringConnectionResult:
+    fields:
+      VpcPeeringConnection:
+        rename: VpcPeeringConnectionInstance
+  AcceptVpcPeeringConnectionResult:
+    fields:
+      VpcPeeringConnection:
+        rename: VpcPeeringConnectionInstance
+  VpcAttachment:
+    alternate_name: EC2VpcAttachment
+  CreateVpcEndpointResult:
+    fields:
+      VpcEndpoint:
+        rename: VpcEndpointInstance
+  CreateVpnConnectionResult:
+    fields:
+      VpnConnection:
+        rename: VpnConnectionInstance
   ResponseError:
     alternate_name: EC2ResponseError
   MemoryGiBPerVCpuRequest:
@@ -677,6 +849,14 @@ secondary:
     alternate_name: EC2BaselinePerformanceFactors
   PublicIpDnsNameOptions:
     alternate_name: EC2PublicIpDnsNameOptions
+  DnsOptions:
+    alternate_name: EC2DnsOptions
+  LastError:
+    alternate_name: EC2LastError
+  CloudWatchLogOptions:
+    alternate_name: EC2CloudWatchLogOptions
+  ProvisionedBandwidth:
+    alternate_name: EC2ProvisionedBandwidth
   EbsInstanceBlockDevice:
     fields:
       Status:
