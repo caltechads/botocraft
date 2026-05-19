@@ -12,7 +12,7 @@ from botocraft.services.abstract import PrimaryBoto3ModelQuerySet
 
 if TYPE_CHECKING:
     from botocraft.connectivity import ResolvedConnectionTarget
-    from botocraft.services import CacheSecurityGroupMembership
+    from botocraft.services.ec2 import SecurityGroup, Subnet, Vpc
     from botocraft.services.elasticache import (
         CacheNode,
         CacheSubnetGroup,
@@ -123,39 +123,15 @@ class ElastiCacheManagerTagsMixin:
 class CacheClusterModelMixin:
     """
     A mixin is used on :py:class:`botocraft.services.elasticache.CacheCluster`
-    implement the "security_groups" relation.   Normally we would use a
-    "relation" type in the model definition to use the .list() function to list
-    what we want, but ``describe_cache_clusters`` either lists a single cluster
-    or all clusters, so we need to roll our own method
+    implement convenience helpers that are not practical to generate.
     """
 
     #: Boto3 session associated with this resource.
     session: boto3.session.Session
-    #: Security-group memberships returned by ElastiCache.
-    CacheSecurityGroups: list["CacheSecurityGroupMembership"]
     #: Cache-cluster identifier used in errors and connection labels.
     CacheClusterId: str
     #: Cache nodes used to resolve the endpoint host and port.
     CacheNodes: list["CacheNode"]
-    #: Related subnet group used to resolve the target VPC.
-    subnet_group: "CacheSubnetGroup | None"
-
-    @property
-    def security_groups(self) -> "PrimaryBoto3ModelQuerySet":
-        """
-        List all the :py:class:`CacheCluster` objects that are part of this
-        replication group.
-        """
-        # We have to do the actual import here to avoid circular imports
-        from botocraft.services import CacheSecurityGroup
-
-        names = [x.CacheSecurityGroupName for x in self.CacheSecurityGroups]
-        return PrimaryBoto3ModelQuerySet(
-            [
-                CacheSecurityGroup.objects.using(self.session).get(group_name)
-                for group_name in names
-            ]
-        )  # type: ignore[arg-type]
 
     @cached_property
     def hostname(self) -> str:
@@ -235,8 +211,8 @@ class CacheClusterModelMixin:
             )
             raise ConnectionResolutionError(msg)
 
-        subnet_group = getattr(self, "subnet_group", None)
-        vpc_id = getattr(subnet_group, "VpcId", None)
+        vpc = getattr(self, "vpc", None)
+        vpc_id = getattr(vpc, "VpcId", None)
         if not vpc_id:
             msg = (
                 f"ElastiCache cache cluster '{self.CacheClusterId}' does not have a "
@@ -260,10 +236,7 @@ class CacheClusterModelMixin:
 class ReplicationGroupModelMixin:
     """
     A mixin is used on :py:class:`botocraft.services.elasticache.ReplicationGroup`
-    implement the "clusters" relation.   Normally we would use a "relation" type
-    in the model definition to use the .list() function to list what we want, but
-    ``describe_cache_clusters`` either lists a single cluster or all clusters,
-    so we need to roll our own method
+    implement convenience helpers that are not practical to generate.
     """
 
     #: Boto3 session associated with this resource.
@@ -275,11 +248,28 @@ class ReplicationGroupModelMixin:
     #: Node groups used to resolve the primary endpoint host and port.
     NodeGroups: list["NodeGroup"]
 
+    @property
+    def _primary_cluster(self):
+        """
+        Return the first member cluster when network helpers need a fallback.
+
+        Returns:
+            The first cluster in the replication group, if any.
+
+        """
+        if getattr(self, "clusters", None):
+            return self.clusters[0]
+        return None
+
     @cached_property
     def clusters(self) -> "PrimaryBoto3ModelQuerySet":
         """
         List all the :py:class:`CacheCluster` objects that are part of this
         replication group.
+
+        Returns:
+            The cache clusters that belong to this replication group.
+
         """
         # We have to do the actual import here to avoid circular imports
         from botocraft.services import CacheCluster
@@ -290,6 +280,64 @@ class ReplicationGroupModelMixin:
                 for cluster_id in self.MemberClusters
             ]
         )  # type: ignore[arg-type]
+
+    @cached_property
+    def subnet_group(self) -> "CacheSubnetGroup | None":
+        """
+        Return the cache subnet group associated with this replication group.
+
+        Returns:
+            The cache subnet group for the first member cluster, if available.
+
+        """
+        cluster = self._primary_cluster
+        if cluster is None:
+            return None
+        return getattr(cluster, "subnet_group", None)
+
+    @cached_property
+    def vpc(self) -> "Vpc | None":
+        """
+        Return the VPC associated with this replication group.
+
+        Returns:
+            The VPC for the first member cluster, if available.
+
+        """
+        cluster = self._primary_cluster
+        if cluster is None:
+            return None
+        return getattr(cluster, "vpc", None)
+
+    @cached_property
+    def subnets(self) -> "list[Subnet] | PrimaryBoto3ModelQuerySet | None":
+        """
+        Return the EC2 subnets associated with this replication group.
+
+        Returns:
+            The EC2 subnets for the first member cluster, if available.
+
+        """
+        cluster = self._primary_cluster
+        if cluster is None:
+            return None
+        return getattr(cluster, "subnets", None)
+
+    @cached_property
+    def security_groups(
+        self,
+    ) -> "list[SecurityGroup] | PrimaryBoto3ModelQuerySet | None":
+        """
+        Return the EC2 security groups associated with this replication group.
+
+        Returns:
+            The EC2 security groups for the first member cluster, if available.
+
+        """
+        cluster = self._primary_cluster
+        if cluster is None:
+            return None
+        return getattr(cluster, "security_groups", None)
 
     @property
     def engine_version(self) -> str:
@@ -370,10 +418,8 @@ class ReplicationGroupModelMixin:
             )
             raise ConnectionResolutionError(msg)
 
-        vpc_id = None
-        if getattr(self, "clusters", None):
-            vpc = getattr(self.clusters[0], "vpc", None)
-            vpc_id = getattr(vpc, "VpcId", None)
+        vpc = getattr(self, "vpc", None)
+        vpc_id = getattr(vpc, "VpcId", None)
         if not vpc_id:
             msg = (
                 f"ElastiCache replication group '{self.ReplicationGroupId}' does not "

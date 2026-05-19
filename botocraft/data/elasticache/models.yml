@@ -28,6 +28,32 @@ primary:
         transformer:
           mapping:
             CacheSubnetGroupName: CacheSubnetGroupName
+      vpc:
+        primary_model_name: Vpc
+        docstring: >-
+          Return the VPC associated with this cache cluster.
+        transformer:
+          mapping:
+            VpcId: >-
+              self.subnet_group.VpcId
+      subnets:
+        primary_model_name: Subnet
+        many: true
+        docstring: >-
+          Return the EC2 subnets associated with this cache cluster.
+        transformer:
+          mapping:
+            SubnetIds: >-
+              [subnet.SubnetIdentifier for subnet in self.subnet_group.Subnets if subnet.SubnetIdentifier]
+      security_groups:
+        primary_model_name: SecurityGroup
+        many: true
+        docstring: >-
+          Return the EC2 security groups associated with this cache cluster.
+        transformer:
+          mapping:
+            GroupIds: >-
+              [group.SecurityGroupId for group in self.SecurityGroups if group.SecurityGroupId]
   CacheParameterGroup:
     primary_key: ARN
     arn_key: ARN
@@ -82,7 +108,8 @@ primary:
           Return the EC2 subnets associated with this cache subnet group.
         transformer:
           mapping:
-            SubnetIds: SubnetIds
+            SubnetIds: >-
+              [subnet.SubnetIdentifier for subnet in self.Subnets if subnet.SubnetIdentifier]
   CacheSecurityGroup:
     primary_key: ARN
     arn_key: ARN
@@ -184,6 +211,10 @@ primary:
         docstring: >-
           The tags associated with the user group.
 secondary:
+  Subnet:
+    alternate_name: ElastiCacheSubnet
+  SubnetOutpost:
+    alternate_name: ElastiCacheSubnetOutpost
   Authentication:
     alternate_name: ElastiCacheAuthentication
   DestinationDetails:

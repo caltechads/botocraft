@@ -62,7 +62,7 @@ class TestConnectionTargets:
                 )
             ],
         )
-        object.__setattr__(cluster, "subnet_group", SimpleNamespace(VpcId="vpc-456"))
+        object.__setattr__(cluster, "vpc", SimpleNamespace(VpcId="vpc-456"))
         object.__setattr__(cluster, "session", SimpleNamespace(profile_name="dev"))
 
         with patch(
@@ -102,11 +102,7 @@ class TestConnectionTargets:
                 )
             ],
         )
-        object.__setattr__(
-            replication_group,
-            "clusters",
-            [SimpleNamespace(vpc=SimpleNamespace(VpcId="vpc-789"))],
-        )
+        object.__setattr__(replication_group, "vpc", SimpleNamespace(VpcId="vpc-789"))
         object.__setattr__(
             replication_group,
             "session",
@@ -161,7 +157,7 @@ class TestConnectionTargets:
         cluster = cast("CacheCluster", object.__new__(CacheCluster))
         object.__setattr__(cluster, "CacheClusterId", "cache-main")
         object.__setattr__(cluster, "CacheNodes", [])
-        object.__setattr__(cluster, "subnet_group", SimpleNamespace(VpcId="vpc-456"))
+        object.__setattr__(cluster, "vpc", SimpleNamespace(VpcId="vpc-456"))
         object.__setattr__(cluster, "session", SimpleNamespace(profile_name="dev"))
 
         with pytest.raises(ConnectionResolutionError, match="usable endpoint"):
@@ -175,11 +171,7 @@ class TestConnectionTargets:
         )
         object.__setattr__(replication_group, "ReplicationGroupId", "redis-main")
         object.__setattr__(replication_group, "NodeGroups", [])
-        object.__setattr__(
-            replication_group,
-            "clusters",
-            [SimpleNamespace(vpc=SimpleNamespace(VpcId="vpc-789"))],
-        )
+        object.__setattr__(replication_group, "vpc", SimpleNamespace(VpcId="vpc-789"))
         object.__setattr__(
             replication_group,
             "session",

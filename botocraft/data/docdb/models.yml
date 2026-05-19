@@ -45,6 +45,15 @@ primary:
           mapping:
             VpcId: >-
               self.subnet_group.VpcId
+      subnets:
+        primary_model_name: Subnet
+        docstring: >-
+          Return the EC2 subnets associated with this DB cluster, if any.
+        many: true
+        transformer:
+          mapping:
+            SubnetIds: >-
+              [subnet.SubnetIdentifier for subnet in self.subnet_group.Subnets if subnet.SubnetIdentifier]
       kms_key:
         primary_model_name: KMSKey
         docstring: >-

@@ -74,6 +74,15 @@ primary:
           mapping:
             VpcId: >-
               self.DBSubnetGroup.VpcId
+      subnets:
+        primary_model_name: Subnet
+        docstring: >-
+          Return the EC2 subnets associated with this DB instance, if any.
+        many: true
+        transformer:
+          mapping:
+            SubnetIds: >-
+              [subnet.SubnetIdentifier for subnet in self.subnet_group.Subnets if subnet.SubnetIdentifier]
   DBSubnetGroup:
     alternate_name: RDSDBSubnetGroup
     primary_key: DBSubnetGroupArn
