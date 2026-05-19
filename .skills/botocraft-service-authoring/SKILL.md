@@ -114,6 +114,7 @@ about regeneration, inspection, smoke testing, or quality gates.
 Do not keep catalogs inline. Load only needed references from `references/`:
 
 - `common-manager-patterns.md`
+- `generator-yaml-pitfalls.md` (empty output, `Return`, `response_attr`, collisions)
 - `model-collision-and-tags.md`
 - `relation-discovery.md`
 - `relations-properties-bespoke.md`
@@ -180,6 +181,9 @@ answer directly.
   required fields needed for the supported create, update, or get surface.
 - `.get()` and `.list()` should return model instances, not raw identifiers.
 - Normalize Botocraft tag field names to `Tags`.
+- For non-CRUD manager methods, follow `generator-yaml-pitfalls.md` for
+  `return_type` / `response_attr`; inspect generated `botocraft/services/` code
+  after sync.
 
 ## Output expectations
 

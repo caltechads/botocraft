@@ -78,6 +78,18 @@ EC2 managers add real ergonomic methods beyond CRUDL:
 Add these only when operation clearly scopes to model identity and improves
 object API meaningfully.
 
+Recent EC2 slices also added YAML-only helpers with strict return-shape rules:
+
+- routes: `create_route` uses `Return`; `delete_route` / `replace_route` use
+  empty output (`return_type: None`)
+- volumes: `attach` / `detach` use top-level `VolumeAttachment` (`response_attr: None`);
+  `update` uses nested `VolumeModification` plus `EC2VolumeModification` alias
+- route tables: `associate` returns `AssociateRouteTableResult`; `disassociate`
+  is empty output
+- security groups: `authorize_egress` / `revoke_egress` mirror ingress `Return`
+
+Load `generator-yaml-pitfalls.md` before adding similar helpers on other services.
+
 ## Takeaway
 
 If new service feels EC2-like, slow down. Start narrow, load collision and

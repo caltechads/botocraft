@@ -144,6 +144,19 @@ OpenSearch domain example:
 This is a manager-mixin case, not a simple decorator, because the public
 Botocraft `list()` needs multiple AWS calls before it has model instances.
 
+## Non-CRUD helpers (attach, routes, associate, egress)
+
+Repo EC2 patterns for mutations beyond CRUDL are defined in YAML with careful
+`return_type` / `response_attr` choices. Wrong choices produce broken generated
+code (especially empty boto outputs vs `Return`).
+
+Load `generator-yaml-pitfalls.md` before adding helpers such as:
+
+- `attach` / `detach` on volumes or gateways
+- `create_route` / `delete_route` / `replace_route`
+- `associate` / `disassociate` on route tables
+- `authorize_egress` / `revoke_egress` on security groups
+
 ## Rule of thumb
 
 - Prefer decorator over mixin when one call plus reshaping is enough.

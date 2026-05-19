@@ -46,6 +46,11 @@ Prefer list-of-dict/tag-model representation that existing repo patterns use.
 Load `../botocraft-service-authoring/references/model-collision-and-tags.md`
 when tag shape or naming gets tricky.
 
+When a manager `response_attr` names a shape that collides with a primary model
+or field type (e.g. `VolumeModification`), load
+`../botocraft-service-authoring/references/generator-yaml-pitfalls.md` for
+`alternate_name` and create-result `*Instance` rename patterns.
+
 ## Secondary models
 
 Only define secondary models explicitly when it materially improves generation:

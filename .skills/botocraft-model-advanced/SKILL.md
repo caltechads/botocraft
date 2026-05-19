@@ -21,6 +21,12 @@ Prefer smallest rename that keeps public API understandable.
 Load `../botocraft-service-authoring/references/model-collision-and-tags.md`
 for established rename patterns.
 
+Load `../botocraft-service-authoring/references/generator-yaml-pitfalls.md` when:
+
+- sync fails with Pydantic model name collision on a secondary shape
+- create responses need `Create*Result.fields.<Model>.rename: <Model>Instance`
+- manager `response_attr` targets a shape that shares a name with another model
+
 ## Properties vs relations vs mixins
 
 Use property when derived value comes from local fields and small YAML

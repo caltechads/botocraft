@@ -1,6 +1,6 @@
 ---
 name: botocraft-manager-authoring
-description: Author Botocraft `managers.yml` for core manager contracts by choosing readonly versus writable manager shape, implementing `get`, `list`, `create`, `update`, `partial_update`, `delete`, and `get_many`, and ensuring methods return Botocraft model instances instead of raw AWS payloads. Use this whenever the user is designing Botocraft managers or asking how boto3 operations should map into Botocraft manager methods.
+description: Author Botocraft `managers.yml` for core manager contracts by choosing readonly versus writable manager shape, implementing `get`, `list`, `create`, `update`, `partial_update`, `delete`, and `get_many`, and ensuring methods return Botocraft model instances instead of raw AWS payloads. Use whenever the user designs Botocraft managers, maps boto3 operations to manager methods, or adds non-CRUD helpers (attach, associate, routes, egress) — including generator pitfalls for empty outputs, `Return`, and `response_attr`.
 ---
 
 # Botocraft Manager Authoring
@@ -90,6 +90,24 @@ flows.
 
 Add non-CRUD methods only when they provide real ergonomic value and clearly map
 to resource identity or lifecycle.
+
+## Generator pitfalls (`return_type` / `response_attr`)
+
+Before adding attach/detach, route mutations, associate/disassociate, or any
+helper whose boto output is not a plain describe/list payload, load
+`../botocraft-service-authoring/references/generator-yaml-pitfalls.md`.
+
+In short:
+
+- **`Return` in output** → `return_type: bool | None` and `response_attr: Return`
+- **Empty boto output** → `return_type: None` only (never `response_attr: Return`)
+- **Top-level resource shape** (e.g. `AttachVolume` → `VolumeAttachment`) →
+  `response_attr: None`
+- **Nested resource field** (e.g. `VolumeModification` on modify) →
+  `response_attr: <field name>`
+
+After sync, inspect the generated method body in `botocraft/services/` for
+invalid `response = ...` assignment (see reference checklist).
 
 ## Output
 

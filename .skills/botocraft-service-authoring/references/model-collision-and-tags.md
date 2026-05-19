@@ -35,6 +35,24 @@ would create awkward or broken annotations. Typical fixes:
 
 Secondary models are most collision-prone. Keep overrides small and targeted.
 
+When collision is triggered by a **manager `response_attr`** or return type
+inference (not just a public rename), see also
+`generator-yaml-pitfalls.md` (`alternate_name` on secondary shapes).
+
+## Create-result nested renames
+
+When a create operation returns a nested resource whose shape name matches the
+primary model, rename under the create result in `models.yml`:
+
+```yaml
+CreateNatGatewayResult:
+  fields:
+    NatGateway:
+      rename: NatGatewayInstance
+```
+
+Load `generator-yaml-pitfalls.md` for the full table and EC2 examples.
+
 ## Tag normalization
 
 Botocraft-side field must end up named `Tags`.

@@ -23,9 +23,14 @@ Catch these first:
 - import and name collisions
 - wrong forward references
 - tag field mismatch
-- wrong `response_attr`
+- wrong `response_attr` (see generator-yaml-pitfalls.md)
+- broken empty-output handling (`response = None(**_response)` or bogus `.Return`)
 - decorator/mixin return-shape mistakes
 - live AWS enum drift encoded on only one side
+
+For new manager helpers, load
+`../botocraft-service-authoring/references/generator-yaml-pitfalls.md` and walk
+its post-regen inspection checklist on each added method.
 
 ## Quality-gate interpretation
 
@@ -39,6 +44,7 @@ doc issues. Report generated-only gate noise separately.
 Load from parent references only when needed:
 
 - `common-manager-patterns.md`
+- `generator-yaml-pitfalls.md`
 - `model-collision-and-tags.md`
 - `service-gaps-and-exceptions.md`
 

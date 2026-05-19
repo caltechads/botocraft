@@ -1,6 +1,6 @@
 ---
 name: botocraft-manager-advanced
-description: Solve advanced Botocraft manager cases such as decorators, manager mixins, identifier-to-model conversion, context-required list/get flows, two-step disable/delete behavior, irregular non-CRUD methods, and higher-level workflows inferred from boto3 operation shapes. Use this whenever common `managers.yml` patterns are not enough or when AWS operations return wrappers, identifiers, or awkward lifecycles that need Botocraft-specific shaping.
+description: Solve advanced Botocraft manager cases such as decorators, manager mixins, identifier-to-model conversion, context-required list/get flows, two-step disable/delete behavior, irregular non-CRUD methods, and higher-level workflows inferred from boto3 operation shapes. Use whenever common `managers.yml` is insufficient, AWS returns wrappers or empty outputs, or you need safe `return_type`/`response_attr` for attach/route/associate-style helpers — load generator-yaml-pitfalls before syncing.
 ---
 
 # Botocraft Manager Advanced
@@ -45,6 +45,16 @@ If AWS requires disable/deregister/deactivate before delete:
 - expose explicit intermediate lifecycle method when useful
 - do not fake single-step delete if semantics matter
 - consider model shortcut method when flow is instance-scoped
+
+## Generator pitfalls for irregular methods
+
+Lifecycle helpers (routes, attach/detach, associate/disassociate, authorize/revoke
+egress) often have empty outputs, top-level resource outputs, or `Return` flags.
+
+Load `../botocraft-service-authoring/references/generator-yaml-pitfalls.md`
+**before** writing YAML. Validate with botocore `operation_model`, then inspect
+generated code after sync. Escalate to mixin only when YAML cannot express the
+return shape safely.
 
 ## Generic method discovery
 
