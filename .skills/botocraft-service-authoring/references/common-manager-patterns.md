@@ -126,6 +126,24 @@ Some list methods are only meaningful with required context:
 
 Do not force global list semantics when AWS surface is inherently scoped.
 
+### 6. Enumerate then describe via manager mixin
+
+Use a manager mixin when AWS splits global enumeration from full-object describe
+and the generated `list` method would otherwise require a mandatory identifier
+argument.
+
+OpenSearch domain example:
+
+- `list_domain_names` returns lightweight `DomainInfo` items
+- `describe_domains` returns full `DomainStatus` objects
+- `describe_domains` requires a non-empty `DomainNames` argument, so a generated
+  zero-arg `list()` is wrong
+- correct pattern: handwritten manager mixin calls `list_domain_names`, extracts
+  names, then calls `describe_domains`, then applies any enrichment like tags
+
+This is a manager-mixin case, not a simple decorator, because the public
+Botocraft `list()` needs multiple AWS calls before it has model instances.
+
 ## Rule of thumb
 
 - Prefer decorator over mixin when one call plus reshaping is enough.

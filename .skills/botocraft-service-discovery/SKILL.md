@@ -54,9 +54,26 @@ Default to narrower public contract when AWS surface is irregular.
 
 ## Manager naming
 
-Manager name should follow chosen primary model name exactly.
-If public model name needs `alternate_name`, manager follows public name, not raw
-botocore shape name.
+When authoring `managers.yml`, the manager key must stay on the botocore shape
+name chosen in `models.yml`, even when the public model uses `alternate_name`.
+
+Example:
+
+```yaml
+# models.yml
+primary:
+  DomainStatus:
+    alternate_name: OpenSearchDomain
+
+# managers.yml
+DomainStatus:
+  methods:
+    list:
+      boto3_name: describe_domains
+```
+
+The generated Python manager class will still use the public model name
+(`OpenSearchDomainManager`), but the YAML key must remain `DomainStatus`.
 
 ## First safe slice
 

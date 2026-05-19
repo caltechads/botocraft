@@ -9,8 +9,28 @@ Use this skill for common-path `managers.yml` work.
 
 ## Manager naming
 
-Manager should attach to chosen public primary model name.
-If model uses `alternate_name`, manager follows public name, not raw shape name.
+The `managers.yml` key must use the botocore shape name from `models.yml`, not
+the public `alternate_name`.
+
+Example:
+
+```yaml
+# models.yml
+primary:
+  DomainStatus:
+    alternate_name: OpenSearchDomain
+
+# managers.yml
+DomainStatus:
+  methods:
+    get:
+      boto3_name: describe_domain
+```
+
+Generated manager classes still follow the public model name
+(`OpenSearchDomainManager` in this example), but the YAML key must stay on the
+raw botocore shape name so generation can attach the manager to the correct
+primary model.
 
 ## Contract classification
 

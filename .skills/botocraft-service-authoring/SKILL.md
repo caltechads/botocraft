@@ -166,6 +166,8 @@ answer directly.
 
 - Author source of truth in `botocraft/data/<service>/models.yml` and
   `botocraft/data/<service>/managers.yml`.
+- In `managers.yml`, manager keys must use the botocore shape name from the
+  model definition key, not the public `alternate_name`.
 - Put handwritten helpers in `botocraft/mixins/<service>.py`.
 - Do not hand-edit generated files in `botocraft/services/` or generated docs.
 - Prefer direct source-of-truth fixes over runtime workarounds.
