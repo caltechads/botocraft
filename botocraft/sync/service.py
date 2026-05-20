@@ -130,6 +130,47 @@ class AbstractGenerator:
         raise NotImplementedError
 
 
+_LIST_FORWARD_REF_RE = re.compile(
+    r'^"?builtins\.list\[(\w+)\](?: \| None)?"?$',
+)
+
+
+def resolve_list_forward_ref_shadowing(
+    model_name: str,
+    display_name: str,
+    python_type: str,
+) -> tuple[str, str | None]:
+    """
+    Resolve list annotations when the field name shadows the referenced model.
+
+    Pydantic resolves quoted annotations in the model namespace. A field such as
+    ``VgwTelemetry: "builtins.list[VgwTelemetry]"`` resolves the inner name to the
+    field's :py:class:`~pydantic.fields.FieldInfo` instead of the model class.
+
+    Args:
+        model_name: Generated model class name that owns the field.
+        display_name: Public field name emitted on the generated model.
+        python_type: Generated type annotation for the field.
+
+    Returns:
+        A tuple of the possibly rewritten ``python_type`` and an optional
+        module-level alias assignment to emit before the model class.
+
+    """
+    quoted = python_type.startswith('"') and python_type.endswith('"')
+    stripped = python_type.strip('"')
+    match = _LIST_FORWARD_REF_RE.fullmatch(stripped)
+    if not match or match.group(1) != display_name:
+        return python_type, None
+    inner = match.group(1)
+    alias = f"{model_name}{inner}"
+    suffix = stripped[len(f"builtins.list[{inner}]") :]
+    rewritten = f"builtins.list[{alias}]{suffix}"
+    if quoted:
+        rewritten = f'"{rewritten}"'
+    return rewritten, f"{alias} = {inner}"
+
+
 class BotocoreFieldsFormatter:
     """
     Handles the formatting of fields from botocore shapes into Python code for
@@ -231,7 +272,11 @@ class BotocoreFieldsFormatter:
         # Build field definition with appropriate annotations and defaults
         field_code = []
         field_line = self._build_field_definition(
-            field_name, field_def, python_type, required
+            model_name,
+            field_name,
+            field_def,
+            python_type,
+            required,
         )
         field_code.append(field_line)
 
@@ -311,6 +356,7 @@ class BotocoreFieldsFormatter:
 
     def _build_field_definition(
         self,
+        model_name: str,
         field_name: str,
         field_def: ModelAttributeDefinition,
         python_type: str,
@@ -320,6 +366,7 @@ class BotocoreFieldsFormatter:
         Build the field definition code.
 
         Args:
+            model_name: Generated model class name that owns the field.
             field_name: The field name
             field_def: The field definition
             python_type: The Python type for the field
@@ -343,6 +390,13 @@ class BotocoreFieldsFormatter:
 
         # Start building the field line
         python_type = python_type.replace('""', '"')
+        python_type, alias_line = resolve_list_forward_ref_shadowing(
+            model_name,
+            display_name,
+            python_type,
+        )
+        if alias_line:
+            self.model_generator.register_forward_ref_alias(model_name, alias_line)
         field_line = f"    {display_name}: {python_type}"
 
         # Determine if we need pydantic Field
@@ -421,9 +475,10 @@ class ExtraFieldsFormatter:
         # Get the extra_fields attribute or return empty list if not present
         extra_fields = getattr(model_def, "extra_fields", {})
 
+        model_name = model_def.alternate_name or model_def.name
         # Process each field
         for field_name, field_def in extra_fields.items():
-            field_code = self._format_single_field(field_name, field_def)
+            field_code = self._format_single_field(model_name, field_name, field_def)
             fields.extend(field_code)
 
             # Update imports for this field
@@ -433,12 +488,16 @@ class ExtraFieldsFormatter:
         return fields
 
     def _format_single_field(
-        self, field_name: str, field_def: ModelAttributeDefinition
+        self,
+        model_name: str,
+        field_name: str,
+        field_def: ModelAttributeDefinition,
     ) -> list[str]:
         """
         Format a single extra field into Python code.
 
         Args:
+            model_name: The generated model class name that owns the field.
             field_name: The name of the field
             field_def: The definition of the field
 
@@ -470,6 +529,16 @@ class ExtraFieldsFormatter:
             needs_field_class = True
         else:
             field_line = f"    {field_name}: {field_def.python_type}"
+
+        display_name = field_def.rename or field_name
+        python_type, alias_line = resolve_list_forward_ref_shadowing(
+            model_name,
+            display_name,
+            field_def.python_type,
+        )
+        if alias_line:
+            self.model_generator.register_forward_ref_alias(model_name, alias_line)
+        field_line = field_line.replace(field_def.python_type, python_type, 1)
 
         # Append Field class or default value if needed
         if needs_field_class:
@@ -534,6 +603,21 @@ class ModelGenerator(AbstractGenerator):
         self.fields_formatter = BotocoreFieldsFormatter(self)
         #: The formatter for extra fields defined in the botocraft model definition
         self.extra_fields_formatter = ExtraFieldsFormatter(self)
+        #: Module-level aliases needed to avoid forward-ref shadowing in list fields
+        self.forward_ref_aliases: dict[str, list[str]] = {}
+
+    def register_forward_ref_alias(self, model_name: str, alias_line: str) -> None:
+        """
+        Register a module-level alias required by a generated model field.
+
+        Args:
+            model_name: Generated model class name that needs the alias.
+            alias_line: Python assignment to emit before the model class.
+
+        """
+        aliases = self.forward_ref_aliases.setdefault(model_name, [])
+        if alias_line not in aliases:
+            aliases.append(alias_line)
 
     def get_model_def(self, model_name: str) -> ModelDefinition:
         """
@@ -1076,7 +1160,7 @@ class ModelGenerator(AbstractGenerator):
                 base_class = f"TagsDictMixin, {base_class}"
         return ModelTagsDAO(base_class=base_class, tag_class=tag_class)
 
-    def generate_single_model(  # noqa: PLR0912
+    def generate_single_model(  # noqa: PLR0912, PLR0915
         self, model_name: str, model_shape: botocore.model.Shape | None = None
     ) -> str:
         """
@@ -1154,7 +1238,11 @@ class ModelGenerator(AbstractGenerator):
             )
 
         tags_dao = self.handle_tag_class(model_def, base_class)
-        code: str = f"class {model_name}({tags_dao.base_class}):\n"
+        alias_lines = self.forward_ref_aliases.pop(model_name, [])
+        preamble = ""
+        if alias_lines:
+            preamble = "\n".join(alias_lines) + "\n\n"
+        code: str = f"{preamble}class {model_name}({tags_dao.base_class}):\n"
         if model_shape:
             # If we have a botocore shape for this model, get the docstring
             # for the class from the shape.

@@ -12,6 +12,7 @@ botocraft
    overview/events
    overview/bedrock
    overview/connectivity
+   overview/ecs_exec
 
 .. toctree::
    :caption: Runbook

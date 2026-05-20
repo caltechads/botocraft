@@ -243,6 +243,9 @@ primary:
     arn_key: taskArn
     input_shapes:
       - RunTaskRequest
+    mixins:
+      - name: ECSTaskModelMixin
+        import_path: botocraft.mixins.ecs
     fields:
       tags:
         rename: Tags

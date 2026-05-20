@@ -155,7 +155,13 @@ ECR
 ECS
 ~~~
 
+.. autoclass:: botocraft.mixins.ecs.ECSExecMixin
+   :members:
+
 .. autoclass:: botocraft.mixins.ecs.ECSServiceModelMixin
+   :members:
+
+.. autoclass:: botocraft.mixins.ecs.ECSTaskModelMixin
    :members:
 
 .. autoclass:: botocraft.mixins.ecs.ECSContainerInstanceModelMixin

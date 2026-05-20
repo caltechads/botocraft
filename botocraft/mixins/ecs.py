@@ -1,8 +1,12 @@
 # mypy: disable-error-code="attr-defined"
 import re
+import shutil
+import signal
+import subprocess
 import warnings
+from collections.abc import Callable
 from functools import cached_property, wraps
-from typing import TYPE_CHECKING, Any, Callable, Literal, cast
+from typing import TYPE_CHECKING, Any, Literal, cast
 
 from botocraft.services.abstract import PrimaryBoto3ModelQuerySet
 
@@ -45,6 +49,47 @@ def extract_task_family_and_revision(task_definition_arn: str) -> str:
         f"Could not extract task family and revision from {task_definition_arn}"
     )
     return f"{match.group('family')}:{match.group('revision')}"
+
+
+def build_sigint_handler(
+    process: subprocess.Popen[bytes],
+) -> Callable[[int, Any], None]:
+    """
+    Build a SIGINT handler that forwards Control-C to a subprocess.
+
+    Use when running ``aws ecs execute-command`` so SIGINT reaches the remote
+    shell instead of raising :py:class:`KeyboardInterrupt` in the caller and
+    leaving the ECS Exec session running.
+
+    Args:
+        process: Subprocess running the interactive ECS Exec session.
+
+    Returns:
+        A function suitable for :py:func:`signal.signal`.
+
+    """
+
+    def sigint_handler(_signum: int, _frame: Any) -> None:
+        process.send_signal(signal.SIGINT)
+
+    return sigint_handler
+
+
+def _cluster_name_from_arn(cluster_arn: str) -> str:
+    """
+    Return the short cluster name from a cluster ARN when possible.
+
+    Args:
+        cluster_arn: Full cluster ARN or short cluster name.
+
+    Returns:
+        The cluster short name, or ``cluster_arn`` unchanged when it is not an ARN.
+
+    """
+    match = re.match(r"^.*:cluster/(.+)$", cluster_arn)
+    if match:
+        return match.group(1)
+    return cluster_arn
 
 
 # ----------
@@ -360,11 +405,223 @@ def ecs_task_definition_delete_all(
 # Mixins
 
 
-class ECSServiceModelMixin:
+class ECSExecMixin:
+    """
+    Mixin that opens interactive ECS Exec sessions via the AWS CLI.
+
+    Models that include this mixin must implement :py:attr:`running_tasks` and
+    :py:attr:`exec_cluster`.
+    """
+
+    class NoRunningTasks(Exception):
+        """Raised when there are no running tasks to exec into."""
+
+    @property
+    def running_tasks(self) -> "list[Task]":
+        """
+        Return tasks that are currently running for this object.
+
+        Returns:
+            Running :py:class:`~botocraft.services.ecs.Task` instances.
+
+        """
+        raise NotImplementedError
+
+    @property
+    def exec_cluster(self) -> str:
+        """
+        Return the cluster name or ARN passed to ``aws ecs execute-command``.
+
+        Returns:
+            Cluster identifier for the exec target.
+
+        """
+        raise NotImplementedError
+
+    def exec(
+        self,
+        *,
+        task_arn: str | None = None,
+        container_name: str | None = None,
+        command: str = "/bin/sh",
+    ) -> None:
+        """
+        Exec into a container using `ECS Exec <https://docs.aws.amazon.com/AmazonECS/latest/developerguide/ecs-exec.html>`_.
+
+        Side Effects:
+            Runs ``aws ecs execute-command`` in the foreground until the remote
+            session ends.
+
+        Keyword Args:
+            task_arn: Task ARN to use. When omitted, the first running task is
+                used. On :py:class:`~botocraft.services.ecs.Task`, this must refer
+                to the task itself when provided.
+            container_name: Container name to use. When omitted, the first
+                container on the chosen task is used.
+            command: Shell command passed to ``--command``.
+
+        Raises:
+            ECSExecMixin.NoRunningTasks: No running tasks are available.
+            RuntimeError: The AWS CLI is missing or ``execute-command`` is unavailable.
+            ValueError: The requested task or container could not be resolved.
+
+        """
+        running = self.running_tasks
+        if not running:
+            msg = f"{self.__class__.__name__}(pk={self.pk}) has no running tasks."
+            raise self.NoRunningTasks(msg)
+
+        task = self.__resolve_exec_task(task_arn=task_arn, running=running)
+        container = self.__resolve_exec_container(
+            task=task,
+            container_name=container_name,
+        )
+        profile = getattr(self.session, "profile_name", None)  # type: ignore[attr-defined]
+        cmd = [
+            "aws",
+            "ecs",
+            "execute-command",
+            "--cluster",
+            self.exec_cluster,
+            f"--task={task.taskArn}",
+            f"--container={container}",
+            "--interactive",
+            "--command",
+            command,
+        ]
+        if profile:
+            cmd[1:1] = ["--profile", profile]
+
+        self.__ensure_aws_cli_supports_ecs_execute_command()
+        process = subprocess.Popen(cmd)
+        signal.signal(signal.SIGINT, build_sigint_handler(process))
+        process.wait()
+        signal.signal(signal.SIGINT, signal.SIG_DFL)
+
+    def __resolve_exec_task(
+        self,
+        *,
+        task_arn: str | None,
+        running: "list[Task]",
+    ) -> "Task":
+        """
+        Choose the task to exec into.
+
+        Keyword Args:
+            task_arn: Requested task ARN or task ID suffix.
+            running: Running tasks available on this object.
+
+        Returns:
+            The resolved task.
+
+        Raises:
+            ValueError: ``task_arn`` does not match a running task.
+
+        """
+        if task_arn is None:
+            return running[0]
+        for task in running:
+            if task.taskArn == task_arn or task.taskArn.endswith(f"/{task_arn}"):
+                return task
+        msg = f"Task {task_arn!r} not found among running tasks."
+        raise ValueError(msg)
+
+    def __resolve_exec_container(
+        self,
+        *,
+        task: "Task",
+        container_name: str | None,
+    ) -> str:
+        """
+        Choose the container name to exec into.
+
+        Keyword Args:
+            task: Task that owns the container.
+            container_name: Requested container name.
+
+        Returns:
+            The resolved container name.
+
+        Raises:
+            ValueError: The task has no containers or the name is unknown.
+
+        """
+        if not task.containers:
+            msg = f"Task {task.taskArn!r} has no containers."
+            raise ValueError(msg)
+        if container_name is None:
+            name = task.containers[0].name
+            if not name:
+                msg = f"Task {task.taskArn!r} has no named containers."
+                raise ValueError(msg)
+            return name
+        names = [container.name for container in task.containers if container.name]
+        if container_name not in names:
+            msg = (
+                f"Container {container_name!r} not found on task {task.taskArn!r}; "
+                f"available: {', '.join(names)}"
+            )
+            raise ValueError(msg)
+        return container_name
+
+    def __ensure_aws_cli_supports_ecs_execute_command(self) -> None:
+        """
+        Ensure the local AWS CLI exposes ``ecs execute-command``.
+
+        Raises:
+            RuntimeError: The AWS CLI is missing or does not support ECS Exec.
+
+        """
+        aws_path = shutil.which("aws")
+        if aws_path is None:
+            msg = "AWS CLI is not installed or not in PATH."
+            raise RuntimeError(msg)
+        result = subprocess.run(
+            [aws_path, "ecs", "help"],
+            check=False,
+            capture_output=True,
+            text=True,
+        )
+        help_text = f"{result.stdout}\n{result.stderr}"
+        if result.returncode != 0 or "execute-command" not in help_text:
+            msg = (
+                "Local AWS CLI does not expose `aws ecs execute-command`. "
+                "Install a current AWS CLI v2 and the Session Manager plugin."
+            )
+            raise RuntimeError(msg)
+
+
+class ECSServiceModelMixin(ECSExecMixin):
     """
     A mixin for :py:class:`botocraft.services.ecs.Service` that adds
     some additional methods that we can't auto generate.
     """
+
+    @property
+    def running_tasks(self) -> "list[Task]":
+        """
+        Return running tasks for this service.
+
+        Returns:
+            Tasks in ``RUNNING`` status for the service.
+
+        """
+        tasks = self.tasks or []  # type: ignore[attr-defined]
+        return [task for task in tasks if task.lastStatus == "RUNNING"]
+
+    @property
+    def exec_cluster(self) -> str:
+        """
+        Return the cluster identifier for ECS Exec on this service.
+
+        Returns:
+            Cluster short name when available, otherwise the cluster ARN.
+
+        """
+        cluster_name = self.cluster_name  # type: ignore[attr-defined]
+        if cluster_name:
+            return cluster_name
+        return self.clusterArn  # type: ignore[attr-defined]
 
     @property
     def required_cpu(self) -> int:
@@ -487,6 +744,81 @@ class ECSServiceModelMixin:
                 LoadBalancerArns=list(arns)
             )
         return PrimaryBoto3ModelQuerySet([])  # type: ignore[arg-type]
+
+
+class ECSTaskModelMixin(ECSExecMixin):
+    """
+    A mixin for :py:class:`botocraft.services.ecs.Task` that adds convenience
+    methods that we can't auto generate.
+    """
+
+    @property
+    def running_tasks(self) -> "list[Task]":
+        """
+        Return this task when it is running.
+
+        Returns:
+            A single-element list when
+            :py:attr:`~botocraft.services.ecs.Task.lastStatus` is ``RUNNING``;
+            otherwise an empty list.
+
+        """
+        if self.lastStatus == "RUNNING":  # type: ignore[attr-defined]
+            return [self]  # type: ignore[list-item]
+        return []
+
+    @property
+    def exec_cluster(self) -> str:
+        """
+        Return the cluster identifier for ECS Exec on this task.
+
+        Returns:
+            Cluster short name when :py:attr:`~botocraft.services.ecs.Task.clusterArn`
+            is an ARN; otherwise the raw cluster value.
+
+        """
+        return _cluster_name_from_arn(self.clusterArn)  # type: ignore[attr-defined]
+
+    def exec(
+        self,
+        *,
+        task_arn: str | None = None,
+        container_name: str | None = None,
+        command: str = "/bin/sh",
+    ) -> None:
+        """
+        Exec into a container on this task using ECS Exec.
+
+        Side Effects:
+            Runs ``aws ecs execute-command`` in the foreground until the remote
+            session ends.
+
+        Keyword Args:
+            task_arn: Must be omitted or match this task's ARN.
+            container_name: Container name to use. When omitted, the first
+                container on the task is used.
+            command: Shell command passed to ``--command``.
+
+        Raises:
+            ECSExecMixin.NoRunningTasks: This task is not in ``RUNNING`` status.
+            RuntimeError: The AWS CLI is missing or ``execute-command`` is unavailable.
+            ValueError: ``task_arn`` does not match this task, or the container
+                name is unknown.
+
+        """
+        if task_arn is not None and task_arn not in {
+            self.taskArn,  # type: ignore[attr-defined]
+            self.taskArn.split("/")[-1],  # type: ignore[attr-defined, union-attr]
+        }:
+            msg = (
+                f"task_arn {task_arn!r} does not match task {self.taskArn!r}."
+            )
+            raise ValueError(msg)
+        super().exec(
+            task_arn=self.taskArn,  # type: ignore[attr-defined]
+            container_name=container_name,
+            command=command,
+        )
 
 
 class ECSServiceManagerMixin:
