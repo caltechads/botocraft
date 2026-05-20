@@ -805,6 +805,10 @@ secondary:
     fields:
       VpnConnection:
         rename: VpnConnectionInstance
+  ModifyVpnConnectionResult:
+    fields:
+      VpnConnection:
+        rename: VpnConnectionInstance
   ResponseError:
     alternate_name: EC2ResponseError
   MemoryGiBPerVCpuRequest:

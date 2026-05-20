@@ -502,6 +502,56 @@ Instance:
           required: true
         DryRun:
           default: "False"
+    modify_instance_type:
+      boto3_name: modify_instance_attribute
+      return_type: None
+      args:
+        InstanceId:
+          required: true
+        InstanceType:
+          required: true
+        DryRun:
+          default: "False"
+    modify_source_dest_check:
+      boto3_name: modify_instance_attribute
+      return_type: None
+      args:
+        InstanceId:
+          required: true
+        SourceDestCheck:
+          required: true
+        DryRun:
+          default: "False"
+    modify_disable_api_termination:
+      boto3_name: modify_instance_attribute
+      return_type: None
+      args:
+        InstanceId:
+          required: true
+        DisableApiTermination:
+          required: true
+        DryRun:
+          default: "False"
+    modify_ebs_optimized:
+      boto3_name: modify_instance_attribute
+      return_type: None
+      args:
+        InstanceId:
+          required: true
+        EbsOptimized:
+          required: true
+        DryRun:
+          default: "False"
+    modify_user_data:
+      boto3_name: modify_instance_attribute
+      return_type: None
+      args:
+        InstanceId:
+          required: true
+        UserData:
+          required: true
+        DryRun:
+          default: "False"
 LaunchTemplate:
   mixins:
     - name: EC2TagsManagerMixin
@@ -1329,6 +1379,26 @@ NatGateway:
           required: true
         DryRun:
           default: "False"
+    associate_address:
+      boto3_name: associate_nat_gateway_address
+      response_attr: None
+      args:
+        NatGatewayId:
+          required: true
+        AllocationIds:
+          required: true
+        DryRun:
+          default: "False"
+    disassociate_address:
+      boto3_name: disassociate_nat_gateway_address
+      response_attr: None
+      args:
+        NatGatewayId:
+          required: true
+        AssociationIds:
+          required: true
+        DryRun:
+          default: "False"
 VpcPeeringConnection:
   mixins:
     - name: EC2TagsManagerMixin
@@ -1388,6 +1458,14 @@ VpcPeeringConnection:
           required: true
         DryRun:
           default: "False"
+    modify_options:
+      boto3_name: modify_vpc_peering_connection_options
+      response_attr: None
+      args:
+        VpcPeeringConnectionId:
+          required: true
+        DryRun:
+          default: "False"
 VpcEndpoint:
   mixins:
     - name: EC2TagsManagerMixin
@@ -1425,6 +1503,9 @@ VpcEndpoint:
           default: "False"
     delete:
       boto3_name: delete_vpc_endpoints
+      return_type: >-
+        "DeleteVpcEndpointsResult"
+      response_attr: None
       args:
         VpcEndpointIds:
           required: true
@@ -1479,6 +1560,14 @@ VpnConnection:
           default: "False"
     delete:
       boto3_name: delete_vpn_connection
+      args:
+        VpnConnectionId:
+          required: true
+        DryRun:
+          default: "False"
+    modify:
+      boto3_name: modify_vpn_connection
+      response_attr: VpnConnectionInstance
       args:
         VpnConnectionId:
           required: true
