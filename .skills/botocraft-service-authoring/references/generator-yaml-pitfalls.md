@@ -138,4 +138,46 @@ After `botocraft sync`, open the new manager method in
 | `RouteTableManager.associate` | `response_attr: None` → `AssociateRouteTableResult` |
 | `VolumeManager.attach` / `detach` | `response_attr: None` → `VolumeAttachment` |
 | `VolumeManager.update` | `response_attr: VolumeModification` + `EC2VolumeModification` alias |
+| `VolumeManager.create` | `response_attr: None` → top-level `Volume` (supports `SnapshotId` via model) |
 | `InternetGatewayManager.attach` | `return_type: None` |
+| `EC2VpcEndpointManager.delete` | `return_type: "DeleteVpcEndpointsResult"`, `response_attr: None` |
+| `FlowLogManager.delete` | same pattern for `DeleteFlowLogsResult` |
+| `InstanceManager.modify_*` | one YAML method per attribute, all `boto3_name: modify_instance_attribute`, `return_type: None`; pass `AttributeValue` / `AttributeBooleanValue` / `BlobAttributeValue` wrappers |
+| `NatGatewayManager.associate_address` | `response_attr: None` → `AssociateNatGatewayAddressResult` |
+| `VpnConnectionManager.modify` | `response_attr: VpnConnectionInstance` after `ModifyVpnConnectionResult` field rename in `models.yml` |
+
+### `modify_instance_attribute` (scoped helpers)
+
+Boto exposes one operation with many optional attribute members. Add **separate**
+YAML methods per attribute (do not expose one mega-method in a single phase):
+
+```yaml
+modify_instance_type:
+  boto3_name: modify_instance_attribute
+  return_type: None
+  args:
+    InstanceId:
+      required: true
+    InstanceType:
+      required: true
+    DryRun:
+      default: "False"
+```
+
+Generated methods still include other operation members as optional keyword args
+(generator merges the shared operation shape). Callers should pass only the
+attribute being changed plus `InstanceId`.
+
+### Nested result field rename (`ModifyVpnConnectionResult`)
+
+When `response_attr` points at a nested resource whose shape name matches a
+primary model, add a create-result-style rename under `models.yml`:
+
+```yaml
+ModifyVpnConnectionResult:
+  fields:
+    VpnConnection:
+      rename: VpnConnectionInstance
+```
+
+Then set `response_attr: VpnConnectionInstance` on the manager method.
