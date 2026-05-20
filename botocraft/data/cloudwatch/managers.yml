@@ -1,0 +1,432 @@
+---
+MetricAlarm:
+  methods:
+    create:
+      boto3_name: put_metric_alarm
+      return_type: None
+      response_attr: None
+    update:
+      boto3_name: put_metric_alarm
+      return_type: None
+      response_attr: None
+    get:
+      boto3_name: describe_alarms
+      response_attr: MetricAlarms
+      args:
+        AlarmNames:
+          rename: AlarmName
+          required: true
+          python_type: str
+          source_arg: "[AlarmName]"
+        AlarmTypes:
+          value: '["MetricAlarm"]'
+    list:
+      boto3_name: describe_alarms
+      response_attr: MetricAlarms
+      args:
+        AlarmTypes:
+          value: '["MetricAlarm"]'
+    delete:
+      boto3_name: delete_alarms
+      return_type: None
+      response_attr: None
+      args:
+        AlarmNames:
+          rename: AlarmName
+          required: true
+          python_type: str
+          source_arg: "[AlarmName]"
+    enable_actions:
+      boto3_name: enable_alarm_actions
+      return_type: None
+      response_attr: None
+      args:
+        AlarmNames:
+          rename: AlarmName
+          required: true
+          python_type: str
+          source_arg: "[AlarmName]"
+    disable_actions:
+      boto3_name: disable_alarm_actions
+      return_type: None
+      response_attr: None
+      args:
+        AlarmNames:
+          rename: AlarmName
+          required: true
+          python_type: str
+          source_arg: "[AlarmName]"
+    set_state:
+      boto3_name: set_alarm_state
+      return_type: None
+      response_attr: None
+      args:
+        AlarmName:
+          required: true
+        StateValue:
+          required: true
+    describe_history:
+      boto3_name: describe_alarm_history
+      response_attr: AlarmHistoryItems
+      args:
+        AlarmName:
+          required: true
+        AlarmTypes:
+          value: '["MetricAlarm"]'
+CompositeAlarm:
+  methods:
+    create:
+      boto3_name: put_composite_alarm
+      return_type: None
+      response_attr: None
+    update:
+      boto3_name: put_composite_alarm
+      return_type: None
+      response_attr: None
+    get:
+      boto3_name: describe_alarms
+      response_attr: CompositeAlarms
+      args:
+        AlarmNames:
+          rename: AlarmName
+          required: true
+          python_type: str
+          source_arg: "[AlarmName]"
+        AlarmTypes:
+          value: '["CompositeAlarm"]'
+    list:
+      boto3_name: describe_alarms
+      response_attr: CompositeAlarms
+      args:
+        AlarmTypes:
+          value: '["CompositeAlarm"]'
+    delete:
+      boto3_name: delete_alarms
+      return_type: None
+      response_attr: None
+      args:
+        AlarmNames:
+          rename: AlarmName
+          required: true
+          python_type: str
+          source_arg: "[AlarmName]"
+    enable_actions:
+      boto3_name: enable_alarm_actions
+      return_type: None
+      response_attr: None
+      args:
+        AlarmNames:
+          rename: AlarmName
+          required: true
+          python_type: str
+          source_arg: "[AlarmName]"
+    disable_actions:
+      boto3_name: disable_alarm_actions
+      return_type: None
+      response_attr: None
+      args:
+        AlarmNames:
+          rename: AlarmName
+          required: true
+          python_type: str
+          source_arg: "[AlarmName]"
+    set_state:
+      boto3_name: set_alarm_state
+      return_type: None
+      response_attr: None
+      args:
+        AlarmName:
+          required: true
+        StateValue:
+          required: true
+    describe_history:
+      boto3_name: describe_alarm_history
+      response_attr: AlarmHistoryItems
+      args:
+        AlarmName:
+          required: true
+        AlarmTypes:
+          value: '["CompositeAlarm"]'
+MetricStreamEntry:
+  methods:
+    create:
+      boto3_name: put_metric_stream
+      return_type: None
+      response_attr: None
+    update:
+      boto3_name: put_metric_stream
+      return_type: None
+      response_attr: None
+    get:
+      boto3_name: get_metric_stream
+      response_attr: None
+      args:
+        Name:
+          required: true
+    list:
+      boto3_name: list_metric_streams
+      response_attr: Entries
+    delete:
+      boto3_name: delete_metric_stream
+      return_type: None
+      response_attr: None
+      args:
+        Name:
+          required: true
+    start:
+      boto3_name: start_metric_streams
+      return_type: None
+      response_attr: None
+      args:
+        Names:
+          rename: Name
+          required: true
+          python_type: str
+          source_arg: "[Name]"
+    stop:
+      boto3_name: stop_metric_streams
+      return_type: None
+      response_attr: None
+      args:
+        Names:
+          rename: Name
+          required: true
+          python_type: str
+          source_arg: "[Name]"
+DashboardEntry:
+  methods:
+    create:
+      boto3_name: put_dashboard
+      return_type: None
+      response_attr: None
+    update:
+      boto3_name: put_dashboard
+      return_type: None
+      response_attr: None
+    get:
+      boto3_name: get_dashboard
+      response_attr: None
+      args:
+        DashboardName:
+          required: true
+    list:
+      boto3_name: list_dashboards
+      response_attr: DashboardEntries
+    delete:
+      boto3_name: delete_dashboards
+      return_type: None
+      response_attr: None
+      args:
+        DashboardNames:
+          rename: DashboardName
+          required: true
+          python_type: str
+          source_arg: "[DashboardName]"
+InsightRule:
+  mixins:
+    - name: CloudWatchInsightRuleManagerMixin
+      import_path: botocraft.mixins.cloudwatch
+  methods:
+    create:
+      boto3_name: put_insight_rule
+      return_type: None
+      response_attr: None
+      args:
+        RuleName:
+          attribute: Name
+        RuleState:
+          attribute: State
+        RuleDefinition:
+          attribute: Definition
+        ApplyOnTransformedLogs:
+          attribute: ApplyOnTransformedLogs
+    update:
+      boto3_name: put_insight_rule
+      return_type: None
+      response_attr: None
+      args:
+        RuleName:
+          attribute: Name
+        RuleState:
+          attribute: State
+        RuleDefinition:
+          attribute: Definition
+        ApplyOnTransformedLogs:
+          attribute: ApplyOnTransformedLogs
+    delete:
+      boto3_name: delete_insight_rules
+      return_type: None
+      response_attr: None
+      args:
+        RuleNames:
+          rename: Name
+          required: true
+          python_type: str
+          source_arg: "[Name]"
+    enable:
+      boto3_name: enable_insight_rules
+      return_type: None
+      response_attr: None
+      args:
+        RuleNames:
+          rename: Name
+          required: true
+          python_type: str
+          source_arg: "[Name]"
+    disable:
+      boto3_name: disable_insight_rules
+      return_type: None
+      response_attr: None
+      args:
+        RuleNames:
+          rename: Name
+          required: true
+          python_type: str
+          source_arg: "[Name]"
+AnomalyDetector:
+  mixins:
+    - name: CloudWatchAnomalyDetectorManagerMixin
+      import_path: botocraft.mixins.cloudwatch
+  methods:
+    create:
+      boto3_name: put_anomaly_detector
+      return_type: None
+      response_attr: None
+    update:
+      boto3_name: put_anomaly_detector
+      return_type: None
+      response_attr: None
+    list:
+      boto3_name: describe_anomaly_detectors
+      response_attr: AnomalyDetectors
+Metric:
+  readonly: true
+  mixins:
+    - name: CloudWatchMetricManagerMixin
+      import_path: botocraft.mixins.cloudwatch
+  methods:
+    list:
+      boto3_name: list_metrics
+      response_attr: Metrics
+    publish:
+      boto3_name: put_metric_data
+      return_type: None
+      response_attr: None
+      args:
+        Namespace:
+          hidden: true
+        MetricData:
+          required: true
+          explicit: true
+      extra_args:
+        model:
+          python_type: '"CloudWatchMetric"'
+          required: true
+          explicit: true
+    get_data:
+      boto3_name: get_metric_data
+      return_type: list[Any]
+      response_attr: MetricDataResults
+      args:
+        MetricDataQueries:
+          hidden: true
+      extra_args:
+        model:
+          python_type: '"CloudWatchMetric"'
+          required: true
+          explicit: true
+        Period:
+          python_type: CloudWatchGetDataPeriod
+          required: true
+          explicit: true
+          imports:
+            - from botocraft.mixins.cloudwatch import CloudWatchGetDataPeriod
+          docstring: >-
+            Aggregation period in seconds. Must be one of 1, 5, 10, 20, 30, 60,
+            120, 300, 600, 900, 1800, 3600, 10800, 21600, 43200, or 86400.
+        Stat:
+          python_type: CloudWatchGetDataStat
+          required: true
+          explicit: true
+          imports:
+            - from botocraft.mixins.cloudwatch import CloudWatchGetDataStat
+          docstring: >-
+            Statistic for the query. Standard values are SampleCount, Average,
+            Sum, Minimum, and Maximum. Extended percentiles use a p prefix, for
+            example p99 or p95.0 (p0 through p100 and common decimal forms).
+        Unit:
+          python_type: CloudWatchMetricUnit | None
+          required: false
+          default: None
+          imports:
+            - from botocraft.mixins.cloudwatch import CloudWatchMetricUnit
+          docstring: >-
+            Optional unit filter. When omitted, CloudWatch may return data stored
+            under any unit. When set, must be a standard unit such as Seconds,
+            Count, Percent, Bytes, or Bytes/Second.
+    get_statistics:
+      boto3_name: get_metric_statistics
+      return_type: list[Any]
+      response_attr: Datapoints
+      args:
+        Namespace:
+          hidden: true
+        MetricName:
+          hidden: true
+        Dimensions:
+          hidden: true
+      extra_args:
+        model:
+          python_type: '"CloudWatchMetric"'
+          required: true
+          explicit: true
+    widget_image:
+      boto3_name: get_metric_widget_image
+      return_type: bytes
+      response_attr: MetricWidgetImage
+AlarmMuteRuleSummary:
+  methods:
+    create:
+      boto3_name: put_alarm_mute_rule
+      return_type: None
+      response_attr: None
+    update:
+      boto3_name: put_alarm_mute_rule
+      return_type: None
+      response_attr: None
+    get:
+      boto3_name: get_alarm_mute_rule
+      response_attr: None
+      args:
+        AlarmMuteRuleName:
+          rename: Name
+          required: true
+          python_type: str
+          source_arg: Name
+    list:
+      boto3_name: list_alarm_mute_rules
+      response_attr: AlarmMuteRuleSummaries
+    delete:
+      boto3_name: delete_alarm_mute_rule
+      return_type: None
+      response_attr: None
+      args:
+        AlarmMuteRuleName:
+          rename: Name
+          required: true
+          python_type: str
+          source_arg: Name
+GetOTelEnrichmentOutput:
+  readonly: true
+  methods:
+    get:
+      boto3_name: get_otel_enrichment
+      response_attr: None
+    start:
+      boto3_name: start_otel_enrichment
+      return_type: None
+      response_attr: None
+    stop:
+      boto3_name: stop_otel_enrichment
+      return_type: None
+      response_attr: None

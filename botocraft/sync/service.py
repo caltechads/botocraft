@@ -1,3 +1,4 @@
+import ast
 import re
 import subprocess
 import tempfile
@@ -1316,6 +1317,32 @@ class ManagerGenerator(AbstractGenerator):
         self.shape_converter = self.model_generator.shape_converter
         self.client = boto3.client(self.service_name)  # type: ignore[call-overload]
 
+    def _mixin_method_names(self, manager_def: ManagerDefinition) -> set[str]:
+        """
+        Return public method names implemented on configured manager mixins.
+
+        Args:
+            manager_def: The botocraft manager definition for the manager.
+
+        Returns:
+            Method names supplied by handwritten manager mixins.
+
+        """
+        method_names: set[str] = set()
+        package_root = Path(__file__).resolve().parent.parent
+        for mixin in manager_def.mixins:
+            relative_parts = mixin.import_path.split(".")[1:]
+            module_path = package_root.joinpath(*relative_parts).with_suffix(".py")
+            module_ast = ast.parse(module_path.read_text(encoding="utf-8"))
+            for node in module_ast.body:
+                if not isinstance(node, ast.ClassDef) or node.name != mixin.name:
+                    continue
+                for item in node.body:
+                    is_function = isinstance(item, ast.FunctionDef)
+                    if is_function and not item.name.startswith("_"):
+                        method_names.add(item.name)
+        return method_names
+
     def generate_manager(self, model_name: str, manager_def: ManagerDefinition) -> None:
         """
         Generate the code for a single manager, and its dependent response
@@ -1326,8 +1353,11 @@ class ManagerGenerator(AbstractGenerator):
             manager_def: The botocraft manager definition for the manager.
 
         """
+        mixin_method_names = self._mixin_method_names(manager_def)
         methods: OrderedDict[str, str] = OrderedDict()
         for method_name, method_def in manager_def.methods.items():
+            if method_name in mixin_method_names:
+                continue
             generator = self.get_method_generator(model_name, method_name, method_def)
             methods[method_name] = generator.code
         method_code = "\n\n".join(methods.values())

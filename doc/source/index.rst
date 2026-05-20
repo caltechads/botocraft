@@ -12,6 +12,7 @@ botocraft
    overview/events
    overview/bedrock
    overview/connectivity
+   overview/cloudwatch
    overview/ecs_exec
 
 .. toctree::
@@ -22,7 +23,7 @@ botocraft
    runbook/authoring
    runbook/service_authoring_reference
    runbook/eventbridge_event_from_schema
-   runbook/eventbrdge_event_from_example
+   runbook/eventbridge_event_from_example
    runbook/tunneling
 
 .. toctree::
@@ -31,7 +32,7 @@ botocraft
 
    api/models
    api/mixins
-   api/events
+   api/eventbridge/index
 
 .. include:: _services_index.rst
 

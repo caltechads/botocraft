@@ -1,0 +1,231 @@
+---
+primary:
+  MetricAlarm:
+    primary_key: AlarmName
+    arn_key: AlarmArn
+    name_key: AlarmName
+    input_shapes:
+      - PutMetricAlarmInput
+    imports:
+      - from typing import Literal, cast
+    manager_methods:
+      set_state:
+        manager_method: set_state
+        docstring: Temporarily set alarm state for testing.
+        args:
+          0:
+            name: AlarmName
+            value: >-
+              cast(str, self.AlarmName)
+        user_args:
+          1:
+            name: StateValue
+            attr_type: Literal["OK", "ALARM", "INSUFFICIENT_DATA"]
+          2:
+            name: StateReason
+            attr_type: str
+        user_keyword_args:
+          - name: StateReasonData
+            attr_type: str | None
+            default: None
+  CompositeAlarm:
+    primary_key: AlarmName
+    arn_key: AlarmArn
+    name_key: AlarmName
+    input_shapes:
+      - PutCompositeAlarmInput
+  MetricStreamEntry:
+    alternate_name: CloudWatchMetricStream
+    primary_key: Name
+    arn_key: Arn
+    name_key: Name
+    input_shapes:
+      - PutMetricStreamInput
+  DashboardEntry:
+    alternate_name: CloudWatchDashboard
+    primary_key: DashboardName
+    arn_key: DashboardArn
+    name_key: DashboardName
+    input_shapes:
+      - PutDashboardInput
+    extra_fields:
+      DashboardBody:
+        python_type: str | None
+        default: None
+        docstring: >-
+          The detail pane of the dashboard in JSON format.
+  InsightRule:
+    alternate_name: CloudWatchInsightRule
+    primary_key: Name
+    name_key: Name
+    input_shapes:
+      - PutInsightRuleInput
+    fields:
+      Schema:
+        required: false
+  AnomalyDetector:
+    alternate_name: CloudWatchAnomalyDetector
+    input_shapes:
+      - PutAnomalyDetectorInput
+    properties:
+      pk:
+        docstring: >-
+          The composite identity for an anomaly detector.
+        transformer:
+          code:
+            return_type: dict[str, Any]
+            code: >-
+              {"MetricMathAnomalyDetector": self.MetricMathAnomalyDetector.model_dump(exclude_none=True)} if self.MetricMathAnomalyDetector else {"Namespace": self.Namespace, "MetricName": self.MetricName, "Dimensions": [dimension.model_dump(exclude_none=True) if hasattr(dimension, "model_dump") else dimension for dimension in (self.Dimensions or [])], "Stat": self.Stat, "SingleMetricAnomalyDetector": self.SingleMetricAnomalyDetector.model_dump(exclude_none=True) if self.SingleMetricAnomalyDetector else None}
+  AlarmMuteRuleSummary:
+    alternate_name: AlarmMuteRule
+    primary_key: Name
+    name_key: Name
+    arn_key: AlarmMuteRuleArn
+    input_shapes:
+      - PutAlarmMuteRuleInput
+    output_shape: GetAlarmMuteRuleOutput
+  GetOTelEnrichmentOutput:
+    alternate_name: OTelEnrichmentStatus
+    readonly: true
+    properties:
+      pk:
+        docstring: Fixed singleton identity for account OTel enrichment.
+        transformer:
+          code:
+            return_type: str
+            code: >-
+              "otel-enrichment"
+  Metric:
+    alternate_name: CloudWatchMetric
+    imports:
+      - from datetime import datetime
+      - from typing import Any, Literal
+      - from botocraft.mixins.cloudwatch import CloudWatchGetDataPeriod, CloudWatchGetDataStat, CloudWatchMetricUnit
+    mixins:
+      - name: CloudWatchMetricModelMixin
+        import_path: botocraft.mixins.cloudwatch
+    manager_methods:
+      publish:
+        manager_method: publish
+        docstring: Publish datapoints for this metric time series.
+        args:
+          0:
+            name: model
+            value: self
+        user_args:
+          1:
+            name: MetricData
+            attr_type: list[Any]
+      get_data:
+        manager_method: get_data
+        docstring: Retrieve metric data via GetMetricData for this metric.
+        args:
+          0:
+            name: model
+            value: self
+        user_args:
+          1:
+            name: StartTime
+            attr_type: datetime
+          2:
+            name: EndTime
+            attr_type: datetime
+          3:
+            name: Period
+            attr_type: CloudWatchGetDataPeriod
+          4:
+            name: Stat
+            attr_type: CloudWatchGetDataStat
+        user_keyword_args:
+          - name: Unit
+            attr_type: CloudWatchMetricUnit | None
+            default: None
+          - name: ScanBy
+            attr_type: str | None
+            default: None
+      get_statistics:
+        manager_method: get_statistics
+        docstring: Retrieve aggregated datapoints via GetMetricStatistics.
+        args:
+          0:
+            name: model
+            value: self
+        user_args:
+          1:
+            name: StartTime
+            attr_type: datetime
+          2:
+            name: EndTime
+            attr_type: datetime
+          3:
+            name: Period
+            attr_type: int
+        user_keyword_args:
+          - name: Statistics
+            attr_type: list[str] | None
+            default: None
+          - name: ExtendedStatistics
+            attr_type: list[str] | None
+            default: None
+          - name: Unit
+            attr_type: CloudWatchMetricUnit | None
+            default: None
+      widget_image:
+        manager_method: widget_image
+        docstring: Render a metric widget image from JSON widget definition.
+        user_args:
+          0:
+            name: MetricWidget
+            attr_type: str
+    properties:
+      pk:
+        docstring: >-
+          The composite identity for a CloudWatch metric time series.
+        transformer:
+          code:
+            return_type: dict[str, Any]
+            code: >-
+              {"Namespace": self.Namespace, "MetricName": self.MetricName, "Dimensions": sorted([{"Name": dimension.Name, "Value": dimension.Value} for dimension in (self.Dimensions or [])], key=lambda item: item["Name"])}
+
+secondary:
+  Entity:
+    alternate_name: CloudWatchEntity
+    force_create: true
+  EntityMetricData:
+    force_create: true
+    fields:
+      Entity:
+        python_type: '"CloudWatchEntity"'
+  Tag:
+    alternate_name: CloudWatchTag
+  MetricStat:
+    alternate_name: CloudWatchMetricStat
+    fields:
+      Metric:
+        python_type: '"CloudWatchMetric"'
+  EvaluationCriteria:
+    alternate_name: CloudWatchEvaluationCriteria
+  MetricDataQuery:
+    alternate_name: CloudWatchMetricDataQuery
+  Dimension:
+    alternate_name: CloudWatchDimension
+  AlarmPromQLCriteria:
+    alternate_name: CloudWatchAlarmPromQLCriteria
+  MetricStreamStatisticsConfiguration:
+    alternate_name: CloudWatchMetricStreamStatisticsConfiguration
+  MetricStreamFilter:
+    alternate_name: CloudWatchMetricStreamFilter
+  AnomalyDetectorConfiguration:
+    alternate_name: CloudWatchAnomalyDetectorConfiguration
+  MetricCharacteristics:
+    alternate_name: CloudWatchMetricCharacteristics
+  SingleMetricAnomalyDetector:
+    alternate_name: CloudWatchSingleMetricAnomalyDetector
+  MetricMathAnomalyDetector:
+    alternate_name: CloudWatchMetricMathAnomalyDetector
+  Rule:
+    alternate_name: CloudWatchAlarmMuteRule
+  MuteTargets:
+    alternate_name: CloudWatchAlarmMuteTargets
+  Schedule:
+    alternate_name: CloudWatchAlarmMuteSchedule

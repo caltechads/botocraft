@@ -200,6 +200,9 @@ class ModelManagerMethodGenerator:
                 break
         if arg_def.docstring:
             return arg_def.docstring
+        extra_def = self.manager_method_def.extra_args.get(arg)
+        if extra_def is not None and extra_def.docstring:
+            return extra_def.docstring
         if self.input_shape is not None:
             if _arg_name in self.input_shape.members:
                 return self.input_shape.members[_arg_name].documentation
