@@ -39,8 +39,7 @@ dependencies = [
   "docker >= 7.1.0",
   "ipython >= 8.36.0",
   "psutil>=7.0.0",
-  # docformatter 1.7.8 changed some internals that we need to remediate in our codebase
-  "docformatter == 1.7.7",
+  "docformatter >= 1.7.7",
   "inflect >= 7.4.0",
   "markdownify >= 0.28.1",
   "pyyaml >= 6.0.2",

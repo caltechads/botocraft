@@ -8,12 +8,12 @@ from .abstract import (
     Boto3ModelManager,
     ReadonlyBoto3ModelManager,
 )
-from botocraft.mixins.tags import TagsDictMixin
-from typing import ClassVar, Literal, Any, Type as ModelType, cast
-import builtins
-from botocraft.services.common import Tag
 from pydantic import Field
+from typing import ClassVar, Literal, Any, Type as ModelType, cast
+from botocraft.services.common import Tag
 from datetime import datetime
+from botocraft.mixins.tags import TagsDictMixin
+import builtins
 
 # ===============
 # Managers
@@ -40,10 +40,15 @@ class AssumeRoleManager(Boto3ModelManager):
         ProvidedContexts: "builtins.list[STSProvidedContext] | None" = None,
     ) -> "AssumeRole":
         """
-        Returns a set of temporary security credentials that you can use to access Amazon Web Services resources. These
-        temporary credentials consist of an access key ID, a secret access key, and a security token. Typically, you use
-        ``AssumeRole`` within your account or for cross-account access. For a comparison of ``AssumeRole`` with other API
-        operations that produce temporary credentials, see `Requesting Temporary Security
+        Returns a set of temporary security credentials that you can use to access
+        Amazon Web Services resources.
+
+        These temporary credentials consist of an access key ID, a secret access key,
+        and a security token. Typically, you use
+        ``AssumeRole`` within your account or for cross-account access. For a comparison
+        of ``AssumeRole`` with other API
+        operations that produce temporary credentials, see `Requesting Temporary
+        Security
         Credentials <https://docs.aws.amazon.com/IAM/latest/UserGuide/id_credentials_temp_request.html>`_ and `Compare STS
         credentials <https://docs.aws.amazon.com/IAM/latest/UserGuide/id_credentials_sts-comparison.html>`_ in the *IAM User
         Guide*.
@@ -53,43 +58,69 @@ class AssumeRoleManager(Boto3ModelManager):
             RoleSessionName: An identifier for the assumed role session.
 
         Keyword Args:
-            PolicyArns: The Amazon Resource Names (ARNs) of the IAM managed policies that you want to use as managed session
+            PolicyArns: The Amazon Resource Names (ARNs) of the IAM managed policies
+                that you want to use as managed session
                 policies. The policies must exist in the same account as the role.
-            Policy: An IAM policy in JSON format that you want to use as an inline session policy.
-            DurationSeconds: The duration, in seconds, of the role session. The value specified can range from 900 seconds (15
-                minutes) up to the maximum session duration set for the role. The maximum session duration setting can have a value
-                from 1 hour to 12 hours. If you specify a value higher than this setting or the administrator setting (whichever is
-                lower), the operation fails. For example, if you specify a session duration of 12 hours, but your administrator set
+            Policy: An IAM policy in JSON format that you want to use as an inline
+                session policy.
+            DurationSeconds: The duration, in seconds, of the role session. The value
+                specified can range from 900 seconds (15
+                minutes) up to the maximum session duration set for the role. The
+                maximum session duration setting can have a value
+                from 1 hour to 12 hours. If you specify a value higher than this setting
+                or the administrator setting (whichever is
+                lower), the operation fails. For example, if you specify a session
+                duration of 12 hours, but your administrator set
                 the maximum session duration to 6 hours, your operation fails.
-            Tags: A list of session tags that you want to pass. Each session tag consists of a key name and an associated value.
-                For more information about session tags, see `Tagging Amazon Web Services STS Sessions
+            Tags: A list of session tags that you want to pass. Each session tag
+                consists of a key name and an associated value.
+                For more information about session tags, see `Tagging Amazon Web
+                Services STS Sessions
                 <https://docs.aws.amazon.com/IAM/latest/UserGuide/id_session-tags.html>`_ in the *IAM User Guide*.
-            TransitiveTagKeys: A list of keys for session tags that you want to set as transitive. If you set a tag key as
-                transitive, the corresponding key and value passes to subsequent sessions in a role chain. For more information, see
+            TransitiveTagKeys: A list of keys for session tags that you want to set as
+                transitive. If you set a tag key as
+                transitive, the corresponding key and value passes to subsequent
+                sessions in a role chain. For more information, see
                 `Chaining Roles with Session Tags <https://docs.aws.amazon.com/IAM/latest/UserGuide/id_session-tags.html#id_session-
                 tags_role-chaining>`_ in the *IAM User Guide*.
-            ExternalId: A unique identifier that might be required when you assume a role in another account. If the
-                administrator of the account to which the role belongs provided you with an external ID, then provide that value in
-                the ``ExternalId`` parameter. This value can be any string, such as a passphrase or account number. A cross-account
-                role is usually set up to trust everyone in an account. Therefore, the administrator of the trusting account might
-                send an external ID to the administrator of the trusted account. That way, only someone with the ID can assume the
-                role, rather than everyone in the account. For more information about the external ID, see `How to Use an External
-                ID When Granting Access to Your Amazon Web Services Resources to a Third Party
+            ExternalId: A unique identifier that might be required when you assume a
+                role in another account. If the
+                administrator of the account to which the role belongs provided you with
+                an external ID, then provide that value in
+                the ``ExternalId`` parameter. This value can be any string, such as a
+                passphrase or account number. A cross-account
+                role is usually set up to trust everyone in an account. Therefore, the
+                administrator of the trusting account might
+                send an external ID to the administrator of the trusted account. That
+                way, only someone with the ID can assume the
+                role, rather than everyone in the account. For more information about
+                the external ID, see `How to Use an External
+                ID When Granting Access to Your Amazon Web Services Resources to a Third
+                Party
                 <https://docs.aws.amazon.com/IAM/latest/UserGuide/id_roles_create_for- user_externalid.html>`_ in the *IAM User
                 Guide*.
-            SerialNumber: The identification number of the MFA device that is associated with the user who is making the
-                ``AssumeRole`` call. Specify this value if the trust policy of the role being assumed includes a condition that
-                requires MFA authentication. The value is either the serial number for a hardware device (such as ``GAHT12345678``)
-                or an Amazon Resource Name (ARN) for a virtual device (such as ``arn:aws:iam::123456789012:mfa/user``).
-            TokenCode: The value provided by the MFA device, if the trust policy of the role being assumed requires MFA. (In
-                other words, if the policy includes a condition that tests for MFA). If the role being assumed requires MFA and if
-                the ``TokenCode`` value is missing or expired, the ``AssumeRole`` call returns an "access denied" error.
-            SourceIdentity: The source identity specified by the principal that is calling the ``AssumeRole`` operation. The
+            SerialNumber: The identification number of the MFA device that is associated
+                with the user who is making the
+                ``AssumeRole`` call. Specify this value if the trust policy of the role
+                being assumed includes a condition that
+                requires MFA authentication. The value is either the serial number for a
+                hardware device (such as ``GAHT12345678``)
+                or an Amazon Resource Name (ARN) for a virtual device (such as
+                ``arn:aws:iam::123456789012:mfa/user``).
+            TokenCode: The value provided by the MFA device, if the trust policy of the
+                role being assumed requires MFA. (In
+                other words, if the policy includes a condition that tests for MFA). If
+                the role being assumed requires MFA and if
+                the ``TokenCode`` value is missing or expired, the ``AssumeRole`` call
+                returns an "access denied" error.
+            SourceIdentity: The source identity specified by the principal that is
+                calling the ``AssumeRole`` operation. The
                 source identity value persists across `chained role
                 <https://docs.aws.amazon.com/IAM/latest/UserGuide/id_roles.html#iam-term-role-chaining>`_ sessions.
-            ProvidedContexts: A list of previously acquired trusted context assertions in the format of a JSON array. The
-                trusted context assertion is signed and encrypted by Amazon Web Services STS.
-
+            ProvidedContexts: A list of previously acquired trusted context assertions
+                in the format of a JSON array. The
+                trusted context assertion is signed and encrypted by Amazon Web Services
+                STS.
         """
         args: dict[str, Any] = dict(
             RoleArn=self.serialize(RoleArn),
@@ -128,30 +159,46 @@ class AssumeRoleManager(Boto3ModelManager):
         DurationSeconds: "int | None" = None,
     ) -> "AssumeRole | None":
         """
-        Returns a set of temporary security credentials for users who have been authenticated via a SAML authentication
-        response. This operation provides a mechanism for tying an enterprise identity store or directory to role-based Amazon
-        Web Services access without user-specific credentials or configuration. For a comparison of ``AssumeRoleWithSAML`` with
-        the other API operations that produce temporary credentials, see `Requesting Temporary Security
+        Returns a set of temporary security credentials for users who have been
+        authenticated via a SAML authentication
+        response. This operation provides a mechanism for tying an enterprise identity
+        store or directory to role-based Amazon
+        Web Services access without user-specific credentials or configuration. For a
+        comparison of ``AssumeRoleWithSAML`` with
+        the other API operations that produce temporary credentials, see `Requesting
+        Temporary Security
         Credentials <https://docs.aws.amazon.com/IAM/latest/UserGuide/id_credentials_temp_request.html>`_ and `Compare STS
         credentials <https://docs.aws.amazon.com/IAM/latest/UserGuide/id_credentials_sts-comparison.html>`_ in the *IAM User
         Guide*.
 
         Args:
-            RoleArn: The Amazon Resource Name (ARN) of the role that the caller is assuming.
-            PrincipalArn: The Amazon Resource Name (ARN) of the SAML provider in IAM that describes the IdP.
-            SAMLAssertion: The base64 encoded SAML authentication response provided by the IdP.
+            RoleArn: The Amazon Resource Name (ARN) of the role that the caller is
+                assuming.
+            PrincipalArn: The Amazon Resource Name (ARN) of the SAML provider in IAM
+                that describes the IdP.
+            SAMLAssertion: The base64 encoded SAML authentication response provided by
+                the IdP.
 
         Keyword Args:
-            PolicyArns: The Amazon Resource Names (ARNs) of the IAM managed policies that you want to use as managed session
+            PolicyArns: The Amazon Resource Names (ARNs) of the IAM managed policies
+                that you want to use as managed session
                 policies. The policies must exist in the same account as the role.
-            Policy: An IAM policy in JSON format that you want to use as an inline session policy.
-            DurationSeconds: The duration, in seconds, of the role session. Your role session lasts for the duration that you
-                specify for the ``DurationSeconds`` parameter, or until the time specified in the SAML authentication response's
-                ``SessionNotOnOrAfter`` value, whichever is shorter. You can provide a ``DurationSeconds`` value from 900 seconds
-                (15 minutes) up to the maximum session duration setting for the role. This setting can have a value from 1 hour to
-                12 hours. If you specify a value higher than this setting, the operation fails. For example, if you specify a
-                session duration of 12 hours, but your administrator set the maximum session duration to 6 hours, your operation
-                fails. To learn how to view the maximum value for your role, see `View the Maximum Session Duration Setting for a
+            Policy: An IAM policy in JSON format that you want to use as an inline
+                session policy.
+            DurationSeconds: The duration, in seconds, of the role session. Your role
+                session lasts for the duration that you
+                specify for the ``DurationSeconds`` parameter, or until the time
+                specified in the SAML authentication response's
+                ``SessionNotOnOrAfter`` value, whichever is shorter. You can provide a
+                ``DurationSeconds`` value from 900 seconds
+                (15 minutes) up to the maximum session duration setting for the role.
+                This setting can have a value from 1 hour to
+                12 hours. If you specify a value higher than this setting, the operation
+                fails. For example, if you specify a
+                session duration of 12 hours, but your administrator set the maximum
+                session duration to 6 hours, your operation
+                fails. To learn how to view the maximum value for your role, see `View
+                the Maximum Session Duration Setting for a
                 Role <https://docs.aws.amazon.com/IAM/latest/UserGuide/id_roles_use.html#id_roles_use_view-role-max-session>`_ in
                 the *IAM User Guide*.
 
@@ -188,34 +235,53 @@ class AssumeRoleManager(Boto3ModelManager):
         DurationSeconds: "int | None" = None,
     ) -> "AssumeRole | None":
         """
-        Returns a set of temporary security credentials for users who have been authenticated in a mobile or web application
-        with a web identity provider. Example providers include the OAuth 2.0 providers Login with Amazon and Facebook, or any
-        OpenID Connect-compatible identity provider such as Google or `Amazon Cognito federated
+        Returns a set of temporary security credentials for users who have been
+        authenticated in a mobile or web application
+        with a web identity provider. Example providers include the OAuth 2.0 providers
+        Login with Amazon and Facebook, or any
+        OpenID Connect-compatible identity provider such as Google or `Amazon Cognito
+        federated
         identities <https://docs.aws.amazon.com/cognito/latest/developerguide/cognito-identity.html>`_.
 
         Args:
-            RoleArn: The Amazon Resource Name (ARN) of the role that the caller is assuming.
-            RoleSessionName: An identifier for the assumed role session. Typically, you pass the name or identifier that is
-                associated with the user who is using your application. That way, the temporary security credentials that your
-                application will use are associated with that user. This session name is included as part of the ARN and assumed
+            RoleArn: The Amazon Resource Name (ARN) of the role that the caller is
+                assuming.
+            RoleSessionName: An identifier for the assumed role session. Typically, you
+                pass the name or identifier that is
+                associated with the user who is using your application. That way, the
+                temporary security credentials that your
+                application will use are associated with that user. This session name is
+                included as part of the ARN and assumed
                 role ID in the ``AssumedRoleUser`` response element.
-            WebIdentityToken: The OAuth 2.0 access token or OpenID Connect ID token that is provided by the identity provider.
-                Your application must get this token by authenticating the user who is using your application with a web identity
-                provider before the application makes an ``AssumeRoleWithWebIdentity`` call. Timestamps in the token must be
-                formatted as either an integer or a long integer. Tokens must be signed using either RSA keys (RS256, RS384, or
+            WebIdentityToken: The OAuth 2.0 access token or OpenID Connect ID token that
+                is provided by the identity provider.
+                Your application must get this token by authenticating the user who is
+                using your application with a web identity
+                provider before the application makes an ``AssumeRoleWithWebIdentity``
+                call. Timestamps in the token must be
+                formatted as either an integer or a long integer. Tokens must be signed
+                using either RSA keys (RS256, RS384, or
                 RS512) or ECDSA keys (ES256, ES384, or ES512).
 
         Keyword Args:
-            ProviderId: The fully qualified host component of the domain name of the OAuth 2.0 identity provider. Do not specify
+            ProviderId: The fully qualified host component of the domain name of the
+                OAuth 2.0 identity provider. Do not specify
                 this value for an OpenID Connect identity provider.
-            PolicyArns: The Amazon Resource Names (ARNs) of the IAM managed policies that you want to use as managed session
+            PolicyArns: The Amazon Resource Names (ARNs) of the IAM managed policies
+                that you want to use as managed session
                 policies. The policies must exist in the same account as the role.
-            Policy: An IAM policy in JSON format that you want to use as an inline session policy.
-            DurationSeconds: The duration, in seconds, of the role session. The value can range from 900 seconds (15 minutes) up
-                to the maximum session duration setting for the role. This setting can have a value from 1 hour to 12 hours. If you
-                specify a value higher than this setting, the operation fails. For example, if you specify a session duration of 12
-                hours, but your administrator set the maximum session duration to 6 hours, your operation fails. To learn how to
-                view the maximum value for your role, see `View the Maximum Session Duration Setting for a Role
+            Policy: An IAM policy in JSON format that you want to use as an inline
+                session policy.
+            DurationSeconds: The duration, in seconds, of the role session. The value
+                can range from 900 seconds (15 minutes) up
+                to the maximum session duration setting for the role. This setting can
+                have a value from 1 hour to 12 hours. If you
+                specify a value higher than this setting, the operation fails. For
+                example, if you specify a session duration of 12
+                hours, but your administrator set the maximum session duration to 6
+                hours, your operation fails. To learn how to
+                view the maximum value for your role, see `View the Maximum Session
+                Duration Setting for a Role
                 <https://docs.aws.amazon.com/IAM/latest/UserGuide/id_roles_use.html#id_roles_use_view-role-max-session>`_ in the
                 *IAM User Guide*.
 
@@ -278,10 +344,12 @@ class STSCredentials(Boto3Model):
     """
     The access key ID that identifies the temporary security credentials.
     """
+
     SecretAccessKey: str
     """
     The secret access key that can be used to sign requests.
     """
+
     SessionToken: str
     """
     The token that users must pass to the service API to use the temporary credentials.
@@ -296,7 +364,6 @@ class STSAssumedRoleUser(Boto3Model):
     """
     The identifiers for the temporary security credentials that the operation returns.
     """
-
     AssumedRoleId: str
     """
     A unique identifier that contains the role ID and the role session name of the role
@@ -334,8 +401,8 @@ class AssumeRole(ReadonlyPrimaryBoto3Model):
     you can use to refer to the resulting temporary security credentials.
 
     For example, you can reference these credentials as a principal in a resource-based
-    policy by using the ARN or assumed role ID. The ARN and ID include the ``RoleSessionName`` that you specified when you
-    called ``AssumeRole``.
+    policy by using the ARN or assumed role ID. The ARN and ID include the
+    ``RoleSessionName`` that you specified when you called ``AssumeRole``.
     """
     PackedPolicySize: "int | None" = None
     """
@@ -345,6 +412,7 @@ class AssumeRole(ReadonlyPrimaryBoto3Model):
     The request fails if the packed size is greater than 100 percent, which means the
     policies and tags exceeded the allowed space.
     """
+
     SourceIdentity: "str | None" = None
     """
     The source identity specified by the principal that is calling the ``AssumeRole``
@@ -354,47 +422,53 @@ class AssumeRole(ReadonlyPrimaryBoto3Model):
     """
     The subject of the assumed role.
     """
+
     SubjectType: str | None = None
     """
     The type of the subject of the assumed role (SAML only).
     """
+
     Issuer: str | None = None
     """
     The issuer of the assumed role (SAML Only).
     """
+
     Provider: str | None = None
     """
     The provider of the assumed role (Web Identity Only).
     """
+
     Audience: str | None = None
     """
     The audience of the assumed role (SAML Only).
     """
+
     NameQualifier: str | None = None
     """
     The name qualifier of the assumed role (SAML Only).
     """
+
     SubjectFromWebIdentityToken: str | None = None
     """
     The subject from the web identity token (Web Identity Only).
     """
-
     @property
     def pk(self) -> str | None:
         """
-        Return the primary key of the model.   This is the value of the
-        :py:attr:`Credentials.AccessKeyId` attribute.
+        Return the primary key of the model.
+
+        This is the value of the :py:attr:`Credentials.AccessKeyId` attribute.
 
         Returns:
             The primary key of the model instance.
         """
         return self.Credentials.AccessKeyId
-
     @property
     def arn(self) -> str | None:
         """
-        Return the ARN of the model.   This is the value of the
-        :py:attr:`AssumedRoleUser.Arn` attribute.
+        Return the ARN of the model.
+
+        This is the value of the :py:attr:`AssumedRoleUser.Arn` attribute.
 
         Returns:
             The ARN of the model instance.
@@ -418,7 +492,6 @@ class CallerIdentity(ReadonlyPrimaryBoto3Model):
     """
 
     manager_class: ClassVar[ModelType[Boto3ModelManager]] = CallerIdentityManager
-
     UserId: "str | None" = None
     """
     The unique identifier of the calling entity.
@@ -429,11 +502,13 @@ class CallerIdentity(ReadonlyPrimaryBoto3Model):
     found on the
     **Policy Variables** reference page in the *IAM User Guide*.
     """
+
     Account: "str | None" = None
     """
     The Amazon Web Services account ID number of the account that owns or contains the
     calling entity.
     """
+
     Arn: "str | None" = None
     """
     The Amazon Web Services ARN associated with the calling entity.
@@ -442,30 +517,31 @@ class CallerIdentity(ReadonlyPrimaryBoto3Model):
     @property
     def pk(self) -> str | None:
         """
-        Return the primary key of the model.   This is the value of the
-        :py:attr:`Account` attribute.
+        Return the primary key of the model.
+
+        This is the value of the :py:attr:`Account` attribute.
 
         Returns:
             The primary key of the model instance.
         """
         return self.Account
-
     @property
     def arn(self) -> str | None:
         """
-        Return the ARN of the model.   This is the value of the :py:attr:`Arn`
-        attribute.
+        Return the ARN of the model.
+
+        This is the value of the :py:attr:`Arn` attribute.
 
         Returns:
             The ARN of the model instance.
         """
         return self.Arn
-
     @property
     def name(self) -> str | None:
         """
-        Return the name of the model.   This is the value of the :py:attr:`UserId`
-        attribute.
+        Return the name of the model.
+
+        This is the value of the :py:attr:`UserId` attribute.
 
         Returns:
             The name of the model instance.
@@ -480,8 +556,6 @@ class CallerIdentity(ReadonlyPrimaryBoto3Model):
         :py:attr:`Account` attribute.
         """
         return hash(self.Account)
-
-
 # =======================
 # Request/Response Models
 # =======================
@@ -498,12 +572,11 @@ class STSPolicyDescriptorType(Boto3Model):
     The Amazon Resource Name (ARN) of the IAM managed policy to use as a session policy
     for the role.
 
-    For more information
-    about ARNs, see `Amazon Resource Names (ARNs) and Amazon Web Services Service
+    For more information about ARNs, see `Amazon Resource Names (ARNs) and Amazon Web
+    Services Service
     Namespaces <https://docs.aws.amazon.com/general/latest/gr/aws-arns-and-namespaces.html>`_ in the *Amazon Web Services
     General Reference*.
     """
-
 
 class STSProvidedContext(Boto3Model):
     """
@@ -517,6 +590,7 @@ class STSProvidedContext(Boto3Model):
     """
     The context provider ARN from which the trusted context assertion was generated.
     """
+
     ContextAssertion: "str | None" = None
     """
     The signed and encrypted trusted context assertion generated by the context
@@ -524,7 +598,6 @@ class STSProvidedContext(Boto3Model):
 
     The trusted context assertion is signed and encrypted by Amazon Web Services STS.
     """
-
 
 class AssumeRoleWithSAMLResponse(Boto3Model):
     """
@@ -538,10 +611,12 @@ class AssumeRoleWithSAMLResponse(Boto3Model):
     The temporary security credentials, which include an access key ID, a secret access
     key, and a security (or session) token.
     """
+
     AssumedRoleUser: "STSAssumedRoleUser | None" = None
     """
     The identifiers for the temporary security credentials that the operation returns.
     """
+
     PackedPolicySize: "int | None" = None
     """
     A percentage value that indicates the packed size of the session policies and
@@ -550,11 +625,13 @@ class AssumeRoleWithSAMLResponse(Boto3Model):
     The request fails if the packed size is greater than 100 percent, which means the
     policies and tags exceeded the allowed space.
     """
+
     Subject: "str | None" = None
     """
     The value of the ``NameID`` element in the ``Subject`` element of the SAML
     assertion.
     """
+
     SubjectType: "str | None" = None
     """
     The format of the name ID, as defined by the ``Format`` attribute in the ``NameID``
@@ -562,6 +639,7 @@ class AssumeRoleWithSAMLResponse(Boto3Model):
 
     Typical examples of the format are ``transient`` or ``persistent``.
     """
+
     Issuer: "str | None" = None
     """
     The value of the ``Issuer`` element of the SAML assertion.
@@ -571,10 +649,12 @@ class AssumeRoleWithSAMLResponse(Boto3Model):
     The value of the ``Recipient`` attribute of the ``SubjectConfirmationData`` element
     of the SAML assertion.
     """
+
     NameQualifier: "str | None" = None
     """
 A hash value based on the concatenation of the following:
     """
+
     SourceIdentity: "str | None" = None
     """
     The value in the ``SourceIdentity`` attribute in the SAML assertion.
@@ -584,37 +664,39 @@ A hash value based on the concatenation of the following:
     sessions.
     """
 
-
 class AssumeRoleWithWebIdentityResponse(Boto3Model):
     """
     Contains the response to a successful AssumeRoleWithWebIdentity request, including
     temporary Amazon Web Services credentials that can be used to make Amazon Web
     Services requests.
     """
-
     Credentials: "STSCredentials | None" = None
     """
     The temporary security credentials, which include an access key ID, a secret access
     key, and a security token.
     """
+
     SubjectFromWebIdentityToken: "str | None" = None
     """
     The unique user identifier that is returned by the identity provider.
 
-    This identifier is associated with the
-    ``WebIdentityToken`` that was submitted with the ``AssumeRoleWithWebIdentity`` call. The identifier is typically unique
-    to the user and the application that acquired the ``WebIdentityToken`` (pairwise identifier). For OpenID Connect ID
-    tokens, this field contains the value returned by the identity provider as the token's ``sub`` (Subject) claim.
+    This identifier is associated with the ``WebIdentityToken`` that was submitted with
+    the ``AssumeRoleWithWebIdentity`` call. The identifier is typically unique to the
+    user and the application that acquired the ``WebIdentityToken`` (pairwise
+    identifier). For OpenID Connect ID tokens, this field contains the value returned by
+    the identity provider as the token's ``sub`` (Subject) claim.
     """
+
     AssumedRoleUser: "STSAssumedRoleUser | None" = None
     """
     The Amazon Resource Name (ARN) and the assumed role ID, which are identifiers that
     you can use to refer to the resulting temporary security credentials.
 
     For example, you can reference these credentials as a principal in a resource-based
-    policy by using the ARN or assumed role ID. The ARN and ID include the ``RoleSessionName`` that you specified when you
-    called ``AssumeRole``.
+    policy by using the ARN or assumed role ID. The ARN and ID include the
+    ``RoleSessionName`` that you specified when you called ``AssumeRole``.
     """
+
     PackedPolicySize: "int | None" = None
     """
     A percentage value that indicates the packed size of the session policies and
@@ -623,14 +705,16 @@ class AssumeRoleWithWebIdentityResponse(Boto3Model):
     The request fails if the packed size is greater than 100 percent, which means the
     policies and tags exceeded the allowed space.
     """
+
     Provider: "str | None" = None
     """
     The issuing authority of the web identity token presented.
 
-    For OpenID Connect ID tokens, this contains the value of the
-    ``iss`` field. For OAuth 2.0 access tokens, this contains the value of the ``ProviderId`` parameter that was passed in
-    the ``AssumeRoleWithWebIdentity`` request.
+    For OpenID Connect ID tokens, this contains the value of the ``iss`` field. For
+    OAuth 2.0 access tokens, this contains the value of the ``ProviderId`` parameter
+    that was passed in the ``AssumeRoleWithWebIdentity`` request.
     """
+
     Audience: "str | None" = None
     """
     The intended audience (also known as client ID) of the web identity token.
@@ -638,6 +722,7 @@ class AssumeRoleWithWebIdentityResponse(Boto3Model):
     This is traditionally the client identifier issued to the application that requested
     the web identity token.
     """
+
     SourceIdentity: "str | None" = None
     """
     The value of the source identity that is returned in the JSON web token (JWT) from

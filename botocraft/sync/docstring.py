@@ -1,37 +1,306 @@
 import re
-from dataclasses import dataclass, field
+from argparse import Namespace
+from dataclasses import asdict, dataclass, field
 from textwrap import wrap
-from typing import Literal
+from typing import Any, ClassVar, Literal
 
+from docformatter import Formatter
 from markdownify import markdownify
 
 
 @dataclass
 class FormatterArgs:
+    """
+    Store Botocraft docformatter defaults for generated service code.
+    """
+
+    #: Optional line range filter.
     line_range: tuple[int, int] | None = None
+    #: Optional docstring length range filter.
     length_range: tuple[int, int] | None = None
+    #: Use Black-compatible formatting behavior.
     black: bool = True
+    #: Check mode flag for docformatter.
+    check: bool = False
+    #: Place closing quotes on a new line for wrapped one-line docstrings.
+    close_quotes_on_newline: bool = False
+    #: Diff mode flag for docformatter.
+    diff: bool = False
+    #: Optional excluded paths.
+    exclude: list[str] | None = None
+    #: Explicit file list for CLI-oriented formatter API.
+    files: list[str] = field(default_factory=list)
+    #: Parameter-list formatting style.
     style: Literal["sphinx", "epytext"] = "sphinx"
+    #: Leave aggressive wrapping to Botocraft's post-processing pass.
     force_wrap: bool = False
+    #: In-place mode flag for docformatter.
+    in_place: bool = False
+    #: Expand one-line summaries to multiline docstrings.
     make_summary_multi_line: bool = True
+    #: Insert newline before multiline summary.
     pre_summary_newline: bool = True
+    #: Insert space after opening quotes.
+    pre_summary_space: bool = True
+    #: Preserve post-summary newline option for legacy compatibility.
     post_summary_newline: bool = True
+    #: Do not insert blank line after description.
     post_description_blank: bool = False
+    #: Use strict formatting rules.
     non_strict: bool = False
+    #: Recursive mode flag for docformatter.
+    recursive: bool = False
+    #: Regex that identifies reST section adornments.
     rest_section_adorns: str = r"""[!\"#$%&'()*+,-./\\:;<=>?@[]^_`{|}~]{4,}"""
+    #: Tab width used when wrapping docstrings.
     tab_width: int = 4
+    #: Summary wrap column.
     wrap_summaries: int = 88
+    #: Description wrap column.
     wrap_descriptions: int = 88
+    #: Words that should not be auto-capitalized.
     non_cap: list[str] = field(default_factory=list)
 
 
+class CodeDocstringFormatter:
+    """
+    Format generated Python source docstrings with installed docformatter API.
+
+    This adapter preserves Botocraft's historical formatter defaults while
+    tolerating private method renames across docformatter releases.
+
+    Args:
+        formatter_cls: Optional formatter implementation override for tests.
+
+    """
+
+    #: Regex for section headers that docformatter can collapse onto one line.
+    SECTION_RE: ClassVar[re.Pattern[str]] = re.compile(
+        r"^(?P<indent>\s+)"
+        r"(?P<section>Args|Returns|Raises|Yields|Keyword Args|Side Effects):"
+        r"\s+(?P<rest>\S.*)$"
+    )
+    #: Regex for argument/field lines inside docstring sections.
+    ARGUMENT_RE: ClassVar[re.Pattern[str]] = re.compile(
+        r"^(?P<name>[^:]+:\s+)(?P<rest>.+)$"
+    )
+    #: Section headers that should never be wrapped inline.
+    SECTION_HEADERS: ClassVar[frozenset[str]] = frozenset(
+        {
+            "Args:",
+            "Keyword Args:",
+            "Raises:",
+            "Returns:",
+            "Side Effects:",
+            "Yields:",
+        }
+    )
+    #: Section headers whose bodies use parameter-style continuation indentation.
+    PARAMETER_SECTIONS: ClassVar[frozenset[str]] = frozenset({"Args:", "Keyword Args:"})
+
+    def __init__(self, formatter_cls: type[Any] | None = None):
+        """
+        Initialize formatter adapter for generated source code.
+
+        Args:
+            formatter_cls: docformatter formatter implementation to wrap.
+
+        """
+        #: Formatter implementation used for code formatting.
+        self.formatter_cls = formatter_cls or Formatter
+        #: Namespace of Botocraft docformatter defaults.
+        self.args = Namespace(**asdict(FormatterArgs()))
+        #: Maximum line length for conservative docstring rewrapping.
+        self.wrap_length = 88
+
+    def format_code(self, source: str) -> str:
+        """
+        Format Python source code docstrings using docformatter compatibility path.
+
+        Args:
+            source: generated Python source code
+
+        Returns:
+            Source code with docstrings formatted.
+
+        """
+        formatter = self.formatter_cls(self.args, None, None, None)
+        format_method = getattr(formatter, "_do_format_code", None)
+        if format_method is None:
+            format_method = getattr(formatter, "_format_code")  # noqa: B009
+        return self._rewrap_docstring_lines(format_method(source))
+
+    def _rewrap_docstring_lines(self, source: str) -> str:
+        """
+        Rewrap docstring prose conservatively after docformatter runs.
+
+        Args:
+            source: Python source code after docformatter processing.
+
+        Returns:
+            Source code with section-safe docstring wrapping.
+
+        """
+        output_lines: list[str] = []
+        in_docstring = False
+        active_section: str | None = None
+        continuation_indent: str | None = None
+        for line in source.splitlines():
+            if line.count('"""') % 2 == 1:
+                if in_docstring:
+                    active_section = None
+                    continuation_indent = None
+                output_lines.append(line)
+                in_docstring = not in_docstring
+                continue
+
+            if not in_docstring:
+                output_lines.append(line)
+                continue
+
+            normalized_line, active_section, continuation_indent = (
+                self._normalize_section_line(line, active_section, continuation_indent)
+            )
+            if self._is_wrappable_docstring_line(normalized_line):
+                output_lines.extend(self._wrap_docstring_line(normalized_line))
+            else:
+                output_lines.append(normalized_line)
+
+        return "\n".join(output_lines) + ("\n" if source.endswith("\n") else "")
+
+    def _normalize_section_line(
+        self,
+        line: str,
+        active_section: str | None,
+        continuation_indent: str | None,
+    ) -> tuple[str, str | None, str | None]:
+        """
+        Normalize section and continuation indentation for docstring lines.
+
+        Args:
+            line: Single source line inside a docstring block.
+            active_section: Current docstring section header, if any.
+            continuation_indent: Expected continuation indentation for active param.
+
+        Returns:
+            Tuple of normalized line, updated active section, and continuation indent.
+
+        """
+        stripped = line.strip()
+        if not stripped:
+            return line, active_section, continuation_indent
+        if stripped in self.SECTION_HEADERS:
+            return line, stripped, None
+
+        line_indent = line[: len(line) - len(line.lstrip())]
+        if active_section in self.PARAMETER_SECTIONS:
+            argument_match = self.ARGUMENT_RE.match(line.lstrip())
+            if argument_match is not None:
+                return (
+                    line,
+                    active_section,
+                    f"{line_indent}    ",
+                )
+            if (
+                continuation_indent is not None
+                and line_indent == continuation_indent[:-4]
+            ):
+                return (
+                    f"{continuation_indent}{line.lstrip()}",
+                    active_section,
+                    continuation_indent,
+                )
+        return line, active_section, continuation_indent
+
+    def _is_wrappable_docstring_line(self, line: str) -> bool:
+        """
+        Check whether a docstring line is safe for Botocraft rewrapping.
+
+        Args:
+            line: Single source line inside a docstring block.
+
+        Returns:
+            ``True`` when line should be rewrapped.
+
+        """
+        stripped = line.strip()
+        if not stripped or stripped == '"""':
+            return False
+        if stripped in self.SECTION_HEADERS:
+            return False
+        return len(line) > self.wrap_length or bool(self.SECTION_RE.match(line))
+
+    def _wrap_docstring_line(self, line: str) -> list[str]:
+        """
+        Wrap one docstring line while preserving section indentation.
+
+        Args:
+            line: Single source line inside a docstring block.
+
+        Returns:
+            Wrapped replacement lines.
+
+        """
+        section_match = self.SECTION_RE.match(line)
+        if section_match is not None:
+            section_indent = section_match.group("indent")
+            section_lines = self._wrap_docstring_line(
+                f"{section_indent}    {section_match.group('rest')}"
+            )
+            return [f"{section_indent}{section_match.group('section')}", *section_lines]
+
+        stripped = line.lstrip()
+        indent = line[: len(line) - len(stripped)]
+        if "http" in stripped or "`<" in stripped:
+            return [line]
+
+        argument_match = self.ARGUMENT_RE.match(stripped)
+        if argument_match is not None:
+            wrapped = wrap(
+                argument_match.group("rest"),
+                width=self.wrap_length,
+                initial_indent=f"{indent}{argument_match.group('name')}",
+                subsequent_indent=f"{indent}    ",
+                break_long_words=False,
+                break_on_hyphens=False,
+            )
+            return wrapped or [line]
+
+        wrapped = wrap(
+            stripped,
+            width=self.wrap_length,
+            initial_indent=indent,
+            subsequent_indent=indent,
+            break_long_words=False,
+            break_on_hyphens=False,
+        )
+        return wrapped or [line]
+
+
 class DocumentationFormatter:
+    """
+    Convert botocore HTML docs into reStructuredText fragments for generators.
+
+    Args:
+        max_length: Maximum output line length for wrapped prose.
+
+    """
+
+    #: Regex for Markdown-style links.
     MARKDOWN_LINK_RE = re.compile(
         r"(?:\[(?P<text>.*?)\])\((?P<link>.*?)\)", re.MULTILINE | re.DOTALL
     )
+    #: Regex for Python object references that need single backticks restored.
     PY_OBJECT_RE = re.compile(r"py:(.*?):``(.*?)``", re.MULTILINE | re.DOTALL)
 
     def __init__(self, max_length: int = 120):
+        """
+        Initialize documentation formatter.
+
+        Args:
+            max_length: Maximum output line length for wrapped prose.
+
+        """
         #: Wrap lines at this length.
         self.max_length = max_length
 
@@ -194,3 +463,4 @@ class DocumentationFormatter:
             lines[i + 1] = f"                {line}"
         lines[-1] += "\n"
         return "\n".join([line.rstrip() for line in lines])
+    #: Regex for section headers that docformatter can collapse onto one line.

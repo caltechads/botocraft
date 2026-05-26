@@ -12,9 +12,8 @@ from typing import Any, Final, cast
 import boto3
 import botocore.model
 import botocore.session
-from docformatter.format import Formatter
 
-from .docstring import DocumentationFormatter, FormatterArgs
+from .docstring import CodeDocstringFormatter, DocumentationFormatter
 from .exceptions import ModelHasNoMembersError, NoPythonTypeError
 from .methods import (
     CreateMethodGenerator,
@@ -532,14 +531,15 @@ class ExtraFieldsFormatter:
             field_line = f"    {field_name}: {field_def.python_type}"
 
         display_name = field_def.rename or field_name
+        field_python_type = field_def.python_type or "Any"
         python_type, alias_line = resolve_list_forward_ref_shadowing(
             model_name,
             display_name,
-            field_def.python_type,
+            field_python_type,
         )
         if alias_line:
             self.model_generator.register_forward_ref_alias(model_name, alias_line)
-        field_line = field_line.replace(field_def.python_type, python_type, 1)
+        field_line = field_line.replace(field_python_type, python_type, 1)
 
         # Append Field class or default value if needed
         if needs_field_class:
@@ -1342,9 +1342,9 @@ class ManagerGenerator(AbstractGenerator):
                 if not isinstance(node, ast.ClassDef) or node.name != mixin.name:
                     continue
                 for item in node.body:
-                    is_function = isinstance(item, ast.FunctionDef)
-                    if is_function and not item.name.startswith("_"):
-                        method_names.add(item.name)
+                    if isinstance(item, (ast.AsyncFunctionDef, ast.FunctionDef)):
+                        if not item.name.startswith("_"):
+                            method_names.add(item.name)
         return method_names
 
     def generate_manager(self, model_name: str, manager_def: ManagerDefinition) -> None:
@@ -1643,9 +1643,7 @@ class ServiceGenerator:
                 raise
 
         # Format the docstrings with docformatter
-        formatted_code = Formatter(FormatterArgs(), None, None, None)._format_code(  # noqa: SLF001
-            formatted_code
-        )
+        formatted_code = CodeDocstringFormatter().format_code(formatted_code)
 
         # Write the final formatted code to the output file
         with output_file.open("w", encoding="utf-8") as fd:
