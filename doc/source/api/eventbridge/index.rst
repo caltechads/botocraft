@@ -32,5 +32,7 @@ Browse supported EventBridge wrappers by AWS service:
 
    codepipeline/index
    ecr/index
+   elasticsearch/index
    ecs/index
+   opensearch/index
    ssm/index

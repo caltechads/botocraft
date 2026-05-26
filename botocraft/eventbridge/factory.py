@@ -6,6 +6,8 @@ import boto3.session
 from .codepipeline import EVENT_CLASS_MAP as CODEPIPELINE_EVENT_CLASS_MAP
 from .ecr import EVENT_CLASS_MAP as ECR_EVENT_CLASS_MAP
 from .ecs import EVENT_CLASS_MAP as ECS_EVENT_CLASS_MAP
+from .elasticsearch import EVENT_CLASS_MAP as ELASTICSEARCH_EVENT_CLASS_MAP
+from .opensearch import EVENT_CLASS_MAP as OPENSEARCH_EVENT_CLASS_MAP
 from .ssm import EVENT_CLASS_MAP as SSM_EVENT_CLASS_MAP
 
 if TYPE_CHECKING:
@@ -85,5 +87,7 @@ class EventFactory(AbstractEventFactory):
         **CODEPIPELINE_EVENT_CLASS_MAP,
         **ECS_EVENT_CLASS_MAP,
         **ECR_EVENT_CLASS_MAP,
+        **ELASTICSEARCH_EVENT_CLASS_MAP,
+        **OPENSEARCH_EVENT_CLASS_MAP,
         **SSM_EVENT_CLASS_MAP,
     }
