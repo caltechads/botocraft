@@ -164,6 +164,8 @@ TaskDefinition:
       boto3_name: describe_task_definition
       response_attr: >-
         None
+      return_type: >-
+        "DescribeTaskDefinitionResponse | None"
       decorators:
         - name: ecs_task_definition_include_tags
           import_path: botocraft.mixins.ecs

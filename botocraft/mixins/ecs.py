@@ -16,6 +16,7 @@ if TYPE_CHECKING:
         Daemon,
         DaemonTaskDefinition,
         DeleteTaskDefinitionsResponse,
+        DescribeTaskDefinitionResponse,
         ECRImage,
         ExpressGatewayService,
         Failure,
@@ -159,23 +160,22 @@ def ecs_clusters_only(
 
 
 def ecs_task_definition_include_tags(
-    func: Callable[..., "TaskDefinition | None"],
+    func: Callable[..., "DescribeTaskDefinitionResponse | None"],
 ) -> Callable[..., "TaskDefinition | None"]:
     """
-    Decorator to convert a :py:class:`botocraft.services.ecs.TaskDefinition` object
-    to a :py:class:`botocraft.services.ecs.TaskDefinition` object with tags included.
+    Unwrap :py:class:`botocraft.services.ecs.DescribeTaskDefinitionResponse` and
+    attach top-level tags to the nested
+    :py:class:`botocraft.services.ecs.TaskDefinition`.
     """
 
     @wraps(func)
     def wrapper(self, *args, **kwargs) -> "TaskDefinition | None":
         response = func(self, *args, **kwargs)
-        if not response:
+        if not response or not response.taskDefinition:
             return None
-        # If we got a TaskDefinition object, we need to convert it to a
-        # TaskDefinition with tags.
-        _td = response.taskDefinition
-        _td.tags = response.tags
-        return cast("TaskDefinition", _td)
+        task_definition = response.taskDefinition
+        task_definition.tags = response.tags
+        return cast("TaskDefinition", task_definition)
 
     return wrapper
 

@@ -23,6 +23,7 @@ from botocraft.services.ecs import (
     ServiceRevisionManager,
     Task,
     TaskDefinition,
+    TaskDefinitionManager,
     TaskSet,
     TaskSetManager,
 )
@@ -454,6 +455,40 @@ class TestDaemonManager:
         assert manager.delete(created) is created
         manager.get.assert_called_with(daemonArn="daemon-arn-1")
         mock_client.delete_daemon.assert_called_once_with(daemonArn="daemon-arn-1")
+
+
+class TestTaskDefinitionManager:
+    @patch("boto3.client")
+    def test_get_unwraps_describe_task_definition(self, mock_boto3_client):
+        mock_client = MagicMock()
+        mock_client.describe_task_definition.return_value = {
+            "taskDefinition": {
+                "family": "acproxy",
+                "taskDefinitionArn": (
+                    "arn:aws:ecs:us-west-2:123456789012:task-definition/acproxy:42"
+                ),
+                "containerDefinitions": [
+                    {
+                        "name": "acproxy",
+                        "image": "nginx:latest",
+                        "essential": True,
+                    }
+                ],
+            },
+            "tags": [{"key": "Environment", "value": "qa"}],
+            "RetryAttempts": 0,
+        }
+        mock_boto3_client.return_value = mock_client
+
+        task_definition = TaskDefinitionManager().get("acproxy:42")
+
+        assert task_definition is not None
+        assert task_definition.family == "acproxy"
+        assert task_definition.tags["Environment"] == "qa"
+        mock_client.describe_task_definition.assert_called_once_with(
+            taskDefinition="acproxy:42",
+            include=["TAGS"],
+        )
 
 
 class TestDaemonTaskDefinitionManager:
