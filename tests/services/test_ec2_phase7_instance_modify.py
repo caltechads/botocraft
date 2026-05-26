@@ -5,8 +5,8 @@ from unittest.mock import MagicMock, patch
 from botocraft.services.ec2 import (
     AttributeBooleanValue,
     AttributeValue,
-    BlobAttributeValue,
     InstanceManager,
+    SecureBlobAttributeValue,
 )
 
 
@@ -97,7 +97,7 @@ class TestInstanceManagerModifyAttributes:
         manager = InstanceManager()
         manager.modify_user_data(
             "i-123",
-            UserData=BlobAttributeValue(Value="dGVzdA=="),
+            UserData=SecureBlobAttributeValue(Value=b"dGVzdA=="),
         )
 
         mock_client.modify_instance_attribute.assert_called_once_with(
