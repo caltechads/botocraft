@@ -3,6 +3,7 @@ from typing import TYPE_CHECKING, Any, ClassVar
 
 import boto3.session
 
+from .codepipeline import EVENT_CLASS_MAP as CODEPIPELINE_EVENT_CLASS_MAP
 from .ecr import EVENT_CLASS_MAP as ECR_EVENT_CLASS_MAP
 from .ecs import EVENT_CLASS_MAP as ECS_EVENT_CLASS_MAP
 from .ssm import EVENT_CLASS_MAP as SSM_EVENT_CLASS_MAP
@@ -81,6 +82,7 @@ class EventFactory(AbstractEventFactory):
 
     #: Default EventBridge wrapper mapping for supported services.
     event_class_map: ClassVar[dict[tuple[str, str], type["EventBridgeEvent"]]] = {
+        **CODEPIPELINE_EVENT_CLASS_MAP,
         **ECS_EVENT_CLASS_MAP,
         **ECR_EVENT_CLASS_MAP,
         **SSM_EVENT_CLASS_MAP,

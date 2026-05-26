@@ -30,6 +30,7 @@ Browse supported EventBridge wrappers by AWS service:
 .. toctree::
    :maxdepth: 1
 
+   codepipeline/index
    ecr/index
    ecs/index
    ssm/index

@@ -1,96 +1,6 @@
-from typing import Any, Protocol
-
 from . import raw as raw_ssm
 from .base import EventBridgeEvent
-
-
-def _first_resource(resources: list[str]) -> str | None:
-    """
-    Return the first resource ARN from an event payload.
-
-    Args:
-        resources: Resource ARNs carried on the EventBridge event.
-
-    Returns:
-        The first resource ARN when present, otherwise ``None``.
-
-    """
-    if not resources:
-        return None
-    return resources[0]
-
-
-class _EventSummaryProtocol(Protocol):
-    """
-    Structural type for the EventBridge metadata used in summary rendering.
-    """
-
-    #: AWS account that emitted the event.
-    account: str
-    #: Event source identifier.
-    source: str
-    #: Timestamp when EventBridge recorded the event.
-    time: Any
-    #: AWS region where the event was emitted.
-    region: str
-    #: Resources associated with the event.
-    resources: list[str]
-
-
-#: Index of the second resource in an EventBridge resources list.
-SECOND_RESOURCE_INDEX = 1
-#: Minimum resource count needed to safely read a second resource ARN.
-SECOND_RESOURCE_COUNT = 2
-
-
-def _second_resource(resources: list[str]) -> str | None:
-    """
-    Return the second resource ARN from an event payload.
-
-    Args:
-        resources: Resource ARNs carried on the EventBridge event.
-
-    Returns:
-        The second resource ARN when present, otherwise ``None``.
-
-    """
-    if len(resources) < SECOND_RESOURCE_COUNT:
-        return None
-    return resources[SECOND_RESOURCE_INDEX]
-
-
-def _event_summary(
-    event_name: str,
-    event: _EventSummaryProtocol,
-    **details: object,
-) -> str:
-    """
-    Build a readable string representation for an SSM event wrapper.
-
-    Args:
-        event_name: Human-readable event name shown in the summary.
-        event: Event instance being rendered.
-
-    Keyword Args:
-        details: Extra event-specific fields to append to the summary.
-
-    Returns:
-        Compact summary string for the event.
-
-    """
-    parts = [
-        f"account={event.account}",
-        f"source={event.source}",
-        f"time={event.time}",
-        f"region={event.region}",
-        f"resources={event.resources}",
-    ]
-    parts.extend(
-        f"{name}={value}"
-        for name, value in details.items()
-        if value is not None and value != ""
-    )
-    return f"<Event: {event_name}: " + ", ".join(parts) + ">"
+from .common import event_summary, first_resource, second_resource
 
 
 class SSMCalendarStateChangeEvent(
@@ -109,7 +19,7 @@ class SSMCalendarStateChangeEvent(
             Summary string for the calendar state transition event.
 
         """
-        return _event_summary(
+        return event_summary(
             "SSM Calendar State Change",
             self,
             state=self.detail.state,
@@ -125,7 +35,7 @@ class SSMCalendarStateChangeEvent(
             Calendar ARN when the event names one resource, otherwise ``None``.
 
         """
-        return _first_resource(self.resources)
+        return first_resource(self.resources)
 
     @property
     def is_open(self) -> bool:
@@ -166,7 +76,7 @@ class SSMEC2AutomationStepStatusChangeNotificationEvent(
             Summary string for the automation step status event.
 
         """
-        return _event_summary(
+        return event_summary(
             "SSM EC2 Automation Step Status-change Notification",
             self,
             execution_id=self.detail.ExecutionId,
@@ -184,7 +94,7 @@ class SSMEC2AutomationStepStatusChangeNotificationEvent(
             Execution ARN when the first resource is present, otherwise ``None``.
 
         """
-        return _first_resource(self.resources)
+        return first_resource(self.resources)
 
     @property
     def automation_definition_arn(self) -> str | None:
@@ -195,7 +105,7 @@ class SSMEC2AutomationStepStatusChangeNotificationEvent(
             Definition ARN when the second resource is present, otherwise ``None``.
 
         """
-        return _second_resource(self.resources)
+        return second_resource(self.resources)
 
 
 class SSMEC2AutomationExecutionStatusChangeNotificationEvent(
@@ -214,7 +124,7 @@ class SSMEC2AutomationExecutionStatusChangeNotificationEvent(
             Summary string for the automation execution status event.
 
         """
-        return _event_summary(
+        return event_summary(
             "SSM EC2 Automation Execution Status-change Notification",
             self,
             execution_id=self.detail.ExecutionId,
@@ -232,7 +142,7 @@ class SSMEC2AutomationExecutionStatusChangeNotificationEvent(
             Execution ARN when the first resource is present, otherwise ``None``.
 
         """
-        return _first_resource(self.resources)
+        return first_resource(self.resources)
 
     @property
     def automation_definition_arn(self) -> str | None:
@@ -243,7 +153,7 @@ class SSMEC2AutomationExecutionStatusChangeNotificationEvent(
             Definition ARN when the second resource is present, otherwise ``None``.
 
         """
-        return _second_resource(self.resources)
+        return second_resource(self.resources)
 
 
 class SSMChangeRequestStatusUpdateEvent(
@@ -262,7 +172,7 @@ class SSMChangeRequestStatusUpdateEvent(
             Summary string for the change request status event.
 
         """
-        return _event_summary(
+        return event_summary(
             "SSM Change Request Status Update",
             self,
             change_request_id=self.detail.change_request_id,
@@ -279,7 +189,7 @@ class SSMChangeRequestStatusUpdateEvent(
             OpsItem ARN when the first resource is present, otherwise ``None``.
 
         """
-        return _first_resource(self.resources)
+        return first_resource(self.resources)
 
     @property
     def runbook_document_arn(self) -> str:
@@ -309,7 +219,7 @@ class SSMConfigurationComplianceStateChangeEvent(
             Summary string for the compliance state change event.
 
         """
-        return _event_summary(
+        return event_summary(
             "SSM Configuration Compliance State Change",
             self,
             compliance_type=self.detail.compliance_type,
@@ -326,7 +236,7 @@ class SSMConfigurationComplianceStateChangeEvent(
             Resource ARN when one is present, otherwise ``None``.
 
         """
-        return _first_resource(self.resources)
+        return first_resource(self.resources)
 
     @property
     def is_compliant(self) -> bool:
@@ -356,7 +266,7 @@ class SSMMaintenanceWindowTargetRegistrationNotificationEvent(
             Summary string for the target registration event.
 
         """
-        return _event_summary(
+        return event_summary(
             "SSM Maintenance Window Target Registration Notification",
             self,
             window_id=self.detail.window_id,
@@ -373,7 +283,7 @@ class SSMMaintenanceWindowTargetRegistrationNotificationEvent(
             Maintenance window ARN when one is present, otherwise ``None``.
 
         """
-        return _first_resource(self.resources)
+        return first_resource(self.resources)
 
     @property
     def window_target_arn(self) -> str | None:
@@ -384,7 +294,7 @@ class SSMMaintenanceWindowTargetRegistrationNotificationEvent(
             Target ARN when the second resource is present, otherwise ``None``.
 
         """
-        return _second_resource(self.resources)
+        return second_resource(self.resources)
 
 
 class SSMMaintenanceWindowExecutionStateChangeNotificationEvent(
@@ -403,7 +313,7 @@ class SSMMaintenanceWindowExecutionStateChangeNotificationEvent(
             Summary string for the maintenance window execution event.
 
         """
-        return _event_summary(
+        return event_summary(
             "SSM Maintenance Window Execution State-change Notification",
             self,
             window_id=self.detail.window_id,
@@ -420,7 +330,7 @@ class SSMMaintenanceWindowExecutionStateChangeNotificationEvent(
             Maintenance window ARN when one is present, otherwise ``None``.
 
         """
-        return _first_resource(self.resources)
+        return first_resource(self.resources)
 
 
 class SSMMaintenanceWindowTaskExecutionStateChangeNotificationEvent(
@@ -439,7 +349,7 @@ class SSMMaintenanceWindowTaskExecutionStateChangeNotificationEvent(
             Summary string for the maintenance window task execution event.
 
         """
-        return _event_summary(
+        return event_summary(
             "SSM Maintenance Window Task Execution State-change Notification",
             self,
             window_id=self.detail.window_id,
@@ -456,7 +366,7 @@ class SSMMaintenanceWindowTaskExecutionStateChangeNotificationEvent(
             Maintenance window ARN when one is present, otherwise ``None``.
 
         """
-        return _first_resource(self.resources)
+        return first_resource(self.resources)
 
 
 class SSMMaintenanceWindowTaskTargetInvocationStateChangeNotificationEvent(
@@ -475,7 +385,7 @@ class SSMMaintenanceWindowTaskTargetInvocationStateChangeNotificationEvent(
             Summary string for the maintenance window task target invocation event.
 
         """
-        return _event_summary(
+        return event_summary(
             "SSM Maintenance Window Task Target Invocation State-change Notification",
             self,
             window_id=self.detail.window_id,
@@ -493,7 +403,7 @@ class SSMMaintenanceWindowTaskTargetInvocationStateChangeNotificationEvent(
             Maintenance window ARN when one is present, otherwise ``None``.
 
         """
-        return _first_resource(self.resources)
+        return first_resource(self.resources)
 
 
 class SSMMaintenanceWindowStateChangeNotificationEvent(
@@ -512,7 +422,7 @@ class SSMMaintenanceWindowStateChangeNotificationEvent(
             Summary string for the maintenance window state change event.
 
         """
-        return _event_summary(
+        return event_summary(
             "SSM Maintenance Window State-change Notification",
             self,
             window_id=self.detail.window_id,
@@ -528,7 +438,7 @@ class SSMMaintenanceWindowStateChangeNotificationEvent(
             Maintenance window ARN when one is present, otherwise ``None``.
 
         """
-        return _first_resource(self.resources)
+        return first_resource(self.resources)
 
 
 class SSMParameterStoreChangeEvent(
@@ -547,7 +457,7 @@ class SSMParameterStoreChangeEvent(
             Summary string for the parameter store change event.
 
         """
-        return _event_summary(
+        return event_summary(
             "SSM Parameter Store Change",
             self,
             operation=self.detail.operation,
@@ -564,7 +474,7 @@ class SSMParameterStoreChangeEvent(
             Parameter ARN when one is present, otherwise ``None``.
 
         """
-        return _first_resource(self.resources)
+        return first_resource(self.resources)
 
 
 class SSMOpsItemCreateEvent(
@@ -583,7 +493,7 @@ class SSMOpsItemCreateEvent(
             Summary string for the OpsItem creation event.
 
         """
-        return _event_summary(
+        return event_summary(
             "SSM OpsItem Create",
             self,
             ops_item_id=self.detail.ops_item_id,
@@ -600,7 +510,7 @@ class SSMOpsItemCreateEvent(
             OpsItem ARN when one is present, otherwise ``None``.
 
         """
-        return _first_resource(self.resources)
+        return first_resource(self.resources)
 
 
 class SSMOpsItemUpdateEvent(
@@ -619,7 +529,7 @@ class SSMOpsItemUpdateEvent(
             Summary string for the OpsItem update event.
 
         """
-        return _event_summary(
+        return event_summary(
             "SSM OpsItem Update",
             self,
             ops_item_id=self.detail.ops_item_id,
@@ -636,7 +546,7 @@ class SSMOpsItemUpdateEvent(
             OpsItem ARN when one is present, otherwise ``None``.
 
         """
-        return _first_resource(self.resources)
+        return first_resource(self.resources)
 
 
 class SSMEC2CommandStatusChangeNotificationEvent(
@@ -655,7 +565,7 @@ class SSMEC2CommandStatusChangeNotificationEvent(
             Summary string for the command status event.
 
         """
-        return _event_summary(
+        return event_summary(
             "SSM EC2 Command Status-change Notification",
             self,
             command_id=self.detail.command_id,
@@ -672,7 +582,7 @@ class SSMEC2CommandStatusChangeNotificationEvent(
             Instance ARN when one is present, otherwise ``None``.
 
         """
-        return _first_resource(self.resources)
+        return first_resource(self.resources)
 
 
 class SSMEC2CommandInvocationStatusChangeNotificationEvent(
@@ -691,7 +601,7 @@ class SSMEC2CommandInvocationStatusChangeNotificationEvent(
             Summary string for the command invocation event.
 
         """
-        return _event_summary(
+        return event_summary(
             "SSM EC2 Command Invocation Status-change Notification",
             self,
             command_id=self.detail.command_id,
@@ -709,7 +619,7 @@ class SSMEC2CommandInvocationStatusChangeNotificationEvent(
             Instance ARN when one is present, otherwise ``None``.
 
         """
-        return _first_resource(self.resources)
+        return first_resource(self.resources)
 
 
 class SSMEC2StateManagerAssociationStateChangeEvent(
@@ -728,7 +638,7 @@ class SSMEC2StateManagerAssociationStateChangeEvent(
             Summary string for the association state change event.
 
         """
-        return _event_summary(
+        return event_summary(
             "SSM EC2 State Manager Association State Change",
             self,
             association_id=self.detail.association_id,
@@ -745,7 +655,7 @@ class SSMEC2StateManagerAssociationStateChangeEvent(
             Document ARN when one is present, otherwise ``None``.
 
         """
-        return _first_resource(self.resources)
+        return first_resource(self.resources)
 
 
 class SSMEC2StateManagerInstanceAssociationStateChangeEvent(
@@ -764,7 +674,7 @@ class SSMEC2StateManagerInstanceAssociationStateChangeEvent(
             Summary string for the instance association state change event.
 
         """
-        return _event_summary(
+        return event_summary(
             "SSM EC2 State Manager Instance Association State Change",
             self,
             association_id=self.detail.association_id,
@@ -782,7 +692,7 @@ class SSMEC2StateManagerInstanceAssociationStateChangeEvent(
             Instance ARN when one is present, otherwise ``None``.
 
         """
-        return _first_resource(self.resources)
+        return first_resource(self.resources)
 
     @property
     def document_arn(self) -> str | None:
@@ -793,7 +703,7 @@ class SSMEC2StateManagerInstanceAssociationStateChangeEvent(
             Document ARN when the second resource is present, otherwise ``None``.
 
         """
-        return _second_resource(self.resources)
+        return second_resource(self.resources)
 
 
 #: Declarative mapping from EventBridge source/detail-type pairs to wrappers.
