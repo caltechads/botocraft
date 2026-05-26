@@ -2,6 +2,7 @@ from dataclasses import dataclass
 from typing import TYPE_CHECKING, cast
 
 from .base import EventBridgeEvent
+from .common import CloudTrailApiCallMixin
 from .raw import (
     ECSAWSAPICallViaCloudTrailEvent as RawECSAWSAPICallViaCloudTrailEvent,
 )
@@ -335,7 +336,9 @@ class ECSServiceDeploymentStateChangeEvent(
 
 
 class ECSAWSAPICallViaCloudTrailEvent(
-    EventBridgeEvent, RawECSAWSAPICallViaCloudTrailEvent
+    CloudTrailApiCallMixin,
+    EventBridgeEvent,
+    RawECSAWSAPICallViaCloudTrailEvent,
 ):
     """
     EventBridge event for ECS API call via CloudTrail.

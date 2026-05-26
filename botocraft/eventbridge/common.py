@@ -1,5 +1,20 @@
 from typing import Any, Protocol
 
+from .cloudtrail import CloudTrailApiCallDetailProtocol, CloudTrailApiCallMixin
+
+__all__ = [
+    "FIRST_RESOURCE_COUNT",
+    "FIRST_RESOURCE_INDEX",
+    "SECOND_RESOURCE_COUNT",
+    "SECOND_RESOURCE_INDEX",
+    "CloudTrailApiCallDetailProtocol",
+    "CloudTrailApiCallMixin",
+    "EventSummaryProtocol",
+    "event_summary",
+    "first_resource",
+    "second_resource",
+]
+
 
 class EventSummaryProtocol(Protocol):
     """

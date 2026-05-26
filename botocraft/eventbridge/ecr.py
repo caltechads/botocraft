@@ -2,6 +2,7 @@ from functools import cached_property
 from typing import TYPE_CHECKING
 
 from .base import EventBridgeEvent
+from .common import CloudTrailApiCallMixin
 from .raw import (
     ECRAWSAPICallViaCloudTrailEvent as RawECRAWSAPICallViaCloudTrailEvent,
 )
@@ -309,7 +310,9 @@ class ECRScanResourceChangeEvent(EventBridgeEvent, RawECRScanResourceChangeEvent
 
 
 class ECRAWSAPICallViaCloudTrailEvent(
-    EventBridgeEvent, RawECRAWSAPICallViaCloudTrailEvent
+    CloudTrailApiCallMixin,
+    EventBridgeEvent,
+    RawECRAWSAPICallViaCloudTrailEvent,
 ):
     """
     ECR AWS API Call Via CloudTrail Event class.

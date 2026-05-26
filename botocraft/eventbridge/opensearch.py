@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from botocraft.eventbridge.base import EventBridgeEvent
-from botocraft.eventbridge.common import event_summary
+from botocraft.eventbridge.common import CloudTrailApiCallMixin, event_summary
 from botocraft.eventbridge.raw import (
     ElasticsearchAutoTuneNotificationEvent as RawOSAutoTuneEvent,
 )
@@ -249,6 +249,7 @@ class OpenSearchVPCEndpointNotificationEvent(
 
 
 class OpenSearchAWSAPICallViaCloudTrailEvent(
+    CloudTrailApiCallMixin,
     SearchServiceDomainEvent,
     EventBridgeEvent,
     RawOSAWSAPICallEvent,

@@ -2,7 +2,7 @@ from typing import TYPE_CHECKING
 
 from . import raw as raw_codepipeline
 from .base import EventBridgeEvent
-from .common import event_summary, first_resource
+from .common import CloudTrailApiCallMixin, event_summary, first_resource
 
 if TYPE_CHECKING:
     from botocraft.services.codepipeline import Pipeline, PipelineExecution
@@ -228,6 +228,7 @@ class CodePipelineActionExecutionStateChangeEvent(
 
 
 class CodePipelineAWSAPICallViaCloudTrailEvent(
+    CloudTrailApiCallMixin,
     EventBridgeEvent,
     raw_codepipeline.CodepipelineAWSAPICallViaCloudTrailEvent,
 ):
