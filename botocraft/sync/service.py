@@ -1265,14 +1265,18 @@ class ModelGenerator(AbstractGenerator):
             # represent the tags in the model.  This is used by TagsDictMixin
             # to convert the tags to a dictionary of tag key/value pairs.
             code += (
-                f"    tag_class: ClassVar[type[Boto3Model]] = {tags_dao.tag_class}\n"
+                "    tag_class: ClassVar[ModelType[Boto3Model]] = "
+                f"{tags_dao.tag_class}\n"
             )
         if "PrimaryBoto3Model" in base_class:
             if model_def.alternate_name:
                 manager_name = f"{model_def.alternate_name}Manager"
             else:
                 manager_name = f"{model_name}Manager"
-            code += f"    manager_class: ClassVar[type[Boto3ModelManager]] = {manager_name}\n\n"  # noqa: E501
+            code += (
+                f"    manager_class: ClassVar[ModelType[Boto3ModelManager]] = "
+                f"{manager_name}\n\n"
+            )
         if field_code:
             code += "\n".join(field_code)
         if properties:
@@ -1455,7 +1459,7 @@ class ServiceGenerator:
         self.imports: set[str] = {
             "import builtins",
             "from datetime import datetime",
-            "from typing import ClassVar, Literal, Any, cast",
+            "from typing import ClassVar, Literal, Any, Type as ModelType, cast",
             "from pydantic import Field",
             "from .abstract import Boto3Model, ReadonlyBoto3Model, PrimaryBoto3Model, "
             "ReadonlyPrimaryBoto3Model, Boto3ModelManager, ReadonlyBoto3ModelManager",
