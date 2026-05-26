@@ -1,6 +1,6 @@
 {
   "generated_at_utc": "2026-05-12T22:22:37.418660+00:00",
-  "violation_count": 6503,
+  "violation_count": 6610,
   "violations": [
     {
       "key": "/Users/cmalek/src/workspace/botocraft/bin/check_napoleon_gate.py:11:DOC302:RETURNS_SECTIONS",
@@ -52025,6 +52025,862 @@
       "code": "DOC205",
       "symbol": "ServiceSphinxDocBuilder.body",
       "message": "Missing required Napoleon section 'Returns:' or 'Yields:' for function with yielded/returned value."
+    },
+    {
+      "key": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/acm/acmcertificateapproachingexpiration.py:10:DOC100:ACMCertificateApproachingExpiration",
+      "path": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/acm/acmcertificateapproachingexpiration.py",
+      "line": 10,
+      "code": "DOC100",
+      "symbol": "ACMCertificateApproachingExpiration",
+      "message": "Missing class docstring."
+    },
+    {
+      "key": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/acm/acmcertificateapproachingexpiration.py:11:DOC300:ACMCertificateApproachingExpiration.DaysToExpiry",
+      "path": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/acm/acmcertificateapproachingexpiration.py",
+      "line": 11,
+      "code": "DOC300",
+      "symbol": "ACMCertificateApproachingExpiration.DaysToExpiry",
+      "message": "Class attribute missing '#:' documentation."
+    },
+    {
+      "key": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/acm/acmcertificateapproachingexpiration.py:12:DOC300:ACMCertificateApproachingExpiration.Exportable",
+      "path": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/acm/acmcertificateapproachingexpiration.py",
+      "line": 12,
+      "code": "DOC300",
+      "symbol": "ACMCertificateApproachingExpiration.Exportable",
+      "message": "Class attribute missing '#:' documentation."
+    },
+    {
+      "key": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/acm/acmcertificateapproachingexpiration.py:15:DOC100:ACMACMCertificateApproachingExpirationEvent",
+      "path": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/acm/acmcertificateapproachingexpiration.py",
+      "line": 15,
+      "code": "DOC100",
+      "symbol": "ACMACMCertificateApproachingExpirationEvent",
+      "message": "Missing class docstring."
+    },
+    {
+      "key": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/acm/acmcertificateapproachingexpiration.py:16:DOC300:ACMACMCertificateApproachingExpirationEvent.account",
+      "path": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/acm/acmcertificateapproachingexpiration.py",
+      "line": 16,
+      "code": "DOC300",
+      "symbol": "ACMACMCertificateApproachingExpirationEvent.account",
+      "message": "Class attribute missing '#:' documentation."
+    },
+    {
+      "key": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/acm/acmcertificateapproachingexpiration.py:17:DOC300:ACMACMCertificateApproachingExpirationEvent.detail",
+      "path": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/acm/acmcertificateapproachingexpiration.py",
+      "line": 17,
+      "code": "DOC300",
+      "symbol": "ACMACMCertificateApproachingExpirationEvent.detail",
+      "message": "Class attribute missing '#:' documentation."
+    },
+    {
+      "key": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/acm/acmcertificateapproachingexpiration.py:18:DOC300:ACMACMCertificateApproachingExpirationEvent.detail_type",
+      "path": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/acm/acmcertificateapproachingexpiration.py",
+      "line": 18,
+      "code": "DOC300",
+      "symbol": "ACMACMCertificateApproachingExpirationEvent.detail_type",
+      "message": "Class attribute missing '#:' documentation."
+    },
+    {
+      "key": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/acm/acmcertificateapproachingexpiration.py:19:DOC300:ACMACMCertificateApproachingExpirationEvent.id",
+      "path": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/acm/acmcertificateapproachingexpiration.py",
+      "line": 19,
+      "code": "DOC300",
+      "symbol": "ACMACMCertificateApproachingExpirationEvent.id",
+      "message": "Class attribute missing '#:' documentation."
+    },
+    {
+      "key": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/acm/acmcertificateapproachingexpiration.py:20:DOC300:ACMACMCertificateApproachingExpirationEvent.region",
+      "path": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/acm/acmcertificateapproachingexpiration.py",
+      "line": 20,
+      "code": "DOC300",
+      "symbol": "ACMACMCertificateApproachingExpirationEvent.region",
+      "message": "Class attribute missing '#:' documentation."
+    },
+    {
+      "key": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/acm/acmcertificateapproachingexpiration.py:21:DOC300:ACMACMCertificateApproachingExpirationEvent.resources",
+      "path": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/acm/acmcertificateapproachingexpiration.py",
+      "line": 21,
+      "code": "DOC300",
+      "symbol": "ACMACMCertificateApproachingExpirationEvent.resources",
+      "message": "Class attribute missing '#:' documentation."
+    },
+    {
+      "key": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/acm/acmcertificateapproachingexpiration.py:22:DOC300:ACMACMCertificateApproachingExpirationEvent.source",
+      "path": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/acm/acmcertificateapproachingexpiration.py",
+      "line": 22,
+      "code": "DOC300",
+      "symbol": "ACMACMCertificateApproachingExpirationEvent.source",
+      "message": "Class attribute missing '#:' documentation."
+    },
+    {
+      "key": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/acm/acmcertificateapproachingexpiration.py:23:DOC300:ACMACMCertificateApproachingExpirationEvent.time",
+      "path": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/acm/acmcertificateapproachingexpiration.py",
+      "line": 23,
+      "code": "DOC300",
+      "symbol": "ACMACMCertificateApproachingExpirationEvent.time",
+      "message": "Class attribute missing '#:' documentation."
+    },
+    {
+      "key": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/acm/acmcertificateapproachingexpiration.py:24:DOC300:ACMACMCertificateApproachingExpirationEvent.version",
+      "path": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/acm/acmcertificateapproachingexpiration.py",
+      "line": 24,
+      "code": "DOC300",
+      "symbol": "ACMACMCertificateApproachingExpirationEvent.version",
+      "message": "Class attribute missing '#:' documentation."
+    },
+    {
+      "key": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/acm/acmcertificateavailable.py:10:DOC100:ACMCertificateAvailable",
+      "path": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/acm/acmcertificateavailable.py",
+      "line": 10,
+      "code": "DOC100",
+      "symbol": "ACMCertificateAvailable",
+      "message": "Missing class docstring."
+    },
+    {
+      "key": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/acm/acmcertificateavailable.py:11:DOC300:ACMCertificateAvailable.Action",
+      "path": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/acm/acmcertificateavailable.py",
+      "line": 11,
+      "code": "DOC300",
+      "symbol": "ACMCertificateAvailable.Action",
+      "message": "Class attribute missing '#:' documentation."
+    },
+    {
+      "key": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/acm/acmcertificateavailable.py:12:DOC300:ACMCertificateAvailable.CertificateCreatedDate",
+      "path": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/acm/acmcertificateavailable.py",
+      "line": 12,
+      "code": "DOC300",
+      "symbol": "ACMCertificateAvailable.CertificateCreatedDate",
+      "message": "Class attribute missing '#:' documentation."
+    },
+    {
+      "key": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/acm/acmcertificateavailable.py:13:DOC300:ACMCertificateAvailable.CertificateExpirationDate",
+      "path": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/acm/acmcertificateavailable.py",
+      "line": 13,
+      "code": "DOC300",
+      "symbol": "ACMCertificateAvailable.CertificateExpirationDate",
+      "message": "Class attribute missing '#:' documentation."
+    },
+    {
+      "key": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/acm/acmcertificateavailable.py:14:DOC300:ACMCertificateAvailable.CertificateType",
+      "path": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/acm/acmcertificateavailable.py",
+      "line": 14,
+      "code": "DOC300",
+      "symbol": "ACMCertificateAvailable.CertificateType",
+      "message": "Class attribute missing '#:' documentation."
+    },
+    {
+      "key": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/acm/acmcertificateavailable.py:15:DOC300:ACMCertificateAvailable.CommonName",
+      "path": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/acm/acmcertificateavailable.py",
+      "line": 15,
+      "code": "DOC300",
+      "symbol": "ACMCertificateAvailable.CommonName",
+      "message": "Class attribute missing '#:' documentation."
+    },
+    {
+      "key": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/acm/acmcertificateavailable.py:16:DOC300:ACMCertificateAvailable.DaysToExpiry",
+      "path": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/acm/acmcertificateavailable.py",
+      "line": 16,
+      "code": "DOC300",
+      "symbol": "ACMCertificateAvailable.DaysToExpiry",
+      "message": "Class attribute missing '#:' documentation."
+    },
+    {
+      "key": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/acm/acmcertificateavailable.py:17:DOC300:ACMCertificateAvailable.DomainValidationMethod",
+      "path": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/acm/acmcertificateavailable.py",
+      "line": 17,
+      "code": "DOC300",
+      "symbol": "ACMCertificateAvailable.DomainValidationMethod",
+      "message": "Class attribute missing '#:' documentation."
+    },
+    {
+      "key": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/acm/acmcertificateavailable.py:18:DOC300:ACMCertificateAvailable.Exportable",
+      "path": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/acm/acmcertificateavailable.py",
+      "line": 18,
+      "code": "DOC300",
+      "symbol": "ACMCertificateAvailable.Exportable",
+      "message": "Class attribute missing '#:' documentation."
+    },
+    {
+      "key": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/acm/acmcertificateavailable.py:19:DOC300:ACMCertificateAvailable.Exported",
+      "path": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/acm/acmcertificateavailable.py",
+      "line": 19,
+      "code": "DOC300",
+      "symbol": "ACMCertificateAvailable.Exported",
+      "message": "Class attribute missing '#:' documentation."
+    },
+    {
+      "key": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/acm/acmcertificateavailable.py:20:DOC300:ACMCertificateAvailable.InUse",
+      "path": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/acm/acmcertificateavailable.py",
+      "line": 20,
+      "code": "DOC300",
+      "symbol": "ACMCertificateAvailable.InUse",
+      "message": "Class attribute missing '#:' documentation."
+    },
+    {
+      "key": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/acm/acmcertificateavailable.py:23:DOC100:ACMACMCertificateAvailableEvent",
+      "path": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/acm/acmcertificateavailable.py",
+      "line": 23,
+      "code": "DOC100",
+      "symbol": "ACMACMCertificateAvailableEvent",
+      "message": "Missing class docstring."
+    },
+    {
+      "key": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/acm/acmcertificateavailable.py:24:DOC300:ACMACMCertificateAvailableEvent.account",
+      "path": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/acm/acmcertificateavailable.py",
+      "line": 24,
+      "code": "DOC300",
+      "symbol": "ACMACMCertificateAvailableEvent.account",
+      "message": "Class attribute missing '#:' documentation."
+    },
+    {
+      "key": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/acm/acmcertificateavailable.py:25:DOC300:ACMACMCertificateAvailableEvent.detail",
+      "path": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/acm/acmcertificateavailable.py",
+      "line": 25,
+      "code": "DOC300",
+      "symbol": "ACMACMCertificateAvailableEvent.detail",
+      "message": "Class attribute missing '#:' documentation."
+    },
+    {
+      "key": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/acm/acmcertificateavailable.py:26:DOC300:ACMACMCertificateAvailableEvent.detail_type",
+      "path": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/acm/acmcertificateavailable.py",
+      "line": 26,
+      "code": "DOC300",
+      "symbol": "ACMACMCertificateAvailableEvent.detail_type",
+      "message": "Class attribute missing '#:' documentation."
+    },
+    {
+      "key": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/acm/acmcertificateavailable.py:27:DOC300:ACMACMCertificateAvailableEvent.id",
+      "path": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/acm/acmcertificateavailable.py",
+      "line": 27,
+      "code": "DOC300",
+      "symbol": "ACMACMCertificateAvailableEvent.id",
+      "message": "Class attribute missing '#:' documentation."
+    },
+    {
+      "key": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/acm/acmcertificateavailable.py:28:DOC300:ACMACMCertificateAvailableEvent.region",
+      "path": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/acm/acmcertificateavailable.py",
+      "line": 28,
+      "code": "DOC300",
+      "symbol": "ACMACMCertificateAvailableEvent.region",
+      "message": "Class attribute missing '#:' documentation."
+    },
+    {
+      "key": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/acm/acmcertificateavailable.py:29:DOC300:ACMACMCertificateAvailableEvent.resources",
+      "path": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/acm/acmcertificateavailable.py",
+      "line": 29,
+      "code": "DOC300",
+      "symbol": "ACMACMCertificateAvailableEvent.resources",
+      "message": "Class attribute missing '#:' documentation."
+    },
+    {
+      "key": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/acm/acmcertificateavailable.py:30:DOC300:ACMACMCertificateAvailableEvent.source",
+      "path": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/acm/acmcertificateavailable.py",
+      "line": 30,
+      "code": "DOC300",
+      "symbol": "ACMACMCertificateAvailableEvent.source",
+      "message": "Class attribute missing '#:' documentation."
+    },
+    {
+      "key": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/acm/acmcertificateavailable.py:31:DOC300:ACMACMCertificateAvailableEvent.time",
+      "path": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/acm/acmcertificateavailable.py",
+      "line": 31,
+      "code": "DOC300",
+      "symbol": "ACMACMCertificateAvailableEvent.time",
+      "message": "Class attribute missing '#:' documentation."
+    },
+    {
+      "key": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/acm/acmcertificateavailable.py:32:DOC300:ACMACMCertificateAvailableEvent.version",
+      "path": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/acm/acmcertificateavailable.py",
+      "line": 32,
+      "code": "DOC300",
+      "symbol": "ACMACMCertificateAvailableEvent.version",
+      "message": "Class attribute missing '#:' documentation."
+    },
+    {
+      "key": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/acm/acmcertificateexpired.py:10:DOC100:ACMCertificateExpired",
+      "path": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/acm/acmcertificateexpired.py",
+      "line": 10,
+      "code": "DOC100",
+      "symbol": "ACMCertificateExpired",
+      "message": "Missing class docstring."
+    },
+    {
+      "key": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/acm/acmcertificateexpired.py:11:DOC300:ACMCertificateExpired.CertificateCreatedDate",
+      "path": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/acm/acmcertificateexpired.py",
+      "line": 11,
+      "code": "DOC300",
+      "symbol": "ACMCertificateExpired.CertificateCreatedDate",
+      "message": "Class attribute missing '#:' documentation."
+    },
+    {
+      "key": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/acm/acmcertificateexpired.py:12:DOC300:ACMCertificateExpired.CertificateExpirationDate",
+      "path": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/acm/acmcertificateexpired.py",
+      "line": 12,
+      "code": "DOC300",
+      "symbol": "ACMCertificateExpired.CertificateExpirationDate",
+      "message": "Class attribute missing '#:' documentation."
+    },
+    {
+      "key": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/acm/acmcertificateexpired.py:13:DOC300:ACMCertificateExpired.CertificateType",
+      "path": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/acm/acmcertificateexpired.py",
+      "line": 13,
+      "code": "DOC300",
+      "symbol": "ACMCertificateExpired.CertificateType",
+      "message": "Class attribute missing '#:' documentation."
+    },
+    {
+      "key": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/acm/acmcertificateexpired.py:14:DOC300:ACMCertificateExpired.CommonName",
+      "path": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/acm/acmcertificateexpired.py",
+      "line": 14,
+      "code": "DOC300",
+      "symbol": "ACMCertificateExpired.CommonName",
+      "message": "Class attribute missing '#:' documentation."
+    },
+    {
+      "key": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/acm/acmcertificateexpired.py:15:DOC300:ACMCertificateExpired.DomainValidationMethod",
+      "path": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/acm/acmcertificateexpired.py",
+      "line": 15,
+      "code": "DOC300",
+      "symbol": "ACMCertificateExpired.DomainValidationMethod",
+      "message": "Class attribute missing '#:' documentation."
+    },
+    {
+      "key": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/acm/acmcertificateexpired.py:16:DOC300:ACMCertificateExpired.Exportable",
+      "path": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/acm/acmcertificateexpired.py",
+      "line": 16,
+      "code": "DOC300",
+      "symbol": "ACMCertificateExpired.Exportable",
+      "message": "Class attribute missing '#:' documentation."
+    },
+    {
+      "key": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/acm/acmcertificateexpired.py:17:DOC300:ACMCertificateExpired.Exported",
+      "path": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/acm/acmcertificateexpired.py",
+      "line": 17,
+      "code": "DOC300",
+      "symbol": "ACMCertificateExpired.Exported",
+      "message": "Class attribute missing '#:' documentation."
+    },
+    {
+      "key": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/acm/acmcertificateexpired.py:18:DOC300:ACMCertificateExpired.InUse",
+      "path": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/acm/acmcertificateexpired.py",
+      "line": 18,
+      "code": "DOC300",
+      "symbol": "ACMCertificateExpired.InUse",
+      "message": "Class attribute missing '#:' documentation."
+    },
+    {
+      "key": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/acm/acmcertificateexpired.py:21:DOC100:ACMACMCertificateExpiredEvent",
+      "path": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/acm/acmcertificateexpired.py",
+      "line": 21,
+      "code": "DOC100",
+      "symbol": "ACMACMCertificateExpiredEvent",
+      "message": "Missing class docstring."
+    },
+    {
+      "key": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/acm/acmcertificateexpired.py:22:DOC300:ACMACMCertificateExpiredEvent.account",
+      "path": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/acm/acmcertificateexpired.py",
+      "line": 22,
+      "code": "DOC300",
+      "symbol": "ACMACMCertificateExpiredEvent.account",
+      "message": "Class attribute missing '#:' documentation."
+    },
+    {
+      "key": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/acm/acmcertificateexpired.py:23:DOC300:ACMACMCertificateExpiredEvent.detail",
+      "path": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/acm/acmcertificateexpired.py",
+      "line": 23,
+      "code": "DOC300",
+      "symbol": "ACMACMCertificateExpiredEvent.detail",
+      "message": "Class attribute missing '#:' documentation."
+    },
+    {
+      "key": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/acm/acmcertificateexpired.py:24:DOC300:ACMACMCertificateExpiredEvent.detail_type",
+      "path": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/acm/acmcertificateexpired.py",
+      "line": 24,
+      "code": "DOC300",
+      "symbol": "ACMACMCertificateExpiredEvent.detail_type",
+      "message": "Class attribute missing '#:' documentation."
+    },
+    {
+      "key": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/acm/acmcertificateexpired.py:25:DOC300:ACMACMCertificateExpiredEvent.id",
+      "path": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/acm/acmcertificateexpired.py",
+      "line": 25,
+      "code": "DOC300",
+      "symbol": "ACMACMCertificateExpiredEvent.id",
+      "message": "Class attribute missing '#:' documentation."
+    },
+    {
+      "key": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/acm/acmcertificateexpired.py:26:DOC300:ACMACMCertificateExpiredEvent.region",
+      "path": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/acm/acmcertificateexpired.py",
+      "line": 26,
+      "code": "DOC300",
+      "symbol": "ACMACMCertificateExpiredEvent.region",
+      "message": "Class attribute missing '#:' documentation."
+    },
+    {
+      "key": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/acm/acmcertificateexpired.py:27:DOC300:ACMACMCertificateExpiredEvent.resources",
+      "path": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/acm/acmcertificateexpired.py",
+      "line": 27,
+      "code": "DOC300",
+      "symbol": "ACMACMCertificateExpiredEvent.resources",
+      "message": "Class attribute missing '#:' documentation."
+    },
+    {
+      "key": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/acm/acmcertificateexpired.py:28:DOC300:ACMACMCertificateExpiredEvent.source",
+      "path": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/acm/acmcertificateexpired.py",
+      "line": 28,
+      "code": "DOC300",
+      "symbol": "ACMACMCertificateExpiredEvent.source",
+      "message": "Class attribute missing '#:' documentation."
+    },
+    {
+      "key": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/acm/acmcertificateexpired.py:29:DOC300:ACMACMCertificateExpiredEvent.time",
+      "path": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/acm/acmcertificateexpired.py",
+      "line": 29,
+      "code": "DOC300",
+      "symbol": "ACMACMCertificateExpiredEvent.time",
+      "message": "Class attribute missing '#:' documentation."
+    },
+    {
+      "key": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/acm/acmcertificateexpired.py:30:DOC300:ACMACMCertificateExpiredEvent.version",
+      "path": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/acm/acmcertificateexpired.py",
+      "line": 30,
+      "code": "DOC300",
+      "symbol": "ACMACMCertificateExpiredEvent.version",
+      "message": "Class attribute missing '#:' documentation."
+    },
+    {
+      "key": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/acm/acmcertificaterenewalactionrequired.py:10:DOC100:ACMCertificateRenewalActionRequired",
+      "path": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/acm/acmcertificaterenewalactionrequired.py",
+      "line": 10,
+      "code": "DOC100",
+      "symbol": "ACMCertificateRenewalActionRequired",
+      "message": "Missing class docstring."
+    },
+    {
+      "key": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/acm/acmcertificaterenewalactionrequired.py:11:DOC300:ACMCertificateRenewalActionRequired.CertificateCreatedDate",
+      "path": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/acm/acmcertificaterenewalactionrequired.py",
+      "line": 11,
+      "code": "DOC300",
+      "symbol": "ACMCertificateRenewalActionRequired.CertificateCreatedDate",
+      "message": "Class attribute missing '#:' documentation."
+    },
+    {
+      "key": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/acm/acmcertificaterenewalactionrequired.py:12:DOC300:ACMCertificateRenewalActionRequired.CertificateExpirationDate",
+      "path": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/acm/acmcertificaterenewalactionrequired.py",
+      "line": 12,
+      "code": "DOC300",
+      "symbol": "ACMCertificateRenewalActionRequired.CertificateExpirationDate",
+      "message": "Class attribute missing '#:' documentation."
+    },
+    {
+      "key": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/acm/acmcertificaterenewalactionrequired.py:13:DOC300:ACMCertificateRenewalActionRequired.CertificateType",
+      "path": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/acm/acmcertificaterenewalactionrequired.py",
+      "line": 13,
+      "code": "DOC300",
+      "symbol": "ACMCertificateRenewalActionRequired.CertificateType",
+      "message": "Class attribute missing '#:' documentation."
+    },
+    {
+      "key": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/acm/acmcertificaterenewalactionrequired.py:14:DOC300:ACMCertificateRenewalActionRequired.CommonName",
+      "path": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/acm/acmcertificaterenewalactionrequired.py",
+      "line": 14,
+      "code": "DOC300",
+      "symbol": "ACMCertificateRenewalActionRequired.CommonName",
+      "message": "Class attribute missing '#:' documentation."
+    },
+    {
+      "key": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/acm/acmcertificaterenewalactionrequired.py:15:DOC300:ACMCertificateRenewalActionRequired.DaysToExpiry",
+      "path": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/acm/acmcertificaterenewalactionrequired.py",
+      "line": 15,
+      "code": "DOC300",
+      "symbol": "ACMCertificateRenewalActionRequired.DaysToExpiry",
+      "message": "Class attribute missing '#:' documentation."
+    },
+    {
+      "key": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/acm/acmcertificaterenewalactionrequired.py:16:DOC300:ACMCertificateRenewalActionRequired.DomainValidationMethod",
+      "path": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/acm/acmcertificaterenewalactionrequired.py",
+      "line": 16,
+      "code": "DOC300",
+      "symbol": "ACMCertificateRenewalActionRequired.DomainValidationMethod",
+      "message": "Class attribute missing '#:' documentation."
+    },
+    {
+      "key": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/acm/acmcertificaterenewalactionrequired.py:17:DOC300:ACMCertificateRenewalActionRequired.Exportable",
+      "path": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/acm/acmcertificaterenewalactionrequired.py",
+      "line": 17,
+      "code": "DOC300",
+      "symbol": "ACMCertificateRenewalActionRequired.Exportable",
+      "message": "Class attribute missing '#:' documentation."
+    },
+    {
+      "key": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/acm/acmcertificaterenewalactionrequired.py:18:DOC300:ACMCertificateRenewalActionRequired.Exported",
+      "path": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/acm/acmcertificaterenewalactionrequired.py",
+      "line": 18,
+      "code": "DOC300",
+      "symbol": "ACMCertificateRenewalActionRequired.Exported",
+      "message": "Class attribute missing '#:' documentation."
+    },
+    {
+      "key": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/acm/acmcertificaterenewalactionrequired.py:19:DOC300:ACMCertificateRenewalActionRequired.InUse",
+      "path": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/acm/acmcertificaterenewalactionrequired.py",
+      "line": 19,
+      "code": "DOC300",
+      "symbol": "ACMCertificateRenewalActionRequired.InUse",
+      "message": "Class attribute missing '#:' documentation."
+    },
+    {
+      "key": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/acm/acmcertificaterenewalactionrequired.py:20:DOC300:ACMCertificateRenewalActionRequired.RenewalStatusReason",
+      "path": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/acm/acmcertificaterenewalactionrequired.py",
+      "line": 20,
+      "code": "DOC300",
+      "symbol": "ACMCertificateRenewalActionRequired.RenewalStatusReason",
+      "message": "Class attribute missing '#:' documentation."
+    },
+    {
+      "key": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/acm/acmcertificaterenewalactionrequired.py:23:DOC100:ACMACMCertificateRenewalActionRequiredEvent",
+      "path": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/acm/acmcertificaterenewalactionrequired.py",
+      "line": 23,
+      "code": "DOC100",
+      "symbol": "ACMACMCertificateRenewalActionRequiredEvent",
+      "message": "Missing class docstring."
+    },
+    {
+      "key": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/acm/acmcertificaterenewalactionrequired.py:24:DOC300:ACMACMCertificateRenewalActionRequiredEvent.account",
+      "path": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/acm/acmcertificaterenewalactionrequired.py",
+      "line": 24,
+      "code": "DOC300",
+      "symbol": "ACMACMCertificateRenewalActionRequiredEvent.account",
+      "message": "Class attribute missing '#:' documentation."
+    },
+    {
+      "key": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/acm/acmcertificaterenewalactionrequired.py:25:DOC300:ACMACMCertificateRenewalActionRequiredEvent.detail",
+      "path": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/acm/acmcertificaterenewalactionrequired.py",
+      "line": 25,
+      "code": "DOC300",
+      "symbol": "ACMACMCertificateRenewalActionRequiredEvent.detail",
+      "message": "Class attribute missing '#:' documentation."
+    },
+    {
+      "key": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/acm/acmcertificaterenewalactionrequired.py:26:DOC300:ACMACMCertificateRenewalActionRequiredEvent.detail_type",
+      "path": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/acm/acmcertificaterenewalactionrequired.py",
+      "line": 26,
+      "code": "DOC300",
+      "symbol": "ACMACMCertificateRenewalActionRequiredEvent.detail_type",
+      "message": "Class attribute missing '#:' documentation."
+    },
+    {
+      "key": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/acm/acmcertificaterenewalactionrequired.py:27:DOC300:ACMACMCertificateRenewalActionRequiredEvent.id",
+      "path": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/acm/acmcertificaterenewalactionrequired.py",
+      "line": 27,
+      "code": "DOC300",
+      "symbol": "ACMACMCertificateRenewalActionRequiredEvent.id",
+      "message": "Class attribute missing '#:' documentation."
+    },
+    {
+      "key": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/acm/acmcertificaterenewalactionrequired.py:28:DOC300:ACMACMCertificateRenewalActionRequiredEvent.region",
+      "path": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/acm/acmcertificaterenewalactionrequired.py",
+      "line": 28,
+      "code": "DOC300",
+      "symbol": "ACMACMCertificateRenewalActionRequiredEvent.region",
+      "message": "Class attribute missing '#:' documentation."
+    },
+    {
+      "key": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/acm/acmcertificaterenewalactionrequired.py:29:DOC300:ACMACMCertificateRenewalActionRequiredEvent.resources",
+      "path": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/acm/acmcertificaterenewalactionrequired.py",
+      "line": 29,
+      "code": "DOC300",
+      "symbol": "ACMACMCertificateRenewalActionRequiredEvent.resources",
+      "message": "Class attribute missing '#:' documentation."
+    },
+    {
+      "key": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/acm/acmcertificaterenewalactionrequired.py:30:DOC300:ACMACMCertificateRenewalActionRequiredEvent.source",
+      "path": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/acm/acmcertificaterenewalactionrequired.py",
+      "line": 30,
+      "code": "DOC300",
+      "symbol": "ACMACMCertificateRenewalActionRequiredEvent.source",
+      "message": "Class attribute missing '#:' documentation."
+    },
+    {
+      "key": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/acm/acmcertificaterenewalactionrequired.py:31:DOC300:ACMACMCertificateRenewalActionRequiredEvent.time",
+      "path": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/acm/acmcertificaterenewalactionrequired.py",
+      "line": 31,
+      "code": "DOC300",
+      "symbol": "ACMACMCertificateRenewalActionRequiredEvent.time",
+      "message": "Class attribute missing '#:' documentation."
+    },
+    {
+      "key": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/acm/acmcertificaterenewalactionrequired.py:32:DOC300:ACMACMCertificateRenewalActionRequiredEvent.version",
+      "path": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/acm/acmcertificaterenewalactionrequired.py",
+      "line": 32,
+      "code": "DOC300",
+      "symbol": "ACMACMCertificateRenewalActionRequiredEvent.version",
+      "message": "Class attribute missing '#:' documentation."
+    },
+    {
+      "key": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/acm/acmcertificaterevoked.py:10:DOC100:ACMCertificateRevoked",
+      "path": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/acm/acmcertificaterevoked.py",
+      "line": 10,
+      "code": "DOC100",
+      "symbol": "ACMCertificateRevoked",
+      "message": "Missing class docstring."
+    },
+    {
+      "key": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/acm/acmcertificaterevoked.py:11:DOC300:ACMCertificateRevoked.CertificateExpirationDate",
+      "path": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/acm/acmcertificaterevoked.py",
+      "line": 11,
+      "code": "DOC300",
+      "symbol": "ACMCertificateRevoked.CertificateExpirationDate",
+      "message": "Class attribute missing '#:' documentation."
+    },
+    {
+      "key": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/acm/acmcertificaterevoked.py:12:DOC300:ACMCertificateRevoked.CertificateType",
+      "path": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/acm/acmcertificaterevoked.py",
+      "line": 12,
+      "code": "DOC300",
+      "symbol": "ACMCertificateRevoked.CertificateType",
+      "message": "Class attribute missing '#:' documentation."
+    },
+    {
+      "key": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/acm/acmcertificaterevoked.py:13:DOC300:ACMCertificateRevoked.CommonName",
+      "path": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/acm/acmcertificaterevoked.py",
+      "line": 13,
+      "code": "DOC300",
+      "symbol": "ACMCertificateRevoked.CommonName",
+      "message": "Class attribute missing '#:' documentation."
+    },
+    {
+      "key": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/acm/acmcertificaterevoked.py:14:DOC300:ACMCertificateRevoked.Exportable",
+      "path": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/acm/acmcertificaterevoked.py",
+      "line": 14,
+      "code": "DOC300",
+      "symbol": "ACMCertificateRevoked.Exportable",
+      "message": "Class attribute missing '#:' documentation."
+    },
+    {
+      "key": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/acm/acmcertificaterevoked.py:17:DOC100:ACMACMCertificateRevokedEvent",
+      "path": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/acm/acmcertificaterevoked.py",
+      "line": 17,
+      "code": "DOC100",
+      "symbol": "ACMACMCertificateRevokedEvent",
+      "message": "Missing class docstring."
+    },
+    {
+      "key": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/acm/acmcertificaterevoked.py:18:DOC300:ACMACMCertificateRevokedEvent.account",
+      "path": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/acm/acmcertificaterevoked.py",
+      "line": 18,
+      "code": "DOC300",
+      "symbol": "ACMACMCertificateRevokedEvent.account",
+      "message": "Class attribute missing '#:' documentation."
+    },
+    {
+      "key": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/acm/acmcertificaterevoked.py:19:DOC300:ACMACMCertificateRevokedEvent.detail",
+      "path": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/acm/acmcertificaterevoked.py",
+      "line": 19,
+      "code": "DOC300",
+      "symbol": "ACMACMCertificateRevokedEvent.detail",
+      "message": "Class attribute missing '#:' documentation."
+    },
+    {
+      "key": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/acm/acmcertificaterevoked.py:20:DOC300:ACMACMCertificateRevokedEvent.detail_type",
+      "path": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/acm/acmcertificaterevoked.py",
+      "line": 20,
+      "code": "DOC300",
+      "symbol": "ACMACMCertificateRevokedEvent.detail_type",
+      "message": "Class attribute missing '#:' documentation."
+    },
+    {
+      "key": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/acm/acmcertificaterevoked.py:21:DOC300:ACMACMCertificateRevokedEvent.id",
+      "path": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/acm/acmcertificaterevoked.py",
+      "line": 21,
+      "code": "DOC300",
+      "symbol": "ACMACMCertificateRevokedEvent.id",
+      "message": "Class attribute missing '#:' documentation."
+    },
+    {
+      "key": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/acm/acmcertificaterevoked.py:22:DOC300:ACMACMCertificateRevokedEvent.region",
+      "path": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/acm/acmcertificaterevoked.py",
+      "line": 22,
+      "code": "DOC300",
+      "symbol": "ACMACMCertificateRevokedEvent.region",
+      "message": "Class attribute missing '#:' documentation."
+    },
+    {
+      "key": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/acm/acmcertificaterevoked.py:23:DOC300:ACMACMCertificateRevokedEvent.resources",
+      "path": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/acm/acmcertificaterevoked.py",
+      "line": 23,
+      "code": "DOC300",
+      "symbol": "ACMACMCertificateRevokedEvent.resources",
+      "message": "Class attribute missing '#:' documentation."
+    },
+    {
+      "key": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/acm/acmcertificaterevoked.py:24:DOC300:ACMACMCertificateRevokedEvent.source",
+      "path": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/acm/acmcertificaterevoked.py",
+      "line": 24,
+      "code": "DOC300",
+      "symbol": "ACMACMCertificateRevokedEvent.source",
+      "message": "Class attribute missing '#:' documentation."
+    },
+    {
+      "key": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/acm/acmcertificaterevoked.py:25:DOC300:ACMACMCertificateRevokedEvent.time",
+      "path": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/acm/acmcertificaterevoked.py",
+      "line": 25,
+      "code": "DOC300",
+      "symbol": "ACMACMCertificateRevokedEvent.time",
+      "message": "Class attribute missing '#:' documentation."
+    },
+    {
+      "key": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/acm/acmcertificaterevoked.py:26:DOC300:ACMACMCertificateRevokedEvent.version",
+      "path": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/acm/acmcertificaterevoked.py",
+      "line": 26,
+      "code": "DOC300",
+      "symbol": "ACMACMCertificateRevokedEvent.version",
+      "message": "Class attribute missing '#:' documentation."
+    },
+    {
+      "key": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/acm/acmcertificaterevokedbyca.py:10:DOC100:ACMCertificateRevokedByCA",
+      "path": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/acm/acmcertificaterevokedbyca.py",
+      "line": 10,
+      "code": "DOC100",
+      "symbol": "ACMCertificateRevokedByCA",
+      "message": "Missing class docstring."
+    },
+    {
+      "key": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/acm/acmcertificaterevokedbyca.py:11:DOC300:ACMCertificateRevokedByCA.CertificateExpirationDate",
+      "path": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/acm/acmcertificaterevokedbyca.py",
+      "line": 11,
+      "code": "DOC300",
+      "symbol": "ACMCertificateRevokedByCA.CertificateExpirationDate",
+      "message": "Class attribute missing '#:' documentation."
+    },
+    {
+      "key": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/acm/acmcertificaterevokedbyca.py:12:DOC300:ACMCertificateRevokedByCA.CertificateRevocationDate",
+      "path": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/acm/acmcertificaterevokedbyca.py",
+      "line": 12,
+      "code": "DOC300",
+      "symbol": "ACMCertificateRevokedByCA.CertificateRevocationDate",
+      "message": "Class attribute missing '#:' documentation."
+    },
+    {
+      "key": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/acm/acmcertificaterevokedbyca.py:13:DOC300:ACMCertificateRevokedByCA.CertificateSerial",
+      "path": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/acm/acmcertificaterevokedbyca.py",
+      "line": 13,
+      "code": "DOC300",
+      "symbol": "ACMCertificateRevokedByCA.CertificateSerial",
+      "message": "Class attribute missing '#:' documentation."
+    },
+    {
+      "key": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/acm/acmcertificaterevokedbyca.py:14:DOC300:ACMCertificateRevokedByCA.CertificateType",
+      "path": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/acm/acmcertificaterevokedbyca.py",
+      "line": 14,
+      "code": "DOC300",
+      "symbol": "ACMCertificateRevokedByCA.CertificateType",
+      "message": "Class attribute missing '#:' documentation."
+    },
+    {
+      "key": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/acm/acmcertificaterevokedbyca.py:15:DOC300:ACMCertificateRevokedByCA.CommonName",
+      "path": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/acm/acmcertificaterevokedbyca.py",
+      "line": 15,
+      "code": "DOC300",
+      "symbol": "ACMCertificateRevokedByCA.CommonName",
+      "message": "Class attribute missing '#:' documentation."
+    },
+    {
+      "key": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/acm/acmcertificaterevokedbyca.py:16:DOC300:ACMCertificateRevokedByCA.Exportable",
+      "path": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/acm/acmcertificaterevokedbyca.py",
+      "line": 16,
+      "code": "DOC300",
+      "symbol": "ACMCertificateRevokedByCA.Exportable",
+      "message": "Class attribute missing '#:' documentation."
+    },
+    {
+      "key": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/acm/acmcertificaterevokedbyca.py:17:DOC300:ACMCertificateRevokedByCA.RevocationReason",
+      "path": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/acm/acmcertificaterevokedbyca.py",
+      "line": 17,
+      "code": "DOC300",
+      "symbol": "ACMCertificateRevokedByCA.RevocationReason",
+      "message": "Class attribute missing '#:' documentation."
+    },
+    {
+      "key": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/acm/acmcertificaterevokedbyca.py:20:DOC100:ACMACMCertificateRevokedByCAEvent",
+      "path": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/acm/acmcertificaterevokedbyca.py",
+      "line": 20,
+      "code": "DOC100",
+      "symbol": "ACMACMCertificateRevokedByCAEvent",
+      "message": "Missing class docstring."
+    },
+    {
+      "key": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/acm/acmcertificaterevokedbyca.py:21:DOC300:ACMACMCertificateRevokedByCAEvent.account",
+      "path": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/acm/acmcertificaterevokedbyca.py",
+      "line": 21,
+      "code": "DOC300",
+      "symbol": "ACMACMCertificateRevokedByCAEvent.account",
+      "message": "Class attribute missing '#:' documentation."
+    },
+    {
+      "key": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/acm/acmcertificaterevokedbyca.py:22:DOC300:ACMACMCertificateRevokedByCAEvent.detail",
+      "path": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/acm/acmcertificaterevokedbyca.py",
+      "line": 22,
+      "code": "DOC300",
+      "symbol": "ACMACMCertificateRevokedByCAEvent.detail",
+      "message": "Class attribute missing '#:' documentation."
+    },
+    {
+      "key": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/acm/acmcertificaterevokedbyca.py:23:DOC300:ACMACMCertificateRevokedByCAEvent.detail_type",
+      "path": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/acm/acmcertificaterevokedbyca.py",
+      "line": 23,
+      "code": "DOC300",
+      "symbol": "ACMACMCertificateRevokedByCAEvent.detail_type",
+      "message": "Class attribute missing '#:' documentation."
+    },
+    {
+      "key": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/acm/acmcertificaterevokedbyca.py:24:DOC300:ACMACMCertificateRevokedByCAEvent.id",
+      "path": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/acm/acmcertificaterevokedbyca.py",
+      "line": 24,
+      "code": "DOC300",
+      "symbol": "ACMACMCertificateRevokedByCAEvent.id",
+      "message": "Class attribute missing '#:' documentation."
+    },
+    {
+      "key": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/acm/acmcertificaterevokedbyca.py:25:DOC300:ACMACMCertificateRevokedByCAEvent.region",
+      "path": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/acm/acmcertificaterevokedbyca.py",
+      "line": 25,
+      "code": "DOC300",
+      "symbol": "ACMACMCertificateRevokedByCAEvent.region",
+      "message": "Class attribute missing '#:' documentation."
+    },
+    {
+      "key": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/acm/acmcertificaterevokedbyca.py:26:DOC300:ACMACMCertificateRevokedByCAEvent.resources",
+      "path": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/acm/acmcertificaterevokedbyca.py",
+      "line": 26,
+      "code": "DOC300",
+      "symbol": "ACMACMCertificateRevokedByCAEvent.resources",
+      "message": "Class attribute missing '#:' documentation."
+    },
+    {
+      "key": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/acm/acmcertificaterevokedbyca.py:27:DOC300:ACMACMCertificateRevokedByCAEvent.source",
+      "path": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/acm/acmcertificaterevokedbyca.py",
+      "line": 27,
+      "code": "DOC300",
+      "symbol": "ACMACMCertificateRevokedByCAEvent.source",
+      "message": "Class attribute missing '#:' documentation."
+    },
+    {
+      "key": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/acm/acmcertificaterevokedbyca.py:28:DOC300:ACMACMCertificateRevokedByCAEvent.time",
+      "path": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/acm/acmcertificaterevokedbyca.py",
+      "line": 28,
+      "code": "DOC300",
+      "symbol": "ACMACMCertificateRevokedByCAEvent.time",
+      "message": "Class attribute missing '#:' documentation."
+    },
+    {
+      "key": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/acm/acmcertificaterevokedbyca.py:29:DOC300:ACMACMCertificateRevokedByCAEvent.version",
+      "path": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/acm/acmcertificaterevokedbyca.py",
+      "line": 29,
+      "code": "DOC300",
+      "symbol": "ACMACMCertificateRevokedByCAEvent.version",
+      "message": "Class attribute missing '#:' documentation."
     }
   ]
 }
