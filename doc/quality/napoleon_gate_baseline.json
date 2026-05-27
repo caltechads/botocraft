@@ -1,6 +1,6 @@
 {
   "generated_at_utc": "2026-05-12T22:22:37.418660+00:00",
-  "violation_count": 6610,
+  "violation_count": 6780,
   "violations": [
     {
       "key": "/Users/cmalek/src/workspace/botocraft/bin/check_napoleon_gate.py:11:DOC302:RETURNS_SECTIONS",
@@ -52880,6 +52880,1366 @@
       "line": 29,
       "code": "DOC300",
       "symbol": "ACMACMCertificateRevokedByCAEvent.version",
+      "message": "Class attribute missing '#:' documentation."
+    },
+    {
+      "key": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/cachecreated.py:10:DOC100:CacheCreated",
+      "path": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/cachecreated.py",
+      "line": 10,
+      "code": "DOC100",
+      "symbol": "CacheCreated",
+      "message": "Missing class docstring."
+    },
+    {
+      "key": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/cachecreated.py:11:DOC300:CacheCreated.EventCategories",
+      "path": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/cachecreated.py",
+      "line": 11,
+      "code": "DOC300",
+      "symbol": "CacheCreated.EventCategories",
+      "message": "Class attribute missing '#:' documentation."
+    },
+    {
+      "key": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/cachecreated.py:12:DOC300:CacheCreated.EventID",
+      "path": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/cachecreated.py",
+      "line": 12,
+      "code": "DOC300",
+      "symbol": "CacheCreated.EventID",
+      "message": "Class attribute missing '#:' documentation."
+    },
+    {
+      "key": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/cachecreated.py:13:DOC300:CacheCreated.Message",
+      "path": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/cachecreated.py",
+      "line": 13,
+      "code": "DOC300",
+      "symbol": "CacheCreated.Message",
+      "message": "Class attribute missing '#:' documentation."
+    },
+    {
+      "key": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/cachecreated.py:14:DOC300:CacheCreated.SourceArn",
+      "path": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/cachecreated.py",
+      "line": 14,
+      "code": "DOC300",
+      "symbol": "CacheCreated.SourceArn",
+      "message": "Class attribute missing '#:' documentation."
+    },
+    {
+      "key": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/cachecreated.py:15:DOC300:CacheCreated.SourceIdentifier",
+      "path": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/cachecreated.py",
+      "line": 15,
+      "code": "DOC300",
+      "symbol": "CacheCreated.SourceIdentifier",
+      "message": "Class attribute missing '#:' documentation."
+    },
+    {
+      "key": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/cachecreated.py:16:DOC300:CacheCreated.SourceType",
+      "path": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/cachecreated.py",
+      "line": 16,
+      "code": "DOC300",
+      "symbol": "CacheCreated.SourceType",
+      "message": "Class attribute missing '#:' documentation."
+    },
+    {
+      "key": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/cachecreated.py:19:DOC100:ElasticacheCacheCreatedEvent",
+      "path": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/cachecreated.py",
+      "line": 19,
+      "code": "DOC100",
+      "symbol": "ElasticacheCacheCreatedEvent",
+      "message": "Missing class docstring."
+    },
+    {
+      "key": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/cachecreated.py:20:DOC300:ElasticacheCacheCreatedEvent.account",
+      "path": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/cachecreated.py",
+      "line": 20,
+      "code": "DOC300",
+      "symbol": "ElasticacheCacheCreatedEvent.account",
+      "message": "Class attribute missing '#:' documentation."
+    },
+    {
+      "key": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/cachecreated.py:21:DOC300:ElasticacheCacheCreatedEvent.detail",
+      "path": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/cachecreated.py",
+      "line": 21,
+      "code": "DOC300",
+      "symbol": "ElasticacheCacheCreatedEvent.detail",
+      "message": "Class attribute missing '#:' documentation."
+    },
+    {
+      "key": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/cachecreated.py:22:DOC300:ElasticacheCacheCreatedEvent.detail_type",
+      "path": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/cachecreated.py",
+      "line": 22,
+      "code": "DOC300",
+      "symbol": "ElasticacheCacheCreatedEvent.detail_type",
+      "message": "Class attribute missing '#:' documentation."
+    },
+    {
+      "key": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/cachecreated.py:23:DOC300:ElasticacheCacheCreatedEvent.id",
+      "path": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/cachecreated.py",
+      "line": 23,
+      "code": "DOC300",
+      "symbol": "ElasticacheCacheCreatedEvent.id",
+      "message": "Class attribute missing '#:' documentation."
+    },
+    {
+      "key": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/cachecreated.py:24:DOC300:ElasticacheCacheCreatedEvent.region",
+      "path": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/cachecreated.py",
+      "line": 24,
+      "code": "DOC300",
+      "symbol": "ElasticacheCacheCreatedEvent.region",
+      "message": "Class attribute missing '#:' documentation."
+    },
+    {
+      "key": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/cachecreated.py:25:DOC300:ElasticacheCacheCreatedEvent.resources",
+      "path": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/cachecreated.py",
+      "line": 25,
+      "code": "DOC300",
+      "symbol": "ElasticacheCacheCreatedEvent.resources",
+      "message": "Class attribute missing '#:' documentation."
+    },
+    {
+      "key": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/cachecreated.py:26:DOC300:ElasticacheCacheCreatedEvent.source",
+      "path": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/cachecreated.py",
+      "line": 26,
+      "code": "DOC300",
+      "symbol": "ElasticacheCacheCreatedEvent.source",
+      "message": "Class attribute missing '#:' documentation."
+    },
+    {
+      "key": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/cachecreated.py:27:DOC300:ElasticacheCacheCreatedEvent.time",
+      "path": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/cachecreated.py",
+      "line": 27,
+      "code": "DOC300",
+      "symbol": "ElasticacheCacheCreatedEvent.time",
+      "message": "Class attribute missing '#:' documentation."
+    },
+    {
+      "key": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/cachecreated.py:28:DOC300:ElasticacheCacheCreatedEvent.version",
+      "path": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/cachecreated.py",
+      "line": 28,
+      "code": "DOC300",
+      "symbol": "ElasticacheCacheCreatedEvent.version",
+      "message": "Class attribute missing '#:' documentation."
+    },
+    {
+      "key": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/cachecreationfailed.py:10:DOC100:CacheCreationFailed",
+      "path": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/cachecreationfailed.py",
+      "line": 10,
+      "code": "DOC100",
+      "symbol": "CacheCreationFailed",
+      "message": "Missing class docstring."
+    },
+    {
+      "key": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/cachecreationfailed.py:11:DOC300:CacheCreationFailed.EventCategories",
+      "path": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/cachecreationfailed.py",
+      "line": 11,
+      "code": "DOC300",
+      "symbol": "CacheCreationFailed.EventCategories",
+      "message": "Class attribute missing '#:' documentation."
+    },
+    {
+      "key": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/cachecreationfailed.py:12:DOC300:CacheCreationFailed.EventID",
+      "path": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/cachecreationfailed.py",
+      "line": 12,
+      "code": "DOC300",
+      "symbol": "CacheCreationFailed.EventID",
+      "message": "Class attribute missing '#:' documentation."
+    },
+    {
+      "key": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/cachecreationfailed.py:13:DOC300:CacheCreationFailed.Message",
+      "path": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/cachecreationfailed.py",
+      "line": 13,
+      "code": "DOC300",
+      "symbol": "CacheCreationFailed.Message",
+      "message": "Class attribute missing '#:' documentation."
+    },
+    {
+      "key": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/cachecreationfailed.py:14:DOC300:CacheCreationFailed.SourceArn",
+      "path": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/cachecreationfailed.py",
+      "line": 14,
+      "code": "DOC300",
+      "symbol": "CacheCreationFailed.SourceArn",
+      "message": "Class attribute missing '#:' documentation."
+    },
+    {
+      "key": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/cachecreationfailed.py:15:DOC300:CacheCreationFailed.SourceIdentifier",
+      "path": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/cachecreationfailed.py",
+      "line": 15,
+      "code": "DOC300",
+      "symbol": "CacheCreationFailed.SourceIdentifier",
+      "message": "Class attribute missing '#:' documentation."
+    },
+    {
+      "key": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/cachecreationfailed.py:16:DOC300:CacheCreationFailed.SourceType",
+      "path": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/cachecreationfailed.py",
+      "line": 16,
+      "code": "DOC300",
+      "symbol": "CacheCreationFailed.SourceType",
+      "message": "Class attribute missing '#:' documentation."
+    },
+    {
+      "key": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/cachecreationfailed.py:19:DOC100:ElasticacheCacheCreationFailedEvent",
+      "path": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/cachecreationfailed.py",
+      "line": 19,
+      "code": "DOC100",
+      "symbol": "ElasticacheCacheCreationFailedEvent",
+      "message": "Missing class docstring."
+    },
+    {
+      "key": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/cachecreationfailed.py:20:DOC300:ElasticacheCacheCreationFailedEvent.account",
+      "path": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/cachecreationfailed.py",
+      "line": 20,
+      "code": "DOC300",
+      "symbol": "ElasticacheCacheCreationFailedEvent.account",
+      "message": "Class attribute missing '#:' documentation."
+    },
+    {
+      "key": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/cachecreationfailed.py:21:DOC300:ElasticacheCacheCreationFailedEvent.detail",
+      "path": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/cachecreationfailed.py",
+      "line": 21,
+      "code": "DOC300",
+      "symbol": "ElasticacheCacheCreationFailedEvent.detail",
+      "message": "Class attribute missing '#:' documentation."
+    },
+    {
+      "key": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/cachecreationfailed.py:22:DOC300:ElasticacheCacheCreationFailedEvent.detail_type",
+      "path": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/cachecreationfailed.py",
+      "line": 22,
+      "code": "DOC300",
+      "symbol": "ElasticacheCacheCreationFailedEvent.detail_type",
+      "message": "Class attribute missing '#:' documentation."
+    },
+    {
+      "key": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/cachecreationfailed.py:23:DOC300:ElasticacheCacheCreationFailedEvent.id",
+      "path": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/cachecreationfailed.py",
+      "line": 23,
+      "code": "DOC300",
+      "symbol": "ElasticacheCacheCreationFailedEvent.id",
+      "message": "Class attribute missing '#:' documentation."
+    },
+    {
+      "key": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/cachecreationfailed.py:24:DOC300:ElasticacheCacheCreationFailedEvent.region",
+      "path": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/cachecreationfailed.py",
+      "line": 24,
+      "code": "DOC300",
+      "symbol": "ElasticacheCacheCreationFailedEvent.region",
+      "message": "Class attribute missing '#:' documentation."
+    },
+    {
+      "key": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/cachecreationfailed.py:25:DOC300:ElasticacheCacheCreationFailedEvent.resources",
+      "path": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/cachecreationfailed.py",
+      "line": 25,
+      "code": "DOC300",
+      "symbol": "ElasticacheCacheCreationFailedEvent.resources",
+      "message": "Class attribute missing '#:' documentation."
+    },
+    {
+      "key": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/cachecreationfailed.py:26:DOC300:ElasticacheCacheCreationFailedEvent.source",
+      "path": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/cachecreationfailed.py",
+      "line": 26,
+      "code": "DOC300",
+      "symbol": "ElasticacheCacheCreationFailedEvent.source",
+      "message": "Class attribute missing '#:' documentation."
+    },
+    {
+      "key": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/cachecreationfailed.py:27:DOC300:ElasticacheCacheCreationFailedEvent.time",
+      "path": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/cachecreationfailed.py",
+      "line": 27,
+      "code": "DOC300",
+      "symbol": "ElasticacheCacheCreationFailedEvent.time",
+      "message": "Class attribute missing '#:' documentation."
+    },
+    {
+      "key": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/cachecreationfailed.py:28:DOC300:ElasticacheCacheCreationFailedEvent.version",
+      "path": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/cachecreationfailed.py",
+      "line": 28,
+      "code": "DOC300",
+      "symbol": "ElasticacheCacheCreationFailedEvent.version",
+      "message": "Class attribute missing '#:' documentation."
+    },
+    {
+      "key": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/cachedeleted.py:10:DOC100:CacheDeleted",
+      "path": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/cachedeleted.py",
+      "line": 10,
+      "code": "DOC100",
+      "symbol": "CacheDeleted",
+      "message": "Missing class docstring."
+    },
+    {
+      "key": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/cachedeleted.py:11:DOC300:CacheDeleted.EventCategories",
+      "path": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/cachedeleted.py",
+      "line": 11,
+      "code": "DOC300",
+      "symbol": "CacheDeleted.EventCategories",
+      "message": "Class attribute missing '#:' documentation."
+    },
+    {
+      "key": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/cachedeleted.py:12:DOC300:CacheDeleted.EventID",
+      "path": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/cachedeleted.py",
+      "line": 12,
+      "code": "DOC300",
+      "symbol": "CacheDeleted.EventID",
+      "message": "Class attribute missing '#:' documentation."
+    },
+    {
+      "key": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/cachedeleted.py:13:DOC300:CacheDeleted.Message",
+      "path": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/cachedeleted.py",
+      "line": 13,
+      "code": "DOC300",
+      "symbol": "CacheDeleted.Message",
+      "message": "Class attribute missing '#:' documentation."
+    },
+    {
+      "key": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/cachedeleted.py:14:DOC300:CacheDeleted.SourceArn",
+      "path": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/cachedeleted.py",
+      "line": 14,
+      "code": "DOC300",
+      "symbol": "CacheDeleted.SourceArn",
+      "message": "Class attribute missing '#:' documentation."
+    },
+    {
+      "key": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/cachedeleted.py:15:DOC300:CacheDeleted.SourceIdentifier",
+      "path": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/cachedeleted.py",
+      "line": 15,
+      "code": "DOC300",
+      "symbol": "CacheDeleted.SourceIdentifier",
+      "message": "Class attribute missing '#:' documentation."
+    },
+    {
+      "key": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/cachedeleted.py:16:DOC300:CacheDeleted.SourceType",
+      "path": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/cachedeleted.py",
+      "line": 16,
+      "code": "DOC300",
+      "symbol": "CacheDeleted.SourceType",
+      "message": "Class attribute missing '#:' documentation."
+    },
+    {
+      "key": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/cachedeleted.py:19:DOC100:ElasticacheCacheDeletedEvent",
+      "path": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/cachedeleted.py",
+      "line": 19,
+      "code": "DOC100",
+      "symbol": "ElasticacheCacheDeletedEvent",
+      "message": "Missing class docstring."
+    },
+    {
+      "key": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/cachedeleted.py:20:DOC300:ElasticacheCacheDeletedEvent.account",
+      "path": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/cachedeleted.py",
+      "line": 20,
+      "code": "DOC300",
+      "symbol": "ElasticacheCacheDeletedEvent.account",
+      "message": "Class attribute missing '#:' documentation."
+    },
+    {
+      "key": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/cachedeleted.py:21:DOC300:ElasticacheCacheDeletedEvent.detail",
+      "path": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/cachedeleted.py",
+      "line": 21,
+      "code": "DOC300",
+      "symbol": "ElasticacheCacheDeletedEvent.detail",
+      "message": "Class attribute missing '#:' documentation."
+    },
+    {
+      "key": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/cachedeleted.py:22:DOC300:ElasticacheCacheDeletedEvent.detail_type",
+      "path": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/cachedeleted.py",
+      "line": 22,
+      "code": "DOC300",
+      "symbol": "ElasticacheCacheDeletedEvent.detail_type",
+      "message": "Class attribute missing '#:' documentation."
+    },
+    {
+      "key": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/cachedeleted.py:23:DOC300:ElasticacheCacheDeletedEvent.id",
+      "path": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/cachedeleted.py",
+      "line": 23,
+      "code": "DOC300",
+      "symbol": "ElasticacheCacheDeletedEvent.id",
+      "message": "Class attribute missing '#:' documentation."
+    },
+    {
+      "key": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/cachedeleted.py:24:DOC300:ElasticacheCacheDeletedEvent.region",
+      "path": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/cachedeleted.py",
+      "line": 24,
+      "code": "DOC300",
+      "symbol": "ElasticacheCacheDeletedEvent.region",
+      "message": "Class attribute missing '#:' documentation."
+    },
+    {
+      "key": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/cachedeleted.py:25:DOC300:ElasticacheCacheDeletedEvent.resources",
+      "path": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/cachedeleted.py",
+      "line": 25,
+      "code": "DOC300",
+      "symbol": "ElasticacheCacheDeletedEvent.resources",
+      "message": "Class attribute missing '#:' documentation."
+    },
+    {
+      "key": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/cachedeleted.py:26:DOC300:ElasticacheCacheDeletedEvent.source",
+      "path": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/cachedeleted.py",
+      "line": 26,
+      "code": "DOC300",
+      "symbol": "ElasticacheCacheDeletedEvent.source",
+      "message": "Class attribute missing '#:' documentation."
+    },
+    {
+      "key": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/cachedeleted.py:27:DOC300:ElasticacheCacheDeletedEvent.time",
+      "path": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/cachedeleted.py",
+      "line": 27,
+      "code": "DOC300",
+      "symbol": "ElasticacheCacheDeletedEvent.time",
+      "message": "Class attribute missing '#:' documentation."
+    },
+    {
+      "key": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/cachedeleted.py:28:DOC300:ElasticacheCacheDeletedEvent.version",
+      "path": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/cachedeleted.py",
+      "line": 28,
+      "code": "DOC300",
+      "symbol": "ElasticacheCacheDeletedEvent.version",
+      "message": "Class attribute missing '#:' documentation."
+    },
+    {
+      "key": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/cachelimitapproaching.py:10:DOC100:CacheLimitApproaching",
+      "path": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/cachelimitapproaching.py",
+      "line": 10,
+      "code": "DOC100",
+      "symbol": "CacheLimitApproaching",
+      "message": "Missing class docstring."
+    },
+    {
+      "key": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/cachelimitapproaching.py:11:DOC300:CacheLimitApproaching.EventCategories",
+      "path": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/cachelimitapproaching.py",
+      "line": 11,
+      "code": "DOC300",
+      "symbol": "CacheLimitApproaching.EventCategories",
+      "message": "Class attribute missing '#:' documentation."
+    },
+    {
+      "key": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/cachelimitapproaching.py:12:DOC300:CacheLimitApproaching.EventID",
+      "path": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/cachelimitapproaching.py",
+      "line": 12,
+      "code": "DOC300",
+      "symbol": "CacheLimitApproaching.EventID",
+      "message": "Class attribute missing '#:' documentation."
+    },
+    {
+      "key": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/cachelimitapproaching.py:13:DOC300:CacheLimitApproaching.Message",
+      "path": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/cachelimitapproaching.py",
+      "line": 13,
+      "code": "DOC300",
+      "symbol": "CacheLimitApproaching.Message",
+      "message": "Class attribute missing '#:' documentation."
+    },
+    {
+      "key": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/cachelimitapproaching.py:14:DOC300:CacheLimitApproaching.SourceArn",
+      "path": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/cachelimitapproaching.py",
+      "line": 14,
+      "code": "DOC300",
+      "symbol": "CacheLimitApproaching.SourceArn",
+      "message": "Class attribute missing '#:' documentation."
+    },
+    {
+      "key": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/cachelimitapproaching.py:15:DOC300:CacheLimitApproaching.SourceIdentifier",
+      "path": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/cachelimitapproaching.py",
+      "line": 15,
+      "code": "DOC300",
+      "symbol": "CacheLimitApproaching.SourceIdentifier",
+      "message": "Class attribute missing '#:' documentation."
+    },
+    {
+      "key": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/cachelimitapproaching.py:16:DOC300:CacheLimitApproaching.SourceType",
+      "path": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/cachelimitapproaching.py",
+      "line": 16,
+      "code": "DOC300",
+      "symbol": "CacheLimitApproaching.SourceType",
+      "message": "Class attribute missing '#:' documentation."
+    },
+    {
+      "key": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/cachelimitapproaching.py:19:DOC100:ElasticacheCacheLimitApproachingEvent",
+      "path": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/cachelimitapproaching.py",
+      "line": 19,
+      "code": "DOC100",
+      "symbol": "ElasticacheCacheLimitApproachingEvent",
+      "message": "Missing class docstring."
+    },
+    {
+      "key": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/cachelimitapproaching.py:20:DOC300:ElasticacheCacheLimitApproachingEvent.account",
+      "path": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/cachelimitapproaching.py",
+      "line": 20,
+      "code": "DOC300",
+      "symbol": "ElasticacheCacheLimitApproachingEvent.account",
+      "message": "Class attribute missing '#:' documentation."
+    },
+    {
+      "key": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/cachelimitapproaching.py:21:DOC300:ElasticacheCacheLimitApproachingEvent.detail",
+      "path": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/cachelimitapproaching.py",
+      "line": 21,
+      "code": "DOC300",
+      "symbol": "ElasticacheCacheLimitApproachingEvent.detail",
+      "message": "Class attribute missing '#:' documentation."
+    },
+    {
+      "key": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/cachelimitapproaching.py:22:DOC300:ElasticacheCacheLimitApproachingEvent.detail_type",
+      "path": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/cachelimitapproaching.py",
+      "line": 22,
+      "code": "DOC300",
+      "symbol": "ElasticacheCacheLimitApproachingEvent.detail_type",
+      "message": "Class attribute missing '#:' documentation."
+    },
+    {
+      "key": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/cachelimitapproaching.py:23:DOC300:ElasticacheCacheLimitApproachingEvent.id",
+      "path": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/cachelimitapproaching.py",
+      "line": 23,
+      "code": "DOC300",
+      "symbol": "ElasticacheCacheLimitApproachingEvent.id",
+      "message": "Class attribute missing '#:' documentation."
+    },
+    {
+      "key": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/cachelimitapproaching.py:24:DOC300:ElasticacheCacheLimitApproachingEvent.region",
+      "path": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/cachelimitapproaching.py",
+      "line": 24,
+      "code": "DOC300",
+      "symbol": "ElasticacheCacheLimitApproachingEvent.region",
+      "message": "Class attribute missing '#:' documentation."
+    },
+    {
+      "key": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/cachelimitapproaching.py:25:DOC300:ElasticacheCacheLimitApproachingEvent.resources",
+      "path": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/cachelimitapproaching.py",
+      "line": 25,
+      "code": "DOC300",
+      "symbol": "ElasticacheCacheLimitApproachingEvent.resources",
+      "message": "Class attribute missing '#:' documentation."
+    },
+    {
+      "key": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/cachelimitapproaching.py:26:DOC300:ElasticacheCacheLimitApproachingEvent.source",
+      "path": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/cachelimitapproaching.py",
+      "line": 26,
+      "code": "DOC300",
+      "symbol": "ElasticacheCacheLimitApproachingEvent.source",
+      "message": "Class attribute missing '#:' documentation."
+    },
+    {
+      "key": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/cachelimitapproaching.py:27:DOC300:ElasticacheCacheLimitApproachingEvent.time",
+      "path": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/cachelimitapproaching.py",
+      "line": 27,
+      "code": "DOC300",
+      "symbol": "ElasticacheCacheLimitApproachingEvent.time",
+      "message": "Class attribute missing '#:' documentation."
+    },
+    {
+      "key": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/cachelimitapproaching.py:28:DOC300:ElasticacheCacheLimitApproachingEvent.version",
+      "path": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/cachelimitapproaching.py",
+      "line": 28,
+      "code": "DOC300",
+      "symbol": "ElasticacheCacheLimitApproachingEvent.version",
+      "message": "Class attribute missing '#:' documentation."
+    },
+    {
+      "key": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/cacheupdated.py:10:DOC100:CacheUpdated",
+      "path": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/cacheupdated.py",
+      "line": 10,
+      "code": "DOC100",
+      "symbol": "CacheUpdated",
+      "message": "Missing class docstring."
+    },
+    {
+      "key": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/cacheupdated.py:11:DOC300:CacheUpdated.EventCategories",
+      "path": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/cacheupdated.py",
+      "line": 11,
+      "code": "DOC300",
+      "symbol": "CacheUpdated.EventCategories",
+      "message": "Class attribute missing '#:' documentation."
+    },
+    {
+      "key": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/cacheupdated.py:12:DOC300:CacheUpdated.EventID",
+      "path": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/cacheupdated.py",
+      "line": 12,
+      "code": "DOC300",
+      "symbol": "CacheUpdated.EventID",
+      "message": "Class attribute missing '#:' documentation."
+    },
+    {
+      "key": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/cacheupdated.py:13:DOC300:CacheUpdated.Message",
+      "path": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/cacheupdated.py",
+      "line": 13,
+      "code": "DOC300",
+      "symbol": "CacheUpdated.Message",
+      "message": "Class attribute missing '#:' documentation."
+    },
+    {
+      "key": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/cacheupdated.py:14:DOC300:CacheUpdated.SourceArn",
+      "path": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/cacheupdated.py",
+      "line": 14,
+      "code": "DOC300",
+      "symbol": "CacheUpdated.SourceArn",
+      "message": "Class attribute missing '#:' documentation."
+    },
+    {
+      "key": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/cacheupdated.py:15:DOC300:CacheUpdated.SourceIdentifier",
+      "path": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/cacheupdated.py",
+      "line": 15,
+      "code": "DOC300",
+      "symbol": "CacheUpdated.SourceIdentifier",
+      "message": "Class attribute missing '#:' documentation."
+    },
+    {
+      "key": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/cacheupdated.py:16:DOC300:CacheUpdated.SourceType",
+      "path": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/cacheupdated.py",
+      "line": 16,
+      "code": "DOC300",
+      "symbol": "CacheUpdated.SourceType",
+      "message": "Class attribute missing '#:' documentation."
+    },
+    {
+      "key": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/cacheupdated.py:19:DOC100:ElasticacheCacheUpdatedEvent",
+      "path": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/cacheupdated.py",
+      "line": 19,
+      "code": "DOC100",
+      "symbol": "ElasticacheCacheUpdatedEvent",
+      "message": "Missing class docstring."
+    },
+    {
+      "key": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/cacheupdated.py:20:DOC300:ElasticacheCacheUpdatedEvent.account",
+      "path": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/cacheupdated.py",
+      "line": 20,
+      "code": "DOC300",
+      "symbol": "ElasticacheCacheUpdatedEvent.account",
+      "message": "Class attribute missing '#:' documentation."
+    },
+    {
+      "key": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/cacheupdated.py:21:DOC300:ElasticacheCacheUpdatedEvent.detail",
+      "path": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/cacheupdated.py",
+      "line": 21,
+      "code": "DOC300",
+      "symbol": "ElasticacheCacheUpdatedEvent.detail",
+      "message": "Class attribute missing '#:' documentation."
+    },
+    {
+      "key": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/cacheupdated.py:22:DOC300:ElasticacheCacheUpdatedEvent.detail_type",
+      "path": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/cacheupdated.py",
+      "line": 22,
+      "code": "DOC300",
+      "symbol": "ElasticacheCacheUpdatedEvent.detail_type",
+      "message": "Class attribute missing '#:' documentation."
+    },
+    {
+      "key": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/cacheupdated.py:23:DOC300:ElasticacheCacheUpdatedEvent.id",
+      "path": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/cacheupdated.py",
+      "line": 23,
+      "code": "DOC300",
+      "symbol": "ElasticacheCacheUpdatedEvent.id",
+      "message": "Class attribute missing '#:' documentation."
+    },
+    {
+      "key": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/cacheupdated.py:24:DOC300:ElasticacheCacheUpdatedEvent.region",
+      "path": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/cacheupdated.py",
+      "line": 24,
+      "code": "DOC300",
+      "symbol": "ElasticacheCacheUpdatedEvent.region",
+      "message": "Class attribute missing '#:' documentation."
+    },
+    {
+      "key": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/cacheupdated.py:25:DOC300:ElasticacheCacheUpdatedEvent.resources",
+      "path": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/cacheupdated.py",
+      "line": 25,
+      "code": "DOC300",
+      "symbol": "ElasticacheCacheUpdatedEvent.resources",
+      "message": "Class attribute missing '#:' documentation."
+    },
+    {
+      "key": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/cacheupdated.py:26:DOC300:ElasticacheCacheUpdatedEvent.source",
+      "path": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/cacheupdated.py",
+      "line": 26,
+      "code": "DOC300",
+      "symbol": "ElasticacheCacheUpdatedEvent.source",
+      "message": "Class attribute missing '#:' documentation."
+    },
+    {
+      "key": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/cacheupdated.py:27:DOC300:ElasticacheCacheUpdatedEvent.time",
+      "path": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/cacheupdated.py",
+      "line": 27,
+      "code": "DOC300",
+      "symbol": "ElasticacheCacheUpdatedEvent.time",
+      "message": "Class attribute missing '#:' documentation."
+    },
+    {
+      "key": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/cacheupdated.py:28:DOC300:ElasticacheCacheUpdatedEvent.version",
+      "path": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/cacheupdated.py",
+      "line": 28,
+      "code": "DOC300",
+      "symbol": "ElasticacheCacheUpdatedEvent.version",
+      "message": "Class attribute missing '#:' documentation."
+    },
+    {
+      "key": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/cacheupdatefailed.py:10:DOC100:CacheUpdateFailed",
+      "path": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/cacheupdatefailed.py",
+      "line": 10,
+      "code": "DOC100",
+      "symbol": "CacheUpdateFailed",
+      "message": "Missing class docstring."
+    },
+    {
+      "key": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/cacheupdatefailed.py:11:DOC300:CacheUpdateFailed.EventCategories",
+      "path": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/cacheupdatefailed.py",
+      "line": 11,
+      "code": "DOC300",
+      "symbol": "CacheUpdateFailed.EventCategories",
+      "message": "Class attribute missing '#:' documentation."
+    },
+    {
+      "key": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/cacheupdatefailed.py:12:DOC300:CacheUpdateFailed.EventID",
+      "path": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/cacheupdatefailed.py",
+      "line": 12,
+      "code": "DOC300",
+      "symbol": "CacheUpdateFailed.EventID",
+      "message": "Class attribute missing '#:' documentation."
+    },
+    {
+      "key": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/cacheupdatefailed.py:13:DOC300:CacheUpdateFailed.Message",
+      "path": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/cacheupdatefailed.py",
+      "line": 13,
+      "code": "DOC300",
+      "symbol": "CacheUpdateFailed.Message",
+      "message": "Class attribute missing '#:' documentation."
+    },
+    {
+      "key": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/cacheupdatefailed.py:14:DOC300:CacheUpdateFailed.SourceArn",
+      "path": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/cacheupdatefailed.py",
+      "line": 14,
+      "code": "DOC300",
+      "symbol": "CacheUpdateFailed.SourceArn",
+      "message": "Class attribute missing '#:' documentation."
+    },
+    {
+      "key": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/cacheupdatefailed.py:15:DOC300:CacheUpdateFailed.SourceIdentifier",
+      "path": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/cacheupdatefailed.py",
+      "line": 15,
+      "code": "DOC300",
+      "symbol": "CacheUpdateFailed.SourceIdentifier",
+      "message": "Class attribute missing '#:' documentation."
+    },
+    {
+      "key": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/cacheupdatefailed.py:16:DOC300:CacheUpdateFailed.SourceType",
+      "path": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/cacheupdatefailed.py",
+      "line": 16,
+      "code": "DOC300",
+      "symbol": "CacheUpdateFailed.SourceType",
+      "message": "Class attribute missing '#:' documentation."
+    },
+    {
+      "key": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/cacheupdatefailed.py:19:DOC100:ElasticacheCacheUpdateFailedEvent",
+      "path": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/cacheupdatefailed.py",
+      "line": 19,
+      "code": "DOC100",
+      "symbol": "ElasticacheCacheUpdateFailedEvent",
+      "message": "Missing class docstring."
+    },
+    {
+      "key": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/cacheupdatefailed.py:20:DOC300:ElasticacheCacheUpdateFailedEvent.account",
+      "path": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/cacheupdatefailed.py",
+      "line": 20,
+      "code": "DOC300",
+      "symbol": "ElasticacheCacheUpdateFailedEvent.account",
+      "message": "Class attribute missing '#:' documentation."
+    },
+    {
+      "key": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/cacheupdatefailed.py:21:DOC300:ElasticacheCacheUpdateFailedEvent.detail",
+      "path": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/cacheupdatefailed.py",
+      "line": 21,
+      "code": "DOC300",
+      "symbol": "ElasticacheCacheUpdateFailedEvent.detail",
+      "message": "Class attribute missing '#:' documentation."
+    },
+    {
+      "key": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/cacheupdatefailed.py:22:DOC300:ElasticacheCacheUpdateFailedEvent.detail_type",
+      "path": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/cacheupdatefailed.py",
+      "line": 22,
+      "code": "DOC300",
+      "symbol": "ElasticacheCacheUpdateFailedEvent.detail_type",
+      "message": "Class attribute missing '#:' documentation."
+    },
+    {
+      "key": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/cacheupdatefailed.py:23:DOC300:ElasticacheCacheUpdateFailedEvent.id",
+      "path": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/cacheupdatefailed.py",
+      "line": 23,
+      "code": "DOC300",
+      "symbol": "ElasticacheCacheUpdateFailedEvent.id",
+      "message": "Class attribute missing '#:' documentation."
+    },
+    {
+      "key": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/cacheupdatefailed.py:24:DOC300:ElasticacheCacheUpdateFailedEvent.region",
+      "path": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/cacheupdatefailed.py",
+      "line": 24,
+      "code": "DOC300",
+      "symbol": "ElasticacheCacheUpdateFailedEvent.region",
+      "message": "Class attribute missing '#:' documentation."
+    },
+    {
+      "key": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/cacheupdatefailed.py:25:DOC300:ElasticacheCacheUpdateFailedEvent.resources",
+      "path": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/cacheupdatefailed.py",
+      "line": 25,
+      "code": "DOC300",
+      "symbol": "ElasticacheCacheUpdateFailedEvent.resources",
+      "message": "Class attribute missing '#:' documentation."
+    },
+    {
+      "key": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/cacheupdatefailed.py:26:DOC300:ElasticacheCacheUpdateFailedEvent.source",
+      "path": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/cacheupdatefailed.py",
+      "line": 26,
+      "code": "DOC300",
+      "symbol": "ElasticacheCacheUpdateFailedEvent.source",
+      "message": "Class attribute missing '#:' documentation."
+    },
+    {
+      "key": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/cacheupdatefailed.py:27:DOC300:ElasticacheCacheUpdateFailedEvent.time",
+      "path": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/cacheupdatefailed.py",
+      "line": 27,
+      "code": "DOC300",
+      "symbol": "ElasticacheCacheUpdateFailedEvent.time",
+      "message": "Class attribute missing '#:' documentation."
+    },
+    {
+      "key": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/cacheupdatefailed.py:28:DOC300:ElasticacheCacheUpdateFailedEvent.version",
+      "path": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/cacheupdatefailed.py",
+      "line": 28,
+      "code": "DOC300",
+      "symbol": "ElasticacheCacheUpdateFailedEvent.version",
+      "message": "Class attribute missing '#:' documentation."
+    },
+    {
+      "key": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/snapshotcopyfailed.py:10:DOC100:SnapshotCopyFailed",
+      "path": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/snapshotcopyfailed.py",
+      "line": 10,
+      "code": "DOC100",
+      "symbol": "SnapshotCopyFailed",
+      "message": "Missing class docstring."
+    },
+    {
+      "key": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/snapshotcopyfailed.py:11:DOC300:SnapshotCopyFailed.EventCategories",
+      "path": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/snapshotcopyfailed.py",
+      "line": 11,
+      "code": "DOC300",
+      "symbol": "SnapshotCopyFailed.EventCategories",
+      "message": "Class attribute missing '#:' documentation."
+    },
+    {
+      "key": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/snapshotcopyfailed.py:12:DOC300:SnapshotCopyFailed.EventID",
+      "path": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/snapshotcopyfailed.py",
+      "line": 12,
+      "code": "DOC300",
+      "symbol": "SnapshotCopyFailed.EventID",
+      "message": "Class attribute missing '#:' documentation."
+    },
+    {
+      "key": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/snapshotcopyfailed.py:13:DOC300:SnapshotCopyFailed.Message",
+      "path": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/snapshotcopyfailed.py",
+      "line": 13,
+      "code": "DOC300",
+      "symbol": "SnapshotCopyFailed.Message",
+      "message": "Class attribute missing '#:' documentation."
+    },
+    {
+      "key": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/snapshotcopyfailed.py:14:DOC300:SnapshotCopyFailed.SourceArn",
+      "path": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/snapshotcopyfailed.py",
+      "line": 14,
+      "code": "DOC300",
+      "symbol": "SnapshotCopyFailed.SourceArn",
+      "message": "Class attribute missing '#:' documentation."
+    },
+    {
+      "key": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/snapshotcopyfailed.py:15:DOC300:SnapshotCopyFailed.SourceIdentifier",
+      "path": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/snapshotcopyfailed.py",
+      "line": 15,
+      "code": "DOC300",
+      "symbol": "SnapshotCopyFailed.SourceIdentifier",
+      "message": "Class attribute missing '#:' documentation."
+    },
+    {
+      "key": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/snapshotcopyfailed.py:16:DOC300:SnapshotCopyFailed.SourceType",
+      "path": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/snapshotcopyfailed.py",
+      "line": 16,
+      "code": "DOC300",
+      "symbol": "SnapshotCopyFailed.SourceType",
+      "message": "Class attribute missing '#:' documentation."
+    },
+    {
+      "key": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/snapshotcopyfailed.py:19:DOC100:ElasticacheSnapshotCopyFailedEvent",
+      "path": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/snapshotcopyfailed.py",
+      "line": 19,
+      "code": "DOC100",
+      "symbol": "ElasticacheSnapshotCopyFailedEvent",
+      "message": "Missing class docstring."
+    },
+    {
+      "key": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/snapshotcopyfailed.py:20:DOC300:ElasticacheSnapshotCopyFailedEvent.account",
+      "path": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/snapshotcopyfailed.py",
+      "line": 20,
+      "code": "DOC300",
+      "symbol": "ElasticacheSnapshotCopyFailedEvent.account",
+      "message": "Class attribute missing '#:' documentation."
+    },
+    {
+      "key": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/snapshotcopyfailed.py:21:DOC300:ElasticacheSnapshotCopyFailedEvent.detail",
+      "path": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/snapshotcopyfailed.py",
+      "line": 21,
+      "code": "DOC300",
+      "symbol": "ElasticacheSnapshotCopyFailedEvent.detail",
+      "message": "Class attribute missing '#:' documentation."
+    },
+    {
+      "key": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/snapshotcopyfailed.py:22:DOC300:ElasticacheSnapshotCopyFailedEvent.detail_type",
+      "path": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/snapshotcopyfailed.py",
+      "line": 22,
+      "code": "DOC300",
+      "symbol": "ElasticacheSnapshotCopyFailedEvent.detail_type",
+      "message": "Class attribute missing '#:' documentation."
+    },
+    {
+      "key": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/snapshotcopyfailed.py:23:DOC300:ElasticacheSnapshotCopyFailedEvent.id",
+      "path": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/snapshotcopyfailed.py",
+      "line": 23,
+      "code": "DOC300",
+      "symbol": "ElasticacheSnapshotCopyFailedEvent.id",
+      "message": "Class attribute missing '#:' documentation."
+    },
+    {
+      "key": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/snapshotcopyfailed.py:24:DOC300:ElasticacheSnapshotCopyFailedEvent.region",
+      "path": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/snapshotcopyfailed.py",
+      "line": 24,
+      "code": "DOC300",
+      "symbol": "ElasticacheSnapshotCopyFailedEvent.region",
+      "message": "Class attribute missing '#:' documentation."
+    },
+    {
+      "key": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/snapshotcopyfailed.py:25:DOC300:ElasticacheSnapshotCopyFailedEvent.resources",
+      "path": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/snapshotcopyfailed.py",
+      "line": 25,
+      "code": "DOC300",
+      "symbol": "ElasticacheSnapshotCopyFailedEvent.resources",
+      "message": "Class attribute missing '#:' documentation."
+    },
+    {
+      "key": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/snapshotcopyfailed.py:26:DOC300:ElasticacheSnapshotCopyFailedEvent.source",
+      "path": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/snapshotcopyfailed.py",
+      "line": 26,
+      "code": "DOC300",
+      "symbol": "ElasticacheSnapshotCopyFailedEvent.source",
+      "message": "Class attribute missing '#:' documentation."
+    },
+    {
+      "key": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/snapshotcopyfailed.py:27:DOC300:ElasticacheSnapshotCopyFailedEvent.time",
+      "path": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/snapshotcopyfailed.py",
+      "line": 27,
+      "code": "DOC300",
+      "symbol": "ElasticacheSnapshotCopyFailedEvent.time",
+      "message": "Class attribute missing '#:' documentation."
+    },
+    {
+      "key": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/snapshotcopyfailed.py:28:DOC300:ElasticacheSnapshotCopyFailedEvent.version",
+      "path": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/snapshotcopyfailed.py",
+      "line": 28,
+      "code": "DOC300",
+      "symbol": "ElasticacheSnapshotCopyFailedEvent.version",
+      "message": "Class attribute missing '#:' documentation."
+    },
+    {
+      "key": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/snapshotcreated.py:10:DOC100:SnapshotCreated",
+      "path": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/snapshotcreated.py",
+      "line": 10,
+      "code": "DOC100",
+      "symbol": "SnapshotCreated",
+      "message": "Missing class docstring."
+    },
+    {
+      "key": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/snapshotcreated.py:11:DOC300:SnapshotCreated.EventCategories",
+      "path": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/snapshotcreated.py",
+      "line": 11,
+      "code": "DOC300",
+      "symbol": "SnapshotCreated.EventCategories",
+      "message": "Class attribute missing '#:' documentation."
+    },
+    {
+      "key": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/snapshotcreated.py:12:DOC300:SnapshotCreated.EventID",
+      "path": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/snapshotcreated.py",
+      "line": 12,
+      "code": "DOC300",
+      "symbol": "SnapshotCreated.EventID",
+      "message": "Class attribute missing '#:' documentation."
+    },
+    {
+      "key": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/snapshotcreated.py:13:DOC300:SnapshotCreated.Message",
+      "path": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/snapshotcreated.py",
+      "line": 13,
+      "code": "DOC300",
+      "symbol": "SnapshotCreated.Message",
+      "message": "Class attribute missing '#:' documentation."
+    },
+    {
+      "key": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/snapshotcreated.py:14:DOC300:SnapshotCreated.SourceArn",
+      "path": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/snapshotcreated.py",
+      "line": 14,
+      "code": "DOC300",
+      "symbol": "SnapshotCreated.SourceArn",
+      "message": "Class attribute missing '#:' documentation."
+    },
+    {
+      "key": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/snapshotcreated.py:15:DOC300:SnapshotCreated.SourceIdentifier",
+      "path": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/snapshotcreated.py",
+      "line": 15,
+      "code": "DOC300",
+      "symbol": "SnapshotCreated.SourceIdentifier",
+      "message": "Class attribute missing '#:' documentation."
+    },
+    {
+      "key": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/snapshotcreated.py:16:DOC300:SnapshotCreated.SourceType",
+      "path": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/snapshotcreated.py",
+      "line": 16,
+      "code": "DOC300",
+      "symbol": "SnapshotCreated.SourceType",
+      "message": "Class attribute missing '#:' documentation."
+    },
+    {
+      "key": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/snapshotcreated.py:19:DOC100:ElasticacheSnapshotCreatedEvent",
+      "path": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/snapshotcreated.py",
+      "line": 19,
+      "code": "DOC100",
+      "symbol": "ElasticacheSnapshotCreatedEvent",
+      "message": "Missing class docstring."
+    },
+    {
+      "key": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/snapshotcreated.py:20:DOC300:ElasticacheSnapshotCreatedEvent.account",
+      "path": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/snapshotcreated.py",
+      "line": 20,
+      "code": "DOC300",
+      "symbol": "ElasticacheSnapshotCreatedEvent.account",
+      "message": "Class attribute missing '#:' documentation."
+    },
+    {
+      "key": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/snapshotcreated.py:21:DOC300:ElasticacheSnapshotCreatedEvent.detail",
+      "path": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/snapshotcreated.py",
+      "line": 21,
+      "code": "DOC300",
+      "symbol": "ElasticacheSnapshotCreatedEvent.detail",
+      "message": "Class attribute missing '#:' documentation."
+    },
+    {
+      "key": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/snapshotcreated.py:22:DOC300:ElasticacheSnapshotCreatedEvent.detail_type",
+      "path": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/snapshotcreated.py",
+      "line": 22,
+      "code": "DOC300",
+      "symbol": "ElasticacheSnapshotCreatedEvent.detail_type",
+      "message": "Class attribute missing '#:' documentation."
+    },
+    {
+      "key": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/snapshotcreated.py:23:DOC300:ElasticacheSnapshotCreatedEvent.id",
+      "path": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/snapshotcreated.py",
+      "line": 23,
+      "code": "DOC300",
+      "symbol": "ElasticacheSnapshotCreatedEvent.id",
+      "message": "Class attribute missing '#:' documentation."
+    },
+    {
+      "key": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/snapshotcreated.py:24:DOC300:ElasticacheSnapshotCreatedEvent.region",
+      "path": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/snapshotcreated.py",
+      "line": 24,
+      "code": "DOC300",
+      "symbol": "ElasticacheSnapshotCreatedEvent.region",
+      "message": "Class attribute missing '#:' documentation."
+    },
+    {
+      "key": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/snapshotcreated.py:25:DOC300:ElasticacheSnapshotCreatedEvent.resources",
+      "path": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/snapshotcreated.py",
+      "line": 25,
+      "code": "DOC300",
+      "symbol": "ElasticacheSnapshotCreatedEvent.resources",
+      "message": "Class attribute missing '#:' documentation."
+    },
+    {
+      "key": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/snapshotcreated.py:26:DOC300:ElasticacheSnapshotCreatedEvent.source",
+      "path": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/snapshotcreated.py",
+      "line": 26,
+      "code": "DOC300",
+      "symbol": "ElasticacheSnapshotCreatedEvent.source",
+      "message": "Class attribute missing '#:' documentation."
+    },
+    {
+      "key": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/snapshotcreated.py:27:DOC300:ElasticacheSnapshotCreatedEvent.time",
+      "path": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/snapshotcreated.py",
+      "line": 27,
+      "code": "DOC300",
+      "symbol": "ElasticacheSnapshotCreatedEvent.time",
+      "message": "Class attribute missing '#:' documentation."
+    },
+    {
+      "key": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/snapshotcreated.py:28:DOC300:ElasticacheSnapshotCreatedEvent.version",
+      "path": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/snapshotcreated.py",
+      "line": 28,
+      "code": "DOC300",
+      "symbol": "ElasticacheSnapshotCreatedEvent.version",
+      "message": "Class attribute missing '#:' documentation."
+    },
+    {
+      "key": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/snapshotcreationfailed.py:10:DOC100:SnapshotCreationFailed",
+      "path": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/snapshotcreationfailed.py",
+      "line": 10,
+      "code": "DOC100",
+      "symbol": "SnapshotCreationFailed",
+      "message": "Missing class docstring."
+    },
+    {
+      "key": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/snapshotcreationfailed.py:11:DOC300:SnapshotCreationFailed.EventCategories",
+      "path": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/snapshotcreationfailed.py",
+      "line": 11,
+      "code": "DOC300",
+      "symbol": "SnapshotCreationFailed.EventCategories",
+      "message": "Class attribute missing '#:' documentation."
+    },
+    {
+      "key": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/snapshotcreationfailed.py:12:DOC300:SnapshotCreationFailed.EventID",
+      "path": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/snapshotcreationfailed.py",
+      "line": 12,
+      "code": "DOC300",
+      "symbol": "SnapshotCreationFailed.EventID",
+      "message": "Class attribute missing '#:' documentation."
+    },
+    {
+      "key": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/snapshotcreationfailed.py:13:DOC300:SnapshotCreationFailed.Message",
+      "path": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/snapshotcreationfailed.py",
+      "line": 13,
+      "code": "DOC300",
+      "symbol": "SnapshotCreationFailed.Message",
+      "message": "Class attribute missing '#:' documentation."
+    },
+    {
+      "key": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/snapshotcreationfailed.py:14:DOC300:SnapshotCreationFailed.SourceArn",
+      "path": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/snapshotcreationfailed.py",
+      "line": 14,
+      "code": "DOC300",
+      "symbol": "SnapshotCreationFailed.SourceArn",
+      "message": "Class attribute missing '#:' documentation."
+    },
+    {
+      "key": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/snapshotcreationfailed.py:15:DOC300:SnapshotCreationFailed.SourceIdentifier",
+      "path": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/snapshotcreationfailed.py",
+      "line": 15,
+      "code": "DOC300",
+      "symbol": "SnapshotCreationFailed.SourceIdentifier",
+      "message": "Class attribute missing '#:' documentation."
+    },
+    {
+      "key": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/snapshotcreationfailed.py:16:DOC300:SnapshotCreationFailed.SourceType",
+      "path": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/snapshotcreationfailed.py",
+      "line": 16,
+      "code": "DOC300",
+      "symbol": "SnapshotCreationFailed.SourceType",
+      "message": "Class attribute missing '#:' documentation."
+    },
+    {
+      "key": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/snapshotcreationfailed.py:19:DOC100:ElasticacheSnapshotCreationFailedEvent",
+      "path": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/snapshotcreationfailed.py",
+      "line": 19,
+      "code": "DOC100",
+      "symbol": "ElasticacheSnapshotCreationFailedEvent",
+      "message": "Missing class docstring."
+    },
+    {
+      "key": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/snapshotcreationfailed.py:20:DOC300:ElasticacheSnapshotCreationFailedEvent.account",
+      "path": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/snapshotcreationfailed.py",
+      "line": 20,
+      "code": "DOC300",
+      "symbol": "ElasticacheSnapshotCreationFailedEvent.account",
+      "message": "Class attribute missing '#:' documentation."
+    },
+    {
+      "key": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/snapshotcreationfailed.py:21:DOC300:ElasticacheSnapshotCreationFailedEvent.detail",
+      "path": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/snapshotcreationfailed.py",
+      "line": 21,
+      "code": "DOC300",
+      "symbol": "ElasticacheSnapshotCreationFailedEvent.detail",
+      "message": "Class attribute missing '#:' documentation."
+    },
+    {
+      "key": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/snapshotcreationfailed.py:22:DOC300:ElasticacheSnapshotCreationFailedEvent.detail_type",
+      "path": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/snapshotcreationfailed.py",
+      "line": 22,
+      "code": "DOC300",
+      "symbol": "ElasticacheSnapshotCreationFailedEvent.detail_type",
+      "message": "Class attribute missing '#:' documentation."
+    },
+    {
+      "key": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/snapshotcreationfailed.py:23:DOC300:ElasticacheSnapshotCreationFailedEvent.id",
+      "path": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/snapshotcreationfailed.py",
+      "line": 23,
+      "code": "DOC300",
+      "symbol": "ElasticacheSnapshotCreationFailedEvent.id",
+      "message": "Class attribute missing '#:' documentation."
+    },
+    {
+      "key": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/snapshotcreationfailed.py:24:DOC300:ElasticacheSnapshotCreationFailedEvent.region",
+      "path": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/snapshotcreationfailed.py",
+      "line": 24,
+      "code": "DOC300",
+      "symbol": "ElasticacheSnapshotCreationFailedEvent.region",
+      "message": "Class attribute missing '#:' documentation."
+    },
+    {
+      "key": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/snapshotcreationfailed.py:25:DOC300:ElasticacheSnapshotCreationFailedEvent.resources",
+      "path": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/snapshotcreationfailed.py",
+      "line": 25,
+      "code": "DOC300",
+      "symbol": "ElasticacheSnapshotCreationFailedEvent.resources",
+      "message": "Class attribute missing '#:' documentation."
+    },
+    {
+      "key": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/snapshotcreationfailed.py:26:DOC300:ElasticacheSnapshotCreationFailedEvent.source",
+      "path": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/snapshotcreationfailed.py",
+      "line": 26,
+      "code": "DOC300",
+      "symbol": "ElasticacheSnapshotCreationFailedEvent.source",
+      "message": "Class attribute missing '#:' documentation."
+    },
+    {
+      "key": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/snapshotcreationfailed.py:27:DOC300:ElasticacheSnapshotCreationFailedEvent.time",
+      "path": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/snapshotcreationfailed.py",
+      "line": 27,
+      "code": "DOC300",
+      "symbol": "ElasticacheSnapshotCreationFailedEvent.time",
+      "message": "Class attribute missing '#:' documentation."
+    },
+    {
+      "key": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/snapshotcreationfailed.py:28:DOC300:ElasticacheSnapshotCreationFailedEvent.version",
+      "path": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/snapshotcreationfailed.py",
+      "line": 28,
+      "code": "DOC300",
+      "symbol": "ElasticacheSnapshotCreationFailedEvent.version",
+      "message": "Class attribute missing '#:' documentation."
+    },
+    {
+      "key": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/snapshotexportfailed.py:10:DOC100:SnapshotExportFailed",
+      "path": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/snapshotexportfailed.py",
+      "line": 10,
+      "code": "DOC100",
+      "symbol": "SnapshotExportFailed",
+      "message": "Missing class docstring."
+    },
+    {
+      "key": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/snapshotexportfailed.py:11:DOC300:SnapshotExportFailed.EventCategories",
+      "path": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/snapshotexportfailed.py",
+      "line": 11,
+      "code": "DOC300",
+      "symbol": "SnapshotExportFailed.EventCategories",
+      "message": "Class attribute missing '#:' documentation."
+    },
+    {
+      "key": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/snapshotexportfailed.py:12:DOC300:SnapshotExportFailed.EventID",
+      "path": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/snapshotexportfailed.py",
+      "line": 12,
+      "code": "DOC300",
+      "symbol": "SnapshotExportFailed.EventID",
+      "message": "Class attribute missing '#:' documentation."
+    },
+    {
+      "key": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/snapshotexportfailed.py:13:DOC300:SnapshotExportFailed.Message",
+      "path": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/snapshotexportfailed.py",
+      "line": 13,
+      "code": "DOC300",
+      "symbol": "SnapshotExportFailed.Message",
+      "message": "Class attribute missing '#:' documentation."
+    },
+    {
+      "key": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/snapshotexportfailed.py:14:DOC300:SnapshotExportFailed.SourceArn",
+      "path": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/snapshotexportfailed.py",
+      "line": 14,
+      "code": "DOC300",
+      "symbol": "SnapshotExportFailed.SourceArn",
+      "message": "Class attribute missing '#:' documentation."
+    },
+    {
+      "key": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/snapshotexportfailed.py:15:DOC300:SnapshotExportFailed.SourceIdentifier",
+      "path": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/snapshotexportfailed.py",
+      "line": 15,
+      "code": "DOC300",
+      "symbol": "SnapshotExportFailed.SourceIdentifier",
+      "message": "Class attribute missing '#:' documentation."
+    },
+    {
+      "key": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/snapshotexportfailed.py:16:DOC300:SnapshotExportFailed.SourceType",
+      "path": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/snapshotexportfailed.py",
+      "line": 16,
+      "code": "DOC300",
+      "symbol": "SnapshotExportFailed.SourceType",
+      "message": "Class attribute missing '#:' documentation."
+    },
+    {
+      "key": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/snapshotexportfailed.py:19:DOC100:ElasticacheSnapshotExportFailedEvent",
+      "path": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/snapshotexportfailed.py",
+      "line": 19,
+      "code": "DOC100",
+      "symbol": "ElasticacheSnapshotExportFailedEvent",
+      "message": "Missing class docstring."
+    },
+    {
+      "key": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/snapshotexportfailed.py:20:DOC300:ElasticacheSnapshotExportFailedEvent.account",
+      "path": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/snapshotexportfailed.py",
+      "line": 20,
+      "code": "DOC300",
+      "symbol": "ElasticacheSnapshotExportFailedEvent.account",
+      "message": "Class attribute missing '#:' documentation."
+    },
+    {
+      "key": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/snapshotexportfailed.py:21:DOC300:ElasticacheSnapshotExportFailedEvent.detail",
+      "path": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/snapshotexportfailed.py",
+      "line": 21,
+      "code": "DOC300",
+      "symbol": "ElasticacheSnapshotExportFailedEvent.detail",
+      "message": "Class attribute missing '#:' documentation."
+    },
+    {
+      "key": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/snapshotexportfailed.py:22:DOC300:ElasticacheSnapshotExportFailedEvent.detail_type",
+      "path": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/snapshotexportfailed.py",
+      "line": 22,
+      "code": "DOC300",
+      "symbol": "ElasticacheSnapshotExportFailedEvent.detail_type",
+      "message": "Class attribute missing '#:' documentation."
+    },
+    {
+      "key": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/snapshotexportfailed.py:23:DOC300:ElasticacheSnapshotExportFailedEvent.id",
+      "path": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/snapshotexportfailed.py",
+      "line": 23,
+      "code": "DOC300",
+      "symbol": "ElasticacheSnapshotExportFailedEvent.id",
+      "message": "Class attribute missing '#:' documentation."
+    },
+    {
+      "key": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/snapshotexportfailed.py:24:DOC300:ElasticacheSnapshotExportFailedEvent.region",
+      "path": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/snapshotexportfailed.py",
+      "line": 24,
+      "code": "DOC300",
+      "symbol": "ElasticacheSnapshotExportFailedEvent.region",
+      "message": "Class attribute missing '#:' documentation."
+    },
+    {
+      "key": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/snapshotexportfailed.py:25:DOC300:ElasticacheSnapshotExportFailedEvent.resources",
+      "path": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/snapshotexportfailed.py",
+      "line": 25,
+      "code": "DOC300",
+      "symbol": "ElasticacheSnapshotExportFailedEvent.resources",
+      "message": "Class attribute missing '#:' documentation."
+    },
+    {
+      "key": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/snapshotexportfailed.py:26:DOC300:ElasticacheSnapshotExportFailedEvent.source",
+      "path": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/snapshotexportfailed.py",
+      "line": 26,
+      "code": "DOC300",
+      "symbol": "ElasticacheSnapshotExportFailedEvent.source",
+      "message": "Class attribute missing '#:' documentation."
+    },
+    {
+      "key": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/snapshotexportfailed.py:27:DOC300:ElasticacheSnapshotExportFailedEvent.time",
+      "path": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/snapshotexportfailed.py",
+      "line": 27,
+      "code": "DOC300",
+      "symbol": "ElasticacheSnapshotExportFailedEvent.time",
+      "message": "Class attribute missing '#:' documentation."
+    },
+    {
+      "key": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/snapshotexportfailed.py:28:DOC300:ElasticacheSnapshotExportFailedEvent.version",
+      "path": "/Users/cmalek/src/workspace/botocraft/botocraft/eventbridge/raw/elasticache/snapshotexportfailed.py",
+      "line": 28,
+      "code": "DOC300",
+      "symbol": "ElasticacheSnapshotExportFailedEvent.version",
       "message": "Class attribute missing '#:' documentation."
     }
   ]

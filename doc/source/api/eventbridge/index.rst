@@ -33,6 +33,7 @@ Browse supported EventBridge wrappers by AWS service:
    acm/index
    codepipeline/index
    ecr/index
+   elasticache/index
    elasticsearch/index
    elbv2/index
    ecs/index

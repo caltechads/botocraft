@@ -135,3 +135,4 @@ config.codekit3
 local_storage
 .worktrees/
 
+log.txt
