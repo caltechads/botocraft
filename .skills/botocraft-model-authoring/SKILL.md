@@ -39,8 +39,13 @@ intentionally narrower.
 ## Tags rule
 
 Botocraft-side tag field must end up named `Tags`.
-If AWS shape uses `tags` or `TagList`, rename it to `Tags`.
-If service already returns literal `Tags`, keep it.
+If AWS shape already uses `Tags`, keep it.
+If the model already has tags under another attribute such as `tags` or
+`TagList`, rename that field to `Tags`.
+If tags belong on the primary model but come from a follow-up API instead of the
+main shape, add them as `extra_fields.Tags`.
+Primary models should expose tags through the Botocraft tag system on `Tags`,
+not through bespoke `get_tags`, `put_tags`, or `delete_tags` helper methods.
 Prefer list-of-dict/tag-model representation that existing repo patterns use.
 
 Load `../botocraft-service-authoring/references/model-collision-and-tags.md`

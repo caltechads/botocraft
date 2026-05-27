@@ -27,8 +27,8 @@
     },
     {
       "id": 5,
-      "prompt": "Help me design a Botocraft service as complicated as EC2: multiple primary models, cross-service name collisions, tags that need conversion, decorator-shaped get/list methods, relations, and extra lifecycle helpers. Keep context lean and load the EC2-specific guidance only when needed.",
-      "expected_output": "The skill should keep parent routing thin, load reference material instead of bloating active instructions, and choose existing Botocraft EC2/ECS-style patterns rather than generic AWS advice.",
+      "prompt": "Help me design a Botocraft service as complicated as EC2: multiple primary models, cross-service name collisions, a tag attribute coming back as `TagList`, decorator-shaped get/list methods, relations, and extra lifecycle helpers. Keep context lean and load the EC2-specific guidance only when needed. I want tags handled the Botocraft way, not as separate tag helper methods.",
+      "expected_output": "The skill should keep parent routing thin, load reference material instead of bloating active instructions, rename the tag-bearing attribute to exact `Tags`, and choose the Botocraft tag-system pattern with decorators or mixins instead of bespoke `get_tags`/`put_tags`/`delete_tags` helpers.",
       "files": []
     },
     {

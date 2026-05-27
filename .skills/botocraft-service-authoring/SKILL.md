@@ -180,7 +180,14 @@ answer directly.
 - Keep richer wrapper response classes only when the narrower shape would lose
   required fields needed for the supported create, update, or get surface.
 - `.get()` and `.list()` should return model instances, not raw identifiers.
-- Normalize Botocraft tag field names to `Tags`.
+- Normalize Botocraft tag field names to exact `Tags`.
+- If model already has a tag-bearing attribute under another name such as
+  `tags` or `TagList`, rename it to `Tags`.
+- Prefer the Botocraft tag system on primary models: keep or add `Tags` on the
+  model, use `extra_fields.Tags` when hydration is external, and use
+  decorators/mixins to populate or translate that field.
+- Do not make bespoke `get_tags`, `put_tags`, or `delete_tags` helpers the
+  normal public tag contract for primary models.
 - For non-CRUD manager methods, follow `generator-yaml-pitfalls.md` for
   `return_type` / `response_attr`; inspect generated `botocraft/services/` code
   after sync.

@@ -76,6 +76,11 @@ List should return model instances whenever service contract plausibly allows it
 Load `../botocraft-service-authoring/references/common-manager-patterns.md`
 when choosing a concrete `get` or `list` pattern.
 
+For taggable primary models, prefer get/list/create behavior that hydrates the
+model's `Tags` field through the Botocraft tag system. If the source field is
+named `tags` or `TagList`, rename it to `Tags` on the model side rather than
+teaching managers to expose bespoke tag helper methods.
+
 ## Create/update/delete heuristics
 
 - `create`: model instance as main parameter; extra keyword args only when AWS
@@ -85,6 +90,11 @@ when choosing a concrete `get` or `list` pattern.
 
 Escalate to advanced manager skill for deactivate-then-delete or decorator-heavy
 flows.
+
+For tags specifically, keep the normal public contract on model `Tags` plus
+decorators or mixins that populate or translate that field. Do not add
+`get_tags`, `put_tags`, or `delete_tags` as the default user-facing pattern for
+primary models.
 
 ## Generic methods
 

@@ -16,6 +16,7 @@ Prefer decorator when generated call is basically correct and only needs:
 - lightweight post-processing
 - missing-result normalization
 - batched follow-up lookups around AWS per-call limits
+- tag hydration onto model field `Tags`
 
 Prefer manager mixin when method needs:
 
@@ -33,6 +34,11 @@ Reach here for cases like:
 - context-required list/get like S3 objects needing `Bucket` or EventBridge
   targets needing `Rule`
 - read methods that need tag-enrichment follow-up calls
+
+For primary-model tags, enrichment should populate the Botocraft model field
+named exactly `Tags`. If the source attribute was `tags` or `TagList`, rename it
+to `Tags` in the model contract first. Do not default to bespoke `get_tags`,
+`put_tags`, or `delete_tags` helpers.
 
 Load `../botocraft-service-authoring/references/common-manager-patterns.md`
 for concrete examples.
@@ -75,6 +81,10 @@ Good mixin candidates repeat one of these patterns:
 - same follow-up enrichment across several methods
 - same conversion logic across services or models
 - multi-call workflow user will reasonably want more than once
+
+Tag-specific mixin cases are things like EC2 `TagSpecifications` conversion or
+update-time reconciliation of model `Tags`, not replacing the Botocraft tag
+system with separate tag helper methods.
 
 ## EC2/ECS reference
 

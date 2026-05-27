@@ -18,6 +18,10 @@ Use `alternate_name` when:
 
 Prefer smallest rename that keeps public API understandable.
 
+Apply the same rule to tags: if a model already has a tag-bearing attribute but
+it is not named exactly `Tags`, rename that field to `Tags` instead of keeping a
+near-miss public name.
+
 Load `../botocraft-service-authoring/references/model-collision-and-tags.md`
 for established rename patterns.
 
@@ -99,6 +103,10 @@ Before choosing bespoke, rule out:
 - `output_shape`
 - extra fields on otherwise normal model
 - manager decorator or mixin
+
+For taggable primary models, also rule out the simpler Botocraft tag-system
+pattern first: keep or rename a `Tags` field, or add `extra_fields.Tags` with
+decorator/mixin hydration, before inventing bespoke tag helper APIs.
 
 ## Composite identity
 

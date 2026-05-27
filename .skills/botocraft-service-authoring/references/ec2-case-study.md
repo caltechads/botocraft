@@ -57,6 +57,11 @@ to `TagSpecifications`. That logic lives naturally in manager mixin:
 
 - `EC2TagsManagerMixin`
 
+If the upstream tag-bearing attribute is not already named `Tags`, rename it to
+`Tags` on the Botocraft model side first. EC2 is still using the normal
+Botocraft tag system on model `Tags`; the mixin only translates or reconciles
+that field for EC2's irregular API shape.
+
 ## Relations
 
 EC2 shows dense but still readable relations:

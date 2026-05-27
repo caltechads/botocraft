@@ -23,10 +23,17 @@ Catch these first:
 - import and name collisions
 - wrong forward references
 - tag field mismatch
+- tag-bearing fields left under names like `tags` or `TagList` instead of exact
+  `Tags`
 - wrong `response_attr` (see generator-yaml-pitfalls.md)
 - broken empty-output handling (`response = None(**_response)` or bogus `.Return`)
 - decorator/mixin return-shape mistakes
 - live AWS enum drift encoded on only one side
+
+For taggable primary models, verify generated behavior matches the Botocraft tag
+system: model exposes `Tags`, any decorator/mixin hydration fills that field,
+and authoring did not drift into bespoke `get_tags`, `put_tags`, or
+`delete_tags` methods as the public tag contract.
 
 For new manager helpers, load
 `../botocraft-service-authoring/references/generator-yaml-pitfalls.md` and walk

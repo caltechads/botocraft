@@ -66,6 +66,10 @@ Examples:
 - DocDB single-object describe + include-tags decorator
 - Events describe response -> public rule model
 
+For taggable primary models, decorator enrichment should populate model field
+`Tags` as part of the Botocraft tag system. If the source attribute is `tags`
+or `TagList`, rename it to `Tags` in the model contract first.
+
 ### 5. Special-case getters
 
 These are signals to slow down and inspect:
@@ -116,6 +120,10 @@ Examples:
 - DocDB list + include-tags
 - ElastiCache user/user-group tag enrichment
 - logs log-group tag conversion
+
+Tag enrichment here means filling the model's `Tags` field, not exposing
+separate `get_tags`, `put_tags`, or `delete_tags` methods as the primary public
+interface.
 
 ### 5. Context-required list
 
