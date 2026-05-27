@@ -1,0 +1,182 @@
+---
+primary:
+  StreamSummary:
+    alternate_name: KinesisStream
+    primary_key: StreamName
+    arn_key: StreamARN
+    name_key: StreamName
+    input_shapes:
+      - CreateStreamInput
+    output_shape: StreamDescriptionSummary
+    mixins:
+      - name: KinesisStreamModelMixin
+        import_path: botocraft.mixins.kinesis
+    relations:
+      shards:
+        primary_model_name: KinesisShard
+        many: true
+        cached: false
+        docstring: >-
+          Return the shards that belong to this stream.
+        transformer:
+          mapping:
+            StreamARN: StreamARN
+    manager_methods:
+      update_shard_count:
+        docstring: >-
+          Update the shard count for this stream.
+        manager_method: update_shard_count
+        user_args:
+          0:
+            name: TargetShardCount
+            attr_type: int
+          1:
+            name: ScalingType
+            attr_type: "Literal['UNIFORM_SCALING']"
+        keyword_args:
+          - name: StreamARN
+            value: >-
+              cast(str, self.StreamARN)
+      update_stream_mode:
+        docstring: >-
+          Update the capacity mode for this stream.
+        manager_method: update_stream_mode
+        user_args:
+          0:
+            name: StreamModeDetails
+            attr_type: KinesisStreamModeDetails
+        keyword_args:
+          - name: StreamARN
+            value: >-
+              cast(str, self.StreamARN)
+        user_keyword_args:
+          - name: WarmThroughputMiBps
+      update_stream_warm_throughput:
+        docstring: >-
+          Update the warm throughput for this stream.
+        manager_method: update_stream_warm_throughput
+        user_args:
+          0:
+            name: WarmThroughputMiBps
+            attr_type: int
+        keyword_args:
+          - name: StreamARN
+            value: >-
+              cast(str, self.StreamARN)
+      update_max_record_size:
+        docstring: >-
+          Update the maximum record size for this stream.
+        manager_method: update_max_record_size
+        user_args:
+          0:
+            name: MaxRecordSizeInKiB
+            attr_type: int
+        keyword_args:
+          - name: StreamARN
+            value: >-
+              cast(str, self.StreamARN)
+    extra_fields:
+      ShardCount:
+        python_type: int | None
+        default: None
+        docstring: >-
+          Requested shard count used when creating a provisioned stream.
+      WarmThroughputMiBps:
+        python_type: int | None
+        default: None
+        docstring: >-
+          Requested warm throughput in MiB/s used during create or update calls.
+      Tags:
+        python_type: builtins.list[Tag]
+        docstring: >-
+          Tags associated with the stream.
+        imports:
+          - from .common import Tag
+  Consumer:
+    alternate_name: KinesisConsumer
+    primary_key: ConsumerARN
+    arn_key: ConsumerARN
+    name_key: ConsumerName
+    input_shapes:
+      - RegisterStreamConsumerInput
+    output_shape: ConsumerDescription
+    extra_fields:
+      Tags:
+        python_type: builtins.list[Tag]
+        docstring: >-
+          Tags associated with the consumer.
+        imports:
+          - from .common import Tag
+  Shard:
+    alternate_name: KinesisShard
+    readonly: true
+    imports:
+      - from collections import OrderedDict
+      - from typing import Any, Literal, cast
+    extra_fields:
+      StreamARN:
+        python_type: str | None
+        default: None
+        docstring: >-
+          ARN of stream that owns this shard.
+      StreamName:
+        python_type: str | None
+        default: None
+        docstring: >-
+          Name of stream that owns this shard.
+    properties:
+      pk:
+        docstring: >-
+          Stream-scoped composite identity for the shard.
+        transformer:
+          code:
+            return_type: OrderedDict[str, Any]
+            code: >-
+              OrderedDict({"StreamARN": self.StreamARN, "ShardId": self.ShardId}) if self.StreamARN else OrderedDict({"StreamName": self.StreamName, "ShardId": self.ShardId})
+    manager_methods:
+      iterator:
+        docstring: >-
+          Get an iterator for this shard.
+        manager_method: iterator
+        args:
+          0:
+            name: ShardId
+            value: >-
+              cast(str, self.ShardId)
+        user_args:
+          1:
+            name: ShardIteratorType
+            attr_type: >-
+              "Literal['AT_SEQUENCE_NUMBER', 'AFTER_SEQUENCE_NUMBER', 'TRIM_HORIZON', 'LATEST', 'AT_TIMESTAMP']"
+        keyword_args:
+          - name: StreamARN
+            value: >-
+              self.StreamARN
+          - name: StreamName
+            value: >-
+              self.StreamName
+        user_keyword_args:
+          - name: StartingSequenceNumber
+          - name: Timestamp
+
+secondary:
+  Record:
+    alternate_name: KinesisRecord
+    force_create: true
+    extra_fields:
+      StreamARN:
+        python_type: str | None
+        default: None
+        docstring: >-
+          ARN of stream that produced this record.
+      ShardId:
+        python_type: str | None
+        default: None
+        docstring: >-
+          Shard identifier that produced this record.
+  StreamModeDetails:
+    alternate_name: KinesisStreamModeDetails
+  EnhancedMetrics:
+    alternate_name: KinesisEnhancedMetrics
+  WarmThroughputObject:
+    alternate_name: KinesisWarmThroughput

@@ -1,0 +1,89 @@
+---
+StreamSummary:
+  mixins:
+    - name: KinesisStreamManagerMixin
+      import_path: botocraft.mixins.kinesis
+  methods:
+    get:
+      decorators:
+        - name: stream_include_tags
+          import_path: botocraft.mixins.kinesis
+      boto3_name: describe_stream_summary
+      response_attr: StreamDescriptionSummary
+      args:
+        StreamName:
+          required: true
+    list:
+      decorators:
+        - name: streams_include_tags
+          import_path: botocraft.mixins.kinesis
+      boto3_name: list_streams
+      response_attr: StreamSummaries
+    delete:
+      boto3_name: delete_stream
+      return_type: None
+      response_attr: None
+      args:
+        StreamName:
+          required: true
+    update_shard_count:
+      boto3_name: update_shard_count
+      response_attr: None
+    update_stream_mode:
+      boto3_name: update_stream_mode
+      return_type: None
+      response_attr: None
+    update_stream_warm_throughput:
+      boto3_name: update_stream_warm_throughput
+      response_attr: None
+    update_max_record_size:
+      boto3_name: update_max_record_size
+      return_type: None
+      response_attr: None
+
+Consumer:
+  mixins:
+    - name: KinesisConsumerManagerMixin
+      import_path: botocraft.mixins.kinesis
+  methods:
+    get:
+      decorators:
+        - name: consumer_include_tags
+          import_path: botocraft.mixins.kinesis
+      boto3_name: describe_stream_consumer
+      response_attr: ConsumerDescription
+      args:
+        ConsumerARN:
+          required: true
+    list:
+      decorators:
+        - name: consumers_include_tags
+          import_path: botocraft.mixins.kinesis
+      boto3_name: list_stream_consumers
+      response_attr: Consumers
+      args:
+        StreamARN:
+          required: true
+    delete:
+      boto3_name: deregister_stream_consumer
+      return_type: None
+      response_attr: None
+      args:
+        ConsumerARN:
+          required: true
+
+Shard:
+  mixins:
+    - name: KinesisShardManagerMixin
+      import_path: botocraft.mixins.kinesis
+  methods:
+    list:
+      boto3_name: list_shards
+      response_attr: Shards
+    get:
+      boto3_name: list_shards
+      response_attr: Shards
+    iterator:
+      boto3_name: get_shard_iterator
+      return_type: str | None
+      response_attr: ShardIterator

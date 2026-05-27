@@ -23,6 +23,7 @@
    api/services/events
    api/services/iam
    api/services/inspector2
+   api/services/kinesis
    api/services/kms
    api/services/logs
    api/services/opensearch

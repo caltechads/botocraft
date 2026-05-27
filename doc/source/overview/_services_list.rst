@@ -18,6 +18,7 @@
 - :doc:`/api/services/events`
 - :doc:`/api/services/iam`
 - :doc:`/api/services/inspector2`
+- :doc:`/api/services/kinesis`
 - :doc:`/api/services/kms`
 - :doc:`/api/services/logs`
 - :doc:`/api/services/opensearch`

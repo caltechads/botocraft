@@ -13,6 +13,7 @@ botocraft
    overview/bedrock
    overview/connectivity
    overview/cloudwatch
+   overview/kinesis
    overview/ecs_exec
 
 .. toctree::
