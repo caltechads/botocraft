@@ -1,0 +1,148 @@
+---
+primary:
+  Connection:
+    primary_key: ConnectionArn
+    arn_key: ConnectionArn
+    name_key: ConnectionName
+    input_shapes:
+      - CreateConnectionInput
+    extra_fields:
+      Tags:
+        python_type: builtins.list[Tag] | None
+        default: None
+        docstring: >-
+          Tags associated with this connection.
+
+  Host:
+    primary_key: HostArn
+    arn_key: HostArn
+    name_key: Name
+    input_shapes:
+      - CreateHostInput
+      - UpdateHostInput
+    extra_fields:
+      Tags:
+        python_type: builtins.list[Tag] | None
+        default: None
+        docstring: >-
+          Tags associated with this host.
+
+  SyncConfiguration:
+    primary_key: ResourceName
+    input_shapes:
+      - CreateSyncConfigurationInput
+      - UpdateSyncConfigurationInput
+    fields:
+      OwnerId:
+        required: false
+      ProviderType:
+        required: false
+      RepositoryName:
+        required: false
+    properties:
+      pk:
+        docstring: >-
+          Composite identity for this sync configuration.
+        transformer:
+          mapping:
+            RepositoryLinkId: RepositoryLinkId
+            SyncType: SyncType
+            ResourceName: ResourceName
+
+  RepositorySyncDefinition:
+    readonly: true
+    extra_fields:
+      RepositoryLinkId:
+        python_type: str | None
+        default: None
+        docstring: >-
+          Repository link identifier used to scope this definition list.
+      SyncType:
+        python_type: str | None
+        default: None
+        docstring: >-
+          Sync type used to scope this definition list.
+    properties:
+      pk:
+        docstring: >-
+          Composite identity for this repository sync definition.
+        transformer:
+          mapping:
+            RepositoryLinkId: RepositoryLinkId
+            SyncType: SyncType
+            Branch: Branch
+            Directory: Directory
+            Parent: Parent
+            Target: Target
+
+  SyncBlockerSummary:
+    readonly: true
+    extra_fields:
+      SyncType:
+        python_type: str | None
+        default: None
+        docstring: >-
+          Sync type used to resolve this blocker summary.
+    properties:
+      pk:
+        docstring: >-
+          Composite identity for this sync blocker summary.
+        transformer:
+          mapping:
+            SyncType: SyncType
+            ResourceName: ResourceName
+
+  SyncBlocker:
+    extra_fields:
+      ResourceName:
+        python_type: str | None
+        default: None
+        docstring: >-
+          Resource name associated with this sync blocker.
+      ParentResourceName:
+        python_type: str | None
+        default: None
+        docstring: >-
+          Parent resource name associated with this sync blocker, when present.
+      SyncType:
+        python_type: str | None
+        default: None
+        docstring: >-
+          Sync type used to resolve this sync blocker.
+    properties:
+      pk:
+        docstring: >-
+          Composite identity for this sync blocker.
+        transformer:
+          mapping:
+            SyncType: SyncType
+            ResourceName: ResourceName
+            Id: Id
+
+secondary:
+  VpcConfiguration:
+    alternate_name: CodeConnectionsVpcConfiguration
+  GetConnectionOutput:
+    fields:
+      Connection:
+        rename: ConnectionInstance
+  CreateSyncConfigurationOutput:
+    fields:
+      SyncConfiguration:
+        rename: SyncConfigurationInstance
+  GetSyncConfigurationOutput:
+    fields:
+      SyncConfiguration:
+        rename: SyncConfigurationInstance
+  UpdateSyncConfigurationOutput:
+    fields:
+      SyncConfiguration:
+        rename: SyncConfigurationInstance
+  GetSyncBlockerSummaryOutput:
+    fields:
+      SyncBlockerSummary:
+        rename: SyncBlockerSummaryInstance
+  UpdateSyncBlockerOutput:
+    fields:
+      SyncBlocker:
+        rename: SyncBlockerInstance

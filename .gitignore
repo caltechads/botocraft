@@ -136,3 +136,5 @@ local_storage
 .worktrees/
 
 log.txt
+index.db-shm
+index.db-wal

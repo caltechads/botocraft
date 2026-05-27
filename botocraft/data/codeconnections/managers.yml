@@ -1,0 +1,193 @@
+---
+Connection:
+  methods:
+    create:
+      boto3_name: create_connection
+      response_attr: None
+      return_type: >-
+        "CreateConnectionOutput | None"
+      decorators:
+        - name: connection_create_to_connection
+          import_path: botocraft.mixins.codeconnections
+    delete:
+      boto3_name: delete_connection
+      return_type: None
+      args:
+        ConnectionArn:
+          required: true
+          rename: arn
+          source_arg: arn
+          docstring: >-
+            ARN of connection to delete.
+    get:
+      boto3_name: get_connection
+      response_attr: None
+      return_type: >-
+        "GetConnectionOutput | None"
+      decorators:
+        - name: connection_response_to_connection
+          import_path: botocraft.mixins.codeconnections
+      args:
+        ConnectionArn:
+          required: true
+          rename: arn
+          source_arg: arn
+          docstring: >-
+            ARN of connection to retrieve.
+    list:
+      boto3_name: list_connections
+      response_attr: Connections
+      decorators:
+        - name: connections_include_tags
+          import_path: botocraft.mixins.codeconnections
+
+Host:
+  methods:
+    create:
+      boto3_name: create_host
+      response_attr: None
+      return_type: >-
+        "CreateHostOutput | None"
+      decorators:
+        - name: host_create_to_host
+          import_path: botocraft.mixins.codeconnections
+    delete:
+      boto3_name: delete_host
+      docstring: >-
+        Delete a host by ARN after its connections are removed.
+      return_type: None
+      args:
+        HostArn:
+          required: true
+          rename: arn
+          source_arg: arn
+          docstring: >-
+            ARN of host to delete.
+    get:
+      boto3_name: get_host
+      response_attr: None
+      return_type: >-
+        "GetHostOutput | None"
+      decorators:
+        - name: host_response_to_host
+          import_path: botocraft.mixins.codeconnections
+      args:
+        HostArn:
+          required: true
+          rename: arn
+          source_arg: arn
+          docstring: >-
+            ARN of host to retrieve.
+    list:
+      boto3_name: list_hosts
+      response_attr: Hosts
+      decorators:
+        - name: hosts_include_tags
+          import_path: botocraft.mixins.codeconnections
+    update:
+      boto3_name: update_host
+      response_attr: None
+      return_type: None
+      decorators:
+        - name: host_update_to_host
+          import_path: botocraft.mixins.codeconnections
+
+SyncConfiguration:
+  methods:
+    create:
+      boto3_name: create_sync_configuration
+      response_attr: None
+      return_type: >-
+        "CreateSyncConfigurationOutput | None"
+      decorators:
+        - name: sync_configuration_response_to_sync_configuration
+          import_path: botocraft.mixins.codeconnections
+    delete:
+      boto3_name: delete_sync_configuration
+      return_type: None
+      args:
+        SyncType:
+          required: true
+        ResourceName:
+          required: true
+    get:
+      boto3_name: get_sync_configuration
+      response_attr: None
+      return_type: >-
+        "GetSyncConfigurationOutput | None"
+      decorators:
+        - name: sync_configuration_response_to_sync_configuration
+          import_path: botocraft.mixins.codeconnections
+      args:
+        SyncType:
+          required: true
+        ResourceName:
+          required: true
+    list:
+      boto3_name: list_sync_configurations
+      response_attr: SyncConfigurations
+      args:
+        RepositoryLinkId:
+          required: true
+        SyncType:
+          required: true
+    update:
+      boto3_name: update_sync_configuration
+      response_attr: None
+      return_type: >-
+        "UpdateSyncConfigurationOutput | None"
+      decorators:
+        - name: sync_configuration_response_to_sync_configuration
+          import_path: botocraft.mixins.codeconnections
+
+RepositorySyncDefinition:
+  readonly: true
+  methods:
+    list:
+      boto3_name: list_repository_sync_definitions
+      response_attr: RepositorySyncDefinitions
+      decorators:
+        - name: repository_sync_definitions_add_context
+          import_path: botocraft.mixins.codeconnections
+      args:
+        RepositoryLinkId:
+          required: true
+        SyncType:
+          required: true
+
+SyncBlockerSummary:
+  readonly: true
+  methods:
+    get:
+      boto3_name: get_sync_blocker_summary
+      response_attr: None
+      return_type: >-
+        "GetSyncBlockerSummaryOutput | None"
+      decorators:
+        - name: sync_blocker_summary_response_to_sync_blocker_summary
+          import_path: botocraft.mixins.codeconnections
+      args:
+        SyncType:
+          required: true
+        ResourceName:
+          required: true
+
+SyncBlocker:
+  methods:
+    update:
+      boto3_name: update_sync_blocker
+      response_attr: None
+      return_type: >-
+        "UpdateSyncBlockerOutput | None"
+      decorators:
+        - name: update_sync_blocker_response_to_sync_blocker
+          import_path: botocraft.mixins.codeconnections
+      args:
+        Id:
+          required: true
+        SyncType:
+          required: true
+        ResourceName:
+          required: true
+        ResolvedReason:
+          required: true

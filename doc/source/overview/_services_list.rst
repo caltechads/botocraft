@@ -5,6 +5,7 @@
 - :doc:`/api/services/bedrock_runtime`
 - :doc:`/api/services/cloudwatch`
 - :doc:`/api/services/codebuild`
+- :doc:`/api/services/codeconnections`
 - :doc:`/api/services/codepipeline`
 - :doc:`/api/services/docdb`
 - :doc:`/api/services/ec2`
