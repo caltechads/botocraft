@@ -12,6 +12,7 @@ from pydantic import AliasChoices, BaseModel, ConfigDict, Field, create_model
 #: CloudTrail ``eventSource`` values needing explicit botocore service ids.
 EVENT_SOURCE_SERVICE_ALIASES: dict[str, str] = {
     "email.amazonaws.com": "ses",
+    "elasticloadbalancing.amazonaws.com": "elbv2",
     "monitoring.amazonaws.com": "cloudwatch",
     "execute-api.amazonaws.com": "apigateway",
     "es.amazonaws.com": "opensearch",

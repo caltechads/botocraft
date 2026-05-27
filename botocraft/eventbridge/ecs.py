@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import TYPE_CHECKING, cast
+from typing import TYPE_CHECKING, Any, cast
 
 from .base import EventBridgeEvent
 from .common import CloudTrailApiCallMixin
@@ -358,6 +358,22 @@ class ECSAWSAPICallViaCloudTrailEvent(
             f"event_name={self.detail.eventName}>"
         )
 
+    def _response_tasks(self) -> list[dict[str, Any]]:
+        """
+        Return task dicts from CloudTrail response elements when present.
+
+        Returns:
+            Task mappings from ``detail.responseElements.tasks`` when available.
+
+        """
+        response_elements = self.detail.responseElements
+        if response_elements is None:
+            return []
+        tasks = response_elements.get("tasks")
+        if not isinstance(tasks, list):
+            return []
+        return [task for task in tasks if isinstance(task, dict)]
+
     @property
     def clusters(self) -> list["Cluster"]:
         """
@@ -366,13 +382,12 @@ class ECSAWSAPICallViaCloudTrailEvent(
         from botocraft.services.ecs import Cluster
 
         clusters: list[Cluster] = []
-        if not self.detail.responseElements:
-            return clusters
-        if not self.detail.responseElements.tasks:
-            return clusters
-        for task in self.detail.responseElements.tasks:
-            clusters.append(  # noqa: PERF401
-                Cluster.objects.using(self.session).get(cluster=task.clusterArn)
+        for task in self._response_tasks():
+            cluster_arn = task.get("clusterArn")
+            if cluster_arn is None:
+                continue
+            clusters.append(
+                Cluster.objects.using(self.session).get(cluster=cluster_arn)
             )
         return clusters
 
@@ -384,14 +399,13 @@ class ECSAWSAPICallViaCloudTrailEvent(
         from botocraft.services.ecs import TaskDefinition
 
         task_definitions: list[TaskDefinition] = []
-        if not self.detail.responseElements:
-            return task_definitions
-        if not self.detail.responseElements.tasks:
-            return task_definitions
-        for task in self.detail.responseElements.tasks:
-            task_definitions.append(  # noqa: PERF401
+        for task in self._response_tasks():
+            task_definition_arn = task.get("taskDefinitionArn")
+            if task_definition_arn is None:
+                continue
+            task_definitions.append(
                 TaskDefinition.objects.using(self.session).get(
-                    taskDefinition=task.taskDefinitionArn
+                    taskDefinition=task_definition_arn
                 )
             )
         return task_definitions
@@ -404,14 +418,14 @@ class ECSAWSAPICallViaCloudTrailEvent(
         from botocraft.services.ecs import Task
 
         tasks: list[Task] = []
-        if not self.detail.responseElements:
-            return tasks
-        if not self.detail.responseElements.tasks:
-            return tasks
-        for task in self.detail.responseElements.tasks:
-            tasks.append(  # noqa: PERF401
+        for task in self._response_tasks():
+            task_arn = task.get("taskArn")
+            cluster_arn = task.get("clusterArn")
+            if task_arn is None or cluster_arn is None:
+                continue
+            tasks.append(
                 Task.objects.using(self.session).get(
-                    task=task.taskArn, cluster=task.clusterArn
+                    task=task_arn, cluster=cluster_arn
                 )
             )
         return tasks
@@ -424,18 +438,17 @@ class ECSAWSAPICallViaCloudTrailEvent(
         from botocraft.services.ecs import ContainerInstance
 
         container_instances: list[ContainerInstance] = []
-        if not self.detail.responseElements:
-            return container_instances
-        if not self.detail.responseElements.tasks:
-            return container_instances
-        for task in self.detail.responseElements.tasks:
-            if task.containerInstanceArn:
-                container_instances.append(  # noqa: PERF401
-                    ContainerInstance.objects.using(self.session).get(
-                        containerInstance=task.containerInstanceArn,
-                        cluster=task.clusterArn,
-                    )
+        for task in self._response_tasks():
+            container_instance_arn = task.get("containerInstanceArn")
+            cluster_arn = task.get("clusterArn")
+            if container_instance_arn is None or cluster_arn is None:
+                continue
+            container_instances.append(
+                ContainerInstance.objects.using(self.session).get(
+                    containerInstance=container_instance_arn,
+                    cluster=cluster_arn,
                 )
+            )
         return container_instances
 
 

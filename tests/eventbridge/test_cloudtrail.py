@@ -16,6 +16,7 @@ from botocraft.eventbridge.cloudtrail import (
 from botocraft.eventbridge.codepipeline import CodePipelineAWSAPICallViaCloudTrailEvent
 from botocraft.eventbridge.ecr import ECRAWSAPICallViaCloudTrailEvent
 from botocraft.eventbridge.ecs import ECSAWSAPICallViaCloudTrailEvent
+from botocraft.eventbridge.elbv2 import Elbv2AWSAPICallViaCloudTrailEvent
 from botocraft.eventbridge.factory import EventFactory
 from botocraft.eventbridge.opensearch import OpenSearchAWSAPICallViaCloudTrailEvent
 
@@ -27,6 +28,10 @@ def test_service_name_from_event_source_strips_amazonaws_suffix() -> None:
 def test_service_name_from_event_source_uses_alias_table() -> None:
     assert service_name_from_event_source("monitoring.amazonaws.com") == "cloudwatch"
     assert service_name_from_event_source("es.amazonaws.com") == "opensearch"
+    assert (
+        service_name_from_event_source("elasticloadbalancing.amazonaws.com")
+        == "elbv2"
+    )
 
 
 @pytest.mark.parametrize(
@@ -34,6 +39,7 @@ def test_service_name_from_event_source_uses_alias_table() -> None:
     [
         ("acm", "RequestCertificate"),
         ("codepipeline", "StartPipelineExecution"),
+        ("elbv2", "CreateLoadBalancer"),
     ],
 )
 def test_request_model_for_operation_builds_cached_model(
@@ -139,6 +145,32 @@ def test_event_factory_codepipeline_cloudtrail_event_supports_parsed_request() -
     assert parsed.name == "myPipeline"  # type: ignore[attr-defined]
 
 
+def test_event_factory_elbv2_cloudtrail_event_supports_parsed_request() -> None:
+    payload = {
+        "version": "0",
+        "id": "event-id",
+        "detail-type": "AWS API Call via CloudTrail",
+        "source": "aws.elasticloadbalancing",
+        "account": "123456789012",
+        "time": "2026-03-07T00:51:06Z",
+        "region": "us-west-2",
+        "resources": [],
+        "detail": {
+            "eventVersion": "1.11",
+            "eventTime": "2026-03-07T00:51:06Z",
+            "eventSource": "elasticloadbalancing.amazonaws.com",
+            "eventName": "CreateLoadBalancer",
+            "awsRegion": "us-west-2",
+            "requestParameters": {"name": "my-lb"},
+        },
+    }
+    event = EventFactory().new(json.dumps(payload))
+    assert isinstance(event, Elbv2AWSAPICallViaCloudTrailEvent)
+    parsed = event.parsed_request()
+    assert isinstance(parsed, BaseModel)
+    assert parsed.Name == "my-lb"  # type: ignore[attr-defined]
+
+
 @pytest.mark.parametrize(
     ("payload", "expected_type", "expected_fields"),
     [
@@ -224,6 +256,33 @@ def test_event_factory_codepipeline_cloudtrail_event_supports_parsed_request() -
             OpenSearchAWSAPICallViaCloudTrailEvent,
             {
                 "DomainName": "example-domain",
+            },
+        ),
+        (
+            {
+                "version": "0",
+                "id": "event-id",
+                "detail-type": "AWS API Call via CloudTrail",
+                "source": "aws.elasticloadbalancing",
+                "account": "123456789012",
+                "time": "2026-03-07T00:51:06Z",
+                "region": "us-west-2",
+                "resources": [],
+                "detail": {
+                    "eventVersion": "1.11",
+                    "eventTime": "2026-03-07T00:51:06Z",
+                    "eventSource": "elasticloadbalancing.amazonaws.com",
+                    "eventName": "CreateLoadBalancer",
+                    "awsRegion": "us-west-2",
+                    "requestParameters": {
+                        "name": "my-lb",
+                        "type": "application",
+                    },
+                },
+            },
+            Elbv2AWSAPICallViaCloudTrailEvent,
+            {
+                "Name": "my-lb",
             },
         ),
     ],

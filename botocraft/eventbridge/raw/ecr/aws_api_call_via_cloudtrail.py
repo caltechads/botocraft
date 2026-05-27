@@ -6,172 +6,80 @@ from typing import Any
 from pydantic import BaseModel, Field
 
 
-class AWSAPICallViaCloudTrailItem(BaseModel):
+class ECRAWSAPICallViaCloudTrail(BaseModel):
     """
-    Represents a resource involved in an AWS API call via CloudTrail.  Contains
-    identifiers for AWS resources that were accessed or modified during the API
-    call.
-    """
+    Detail payload for an ECR API call delivered via CloudTrail.
 
-    #: The AWS account ID that owns the resource
-    accountId: str
-    #: The Amazon Resource Name (ARN) of the resource
-    ARN: str
-
-
-class RequestParametersItem(BaseModel):
-    """
-    Represents an image identifier in an ECR API request.  Used to specify which
-    container image is being referenced in operations like BatchGetImage.
+    The EventBridge reference documents the event-pattern contract for this
+    event family but not a service-specific full schema, so flexible mapping
+    fields remain ``dict[str, Any]`` where request and response shapes vary by
+    API operation.
     """
 
-    #: The tag of the container image
-    imageTag: str
-
-
-class SessionIssuer(BaseModel):
-    """
-    Represents the entity that issued the session in the user identity context.
-    Contains information about the IAM entity (user or role) that created the
-    session.
-    """
-
-    #: The AWS account ID that owns the entity
-    accountId: str
-    #: The unique identifier of the entity
-    principalId: str
-    #: The type of the entity (e.g., "Role", "User")
-    type: str
-    #: The ARN of the entity
-    arn: str
-    #: The name of the entity
-    userName: str
-
-
-class Attributes(BaseModel):
-    """
-    Represents attributes of the session used for the API call.  Includes
-    security-related information about the session.
-    """
-
-    #: Indicates whether multi-factor authentication was used to create the session
-    mfaAuthenticated: str
-    #: The timestamp when the session was created
-    creationDate: datetime
-
-
-class RequestParameters(BaseModel):
-    """
-    Represents the parameters of an ECR API request.
-    Contains the details of what was requested in the API call.
-    """
-
-    #: The media types that the API client accepts
-    acceptedMediaTypes: list[str]
-    #: The AWS account ID that owns the ECR registry
-    registryId: str
-    #: The name of the ECR repository being accessed
-    repositoryName: str
-    #: The list of image identifiers being requested
-    imageIds: list[RequestParametersItem]
-
-
-class SessionContext(BaseModel):
-    """
-    Represents the session context for a user identity.
-    Contains detailed information about the session used to make the API call.
-    """
-
-    #: Federation data if the session was created through web identity federation
-    webIdFederationData: dict[str, Any] | None = None
-    #: Information about the entity that issued the session
-    sessionIssuer: SessionIssuer
-    #: Session attributes like MFA status and creation time
-    attributes: Attributes
-
-
-class UserIdentity(BaseModel):
-    """
-    Represents the identity of the user that performed the API call.  Contains
-    information about the AWS principal (user, role, or service) that made the
-    request.
-    """
-
-    #: The context of the session used for the API call
-    sessionContext: SessionContext | None = None
-    #: The access key ID used to sign the request
-    accessKeyId: str | None = None
-    #: The AWS account ID that the user belongs to
-    accountId: str | None = None
-    #: The unique identifier of the principal
-    principalId: str | None = None
-    #: The type of the identity (e.g., "AssumedRole", "IAMUser")
-    type: str | None = None
-    #: The ARN of the principal
-    arn: str | None = None
-    #: The AWS service that made the request, if applicable
-    invokedBy: str | None = None
-
-
-class AWSAPICallViaCloudTrail(BaseModel):
-    """
-    Represents the details of an AWS API call as recorded by CloudTrail.
-    Contains comprehensive information about the API request, including who made
-    it, what was requested, and the response.
-    """
-
-    #: The parameters sent with the API request. Shapes vary by API operation,
-    #: so CloudTrail request payloads stay as the raw mapping from EventBridge.
-    requestParameters: dict[str, Any] | None = None
-    #: The identity of the user that made the API call
-    userIdentity: UserIdentity | None = None
-    #: The unique identifier of the event
-    eventID: str | None = None
-    #: The AWS region where the request was made
-    awsRegion: str
-    #: The version of the CloudTrail event format
+    #: Version of the CloudTrail event format.
     eventVersion: str
-    #: The response elements returned by the API
-    responseElements: dict[str, Any] | None = None
-    #: The IP address where the request originated from
-    sourceIPAddress: str | None = None
-    #: The AWS service that the request was made to (e.g., "ecr.amazonaws.com")
-    eventSource: str
-    #: The resources involved in the API call
-    resources: list[AWSAPICallViaCloudTrailItem] | None = None
-    #: The user agent of the client that made the request
-    userAgent: str | None = None
-    #: The type of the event (e.g., "AwsApiCall")
-    eventType: str | None = None
-    #: The request ID of the API call
-    requestID: str | None = None
-    #: The timestamp when the API call was made
+    #: Identity context for the principal that made the API call.
+    userIdentity: dict[str, Any] | None = None
+    #: Timestamp when the API call happened.
     eventTime: datetime
-    #: The name of the API call (e.g., "BatchGetImage")
+    #: AWS service endpoint that received the API call.
+    eventSource: str
+    #: API operation name recorded by CloudTrail.
     eventName: str
+    #: AWS region where the API call was made.
+    awsRegion: str
+    #: Source IP address for the request.
+    sourceIPAddress: str | None = None
+    #: User agent reported for the caller.
+    userAgent: str | None = None
+    #: Request payload recorded by CloudTrail for the API operation.
+    requestParameters: dict[str, Any] | None = None
+    #: Response payload recorded by CloudTrail for the API operation.
+    responseElements: dict[str, Any] | None = None
+    #: Request identifier assigned by the service.
+    requestID: str | None = None
+    #: Unique CloudTrail event identifier.
+    eventID: str | None = None
+    #: Whether the API call was read-only.
+    readOnly: bool | None = None
+    #: Resource descriptors attached to the CloudTrail detail payload.
+    resources: list[dict[str, Any]] | None = None
+    #: CloudTrail event type, such as ``AwsApiCall``.
+    eventType: str | None = None
+    #: Service API version when CloudTrail records one.
+    apiVersion: str | None = None
+    #: Whether CloudTrail marked the event as a management event.
+    managementEvent: bool | None = None
+    #: Recipient account ID for the event.
+    recipientAccountId: str | None = None
+    #: CloudTrail event category, such as ``Management``.
+    eventCategory: str | None = None
+    #: TLS metadata when CloudTrail records it.
+    tlsDetails: dict[str, Any] | None = None
+    #: Console-session marker when CloudTrail records it.
+    sessionCredentialFromConsole: str | None = None
 
 
 class ECRAWSAPICallViaCloudTrailEvent(BaseModel):
     """
-    Represents a complete AWS CloudTrail event as delivered by EventBridge.
-    Wraps the CloudTrail API call details with EventBridge metadata.
+    Top-level EventBridge envelope for ECR CloudTrail API call events.
     """
 
-    #: The detailed information about the API call
-    detail: AWSAPICallViaCloudTrail
-    #: The human-readable type of the event (e.g., "AWS API Call via CloudTrail")
+    #: Detailed CloudTrail API call payload.
+    detail: ECRAWSAPICallViaCloudTrail
+    #: EventBridge detail type.
     detail_type: str = Field(..., alias="detail-type")
-    #: The AWS resources involved in the event
+    #: EventBridge resource list.
     resources: list[str]
-    #: The unique identifier of the event
+    #: EventBridge event identifier.
     id: str
-    #: The source of the event (e.g., "aws.ecr")
+    #: Event source identifier.
     source: str
-    #: The timestamp when the event was generated
+    #: EventBridge timestamp.
     time: datetime
-    #: The AWS region where the event occurred
+    #: AWS region where EventBridge emitted the event.
     region: str
-    #: The version of the event schema
+    #: EventBridge envelope version.
     version: str
-    #: The AWS account ID where the event occurred
+    #: AWS account ID that emitted the event.
     account: str

@@ -341,12 +341,30 @@ class ECRAWSAPICallViaCloudTrailEvent(
         """
         from botocraft.services.ecr import ECRImage, ImageIdentifier
 
+        request_parameters = self.detail.requestParameters
+        if request_parameters is None:
+            return []
+        repository_name = request_parameters.get("repositoryName")
+        image_ids = request_parameters.get("imageIds")
+        if repository_name is None or not isinstance(image_ids, list):
+            return []
+
+        identifiers: list[ImageIdentifier] = []
+        for image_id in image_ids:
+            if not isinstance(image_id, dict):
+                continue
+            image_tag = image_id.get("imageTag")
+            image_digest = image_id.get("imageDigest")
+            if image_tag is not None:
+                identifiers.append(ImageIdentifier(imageTag=image_tag))
+            elif image_digest is not None:
+                identifiers.append(ImageIdentifier(imageDigest=image_digest))
+        if not identifiers:
+            return []
+
         return ECRImage.objects.using(self.session).get_many(  # type: ignore[attr-defined]
-            repository_name=self.detail.requestParameters.repositoryName,  # type: ignore[attr-defined]
-            imageIds=[
-                ImageIdentifier(imageTag=imageId.imageTag)
-                for imageId in self.detail.requestParameters.imageIds  # type: ignore[attr-defined]
-            ],
+            repository_name=repository_name,
+            imageIds=identifiers,
         )
 
 
