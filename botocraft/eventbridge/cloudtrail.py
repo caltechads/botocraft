@@ -14,6 +14,7 @@ EVENT_SOURCE_SERVICE_ALIASES: dict[str, str] = {
     "email.amazonaws.com": "ses",
     "monitoring.amazonaws.com": "cloudwatch",
     "execute-api.amazonaws.com": "apigateway",
+    "es.amazonaws.com": "opensearch",
 }
 
 
@@ -27,7 +28,7 @@ class CloudTrailApiCallDetailProtocol(Protocol):
     #: CloudTrail API operation name, such as ``RequestCertificate``.
     eventName: str
     #: Request payload recorded by CloudTrail for the API operation.
-    requestParameters: dict[str, Any] | None
+    requestParameters: Any | None
 
 
 class CloudTrailApiCallMixin:
@@ -86,6 +87,8 @@ class CloudTrailApiCallMixin:
         parameters = self.detail.requestParameters
         if parameters is None:
             return {}
+        if isinstance(parameters, BaseModel):
+            parameters = parameters.model_dump(exclude_none=True, by_alias=True)
         model_cls = self.parsed_request_model(strict=strict)
         if model_cls is None:
             return parameters

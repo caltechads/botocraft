@@ -79,24 +79,24 @@ class SessionIssuer(BaseModel):
     """Represents the issuer of a session in the user identity context."""
 
     #: The account ID of the session issuer
-    accountId: str
+    accountId: str | None = None
     #: The principal ID of the session issuer
-    principalId: str
+    principalId: str | None = None
     #: The type of the session issuer
-    type: str
+    type: str | None = None
     #: The ARN of the session issuer
-    arn: str
+    arn: str | None = None
     #: The username of the session issuer
-    userName: str
+    userName: str | None = None
 
 
 class Attributes(BaseModel):
     """Represents session attributes, such as MFA status and creation date."""
 
     #: Whether MFA was used for authentication
-    mfaAuthenticated: str
+    mfaAuthenticated: str | None = None
     #: When the session was created
-    creationDate: datetime
+    creationDate: datetime | None = None
 
 
 class Overrides1Item(BaseModel):
@@ -145,9 +145,9 @@ class SessionContext(BaseModel):
     #: Web identity federation data, if applicable
     webIdFederationData: dict[str, Any] | None = None
     #: Information about the entity that issued the session
-    sessionIssuer: SessionIssuer
+    sessionIssuer: SessionIssuer | None = None
     #: Session attributes like MFA status
-    attributes: Attributes
+    attributes: Attributes | None = None
 
 
 class Overrides1(BaseModel):
@@ -217,15 +217,15 @@ class UserIdentity(BaseModel):
     #: The context of the session
     sessionContext: SessionContext | None = None
     #: The access key ID used for the request
-    accessKeyId: str
+    accessKeyId: str | None = None
     #: The AWS account ID of the user
-    accountId: str
+    accountId: str | None = None
     #: The principal ID of the user
-    principalId: str
+    principalId: str | None = None
     #: The type of the identity
-    type: str
+    type: str | None = None
     #: The ARN of the identity
-    arn: str
+    arn: str | None = None
     #: The AWS service that invoked the API call, if applicable
     invokedBy: str | None = None
 
@@ -294,26 +294,27 @@ class AWSAPICallViaCloudTrail(BaseModel):
 
     #: The API response
     responseElements: ResponseElements | None = None
-    #: The API request
-    requestParameters: RequestParameters | None = None
+    #: The API request. Shapes vary by API operation, so CloudTrail request
+    #: payloads stay as the raw mapping from EventBridge.
+    requestParameters: dict[str, Any] | None = None
     #: The identity of the user that initiated the event
-    userIdentity: UserIdentity
+    userIdentity: UserIdentity | None = None
     #: The ID of the event
-    eventID: str
+    eventID: str | None = None
     #: The name of the region in which the event occurred
     awsRegion: str
     #: The version of the event
     eventVersion: str
     #: The source IP of the user that initiated the event
-    sourceIPAddress: str
+    sourceIPAddress: str | None = None
     #: The source of the event
     eventSource: str
     #: The UserAgent of the request
-    userAgent: str
+    userAgent: str | None = None
     #: The event type
-    eventType: str
+    eventType: str | None = None
     #: The request ID of the event in CloudTrail
-    requestID: str
+    requestID: str | None = None
     #: The time the event was created
     eventTime: datetime
     #: The name of the event

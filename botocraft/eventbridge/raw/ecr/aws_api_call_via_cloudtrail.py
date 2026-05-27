@@ -83,7 +83,7 @@ class SessionContext(BaseModel):
     """
 
     #: Federation data if the session was created through web identity federation
-    webIdFederationData: dict[str, Any]
+    webIdFederationData: dict[str, Any] | None = None
     #: Information about the entity that issued the session
     sessionIssuer: SessionIssuer
     #: Session attributes like MFA status and creation time
@@ -98,19 +98,19 @@ class UserIdentity(BaseModel):
     """
 
     #: The context of the session used for the API call
-    sessionContext: SessionContext
+    sessionContext: SessionContext | None = None
     #: The access key ID used to sign the request
-    accessKeyId: str
+    accessKeyId: str | None = None
     #: The AWS account ID that the user belongs to
-    accountId: str
+    accountId: str | None = None
     #: The unique identifier of the principal
-    principalId: str
+    principalId: str | None = None
     #: The type of the identity (e.g., "AssumedRole", "IAMUser")
-    type: str
+    type: str | None = None
     #: The ARN of the principal
-    arn: str
+    arn: str | None = None
     #: The AWS service that made the request, if applicable
-    invokedBy: str
+    invokedBy: str | None = None
 
 
 class AWSAPICallViaCloudTrail(BaseModel):
@@ -120,30 +120,31 @@ class AWSAPICallViaCloudTrail(BaseModel):
     it, what was requested, and the response.
     """
 
-    #: The parameters sent with the API request
-    requestParameters: RequestParameters
+    #: The parameters sent with the API request. Shapes vary by API operation,
+    #: so CloudTrail request payloads stay as the raw mapping from EventBridge.
+    requestParameters: dict[str, Any] | None = None
     #: The identity of the user that made the API call
-    userIdentity: UserIdentity
+    userIdentity: UserIdentity | None = None
     #: The unique identifier of the event
-    eventID: str
+    eventID: str | None = None
     #: The AWS region where the request was made
     awsRegion: str
     #: The version of the CloudTrail event format
     eventVersion: str
     #: The response elements returned by the API
-    responseElements: dict[str, Any]
+    responseElements: dict[str, Any] | None = None
     #: The IP address where the request originated from
-    sourceIPAddress: str
+    sourceIPAddress: str | None = None
     #: The AWS service that the request was made to (e.g., "ecr.amazonaws.com")
     eventSource: str
     #: The resources involved in the API call
-    resources: list[AWSAPICallViaCloudTrailItem]
+    resources: list[AWSAPICallViaCloudTrailItem] | None = None
     #: The user agent of the client that made the request
-    userAgent: str
+    userAgent: str | None = None
     #: The type of the event (e.g., "AwsApiCall")
-    eventType: str
+    eventType: str | None = None
     #: The request ID of the API call
-    requestID: str
+    requestID: str | None = None
     #: The timestamp when the API call was made
     eventTime: datetime
     #: The name of the API call (e.g., "BatchGetImage")

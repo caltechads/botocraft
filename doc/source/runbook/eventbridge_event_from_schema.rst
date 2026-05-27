@@ -121,6 +121,103 @@ Things to verify:
 The CLI already applies the repository's standard class renaming convention, so
 for many events this step is mostly inspection plus any small cleanup you need.
 
+AWS API Call via CloudTrail events (per-service)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Many AWS services publish the same EventBridge detail type,
+``AWS API Call via CloudTrail``, with ``source`` set to ``aws.<service>`` (for
+example ``aws.acm`` or ``aws.codepipeline``).  These are **not** the same as
+exporting the ``aws.cloudtrail`` schema prefix from Schema Registry, which
+describes the CloudTrail service's own registry entries.
+
+Identifiers:
+
+.. list-table::
+   :header-rows: 1
+
+   * - Field
+     - Role
+   * - EventBridge ``source``
+     - ``aws.<service>`` — used by :py:class:`~botocraft.eventbridge.factory.EventFactory`
+   * - EventBridge ``detail-type``
+     - Always ``AWS API Call via CloudTrail``
+   * - ``detail.eventSource``
+     - CloudTrail endpoint, such as ``acm.amazonaws.com``
+   * - ``detail.eventName``
+     - API operation, such as ``RequestCertificate``
+   * - ``detail.requestParameters``
+     - **Operation-specific** — shape changes with every ``eventName``
+
+Registry export may emit a module for this detail type.  Inspect it before
+keeping it:
+
+* If ``requestParameters`` is a rigid nested model built from one example API
+  call, **replace or normalize** it to the flexible pattern used in
+  ``botocraft/eventbridge/raw/acm/aws_api_call_via_cloudtrail.py``.
+* Do not add a maintainer-maintained map of every ``eventName`` to a hand-written
+  Pydantic model in raw code.
+
+**Raw model contract**
+
+* Type the stable CloudTrail envelope fields explicitly
+  (``eventVersion``, ``eventTime``, ``eventSource``, ``eventName``, …).
+* Keep ``requestParameters`` and ``responseElements`` as
+  ``dict[str, Any] | None``.
+* Keep ``userIdentity`` and other highly variable nested payloads flexible.
+
+**Wrapper contract**
+
+* Inherit :class:`~botocraft.eventbridge.cloudtrail.CloudTrailApiCallMixin`
+  (re-exported from :mod:`botocraft.eventbridge.common`), then
+  :class:`~botocraft.eventbridge.base.EventBridgeEvent`, then the raw event class.
+* Register ``("aws.<service>", "AWS API Call via CloudTrail")`` in that service's
+  ``EVENT_CLASS_MAP``.
+* Use :meth:`~botocraft.eventbridge.cloudtrail.CloudTrailApiCallMixin.parsed_request`
+  for optional, botocore-backed typing of ``requestParameters`` — not eager validation
+  inside :py:class:`~botocraft.eventbridge.factory.EventFactory`.
+
+.. code-block:: python
+
+    from botocraft.eventbridge.common import CloudTrailApiCallMixin, event_summary
+    from botocraft.eventbridge.base import EventBridgeEvent
+    from botocraft.eventbridge.raw.acm import (
+        aws_api_call_via_cloudtrail as raw_acm,
+    )
+
+
+    class ACMAWSAPICallViaCloudTrailEvent(
+        CloudTrailApiCallMixin,
+        EventBridgeEvent,
+        raw_acm.AcmAWSAPICallViaCloudTrailEvent,
+    ):
+        def __str__(self) -> str:
+            return event_summary(
+                "ACM AWS API Call Via CloudTrail",
+                self,
+                event_source=self.detail.eventSource,
+                api_call_name=self.detail.eventName,
+            )
+
+**Consumer usage**
+
+.. code-block:: python
+
+    event = EventFactory().new(payload_json)
+    raw = event.detail.requestParameters  # dict | None — always safe
+
+    parsed = event.parsed_request()
+    # BaseModel when botocore knows detail.eventName; else same dict as raw
+
+``parsed_request()`` accepts CloudTrail camelCase keys (for example ``domainName``)
+and botocore PascalCase names (for example ``DomainName``).  It is best-effort:
+CloudTrail payloads may omit or redact fields relative to the live API.
+
+**Tests**
+
+* Factory mapping for ``("aws.<service>", "AWS API Call via CloudTrail")``
+* At least one ``parsed_request()`` assertion for a documented ``eventName``
+* See ``tests/eventbridge/test_cloudtrail.py``
+
 Add the handwritten wrapper
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
@@ -130,23 +227,32 @@ and the raw generated class:
 
 .. code-block:: python
 
-    from .base import EventBridgeEvent
-    from .raw import CloudtrailAWSAPICallViaCloudTrailEvent as RawCloudtrailAWSAPICallViaCloudTrailEvent
+    from botocraft.eventbridge.common import CloudTrailApiCallMixin
+    from botocraft.eventbridge.base import EventBridgeEvent
+    from botocraft.eventbridge.raw import (
+        CloudtrailAWSAPICallViaCloudTrailEvent as RawCloudtrailEvent,
+    )
 
 
     class CloudtrailAWSAPICallViaCloudTrailEvent(
+        CloudTrailApiCallMixin,
         EventBridgeEvent,
-        RawCloudtrailAWSAPICallViaCloudTrailEvent,
+        RawCloudtrailEvent,
     ):
         """
         Friendly Botocraft wrapper for the CloudTrail API call event.
         """
+
+For per-service ``aws.<service>`` CloudTrail API-call events, use the same mixin
+and flexible raw detail pattern described in the previous section.
 
 Use the wrapper for:
 
 * convenience properties
 * related-resource lookups
 * readable ``__str__`` helpers
+* :meth:`~botocraft.eventbridge.cloudtrail.CloudTrailApiCallMixin.parsed_request`
+  when the event is CloudTrail API-call shaped
 * any event-specific ergonomics that belong on the event object itself
 
 Keep raw schema classes thin.  Put human-oriented behavior in the wrapper.
@@ -183,6 +289,7 @@ The most relevant tests for this workflow today are:
 
 * ``tests/cli/test_eventbridge.py``
 * ``tests/eventbridge/test_factory.py``
+* ``tests/eventbridge/test_cloudtrail.py`` (CloudTrail API-call parsing)
 * ``tests/mixins/test_schemas.py``
 
 Caveats

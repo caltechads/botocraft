@@ -230,7 +230,7 @@ wheels = [
 
 [[package]]
 name = "botocraft"
-version = "0.28.1"
+version = "0.29.0"
 source = { editable = "." }
 dependencies = [
     { name = "boto3" },
@@ -292,7 +292,7 @@ requires-dist = [
     { name = "inflect", specifier = ">=7.4.0" },
     { name = "ipython", specifier = ">=8.36.0" },
     { name = "jsonpath-ng", specifier = ">=1.6.1" },
-    { name = "markdownify", specifier = ">=0.28.1" },
+    { name = "markdownify", specifier = ">=0.29.0" },
     { name = "psutil", specifier = ">=7.0.0" },
     { name = "pydantic", specifier = ">=2.9.0" },
     { name = "pydantic-settings", specifier = ">=2.14.1" },

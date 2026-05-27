@@ -56,6 +56,37 @@ Capture the event's human-facing name as well, for example
 ``ECR Scan Resource Change``.  You will need that later when you register the
 wrapper in ``EVENT_CLASS_MAP``.
 
+AWS API Call via CloudTrail — special case
+------------------------------------------
+
+If the event's ``detail-type`` is ``AWS API Call via CloudTrail`` and the
+EventBridge ``source`` is ``aws.<service>``, **do not** build an OpenAPI schema
+that types ``detail.requestParameters`` from one example operation.  A single
+example only reflects one ``detail.eventName``; other operations will not match.
+
+Instead:
+
+1. Copy the **envelope** fields from a trustworthy example (or from
+   ``botocraft/eventbridge/raw/acm/aws_api_call_via_cloudtrail.py``).
+2. Keep ``requestParameters`` and ``responseElements`` as ``dict[str, Any] | None``.
+3. Hand-write ``botocraft/eventbridge/raw/<service>/aws_api_call_via_cloudtrail.py``
+   and the top-level ``*AWSAPICallViaCloudTrailEvent`` envelope class.
+4. On the wrapper, inherit
+   :class:`~botocraft.eventbridge.cloudtrail.CloudTrailApiCallMixin` plus
+   :class:`~botocraft.eventbridge.base.EventBridgeEvent` plus the raw class.
+5. Register ``("aws.<service>", "AWS API Call via CloudTrail")`` in
+   ``EVENT_CLASS_MAP``.
+6. Test :meth:`~botocraft.eventbridge.cloudtrail.CloudTrailApiCallMixin.parsed_request`
+   for at least one real ``eventName`` (see ``tests/eventbridge/test_cloudtrail.py``).
+
+Operation-specific typing is **lazy**: callers use ``event.parsed_request()``,
+which builds a cached Pydantic model from the botocore operation input shape for
+``detail.eventSource`` and ``detail.eventName``.  See
+:doc:`/runbook/eventbridge_event_from_schema` for the full contract.
+
+Skip the OpenAPI / ``datamodel-codegen`` steps below for this event family and
+resume at :ref:`overview_adding_events_from_example_resume_wrapper`.
+
 Convert the example message to OpenAPI 3.0 schema
 -------------------------------------------------
 
@@ -102,6 +133,8 @@ At the end of this step you should have:
 * ``botocraft/eventbridge/raw/<service>/__init__.py``
 * ``botocraft/eventbridge/raw/__init__.py``
 
+.. _overview_adding_events_from_example_resume_wrapper:
+
 Resume the shared wrapper workflow
 ----------------------------------
 
@@ -111,9 +144,11 @@ Once you have a raw module, rejoin the normal EventBridge authoring path from
 That means:
 
 1. Add or update the wrapper module in ``botocraft/eventbridge/<service>.py``.
-2. Register the wrapper through ``EVENT_CLASS_MAP``.
-3. Update docs and targeted tests.
-4. Verify that :py:class:`~botocraft.eventbridge.factory.EventFactory` can now
+2. For ``AWS API Call via CloudTrail``, include
+   :class:`~botocraft.eventbridge.cloudtrail.CloudTrailApiCallMixin`.
+3. Register the wrapper through ``EVENT_CLASS_MAP``.
+4. Update docs and targeted tests (include ``parsed_request`` for CloudTrail events).
+5. Verify that :py:class:`~botocraft.eventbridge.factory.EventFactory` can now
    decode the new event type.
 
 
@@ -129,3 +164,7 @@ may still be incomplete:
 
 Treat the example payload as a strong starting point, not a contract.  As real
 events arrive, adjust the raw model and wrapper as needed.
+
+**Exception:** ``AWS API Call via CloudTrail`` events intentionally keep
+``requestParameters`` flexible in the raw model.  Use ``parsed_request()`` for
+operation-aware validation instead of expanding the raw schema per ``eventName``.
