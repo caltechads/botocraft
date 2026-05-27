@@ -1,36 +1,11 @@
 from functools import wraps
 from typing import TYPE_CHECKING, Any, Callable, cast
 
+from botocraft.mixins.common import arg_value
 from botocraft.services.abstract import Boto3Model, PrimaryBoto3ModelQuerySet
 
 if TYPE_CHECKING:
     from botocraft.services.codepipeline import ActionType, Pipeline, PipelineExecution
-
-
-def _arg_value(
-    args: tuple[Any, ...],
-    kwargs: dict[str, Any],
-    name: str,
-    position: int,
-) -> Any:
-    """
-    Return a manager-call argument from keyword or positional form.
-
-    Args:
-        args: Positional arguments forwarded into the generated manager method.
-        kwargs: Keyword arguments forwarded into the generated manager method.
-        name: Keyword argument name to prefer.
-        position: Positional argument index after ``self``.
-
-    Returns:
-        The matched value, or ``None`` when absent.
-
-    """
-    if name in kwargs:
-        return kwargs[name]
-    if len(args) > position:
-        return args[position]
-    return None
 
 
 def _pipeline_from_payload(payload: dict[str, Any]) -> "Pipeline":
@@ -169,7 +144,7 @@ def pipeline_execution_response_to_pipeline_execution(
             return None
         payload = response.model_dump(exclude_none=True).get("pipelineExecution", {})
         if payload.get("pipelineName") is None:
-            pipeline_name = _arg_value(args, kwargs, "pipelineName", 0)
+            pipeline_name = arg_value(args, kwargs, "pipelineName", 0)
             if pipeline_name is not None:
                 payload["pipelineName"] = pipeline_name
         execution = PipelineExecution(**payload)
@@ -197,7 +172,7 @@ def pipeline_execution_list_add_pipeline_name(
     def wrapper(self, *args, **kwargs) -> "PrimaryBoto3ModelQuerySet":
         from botocraft.services.codepipeline import PipelineExecution
 
-        pipeline_name = _arg_value(args, kwargs, "pipelineName", 0)
+        pipeline_name = arg_value(args, kwargs, "pipelineName", 0)
         results = func(self, *args, **kwargs)
         if not isinstance(results, PrimaryBoto3ModelQuerySet):
             results = PrimaryBoto3ModelQuerySet(results)

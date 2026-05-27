@@ -5,6 +5,7 @@ from __future__ import annotations
 from functools import wraps
 from typing import TYPE_CHECKING, Any, Callable, Iterable, cast
 
+from botocraft.mixins.common import arg_value, coerce_queryset_results
 from botocraft.services.abstract import Boto3Model, PrimaryBoto3ModelQuerySet
 
 if TYPE_CHECKING:
@@ -24,32 +25,6 @@ if TYPE_CHECKING:
 _BATCH_CHUNK_SIZE: int = 100
 
 
-def _arg_value(
-    args: tuple[Any, ...],
-    kwargs: dict[str, Any],
-    name: str,
-    position: int,
-) -> Any:
-    """
-    Return a manager-call argument from keyword or positional form.
-
-    Args:
-        args: Positional arguments forwarded into the generated manager method.
-        kwargs: Keyword arguments forwarded into the generated manager method.
-        name: Keyword argument name to prefer.
-        position: Positional argument index after ``self``.
-
-    Returns:
-        The matched value, or ``None`` when absent.
-
-    """
-    if name in kwargs:
-        return kwargs[name]
-    if len(args) > position:
-        return args[position]
-    return None
-
-
 def _chunked(items: list[str], size: int) -> Iterable[list[str]]:
     """
     Yield fixed-size chunks from a list of strings.
@@ -64,24 +39,6 @@ def _chunked(items: list[str], size: int) -> Iterable[list[str]]:
     """
     for index in range(0, len(items), size):
         yield items[index : index + size]
-
-
-def _coerce_queryset_results(value: Any) -> list[Any]:
-    """
-    Normalize list or queryset results into a plain Python list.
-
-    Args:
-        value: Either a :class:`PrimaryBoto3ModelQuerySet` or a ``list``.
-
-    Returns:
-        A list of underlying result objects.
-
-    """
-    if isinstance(value, PrimaryBoto3ModelQuerySet):
-        return list(value.results)
-    if value is None:
-        return []
-    return list(value)
 
 
 def project_response_to_project(
@@ -136,9 +93,7 @@ def project_names_to_projects(
         from botocraft.services.codebuild import Project
 
         raw = func(self, *args, **kwargs)
-        names = [
-            item for item in _coerce_queryset_results(raw) if isinstance(item, str)
-        ]
+        names = [item for item in coerce_queryset_results(raw) if isinstance(item, str)]
         if not names:
             return PrimaryBoto3ModelQuerySet([])
         projects: list[Project] = []
@@ -232,7 +187,7 @@ def build_ids_to_builds(
     @wraps(func)
     def wrapper(self, *args: Any, **kwargs: Any) -> PrimaryBoto3ModelQuerySet:
         raw = func(self, *args, **kwargs)
-        ids = [item for item in _coerce_queryset_results(raw) if isinstance(item, str)]
+        ids = [item for item in coerce_queryset_results(raw) if isinstance(item, str)]
         return _hydrate_build_ids(self, ids)
 
     return wrapper
@@ -256,9 +211,9 @@ def build_ids_to_builds_with_project(
     def wrapper(self, *args: Any, **kwargs: Any) -> PrimaryBoto3ModelQuerySet:
         from botocraft.services.codebuild import Build
 
-        project_name = _arg_value(args, kwargs, "projectName", 0)
+        project_name = arg_value(args, kwargs, "projectName", 0)
         raw = func(self, *args, **kwargs)
-        ids = [item for item in _coerce_queryset_results(raw) if isinstance(item, str)]
+        ids = [item for item in coerce_queryset_results(raw) if isinstance(item, str)]
         query_set = _hydrate_build_ids(self, ids)
         if project_name is not None:
             adjusted: list[Build] = []
@@ -352,7 +307,7 @@ def build_batch_ids_to_build_batches(
     @wraps(func)
     def wrapper(self, *args: Any, **kwargs: Any) -> PrimaryBoto3ModelQuerySet:
         raw = func(self, *args, **kwargs)
-        ids = [item for item in _coerce_queryset_results(raw) if isinstance(item, str)]
+        ids = [item for item in coerce_queryset_results(raw) if isinstance(item, str)]
         return _hydrate_build_batch_ids(self, ids)
 
     return wrapper
@@ -376,9 +331,9 @@ def build_batch_ids_to_build_batches_with_project(
     def wrapper(self, *args: Any, **kwargs: Any) -> PrimaryBoto3ModelQuerySet:
         from botocraft.services.codebuild import BuildBatch
 
-        project_name = _arg_value(args, kwargs, "projectName", 0)
+        project_name = arg_value(args, kwargs, "projectName", 0)
         raw = func(self, *args, **kwargs)
-        ids = [item for item in _coerce_queryset_results(raw) if isinstance(item, str)]
+        ids = [item for item in coerce_queryset_results(raw) if isinstance(item, str)]
         query_set = _hydrate_build_batch_ids(self, ids)
         if project_name is not None:
             adjusted: list[BuildBatch] = []
@@ -446,9 +401,7 @@ def fleet_names_to_fleets(
         from botocraft.services.codebuild import Fleet
 
         raw = func(self, *args, **kwargs)
-        names = [
-            item for item in _coerce_queryset_results(raw) if isinstance(item, str)
-        ]
+        names = [item for item in coerce_queryset_results(raw) if isinstance(item, str)]
         if not names:
             return PrimaryBoto3ModelQuerySet([])
         fleets: list[Fleet] = []
@@ -542,7 +495,7 @@ def report_group_arns_to_report_groups(
     @wraps(func)
     def wrapper(self, *args: Any, **kwargs: Any) -> PrimaryBoto3ModelQuerySet:
         raw = func(self, *args, **kwargs)
-        arns = [item for item in _coerce_queryset_results(raw) if isinstance(item, str)]
+        arns = [item for item in coerce_queryset_results(raw) if isinstance(item, str)]
         return _hydrate_report_group_arns(self, arns)
 
     return wrapper
@@ -592,7 +545,7 @@ def report_arns_to_reports(
     @wraps(func)
     def wrapper(self, *args: Any, **kwargs: Any) -> PrimaryBoto3ModelQuerySet:
         raw = func(self, *args, **kwargs)
-        arns = [item for item in _coerce_queryset_results(raw) if isinstance(item, str)]
+        arns = [item for item in coerce_queryset_results(raw) if isinstance(item, str)]
         return _hydrate_report_arns(self, arns)
 
     return wrapper
@@ -615,7 +568,7 @@ def report_arns_to_reports_with_group(
     @wraps(func)
     def wrapper(self, *args: Any, **kwargs: Any) -> PrimaryBoto3ModelQuerySet:
         raw = func(self, *args, **kwargs)
-        arns = [item for item in _coerce_queryset_results(raw) if isinstance(item, str)]
+        arns = [item for item in coerce_queryset_results(raw) if isinstance(item, str)]
         return _hydrate_report_arns(self, arns)
 
     return wrapper
@@ -641,7 +594,7 @@ def webhook_response_with_project_name(
 
         project_name = kwargs.get("projectName")
         if project_name is None:
-            model_arg = _arg_value(args, kwargs, "model", 0)
+            model_arg = arg_value(args, kwargs, "model", 0)
             if model_arg is not None and hasattr(model_arg, "projectName"):
                 project_name = getattr(model_arg, "projectName", None)
         response = func(self, *args, **kwargs)
@@ -745,7 +698,7 @@ def sandbox_ids_to_sandboxes(
     @wraps(func)
     def wrapper(self, *args: Any, **kwargs: Any) -> PrimaryBoto3ModelQuerySet:
         raw = func(self, *args, **kwargs)
-        ids = [item for item in _coerce_queryset_results(raw) if isinstance(item, str)]
+        ids = [item for item in coerce_queryset_results(raw) if isinstance(item, str)]
         return _hydrate_sandbox_ids(self, ids)
 
     return wrapper
@@ -769,9 +722,9 @@ def sandbox_ids_to_sandboxes_with_project(
     def wrapper(self, *args: Any, **kwargs: Any) -> PrimaryBoto3ModelQuerySet:
         from botocraft.services.codebuild import Sandbox
 
-        project_name = _arg_value(args, kwargs, "projectName", 0)
+        project_name = arg_value(args, kwargs, "projectName", 0)
         raw = func(self, *args, **kwargs)
-        ids = [item for item in _coerce_queryset_results(raw) if isinstance(item, str)]
+        ids = [item for item in coerce_queryset_results(raw) if isinstance(item, str)]
         query_set = _hydrate_sandbox_ids(self, ids)
         if project_name is not None:
             adjusted: list[Sandbox] = [
