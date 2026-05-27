@@ -24,6 +24,12 @@
       "prompt": "Use the raw EventBridge models already generated for a service, author the handwritten wrapper module, update docs, and extend EventFactory without adding another nested source/detail-type if chain.",
       "expected_output": "The skill should preserve the repo's declarative mapping pattern, keep wrappers cohesive, and include docs plus factory and targeted test follow-through rather than stopping at codegen or raw-model inspection.",
       "files": []
+    },
+    {
+      "id": 5,
+      "prompt": "Add EventBridge support for `aws.acm` including the `AWS API Call via CloudTrail` event. I need factory decoding, a flexible raw detail model, `CloudTrailApiCallMixin` on the wrapper, and tests that show `parsed_request()` works for `RequestCertificate` with CloudTrail's `domainName` keys.",
+      "expected_output": "The skill should use the flexible CloudTrail detail template (dict requestParameters), not example-frozen request shapes; wire CloudTrailApiCallMixin; map (aws.acm, AWS API Call via CloudTrail); and test parsed_request botocore resolution.",
+      "files": []
     }
   ]
 }
