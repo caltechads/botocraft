@@ -1,6 +1,8 @@
 from functools import wraps
 from typing import TYPE_CHECKING, Any, Callable, cast
 
+from botocraft.mixins.common import ensure_queryset
+
 if TYPE_CHECKING:
     from botocraft.services.abstract import PrimaryBoto3ModelQuerySet
     from botocraft.services.schemas import (
@@ -139,12 +141,8 @@ def schema_list_add_registry_name(
 
     @wraps(func)
     def wrapper(self, *args, **kwargs) -> "PrimaryBoto3ModelQuerySet":
-        from botocraft.services.abstract import PrimaryBoto3ModelQuerySet
-
         registry_name = _registry_name_from_call(args, kwargs)
-        results = func(self, *args, **kwargs)
-        if not isinstance(results, PrimaryBoto3ModelQuerySet):
-            results = PrimaryBoto3ModelQuerySet(results)
+        results = ensure_queryset(func(self, *args, **kwargs))
         for schema in results.results:
             cast("Schema", schema).RegistryName = registry_name
         return results

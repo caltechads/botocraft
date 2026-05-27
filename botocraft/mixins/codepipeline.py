@@ -1,7 +1,7 @@
 from functools import wraps
 from typing import TYPE_CHECKING, Any, Callable, cast
 
-from botocraft.mixins.common import arg_value
+from botocraft.mixins.common import arg_value, ensure_queryset
 from botocraft.services.abstract import Boto3Model, PrimaryBoto3ModelQuerySet
 
 if TYPE_CHECKING:
@@ -101,9 +101,7 @@ def pipeline_summaries_to_pipelines(
     @wraps(func)
     def wrapper(self, *args, **kwargs) -> "PrimaryBoto3ModelQuerySet":
         hydrate_version = kwargs.get("version")
-        results = func(self, *args, **kwargs)
-        if not isinstance(results, PrimaryBoto3ModelQuerySet):
-            results = PrimaryBoto3ModelQuerySet(results)
+        results = ensure_queryset(func(self, *args, **kwargs))
         pipelines: list[Boto3Model] = []
         for item in results.results:
             thin = _pipeline_from_payload(item.model_dump(exclude_none=True))
@@ -173,9 +171,7 @@ def pipeline_execution_list_add_pipeline_name(
         from botocraft.services.codepipeline import PipelineExecution
 
         pipeline_name = arg_value(args, kwargs, "pipelineName", 0)
-        results = func(self, *args, **kwargs)
-        if not isinstance(results, PrimaryBoto3ModelQuerySet):
-            results = PrimaryBoto3ModelQuerySet(results)
+        results = ensure_queryset(func(self, *args, **kwargs))
         executions = []
         for item in results.results:
             payload = item.model_dump(exclude_none=True)

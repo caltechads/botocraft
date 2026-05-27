@@ -49,3 +49,19 @@ def coerce_queryset_results(value: Any) -> list[Any]:
     if value is None:
         return []
     return list(value)
+
+
+def ensure_queryset(value: Any) -> PrimaryBoto3ModelQuerySet:
+    """
+    Normalize queryset-like or list-like results into a queryset instance.
+
+    Args:
+        value: Result value to normalize.
+
+    Returns:
+        A queryset wrapping the underlying result objects.
+
+    """
+    if isinstance(value, PrimaryBoto3ModelQuerySet):
+        return value
+    return PrimaryBoto3ModelQuerySet(coerce_queryset_results(value))
