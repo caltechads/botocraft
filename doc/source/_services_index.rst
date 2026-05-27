@@ -16,6 +16,7 @@
    api/services/ec2
    api/services/ecr
    api/services/ecs
+   api/services/efs
    api/services/elasticache
    api/services/elb
    api/services/elbv2

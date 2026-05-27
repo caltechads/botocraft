@@ -11,6 +11,7 @@
 - :doc:`/api/services/ec2`
 - :doc:`/api/services/ecr`
 - :doc:`/api/services/ecs`
+- :doc:`/api/services/efs`
 - :doc:`/api/services/elasticache`
 - :doc:`/api/services/elb`
 - :doc:`/api/services/elbv2`

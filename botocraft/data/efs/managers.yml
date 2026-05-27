@@ -1,0 +1,211 @@
+---
+FileSystemDescription:
+  mixins:
+    - name: FileSystemManagerMixin
+      import_path: botocraft.mixins.efs
+  methods:
+    create:
+      boto3_name: create_file_system
+      response_attr: None
+      decorators:
+        - name: efs_file_system_add_tags
+          import_path: botocraft.mixins.efs
+      args:
+        Tags:
+          attribute: Tags
+    get:
+      boto3_name: describe_file_systems
+      response_attr: FileSystems
+      decorators:
+        - name: efs_file_system_add_tags
+          import_path: botocraft.mixins.efs
+      args:
+        FileSystemId:
+          required: true
+    list:
+      boto3_name: describe_file_systems
+      response_attr: FileSystems
+      decorators:
+        - name: efs_file_systems_add_tags
+          import_path: botocraft.mixins.efs
+    update:
+      boto3_name: update_file_system
+      response_attr: None
+      args:
+        FileSystemId:
+          required: true
+    delete:
+      boto3_name: delete_file_system
+      return_type: None
+      args:
+        FileSystemId:
+          required: true
+    get_backup_policy:
+      boto3_name: describe_backup_policy
+      response_attr: None
+      args:
+        FileSystemId:
+          required: true
+    put_backup_policy:
+      boto3_name: put_backup_policy
+      response_attr: None
+      args:
+        FileSystemId:
+          required: true
+        BackupPolicy:
+          required: true
+    get_file_system_policy:
+      boto3_name: describe_file_system_policy
+      response_attr: None
+      args:
+        FileSystemId:
+          required: true
+    put_file_system_policy:
+      boto3_name: put_file_system_policy
+      response_attr: None
+      args:
+        FileSystemId:
+          required: true
+        Policy:
+          required: true
+        BypassPolicyLockoutSafetyCheck:
+          default: >-
+            None
+    delete_file_system_policy:
+      boto3_name: delete_file_system_policy
+      return_type: None
+      args:
+        FileSystemId:
+          required: true
+    get_lifecycle_configuration:
+      boto3_name: describe_lifecycle_configuration
+      response_attr: None
+      args:
+        FileSystemId:
+          required: true
+    put_lifecycle_configuration:
+      boto3_name: put_lifecycle_configuration
+      response_attr: None
+      args:
+        FileSystemId:
+          required: true
+        LifecyclePolicies:
+          required: true
+    update_file_system_protection:
+      boto3_name: update_file_system_protection
+      response_attr: None
+      args:
+        FileSystemId:
+          required: true
+        ReplicationOverwriteProtection:
+          default: >-
+            None
+    create_replication_configuration:
+      boto3_name: create_replication_configuration
+      response_attr: None
+      args:
+        SourceFileSystemId:
+          required: true
+        Destinations:
+          required: true
+    delete_replication_configuration:
+      boto3_name: delete_replication_configuration
+      return_type: None
+      args:
+        SourceFileSystemId:
+          required: true
+        DeletionMode:
+          default: >-
+            None
+AccessPointDescription:
+  mixins:
+    - name: AccessPointManagerMixin
+      import_path: botocraft.mixins.efs
+  methods:
+    create:
+      boto3_name: create_access_point
+      response_attr: None
+      decorators:
+        - name: efs_access_point_add_tags
+          import_path: botocraft.mixins.efs
+      args:
+        Tags:
+          attribute: Tags
+    get:
+      boto3_name: describe_access_points
+      response_attr: AccessPoints
+      decorators:
+        - name: efs_access_point_add_tags
+          import_path: botocraft.mixins.efs
+      args:
+        AccessPointId:
+          required: true
+    list:
+      boto3_name: describe_access_points
+      response_attr: AccessPoints
+      decorators:
+        - name: efs_access_points_add_tags
+          import_path: botocraft.mixins.efs
+    delete:
+      boto3_name: delete_access_point
+      return_type: None
+      args:
+        AccessPointId:
+          required: true
+MountTargetDescription:
+  mixins:
+    - name: MountTargetManagerMixin
+      import_path: botocraft.mixins.efs
+  methods:
+    create:
+      boto3_name: create_mount_target
+      response_attr: None
+    get:
+      boto3_name: describe_mount_targets
+      response_attr: MountTargets
+      args:
+        MountTargetId:
+          required: true
+    list:
+      boto3_name: describe_mount_targets
+      response_attr: MountTargets
+    modify_security_groups:
+      boto3_name: modify_mount_target_security_groups
+      return_type: None
+      args:
+        MountTargetId:
+          required: true
+        SecurityGroups:
+          required: true
+    delete:
+      boto3_name: delete_mount_target
+      return_type: None
+      args:
+        MountTargetId:
+          required: true
+ReplicationConfigurationDescription:
+  methods:
+    create:
+      boto3_name: create_replication_configuration
+      response_attr: None
+    get:
+      boto3_name: describe_replication_configurations
+      response_attr: Replications
+      args:
+        FileSystemId:
+          required: true
+          rename: SourceFileSystemId
+          source_arg: SourceFileSystemId
+          python_type: str
+    list:
+      boto3_name: describe_replication_configurations
+      response_attr: Replications
+    delete:
+      boto3_name: delete_replication_configuration
+      return_type: None
+      args:
+        SourceFileSystemId:
+          required: true
+        DeletionMode:
+          default: >-
+            None

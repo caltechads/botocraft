@@ -1,0 +1,362 @@
+---
+primary:
+  FileSystemDescription:
+    alternate_name: FileSystem
+    primary_key: FileSystemId
+    arn_key: FileSystemArn
+    name_key: Name
+    input_shapes:
+      - CreateFileSystemRequest
+      - UpdateFileSystemRequest
+    fields:
+      CreationToken:
+        required: false
+        default: >-
+          None
+      PerformanceMode:
+        required: false
+        default: >-
+          None
+      OwnerId:
+        required: false
+        default: >-
+          None
+      FileSystemId:
+        required: false
+        default: >-
+          None
+      CreationTime:
+        required: false
+        default: >-
+          None
+      LifeCycleState:
+        required: false
+        default: >-
+          None
+      NumberOfMountTargets:
+        required: false
+        default: >-
+          None
+      SizeInBytes:
+        required: false
+        default: >-
+          None
+    extra_fields:
+      Tags:
+        python_type: "builtins.list[Tag]"
+        default: >-
+          None
+        docstring: >-
+          The AWS tags associated with this file system.
+    relations:
+      access_points:
+        primary_model_name: AccessPoint
+        many: true
+        docstring: >-
+          Return the EFS access points associated with this file system, if any.
+        transformer:
+          mapping:
+            FileSystemId: FileSystemId
+      mount_targets:
+        primary_model_name: MountTarget
+        many: true
+        docstring: >-
+          Return the EFS mount targets associated with this file system, if any.
+        transformer:
+          mapping:
+            FileSystemId: FileSystemId
+      replication_configuration:
+        primary_model_name: ReplicationConfiguration
+        docstring: >-
+          Return the replication configuration for this file system, if any.
+        transformer:
+          mapping:
+            SourceFileSystemId: FileSystemId
+    manager_methods:
+      get_backup_policy:
+        docstring: >-
+          Return the backup policy for this file system.
+        manager_method: get_backup_policy
+        args:
+          0:
+            name: FileSystemId
+            value: >-
+              cast(str, self.FileSystemId)
+      put_backup_policy:
+        docstring: >-
+          Update the backup policy for this file system.
+        manager_method: put_backup_policy
+        args:
+          0:
+            name: FileSystemId
+            value: >-
+              cast(str, self.FileSystemId)
+        user_args:
+          1:
+            name: BackupPolicy
+            attr_type: EFSBackupPolicy
+      get_file_system_policy:
+        docstring: >-
+          Return the resource policy for this file system.
+        manager_method: get_file_system_policy
+        args:
+          0:
+            name: FileSystemId
+            value: >-
+              cast(str, self.FileSystemId)
+      put_file_system_policy:
+        docstring: >-
+          Update the resource policy for this file system.
+        manager_method: put_file_system_policy
+        args:
+          0:
+            name: FileSystemId
+            value: >-
+              cast(str, self.FileSystemId)
+        user_args:
+          1:
+            name: Policy
+            attr_type: str
+        user_keyword_args:
+          - name: BypassPolicyLockoutSafetyCheck
+            attr_type: bool | None
+            default: >-
+              None
+      delete_file_system_policy:
+        docstring: >-
+          Delete the resource policy for this file system.
+        manager_method: delete_file_system_policy
+        args:
+          0:
+            name: FileSystemId
+            value: >-
+              cast(str, self.FileSystemId)
+      get_lifecycle_configuration:
+        docstring: >-
+          Return the lifecycle configuration for this file system.
+        manager_method: get_lifecycle_configuration
+        args:
+          0:
+            name: FileSystemId
+            value: >-
+              cast(str, self.FileSystemId)
+      put_lifecycle_configuration:
+        docstring: >-
+          Update the lifecycle configuration for this file system.
+        manager_method: put_lifecycle_configuration
+        args:
+          0:
+            name: FileSystemId
+            value: >-
+              cast(str, self.FileSystemId)
+        user_args:
+          1:
+            name: LifecyclePolicies
+            attr_type: >-
+              "builtins.list[LifecyclePolicy]"
+      update_file_system_protection:
+        docstring: >-
+          Update replication overwrite protection for this file system.
+        manager_method: update_file_system_protection
+        args:
+          0:
+            name: FileSystemId
+            value: >-
+              cast(str, self.FileSystemId)
+        user_keyword_args:
+          - name: ReplicationOverwriteProtection
+            attr_type: str | None
+            default: >-
+              None
+      create_replication_configuration:
+        docstring: >-
+          Create a replication configuration for this file system.
+        manager_method: create_replication_configuration
+        args:
+          0:
+            name: SourceFileSystemId
+            value: >-
+              cast(str, self.FileSystemId)
+        user_args:
+          1:
+            name: Destinations
+            attr_type: >-
+              "builtins.list[EFSDestination]"
+      delete_replication_configuration:
+        docstring: >-
+          Delete the replication configuration for this file system.
+        manager_method: delete_replication_configuration
+        args:
+          0:
+            name: SourceFileSystemId
+            value: >-
+              cast(str, self.FileSystemId)
+        user_keyword_args:
+          - name: DeletionMode
+            attr_type: str | None
+            default: >-
+              None
+  AccessPointDescription:
+    alternate_name: AccessPoint
+    primary_key: AccessPointId
+    arn_key: AccessPointArn
+    name_key: Name
+    input_shapes:
+      - CreateAccessPointRequest
+    extra_fields:
+      Tags:
+        python_type: "builtins.list[Tag]"
+        default: >-
+          None
+        docstring: >-
+          The AWS tags associated with this access point.
+    relations:
+      file_system:
+        primary_model_name: FileSystem
+        docstring: >-
+          Return the file system associated with this access point, if any.
+        transformer:
+          mapping:
+            FileSystemId: FileSystemId
+      mount_targets:
+        primary_model_name: MountTarget
+        many: true
+        docstring: >-
+          Return the mount targets reachable through this access point, if any.
+        transformer:
+          mapping:
+            AccessPointId: AccessPointId
+  MountTargetDescription:
+    alternate_name: MountTarget
+    primary_key: MountTargetId
+    input_shapes:
+      - CreateMountTargetRequest
+    mixins:
+      - name: MountTargetModelMixin
+        import_path: botocraft.mixins.efs
+    fields:
+      OwnerId:
+        required: false
+        default: >-
+          None
+      MountTargetId:
+        required: false
+        default: >-
+          None
+      LifeCycleState:
+        required: false
+        default: >-
+          None
+    extra_fields:
+      SecurityGroups:
+        python_type: "builtins.list[str] | None"
+        default: >-
+          None
+        docstring: >-
+          Security groups to associate with this mount target when creating or updating it.
+    relations:
+      file_system:
+        primary_model_name: FileSystem
+        docstring: >-
+          Return the file system associated with this mount target, if any.
+        transformer:
+          mapping:
+            FileSystemId: FileSystemId
+      subnet:
+        primary_model_name: Subnet
+        docstring: >-
+          Return the EC2 subnet associated with this mount target, if any.
+        transformer:
+          mapping:
+            SubnetId: SubnetId
+      vpc:
+        primary_model_name: Vpc
+        docstring: >-
+          Return the EC2 VPC associated with this mount target, if any.
+        transformer:
+          mapping:
+            VpcId: VpcId
+  ReplicationConfigurationDescription:
+    alternate_name: ReplicationConfiguration
+    primary_key: SourceFileSystemId
+    arn_key: SourceFileSystemArn
+    input_shapes:
+      - CreateReplicationConfigurationRequest
+    fields:
+      SourceFileSystemRegion:
+        required: false
+        default: >-
+          None
+      SourceFileSystemArn:
+        required: false
+        default: >-
+          None
+      OriginalSourceFileSystemArn:
+        required: false
+        default: >-
+          None
+      CreationTime:
+        required: false
+        default: >-
+          None
+    relations:
+      source_file_system:
+        primary_model_name: FileSystem
+        docstring: >-
+          Return the source file system for this replication configuration, if any.
+        transformer:
+          mapping:
+            FileSystemId: SourceFileSystemId
+
+secondary:
+  Destination:
+    alternate_name: EFSDestination
+    fields:
+      Status:
+        required: false
+        default: >-
+          None
+      FileSystemId:
+        required: false
+        default: >-
+          None
+      LastReplicatedTimestamp:
+        required: false
+        default: >-
+          None
+      OwnerId:
+        required: false
+        default: >-
+          None
+      StatusMessage:
+        required: false
+        default: >-
+          None
+      RoleArn:
+        required: false
+        default: >-
+          None
+  BackupPolicy:
+    alternate_name: EFSBackupPolicy
+    force_create: true
+  FileSystemPolicyDescription:
+    force_create: true
+  LifecycleConfigurationDescription:
+    force_create: true
+  LifecyclePolicy:
+    force_create: true
+  FileSystemProtectionDescription:
+    force_create: true
+  FileSystemSize:
+    force_create: true
+  ListTagsForResourceResponse:
+    alternate_name: EFSListTagsForResourceResponse
+  PosixUser:
+    alternate_name: EFSPosixUser
+    force_create: true
+  RootDirectory:
+    alternate_name: EFSRootDirectory
+    force_create: true
+  CreationInfo:
+    alternate_name: EFSCreationInfo
+    force_create: true
