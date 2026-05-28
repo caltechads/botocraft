@@ -6,6 +6,7 @@ from .secretsmanager import *  # noqa: F401,F403
 from .kms import *  # noqa: F401,F403
 from .cloudwatch import *  # noqa: F401,F403
 from .s3 import *  # noqa: F401,F403
+from .sesv2 import *  # noqa: F401,F403
 from .inspector2 import *  # noqa: F401,F403
 from .opensearch import *  # noqa: F401,F403
 from .ecr import *  # noqa: F401,F403

@@ -14,6 +14,7 @@ botocraft
    overview/connectivity
    overview/cloudwatch
    overview/kinesis
+   overview/ses
    overview/ecs_exec
 
 .. toctree::

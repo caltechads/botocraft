@@ -27,6 +27,7 @@
 - :doc:`/api/services/s3`
 - :doc:`/api/services/schemas`
 - :doc:`/api/services/secretsmanager`
+- :doc:`/api/services/sesv2`
 - :doc:`/api/services/sqs`
 - :doc:`/api/services/ssm`
 - :doc:`/api/services/sts`

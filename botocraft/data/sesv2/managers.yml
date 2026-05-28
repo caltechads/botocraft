@@ -1,0 +1,340 @@
+---
+GetConfigurationSetResponse:
+  methods:
+    create:
+      boto3_name: create_configuration_set
+      return_type: None
+      response_attr: None
+      decorators:
+        - name: refresh_configuration_set_after_mutation
+          import_path: botocraft.mixins.sesv2
+    get:
+      boto3_name: get_configuration_set
+      response_attr: None
+      args:
+        ConfigurationSetName:
+          required: true
+    list:
+      boto3_name: list_configuration_sets
+      response_attr: ConfigurationSets
+      decorators:
+        - name: configuration_set_names_to_models
+          import_path: botocraft.mixins.sesv2
+    delete:
+      boto3_name: delete_configuration_set
+      return_type: None
+      response_attr: None
+      args:
+        ConfigurationSetName:
+          required: true
+
+IdentityInfo:
+  mixins:
+    - name: SESV2EmailIdentityManagerMixin
+      import_path: botocraft.mixins.sesv2
+  methods:
+    create:
+      boto3_name: create_email_identity
+      return_type: None
+      response_attr: None
+      decorators:
+        - name: refresh_email_identity_after_mutation
+          import_path: botocraft.mixins.sesv2
+    get:
+      boto3_name: get_email_identity
+      response_attr: None
+      decorators:
+        - name: email_identity_response_to_model
+          import_path: botocraft.mixins.sesv2
+      args:
+        EmailIdentity:
+          required: true
+          rename: identity
+          python_type: str
+    list:
+      boto3_name: list_email_identities
+      response_attr: EmailIdentities
+      decorators:
+        - name: email_identity_summaries_to_models
+          import_path: botocraft.mixins.sesv2
+    delete:
+      boto3_name: delete_email_identity
+      return_type: None
+      response_attr: None
+      args:
+        EmailIdentity:
+          required: true
+          rename: identity
+          python_type: str
+    send:
+      boto3_name: send_email
+      response_attr: MessageId
+      args:
+        FromEmailAddress:
+          required: true
+        Content:
+          required: true
+        Destination:
+          default: None
+        ReplyToAddresses:
+          default: None
+        FeedbackForwardingEmailAddress:
+          default: None
+        FeedbackForwardingEmailAddressIdentityArn:
+          default: None
+        FromEmailAddressIdentityArn:
+          default: None
+        EmailTags:
+          default: None
+        ConfigurationSetName:
+          default: None
+        ListManagementOptions:
+          default: None
+        EndpointId:
+          default: None
+        TenantName:
+          default: None
+    send_bulk:
+      boto3_name: send_bulk_email
+      return_type: '"builtins.list[BulkEmailEntryResult]"'
+      response_attr: BulkEmailEntryResults
+      args:
+        FromEmailAddress:
+          required: true
+        DefaultContent:
+          required: true
+        BulkEmailEntries:
+          required: true
+        ReplyToAddresses:
+          default: None
+        FeedbackForwardingEmailAddress:
+          default: None
+        FeedbackForwardingEmailAddressIdentityArn:
+          default: None
+        FromEmailAddressIdentityArn:
+          default: None
+        DefaultEmailTags:
+          default: None
+        ConfigurationSetName:
+          default: None
+        EndpointId:
+          default: None
+        TenantName:
+          default: None
+
+GetContactListResponse:
+  methods:
+    create:
+      boto3_name: create_contact_list
+      return_type: None
+      response_attr: None
+      decorators:
+        - name: refresh_contact_list_after_mutation
+          import_path: botocraft.mixins.sesv2
+    update:
+      boto3_name: update_contact_list
+      return_type: None
+      response_attr: None
+      decorators:
+        - name: refresh_contact_list_after_mutation
+          import_path: botocraft.mixins.sesv2
+    get:
+      boto3_name: get_contact_list
+      response_attr: None
+      args:
+        ContactListName:
+          required: true
+    list:
+      boto3_name: list_contact_lists
+      response_attr: ContactLists
+    delete:
+      boto3_name: delete_contact_list
+      return_type: None
+      response_attr: None
+      args:
+        ContactListName:
+          required: true
+
+GetEmailTemplateResponse:
+  methods:
+    create:
+      boto3_name: create_email_template
+      return_type: None
+      response_attr: None
+      decorators:
+        - name: refresh_email_template_after_mutation
+          import_path: botocraft.mixins.sesv2
+    update:
+      boto3_name: update_email_template
+      return_type: None
+      response_attr: None
+      decorators:
+        - name: refresh_email_template_after_mutation
+          import_path: botocraft.mixins.sesv2
+    get:
+      boto3_name: get_email_template
+      response_attr: None
+      args:
+        TemplateName:
+          required: true
+    list:
+      boto3_name: list_email_templates
+      response_attr: TemplatesMetadata
+    delete:
+      boto3_name: delete_email_template
+      return_type: None
+      response_attr: None
+      args:
+        TemplateName:
+          required: true
+
+SuppressedDestination:
+  methods:
+    create:
+      boto3_name: put_suppressed_destination
+      return_type: None
+      response_attr: None
+      decorators:
+        - name: refresh_suppressed_destination_after_mutation
+          import_path: botocraft.mixins.sesv2
+    get:
+      boto3_name: get_suppressed_destination
+      response_attr: SuppressedDestinationInstance
+      args:
+        EmailAddress:
+          required: true
+    list:
+      boto3_name: list_suppressed_destinations
+      response_attr: SuppressedDestinationSummaries
+    delete:
+      boto3_name: delete_suppressed_destination
+      return_type: None
+      response_attr: None
+      args:
+        EmailAddress:
+          required: true
+
+DeliverabilityTestReport:
+  mixins:
+    - name: SESV2DeliverabilityTestReportManagerMixin
+      import_path: botocraft.mixins.sesv2
+  methods:
+    create:
+      boto3_name: create_deliverability_test_report
+      response_attr: None
+      decorators:
+        - name: refresh_deliverability_test_report_after_create
+          import_path: botocraft.mixins.sesv2
+    get:
+      boto3_name: get_deliverability_test_report
+      response_attr: None
+      decorators:
+        - name: deliverability_test_report_response_to_model
+          import_path: botocraft.mixins.sesv2
+      args:
+        ReportId:
+          required: true
+    list:
+      boto3_name: list_deliverability_test_reports
+      response_attr: DeliverabilityTestReports
+
+MultiRegionEndpoint:
+  methods:
+    create:
+      boto3_name: create_multi_region_endpoint
+      return_type: None
+      response_attr: None
+      decorators:
+        - name: refresh_multi_region_endpoint_after_mutation
+          import_path: botocraft.mixins.sesv2
+    get:
+      boto3_name: get_multi_region_endpoint
+      response_attr: None
+      decorators:
+        - name: multi_region_endpoint_response_to_model
+          import_path: botocraft.mixins.sesv2
+      args:
+        EndpointName:
+          required: true
+    list:
+      boto3_name: list_multi_region_endpoints
+      response_attr: MultiRegionEndpoints
+    delete:
+      boto3_name: delete_multi_region_endpoint
+      return_type: None
+      response_attr: None
+      args:
+        EndpointName:
+          required: true
+
+Tenant:
+  methods:
+    create:
+      boto3_name: create_tenant
+      response_attr: None
+      decorators:
+        - name: tenant_response_to_model
+          import_path: botocraft.mixins.sesv2
+    get:
+      boto3_name: get_tenant
+      response_attr: TenantInstance
+      args:
+        TenantName:
+          required: true
+    list:
+      boto3_name: list_tenants
+      response_attr: Tenants
+    delete:
+      boto3_name: delete_tenant
+      return_type: None
+      args:
+        TenantName:
+          required: true
+
+DedicatedIpPool:
+  methods:
+    create:
+      boto3_name: create_dedicated_ip_pool
+      return_type: None
+      response_attr: None
+      decorators:
+        - name: refresh_dedicated_ip_pool_after_mutation
+          import_path: botocraft.mixins.sesv2
+    update:
+      boto3_name: put_dedicated_ip_pool_scaling_attributes
+      return_type: None
+      response_attr: None
+      decorators:
+        - name: refresh_dedicated_ip_pool_after_mutation
+          import_path: botocraft.mixins.sesv2
+    get:
+      boto3_name: get_dedicated_ip_pool
+      response_attr: DedicatedIpPoolInstance
+      args:
+        PoolName:
+          required: true
+    list:
+      boto3_name: list_dedicated_ip_pools
+      response_attr: DedicatedIpPools
+      decorators:
+        - name: dedicated_ip_pool_names_to_models
+          import_path: botocraft.mixins.sesv2
+    delete:
+      boto3_name: delete_dedicated_ip_pool
+      return_type: None
+      response_attr: None
+      args:
+        PoolName:
+          required: true
+
+DedicatedIp:
+  methods:
+    get:
+      boto3_name: get_dedicated_ip
+      response_attr: DedicatedIpInstance
+      args:
+        Ip:
+          required: true
+    list:
+      boto3_name: get_dedicated_ips
+      response_attr: DedicatedIps

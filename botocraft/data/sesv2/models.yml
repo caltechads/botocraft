@@ -1,0 +1,323 @@
+---
+primary:
+  GetConfigurationSetResponse:
+    alternate_name: ConfigurationSet
+    primary_key: ConfigurationSetName
+    name_key: ConfigurationSetName
+    input_shapes:
+      - CreateConfigurationSetRequest
+
+  IdentityInfo:
+    alternate_name: EmailIdentity
+    primary_key: EmailIdentity
+    name_key: EmailIdentity
+    input_shapes:
+      - CreateEmailIdentityRequest
+    imports:
+      - from typing import cast
+    output_shape: GetEmailIdentityResponse
+    extra_fields:
+      Tags:
+        python_type: 'list["SESV2Tag"] | None'
+        default: None
+        docstring: >-
+          Tags associated with the email identity.
+    fields:
+      IdentityName:
+        rename: EmailIdentity
+      SendingEnabled:
+        required: false
+    manager_methods:
+      send:
+        manager_method: send
+        docstring: >-
+          Send an email from this identity.
+        args:
+          0:
+            name: FromEmailAddress
+            value: >-
+              cast(str, self.EmailIdentity)
+        user_args:
+          1:
+            name: Content
+            attr_type: SESV2EmailContent
+        user_keyword_args:
+          - name: Destination
+            attr_type: SESV2Destination | None
+            default: None
+          - name: ReplyToAddresses
+            attr_type: builtins.list[str] | None
+            default: None
+          - name: FeedbackForwardingEmailAddress
+            attr_type: str | None
+            default: None
+          - name: FeedbackForwardingEmailAddressIdentityArn
+            attr_type: str | None
+            default: None
+          - name: FromEmailAddressIdentityArn
+            attr_type: str | None
+            default: None
+          - name: EmailTags
+            attr_type: builtins.list[SESV2MessageTag] | None
+            default: None
+          - name: ConfigurationSetName
+            attr_type: str | None
+            default: None
+          - name: ListManagementOptions
+            attr_type: SESV2ListManagementOptions | None
+            default: None
+          - name: EndpointId
+            attr_type: str | None
+            default: None
+          - name: TenantName
+            attr_type: str | None
+            default: None
+      send_bulk:
+        manager_method: send_bulk
+        docstring: >-
+          Send a bulk email from this identity.
+        args:
+          0:
+            name: FromEmailAddress
+            value: >-
+              cast(str, self.EmailIdentity)
+        user_args:
+          1:
+            name: DefaultContent
+            attr_type: SESV2BulkEmailContent
+          2:
+            name: BulkEmailEntries
+            attr_type: builtins.list[SESV2BulkEmailEntry]
+        user_keyword_args:
+          - name: ReplyToAddresses
+            attr_type: builtins.list[str] | None
+            default: None
+          - name: FeedbackForwardingEmailAddress
+            attr_type: str | None
+            default: None
+          - name: FeedbackForwardingEmailAddressIdentityArn
+            attr_type: str | None
+            default: None
+          - name: FromEmailAddressIdentityArn
+            attr_type: str | None
+            default: None
+          - name: DefaultEmailTags
+            attr_type: builtins.list[SESV2MessageTag] | None
+            default: None
+          - name: ConfigurationSetName
+            attr_type: str | None
+            default: None
+          - name: EndpointId
+            attr_type: str | None
+            default: None
+          - name: TenantName
+            attr_type: str | None
+            default: None
+
+  GetContactListResponse:
+    alternate_name: ContactList
+    primary_key: ContactListName
+    name_key: ContactListName
+    input_shapes:
+      - CreateContactListRequest
+      - UpdateContactListRequest
+
+  GetEmailTemplateResponse:
+    alternate_name: EmailTemplate
+    primary_key: TemplateName
+    name_key: TemplateName
+    input_shapes:
+      - CreateEmailTemplateRequest
+      - UpdateEmailTemplateRequest
+    fields:
+      TemplateContent:
+        required: false
+    extra_fields:
+      CreatedTimestamp:
+        python_type: datetime | None
+        imports:
+          - from datetime import datetime
+        default: None
+        docstring: >-
+          Creation time returned by list operations.
+
+  SuppressedDestination:
+    primary_key: EmailAddress
+    name_key: EmailAddress
+    input_shapes:
+      - PutSuppressedDestinationRequest
+
+  DeliverabilityTestReport:
+    primary_key: ReportId
+    name_key: ReportName
+    input_shapes:
+      - CreateDeliverabilityTestReportRequest
+    extra_fields:
+      Content:
+        python_type: Any | None
+        imports:
+          - from typing import Any
+        default: None
+        docstring: >-
+          Email content payload used when creating deliverability tests.
+      OverallPlacement:
+        python_type: '"SESV2PlacementStatistics | None"'
+        default: None
+        docstring: >-
+          Aggregate mailbox placement statistics from get operations.
+      IspPlacements:
+        python_type: 'list["SESV2IspPlacement"] | None'
+        default: None
+        docstring: >-
+          Per-ISP placement statistics from get operations.
+      Message:
+        python_type: str | None
+        default: None
+        docstring: >-
+          Additional service message returned by get operations.
+      Tags:
+        python_type: 'list["SESV2Tag"] | None'
+        default: None
+        docstring: >-
+          Tags associated with the report.
+
+  MultiRegionEndpoint:
+    primary_key: EndpointName
+    name_key: EndpointName
+    input_shapes:
+      - CreateMultiRegionEndpointRequest
+    extra_fields:
+      Details:
+        python_type: Any | None
+        imports:
+          - from typing import Any
+        default: None
+        docstring: >-
+          Route detail payload used during endpoint creation.
+      Routes:
+        python_type: 'list["SESV2MultiRegionEndpointRoute"] | None'
+        default: None
+        docstring: >-
+          Route details returned by get operations.
+
+  Tenant:
+    primary_key: TenantName
+    name_key: TenantName
+    arn_key: TenantArn
+    input_shapes:
+      - CreateTenantRequest
+
+  DedicatedIpPool:
+    primary_key: PoolName
+    name_key: PoolName
+    input_shapes:
+      - CreateDedicatedIpPoolRequest
+      - PutDedicatedIpPoolScalingAttributesRequest
+
+  DedicatedIp:
+    readonly: true
+    primary_key: Ip
+    name_key: Ip
+
+secondary:
+  GetTenantResponse:
+    fields:
+      Tenant:
+        rename: TenantInstance
+  GetDedicatedIpPoolResponse:
+    fields:
+      DedicatedIpPool:
+        rename: DedicatedIpPoolInstance
+  GetDedicatedIpResponse:
+    fields:
+      DedicatedIp:
+        rename: DedicatedIpInstance
+  GetSuppressedDestinationResponse:
+    fields:
+      SuppressedDestination:
+        rename: SuppressedDestinationInstance
+  GetDeliverabilityTestReportResponse:
+    fields:
+      DeliverabilityTestReport:
+        rename: DeliverabilityTestReportInstance
+  Tag:
+    alternate_name: SESV2Tag
+  Topic:
+    alternate_name: SESV2Topic
+  TrackingOptions:
+    alternate_name: SESV2TrackingOptions
+  DeliveryOptions:
+    alternate_name: SESV2DeliveryOptions
+  ReputationOptions:
+    alternate_name: SESV2ReputationOptions
+  SendingOptions:
+    alternate_name: SESV2SendingOptions
+  SuppressionOptions:
+    alternate_name: SESV2SuppressionOptions
+  SuppressionValidationOptions:
+    alternate_name: SESV2SuppressionValidationOptions
+  SuppressionConditionThreshold:
+    alternate_name: SESV2SuppressionConditionThreshold
+  SuppressionConfidenceThreshold:
+    alternate_name: SESV2SuppressionConfidenceThreshold
+  VdmOptions:
+    alternate_name: SESV2VdmOptions
+  DashboardOptions:
+    alternate_name: SESV2DashboardOptions
+  GuardianOptions:
+    alternate_name: SESV2GuardianOptions
+  ArchivingOptions:
+    alternate_name: SESV2ArchivingOptions
+  DkimAttributes:
+    alternate_name: SESV2DkimAttributes
+  MailFromAttributes:
+    alternate_name: SESV2MailFromAttributes
+  VerificationInfo:
+    alternate_name: SESV2VerificationInfo
+  SOARecord:
+    alternate_name: SESV2SOARecord
+  Destination:
+    alternate_name: SESV2Destination
+    force_create: true
+  Message:
+    alternate_name: SESV2Message
+    force_create: true
+  Body:
+    alternate_name: SESV2Body
+    force_create: true
+  Content:
+    alternate_name: SESV2Content
+    force_create: true
+  EmailContent:
+    alternate_name: SESV2EmailContent
+    force_create: true
+  MessageTag:
+    alternate_name: SESV2MessageTag
+    force_create: true
+  ListManagementOptions:
+    alternate_name: SESV2ListManagementOptions
+    force_create: true
+  BulkEmailEntry:
+    alternate_name: SESV2BulkEmailEntry
+    force_create: true
+  BulkEmailContent:
+    alternate_name: SESV2BulkEmailContent
+    force_create: true
+  ReplacementEmailContent:
+    alternate_name: SESV2ReplacementEmailContent
+    force_create: true
+  ReplacementTemplate:
+    alternate_name: SESV2ReplacementTemplate
+    force_create: true
+  BulkEmailEntryResult:
+    force_create: true
+  Template:
+    alternate_name: SESV2Template
+  PlacementStatistics:
+    alternate_name: SESV2PlacementStatistics
+    force_create: true
+  IspPlacement:
+    alternate_name: SESV2IspPlacement
+    force_create: true
+  Route:
+    alternate_name: SESV2MultiRegionEndpointRoute
