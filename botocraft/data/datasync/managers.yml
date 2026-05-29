@@ -1,0 +1,576 @@
+---
+DescribeAgentResponse:
+  methods:
+    create:
+      boto3_name: create_agent
+      response_attr: None
+      return_type: '"DataSyncAgent | None"'
+      decorators:
+        - name: datasync_refresh_after_create
+          import_path: botocraft.mixins.datasync
+      args:
+        AgentName:
+          attribute: Name
+    get:
+      boto3_name: describe_agent
+      response_attr: None
+      decorators:
+        - name: datasync_add_tags
+          import_path: botocraft.mixins.datasync
+      args:
+        AgentArn:
+          required: true
+    list:
+      boto3_name: list_agents
+      response_attr: Agents
+      decorators:
+        - name: datasync_add_tags_to_queryset
+          import_path: botocraft.mixins.datasync
+    update:
+      boto3_name: update_agent
+      response_attr: None
+      return_type: '"DataSyncAgent | None"'
+      decorators:
+        - name: datasync_refresh_after_update
+          import_path: botocraft.mixins.datasync
+      args:
+        AgentArn:
+          required: true
+    delete:
+      boto3_name: delete_agent
+      return_type: None
+      args:
+        AgentArn:
+          required: true
+
+DescribeTaskResponse:
+  methods:
+    create:
+      boto3_name: create_task
+      response_attr: None
+      return_type: '"DataSyncTask | None"'
+      decorators:
+        - name: datasync_refresh_after_create
+          import_path: botocraft.mixins.datasync
+    get:
+      boto3_name: describe_task
+      response_attr: None
+      decorators:
+        - name: datasync_add_tags
+          import_path: botocraft.mixins.datasync
+      args:
+        TaskArn:
+          required: true
+    list:
+      boto3_name: list_tasks
+      response_attr: Tasks
+      decorators:
+        - name: datasync_add_tags_to_queryset
+          import_path: botocraft.mixins.datasync
+    update:
+      boto3_name: update_task
+      response_attr: None
+      return_type: '"DataSyncTask | None"'
+      decorators:
+        - name: datasync_refresh_after_update
+          import_path: botocraft.mixins.datasync
+      args:
+        TaskArn:
+          required: true
+    delete:
+      boto3_name: delete_task
+      return_type: None
+      args:
+        TaskArn:
+          required: true
+    start_task_execution:
+      boto3_name: start_task_execution
+      response_attr: None
+      return_type: '"DataSyncTaskExecution | None"'
+      decorators:
+        - name: datasync_task_execution_from_start
+          import_path: botocraft.mixins.datasync
+      args:
+        TaskArn:
+          required: true
+
+DescribeTaskExecutionResponse:
+  methods:
+    get:
+      boto3_name: describe_task_execution
+      response_attr: None
+      args:
+        TaskExecutionArn:
+          required: true
+    list:
+      boto3_name: list_task_executions
+      response_attr: TaskExecutions
+    update:
+      boto3_name: update_task_execution
+      response_attr: None
+      return_type: '"DataSyncTaskExecution | None"'
+      decorators:
+        - name: datasync_refresh_after_update
+          import_path: botocraft.mixins.datasync
+      args:
+        TaskExecutionArn:
+          required: true
+        Options:
+          required: true
+    cancel:
+      boto3_name: cancel_task_execution
+      return_type: None
+      args:
+        TaskExecutionArn:
+          required: true
+
+DescribeLocationAzureBlobResponse:
+  methods:
+    create:
+      boto3_name: create_location_azure_blob
+      response_attr: None
+      return_type: '"DataSyncLocationAzureBlob | None"'
+      decorators:
+        - name: datasync_refresh_after_create
+          import_path: botocraft.mixins.datasync
+    get:
+      boto3_name: describe_location_azure_blob
+      response_attr: None
+      decorators:
+        - name: datasync_add_tags
+          import_path: botocraft.mixins.datasync
+      args:
+        LocationArn:
+          required: true
+    list:
+      boto3_name: list_locations
+      response_attr: Locations
+      decorators:
+        - name: datasync_list_azure_blob_locations
+          import_path: botocraft.mixins.datasync
+    update:
+      boto3_name: update_location_azure_blob
+      response_attr: None
+      return_type: '"DataSyncLocationAzureBlob | None"'
+      decorators:
+        - name: datasync_refresh_after_update
+          import_path: botocraft.mixins.datasync
+      args:
+        LocationArn:
+          required: true
+    delete:
+      boto3_name: delete_location
+      return_type: None
+      args:
+        LocationArn:
+          required: true
+
+DescribeLocationEfsResponse:
+  methods:
+    create:
+      boto3_name: create_location_efs
+      response_attr: None
+      return_type: '"DataSyncLocationEfs | None"'
+      decorators:
+        - name: datasync_refresh_after_create
+          import_path: botocraft.mixins.datasync
+    get:
+      boto3_name: describe_location_efs
+      response_attr: None
+      decorators:
+        - name: datasync_add_tags
+          import_path: botocraft.mixins.datasync
+      args:
+        LocationArn:
+          required: true
+    list:
+      boto3_name: list_locations
+      response_attr: Locations
+      decorators:
+        - name: datasync_list_efs_locations
+          import_path: botocraft.mixins.datasync
+    update:
+      boto3_name: update_location_efs
+      response_attr: None
+      return_type: '"DataSyncLocationEfs | None"'
+      decorators:
+        - name: datasync_refresh_after_update
+          import_path: botocraft.mixins.datasync
+      args:
+        LocationArn:
+          required: true
+    delete:
+      boto3_name: delete_location
+      return_type: None
+      args:
+        LocationArn:
+          required: true
+
+DescribeLocationFsxLustreResponse:
+  methods:
+    create:
+      boto3_name: create_location_fsx_lustre
+      response_attr: None
+      return_type: '"DataSyncLocationFsxLustre | None"'
+      decorators:
+        - name: datasync_refresh_after_create
+          import_path: botocraft.mixins.datasync
+    get:
+      boto3_name: describe_location_fsx_lustre
+      response_attr: None
+      decorators:
+        - name: datasync_add_tags
+          import_path: botocraft.mixins.datasync
+      args:
+        LocationArn:
+          required: true
+    list:
+      boto3_name: list_locations
+      response_attr: Locations
+      decorators:
+        - name: datasync_list_fsx_lustre_locations
+          import_path: botocraft.mixins.datasync
+    update:
+      boto3_name: update_location_fsx_lustre
+      response_attr: None
+      return_type: '"DataSyncLocationFsxLustre | None"'
+      decorators:
+        - name: datasync_refresh_after_update
+          import_path: botocraft.mixins.datasync
+      args:
+        LocationArn:
+          required: true
+    delete:
+      boto3_name: delete_location
+      return_type: None
+      args:
+        LocationArn:
+          required: true
+
+DescribeLocationFsxOntapResponse:
+  methods:
+    create:
+      boto3_name: create_location_fsx_ontap
+      response_attr: None
+      return_type: '"DataSyncLocationFsxOntap | None"'
+      decorators:
+        - name: datasync_refresh_after_create
+          import_path: botocraft.mixins.datasync
+    get:
+      boto3_name: describe_location_fsx_ontap
+      response_attr: None
+      decorators:
+        - name: datasync_add_tags
+          import_path: botocraft.mixins.datasync
+      args:
+        LocationArn:
+          required: true
+    list:
+      boto3_name: list_locations
+      response_attr: Locations
+      decorators:
+        - name: datasync_list_fsx_ontap_locations
+          import_path: botocraft.mixins.datasync
+    update:
+      boto3_name: update_location_fsx_ontap
+      response_attr: None
+      return_type: '"DataSyncLocationFsxOntap | None"'
+      decorators:
+        - name: datasync_refresh_after_update
+          import_path: botocraft.mixins.datasync
+      args:
+        LocationArn:
+          required: true
+    delete:
+      boto3_name: delete_location
+      return_type: None
+      args:
+        LocationArn:
+          required: true
+
+DescribeLocationFsxOpenZfsResponse:
+  methods:
+    create:
+      boto3_name: create_location_fsx_open_zfs
+      response_attr: None
+      return_type: '"DataSyncLocationFsxOpenZfs | None"'
+      decorators:
+        - name: datasync_refresh_after_create
+          import_path: botocraft.mixins.datasync
+    get:
+      boto3_name: describe_location_fsx_open_zfs
+      response_attr: None
+      decorators:
+        - name: datasync_add_tags
+          import_path: botocraft.mixins.datasync
+      args:
+        LocationArn:
+          required: true
+    list:
+      boto3_name: list_locations
+      response_attr: Locations
+      decorators:
+        - name: datasync_list_fsx_openzfs_locations
+          import_path: botocraft.mixins.datasync
+    update:
+      boto3_name: update_location_fsx_open_zfs
+      response_attr: None
+      return_type: '"DataSyncLocationFsxOpenZfs | None"'
+      decorators:
+        - name: datasync_refresh_after_update
+          import_path: botocraft.mixins.datasync
+      args:
+        LocationArn:
+          required: true
+    delete:
+      boto3_name: delete_location
+      return_type: None
+      args:
+        LocationArn:
+          required: true
+
+DescribeLocationFsxWindowsResponse:
+  methods:
+    create:
+      boto3_name: create_location_fsx_windows
+      response_attr: None
+      return_type: '"DataSyncLocationFsxWindows | None"'
+      decorators:
+        - name: datasync_refresh_after_create
+          import_path: botocraft.mixins.datasync
+    get:
+      boto3_name: describe_location_fsx_windows
+      response_attr: None
+      decorators:
+        - name: datasync_add_tags
+          import_path: botocraft.mixins.datasync
+      args:
+        LocationArn:
+          required: true
+    list:
+      boto3_name: list_locations
+      response_attr: Locations
+      decorators:
+        - name: datasync_list_fsx_windows_locations
+          import_path: botocraft.mixins.datasync
+    update:
+      boto3_name: update_location_fsx_windows
+      response_attr: None
+      return_type: '"DataSyncLocationFsxWindows | None"'
+      decorators:
+        - name: datasync_refresh_after_update
+          import_path: botocraft.mixins.datasync
+      args:
+        LocationArn:
+          required: true
+    delete:
+      boto3_name: delete_location
+      return_type: None
+      args:
+        LocationArn:
+          required: true
+
+DescribeLocationHdfsResponse:
+  methods:
+    create:
+      boto3_name: create_location_hdfs
+      response_attr: None
+      return_type: '"DataSyncLocationHdfs | None"'
+      decorators:
+        - name: datasync_refresh_after_create
+          import_path: botocraft.mixins.datasync
+    get:
+      boto3_name: describe_location_hdfs
+      response_attr: None
+      decorators:
+        - name: datasync_add_tags
+          import_path: botocraft.mixins.datasync
+      args:
+        LocationArn:
+          required: true
+    list:
+      boto3_name: list_locations
+      response_attr: Locations
+      decorators:
+        - name: datasync_list_hdfs_locations
+          import_path: botocraft.mixins.datasync
+    update:
+      boto3_name: update_location_hdfs
+      response_attr: None
+      return_type: '"DataSyncLocationHdfs | None"'
+      decorators:
+        - name: datasync_refresh_after_update
+          import_path: botocraft.mixins.datasync
+      args:
+        LocationArn:
+          required: true
+    delete:
+      boto3_name: delete_location
+      return_type: None
+      args:
+        LocationArn:
+          required: true
+
+DescribeLocationNfsResponse:
+  methods:
+    create:
+      boto3_name: create_location_nfs
+      response_attr: None
+      return_type: '"DataSyncLocationNfs | None"'
+      decorators:
+        - name: datasync_refresh_after_create
+          import_path: botocraft.mixins.datasync
+    get:
+      boto3_name: describe_location_nfs
+      response_attr: None
+      decorators:
+        - name: datasync_add_tags
+          import_path: botocraft.mixins.datasync
+      args:
+        LocationArn:
+          required: true
+    list:
+      boto3_name: list_locations
+      response_attr: Locations
+      decorators:
+        - name: datasync_list_nfs_locations
+          import_path: botocraft.mixins.datasync
+    update:
+      boto3_name: update_location_nfs
+      response_attr: None
+      return_type: '"DataSyncLocationNfs | None"'
+      decorators:
+        - name: datasync_refresh_after_update
+          import_path: botocraft.mixins.datasync
+      args:
+        LocationArn:
+          required: true
+    delete:
+      boto3_name: delete_location
+      return_type: None
+      args:
+        LocationArn:
+          required: true
+
+DescribeLocationObjectStorageResponse:
+  methods:
+    create:
+      boto3_name: create_location_object_storage
+      response_attr: None
+      return_type: '"DataSyncLocationObjectStorage | None"'
+      decorators:
+        - name: datasync_refresh_after_create
+          import_path: botocraft.mixins.datasync
+    get:
+      boto3_name: describe_location_object_storage
+      response_attr: None
+      decorators:
+        - name: datasync_add_tags
+          import_path: botocraft.mixins.datasync
+      args:
+        LocationArn:
+          required: true
+    list:
+      boto3_name: list_locations
+      response_attr: Locations
+      decorators:
+        - name: datasync_list_object_storage_locations
+          import_path: botocraft.mixins.datasync
+    update:
+      boto3_name: update_location_object_storage
+      response_attr: None
+      return_type: '"DataSyncLocationObjectStorage | None"'
+      decorators:
+        - name: datasync_refresh_after_update
+          import_path: botocraft.mixins.datasync
+      args:
+        LocationArn:
+          required: true
+    delete:
+      boto3_name: delete_location
+      return_type: None
+      args:
+        LocationArn:
+          required: true
+
+DescribeLocationS3Response:
+  methods:
+    create:
+      boto3_name: create_location_s3
+      response_attr: None
+      return_type: '"DataSyncLocationS3 | None"'
+      decorators:
+        - name: datasync_refresh_after_create
+          import_path: botocraft.mixins.datasync
+    get:
+      boto3_name: describe_location_s3
+      response_attr: None
+      decorators:
+        - name: datasync_add_tags
+          import_path: botocraft.mixins.datasync
+      args:
+        LocationArn:
+          required: true
+    list:
+      boto3_name: list_locations
+      response_attr: Locations
+      decorators:
+        - name: datasync_list_s3_locations
+          import_path: botocraft.mixins.datasync
+    update:
+      boto3_name: update_location_s3
+      response_attr: None
+      return_type: '"DataSyncLocationS3 | None"'
+      decorators:
+        - name: datasync_refresh_after_update
+          import_path: botocraft.mixins.datasync
+      args:
+        LocationArn:
+          required: true
+    delete:
+      boto3_name: delete_location
+      return_type: None
+      args:
+        LocationArn:
+          required: true
+
+DescribeLocationSmbResponse:
+  methods:
+    create:
+      boto3_name: create_location_smb
+      response_attr: None
+      return_type: '"DataSyncLocationSmb | None"'
+      decorators:
+        - name: datasync_refresh_after_create
+          import_path: botocraft.mixins.datasync
+    get:
+      boto3_name: describe_location_smb
+      response_attr: None
+      decorators:
+        - name: datasync_add_tags
+          import_path: botocraft.mixins.datasync
+      args:
+        LocationArn:
+          required: true
+    list:
+      boto3_name: list_locations
+      response_attr: Locations
+      decorators:
+        - name: datasync_list_smb_locations
+          import_path: botocraft.mixins.datasync
+    update:
+      boto3_name: update_location_smb
+      response_attr: None
+      return_type: '"DataSyncLocationSmb | None"'
+      decorators:
+        - name: datasync_refresh_after_update
+          import_path: botocraft.mixins.datasync
+      args:
+        LocationArn:
+          required: true
+    delete:
+      boto3_name: delete_location
+      return_type: None
+      args:
+        LocationArn:
+          required: true

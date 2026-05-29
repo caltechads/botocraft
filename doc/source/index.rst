@@ -13,6 +13,7 @@ botocraft
    overview/bedrock
    overview/connectivity
    overview/cloudwatch
+   overview/datasync
    overview/kinesis
    overview/ses
    overview/ecs_exec

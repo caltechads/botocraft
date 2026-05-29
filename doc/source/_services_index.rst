@@ -12,6 +12,7 @@
    api/services/codebuild
    api/services/codeconnections
    api/services/codepipeline
+   api/services/datasync
    api/services/docdb
    api/services/ec2
    api/services/ecr

@@ -1,0 +1,335 @@
+---
+primary:
+  DescribeAgentResponse:
+    alternate_name: DataSyncAgent
+    imports:
+      - from botocraft.services.common import Tag
+    primary_key: AgentArn
+    arn_key: AgentArn
+    name_key: Name
+    input_shapes:
+      - CreateAgentRequest
+      - UpdateAgentRequest
+    extra_fields:
+      ActivationKey:
+        python_type: str | None
+        default: None
+      SecurityGroupArns:
+        python_type: builtins.list[str] | None
+        default: None
+      SubnetArns:
+        python_type: builtins.list[str] | None
+        default: None
+      Tags:
+        python_type: builtins.list[Tag] | None
+        default: None
+      VpcEndpointId:
+        python_type: str | None
+        default: None
+
+  DescribeTaskResponse:
+    alternate_name: DataSyncTask
+    imports:
+      - from botocraft.services.common import Tag
+    primary_key: TaskArn
+    arn_key: TaskArn
+    name_key: Name
+    input_shapes:
+      - CreateTaskRequest
+      - UpdateTaskRequest
+    extra_fields:
+      Tags:
+        python_type: builtins.list[Tag] | None
+        default: None
+
+  DescribeTaskExecutionResponse:
+    alternate_name: DataSyncTaskExecution
+    primary_key: TaskExecutionArn
+    arn_key: TaskExecutionArn
+    input_shapes:
+      - UpdateTaskExecutionRequest
+
+  DescribeLocationAzureBlobResponse:
+    alternate_name: DataSyncLocationAzureBlob
+    imports:
+      - from botocraft.services.common import Tag
+    primary_key: LocationArn
+    arn_key: LocationArn
+    input_shapes:
+      - CreateLocationAzureBlobRequest
+      - UpdateLocationAzureBlobRequest
+    extra_fields:
+      ContainerUrl:
+        python_type: str | None
+        default: None
+      SasConfiguration:
+        python_type: dict[str, Any] | None
+        default: None
+      Subdirectory:
+        python_type: str | None
+        default: None
+      Tags:
+        python_type: builtins.list[Tag] | None
+        default: None
+
+  DescribeLocationEfsResponse:
+    alternate_name: DataSyncLocationEfs
+    imports:
+      - from botocraft.services.common import Tag
+    primary_key: LocationArn
+    arn_key: LocationArn
+    input_shapes:
+      - CreateLocationEfsRequest
+      - UpdateLocationEfsRequest
+    extra_fields:
+      EfsFilesystemArn:
+        python_type: str | None
+        default: None
+      Subdirectory:
+        python_type: str | None
+        default: None
+      Tags:
+        python_type: builtins.list[Tag] | None
+        default: None
+
+  DescribeLocationFsxLustreResponse:
+    alternate_name: DataSyncLocationFsxLustre
+    imports:
+      - from botocraft.services.common import Tag
+    primary_key: LocationArn
+    arn_key: LocationArn
+    input_shapes:
+      - CreateLocationFsxLustreRequest
+      - UpdateLocationFsxLustreRequest
+    extra_fields:
+      FsxFilesystemArn:
+        python_type: str | None
+        default: None
+      Subdirectory:
+        python_type: str | None
+        default: None
+      Tags:
+        python_type: builtins.list[Tag] | None
+        default: None
+
+  DescribeLocationFsxOntapResponse:
+    alternate_name: DataSyncLocationFsxOntap
+    imports:
+      - from botocraft.services.common import Tag
+    primary_key: LocationArn
+    arn_key: LocationArn
+    input_shapes:
+      - CreateLocationFsxOntapRequest
+      - UpdateLocationFsxOntapRequest
+    extra_fields:
+      Subdirectory:
+        python_type: str | None
+        default: None
+      Tags:
+        python_type: builtins.list[Tag] | None
+        default: None
+
+  DescribeLocationFsxOpenZfsResponse:
+    alternate_name: DataSyncLocationFsxOpenZfs
+    imports:
+      - from botocraft.services.common import Tag
+    primary_key: LocationArn
+    arn_key: LocationArn
+    input_shapes:
+      - CreateLocationFsxOpenZfsRequest
+      - UpdateLocationFsxOpenZfsRequest
+    extra_fields:
+      FsxFilesystemArn:
+        python_type: str | None
+        default: None
+      Subdirectory:
+        python_type: str | None
+        default: None
+      Tags:
+        python_type: builtins.list[Tag] | None
+        default: None
+
+  DescribeLocationFsxWindowsResponse:
+    alternate_name: DataSyncLocationFsxWindows
+    imports:
+      - from botocraft.services.common import Tag
+    primary_key: LocationArn
+    arn_key: LocationArn
+    input_shapes:
+      - CreateLocationFsxWindowsRequest
+      - UpdateLocationFsxWindowsRequest
+    extra_fields:
+      FsxFilesystemArn:
+        python_type: str | None
+        default: None
+      Password:
+        python_type: str | None
+        default: None
+      Subdirectory:
+        python_type: str | None
+        default: None
+      Tags:
+        python_type: builtins.list[Tag] | None
+        default: None
+
+  DescribeLocationHdfsResponse:
+    alternate_name: DataSyncLocationHdfs
+    imports:
+      - from botocraft.services.common import Tag
+    primary_key: LocationArn
+    arn_key: LocationArn
+    input_shapes:
+      - CreateLocationHdfsRequest
+      - UpdateLocationHdfsRequest
+    extra_fields:
+      KerberosKeytab:
+        python_type: bytes | None
+        default: None
+      KerberosKrb5Conf:
+        python_type: bytes | None
+        default: None
+      Subdirectory:
+        python_type: str | None
+        default: None
+      Tags:
+        python_type: builtins.list[Tag] | None
+        default: None
+
+  DescribeLocationNfsResponse:
+    alternate_name: DataSyncLocationNfs
+    imports:
+      - from botocraft.services.common import Tag
+    primary_key: LocationArn
+    arn_key: LocationArn
+    input_shapes:
+      - CreateLocationNfsRequest
+      - UpdateLocationNfsRequest
+    extra_fields:
+      ServerHostname:
+        python_type: str | None
+        default: None
+      Subdirectory:
+        python_type: str | None
+        default: None
+      Tags:
+        python_type: builtins.list[Tag] | None
+        default: None
+
+  DescribeLocationObjectStorageResponse:
+    alternate_name: DataSyncLocationObjectStorage
+    imports:
+      - from botocraft.services.common import Tag
+    primary_key: LocationArn
+    arn_key: LocationArn
+    input_shapes:
+      - CreateLocationObjectStorageRequest
+      - UpdateLocationObjectStorageRequest
+    extra_fields:
+      BucketName:
+        python_type: str | None
+        default: None
+      SecretKey:
+        python_type: str | None
+        default: None
+      ServerHostname:
+        python_type: str | None
+        default: None
+      Subdirectory:
+        python_type: str | None
+        default: None
+      Tags:
+        python_type: builtins.list[Tag] | None
+        default: None
+
+  DescribeLocationS3Response:
+    alternate_name: DataSyncLocationS3
+    imports:
+      - from botocraft.services.common import Tag
+    primary_key: LocationArn
+    arn_key: LocationArn
+    input_shapes:
+      - CreateLocationS3Request
+      - UpdateLocationS3Request
+    extra_fields:
+      S3BucketArn:
+        python_type: str | None
+        default: None
+      Subdirectory:
+        python_type: str | None
+        default: None
+      Tags:
+        python_type: builtins.list[Tag] | None
+        default: None
+
+  DescribeLocationSmbResponse:
+    alternate_name: DataSyncLocationSmb
+    imports:
+      - from botocraft.services.common import Tag
+    primary_key: LocationArn
+    arn_key: LocationArn
+    input_shapes:
+      - CreateLocationSmbRequest
+      - UpdateLocationSmbRequest
+    extra_fields:
+      KerberosKeytab:
+        python_type: bytes | None
+        default: None
+      KerberosKrb5Conf:
+        python_type: bytes | None
+        default: None
+      Password:
+        python_type: str | None
+        default: None
+      ServerHostname:
+        python_type: str | None
+        default: None
+      Subdirectory:
+        python_type: str | None
+        default: None
+      Tags:
+        python_type: builtins.list[Tag] | None
+        default: None
+
+secondary:
+  ListTasksResponse:
+    alternate_name: DataSyncListTasksResponse
+  PrivateLinkConfig:
+    alternate_name: DataSyncPrivateLinkConfig
+  Platform:
+    alternate_name: DataSyncPlatform
+  Options:
+    alternate_name: DataSyncOptions
+  FilterRule:
+    alternate_name: DataSyncFilterRule
+  ManifestConfig:
+    alternate_name: DataSyncManifestConfig
+  TaskReportConfig:
+    alternate_name: DataSyncTaskReportConfig
+  TaskSchedule:
+    alternate_name: DataSyncTaskSchedule
+  TaskScheduleDetails:
+    alternate_name: DataSyncTaskScheduleDetails
+  Ec2Config:
+    alternate_name: DataSyncEc2Config
+  FsxProtocol:
+    alternate_name: DataSyncFsxProtocol
+  ManagedSecretConfig:
+    alternate_name: DataSyncManagedSecretConfig
+  CmkSecretConfig:
+    alternate_name: DataSyncCmkSecretConfig
+  CustomSecretConfig:
+    alternate_name: DataSyncCustomSecretConfig
+  OnPremConfig:
+    alternate_name: DataSyncOnPremConfig
+  QopConfiguration:
+    alternate_name: DataSyncQopConfiguration
+  NfsMountOptions:
+    alternate_name: DataSyncNfsMountOptions
+  S3Config:
+    alternate_name: DataSyncS3Config
+  SmbMountOptions:
+    alternate_name: DataSyncSmbMountOptions
+  ReportResult:
+    alternate_name: DataSyncReportResult
+  TaskExecutionResultDetail:
+    alternate_name: DataSyncTaskExecutionResultDetail

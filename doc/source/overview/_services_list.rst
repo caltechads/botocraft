@@ -7,6 +7,7 @@
 - :doc:`/api/services/codebuild`
 - :doc:`/api/services/codeconnections`
 - :doc:`/api/services/codepipeline`
+- :doc:`/api/services/datasync`
 - :doc:`/api/services/docdb`
 - :doc:`/api/services/ec2`
 - :doc:`/api/services/ecr`
