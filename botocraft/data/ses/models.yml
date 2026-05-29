@@ -1,0 +1,345 @@
+---
+primary:
+  IdentityVerificationAttributes:
+    alternate_name: SESIdentity
+    primary_key: Identity
+    name_key: Identity
+    imports:
+      - from typing import Literal, cast
+    fields:
+      VerificationStatus:
+        required: false
+      VerificationToken:
+        required: false
+    extra_fields:
+      Identity:
+        python_type: str
+        docstring: >-
+          Email address or domain represented by this SES sender identity.
+      IdentityType:
+        python_type: >-
+          Literal["EmailAddress", "Domain"] | None
+        default: None
+        docstring: >-
+          Lightweight classification of whether this identity is an email
+          address or domain.
+    manager_methods:
+      send_mail:
+        docstring: >-
+          Send an email from this identity.
+        manager_method: send_mail
+        args:
+          0:
+            name: Source
+            value: >-
+              cast(str, self.Identity)
+        user_args:
+          1:
+            name: Destination
+            attr_type: SESDestination
+          2:
+            name: Message
+            attr_type: SESMessage
+        user_keyword_args:
+          - name: ReplyToAddresses
+            attr_type: builtins.list[str] | None
+            default: None
+          - name: ReturnPath
+            attr_type: str | None
+            default: None
+          - name: SourceArn
+            attr_type: str | None
+            default: None
+          - name: ReturnPathArn
+            attr_type: str | None
+            default: None
+          - name: Tags
+            attr_type: builtins.list[SESMessageTag] | None
+            default: None
+          - name: ConfigurationSetName
+            attr_type: str | None
+            default: None
+      send_raw_mail:
+        docstring: >-
+          Send a raw email from this identity.
+        manager_method: send_raw_mail
+        args:
+          0:
+            name: Source
+            value: >-
+              cast(str, self.Identity)
+        user_args:
+          1:
+            name: RawMessage
+            attr_type: SESRawMessage
+        user_keyword_args:
+          - name: Destinations
+            attr_type: builtins.list[str] | None
+            default: None
+          - name: FromArn
+            attr_type: str | None
+            default: None
+          - name: SourceArn
+            attr_type: str | None
+            default: None
+          - name: ReturnPathArn
+            attr_type: str | None
+            default: None
+          - name: Tags
+            attr_type: builtins.list[SESMessageTag] | None
+            default: None
+          - name: ConfigurationSetName
+            attr_type: str | None
+            default: None
+
+  ConfigurationSet:
+    alternate_name: SESConfigurationSet
+    primary_key: ConfigurationSetName
+    name_key: ConfigurationSetName
+    input_shapes:
+      - CreateConfigurationSetRequest
+    fields:
+      Name:
+        rename: ConfigurationSetName
+    extra_fields:
+      EventDestinations:
+        python_type: '"list[EventDestination] | None"'
+        default: None
+        docstring: >-
+          Event destinations configured for this configuration set.
+      TrackingOptions:
+        python_type: '"SESTrackingOptions | None"'
+        default: None
+        docstring: >-
+          Open and click tracking configuration for this set.
+      DeliveryOptions:
+        python_type: '"SESDeliveryOptions | None"'
+        default: None
+        docstring: >-
+          Delivery behavior associated with this configuration set.
+      ReputationOptions:
+        python_type: '"SESReputationOptions | None"'
+        default: None
+        docstring: >-
+          Reputation settings associated with this configuration set.
+
+  Template:
+    alternate_name: SESTemplate
+    primary_key: TemplateName
+    name_key: TemplateName
+    imports:
+      - from typing import cast
+    input_shapes:
+      - CreateTemplateRequest
+      - UpdateTemplateRequest
+    extra_fields:
+      CreatedTimestamp:
+        python_type: datetime | None
+        imports:
+          - from datetime import datetime
+        default: None
+        docstring: >-
+          Creation time returned by list operations.
+    manager_methods:
+      send_mail:
+        docstring: >-
+          Send a templated email with this template.
+        manager_method: send_mail
+        args:
+          2:
+            name: Template
+            value: >-
+              cast(str, self.TemplateName)
+        user_args:
+          0:
+            name: Source
+            attr_type: str
+          1:
+            name: Destination
+            attr_type: SESDestination
+          3:
+            name: TemplateData
+            attr_type: str
+        user_keyword_args:
+          - name: ReplyToAddresses
+            attr_type: builtins.list[str] | None
+            default: None
+          - name: ReturnPath
+            attr_type: str | None
+            default: None
+          - name: SourceArn
+            attr_type: str | None
+            default: None
+          - name: ReturnPathArn
+            attr_type: str | None
+            default: None
+          - name: Tags
+            attr_type: builtins.list[SESMessageTag] | None
+            default: None
+          - name: ConfigurationSetName
+            attr_type: str | None
+            default: None
+      send_bulk_templated_mail:
+        docstring: >-
+          Send bulk templated email with this template.
+        manager_method: send_bulk_templated_mail
+        args:
+          1:
+            name: Template
+            value: >-
+              cast(str, self.TemplateName)
+        user_args:
+          0:
+            name: Source
+            attr_type: str
+          2:
+            name: Destinations
+            attr_type: builtins.list[SESBulkEmailDestination]
+        user_keyword_args:
+          - name: SourceArn
+            attr_type: str | None
+            default: None
+          - name: ReplyToAddresses
+            attr_type: builtins.list[str] | None
+            default: None
+          - name: ReturnPath
+            attr_type: str | None
+            default: None
+          - name: ReturnPathArn
+            attr_type: str | None
+            default: None
+          - name: ConfigurationSetName
+            attr_type: str | None
+            default: None
+          - name: DefaultTags
+            attr_type: builtins.list[SESMessageTag] | None
+            default: None
+
+  CustomVerificationEmailTemplate:
+    alternate_name: SESCustomVerificationEmailTemplate
+    primary_key: TemplateName
+    name_key: TemplateName
+    imports:
+      - from typing import cast
+    input_shapes:
+      - CreateCustomVerificationEmailTemplateRequest
+      - UpdateCustomVerificationEmailTemplateRequest
+    extra_fields:
+      TemplateContent:
+        python_type: str | None
+        default: None
+        docstring: >-
+          Email body content used for verification messages.
+    manager_methods:
+      send_verification_mail:
+        docstring: >-
+          Send a custom verification email with this template.
+        manager_method: send_verification_mail
+        args:
+          1:
+            name: TemplateName
+            value: >-
+              cast(str, self.TemplateName)
+        user_args:
+          0:
+            name: EmailAddress
+            attr_type: str
+        user_keyword_args:
+          - name: ConfigurationSetName
+            attr_type: str | None
+            default: None
+
+  ReceiptFilter:
+    alternate_name: SESReceiptFilter
+    primary_key: FilterName
+    name_key: FilterName
+    input_shapes:
+      - CreateReceiptFilterRequest
+    fields:
+      Name:
+        rename: FilterName
+
+  ReceiptRuleSetMetadata:
+    alternate_name: SESReceiptRuleSet
+    primary_key: ReceiptRuleSetName
+    name_key: ReceiptRuleSetName
+    input_shapes:
+      - CreateReceiptRuleSetRequest
+    fields:
+      Name:
+        rename: ReceiptRuleSetName
+    extra_fields:
+      Rules:
+        python_type: '"list[ReceiptRule] | None"'
+        default: None
+        docstring: >-
+          Receipt rules contained in this rule set.
+
+secondary:
+  Destination:
+    alternate_name: SESDestination
+  Message:
+    alternate_name: SESMessage
+  Content:
+    alternate_name: SESContent
+  Body:
+    alternate_name: SESBody
+  MessageTag:
+    alternate_name: SESMessageTag
+  RawMessage:
+    alternate_name: SESRawMessage
+  BulkEmailDestination:
+    alternate_name: SESBulkEmailDestination
+    force_create: true
+  BulkEmailDestinationStatus:
+    alternate_name: SESBulkEmailDestinationStatus
+    force_create: true
+  CreateConfigurationSetResponse:
+    alternate_name: SESCreateConfigurationSetResponse
+  DeleteConfigurationSetResponse:
+    alternate_name: SESDeleteConfigurationSetResponse
+  DescribeConfigurationSetResponse:
+    alternate_name: SESDescribeConfigurationSetResponse
+  EventDestination:
+    force_create: true
+    fields:
+      Name:
+        rename: EventDestinationName
+  ListConfigurationSetsResponse:
+    alternate_name: SESListConfigurationSetsResponse
+  KinesisFirehoseDestination:
+    alternate_name: SESKinesisFirehoseDestination
+  CloudWatchDestination:
+    alternate_name: SESCloudWatchDestination
+  SNSDestination:
+    alternate_name: SESSNSDestination
+  TrackingOptions:
+    alternate_name: SESTrackingOptions
+    force_create: true
+  DeliveryOptions:
+    alternate_name: SESDeliveryOptions
+    force_create: true
+  ReputationOptions:
+    alternate_name: SESReputationOptions
+    force_create: true
+  ReceiptRule:
+    force_create: true
+    fields:
+      Name:
+        rename: ReceiptRuleName
+  S3Action:
+    alternate_name: SESS3Action
+  BounceAction:
+    alternate_name: SESBounceAction
+  WorkmailAction:
+    alternate_name: SESWorkmailAction
+  LambdaAction:
+    alternate_name: SESLambdaAction
+  SNSAction:
+    alternate_name: SESSNSAction
+  StopAction:
+    alternate_name: SESStopAction
+  AddHeaderAction:
+    alternate_name: SESAddHeaderAction
+  ConnectAction:
+    alternate_name: SESConnectAction

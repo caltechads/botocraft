@@ -1,0 +1,246 @@
+---
+IdentityVerificationAttributes:
+  mixins:
+    - name: SESIdentityManagerMixin
+      import_path: botocraft.mixins.ses
+  methods:
+    list:
+      boto3_name: list_identities
+      response_attr: Identities
+      decorators:
+        - name: identity_names_to_models
+          import_path: botocraft.mixins.ses
+    send_mail:
+      boto3_name: send_email
+      response_attr: MessageId
+      args:
+        Source:
+          required: true
+        Destination:
+          required: true
+        Message:
+          required: true
+        ReplyToAddresses:
+          default: None
+        ReturnPath:
+          default: None
+        SourceArn:
+          default: None
+        ReturnPathArn:
+          default: None
+        Tags:
+          default: None
+        ConfigurationSetName:
+          default: None
+    send_raw_mail:
+      boto3_name: send_raw_email
+      response_attr: MessageId
+      args:
+        Source:
+          required: true
+        RawMessage:
+          required: true
+        Destinations:
+          default: None
+        FromArn:
+          default: None
+        SourceArn:
+          default: None
+        ReturnPathArn:
+          default: None
+        Tags:
+          default: None
+        ConfigurationSetName:
+          default: None
+
+ConfigurationSet:
+  mixins:
+    - name: SESConfigurationSetManagerMixin
+      import_path: botocraft.mixins.ses
+  methods:
+    list:
+      boto3_name: list_configuration_sets
+      response_attr: ConfigurationSets
+    delete:
+      boto3_name: delete_configuration_set
+      return_type: None
+      response_attr: None
+      args:
+        ConfigurationSetName:
+          required: true
+          rename: name
+          source_arg: name
+          python_type: str
+
+Template:
+  mixins:
+    - name: SESTemplateManagerMixin
+      import_path: botocraft.mixins.ses
+  methods:
+    get:
+      boto3_name: get_template
+      response_attr: Template
+      args:
+        TemplateName:
+          required: true
+          rename: name
+          source_arg: name
+          python_type: str
+    list:
+      boto3_name: list_templates
+      response_attr: TemplatesMetadata
+      decorators:
+        - name: template_metadata_to_models
+          import_path: botocraft.mixins.ses
+    send_mail:
+      boto3_name: send_templated_email
+      response_attr: MessageId
+      args:
+        Source:
+          required: true
+        Destination:
+          required: true
+        Template:
+          required: true
+        TemplateData:
+          required: true
+        ReplyToAddresses:
+          default: None
+        ReturnPath:
+          default: None
+        SourceArn:
+          default: None
+        ReturnPathArn:
+          default: None
+        Tags:
+          default: None
+        ConfigurationSetName:
+          default: None
+    send_bulk_templated_mail:
+      boto3_name: send_bulk_templated_email
+      return_type: '"builtins.list[SESBulkEmailDestinationStatus]"'
+      response_attr: Status
+      args:
+        Source:
+          required: true
+        Template:
+          required: true
+        Destinations:
+          required: true
+        SourceArn:
+          default: None
+        ReplyToAddresses:
+          default: None
+        ReturnPath:
+          default: None
+        ReturnPathArn:
+          default: None
+        ConfigurationSetName:
+          default: None
+        DefaultTags:
+          default: None
+        DefaultTemplateData:
+          default: None
+    delete:
+      boto3_name: delete_template
+      return_type: None
+      response_attr: None
+      args:
+        TemplateName:
+          required: true
+          rename: name
+          source_arg: name
+          python_type: str
+
+CustomVerificationEmailTemplate:
+  mixins:
+    - name: SESCustomVerificationEmailTemplateManagerMixin
+      import_path: botocraft.mixins.ses
+  methods:
+    create:
+      boto3_name: create_custom_verification_email_template
+      return_type: None
+      response_attr: None
+      decorators:
+        - name: refresh_custom_verification_template_after_mutation
+          import_path: botocraft.mixins.ses
+    update:
+      boto3_name: update_custom_verification_email_template
+      return_type: None
+      response_attr: None
+      decorators:
+        - name: refresh_custom_verification_template_after_mutation
+          import_path: botocraft.mixins.ses
+    get:
+      boto3_name: get_custom_verification_email_template
+      response_attr: None
+      decorators:
+        - name: custom_verification_template_response_to_model
+          import_path: botocraft.mixins.ses
+      args:
+        TemplateName:
+          required: true
+          rename: name
+          source_arg: name
+          python_type: str
+    list:
+      boto3_name: list_custom_verification_email_templates
+      response_attr: CustomVerificationEmailTemplates
+    send_verification_mail:
+      boto3_name: send_custom_verification_email
+      response_attr: MessageId
+      args:
+        EmailAddress:
+          required: true
+        TemplateName:
+          required: true
+        ConfigurationSetName:
+          default: None
+    delete:
+      boto3_name: delete_custom_verification_email_template
+      return_type: None
+      response_attr: None
+      args:
+        TemplateName:
+          required: true
+          rename: name
+          source_arg: name
+          python_type: str
+
+ReceiptFilter:
+  mixins:
+    - name: SESReceiptFilterManagerMixin
+      import_path: botocraft.mixins.ses
+  methods:
+    list:
+      boto3_name: list_receipt_filters
+      response_attr: Filters
+    delete:
+      boto3_name: delete_receipt_filter
+      return_type: None
+      response_attr: None
+      args:
+        FilterName:
+          required: true
+          rename: name
+          source_arg: name
+          python_type: str
+
+ReceiptRuleSetMetadata:
+  mixins:
+    - name: SESReceiptRuleSetManagerMixin
+      import_path: botocraft.mixins.ses
+  methods:
+    list:
+      boto3_name: list_receipt_rule_sets
+      response_attr: RuleSets
+    delete:
+      boto3_name: delete_receipt_rule_set
+      return_type: None
+      response_attr: None
+      args:
+        RuleSetName:
+          required: true
+          rename: name
+          source_arg: name
+          python_type: str

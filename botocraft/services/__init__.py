@@ -20,6 +20,7 @@ from .bedrock import *  # noqa: F401,F403
 from .iam import *  # noqa: F401,F403
 from .logs import *  # noqa: F401,F403
 from .docdb import *  # noqa: F401,F403
+from .ses import *  # noqa: F401,F403
 from .events import *  # noqa: F401,F403
 from .autoscaling import *  # noqa: F401,F403
 from .elbv2 import *  # noqa: F401,F403

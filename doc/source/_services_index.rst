@@ -32,6 +32,7 @@
    api/services/s3
    api/services/schemas
    api/services/secretsmanager
+   api/services/ses
    api/services/sesv2
    api/services/sqs
    api/services/ssm
