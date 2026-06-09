@@ -1585,6 +1585,8 @@ FlowLog:
           required: true
         DryRun:
           default: "False"
+        TagFieldSpecifications:
+          hidden: true
     delete:
       boto3_name: delete_flow_logs
       return_type: >-

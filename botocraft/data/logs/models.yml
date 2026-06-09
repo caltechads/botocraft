@@ -59,9 +59,12 @@ primary:
           - name: maxItems
   QueryDefinition:
     primary_key: queryDefinitionId
-    name_key: name
+    name_key: queryDefinitionName
     input_shapes:
       - PutQueryDefinitionRequest
+    fields:
+      name:
+        rename: queryDefinitionName
 secondary:
   Tags:
     alternate_name: LogsTags
