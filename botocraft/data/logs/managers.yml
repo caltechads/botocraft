@@ -45,3 +45,38 @@ LogGroup:
     get_fields:
       boto3_name: get_log_group_fields
       response_attr: logGroupFields
+    start_query:
+      boto3_name: start_query
+      response_attr: None
+    get_query_results:
+      boto3_name: get_query_results
+      response_attr: None
+QueryDefinition:
+  mixins:
+    - name: QueryDefinitionManagerMixin
+      import_path: botocraft.mixins.logs
+  methods:
+    create:
+      boto3_name: put_query_definition
+      response_attr: queryDefinitionId
+      decorators:
+        - name: query_definition_from_put
+          import_path: botocraft.mixins.logs
+    update:
+      boto3_name: put_query_definition
+      response_attr: queryDefinitionId
+      decorators:
+        - name: query_definition_from_put
+          import_path: botocraft.mixins.logs
+    delete:
+      boto3_name: delete_query_definition
+      return_type: None
+      args:
+        queryDefinitionId:
+          required: true
+    list:
+      boto3_name: describe_query_definitions
+      response_attr: queryDefinitions
+      decorators:
+        - name: paginate_query_definitions
+          import_path: botocraft.mixins.logs

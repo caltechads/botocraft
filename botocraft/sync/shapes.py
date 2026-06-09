@@ -311,7 +311,8 @@ class ListShapeConverter(AbstractShapeConverter):
         inner_model_name = self.shape_converter.convert(
             element_shape, quote=False, name_only=name_only
         )
-        return f'"builtins.list[{inner_model_name}]"'
+        inner_type = inner_model_name.strip('"')
+        return f'"builtins.list[{inner_type}]"'
 
 
 class MapShapeConverter(AbstractShapeConverter):

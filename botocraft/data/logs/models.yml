@@ -16,7 +16,52 @@ primary:
         python_type: builtins.list[Tag]
         docstring: >-
           The tags associated with the log group.
-
+    manager_methods:
+      get_fields:
+        manager_method: get_fields
+        docstring: >-
+          Return field statistics for log events in this log group.
+        keyword_args:
+          - name: logGroupName
+            value: self.logGroupName
+        user_keyword_args:
+          - name: time
+      start_query:
+        manager_method: start_query
+        docstring: >-
+          Start a CloudWatch Logs Insights query against this log group.
+        user_args:
+          0:
+            name: startTime
+            attr_type: int
+          1:
+            name: endTime
+            attr_type: int
+          2:
+            name: queryString
+            attr_type: str
+        keyword_args:
+          - name: logGroupName
+            value: self.logGroupName
+        user_keyword_args:
+          - name: queryLanguage
+          - name: limit
+      get_query_results:
+        manager_method: get_query_results
+        docstring: >-
+          Fetch results for a CloudWatch Logs Insights query.
+        user_args:
+          0:
+            name: queryId
+            attr_type: str
+        user_keyword_args:
+          - name: nextToken
+          - name: maxItems
+  QueryDefinition:
+    primary_key: queryDefinitionId
+    name_key: name
+    input_shapes:
+      - PutQueryDefinitionRequest
 secondary:
   Tags:
     alternate_name: LogsTags
