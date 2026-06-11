@@ -239,7 +239,7 @@ primary:
           dict[str, builtins.list[dict[str, Any]]]
         docstring: >-
           The tunnels that are open for this instance.  This is used by
-          :py:meth:`start_tunnel` and :py:meth:`stop_tunnel`.
+          :py:meth:`open_tunnel` and :py:meth:`close_tunnel`.
       Architecture:
         readonly: true
         default: >-

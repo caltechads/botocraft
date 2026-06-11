@@ -95,12 +95,18 @@ Environment-variable equivalents:
 Using the API
 -------------
 
-All supported resources expose the same interface:
+Managed resources expose the same interface:
 
 .. code-block:: python
 
     with resource.open_connection_target() as target:
         connect(host=target.host, port=target.port)
+
+For arbitrary remote endpoints, choose an EC2 jump host explicitly and use
+either ``Instance.open_connection_target(host=..., port=...)`` or the lower-level
+``Instance.tunnel(host=..., remote_port=...)`` context manager. See
+:doc:`/overview/connectivity` for examples, including LDAP access through a
+private VPC hostname.
 
 ``target.tunneled`` tells you whether the block is using the original endpoint
 or a local forwarded port.

@@ -8,7 +8,12 @@ outside AWS.
 Supported resources
 -------------------
 
-The following models expose ``open_connection_target()``:
+Auto-resolved managed resources
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The following models expose ``open_connection_target()`` and automatically
+find a tagged tunnel host instance in the target VPC when tunneling is
+required:
 
 * ``botocraft.services.rds.DBInstance``
 * ``botocraft.services.elasticache.CacheCluster``
@@ -21,6 +26,30 @@ Each method returns a context-managed object with these attributes:
 * ``port``: port to connect to
 * ``tunneled``: whether a local SSM tunnel is active
 * ``tunnel_host_instance``: EC2 jump host used for the tunnel, when applicable
+
+EC2 Instance tunneling
+~~~~~~~~~~~~~~~~~~~~~~
+
+``botocraft.services.ec2.Instance`` exposes two related APIs for reaching
+arbitrary remote endpoints through a jump host that you choose explicitly:
+
+``open_connection_target(host=..., port=...)``
+    Returns a :py:class:`~botocraft.connectivity.ResolvedConnectionTarget`
+    with the same ``host``, ``port``, ``tunneled``, and
+    ``tunnel_host_instance`` attributes as the managed-resource helpers.
+    On context entry, the target is rewritten to
+    ``127.0.0.1:<local-port>``.
+
+``tunnel(host=..., remote_port=...)``
+    Lower-level context manager that yields the chosen local forwarded port
+    directly. ``TunnelAwareConnectionResolver`` uses this internally. Pair it
+    with ``open_tunnel()`` and ``close_tunnel()`` when you need manual tunnel
+    lifecycle control instead of a context manager.
+
+Both APIs use AWS Systems Manager port forwarding through the instance. Literal
+IP addresses are forwarded unchanged. Hostnames, including private VPC DNS
+names such as LDAP servers, are passed through to SSM so resolution happens on
+the jump host inside the VPC.
 
 Why context manager?
 --------------------
@@ -103,6 +132,26 @@ DocumentDB cluster:
     cluster = DocDBCluster.objects.get(DBClusterIdentifier="docdb-main")
     with cluster.open_connection_target() as target:
         print(target.host, target.port)
+
+EC2 jump host with ``open_connection_target()``:
+
+.. code-block:: python
+
+    from botocraft.services.ec2 import Instance
+
+    jump = Instance.objects.get(InstanceId="i-0123456789abcdef0")
+    with jump.open_connection_target(host="ldap.corp.internal", port=389) as target:
+        ldap.connect(host=target.host, port=target.port)
+
+EC2 jump host with ``tunnel()``:
+
+.. code-block:: python
+
+    from botocraft.services.ec2 import Instance
+
+    jump = Instance.objects.get(InstanceId="i-0123456789abcdef0")
+    with jump.tunnel(host="ldap.corp.internal", remote_port=389) as local_port:
+        ldap.connect(host="127.0.0.1", port=local_port)
 
 Failure modes
 -------------

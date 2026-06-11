@@ -7,7 +7,7 @@ from contextlib import contextmanager
 from datetime import datetime
 from functools import wraps
 from ipaddress import ip_address
-from typing import TYPE_CHECKING, Callable, Final, Literal, cast
+from typing import TYPE_CHECKING, Any, Callable, Final, Literal, TypedDict, cast
 from zoneinfo import ZoneInfo
 
 import psutil
@@ -15,6 +15,9 @@ import psutil
 from botocraft.services.abstract import PrimaryBoto3ModelQuerySet
 
 if TYPE_CHECKING:
+    import boto3
+
+    from botocraft.connectivity import ResolvedConnectionTarget
     from botocraft.services import (
         AMI,
         Finding,
@@ -23,6 +26,15 @@ if TYPE_CHECKING:
         Tag,
         TagSpecification,
     )
+
+
+class _TunnelRecord(TypedDict):
+    """One active SSM tunnel tracked on an EC2 instance."""
+
+    #: SSM tunnel subprocess started by ``open_tunnel``.
+    ssm_process: subprocess.Popen[Any]
+    #: Local forwarded port chosen for this tunnel.
+    local_port: int
 
 
 #: The EC2 resource types.  We need this for specifying the proper tag for
@@ -385,30 +397,31 @@ class InstanceModelMixin:
     methods to the class that are not normally part of the object.
     """
 
-    def __maybe_resolve_ip(self, host: str) -> str:
+    #: EC2 instance identifier used as the SSM tunnel target.
+    InstanceId: str
+    #: Active tunnels keyed by the caller-supplied remote host string.
+    Tunnels: dict[str, list[_TunnelRecord]] | None
+    #: Boto3 session associated with this resource.
+    session: "boto3.session.Session | None"
+
+    def __ssm_remote_host(self, host: str) -> str:
         """
-        Given a hostname or IP address, return the IP address.  If the host is
-        an IP address, return it as is.  If the host is a hostname, resolve it
-        to an IP address.
+        Return the remote host value forwarded to the SSM tunnel document.
+
+        Literal IP addresses are returned unchanged. Hostnames are passed through
+        so resolution happens on the jump host inside the VPC.
 
         Args:
-            host: either an IP address of the remote host to connect to, or
-                a hostname of that host
+            host: IP address or hostname of the remote destination.
 
         Returns:
-            The IP address of the host.
+            Host value suitable for ``AWS-StartPortForwardingSessionToRemoteHost``.
 
         """
         try:
             ip_address(host)
         except ValueError:
-            # If it is not an IP address, then it must be a hostname.
-            # Resolve the hostname to an IP address.
-            try:
-                return socket.gethostbyname(host)
-            except socket.gaierror as e:
-                msg = f"Could not resolve hostname {host}: {e}"
-                raise RuntimeError(msg) from e
+            return host
         return host
 
     def __find_open_port(self, start_port: int) -> int:
@@ -453,7 +466,8 @@ class InstanceModelMixin:
         `close_tunnel` when exiting the context.
 
         Args:
-            host: The remote host to connect to (IP or hostname).
+            host: The remote host to connect to (IP or hostname). Hostnames are
+                resolved on the jump host by SSM, not locally.
             remote_port: The remote port to connect to.
             local_port: The local port to use. If None, an unused port will be chosen.
             profile: The AWS profile to use. If None, the default profile will be used.
@@ -481,6 +495,66 @@ class InstanceModelMixin:
         finally:
             self.close_tunnel(host=host, local_port=local_port)
 
+    def open_connection_target(
+        self,
+        *,
+        host: str,
+        port: int,
+        profile: str | None = None,
+        local_port: int | None = None,
+        ready_timeout_seconds: int | None = None,
+    ) -> "ResolvedConnectionTarget":
+        """
+        Resolve a tunneled connection target through this instance.
+
+        This wraps :py:meth:`tunnel` and returns a
+        :py:class:`~botocraft.connectivity.ResolvedConnectionTarget` whose
+        ``host`` and ``port`` are rewritten to ``127.0.0.1`` and the chosen
+        local forwarded port when the context is entered.
+
+        Args:
+            host: Remote destination hostname or IP address.
+            port: Remote destination port.
+
+        Keyword Args:
+            profile: Optional AWS profile override forwarded to the SSM
+                session. Defaults to the active session profile when available.
+            local_port: Optional local port to bind. When omitted, an unused
+                local port is chosen automatically.
+            ready_timeout_seconds: Maximum number of seconds to wait for the
+                local forwarded port to open. Defaults to
+                ``BotocraftSettings().tunnel.ready_timeout_seconds``.
+
+        Returns:
+            Context-managed connection target for the remote endpoint.
+
+        """
+        from botocraft.config import BotocraftSettings
+        from botocraft.connectivity import ResolvedConnectionTarget
+
+        session = getattr(self, "session", None)
+        resolved_profile = profile or getattr(session, "profile_name", None)
+        settings = BotocraftSettings()
+        timeout = (
+            ready_timeout_seconds
+            if ready_timeout_seconds is not None
+            else settings.tunnel.ready_timeout_seconds
+        )
+        tunnel_context = self.tunnel(
+            host=host,
+            remote_port=port,
+            profile=resolved_profile,
+            local_port=local_port,
+            ready_timeout_seconds=timeout,
+        )
+        return ResolvedConnectionTarget(
+            host=host,
+            port=port,
+            tunneled=True,
+            tunnel_host_instance=self,
+            tunnel_context=tunnel_context,
+        )
+
     def open_tunnel(
         self,
         host: str,
@@ -490,18 +564,18 @@ class InstanceModelMixin:
         ready_timeout_seconds: int = 10,
     ) -> int:
         """
-        Open a tunnel to the instance using SSM and SSH. This is useful for
-        connecting to a database or other service on the instance that
-        is in a private subnet. This will open a tunnel from the ``local_port``
-        on the local machine through the instance to the ``remote_port`` on
-        ``host``.
+        Open a tunnel to a remote host using SSM port forwarding.
+
+        This opens a tunnel from ``local_port`` on the local machine through
+        this instance to ``remote_port`` on ``host``. Hostnames, including
+        private VPC DNS names, are passed through to SSM for resolution on the
+        jump host.
 
         If ``local_port`` is not specified, a random port will be chosen
         starting from between 8800 and 65535.
 
         Args:
-            host: either an IP address of the remote host to connect to, or
-                a hostname of that host
+            host: IP address or hostname of the remote destination.
             remote_port: The remote port to connect to.
 
         Keyword Args:
@@ -531,7 +605,7 @@ class InstanceModelMixin:
                 if sock.connect_ex(("127.0.0.1", local_port)) == 0:
                     msg = f"Local port {local_port} is already in use."
                     raise ValueError(msg)
-        host_ip = self.__maybe_resolve_ip(host)
+        ssm_host = self.__ssm_remote_host(host)
 
         # Build the AWS SSM start-session command
         ssm_command = [
@@ -539,11 +613,11 @@ class InstanceModelMixin:
             "ssm",
             "start-session",
             "--target",
-            self.InstanceId,  # type: ignore[attr-defined]
+            self.InstanceId,
             "--document-name",
             "AWS-StartPortForwardingSessionToRemoteHost",
             "--parameters",
-            f"host={host_ip},portNumber={remote_port},localPortNumber={local_port}",
+            f"host={ssm_host},portNumber={remote_port},localPortNumber={local_port}",
         ]
 
         if profile:
@@ -561,7 +635,7 @@ class InstanceModelMixin:
         for _ in range(checks):
             self.__raise_if_tunnel_process_exited(
                 ssm_process,
-                host_ip=host_ip,
+                remote_host=ssm_host,
                 remote_port=remote_port,
                 local_port=local_port,
             )
@@ -574,7 +648,7 @@ class InstanceModelMixin:
             ssm_process.kill()
             stderr = self.__read_process_stderr(ssm_process)
             msg = (
-                f"Failed to open tunnel to {host_ip}:{remote_port} on local "
+                f"Failed to open tunnel to {ssm_host}:{remote_port} on local "
                 f"port {local_port}."
             )
             if stderr:
@@ -582,15 +656,15 @@ class InstanceModelMixin:
             raise RuntimeError(msg)
 
         # Store the processes for later management
-        if self.Tunnels is None:  # type: ignore[has-type]
-            self.Tunnels = {}  # type: ignore[var-annotated]
-        if host_ip not in self.Tunnels:
-            self.Tunnels[host_ip] = []
-        self.Tunnels[host_ip].append(
-            {
-                "ssm_process": ssm_process,
-                "local_port": local_port,
-            }
+        if self.Tunnels is None:
+            self.Tunnels = {}
+        if host not in self.Tunnels:
+            self.Tunnels[host] = []
+        self.Tunnels[host].append(
+            _TunnelRecord(
+                ssm_process=ssm_process,
+                local_port=local_port,
+            )
         )
         return local_port
 
@@ -647,7 +721,7 @@ class InstanceModelMixin:
         self,
         process: subprocess.Popen[bytes],
         *,
-        host_ip: str,
+        remote_host: str,
         remote_port: int,
         local_port: int,
     ) -> None:
@@ -658,7 +732,7 @@ class InstanceModelMixin:
             process: SSM tunnel subprocess being monitored.
 
         Keyword Args:
-            host_ip: Resolved destination host IP.
+            remote_host: Remote destination host or IP forwarded to SSM.
             remote_port: Remote destination port.
             local_port: Local forwarded port.
 
@@ -670,7 +744,7 @@ class InstanceModelMixin:
             return
         stderr = self.__read_process_stderr(process)
         msg = (
-            f"Failed to open tunnel to {host_ip}:{remote_port} on local port "
+            f"Failed to open tunnel to {remote_host}:{remote_port} on local port "
             f"{local_port}."
         )
         if stderr:
@@ -680,16 +754,15 @@ class InstanceModelMixin:
     def close_tunnel(self, host: str, local_port: int | None = None) -> None:
         """
         Close one or more tunnels to ``host``. This will terminate the SSM
-        session(s) and SSH process(es) that were opened by
-        :py:meth:`start_tunnel`.
+        session(s) that were opened by :py:meth:`open_tunnel`.
 
         If ``local_port`` is not specified, all tunnels to the host will be
         closed. If ``local_port`` is specified, only the tunnel to that port
         will be closed.
 
         Args:
-            host: Either an IP address of the remote host to connect to, or
-                a hostname of that host.
+            host: IP address or hostname of the remote destination. Must match
+                the ``host`` value passed to :py:meth:`open_tunnel`.
 
         Keyword Args:
             local_port: The local port to close. If not specified, all
@@ -715,13 +788,11 @@ class InstanceModelMixin:
             except psutil.NoSuchProcess:
                 pass
 
-        host_ip = self.__maybe_resolve_ip(host)
-
-        if self.Tunnels is None or host_ip not in self.Tunnels:
-            msg = f"No open tunnels found for {host_ip}. Did you call start_tunnel?"
+        if self.Tunnels is None or host not in self.Tunnels:
+            msg = f"No open tunnels found for {host}. Did you call open_tunnel?"
             raise ValueError(msg)
 
-        tunnels = self.Tunnels[host_ip]
+        tunnels = self.Tunnels[host]
 
         if local_port is not None:
             # Close the specific tunnel for the given local port
@@ -731,13 +802,13 @@ class InstanceModelMixin:
                     tunnels.remove(tunnel)
                     break
             else:
-                msg = f"No open tunnel found for {host_ip} on local port {local_port}."
+                msg = f"No open tunnel found for {host} on local port {local_port}."
                 raise ValueError(msg)
         else:
             # Close all tunnels for the given host
             for tunnel in tunnels:
                 terminate_process(tunnel["ssm_process"])
-            del self.Tunnels[host_ip]
+            del self.Tunnels[host]
 
 
 class SecurityGroupModelMixin:
