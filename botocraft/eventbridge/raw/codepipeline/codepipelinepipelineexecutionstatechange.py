@@ -11,12 +11,39 @@ from pydantic import AwareDatetime, BaseModel, Field
 class ExecutionTrigger(BaseModel):
     """
     Trigger metadata attached to a CodePipeline execution event.
+
+    Covers both classic API-start triggers (``trigger-type`` /
+    ``trigger-detail``) and Git connection triggers (author/commit/tag or
+    branch fields). Fields are all optional because EventBridge emits
+    different shapes depending on how the pipeline started.
     """
 
+    #: Author display name for Git connection triggers.
+    author_display_name: str | None = Field(None, alias="author-display-name")
+    #: Author email for Git connection triggers.
+    author_email: str | None = Field(None, alias="author-email")
+    #: Author identifier for Git connection triggers.
+    author_id: str | None = Field(None, alias="author-id")
+    #: Commit author timestamp for Git connection triggers.
+    author_date: AwareDatetime | None = Field(None, alias="author-date")
+    #: Branch name when a branch event triggered the pipeline.
+    branch_name: str | None = Field(None, alias="branch-name")
+    #: Commit identifier for Git connection triggers.
+    commit_id: str | None = Field(None, alias="commit-id")
+    #: Commit message for Git connection triggers.
+    commit_message: str | None = Field(None, alias="commit-message")
+    #: CodeStar/CodeConnections connection ARN for Git triggers.
+    connection_arn: str | None = Field(None, alias="connection-arn")
+    #: Full repository name for Git connection triggers.
+    full_repository_name: str | None = Field(None, alias="full-repository-name")
+    #: Source provider type for Git connection triggers.
+    provider_type: str | None = Field(None, alias="provider-type")
+    #: Tag name when a tag event triggered the pipeline.
+    tag_name: str | None = Field(None, alias="tag-name")
     #: Detail describing actor or source that triggered execution.
-    trigger_detail: str = Field(..., alias="trigger-detail")
+    trigger_detail: str | None = Field(None, alias="trigger-detail")
     #: Trigger category reported by CodePipeline.
-    trigger_type: str = Field(..., alias="trigger-type")
+    trigger_type: str | None = Field(None, alias="trigger-type")
 
 
 class CodePipelinePipelineExecutionStateChange(BaseModel):

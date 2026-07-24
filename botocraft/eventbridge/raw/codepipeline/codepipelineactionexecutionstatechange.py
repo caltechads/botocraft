@@ -13,6 +13,8 @@ class ExecutionResult(BaseModel):
     External execution metadata attached to an action event.
     """
 
+    #: Error code reported when the action failed.
+    error_code: str | None = Field(None, alias='error-code')
     #: External system execution identifier.
     external_execution_id: str | None = Field(None, alias='external-execution-id')
     #: Human-readable external execution summary.

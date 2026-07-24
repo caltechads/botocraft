@@ -21,6 +21,10 @@ class CodePipelineStageExecutionStateChange(BaseModel):
     pipeline_execution_attempt: float | None = Field(
         None, alias="pipeline-execution-attempt"
     )
+    #: Timestamp of the most recent stage retry attempt when present.
+    stage_last_retry_attempt_time: AwareDatetime | None = Field(
+        None, alias="stage-last-retry-attempt-time"
+    )
     #: Stage execution start timestamp.
     start_time: AwareDatetime | None = Field(None, alias="start-time")
     #: Stage name.

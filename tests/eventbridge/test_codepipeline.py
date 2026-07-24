@@ -177,6 +177,141 @@ def test_event_factory_builds_codepipeline_events(
     assert isinstance(event, expected_type)
 
 
+def test_pipeline_execution_parses_git_trigger_fields() -> None:
+    event = EventFactory().new(
+        json.dumps(
+            _event_payload(
+                "CodePipeline Pipeline Execution State Change",
+                {
+                    "pipeline": "BuildFromTag",
+                    "execution-id": "e17b5773-cc0d-4db2-9ad7-594c73888de8",
+                    "start-time": "2023-10-26T13:49:39.208Z",
+                    "execution-trigger": {
+                        "author-display-name": "Mary Major",
+                        "full-repository-name": "mmajor/sample-project",
+                        "provider-type": "GitLab",
+                        "author-email": "mary@example.com",
+                        "commit-message": "Update file README.md",
+                        "author-date": "2023-08-16T21:08:08Z",
+                        "tag-name": "gitlab-v4.2.1",
+                        "commit-id": "abc123",
+                        "connection-arn": (
+                            "arn:aws:codestar-connections:eu-central-1:"
+                            "123456789012:connection/0f5b706a-1a1d-46c5-86b6-"
+                            "f177321bcfb2"
+                        ),
+                        "author-id": "Mary Major",
+                    },
+                    "state": "SUCCEEDED",
+                    "version": 32.0,
+                    "pipeline-execution-attempt": 1.0,
+                },
+            )
+        )
+    )
+    assert isinstance(event, CodePipelinePipelineExecutionStateChangeEvent)
+    trigger = event.detail.execution_trigger
+    assert trigger is not None
+    assert trigger.trigger_type is None
+    assert trigger.trigger_detail is None
+    assert trigger.author_display_name == "Mary Major"
+    assert trigger.full_repository_name == "mmajor/sample-project"
+    assert trigger.provider_type == "GitLab"
+    assert trigger.author_email == "mary@example.com"
+    assert trigger.commit_message == "Update file README.md"
+    assert trigger.tag_name == "gitlab-v4.2.1"
+    assert trigger.branch_name is None
+    assert trigger.commit_id == "abc123"
+    assert trigger.author_id == "Mary Major"
+    assert trigger.connection_arn is not None
+
+
+def test_pipeline_execution_parses_stop_execution_comments() -> None:
+    event = EventFactory().new(
+        json.dumps(
+            _event_payload(
+                "CodePipeline Pipeline Execution State Change",
+                {
+                    "pipeline": "myPipeline",
+                    "execution-id": "12345678-1234-5678-abcd-12345678abcd",
+                    "start-time": "2023-10-26T13:49:39.208Z",
+                    "state": "STOPPING",
+                    "version": 3.0,
+                    "pipeline-execution-attempt": 1.0,
+                    "stop-execution-comments": "Stopping the pipeline for an update",
+                },
+            )
+        )
+    )
+    assert isinstance(event, CodePipelinePipelineExecutionStateChangeEvent)
+    assert event.detail.stop_execution_comments == (
+        "Stopping the pipeline for an update"
+    )
+
+
+def test_stage_execution_parses_last_retry_attempt_time() -> None:
+    event = EventFactory().new(
+        json.dumps(
+            _event_payload(
+                "CodePipeline Stage Execution State Change",
+                {
+                    "pipeline": "BuildFromTag",
+                    "execution-id": "05dafb6a-5a56-4951-a858-968795364846",
+                    "stage-last-retry-attempt-time": "2023-10-26T14:14:56.305Z",
+                    "stage": "Build",
+                    "state": "RESUMED",
+                    "version": 32.0,
+                    "pipeline-execution-attempt": 2.0,
+                },
+            )
+        )
+    )
+    assert isinstance(event, CodePipelineStageExecutionStateChangeEvent)
+    assert event.detail.stage_last_retry_attempt_time is not None
+    assert event.detail.stage_last_retry_attempt_time.isoformat().startswith(
+        "2023-10-26T14:14:56.305"
+    )
+
+
+def test_action_execution_parses_error_code() -> None:
+    event = EventFactory().new(
+        json.dumps(
+            _event_payload(
+                "CodePipeline Action Execution State Change",
+                {
+                    "pipeline": "myPipeline",
+                    "execution-id": "12345678-1234-5678-abcd-12345678abcd",
+                    "start-time": "2023-10-26T13:51:09.981Z",
+                    "stage": "Deploy",
+                    "execution-result": {
+                        "external-execution-url": (
+                            "https://us-west-2.console.aws.amazon.com/codedeploy/"
+                        ),
+                        "external-execution-summary": "Deployment failed",
+                        "external-execution-id": "deploy-123",
+                        "error-code": "JobFailed",
+                    },
+                    "action-execution-id": "47f821c5-a902-44b2-ae61-b878d31ecd21",
+                    "action": "Deploy",
+                    "state": "FAILED",
+                    "region": "us-west-2",
+                    "type": {
+                        "owner": "AWS",
+                        "provider": "CodeDeploy",
+                        "category": "Deploy",
+                        "version": "1",
+                    },
+                    "version": 4.0,
+                    "pipeline-execution-attempt": 1.0,
+                },
+            )
+        )
+    )
+    assert isinstance(event, CodePipelineActionExecutionStateChangeEvent)
+    assert event.detail.execution_result is not None
+    assert event.detail.execution_result.error_code == "JobFailed"
+
+
 @patch("botocraft.services.codepipeline.PipelineExecution.objects")
 @patch("botocraft.services.codepipeline.Pipeline.objects")
 def test_codepipeline_event_loads_related_models(
