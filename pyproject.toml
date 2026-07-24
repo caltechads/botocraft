@@ -1,6 +1,6 @@
 [project]
 name = "botocraft"
-version = "0.30.2"
+version = "0.30.3"
 authors = [
     {name = "Caltech IMSS ADS", email = "imss-ads-staff@caltech.edu"},
 ]
@@ -41,7 +41,7 @@ dependencies = [
   "psutil>=7.0.0",
   "docformatter >= 1.7.7",
   "inflect >= 7.4.0",
-  "markdownify >= 0.30.2",
+  "markdownify >= 0.30.3",
   "pyyaml >= 6.0.2",
   "pydantic-settings>=2.14.1",
   "tomli>=2.4.1 ; python_full_version < '3.11'",
@@ -49,7 +49,7 @@ dependencies = [
 
 [dependency-groups]
 dev = [
-  "datamodel-code-generator>=0.30.2",
+  "datamodel-code-generator>=0.30.3",
   "bump-pydantic>=0.8.0",
   "bumpversion == 0.5.3",
   "boto3-stubs>=1.35.35",
@@ -89,7 +89,7 @@ botocraft = "botocraft.main:main"
 [build-system]
 requires = [
   "setuptools >= 48",
-  "wheel >= 0.30.2",
+  "wheel >= 0.30.3",
 ]
 build-backend = "setuptools.build_meta"
 
