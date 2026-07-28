@@ -249,8 +249,7 @@ def datasync_task_execution_from_start(
             return execution
         from botocraft.services.datasync import DataSyncTaskExecutionManager
 
-        manager = DataSyncTaskExecutionManager()
-        manager.session = self.session
+        manager = DataSyncTaskExecutionManager().using(self.session)
         return manager.get(execution_arn)
 
     return wrapper

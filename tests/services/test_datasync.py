@@ -133,10 +133,10 @@ class TestDataSyncAgentManager:
 
 
 class TestDataSyncTaskManager:
-    @patch.object(DataSyncTaskExecutionManager, "get")
+    @patch.object(DataSyncTaskExecutionManager, "using")
     def test_start_task_execution_returns_full_execution(
         self,
-        mock_get: MagicMock,
+        mock_using: MagicMock,
     ) -> None:
         task_arn = "arn:aws:datasync:us-west-2:123456789012:task/task-0123456789abcdef0"
         execution_arn = (
@@ -146,16 +146,20 @@ class TestDataSyncTaskManager:
         client = MagicMock()
         client.start_task_execution.return_value = {"TaskExecutionArn": execution_arn}
         manager = make_manager(DataSyncTaskManager, client)
+        manager.session = MagicMock()
         execution = DataSyncTaskExecution(
             **task_execution_payload(execution_arn)
         )
-        mock_get.return_value = execution
+        task_execution_manager = MagicMock()
+        task_execution_manager.get.return_value = execution
+        mock_using.return_value = task_execution_manager
 
         started = manager.start_task_execution(task_arn)
 
         assert started is execution
         client.start_task_execution.assert_called_once_with(TaskArn=task_arn)
-        mock_get.assert_called_once_with(execution_arn)
+        mock_using.assert_called_once_with(manager.session)
+        task_execution_manager.get.assert_called_once_with(execution_arn)
 
 
 class TestDataSyncLocationManagers:
