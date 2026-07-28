@@ -229,3 +229,11 @@ secondary:
     alternate_name: CloudWatchAlarmMuteTargets
   Schedule:
     alternate_name: CloudWatchAlarmMuteSchedule
+  WallClockWindow:
+    alternate_name: CloudWatchWallClockWindow
+  SlidingWindow:
+    alternate_name: CloudWatchSlidingWindow
+  EvaluationWindow:
+    alternate_name: CloudWatchEvaluationWindow
+  ScheduledQueryConfiguration:
+    alternate_name: CloudWatchScheduledQueryConfiguration

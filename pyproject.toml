@@ -162,6 +162,7 @@ ignore = [
     "TID", # flake8-tidy-imports
 
     #### specific rules
+    "CPY001", # stop bugging me about copyright notices
     "D100",   # ignore missing docs
     "D101",
     "D102",
@@ -195,7 +196,8 @@ ignore = [
     "S101",   # stop bugging me about asserts
     "N802",   # stop bugging me about camelCase names -- AWS uses camelCase
     "N815",   # stop bugging me about camelCase names -- AWS uses camelCase
-    "PLC0415"  # stop bugging me about imports not at top level -- we need this to avoid circular imports
+    "PLC0415", # stop bugging me about imports not at top level -- we need this to avoid circular imports
+    "PLR0917", # stop bugging me about too many arguments in function call; boto3 has lots of args
 ]
 
 # Allow fix for all enabled rules (when `--fix`) is provided.
