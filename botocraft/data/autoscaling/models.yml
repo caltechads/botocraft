@@ -128,3 +128,5 @@ secondary:
     alternate_name: AutoScalingRetentionTriggers
   InstanceLifecyclePolicy:
     alternate_name: AutoScalingInstanceLifecyclePolicy
+  Operator:
+    alternate_name: AutoScalingOperator
