@@ -12,10 +12,13 @@ maintainer path.
 ## First moves
 
 1. Run repo preflight required by `AGENTS.md`:
-   - `memory_search`
-   - one `aidex` call
-   - one `code-index` call
+   - `graphify query "<question>"` when `graphify-out/graph.json` exists
+   - `graphify path` or `graphify explain` when relationships or focused
+     concepts matter
+   - one `code-index` call when code-index tooling is available; if absent,
+     say so and continue with `graphify` plus direct repo inspection
    - `context7` or package metadata when export/codegen tool behavior matters
+   - deprecated: do not require or call `memory_search` or `aidex`
 2. Check `git status --short` before any generated-file work.
 3. Inspect existing patterns in:
    - `botocraft/eventbridge/factory.py`

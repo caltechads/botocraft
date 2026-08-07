@@ -12,11 +12,20 @@ Do repo-specific setup here, then load one focused leaf skill first.
 
 Before planning or editing, provide concise preflight evidence for:
 
-1. `memory_search` for prior Botocraft context.
-2. At least one `aidex` call. If AiDex is broken, say so explicitly and fall
-   back to direct repo inspection.
-3. At least one `code-index` call for generator, mixin, or CLI touchpoints.
-4. `context7` when current boto3 or botocore behavior matters.
+1. `graphify query "<question>"` for prior Botocraft context and codebase
+   exploration when `graphify-out/graph.json` exists. Use `graphify path` or
+   `graphify explain` when relationships or focused concepts matter.
+2. At least one `code-index` call for generator, mixin, or CLI touchpoints when
+   code-index tooling is available. If it is unavailable, say so explicitly and
+   continue with `graphify` plus direct repo inspection.
+3. `context7` when current boto3 or botocore behavior matters.
+
+Deprecated preflight tools:
+
+- Do not require or call `memory_search`; use `graphify` for prior project
+  context instead.
+- Do not require or call `aidex`; use `graphify` first, then direct repo
+  inspection with `rg` and targeted file reads.
 
 Also inspect:
 
