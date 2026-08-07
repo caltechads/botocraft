@@ -1,3 +1,5 @@
+import subprocess
+import sys
 from unittest.mock import MagicMock, patch
 
 import pytest
@@ -43,6 +45,56 @@ def _token_create_response(
         "serviceAccountId": service_account_id,
         "workspaceId": workspace_id,
     }
+
+
+class TestGrafanaShadowedFieldAliases:
+    """
+    ``ManagedGrafanaWorkspace``, ``ManagedGrafanaServiceAccount``, and
+    ``ManagedGrafanaServiceAccountToken`` all wrap botocore shapes whose wire
+    field is literally ``name``.  Botocraft renames the Python attribute
+    (``workspaceName``/``serviceAccountName``/``tokenName``) with
+    ``alias="name"`` so it doesn't collide with the inherited
+    :py:attr:`~botocraft.services.abstract.PrimaryBoto3Model.name` property.
+    This mirrors ``TestBedrockShadowedFieldAliases`` in ``test_bedrock.py``.
+    """
+
+    def test_primary_model_name_property_uses_renamed_field(self) -> None:
+        workspace = ManagedGrafanaWorkspace.model_construct(
+            id="g-1234abcd",
+            workspaceName="Test Workspace",
+            session=None,
+        )
+        service_account = ManagedGrafanaServiceAccount.model_construct(
+            id="sa-1",
+            serviceAccountName="Test Service Account",
+            session=None,
+        )
+        token = ManagedGrafanaServiceAccountToken.model_construct(
+            id="token-1",
+            tokenName="Test Token",
+            session=None,
+        )
+
+        assert workspace.name == "Test Workspace"
+        assert workspace.model_dump(by_alias=True)["name"] == "Test Workspace"
+        assert service_account.name == "Test Service Account"
+        assert (
+            service_account.model_dump(by_alias=True)["name"]
+            == "Test Service Account"
+        )
+        assert token.name == "Test Token"
+        assert token.model_dump(by_alias=True)["name"] == "Test Token"
+
+    def test_service_imports_do_not_emit_shadow_warnings(self) -> None:
+        result = subprocess.run(
+            [sys.executable, "-Wdefault", "-c", "from botocraft.services import *"],
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+
+        assert result.returncode == 0, result.stderr
+        assert "shadows an attribute" not in result.stderr
 
 
 class TestManagedGrafanaServiceAccountTokenManagerRotate:

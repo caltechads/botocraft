@@ -3,11 +3,13 @@ primary:
   WorkspaceDescription:
     alternate_name: ManagedGrafanaWorkspace
     primary_key: id
-    name_key: name
+    name_key: workspaceName
     input_shapes:
       - CreateWorkspaceRequest
       - UpdateWorkspaceRequest
     fields:
+      name:
+        rename: workspaceName
       tags:
         rename: Tags
     docstring: >-
@@ -16,7 +18,10 @@ primary:
   ServiceAccountSummary:
     alternate_name: ManagedGrafanaServiceAccount
     primary_key: id
-    name_key: name
+    name_key: serviceAccountName
+    fields:
+      name:
+        rename: serviceAccountName
     extra_fields:
       workspaceId:
         python_type: str | None
@@ -48,7 +53,10 @@ primary:
   ServiceAccountTokenSummary:
     alternate_name: ManagedGrafanaServiceAccountToken
     primary_key: id
-    name_key: name
+    name_key: tokenName
+    fields:
+      name:
+        rename: tokenName
     extra_fields:
       workspaceId:
         python_type: str | None
