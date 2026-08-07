@@ -416,12 +416,9 @@ class BotocoreFieldsFormatter:
             else:
                 field_class_args.append(f"default={default}")
 
-        if field_def.rename:
-            field_class_args.append(f'alias="{field_name}"')
-            needs_field_class = True
-
-        if field_def.readonly:
-            field_class_args.append("frozen=True")
+        extra_args = self._field_class_args_for(field_def, field_name)
+        if extra_args:
+            field_class_args.extend(extra_args)
             needs_field_class = True
 
         if needs_field_class:
@@ -430,6 +427,31 @@ class BotocoreFieldsFormatter:
             field_line += f" = {field_def.default}"
 
         return field_line
+
+    def _field_class_args_for(
+        self, field_def: ModelAttributeDefinition, field_name: str
+    ) -> list[str]:
+        """
+        Return the ``pydantic.Field()`` keyword arguments implied by
+        ``rename``/``readonly``/``repr`` on a field definition.
+
+        Args:
+            field_def: The field definition.
+            field_name: The botocore name of the field.
+
+        Returns:
+            A list of ``key=value`` strings suitable for a ``Field(...)``
+            call.  Empty if none of ``rename``/``readonly``/``repr`` apply.
+
+        """
+        args: list[str] = []
+        if field_def.rename:
+            args.append(f'alias="{field_name}"')
+        if field_def.readonly:
+            args.append("frozen=True")
+        if field_def.repr is False:
+            args.append("repr=False")
+        return args
 
 
 class ExtraFieldsFormatter:
@@ -520,6 +542,11 @@ class ExtraFieldsFormatter:
         # Handle readonly fields
         if field_def.readonly:
             field_class_args.append("frozen=True")
+            needs_field_class = True
+
+        # Handle repr suppression (e.g. secret-like fields)
+        if field_def.repr is False:
+            field_class_args.append("repr=False")
             needs_field_class = True
 
         # Handle field renaming

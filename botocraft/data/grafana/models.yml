@@ -24,10 +24,23 @@ primary:
         docstring: >-
           The id of the AWS Managed Grafana workspace that this service
           account belongs to.  This is not part of the botocore
-          ``ServiceAccountSummary`` shape; it is populated by
-          :py:class:`botocraft.mixins.grafana.ManagedGrafanaServiceAccountManagerMixin`
-          methods from call context because AWS Managed Grafana service
+          ``ServiceAccountSummary`` shape; it is populated onto call
+          results by the :py:func:`botocraft.mixins.grafana.service_accounts_add_workspace_context`
+          and :py:func:`botocraft.mixins.grafana.service_account_create_to_service_account`
+          decorators from call context because AWS Managed Grafana service
           accounts are always scoped to exactly one workspace.
+    properties:
+      pk:
+        docstring: >-
+          The primary key of the service account.  This is a composite of
+          ``id`` and ``workspaceId`` because AWS Managed Grafana service
+          accounts are deleted via
+          :py:meth:`botocraft.services.grafana.ManagedGrafanaServiceAccountManager.delete`,
+          which requires both.
+        transformer:
+          mapping:
+            serviceAccountId: id
+            workspaceId: workspaceId
     docstring: >-
       A service account for an AWS Managed Grafana workspace.  Service
       accounts are always scoped to a single workspace.
@@ -42,17 +55,33 @@ primary:
         default: None
         docstring: >-
           The id of the AWS Managed Grafana workspace that this service
-          account token belongs to.  Populated by
-          :py:class:`botocraft.mixins.grafana.ManagedGrafanaServiceAccountTokenManagerMixin`
-          methods from call context.
+          account token belongs to.  Populated onto call results by the
+          :py:func:`botocraft.mixins.grafana.service_account_tokens_add_context`
+          and :py:func:`botocraft.mixins.grafana.service_account_token_create_to_token_with_key`
+          decorators from call context.
       serviceAccountId:
         python_type: str | None
         default: None
         docstring: >-
           The id of the service account that owns this service account
-          token.  Populated by
-          :py:class:`botocraft.mixins.grafana.ManagedGrafanaServiceAccountTokenManagerMixin`
-          methods from call context.
+          token.  Populated onto call results by the
+          :py:func:`botocraft.mixins.grafana.service_account_tokens_add_context`
+          and :py:func:`botocraft.mixins.grafana.service_account_token_create_to_token_with_key`
+          decorators from call context.
+    properties:
+      pk:
+        docstring: >-
+          The primary key of the service account token.  This is a
+          composite of ``id``, ``serviceAccountId``, and ``workspaceId``
+          because AWS Managed Grafana service account tokens are deleted
+          via
+          :py:meth:`botocraft.services.grafana.ManagedGrafanaServiceAccountTokenManager.delete`,
+          which requires all three.
+        transformer:
+          mapping:
+            tokenId: id
+            serviceAccountId: serviceAccountId
+            workspaceId: workspaceId
     docstring: >-
       A summary of an AWS Managed Grafana service account token.  This
       shape never contains the plaintext token key -- see
@@ -63,6 +92,14 @@ secondary:
   ServiceAccountTokenSummaryWithKey:
     alternate_name: ManagedGrafanaServiceAccountTokenWithKey
     force_create: true
+    fields:
+      key:
+        repr: false
+        docstring: >-
+          The plaintext token key.  Excluded from the default ``repr`` so
+          it is not accidentally leaked by ``print()``/logging a model
+          instance.  AWS Managed Grafana never returns this value again
+          after this response.
     extra_fields:
       workspaceId:
         python_type: str | None

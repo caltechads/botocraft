@@ -13,10 +13,12 @@ from botocore.exceptions import ClientError
 import botocraft.services.grafana as grafana_service
 from botocraft.services.grafana import (
     ManagedGrafanaServiceAccount,
+    ManagedGrafanaServiceAccountManager,
     ManagedGrafanaServiceAccountToken,
     ManagedGrafanaServiceAccountTokenManager,
     ManagedGrafanaServiceAccountTokenWithKey,
     ManagedGrafanaWorkspace,
+    ManagedGrafanaWorkspaceManager,
 )
 
 import botocraft.mixins.grafana as grafana_mixins
@@ -235,3 +237,244 @@ class TestSecurityKeyFieldPlacement:
 
     def test_key_present_only_on_with_key_model(self) -> None:
         assert "key" in ManagedGrafanaServiceAccountTokenWithKey.model_fields
+
+    def test_key_field_excluded_from_default_repr(self) -> None:
+        # The plaintext key must never be leaked by print()/repr() of a
+        # ManagedGrafanaServiceAccountTokenWithKey instance.
+        token = ManagedGrafanaServiceAccountTokenWithKey(
+            id="token-1",
+            name="ci-token",
+            key="super-secret-value",
+            serviceAccountId="sa-1",
+            workspaceId="ws-1",
+        )
+
+        assert "super-secret-value" not in repr(token)
+        assert ManagedGrafanaServiceAccountTokenWithKey.model_fields["key"].repr is False
+
+
+class TestManagedGrafanaWorkspaceManagerList:
+    """Tests for the handwritten ``list()`` on the workspace manager mixin."""
+
+    @patch("boto3.client")
+    def test_list_paginates_and_hydrates_full_workspaces(
+        self, mock_boto3_client: MagicMock
+    ) -> None:
+        mock_client = MagicMock()
+
+        # ListWorkspaces only returns the lean WorkspaceSummary shape.
+        mock_paginator = MagicMock()
+        mock_paginator.paginate.return_value = [
+            {"workspaces": [{"id": "g-1"}, {"id": "g-2"}]},
+        ]
+        mock_client.get_paginator.return_value = mock_paginator
+
+        def _describe_workspace(*, workspaceId: str) -> dict[str, object]:  # noqa: N803
+            return {
+                "workspace": {
+                    "id": workspaceId,
+                    "name": f"name-{workspaceId}",
+                    "status": "ACTIVE",
+                    "created": "2024-01-01T00:00:00+00:00",
+                    "modified": "2024-01-02T00:00:00+00:00",
+                    "endpoint": f"https://{workspaceId}.grafana-workspace.example.com",
+                    "grafanaVersion": "10.4",
+                    "dataSources": ["CLOUDWATCH"],
+                    "authentication": {"providers": ["AWS_SSO"]},
+                }
+            }
+
+        mock_client.describe_workspace.side_effect = _describe_workspace
+        mock_boto3_client.return_value = mock_client
+
+        manager = ManagedGrafanaWorkspaceManager()
+        results = list(manager.list())
+
+        mock_client.get_paginator.assert_called_once_with("list_workspaces")
+        assert mock_client.describe_workspace.call_count == 2
+        assert [w.id for w in results] == ["g-1", "g-2"]
+        # We got back full ManagedGrafanaWorkspace objects, not the leaner
+        # WorkspaceSummary shape -- e.g. ``status`` only exists on the full
+        # shape.
+        for workspace in results:
+            assert isinstance(workspace, ManagedGrafanaWorkspace)
+            assert workspace.status == "ACTIVE"
+            assert workspace.name == f"name-{workspace.id}"
+
+
+class TestServiceAccountTokenListContextReattachment:
+    """Tests for ``service_account_tokens_add_context``."""
+
+    @patch("boto3.client")
+    def test_list_reattaches_workspace_and_service_account_ids_positionally(
+        self, mock_boto3_client: MagicMock
+    ) -> None:
+        mock_client = MagicMock()
+        mock_paginator = MagicMock()
+        mock_paginator.paginate.return_value = [
+            {
+                "serviceAccountTokens": [
+                    {
+                        "id": "token-1",
+                        "name": "ci-token-1",
+                        "createdAt": "2024-01-01T00:00:00+00:00",
+                        "expiresAt": "2024-02-01T00:00:00+00:00",
+                    },
+                    {
+                        "id": "token-2",
+                        "name": "ci-token-2",
+                        "createdAt": "2024-01-01T00:00:00+00:00",
+                        "expiresAt": "2024-02-01T00:00:00+00:00",
+                    },
+                ],
+                # These reflect the response envelope, not any values the
+                # caller passed -- they exist to prove the decorator uses
+                # the *positional call arguments*, not this envelope data,
+                # to populate scope.
+                "serviceAccountId": "sa-envelope-should-be-ignored",
+                "workspaceId": "ws-envelope-should-be-ignored",
+            },
+        ]
+        mock_client.get_paginator.return_value = mock_paginator
+        mock_boto3_client.return_value = mock_client
+
+        manager = ManagedGrafanaServiceAccountTokenManager()
+        # ``list()``'s positional signature is
+        # ``list(self, serviceAccountId, workspaceId)`` -- the
+        # ``service_account_tokens_add_context`` decorator relies on that
+        # exact positional order (serviceAccountId at position 0,
+        # workspaceId at position 1) to reattach scope, so this test calls
+        # it positionally, not via keywords, to pin that contract.
+        results = list(manager.list("sa-1", "ws-1"))
+
+        assert len(results) == 2
+        for token in results:
+            assert isinstance(token, ManagedGrafanaServiceAccountToken)
+            assert token.serviceAccountId == "sa-1"
+            assert token.workspaceId == "ws-1"
+            # ServiceAccountTokenSummary never carries the plaintext key.
+            assert not hasattr(token, "key")
+
+
+class TestServiceAccountCreateIsDisabledDefault:
+    """
+    Tests for the ``isDisabled`` default set by
+    ``service_account_create_to_service_account``.
+    """
+
+    @patch("boto3.client")
+    def test_create_defaults_isdisabled_to_string_false(
+        self, mock_boto3_client: MagicMock
+    ) -> None:
+        mock_client = MagicMock()
+        mock_client.create_workspace_service_account.return_value = {
+            "id": "sa-1",
+            "name": "automation",
+            "grafanaRole": "ADMIN",
+            "workspaceId": "ws-1",
+        }
+        mock_boto3_client.return_value = mock_client
+
+        manager = ManagedGrafanaServiceAccountManager()
+        model = ManagedGrafanaServiceAccount(
+            id="",
+            name="automation",
+            isDisabled="false",
+            grafanaRole="ADMIN",
+            workspaceId="ws-1",
+        )
+        result = manager.create(model)
+
+        assert isinstance(result, ManagedGrafanaServiceAccount)
+        # isDisabled is a botocore String shape (not a bool), so the
+        # correct default is the *string* "false", not the Python bool-ish
+        # "False".
+        assert result.isDisabled == "false"
+        assert result.isDisabled != "False"
+
+
+class TestCompositePkAndDelete:
+    """
+    Tests for the composite ``pk`` on the context-scoped grafana models.
+
+    Neither ``ManagedGrafanaServiceAccount`` nor
+    ``ManagedGrafanaServiceAccountToken`` can be deleted with a bare ``id``
+    -- AWS Managed Grafana's delete operations for both are scoped to their
+    parent workspace (and, for tokens, also to the parent service account).
+    ``PrimaryBoto3Model.delete()`` calls ``self.objects.delete(**self.pk)``
+    when ``pk`` is an ``OrderedDict``, so ``pk`` must map to the exact
+    keyword arguments the generated ``delete()`` manager methods expect.
+    """
+
+    def test_service_account_pk_matches_delete_signature(self) -> None:
+        service_account = ManagedGrafanaServiceAccount(
+            id="sa-1",
+            name="automation",
+            isDisabled="false",
+            grafanaRole="ADMIN",
+            workspaceId="ws-1",
+        )
+
+        assert dict(service_account.pk) == {
+            "serviceAccountId": "sa-1",
+            "workspaceId": "ws-1",
+        }
+
+    @patch("boto3.client")
+    def test_service_account_delete_calls_through_with_scoping_kwargs(
+        self, mock_boto3_client: MagicMock
+    ) -> None:
+        mock_client = MagicMock()
+        mock_client.delete_workspace_service_account.return_value = {}
+        mock_boto3_client.return_value = mock_client
+
+        service_account = ManagedGrafanaServiceAccount(
+            id="sa-1",
+            name="automation",
+            isDisabled="false",
+            grafanaRole="ADMIN",
+            workspaceId="ws-1",
+        )
+        service_account.delete()
+
+        mock_client.delete_workspace_service_account.assert_called_once_with(
+            serviceAccountId="sa-1", workspaceId="ws-1"
+        )
+
+    def test_service_account_token_pk_matches_delete_signature(self) -> None:
+        token = ManagedGrafanaServiceAccountToken(
+            id="token-1",
+            name="ci-token",
+            createdAt="2024-01-01T00:00:00+00:00",
+            expiresAt="2024-02-01T00:00:00+00:00",
+            serviceAccountId="sa-1",
+            workspaceId="ws-1",
+        )
+
+        assert dict(token.pk) == {
+            "tokenId": "token-1",
+            "serviceAccountId": "sa-1",
+            "workspaceId": "ws-1",
+        }
+
+    @patch("boto3.client")
+    def test_service_account_token_delete_calls_through_with_scoping_kwargs(
+        self, mock_boto3_client: MagicMock
+    ) -> None:
+        mock_client = MagicMock()
+        mock_client.delete_workspace_service_account_token.return_value = {}
+        mock_boto3_client.return_value = mock_client
+
+        token = ManagedGrafanaServiceAccountToken(
+            id="token-1",
+            name="ci-token",
+            createdAt="2024-01-01T00:00:00+00:00",
+            expiresAt="2024-02-01T00:00:00+00:00",
+            serviceAccountId="sa-1",
+            workspaceId="ws-1",
+        )
+        token.delete()
+
+        mock_client.delete_workspace_service_account_token.assert_called_once_with(
+            tokenId="token-1", serviceAccountId="sa-1", workspaceId="ws-1"
+        )

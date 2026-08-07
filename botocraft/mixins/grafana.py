@@ -43,7 +43,7 @@ class ManagedGrafanaWorkspaceManagerMixin:
     """
 
     #: Boto3 client used by the generated manager.
-    client: object
+    client: Any
 
     def list(self) -> PrimaryBoto3ModelQuerySet:
         """
@@ -58,7 +58,7 @@ class ManagedGrafanaWorkspaceManagerMixin:
         from botocraft.services.grafana import ManagedGrafanaWorkspace
 
         workspace_ids: list[str] = []
-        paginator = self.client.get_paginator("list_workspaces")  # type: ignore[attr-defined]
+        paginator = self.client.get_paginator("list_workspaces")
         for page in paginator.paginate():
             for summary in page.get("workspaces", []):
                 workspace_id = summary.get("id")
@@ -67,7 +67,7 @@ class ManagedGrafanaWorkspaceManagerMixin:
 
         workspaces: list[ManagedGrafanaWorkspace] = []
         for workspace_id in workspace_ids:
-            response = self.client.describe_workspace(workspaceId=workspace_id)  # type: ignore[attr-defined]
+            response = self.client.describe_workspace(workspaceId=workspace_id)
             workspaces.append(ManagedGrafanaWorkspace(**response["workspace"]))
         query_set = PrimaryBoto3ModelQuerySet(cast("list[Boto3Model]", workspaces))
         self.sessionize(query_set)  # type: ignore[attr-defined]
@@ -87,7 +87,7 @@ class ManagedGrafanaServiceAccountTokenManagerMixin:
     """
 
     #: Boto3 client used by the generated manager.
-    client: object
+    client: Any
 
     def rotate(
         self,

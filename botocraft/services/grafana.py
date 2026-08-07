@@ -2,6 +2,8 @@
 # mypy: disable-error-code="index, override, assignment, union-attr, misc"
 from datetime import datetime
 from botocraft.mixins.grafana import service_accounts_add_workspace_context
+from botocraft.mixins.tags import TagsDictMixin
+import builtins
 from .abstract import (
     Boto3Model,
     ReadonlyBoto3Model,
@@ -10,16 +12,15 @@ from .abstract import (
     Boto3ModelManager,
     ReadonlyBoto3ModelManager,
 )
-import builtins
-from botocraft.mixins.grafana import ManagedGrafanaServiceAccountTokenManagerMixin
 from botocraft.mixins.grafana import ManagedGrafanaWorkspaceManagerMixin
-from pydantic import Field
+from collections import OrderedDict
 from .abstract import PrimaryBoto3ModelQuerySet
-from botocraft.mixins.tags import TagsDictMixin
+from botocraft.mixins.grafana import ManagedGrafanaServiceAccountTokenManagerMixin
+from botocraft.mixins.grafana import service_account_create_to_service_account
 from botocraft.mixins.grafana import service_account_token_create_to_token_with_key
 from typing import ClassVar, Literal, Any, Type as ModelType, cast
-from botocraft.mixins.grafana import service_account_create_to_service_account
 from botocraft.mixins.grafana import service_account_tokens_add_context
+from pydantic import Field
 
 # ===============
 # Managers
@@ -45,6 +46,11 @@ class ManagedGrafanaWorkspaceManager(
     ) -> "ManagedGrafanaWorkspace":
         """
         Create a new AWS Managed Grafana workspace.
+
+        Note that ````model.name```` and ````model.description```` are ignored in favor
+        of the ````workspaceName=````/````workspaceDescription=```` keyword arguments;
+        this is an AWS API asymmetry, not a
+        Botocraft bug.
 
         Args:
             model: The :py:class:`WorkspaceDescription` to create.
@@ -140,6 +146,11 @@ class ManagedGrafanaWorkspaceManager(
     ) -> "ManagedGrafanaWorkspace":
         """
         Update an existing AWS Managed Grafana workspace.
+
+        Note that ````model.name```` and ````model.description```` are ignored in favor
+        of the ````workspaceName=````/````workspaceDescription=```` keyword arguments;
+        this is an AWS API asymmetry,
+        not a Botocraft bug.
 
         Args:
             model: The :py:class:`WorkspaceDescription` to update.
@@ -303,21 +314,20 @@ class ManagedGrafanaWorkspaceManager(
         grafanaVersion: "str | None" = None,
     ) -> None:
         """
-        Update the Grafana configuration blob for a workspace.
+        Update the Grafana configuration blob for a workspace; AWS Managed Grafana
+        returns no content on success.
 
-        AWS Managed Grafana returns no content on success.
-                Args:
-                    configuration: The new configuration string for the workspace. For
-                        more information about the format and
-                        configuration options available, see `Working in your Grafana
-                        workspace
-                        <https://docs.aws.amazon.com/grafana/latest/userguide/AMG-configure- workspace.html>`_.
-                    workspaceId: The ID of the workspace to update.
+        Args:
+            configuration: The new configuration string for the workspace. For more
+                information about the format and
+                configuration options available, see `Working in your Grafana workspace
+                <https://docs.aws.amazon.com/grafana/latest/userguide/AMG-configure- workspace.html>`_.
+            workspaceId: The ID of the workspace to update.
 
-                Keyword Args:
-                    grafanaVersion: Specifies the version of Grafana to support in the
-                        workspace. If not specified, keeps the current
-                        version of the workspace.
+        Keyword Args:
+            grafanaVersion: Specifies the version of Grafana to support in the
+                workspace. If not specified, keeps the current
+                version of the workspace.
         """
         args: dict[str, Any] = dict(
             configuration=self.serialize(configuration),
@@ -450,6 +460,9 @@ class ManagedGrafanaWorkspaceManager(
         """
         Grant or revoke user and group permissions on a workspace.
 
+        Returns a list of errors, one per update instruction that AWS Managed Grafana
+        was not able to apply; an empty list means every instruction succeeded.
+
         Args:
             updateInstructionBatch: An array of structures that contain the permission
                 updates to make.
@@ -511,6 +524,17 @@ class ManagedGrafanaServiceAccountManager(Boto3ModelManager):
     ) -> "ManagedGrafanaServiceAccount":
         """
         Create a service account in an AWS Managed Grafana workspace.
+
+        The ````CreateWorkspaceServiceAccount```` boto3 response is a flat shape
+        (````id````, ````name````, ````grafanaRole````, ````workspaceId````) that does
+        not match the
+        ````ServiceAccountSummary```` shape used everywhere else (which has
+        ````isDisabled```` instead of ````workspaceId````);
+        the ````service_account_create_to_service_account```` decorator builds a proper
+        :py:class:`ServiceAccountSummary`
+        from the flat response, defaulting ````isDisabled```` to ````"false"```` (a
+        string) since a newly-created service
+        account is never disabled.
 
         Args:
             model: The :py:class:`ServiceAccountSummary` to create.
@@ -588,6 +612,10 @@ class ManagedGrafanaServiceAccountTokenManager(
     ) -> "ManagedGrafanaServiceAccountTokenWithKey":
         """
         Create a service account token.
+
+        The plaintext token ````key```` is visible only in this response; AWS Managed
+        Grafana never returns it again -- see
+        :py:class:`ServiceAccountTokenSummaryWithKey`.
 
         Args:
             model: The :py:class:`ServiceAccountTokenSummary` to create.
@@ -1028,22 +1056,14 @@ class ManagedGrafanaServiceAccount(PrimaryBoto3Model):
     The id of the AWS Managed Grafana workspace that this service account belongs to.
 
     This is not part of the botocore ````ServiceAccountSummary```` shape; it is
-    populated by
-    :py:class:`botocraft.mixins.grafana.ManagedGrafanaServiceAccountManagerMixin`
-    methods from call context because AWS
-    Managed Grafana service accounts are always scoped to exactly one workspace.
+    populated onto call results by the
+    :py:func:`botocraft.mixins.grafana.service_accounts_add_workspace_context` and
+    :py:func:`botocraft.mixins.grafana.service_account_create_to_service_account`
+    decorators from call context
+    because AWS Managed Grafana service accounts are always scoped to exactly one
+    workspace.
     """
-    @property
-    def pk(self) -> str | None:
-        """
-        Return the primary key of the model.
 
-        This is the value of the :py:attr:`id` attribute.
-
-        Returns:
-            The primary key of the model instance.
-        """
-        return self.id
     def __hash__(self) -> int:
         """
         Return the hash of the model.
@@ -1052,6 +1072,23 @@ class ManagedGrafanaServiceAccount(PrimaryBoto3Model):
         :py:attr:`id` attribute.
         """
         return hash(self.id)
+
+    @property
+    def pk(self) -> OrderedDict[str, Any]:
+        """
+        The primary key of the service account.
+
+        This is a composite of ``id`` and ``workspaceId`` because AWS Managed Grafana
+        service accounts are deleted via
+        :py:meth:`botocraft.services.grafana.ManagedGrafanaServiceAccountManager.delete`,
+        which requires both.
+        """
+        return OrderedDict(
+            {
+                "serviceAccountId": self.id,
+                "workspaceId": self.workspaceId,
+            }
+        )
 class ManagedGrafanaServiceAccountToken(PrimaryBoto3Model):
     """
     A structure that contains the information about a service account token.
@@ -1089,31 +1126,24 @@ class ManagedGrafanaServiceAccountToken(PrimaryBoto3Model):
     The id of the AWS Managed Grafana workspace that this service account token belongs
     to.
 
-    Populated by
-    :py:class:`botocraft.mixins.grafana.ManagedGrafanaServiceAccountTokenManagerMixin`
-    methods from call context.
+    Populated onto call results by the
+    :py:func:`botocraft.mixins.grafana.service_account_tokens_add_context` and
+    :py:func:`botocraft.mixins.grafana.service_account_token_create_to_token_with_key`
+    decorators from call
+    context.
     """
 
     serviceAccountId: str | None = None
     """
     The id of the service account that owns this service account token.
 
-    Populated by
-    :py:class:`botocraft.mixins.grafana.ManagedGrafanaServiceAccountTokenManagerMixin`
-    methods from call context.
+    Populated onto call results by the
+    :py:func:`botocraft.mixins.grafana.service_account_tokens_add_context` and
+    :py:func:`botocraft.mixins.grafana.service_account_token_create_to_token_with_key`
+    decorators from call
+    context.
     """
 
-    @property
-    def pk(self) -> str | None:
-        """
-        Return the primary key of the model.
-
-        This is the value of the :py:attr:`id` attribute.
-
-        Returns:
-            The primary key of the model instance.
-        """
-        return self.id
     def __hash__(self) -> int:
         """
         Return the hash of the model.
@@ -1122,6 +1152,26 @@ class ManagedGrafanaServiceAccountToken(PrimaryBoto3Model):
         :py:attr:`id` attribute.
         """
         return hash(self.id)
+
+    @property
+    def pk(self) -> OrderedDict[str, Any]:
+        """
+        The primary key of the service account token.
+
+        This is a composite of ``id``, ``serviceAccountId``, and ``workspaceId`` because
+        AWS Managed Grafana service account tokens are deleted via
+        :py:meth:`botocraft.services.grafana.ManagedGrafanaServiceAccountTokenManager.delete`,
+        which requires all three.
+        """
+        return OrderedDict(
+            {
+                "tokenId": self.id,
+                "serviceAccountId": self.serviceAccountId,
+                "workspaceId": self.workspaceId,
+            }
+        )
+
+
 class ManagedGrafanaServiceAccountTokenWithKey(Boto3Model):
     """
     A structure that contains the information about a service account token.
@@ -1131,6 +1181,14 @@ class ManagedGrafanaServiceAccountTokenWithKey(Boto3Model):
 
     If you lose the key, you can delete and recreate the token, which will create a new
     key.
+    """
+    key: "str | None" = Field(default=None, repr=False)
+    """
+    The plaintext token key.
+
+    Excluded from the default ````repr```` so it is not accidentally leaked by
+    ````print()````/logging a model instance. AWS Managed Grafana never returns this
+    value again after this response.
     """
 
     id: str
@@ -1143,13 +1201,6 @@ class ManagedGrafanaServiceAccountTokenWithKey(Boto3Model):
     The name of the service account token.
     """
 
-    key: str
-    """
-    The key for the service account token.
-
-    Used when making calls to the Grafana HTTP APIs to authenticate and authorize the
-    requests.
-    """
     workspaceId: str | None = None
     """
     The id of the AWS Managed Grafana workspace that this service account token belongs
@@ -1178,17 +1229,20 @@ class DescribeWorkspaceResponse(Boto3Model):
     """
     A structure containing information about the workspace.
     """
+
+
 class UpdateWorkspaceResponse(Boto3Model):
     workspace: ManagedGrafanaWorkspace
     """
     A structure containing data about the workspace that was created.
     """
+
+
 class DeleteWorkspaceResponse(Boto3Model):
     workspace: ManagedGrafanaWorkspace
     """
     A structure containing information about the workspace that was deleted.
     """
-
 
 class IdpMetadata(Boto3Model):
     """
@@ -1204,10 +1258,12 @@ class IdpMetadata(Boto3Model):
     """
     The URL of the location containing the IdP metadata.
     """
+
     xml: "str | None" = None
     """
     The full IdP metadata, in XML format.
     """
+
 class AssertionAttributes(Boto3Model):
     """
     A structure that defines which attributes in the IdP assertion are to be used to
@@ -1225,7 +1281,6 @@ class AssertionAttributes(Boto3Model):
     The name of the attribute within the SAML assertion to use as the login names for
     SAML users.
     """
-
     email: "str | None" = None
     """
     The name of the attribute within the SAML assertion to use as the email names for
@@ -1242,7 +1297,6 @@ class AssertionAttributes(Boto3Model):
     """
     The name of the attribute within the SAML assertion to use as the user roles.
     """
-
     org: "str | None" = None
     """
     The name of the attribute within the SAML assertion to use as the user full
@@ -1257,18 +1311,17 @@ class RoleValues(Boto3Model):
     SAML authenticated users not part of ``Admin`` or ``Editor`` role groups have
     ``Viewer`` permission over the workspace.
     """
-
     editor: "builtins.list[str] | None" = Field(default_factory=list)
     """
     A list of groups from the SAML assertion attribute to grant the Grafana ``Editor``
     role to.
     """
+
     admin: "builtins.list[str] | None" = Field(default_factory=list)
     """
     A list of groups from the SAML assertion attribute to grant the Grafana ``Admin``
     role to.
     """
-
 class SamlConfiguration(Boto3Model):
     """
     A structure containing information about how this workspace works with SAML.
@@ -1279,6 +1332,7 @@ class SamlConfiguration(Boto3Model):
     A structure containing the identity provider (IdP) metadata used to integrate the
     identity provider with this workspace.
     """
+
     assertionAttributes: "AssertionAttributes | None" = None
     """
     A structure that defines which attributes in the SAML assertion are to be used to
@@ -1314,7 +1368,6 @@ class SamlAuthentication(Boto3Model):
     """
     Specifies whether the workspace's SAML configuration is complete.
     """
-
     configuration: "SamlConfiguration | None" = None
     """
     A structure containing details about how this workspace works with SAML.
@@ -1331,6 +1384,7 @@ class AwsSsoAuthentication(Boto3Model):
     The ID of the IAM Identity Center-managed application that is created by Amazon
     Managed Grafana.
     """
+
 class AuthenticationDescription(Boto3Model):
     """
     A structure containing information about the user authentication methods used by the
@@ -1343,7 +1397,6 @@ class AuthenticationDescription(Boto3Model):
     authenticate users to use the Grafana console in the Amazon Managed Grafana
     workspace.
     """
-
     saml: "SamlAuthentication | None" = None
     """
     A structure containing information about how this workspace works with SAML,
@@ -1356,7 +1409,6 @@ class AuthenticationDescription(Boto3Model):
     A structure containing information about how this workspace works with IAM Identity
     Center.
     """
-
 class DescribeWorkspaceAuthenticationResponse(Boto3Model):
     authentication: AuthenticationDescription
     """
@@ -1390,6 +1442,8 @@ class DescribeWorkspaceConfigurationResponse(Boto3Model):
 
 class UpdateWorkspaceConfigurationResponse(Boto3Model):
     pass
+
+
 class AssociateLicenseResponse(Boto3Model):
     workspace: ManagedGrafanaWorkspace
     """
@@ -1402,13 +1456,10 @@ class DisassociateLicenseResponse(Boto3Model):
     """
     A structure containing information about the workspace.
     """
-
-
 class User(Boto3Model):
     """
     A structure that specifies one user or group in the workspace.
     """
-
     id: str
     """
     The ID of the user or group.
@@ -1418,8 +1469,6 @@ class User(Boto3Model):
     """
     Specifies whether this is a single user or a group.
     """
-
-
 class PermissionEntry(Boto3Model):
     """
     A structure containing the identity of one user or group and the ``Admin``,
@@ -1430,7 +1479,6 @@ class PermissionEntry(Boto3Model):
     """
     A structure with the ID of the user or group with this role.
     """
-
     role: Literal["ADMIN", "EDITOR", "VIEWER"]
     """
     Specifies whether the user or group has the ``Admin``, ``Editor``, or ``Viewer``
@@ -1464,6 +1512,7 @@ class UpdateInstruction(Boto3Model):
     """
     The role to add or revoke for the user or the group specified in ``users``.
     """
+
     users: "builtins.list[User]"
     """
     A structure that specifies the user or group to add or revoke the role for.
@@ -1474,7 +1523,6 @@ class UpdateError(Boto3Model):
     """A structure containing information about one error encountered while performing an
     `UpdatePermissions <https://docs.aws.amazon.com/grafana/latest/APIReference/API_UpdatePermissions.html>`_ operation.
     """
-
     code: int
     """
     The error code.
@@ -1484,7 +1532,6 @@ class UpdateError(Boto3Model):
     """
     The message for this error.
     """
-
     causedBy: UpdateInstruction
     """
     Specifies which permission update caused the error.
@@ -1518,7 +1565,6 @@ class CreateWorkspaceServiceAccountResponse(Boto3Model):
     """
     The ID of the service account.
     """
-
     name: str
     """
     The name of the service account.
@@ -1528,6 +1574,7 @@ class CreateWorkspaceServiceAccountResponse(Boto3Model):
     """
     The permission level given to the service account.
     """
+
     workspaceId: str
     """
     The workspace with which the service account is associated.
@@ -1555,7 +1602,6 @@ class DeleteWorkspaceServiceAccountResponse(Boto3Model):
     """
     The ID of the service account deleted.
     """
-
     workspaceId: str
     """
     The ID of the workspace where the service account was deleted.
@@ -1579,6 +1625,8 @@ class CreateWorkspaceServiceAccountTokenResponse(Boto3Model):
     """
     The ID of the workspace where the token was created.
     """
+
+
 class ListWorkspaceServiceAccountTokensResponse(Boto3Model):
     nextToken: "str | None" = None
     """

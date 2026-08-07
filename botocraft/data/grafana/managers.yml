@@ -8,7 +8,10 @@ WorkspaceDescription:
       boto3_name: create_workspace
       response_attr: workspace
       docstring: >-
-        Create a new AWS Managed Grafana workspace.
+        Create a new AWS Managed Grafana workspace.  Note that ``model.name``
+        and ``model.description`` are ignored in favor of the
+        ``workspaceName=``/``workspaceDescription=`` keyword arguments; this
+        is an AWS API asymmetry, not a Botocraft bug.
     get:
       boto3_name: describe_workspace
       response_attr: workspace
@@ -18,7 +21,10 @@ WorkspaceDescription:
       boto3_name: update_workspace
       response_attr: workspace
       docstring: >-
-        Update an existing AWS Managed Grafana workspace.
+        Update an existing AWS Managed Grafana workspace.  Note that
+        ``model.name`` and ``model.description`` are ignored in favor of
+        the ``workspaceName=``/``workspaceDescription=`` keyword arguments;
+        this is an AWS API asymmetry, not a Botocraft bug.
     delete:
       boto3_name: delete_workspace
       response_attr: workspace
@@ -50,7 +56,7 @@ WorkspaceDescription:
       return_type: None
       response_attr: None
       docstring: >-
-        Update the Grafana configuration blob for a workspace.  AWS Managed
+        Update the Grafana configuration blob for a workspace; AWS Managed
         Grafana returns no content on success.
     associate_license:
       boto3_name: associate_license
@@ -71,12 +77,10 @@ WorkspaceDescription:
       boto3_name: update_permissions
       response_attr: errors
       docstring: >-
-        Grant or revoke user and group permissions on a workspace.
-
-        Returns:
-          A list of errors, one per update instruction that AWS Managed
-          Grafana was not able to apply.  An empty list means every
-          instruction succeeded.
+        Grant or revoke user and group permissions on a workspace.  Returns
+        a list of errors, one per update instruction that AWS Managed
+        Grafana was not able to apply; an empty list means every
+        instruction succeeded.
     list_versions:
       boto3_name: list_versions
       response_attr: grafanaVersions
@@ -101,17 +105,15 @@ ServiceAccountSummary:
         - name: service_account_create_to_service_account
           import_path: botocraft.mixins.grafana
       docstring: >-
-        Create a service account in an AWS Managed Grafana workspace.
-
-        Note:
-          The ``CreateWorkspaceServiceAccount`` boto3 response is a flat
-          shape (``id``, ``name``, ``grafanaRole``, ``workspaceId``) that
-          does not match the ``ServiceAccountSummary`` shape used everywhere
-          else (which has ``isDisabled`` instead of ``workspaceId``).  The
-          ``service_account_create_to_service_account`` decorator builds a
-          proper :py:class:`ServiceAccountSummary` from the flat response,
-          defaulting ``isDisabled`` to ``False`` since a newly-created
-          service account is never disabled.
+        Create a service account in an AWS Managed Grafana workspace.  The
+        ``CreateWorkspaceServiceAccount`` boto3 response is a flat shape
+        (``id``, ``name``, ``grafanaRole``, ``workspaceId``) that does not
+        match the ``ServiceAccountSummary`` shape used everywhere else
+        (which has ``isDisabled`` instead of ``workspaceId``); the
+        ``service_account_create_to_service_account`` decorator builds a
+        proper :py:class:`ServiceAccountSummary` from the flat response,
+        defaulting ``isDisabled`` to ``"false"`` (a string) since a
+        newly-created service account is never disabled.
     list:
       boto3_name: list_workspace_service_accounts
       response_attr: serviceAccounts
@@ -143,12 +145,9 @@ ServiceAccountTokenSummary:
         - name: service_account_token_create_to_token_with_key
           import_path: botocraft.mixins.grafana
       docstring: >-
-        Create a service account token.
-
-        Note:
-          The plaintext token ``key`` is visible only in this response.
-          AWS Managed Grafana never returns it again -- see
-          :py:class:`ServiceAccountTokenSummaryWithKey`.
+        Create a service account token.  The plaintext token ``key`` is
+        visible only in this response; AWS Managed Grafana never returns
+        it again -- see :py:class:`ServiceAccountTokenSummaryWithKey`.
     list:
       boto3_name: list_workspace_service_account_tokens
       response_attr: serviceAccountTokens

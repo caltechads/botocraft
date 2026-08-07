@@ -337,6 +337,10 @@ class ModelAttributeDefinition(BaseModel):
     docstring: str | None = None
     #: If specified, use this as the python type for the field.
     python_type: str | None = None
+    #: If ``False``, exclude this field from the model's default ``repr``.
+    #: Use this for secret-like fields (plaintext API keys/tokens) so
+    #: ``print(model)``/``repr(model)`` doesn't leak them.
+    repr: bool | None = None
     #: If specified, the list of imports to add to the top of the
     #: to support the python type.
     imports: list[str] = []
