@@ -11,6 +11,7 @@ from .datasync import *  # noqa: F401,F403
 from .inspector2 import *  # noqa: F401,F403
 from .opensearch import *  # noqa: F401,F403
 from .ecr import *  # noqa: F401,F403
+from .grafana import *  # noqa: F401,F403
 from .ecs import *  # noqa: F401,F403
 from .application_autoscaling import *  # noqa: F401,F403
 from .codepipeline import *  # noqa: F401,F403

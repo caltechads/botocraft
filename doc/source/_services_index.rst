@@ -22,6 +22,7 @@
    api/services/elb
    api/services/elbv2
    api/services/events
+   api/services/grafana
    api/services/iam
    api/services/inspector2
    api/services/kinesis

@@ -1,0 +1,173 @@
+---
+WorkspaceDescription:
+  mixins:
+    - name: ManagedGrafanaWorkspaceManagerMixin
+      import_path: botocraft.mixins.grafana
+  methods:
+    create:
+      boto3_name: create_workspace
+      response_attr: workspace
+      docstring: >-
+        Create a new AWS Managed Grafana workspace.
+    get:
+      boto3_name: describe_workspace
+      response_attr: workspace
+      docstring: >-
+        Get a single AWS Managed Grafana workspace by id.
+    update:
+      boto3_name: update_workspace
+      response_attr: workspace
+      docstring: >-
+        Update an existing AWS Managed Grafana workspace.
+    delete:
+      boto3_name: delete_workspace
+      response_attr: workspace
+      docstring: >-
+        Delete an AWS Managed Grafana workspace.
+    # ``list`` is intentionally absent here.  ``ListWorkspaces`` only returns
+    # the lightweight ``WorkspaceSummary`` shape, not the full
+    # ``WorkspaceDescription`` shape, so
+    # :py:class:`botocraft.mixins.grafana.ManagedGrafanaWorkspaceManagerMixin`
+    # supplies ``list()`` by paginating ``list_workspaces`` and hydrating each
+    # result with ``describe_workspace``.
+    describe_authentication:
+      boto3_name: describe_workspace_authentication
+      response_attr: authentication
+      docstring: >-
+        Describe the authentication configuration for a workspace.
+    update_authentication:
+      boto3_name: update_workspace_authentication
+      response_attr: authentication
+      docstring: >-
+        Update the authentication configuration for a workspace.
+    describe_configuration:
+      boto3_name: describe_workspace_configuration
+      response_attr: None
+      docstring: >-
+        Describe the Grafana configuration blob for a workspace.
+    update_configuration:
+      boto3_name: update_workspace_configuration
+      return_type: None
+      response_attr: None
+      docstring: >-
+        Update the Grafana configuration blob for a workspace.  AWS Managed
+        Grafana returns no content on success.
+    associate_license:
+      boto3_name: associate_license
+      response_attr: workspace
+      docstring: >-
+        Associate a Grafana Enterprise license with a workspace.
+    disassociate_license:
+      boto3_name: disassociate_license
+      response_attr: workspace
+      docstring: >-
+        Disassociate a Grafana Enterprise license from a workspace.
+    list_permissions:
+      boto3_name: list_permissions
+      response_attr: permissions
+      docstring: >-
+        List the user and group permissions granted on a workspace.
+    update_permissions:
+      boto3_name: update_permissions
+      response_attr: errors
+      docstring: >-
+        Grant or revoke user and group permissions on a workspace.
+
+        Returns:
+          A list of errors, one per update instruction that AWS Managed
+          Grafana was not able to apply.  An empty list means every
+          instruction succeeded.
+    list_versions:
+      boto3_name: list_versions
+      response_attr: grafanaVersions
+      docstring: >-
+        List the Grafana versions available for new workspaces, or the
+        versions available to upgrade an existing workspace to.
+
+# Do NOT add a manager entry for the legacy Workspace API Key operations
+# (``CreateWorkspaceApiKey``, ``DeleteWorkspaceApiKey``).  Botocraft's AWS
+# Managed Grafana automation story is built on service account tokens, not
+# workspace API keys -- see
+# docs/adr/0001-delete-previous-amg-service-account-token-during-rotation.md.
+
+ServiceAccountSummary:
+  methods:
+    create:
+      boto3_name: create_workspace_service_account
+      response_attr: None
+      return_type: >-
+        "ManagedGrafanaServiceAccount"
+      decorators:
+        - name: service_account_create_to_service_account
+          import_path: botocraft.mixins.grafana
+      docstring: >-
+        Create a service account in an AWS Managed Grafana workspace.
+
+        Note:
+          The ``CreateWorkspaceServiceAccount`` boto3 response is a flat
+          shape (``id``, ``name``, ``grafanaRole``, ``workspaceId``) that
+          does not match the ``ServiceAccountSummary`` shape used everywhere
+          else (which has ``isDisabled`` instead of ``workspaceId``).  The
+          ``service_account_create_to_service_account`` decorator builds a
+          proper :py:class:`ServiceAccountSummary` from the flat response,
+          defaulting ``isDisabled`` to ``False`` since a newly-created
+          service account is never disabled.
+    list:
+      boto3_name: list_workspace_service_accounts
+      response_attr: serviceAccounts
+      decorators:
+        - name: service_accounts_add_workspace_context
+          import_path: botocraft.mixins.grafana
+      docstring: >-
+        List the service accounts in an AWS Managed Grafana workspace.
+    delete:
+      boto3_name: delete_workspace_service_account
+      return_type: None
+      docstring: >-
+        Delete a service account from an AWS Managed Grafana workspace.
+    # AWS Managed Grafana has no ``get`` or ``update`` operation for service
+    # accounts, so neither method is defined here.  Do not add stubs for
+    # them.
+
+ServiceAccountTokenSummary:
+  mixins:
+    - name: ManagedGrafanaServiceAccountTokenManagerMixin
+      import_path: botocraft.mixins.grafana
+  methods:
+    create:
+      boto3_name: create_workspace_service_account_token
+      response_attr: None
+      return_type: >-
+        "ManagedGrafanaServiceAccountTokenWithKey"
+      decorators:
+        - name: service_account_token_create_to_token_with_key
+          import_path: botocraft.mixins.grafana
+      docstring: >-
+        Create a service account token.
+
+        Note:
+          The plaintext token ``key`` is visible only in this response.
+          AWS Managed Grafana never returns it again -- see
+          :py:class:`ServiceAccountTokenSummaryWithKey`.
+    list:
+      boto3_name: list_workspace_service_account_tokens
+      response_attr: serviceAccountTokens
+      decorators:
+        - name: service_account_tokens_add_context
+          import_path: botocraft.mixins.grafana
+      docstring: >-
+        List the service account tokens for a service account.  This never
+        includes the plaintext token key -- ``ServiceAccountTokenSummary``
+        has no ``key`` field.
+    delete:
+      boto3_name: delete_workspace_service_account_token
+      return_type: None
+      docstring: >-
+        Delete a service account token.
+    # ``rotate`` is a handwritten mixin method, not a generated one -- see
+    # ``ManagedGrafanaServiceAccountTokenManagerMixin.rotate`` in
+    # botocraft/mixins/grafana.py.  There is no ``update`` method: AWS
+    # Managed Grafana has no token-update operation, so Botocraft treats
+    # token rotation (create replacement, delete the previous token id the
+    # caller supplies) as the update workflow for tokens.  See
+    # docs/adr/0001-delete-previous-amg-service-account-token-during-rotation.md.

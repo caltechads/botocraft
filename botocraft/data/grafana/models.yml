@@ -1,0 +1,83 @@
+---
+primary:
+  WorkspaceDescription:
+    alternate_name: ManagedGrafanaWorkspace
+    primary_key: id
+    name_key: name
+    input_shapes:
+      - CreateWorkspaceRequest
+      - UpdateWorkspaceRequest
+    fields:
+      tags:
+        rename: Tags
+    docstring: >-
+      An AWS Managed Grafana workspace.
+
+  ServiceAccountSummary:
+    alternate_name: ManagedGrafanaServiceAccount
+    primary_key: id
+    name_key: name
+    extra_fields:
+      workspaceId:
+        python_type: str | None
+        default: None
+        docstring: >-
+          The id of the AWS Managed Grafana workspace that this service
+          account belongs to.  This is not part of the botocore
+          ``ServiceAccountSummary`` shape; it is populated by
+          :py:class:`botocraft.mixins.grafana.ManagedGrafanaServiceAccountManagerMixin`
+          methods from call context because AWS Managed Grafana service
+          accounts are always scoped to exactly one workspace.
+    docstring: >-
+      A service account for an AWS Managed Grafana workspace.  Service
+      accounts are always scoped to a single workspace.
+
+  ServiceAccountTokenSummary:
+    alternate_name: ManagedGrafanaServiceAccountToken
+    primary_key: id
+    name_key: name
+    extra_fields:
+      workspaceId:
+        python_type: str | None
+        default: None
+        docstring: >-
+          The id of the AWS Managed Grafana workspace that this service
+          account token belongs to.  Populated by
+          :py:class:`botocraft.mixins.grafana.ManagedGrafanaServiceAccountTokenManagerMixin`
+          methods from call context.
+      serviceAccountId:
+        python_type: str | None
+        default: None
+        docstring: >-
+          The id of the service account that owns this service account
+          token.  Populated by
+          :py:class:`botocraft.mixins.grafana.ManagedGrafanaServiceAccountTokenManagerMixin`
+          methods from call context.
+    docstring: >-
+      A summary of an AWS Managed Grafana service account token.  This
+      shape never contains the plaintext token key -- see
+      :py:class:`ManagedGrafanaServiceAccountTokenWithKey` for the
+      create-only shape that does.
+
+secondary:
+  ServiceAccountTokenSummaryWithKey:
+    alternate_name: ManagedGrafanaServiceAccountTokenWithKey
+    force_create: true
+    extra_fields:
+      workspaceId:
+        python_type: str | None
+        default: None
+        docstring: >-
+          The id of the AWS Managed Grafana workspace that this service
+          account token belongs to.
+      serviceAccountId:
+        python_type: str | None
+        default: None
+        docstring: >-
+          The id of the service account that owns this service account
+          token.
+    docstring: >-
+      The one-time-visible response returned when an AWS Managed Grafana
+      service account token is created or rotated.  This is the only
+      Botocraft model that exposes the plaintext ``key`` field: AWS Managed
+      Grafana never returns the token key again after creation.
