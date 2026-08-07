@@ -237,7 +237,7 @@ def service_accounts_add_workspace_context(
         results = func(self, *args, **kwargs)
         service_accounts = []
         for service_account in coerce_queryset_results(results):
-            payload = service_account.model_dump(exclude_none=True)
+            payload = service_account.model_dump(exclude_none=True, by_alias=True)
             payload["workspaceId"] = workspace_id
             service_accounts.append(ManagedGrafanaServiceAccount(**payload))
         query_set = PrimaryBoto3ModelQuerySet(
@@ -336,7 +336,7 @@ def service_account_tokens_add_context(
         results = func(self, *args, **kwargs)
         tokens = []
         for token in coerce_queryset_results(results):
-            payload = token.model_dump(exclude_none=True)
+            payload = token.model_dump(exclude_none=True, by_alias=True)
             payload["workspaceId"] = workspace_id
             payload["serviceAccountId"] = service_account_id
             tokens.append(ManagedGrafanaServiceAccountToken(**payload))

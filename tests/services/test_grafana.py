@@ -400,12 +400,68 @@ class TestServiceAccountTokenListContextReattachment:
         results = list(manager.list("sa-1", "ws-1"))
 
         assert len(results) == 2
-        for token in results:
+        for token, expected_name in zip(results, ("ci-token-1", "ci-token-2"), strict=True):
             assert isinstance(token, ManagedGrafanaServiceAccountToken)
             assert token.serviceAccountId == "sa-1"
             assert token.workspaceId == "ws-1"
             # ServiceAccountTokenSummary never carries the plaintext key.
             assert not hasattr(token, "key")
+            # Regression: the ``model_dump()``/reconstruct round-trip in
+            # ``service_account_tokens_add_context`` must not silently drop
+            # ``name`` (aliased to the ``tokenName`` Python attribute).
+            assert token.name == expected_name
+            assert token.tokenName == expected_name
+
+
+class TestServiceAccountListContextReattachment:
+    """Tests for ``service_accounts_add_workspace_context``."""
+
+    @patch("boto3.client")
+    def test_list_reattaches_workspace_id_and_preserves_name(
+        self, mock_boto3_client: MagicMock
+    ) -> None:
+        mock_client = MagicMock()
+        mock_paginator = MagicMock()
+        mock_paginator.paginate.return_value = [
+            {
+                "serviceAccounts": [
+                    {
+                        "id": "sa-1",
+                        "name": "ci-service-account-1",
+                        "grafanaRole": "ADMIN",
+                        "isDisabled": "false",
+                    },
+                    {
+                        "id": "sa-2",
+                        "name": "ci-service-account-2",
+                        "grafanaRole": "EDITOR",
+                        "isDisabled": "false",
+                    },
+                ],
+                # This reflects the response envelope, not the value the
+                # caller passed -- it exists to prove the decorator uses the
+                # caller-supplied ``workspaceId``, not this envelope value.
+                "workspaceId": "ws-envelope-should-be-ignored",
+            },
+        ]
+        mock_client.get_paginator.return_value = mock_paginator
+        mock_boto3_client.return_value = mock_client
+
+        manager = ManagedGrafanaServiceAccountManager()
+        results = list(manager.list("ws-1"))
+
+        assert len(results) == 2
+        for service_account, expected_name in zip(
+            results, ("ci-service-account-1", "ci-service-account-2"), strict=True
+        ):
+            assert isinstance(service_account, ManagedGrafanaServiceAccount)
+            assert service_account.workspaceId == "ws-1"
+            # Regression: the ``model_dump()``/reconstruct round-trip in
+            # ``service_accounts_add_workspace_context`` must not silently
+            # drop ``name`` (aliased to the ``serviceAccountName`` Python
+            # attribute).
+            assert service_account.name == expected_name
+            assert service_account.serviceAccountName == expected_name
 
 
 class TestServiceAccountCreateIsDisabledDefault:
