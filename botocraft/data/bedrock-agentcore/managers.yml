@@ -1,0 +1,190 @@
+---
+Event:
+  methods:
+    create:
+      boto3_name: create_event
+      response_attr: event
+      args:
+        memoryId:
+          required: true
+          python_type: str
+        actorId:
+          required: true
+          python_type: str
+    get:
+      boto3_name: get_event
+      response_attr: event
+      args:
+        memoryId:
+          required: true
+          python_type: str
+        sessionId:
+          required: true
+          python_type: str
+        actorId:
+          required: true
+          python_type: str
+        eventId:
+          required: true
+    list:
+      boto3_name: list_events
+      response_attr: events
+      args:
+        memoryId:
+          required: true
+          python_type: str
+        sessionId:
+          required: true
+          python_type: str
+        actorId:
+          required: true
+          python_type: str
+    delete:
+      boto3_name: delete_event
+      return_type: None
+      args:
+        memoryId:
+          required: true
+          python_type: str
+        sessionId:
+          required: true
+          python_type: str
+        actorId:
+          required: true
+          python_type: str
+        eventId:
+          required: true
+PaymentInstrument:
+  methods:
+    create:
+      boto3_name: create_payment_instrument
+      response_attr: paymentInstrument
+    get:
+      boto3_name: get_payment_instrument
+      response_attr: paymentInstrument
+      args:
+        paymentManagerArn:
+          required: true
+          python_type: str
+        paymentInstrumentId:
+          required: true
+    list:
+      boto3_name: list_payment_instruments
+      response_attr: paymentInstruments
+      args:
+        paymentManagerArn:
+          required: true
+          python_type: str
+    delete:
+      boto3_name: delete_payment_instrument
+      return_type: None
+      args:
+        paymentManagerArn:
+          required: true
+          python_type: str
+        paymentConnectorId:
+          required: true
+          python_type: str
+        paymentInstrumentId:
+          required: true
+PaymentSession:
+  methods:
+    create:
+      boto3_name: create_payment_session
+      response_attr: paymentSession
+    get:
+      boto3_name: get_payment_session
+      response_attr: paymentSession
+      args:
+        paymentManagerArn:
+          required: true
+          python_type: str
+        paymentSessionId:
+          required: true
+    list:
+      boto3_name: list_payment_sessions
+      response_attr: paymentSessions
+      args:
+        paymentManagerArn:
+          required: true
+          python_type: str
+    delete:
+      boto3_name: delete_payment_session
+      return_type: None
+      args:
+        paymentManagerArn:
+          required: true
+          python_type: str
+        paymentSessionId:
+          required: true
+MemoryRecord:
+  methods:
+    batch_create:
+      boto3_name: batch_create_memory_records
+      return_type: '"BatchCreateMemoryRecordsOutput"'
+      response_attr: None
+      args:
+        memoryId:
+          required: true
+          python_type: str
+        records:
+          required: true
+    batch_update:
+      boto3_name: batch_update_memory_records
+      return_type: '"BatchUpdateMemoryRecordsOutput"'
+      response_attr: None
+      args:
+        memoryId:
+          required: true
+          python_type: str
+        records:
+          required: true
+    get:
+      boto3_name: get_memory_record
+      response_attr: memoryRecord
+      args:
+        memoryId:
+          required: true
+          python_type: str
+        memoryRecordId:
+          required: true
+    list:
+      boto3_name: list_memory_records
+      response_attr: memoryRecordSummaries
+      args:
+        memoryId:
+          required: true
+          python_type: str
+    delete:
+      boto3_name: delete_memory_record
+      return_type: None
+      args:
+        memoryId:
+          required: true
+          python_type: str
+        memoryRecordId:
+          required: true
+AgentCard:
+  methods:
+    get:
+      boto3_name: get_agent_card
+      response_attr: agentCard
+      args:
+        agentRuntimeArn:
+          required: true
+ExtractionJobMetadata:
+  methods:
+    create:
+      boto3_name: start_memory_extraction_job
+      response_attr: None
+      args:
+        memoryId:
+          required: true
+          python_type: str
+    list:
+      boto3_name: list_memory_extraction_jobs
+      response_attr: jobs
+      args:
+        memoryId:
+          required: true
+          python_type: str

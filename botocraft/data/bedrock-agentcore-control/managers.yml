@@ -1,0 +1,471 @@
+---
+AgentRuntime:
+  methods:
+    create:
+      boto3_name: create_agent_runtime
+      response_attr: None
+    get:
+      boto3_name: get_agent_runtime
+      response_attr: None
+      args:
+        agentRuntimeId:
+          required: true
+    list:
+      boto3_name: list_agent_runtimes
+      response_attr: agentRuntimes
+    update:
+      boto3_name: update_agent_runtime
+      response_attr: None
+    delete:
+      boto3_name: delete_agent_runtime
+      return_type: None
+      args:
+        agentRuntimeId:
+          required: true
+AgentRuntimeEndpoint:
+  methods:
+    create:
+      boto3_name: create_agent_runtime_endpoint
+      response_attr: None
+    get:
+      boto3_name: get_agent_runtime_endpoint
+      response_attr: None
+      args:
+        agentRuntimeId:
+          required: true
+        endpointName:
+          required: true
+          rename: endpointName
+          source_arg: endpointName
+          python_type: str
+    list:
+      boto3_name: list_agent_runtime_endpoints
+      response_attr: runtimeEndpoints
+      args:
+        agentRuntimeId:
+          required: true
+    update:
+      boto3_name: update_agent_runtime_endpoint
+      response_attr: None
+    delete:
+      boto3_name: delete_agent_runtime_endpoint
+      return_type: None
+      args:
+        agentRuntimeId:
+          required: true
+        endpointName:
+          required: true
+          rename: endpointName
+          source_arg: endpointName
+          python_type: str
+Memory:
+  methods:
+    create:
+      boto3_name: create_memory
+      response_attr: memory
+    get:
+      boto3_name: get_memory
+      response_attr: memory
+      args:
+        memoryId:
+          required: true
+          rename: memoryId
+          source_arg: memoryId
+          python_type: str
+    update:
+      boto3_name: update_memory
+      response_attr: memory
+    delete:
+      boto3_name: delete_memory
+      return_type: None
+      response_attr: None
+      args:
+        memoryId:
+          required: true
+          rename: memoryId
+          source_arg: memoryId
+          python_type: str
+ApiKeyCredentialProviderItem:
+  methods:
+    create:
+      boto3_name: create_api_key_credential_provider
+      response_attr: None
+    get:
+      boto3_name: get_api_key_credential_provider
+      response_attr: None
+      args:
+        name:
+          required: true
+          rename: credentialProviderName
+          source_arg: credentialProviderName
+          python_type: str
+    list:
+      boto3_name: list_api_key_credential_providers
+      response_attr: credentialProviders
+    update:
+      boto3_name: update_api_key_credential_provider
+      response_attr: None
+    delete:
+      boto3_name: delete_api_key_credential_provider
+      return_type: None
+      args:
+        name:
+          required: true
+          rename: credentialProviderName
+          source_arg: credentialProviderName
+          python_type: str
+Oauth2CredentialProviderItem:
+  methods:
+    create:
+      boto3_name: create_oauth2_credential_provider
+      response_attr: None
+    get:
+      boto3_name: get_oauth2_credential_provider
+      response_attr: None
+      args:
+        name:
+          required: true
+          rename: credentialProviderName
+          source_arg: credentialProviderName
+          python_type: str
+    list:
+      boto3_name: list_oauth2_credential_providers
+      response_attr: credentialProviders
+    update:
+      boto3_name: update_oauth2_credential_provider
+      response_attr: None
+    delete:
+      boto3_name: delete_oauth2_credential_provider
+      return_type: None
+      args:
+        name:
+          required: true
+          rename: credentialProviderName
+          source_arg: credentialProviderName
+          python_type: str
+PaymentCredentialProviderItem:
+  methods:
+    create:
+      boto3_name: create_payment_credential_provider
+      response_attr: None
+    get:
+      boto3_name: get_payment_credential_provider
+      response_attr: None
+      args:
+        name:
+          required: true
+          rename: credentialProviderName
+          source_arg: credentialProviderName
+          python_type: str
+    list:
+      boto3_name: list_payment_credential_providers
+      response_attr: credentialProviders
+    update:
+      boto3_name: update_payment_credential_provider
+      response_attr: None
+    delete:
+      boto3_name: delete_payment_credential_provider
+      return_type: None
+      args:
+        name:
+          required: true
+          rename: credentialProviderName
+          source_arg: credentialProviderName
+          python_type: str
+CodeInterpreterSummary:
+  methods:
+    create:
+      boto3_name: create_code_interpreter
+      response_attr: None
+    get:
+      boto3_name: get_code_interpreter
+      response_attr: None
+      args:
+        codeInterpreterId:
+          required: true
+    list:
+      boto3_name: list_code_interpreters
+      response_attr: codeInterpreterSummaries
+    delete:
+      boto3_name: delete_code_interpreter
+      return_type: None
+      response_attr: None
+      args:
+        codeInterpreterId:
+          required: true
+GatewaySummary:
+  methods:
+    create:
+      boto3_name: create_gateway
+      response_attr: None
+    get:
+      boto3_name: get_gateway
+      response_attr: None
+      args:
+        gatewayIdentifier:
+          required: true
+          rename: gatewayId
+          source_arg: gatewayId
+          python_type: str
+    list:
+      boto3_name: list_gateways
+      response_attr: items
+    update:
+      boto3_name: update_gateway
+      response_attr: None
+    delete:
+      boto3_name: delete_gateway
+      return_type: None
+      args:
+        gatewayIdentifier:
+          required: true
+          rename: gatewayId
+          source_arg: gatewayId
+          python_type: str
+GatewayRuleDetail:
+  methods:
+    create:
+      boto3_name: create_gateway_rule
+      response_attr: None
+      args:
+        gatewayIdentifier:
+          required: true
+          python_type: str
+    get:
+      boto3_name: get_gateway_rule
+      response_attr: None
+      args:
+        gatewayIdentifier:
+          required: true
+          python_type: str
+        ruleId:
+          required: true
+    list:
+      boto3_name: list_gateway_rules
+      response_attr: gatewayRules
+      args:
+        gatewayIdentifier:
+          required: true
+          python_type: str
+    update:
+      boto3_name: update_gateway_rule
+      response_attr: None
+      args:
+        gatewayIdentifier:
+          required: true
+          python_type: str
+    delete:
+      boto3_name: delete_gateway_rule
+      return_type: None
+      args:
+        gatewayIdentifier:
+          required: true
+          python_type: str
+        ruleId:
+          required: true
+TargetSummary:
+  methods:
+    create:
+      boto3_name: create_gateway_target
+      response_attr: None
+      args:
+        gatewayIdentifier:
+          required: true
+          python_type: str
+    get:
+      boto3_name: get_gateway_target
+      response_attr: None
+      args:
+        gatewayIdentifier:
+          required: true
+          python_type: str
+        targetId:
+          required: true
+    list:
+      boto3_name: list_gateway_targets
+      response_attr: items
+      args:
+        gatewayIdentifier:
+          required: true
+          python_type: str
+    update:
+      boto3_name: update_gateway_target
+      response_attr: None
+      args:
+        gatewayIdentifier:
+          required: true
+          python_type: str
+    delete:
+      boto3_name: delete_gateway_target
+      return_type: None
+      args:
+        gatewayIdentifier:
+          required: true
+          python_type: str
+        targetId:
+          required: true
+Harness:
+  methods:
+    create:
+      boto3_name: create_harness
+      response_attr: harness
+    get:
+      boto3_name: get_harness
+      response_attr: harness
+      args:
+        harnessId:
+          required: true
+    list:
+      boto3_name: list_harnesses
+      response_attr: harnesses
+    update:
+      boto3_name: update_harness
+      response_attr: harness
+    delete:
+      boto3_name: delete_harness
+      response_attr: harness
+      args:
+        harnessId:
+          required: true
+HarnessEndpoint:
+  methods:
+    create:
+      boto3_name: create_harness_endpoint
+      response_attr: endpoint
+      args:
+        harnessId:
+          required: true
+          python_type: str
+    get:
+      boto3_name: get_harness_endpoint
+      response_attr: endpoint
+      args:
+        harnessId:
+          required: true
+          python_type: str
+        endpointName:
+          required: true
+    list:
+      boto3_name: list_harness_endpoints
+      response_attr: endpoints
+      args:
+        harnessId:
+          required: true
+          python_type: str
+    update:
+      boto3_name: update_harness_endpoint
+      response_attr: endpoint
+      args:
+        harnessId:
+          required: true
+          python_type: str
+    delete:
+      boto3_name: delete_harness_endpoint
+      response_attr: endpoint
+      args:
+        harnessId:
+          required: true
+          python_type: str
+        endpointName:
+          required: true
+PolicyEngine:
+  methods:
+    create:
+      boto3_name: create_policy_engine
+      response_attr: None
+    get:
+      boto3_name: get_policy_engine
+      response_attr: None
+      args:
+        policyEngineId:
+          required: true
+    list:
+      boto3_name: list_policy_engines
+      response_attr: policyEngines
+    update:
+      boto3_name: update_policy_engine
+      response_attr: None
+    delete:
+      boto3_name: delete_policy_engine
+      return_type: None
+      args:
+        policyEngineId:
+          required: true
+Policy:
+  methods:
+    create:
+      boto3_name: create_policy
+      response_attr: None
+      args:
+        policyEngineId:
+          required: true
+          python_type: str
+    get:
+      boto3_name: get_policy
+      response_attr: None
+      args:
+        policyEngineId:
+          required: true
+          python_type: str
+        policyId:
+          required: true
+    list:
+      boto3_name: list_policy_summaries
+      response_attr: policies
+      args:
+        policyEngineId:
+          required: true
+          python_type: str
+    update:
+      boto3_name: update_policy
+      response_attr: None
+      args:
+        policyEngineId:
+          required: true
+          python_type: str
+    delete:
+      boto3_name: delete_policy
+      return_type: None
+      args:
+        policyEngineId:
+          required: true
+          python_type: str
+        policyId:
+          required: true
+PolicyGeneration:
+  methods:
+    create:
+      boto3_name: start_policy_generation
+      response_attr: None
+      args:
+        policyEngineId:
+          required: true
+          python_type: str
+    get:
+      boto3_name: get_policy_generation
+      response_attr: None
+      args:
+        policyEngineId:
+          required: true
+          python_type: str
+        policyGenerationId:
+          required: true
+    list:
+      boto3_name: list_policy_generation_summaries
+      response_attr: policyGenerations
+      args:
+        policyEngineId:
+          required: true
+          python_type: str
+PolicyGenerationAsset:
+  methods:
+    list:
+      boto3_name: list_policy_generation_assets
+      response_attr: policyGenerationAssets
+      args:
+        policyEngineId:
+          required: true
+          python_type: str
+        policyGenerationId:
+          required: true
+          python_type: str

@@ -1,0 +1,53 @@
+---
+primary:
+  Event:
+    alternate_name: AgentCoreEvent
+    primary_key: eventId
+    input_shapes:
+      - CreateEventInput
+  PaymentInstrument:
+    alternate_name: AgentCorePaymentInstrument
+    primary_key: paymentInstrumentId
+    input_shapes:
+      - CreatePaymentInstrumentRequest
+  PaymentSession:
+    alternate_name: AgentCorePaymentSession
+    primary_key: paymentSessionId
+    input_shapes:
+      - CreatePaymentSessionRequest
+  # NOTE: create/update are batch-only (BatchCreateMemoryRecords,
+  # BatchUpdateMemoryRecords) -- AWS has no singular create_memory_record /
+  # update_memory_record operation, and botocraft's reserved `create`/`update`
+  # method types always take a single model instance, which doesn't fit a
+  # batch list call. Exposed as batch_create()/batch_update() instead
+  # (matching the `batch_delete` precedent on bedrock's AccessKey manager),
+  # passing the `records` list straight through and returning the raw
+  # Batch*Output (successfulRecords/failedRecords), not a MemoryRecord
+  # instance, since a batch call can partially fail.
+  MemoryRecord:
+    alternate_name: AgentCoreMemoryRecord
+    primary_key: memoryRecordId
+  AgentCard:
+    alternate_name: AgentCoreAgentCard
+    readonly: true
+    bespoke: true
+    primary_key: agentRuntimeArn
+    extra_fields:
+      agentRuntimeArn:
+        python_type: str
+        required: true
+        docstring: >-
+          ARN of the agent runtime this card describes.
+  ExtractionJobMetadata:
+    alternate_name: AgentCoreExtractionJob
+    readonly: true
+    primary_key: jobID
+
+secondary:
+  # NOTE: batch_create/batch_update on MemoryRecord are custom (non-CRUD)
+  # method names, so botocraft doesn't automatically walk their output shapes
+  # into the dependency graph the way it does for the reserved create/update
+  # method types. Declare them explicitly so the classes actually get
+  # generated instead of leaving `return_type` referencing an undefined name.
+  BatchCreateMemoryRecordsOutput: {}
+  BatchUpdateMemoryRecordsOutput: {}

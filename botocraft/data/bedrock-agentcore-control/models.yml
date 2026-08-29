@@ -1,0 +1,245 @@
+---
+primary:
+  AgentRuntime:
+    alternate_name: AgentCoreAgentRuntime
+    primary_key: agentRuntimeId
+    arn_key: agentRuntimeArn
+    name_key: agentRuntimeName
+    input_shapes:
+      - CreateAgentRuntimeRequest
+      - UpdateAgentRuntimeRequest
+    output_shape: GetAgentRuntimeResponse
+  AgentRuntimeEndpoint:
+    alternate_name: AgentCoreAgentRuntimeEndpoint
+    primary_key: id
+    arn_key: agentRuntimeEndpointArn
+    name_key: endpointName
+    input_shapes:
+      - CreateAgentRuntimeEndpointRequest
+      - UpdateAgentRuntimeEndpointRequest
+    output_shape: GetAgentRuntimeEndpointResponse
+    fields:
+      name:
+        rename: endpointName
+  Memory:
+    alternate_name: AgentCoreMemory
+    primary_key: id
+    arn_key: Arn
+    name_key: memoryName
+    input_shapes:
+      - CreateMemoryInput
+      - UpdateMemoryInput
+    fields:
+      name:
+        rename: memoryName
+      arn:
+        rename: Arn
+  ApiKeyCredentialProviderItem:
+    alternate_name: AgentCoreApiKeyCredentialProvider
+    primary_key: credentialProviderName
+    arn_key: credentialProviderArn
+    input_shapes:
+      - CreateApiKeyCredentialProviderRequest
+      - UpdateApiKeyCredentialProviderRequest
+    output_shape: GetApiKeyCredentialProviderResponse
+    fields:
+      name:
+        rename: credentialProviderName
+  Oauth2CredentialProviderItem:
+    alternate_name: AgentCoreOauth2CredentialProvider
+    primary_key: credentialProviderName
+    arn_key: credentialProviderArn
+    input_shapes:
+      - CreateOauth2CredentialProviderRequest
+      - UpdateOauth2CredentialProviderRequest
+    output_shape: GetOauth2CredentialProviderResponse
+    fields:
+      name:
+        rename: credentialProviderName
+  PaymentCredentialProviderItem:
+    alternate_name: AgentCorePaymentCredentialProvider
+    primary_key: credentialProviderName
+    arn_key: credentialProviderArn
+    input_shapes:
+      - CreatePaymentCredentialProviderRequest
+      - UpdatePaymentCredentialProviderRequest
+    output_shape: GetPaymentCredentialProviderResponse
+    fields:
+      name:
+        rename: credentialProviderName
+      tags:
+        rename: Tags
+        python_type: "dict[str, str] | None"
+  CodeInterpreterSummary:
+    alternate_name: AgentCoreCodeInterpreter
+    primary_key: codeInterpreterId
+    arn_key: codeInterpreterArn
+    name_key: sandboxName
+    input_shapes:
+      - CreateCodeInterpreterRequest
+    output_shape: GetCodeInterpreterResponse
+    fields:
+      name:
+        rename: sandboxName
+  GatewaySummary:
+    alternate_name: AgentCoreGateway
+    primary_key: gatewayId
+    name_key: gatewayName
+    input_shapes:
+      - CreateGatewayRequest
+      - UpdateGatewayRequest
+    output_shape: GetGatewayResponse
+    fields:
+      name:
+        rename: gatewayName
+  GatewayRuleDetail:
+    alternate_name: AgentCoreGatewayRule
+    primary_key: ruleId
+    arn_key: gatewayArn
+    input_shapes:
+      - CreateGatewayRuleRequest
+      - UpdateGatewayRuleRequest
+    output_shape: GetGatewayRuleResponse
+  # NOTE: GatewayTarget's real cycle is
+  # SchemaDefinition -> SchemaProperties -> SchemaDefinition (a JSON-Schema-
+  # style recursive type describing Lambda tool parameters). Cutting it off at
+  # ToolDefinition.inputSchema/outputSchema (see `secondary: ToolDefinition`
+  # below) resolves it -- see references/generator-yaml-pitfalls.md.
+  # TargetSummary is used as the primary key (matches ListGatewayTargets)
+  # with the full GatewayTarget shape merged in via output_shape, same pattern
+  # as CodeInterpreterSummary/GetCodeInterpreterResponse above.
+  TargetSummary:
+    alternate_name: AgentCoreGatewayTarget
+    primary_key: targetId
+    name_key: targetName
+    input_shapes:
+      - CreateGatewayTargetRequest
+      - UpdateGatewayTargetRequest
+    output_shape: GatewayTarget
+    fields:
+      name:
+        rename: targetName
+  Harness:
+    alternate_name: AgentCoreHarness
+    primary_key: harnessId
+    arn_key: Arn
+    name_key: harnessName
+    input_shapes:
+      - CreateHarnessRequest
+      - UpdateHarnessRequest
+    fields:
+      arn:
+        rename: Arn
+  HarnessEndpoint:
+    alternate_name: AgentCoreHarnessEndpoint
+    primary_key: endpointName
+    arn_key: Arn
+    input_shapes:
+      - CreateHarnessEndpointRequest
+      - UpdateHarnessEndpointRequest
+    fields:
+      arn:
+        rename: Arn
+  PolicyEngine:
+    primary_key: policyEngineId
+    arn_key: policyEngineArn
+    name_key: policyEngineName
+    input_shapes:
+      - CreatePolicyEngineRequest
+      - UpdatePolicyEngineRequest
+    fields:
+      name:
+        rename: policyEngineName
+  Policy:
+    primary_key: policyId
+    arn_key: policyArn
+    name_key: policyName
+    input_shapes:
+      - CreatePolicyRequest
+      - UpdatePolicyRequest
+    fields:
+      name:
+        rename: policyName
+  PolicyGeneration:
+    alternate_name: AgentCorePolicyGeneration
+    primary_key: policyGenerationId
+    arn_key: policyGenerationArn
+    name_key: policyGenerationName
+    input_shapes:
+      - StartPolicyGenerationRequest
+    fields:
+      name:
+        rename: policyGenerationName
+  PolicyGenerationAsset:
+    readonly: true
+    primary_key: policyGenerationAssetId
+
+secondary:
+  ManagedVpcResource:
+    fields:
+      tags:
+        rename: Tags
+  # NOTE: the raw "GatewayTarget" shape is used as output_shape on the
+  # TargetSummary-keyed primary model (public name GatewayTarget via
+  # alternate_name above) -- without this alias the two would generate two
+  # classes with the same name.
+  GatewayTarget:
+    alternate_name: AgentCoreGatewayTargetDetail
+  RuntimeTargetConfiguration:
+    fields:
+      schema:
+        rename: schemaDefinition
+  PassthroughTargetConfiguration:
+    fields:
+      schema:
+        rename: schemaDefinition
+  # NOTE: breaks the real SchemaDefinition -> SchemaProperties ->
+  # SchemaDefinition cycle (JSON-Schema-style recursive tool parameter
+  # definitions). See references/generator-yaml-pitfalls.md.
+  ToolDefinition:
+    fields:
+      inputSchema:
+        python_type: "dict[str, Any] | None"
+        imports:
+          - from typing import Any
+      outputSchema:
+        python_type: "dict[str, Any] | None"
+        imports:
+          - from typing import Any
+  # NOTE: "Resource" collides with the same model name in ecr, ecs, and
+  # inspector2 -- botocraft model names are global across all services, so
+  # this needs alternate_name even though there's no local naming conflict.
+  Resource:
+    alternate_name: AgentCorePolicyGenerationResource
+  # NOTE: Policy/PolicyEngine operation response shape names are generic
+  # enough to collide with other services' own Policy-related response
+  # shapes in botocraft's global model namespace.
+  CreatePolicyResponse:
+    alternate_name: AgentCoreCreatePolicyResponse
+  GetPolicyResponse:
+    alternate_name: AgentCoreGetPolicyResponse
+  UpdatePolicyResponse:
+    alternate_name: AgentCoreUpdatePolicyResponse
+  DeletePolicyResponse:
+    alternate_name: AgentCoreDeletePolicyResponse
+  Certificate:
+    alternate_name: AgentCoreCodeInterpreterCertificate
+  Action:
+    alternate_name: AgentCoreGatewayRuleAction
+  CustomTransformConfiguration:
+    fields:
+      lambda:
+        rename: lambdaConfiguration
+  InterceptorConfiguration:
+    fields:
+      lambda:
+        rename: lambdaConfiguration
+  McpTargetConfiguration:
+    fields:
+      lambda:
+        rename: lambdaConfiguration
+  GetPaymentCredentialProviderResponse:
+    fields:
+      tags:
+        rename: Tags
+        python_type: "dict[str, str] | None"

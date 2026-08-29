@@ -7,6 +7,8 @@
    api/services/application_autoscaling
    api/services/autoscaling
    api/services/bedrock
+   api/services/bedrock_agentcore
+   api/services/bedrock_agentcore_control
    api/services/bedrock_runtime
    api/services/cloudwatch
    api/services/codebuild

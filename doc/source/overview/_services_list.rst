@@ -2,6 +2,8 @@
 - :doc:`/api/services/application_autoscaling`
 - :doc:`/api/services/autoscaling`
 - :doc:`/api/services/bedrock`
+- :doc:`/api/services/bedrock_agentcore`
+- :doc:`/api/services/bedrock_agentcore_control`
 - :doc:`/api/services/bedrock_runtime`
 - :doc:`/api/services/cloudwatch`
 - :doc:`/api/services/codebuild`
