@@ -1,8 +1,9 @@
 # Generator YAML Pitfalls
 
-Repo lessons from EC2 service expansion (phases 2–4). Use this when adding
-non-CRUD manager methods or secondary models, then **inspect generated code**
-in `botocraft/services/<service>.py` before calling the slice done.
+Repo lessons from EC2 service expansion (phases 2–4) and Bedrock AgentCore
+service authoring. Use this when adding non-CRUD manager methods or secondary
+models, then **inspect generated code** in `botocraft/services/<service>.py`
+before calling the slice done.
 
 ## Quick reference
 
@@ -14,6 +15,214 @@ in `botocraft/services/<service>.py` before calling the slice done.
 | Nested output field is the resource (e.g. `ModifyVolume` → `VolumeModification`) | `response_attr: VolumeModification` (or renamed field) — not `None` |
 | Field type name equals a generated model name (e.g. `VolumeModification` on `Volume`) | `alternate_name: EC2VolumeModification` under `secondary` in `models.yml` |
 | Create response nested resource name collision | `Create*Result.fields.<Model>.rename: <Model>Instance` in `models.yml` |
+| `botocraft botocore model <service> <Shape>` (or `--dependencies`/`--operations`) raises `RecursionError` for a shape whose fields look ordinary | See "RecursionError workarounds" below |
+| `botocraft sync` raises `ValueError: Model <Name> already defined in "botocraft.services.<other_service>"` | Model names are global across **all** services — `alternate_name` (primary) or `secondary: <Name>: {alternate_name: ...}` (nested) even with zero local naming conflict |
+| Field name equals its own field-type name (e.g. `WarmUpConfiguration` field of type `WarmUpConfiguration`) | `fields: <field>: {rename: <Something>}` — pydantic can't resolve a forward ref that shadows itself |
+| Field literally named `arn` or `name` on a primary model | `fields: {arn: {rename: Arn}}` / `{name: {rename: <somethingName>}}` — both shadow `PrimaryBoto3Model.arn`/`.name` properties and fail `TestBedrockShadowedFieldAliases`-style guard tests |
+| Field literally named `schema` (on any model, not just primary) | `fields: {schema: {rename: schemaDefinition}}` — shadows a `Boto3Model`/pydantic `BaseModel.schema` attribute |
+| Field named after a Python keyword (`lambda`, `class`, …) | `fields: <field>: {rename: <naturalName>}` — pick a name that describes what it holds (e.g. `lambda` holding a `LambdaTransformConfiguration` → `lambdaConfiguration`, not `lambda_`) |
+| A resource's only "create"/"update" boto3 operation is a **batch** call (`batch_create_x`, `batch_update_x`) taking a list | Don't use the reserved `create`/`update` method keys — they always prepend `model: "<ModelName>"` as the first parameter, which doesn't fit a list-of-items call. Use a custom method name (`batch_create`/`batch_update`, matching the `batch_delete` precedent on bedrock's `AccessKey` manager); pass the list straight through and return the raw `Batch*Output` (`return_type`, `response_attr: None`) rather than faking a single-model return, since a batch call can partially fail |
+| Custom (non-CRUD) manager method's `return_type` names a shape ruff reports as `F821 Undefined name` | The reserved CRUD method types (`get`/`list`/`create`/`update`/`delete`) auto-walk their response shape into the dependency graph; custom method names don't. Declare the shape explicitly under `secondary: <ShapeName>: {}` so the class actually gets generated, **and** quote the return type as a literal Python string so it's a forward reference: `return_type: '"BatchCreateXOutput"'` (note the nested quotes — a bare `return_type: "BatchCreateXOutput"` emits an *unquoted* annotation in the generated code, which can `F821` if the class is defined later in the file) |
+
+## RecursionError workarounds
+
+Several different failure shapes all surface as `RecursionError`, and they
+need different fixes. Don't reach for `alternate_name` blindly — diagnose
+first with the shape-walker script below, which tells you in one shot whether
+you have a genuine data cycle and exactly which field causes it.
+
+### 1. Global model-name collision (fixed with `alternate_name`)
+
+Botocraft model names are unique across the **whole SDK** (see "Global
+model-name collisions" below) — this isn't recursion at all, but a second,
+unrelated shape reusing a name your service also uses can produce confusing
+`RecursionError`-adjacent behavior in ad-hoc inspection tools. The fix from
+`botocraft/data/ecs/models.yml` — used for both primary and secondary models
+— is to give the offending shape an `alternate_name`:
+
+```yaml
+secondary:
+  Resource:
+    alternate_name: AgentCoreServiceResource
+```
+
+### 2. Genuine cycle deep in a nested field (fixed by cutting one field to opaque `dict`)
+
+Some AWS shapes are **actually** self-referential — most often JSON-Schema-
+style "describe an arbitrary tool's parameters" shapes, which naturally
+recurse (`SchemaDefinition.properties` is a map of `SchemaDefinition`,
+`SchemaDefinition.items` is a `SchemaDefinition`). Don't assume `alternate_name`
+fixes this — it doesn't; the shape really does contain itself, and pydantic
+would need a real forward-referencing recursive model, which botocraft's
+generator doesn't support.
+
+**Diagnose with a real shape walk** (bypasses the debug CLI's own
+recursion-unsafe printer entirely — see `botocraft/cli/botocore.py`'s
+`render_structure`, which has zero cycle detection and will `RecursionError`
+on both real cycles and merely-deep trees):
+
+```python
+import botocore.session
+session = botocore.session.get_session()
+sm = session.get_service_model("<service>")
+
+def walk(shape, path):
+    if shape.name in path:
+        print("CYCLE:", " -> ".join(path + [shape.name]))
+        return True
+    path = path + [shape.name]
+    if len(path) > 60:
+        print("TOO DEEP (not a short cycle):", " -> ".join(path))
+        return True
+    if shape.type_name == "structure":
+        return any(walk(m, path) for m in shape.members.values())
+    if shape.type_name == "list":
+        return walk(shape.member, path)
+    if shape.type_name == "map":
+        return walk(shape.value, path)
+    return False
+
+walk(sm.shape_for("CreateGatewayTargetRequest"), [])
+# CYCLE: CreateGatewayTargetRequest -> TargetConfiguration -> McpTargetConfiguration
+#        -> McpLambdaTargetConfiguration -> ToolSchema -> ToolDefinitions
+#        -> ToolDefinition -> SchemaDefinition -> SchemaProperties -> SchemaDefinition
+```
+
+The cycle names the exact repeating shape (`SchemaDefinition`) and the field
+one level up that references it (`ToolDefinition.inputSchema`/`outputSchema`).
+Cut it there — override just those two fields as opaque JSON, rather than the
+whole shape family:
+
+```yaml
+secondary:
+  ToolDefinition:
+    fields:
+      inputSchema:
+        python_type: "dict[str, Any] | None"
+        imports:
+          - from typing import Any
+      outputSchema:
+        python_type: "dict[str, Any] | None"
+        imports:
+          - from typing import Any
+```
+
+Re-run the walk script (with `SchemaDefinition` treated as a leaf) against
+every operation shape that uses the resource (`Create*Request/Response`,
+`Update*Request/Response`, `Get*Response`, the base shape itself) to confirm
+there's no *second* cycle before writing YAML.
+
+If after cutting the cycle the base resource shape (e.g. `GatewayTarget`) is
+now clean and richer than the list-item shape (e.g. `TargetSummary`), key the
+primary model on the list-item shape with the base shape merged in via
+`output_shape` — same pattern as any other summary-vs-detail resource pair —
+rather than leaving the resource only partially modeled. Watch for a second
+gotcha here: if the base shape's public name is the same as what you want the
+*primary model's* `alternate_name` to be (e.g. base shape literally named
+`GatewayTarget`, and you want the primary model's public class to also be
+`GatewayTarget`), alias the base shape too or you'll get two classes with the
+same name (see "Global model-name collisions" below — this is a same-service,
+not cross-service, instance of it):
+
+```yaml
+primary:
+  TargetSummary:
+    alternate_name: GatewayTarget
+    output_shape: GatewayTarget   # the raw botocore shape name
+secondary:
+  GatewayTarget:                  # alias the raw shape so it doesn't collide
+    alternate_name: GatewayTargetDetail
+    # with the primary model's own public name above
+```
+
+### 3. Real self-wrap recursion (fixed by removing `output_shape`)
+
+If `Get<X>Output` (or `Create/Update<X>Output`) has **no fields of its own**
+beyond wrapping the base shape itself — e.g. `GetEventOutput` is just
+`{event: Event}` — do **not** set it as `output_shape` on the `Event` primary
+model. Merging `output_shape` fields into a model named the same as the
+wrapped field makes the generator try to embed `Event` inside itself forever.
+
+**Symptom:** `RecursionError: maximum recursion depth exceeded`, and a traced
+call stack (see below) shows the *exact same shape name* repeating every few
+frames (`Event → PayloadType → ... → Event → PayloadType → ...`), not a
+genuinely different shape each time.
+
+**Fix:** drop `output_shape` for that model; keep the manager's `get`/`create`
+methods unwrapping via `response_attr: event` (the nested field name) instead.
+
+### 4. Genuinely opaque/empty `document`-typed shapes
+
+AWS `document` shapes (arbitrary JSON) sometimes show up as structures with
+"No members" (e.g. `MemoryDocument`). These are *not* the cause of recursion by
+themselves — an empty structure formats fine. Don't add defensive
+`python_type` overrides for these unless a real error names them; verify with
+the tracing technique below before "fixing" a non-problem.
+
+### Diagnosing which kind you have
+
+Reproduce inside a Python shell rather than guessing from the traceback alone.
+`uv run botocraft shell` (or `python -c "from botocraft.services import *"`)
+is the fastest way to get a live import to poke at; for recursion specifically,
+monkeypatch the converter to print the shape name at each call so you can see
+whether the same shape repeats (real self-wrap) or the stack is just very deep
+across many distinct shapes (rare, likely a different bug):
+
+```python
+import sys
+sys.setrecursionlimit(300)
+import botocraft.sync.shapes as shapes
+
+orig = shapes.StructureShapeConverter.to_python
+depth = [0]
+def traced(self, shape, quote=True, name_only=False):
+    depth[0] += 1
+    print("  " * min(depth[0], 60) + str(getattr(shape, "name", shape)))
+    try:
+        return orig(self, shape, quote=quote, name_only=name_only)
+    finally:
+        depth[0] -= 1
+shapes.StructureShapeConverter.to_python = traced
+
+from botocraft.cli import cli
+sys.argv = ["botocraft", "sync", "--service", "<service>"]
+try:
+    cli(obj={})
+except RecursionError:
+    print("RECURSION HIT")
+```
+
+A repeating exact shape name (e.g. `Event` every N frames, always the model
+you're currently authoring) means case 3 (self-wrap via `output_shape`) — fix
+by dropping `output_shape`. If the trace instead shows a chain of genuinely
+different shape names before erroring, use the direct `botocore.model` shape
+walk from case 2 to name the exact cyclic field and cut it there. Prefer the
+case-2 walk as the first diagnostic step — it's faster and gives you the exact
+field, whereas the traced `StructureShapeConverter` run only tells you *that*
+the real sync pipeline (not just the debug CLI) hits the same wall.
+
+## Global model-name collisions
+
+Botocraft model names are unique **across the whole SDK**, not just within one
+service — `botocraft sync` (unscoped) registers every generated model into one
+global namespace and raises `ValueError: Model <Name> already defined in
+"botocraft.services.<other>"` on the second definition. Generic AWS shape
+names (`Resource`, `Action`, `Certificate`, `Policy`, `CreatePolicyResponse`,
+...) collide often when a new service reuses common nouns already used by
+`ecs`, `ecr`, `elbv2`, `inspector2`, etc.
+
+- `--service <name>`-scoped sync will **not** catch these — the collision only
+  surfaces during an unscoped `botocraft sync` once model registration spans
+  services. Always run a full `botocraft sync` before calling authoring done,
+  per the service-verification skill, specifically to catch this class of bug.
+- Fix with `alternate_name` on the colliding shape (primary or `secondary:`),
+  prefixed with something service-specific (`AgentCorePolicyGenerationResource`,
+  `CodeInterpreterCertificate`, `GatewayRuleAction`, `CreateAgentCorePolicyResponse`).
+- A scoped `--service` sync run also has a side effect worth knowing:
+  `purge_docs()` deletes **all** service `.rst` docs before regenerating only
+  the scoped service, silently breaking every other service's docs. If you've
+  been iterating with `--service` while chasing errors, finish with one clean
+  unscoped `botocraft sync` to restore the doc tree before finishing up.
 
 ## Why these matter
 
