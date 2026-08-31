@@ -138,3 +138,4 @@ local_storage
 log.txt
 index.db-shm
 index.db-wal
+graphify-out/cache/last_query_stamp
