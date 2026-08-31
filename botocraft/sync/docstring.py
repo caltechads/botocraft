@@ -145,11 +145,15 @@ class CodeDocstringFormatter:
         in_docstring = False
         active_section: str | None = None
         continuation_indent: str | None = None
+        docstring_indent = ""
         for line in source.splitlines():
             if line.count('"""') % 2 == 1:
                 if in_docstring:
                     active_section = None
                     continuation_indent = None
+                    docstring_indent = ""
+                else:
+                    docstring_indent = line[: len(line) - len(line.lstrip())]
                 output_lines.append(line)
                 in_docstring = not in_docstring
                 continue
@@ -159,8 +163,16 @@ class CodeDocstringFormatter:
                 continue
 
             normalized_line, active_section, continuation_indent = (
-                self._normalize_section_line(line, active_section, continuation_indent)
+                self._normalize_section_line(
+                    line, active_section, continuation_indent, docstring_indent
+                )
             )
+            if (
+                normalized_line.strip() in self.SECTION_HEADERS
+                and output_lines
+                and output_lines[-1].strip()
+            ):
+                output_lines.append("")
             if self._is_wrappable_docstring_line(normalized_line):
                 output_lines.extend(self._wrap_docstring_line(normalized_line))
             else:
@@ -173,6 +185,7 @@ class CodeDocstringFormatter:
         line: str,
         active_section: str | None,
         continuation_indent: str | None,
+        docstring_indent: str = "",
     ) -> tuple[str, str | None, str | None]:
         """
         Normalize section and continuation indentation for docstring lines.
@@ -181,6 +194,7 @@ class CodeDocstringFormatter:
             line: Single source line inside a docstring block.
             active_section: Current docstring section header, if any.
             continuation_indent: Expected continuation indentation for active param.
+            docstring_indent: Indent of the opening docstring quotes.
 
         Returns:
             Tuple of normalized line, updated active section, and continuation indent.
@@ -190,26 +204,26 @@ class CodeDocstringFormatter:
         if not stripped:
             return line, active_section, continuation_indent
         if stripped in self.SECTION_HEADERS:
-            return line, stripped, None
+            return f"{docstring_indent}{stripped}", stripped, None
 
+        body_indent = f"{docstring_indent}    "
         line_indent = line[: len(line) - len(line.lstrip())]
         if active_section in self.PARAMETER_SECTIONS:
             argument_match = self.ARGUMENT_RE.match(line.lstrip())
             if argument_match is not None:
                 return (
-                    line,
+                    f"{body_indent}{stripped}",
                     active_section,
-                    f"{line_indent}    ",
+                    f"{body_indent}    ",
                 )
-            if (
-                continuation_indent is not None
-                and line_indent == continuation_indent[:-4]
-            ):
+            if continuation_indent is not None and line_indent != continuation_indent:
                 return (
                     f"{continuation_indent}{line.lstrip()}",
                     active_section,
                     continuation_indent,
                 )
+        elif active_section in self.SECTION_HEADERS:
+            return f"{body_indent}{stripped}", active_section, continuation_indent
         return line, active_section, continuation_indent
 
     def _is_wrappable_docstring_line(self, line: str) -> bool:
@@ -463,4 +477,3 @@ class DocumentationFormatter:
             lines[i + 1] = f"                {line}"
         lines[-1] += "\n"
         return "\n".join([line.rstrip() for line in lines])
-    #: Regex for section headers that docformatter can collapse onto one line.
