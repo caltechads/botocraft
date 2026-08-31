@@ -10,6 +10,7 @@ from .sesv2 import *  # noqa: F401,F403
 from .bedrock_agentcore_control import *  # noqa: F401,F403
 from .bedrock_agentcore import *  # noqa: F401,F403
 from .datasync import *  # noqa: F401,F403
+from .cognito_idp import *  # noqa: F401,F403
 from .inspector2 import *  # noqa: F401,F403
 from .opensearch import *  # noqa: F401,F403
 from .ecr import *  # noqa: F401,F403
@@ -32,6 +33,7 @@ from .elasticache import *  # noqa: F401,F403
 from .rds import *  # noqa: F401,F403
 from .codeconnections import *  # noqa: F401,F403
 from .efs import *  # noqa: F401,F403
+from .cognito_identity import *  # noqa: F401,F403
 from .sts import *  # noqa: F401,F403
 from .acm import *  # noqa: F401,F403
 from .route53 import *  # noqa: F401,F403

@@ -1,0 +1,19 @@
+---
+primary:
+  IdentityPool:
+    alternate_name: CognitoIdentityPool
+    primary_key: IdentityPoolId
+    name_key: IdentityPoolName
+    input_shapes:
+      - CreateIdentityPoolInput
+    fields:
+      IdentityPoolTags:
+        rename: Tags
+        python_type: "dict[str, str] | None"
+  IdentityDescription:
+    alternate_name: CognitoIdentity
+    primary_key: IdentityId
+secondary:
+  ListIdentitiesResponse:
+    alternate_name: CognitoListIdentitiesResponse
+  DeleteIdentitiesResponse: {}

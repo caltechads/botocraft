@@ -14,6 +14,8 @@
    api/services/codebuild
    api/services/codeconnections
    api/services/codepipeline
+   api/services/cognito_identity
+   api/services/cognito_idp
    api/services/datasync
    api/services/docdb
    api/services/ec2

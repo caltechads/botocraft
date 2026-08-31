@@ -1,0 +1,45 @@
+---
+IdentityPool:
+  methods:
+    create:
+      boto3_name: create_identity_pool
+      response_attr: None
+    get:
+      boto3_name: describe_identity_pool
+      response_attr: None
+      args:
+        IdentityPoolId:
+          required: true
+    list:
+      boto3_name: list_identity_pools
+      response_attr: IdentityPools
+    update:
+      boto3_name: update_identity_pool
+      response_attr: None
+    delete:
+      boto3_name: delete_identity_pool
+      return_type: None
+      args:
+        IdentityPoolId:
+          required: true
+IdentityDescription:
+  methods:
+    get:
+      boto3_name: describe_identity
+      response_attr: None
+      args:
+        IdentityId:
+          required: true
+    list:
+      boto3_name: list_identities
+      response_attr: Identities
+      args:
+        IdentityPoolId:
+          required: true
+    batch_delete:
+      boto3_name: delete_identities
+      return_type: '"DeleteIdentitiesResponse"'
+      response_attr: None
+      args:
+        IdentityIdsToDelete:
+          required: true

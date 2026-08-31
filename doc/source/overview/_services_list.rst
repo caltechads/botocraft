@@ -9,6 +9,8 @@
 - :doc:`/api/services/codebuild`
 - :doc:`/api/services/codeconnections`
 - :doc:`/api/services/codepipeline`
+- :doc:`/api/services/cognito_identity`
+- :doc:`/api/services/cognito_idp`
 - :doc:`/api/services/datasync`
 - :doc:`/api/services/docdb`
 - :doc:`/api/services/ec2`

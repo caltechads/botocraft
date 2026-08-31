@@ -1,0 +1,218 @@
+---
+UserPoolType:
+  methods:
+    create:
+      boto3_name: create_user_pool
+      response_attr: UserPool
+    get:
+      boto3_name: describe_user_pool
+      response_attr: UserPool
+      args:
+        UserPoolId:
+          required: true
+    list:
+      boto3_name: list_user_pools
+      response_attr: UserPools
+    update:
+      boto3_name: update_user_pool
+      return_type: None
+      response_attr: None
+    delete:
+      boto3_name: delete_user_pool
+      return_type: None
+      args:
+        UserPoolId:
+          required: true
+UserPoolClientType:
+  methods:
+    create:
+      boto3_name: create_user_pool_client
+      response_attr: UserPoolClient
+    get:
+      boto3_name: describe_user_pool_client
+      response_attr: UserPoolClient
+      args:
+        UserPoolId:
+          required: true
+        ClientId:
+          required: true
+    list:
+      boto3_name: list_user_pool_clients
+      response_attr: UserPoolClients
+      args:
+        UserPoolId:
+          required: true
+    update:
+      boto3_name: update_user_pool_client
+      response_attr: UserPoolClient
+    delete:
+      boto3_name: delete_user_pool_client
+      return_type: None
+      args:
+        UserPoolId:
+          required: true
+        ClientId:
+          required: true
+GroupType:
+  methods:
+    create:
+      boto3_name: create_group
+      response_attr: Group
+    get:
+      boto3_name: get_group
+      response_attr: Group
+      args:
+        UserPoolId:
+          required: true
+        GroupName:
+          required: true
+    list:
+      boto3_name: list_groups
+      response_attr: Groups
+      args:
+        UserPoolId:
+          required: true
+    update:
+      boto3_name: update_group
+      response_attr: Group
+    delete:
+      boto3_name: delete_group
+      return_type: None
+      args:
+        UserPoolId:
+          required: true
+        GroupName:
+          required: true
+IdentityProviderType:
+  methods:
+    create:
+      boto3_name: create_identity_provider
+      response_attr: IdentityProvider
+    get:
+      boto3_name: describe_identity_provider
+      response_attr: IdentityProvider
+      args:
+        UserPoolId:
+          required: true
+        ProviderName:
+          required: true
+    list:
+      boto3_name: list_identity_providers
+      response_attr: Providers
+      args:
+        UserPoolId:
+          required: true
+    update:
+      boto3_name: update_identity_provider
+      response_attr: IdentityProvider
+    delete:
+      boto3_name: delete_identity_provider
+      return_type: None
+      args:
+        UserPoolId:
+          required: true
+        ProviderName:
+          required: true
+ResourceServerType:
+  methods:
+    create:
+      boto3_name: create_resource_server
+      response_attr: ResourceServer
+    get:
+      boto3_name: describe_resource_server
+      response_attr: ResourceServer
+      args:
+        UserPoolId:
+          required: true
+        Identifier:
+          required: true
+    list:
+      boto3_name: list_resource_servers
+      response_attr: ResourceServers
+      args:
+        UserPoolId:
+          required: true
+    update:
+      boto3_name: update_resource_server
+      response_attr: ResourceServer
+    delete:
+      boto3_name: delete_resource_server
+      return_type: None
+      args:
+        UserPoolId:
+          required: true
+        Identifier:
+          required: true
+UserType:
+  methods:
+    create:
+      boto3_name: admin_create_user
+      response_attr: User
+    get:
+      boto3_name: admin_get_user
+      response_attr: None
+      args:
+        UserPoolId:
+          required: true
+        Username:
+          required: true
+    list:
+      boto3_name: list_users
+      response_attr: Users
+      args:
+        UserPoolId:
+          required: true
+    partial_update:
+      boto3_name: admin_update_user_attributes
+      return_type: None
+      response_attr: None
+    delete:
+      boto3_name: admin_delete_user
+      return_type: None
+      args:
+        UserPoolId:
+          required: true
+        Username:
+          required: true
+    enable:
+      boto3_name: admin_enable_user
+      return_type: None
+      response_attr: None
+      args:
+        UserPoolId:
+          required: true
+        Username:
+          required: true
+    disable:
+      boto3_name: admin_disable_user
+      return_type: None
+      response_attr: None
+      args:
+        UserPoolId:
+          required: true
+        Username:
+          required: true
+DomainDescriptionType:
+  methods:
+    create:
+      boto3_name: create_user_pool_domain
+      return_type: None
+      response_attr: None
+    get:
+      boto3_name: describe_user_pool_domain
+      response_attr: DomainDescription
+      args:
+        Domain:
+          required: true
+    update:
+      boto3_name: update_user_pool_domain
+      return_type: None
+      response_attr: None
+    delete:
+      boto3_name: delete_user_pool_domain
+      return_type: None
+      args:
+        Domain:
+          required: true
+        UserPoolId:
+          required: true

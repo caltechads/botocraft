@@ -1,0 +1,61 @@
+---
+primary:
+  UserPoolType:
+    alternate_name: CognitoUserPool
+    primary_key: Id
+    arn_key: Arn
+    name_key: Name
+    input_shapes:
+      - CreateUserPoolRequest
+      - UpdateUserPoolRequest
+    fields:
+      UserPoolTags:
+        rename: Tags
+        python_type: "dict[str, str] | None"
+  UserPoolClientType:
+    alternate_name: CognitoUserPoolClient
+    primary_key: ClientId
+    name_key: ClientName
+    input_shapes:
+      - CreateUserPoolClientRequest
+      - UpdateUserPoolClientRequest
+  GroupType:
+    alternate_name: CognitoGroup
+    primary_key: GroupName
+    input_shapes:
+      - CreateGroupRequest
+      - UpdateGroupRequest
+  IdentityProviderType:
+    alternate_name: CognitoIdentityProvider
+    primary_key: ProviderName
+    input_shapes:
+      - CreateIdentityProviderRequest
+      - UpdateIdentityProviderRequest
+  ResourceServerType:
+    alternate_name: CognitoResourceServer
+    primary_key: Identifier
+    name_key: Name
+    input_shapes:
+      - CreateResourceServerRequest
+      - UpdateResourceServerRequest
+  UserType:
+    alternate_name: CognitoUser
+    primary_key: Username
+    input_shapes:
+      - AdminCreateUserRequest
+    output_shape: AdminGetUserResponse
+  DomainDescriptionType:
+    alternate_name: CognitoUserPoolDomain
+    primary_key: Domain
+    input_shapes:
+      - CreateUserPoolDomainRequest
+      - UpdateUserPoolDomainRequest
+secondary:
+  CreateGroupResponse:
+    alternate_name: CognitoCreateGroupResponse
+  GetGroupResponse:
+    alternate_name: CognitoGetGroupResponse
+  ListGroupsResponse:
+    alternate_name: CognitoListGroupsResponse
+  ListUsersResponse:
+    alternate_name: CognitoListUsersResponse
