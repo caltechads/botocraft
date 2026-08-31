@@ -18,6 +18,7 @@ botocraft
    overview/kinesis
    overview/ses
    overview/ecs_exec
+   overview/cognito_users
 
 .. toctree::
    :caption: Runbook
