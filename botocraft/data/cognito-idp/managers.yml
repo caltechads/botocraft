@@ -192,6 +192,24 @@ UserType:
           required: true
         Username:
           required: true
+    set_password:
+      boto3_name: admin_set_user_password
+      return_type: None
+      args:
+        UserPoolId:
+          required: true
+        Username:
+          required: true
+        Password:
+          required: true
+    reset_password:
+      boto3_name: admin_reset_user_password
+      return_type: None
+      args:
+        UserPoolId:
+          required: true
+        Username:
+          required: true
 DomainDescriptionType:
   methods:
     create:
