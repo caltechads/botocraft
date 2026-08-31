@@ -52,14 +52,14 @@ def test_code_docstring_formatter_preserves_args_section_while_wrapping() -> Non
 
     formatter = CodeDocstringFormatter()
     code = (
-        'def f(long_argument_name: str) -> None:\n'
+        "def f(long_argument_name: str) -> None:\n"
         '    """This sentence is intentionally very long so the formatter must '
         "wrap it without collapsing the Args section into a single malformed "
-        'line.\n\n'
+        "line.\n\n"
         "    Args:\n"
         "        long_argument_name: This argument description is also "
         "intentionally long so it needs wrapping but must remain attached to "
-        'the right indentation level.\n'
+        "the right indentation level.\n"
         '    """\n'
         "    pass\n"
     )
@@ -71,12 +71,49 @@ def test_code_docstring_formatter_preserves_args_section_while_wrapping() -> Non
     assert "        long_argument_name:" in formatted
 
 
+def test_code_docstring_formatter_dedents_napoleon_sections_after_summary() -> None:
+    from botocraft.sync.docstring import CodeDocstringFormatter
+
+    formatter = CodeDocstringFormatter()
+    code = (
+        "class M:\n"
+        "    def create(self, model, GenerateSecret=None):\n"
+        '        """\n'
+        "        Creates an app client in a user pool. This operation sets basic "
+        "and advanced configuration options.\n"
+        "\n"
+        "        Args:\n"
+        "            model: The UserPoolClientType to create.\n"
+        "\n"
+        "        Keyword Args:\n"
+        "            GenerateSecret: When true, generates a client secret.\n"
+        "\n"
+        "        Raises:\n"
+        "            ValueError: when the request is invalid.\n"
+        "\n"
+        "        Returns:\n"
+        "            The created client.\n"
+        '        """\n'
+        "        pass\n"
+    )
+
+    formatted = formatter.format_code(code)
+
+    assert "\n        Args:\n" in formatted
+    assert "\n                Args:\n" not in formatted
+    assert "\n            model: The UserPoolClientType to create.\n" in formatted
+    assert "\n        Keyword Args:\n" in formatted
+    assert "\n        Raises:\n" in formatted
+    assert "\n        Returns:\n" in formatted
+    assert "configuration options.\n\n        Args:\n" in formatted
+
+
 def test_code_docstring_formatter_indents_existing_args_continuation_lines() -> None:
     from botocraft.sync.docstring import CodeDocstringFormatter
 
     formatter = CodeDocstringFormatter()
     code = (
-        'def get(CertificateArn: str) -> None:\n'
+        "def get(CertificateArn: str) -> None:\n"
         '    """Returns detailed metadata about the specified ACM certificate.\n\n'
         "    Args:\n"
         "        CertificateArn: The Amazon Resource Name (ARN) of the ACM "
