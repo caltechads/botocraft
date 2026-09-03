@@ -635,9 +635,7 @@ def main() -> int:
 
     if args.write_baseline:
         _write_baseline(baseline_path, violations)
-        print(
-            f"Wrote baseline with {len(violations)} violations to {baseline_path}"
-        )
+        print(f"Wrote baseline with {len(violations)} violations to {baseline_path}")
         return 0
 
     if args.strict:
