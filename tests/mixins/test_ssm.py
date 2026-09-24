@@ -79,6 +79,26 @@ class TestParameterTags:
         )
 
     @patch("boto3.client")
+    def test_create_forwards_tags_via_model_field(
+        self, mock_boto3_client: MagicMock
+    ) -> None:
+        mock_client = MagicMock()
+        mock_client.put_parameter.return_value = {"Version": 1}
+        mock_boto3_client.return_value = mock_client
+
+        manager = ParameterManager()
+        model = Parameter(
+            Name="/grafana/hub/provisioning-token",
+            Value="initial-value",
+            Type="SecureString",
+            Tags=[{"Key": "Foo", "Value": "Bar"}],
+        )
+        manager.create(model)
+
+        _, put_kwargs = mock_client.put_parameter.call_args
+        assert put_kwargs["Tags"] == [{"Key": "Foo", "Value": "Bar"}]
+
+    @patch("boto3.client")
     def test_update_skips_add_tags_when_none_present(
         self, mock_boto3_client: MagicMock
     ) -> None:

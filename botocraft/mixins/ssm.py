@@ -10,6 +10,14 @@ on read via a follow-up ``list_tags_for_resource`` call, and write it on
 write via a follow-up ``add_tags_to_resource`` call, so ``Parameter.Tags``
 behaves like every other Botocraft primary model's tag field despite SSM's
 API not supporting it directly on the main calls.
+
+.. note::
+    Breaking change: ``ParameterManager.create()`` no longer accepts an
+    explicit ``Tags=`` keyword argument. Because ``Tags`` is now a real
+    field on the ``Parameter`` model, ``create()`` reads it from
+    ``model.model_dump()`` instead. Set tags via
+    ``Parameter(..., Tags=[...])`` at construction time, the same way you
+    would set any other field, then pass that model to ``create()``.
 """
 
 from __future__ import annotations
