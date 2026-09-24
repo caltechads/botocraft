@@ -16,6 +16,17 @@ primary:
       DataType:
         default: >-
           "text"
+    extra_fields:
+      Tags:
+        python_type: builtins.list[Tag]
+        docstring: >-
+          Resource tags for this parameter. AWS's GetParameters and
+          DescribeParameters operations never return tags directly, so
+          this is populated by a follow-up ListTagsForResource call in the
+          get() decorator, not the main describe/get shape. Written via a
+          separate AddTagsToResource call from the update() decorator,
+          since PutParameter's own Tags argument only takes effect when a
+          call creates a parameter, not on an overwrite of an existing one.
 secondary:
   ParametersFilter:
     fields:

@@ -8,12 +8,21 @@ Parameter:
         Overwrite:
           default: "False"
     update:
+      decorators:
+        - name: parameter_update_writes_tags
+          import_path: botocraft.mixins.ssm
       boto3_name: put_parameter
       response_attr: Version
+      args:
+        Tags:
+          hidden: true
       defaults:
         Overwrite:
           default: "True"
     get:
+      decorators:
+        - name: single_parameter_include_tags
+          import_path: botocraft.mixins.ssm
       boto3_name: get_parameters
       args:
         Names:
