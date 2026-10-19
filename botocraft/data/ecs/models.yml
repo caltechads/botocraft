@@ -714,6 +714,8 @@ primary:
             taskDefinition: taskDefinition
 
 secondary:
+  Attachment:
+    alternate_name: ECSAttachment
   Deployment:
     readonly: true
   ContainerDefinition:
