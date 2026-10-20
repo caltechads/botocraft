@@ -1,5 +1,6 @@
 from collections.abc import Sequence
 from functools import cached_property
+import copy
 import re
 from collections import OrderedDict
 from datetime import datetime
@@ -125,21 +126,29 @@ class Boto3ModelManager(TransformMixin):
 
     def using(self, session: boto3.session.Session | None) -> "Boto3ModelManager":
         """
-        Use a different boto3 session for this manager.
+        Return a manager bound to ``session``.
+
+        The receiver is not modified. Manager methods call ``self.client``, so
+        the returned manager's client is built from ``session``. A caller who
+        ignores the return value keeps the receiver's existing client.
 
         Args:
-            session: The boto3 session to use.
+            session: Session to bind. ``None`` means do not rebind.
+
+        Returns:
+            This manager when ``session`` is ``None``. Otherwise a new manager
+            of the same class that holds ``session`` and
+            ``session.client(service_name)``.
 
         """
-        # TODO: this is a bad way to do this -- it means that whatever session
-        # was last set with .using() will be transparently used by all other
-        # calls to the manager.  This is not good.  We need som way to make
-        # it like a context manager, so that the session is only used for the
-        # duration of the actual method call.
-        if session is not None:
-            self.session = session
-            self.client = session.client(self.service_name)  # type: ignore[call-overload]
-        return self
+        if session is None:
+            return self
+        # ponytail: shallow copy, then replace session and client.
+        # Per-field clone if a manager stores mutable state that must not be shared.
+        bound = copy.copy(self)
+        bound.session = session
+        bound.client = session.client(self.service_name)  # type: ignore[call-overload]
+        return bound
 
     def serialize(self, arg: Any) -> Any:
         """

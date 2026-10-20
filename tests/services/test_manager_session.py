@@ -1,0 +1,118 @@
+"""Session binding for Boto3ModelManager.using."""
+
+from __future__ import annotations
+
+import threading
+from typing import TYPE_CHECKING, Any, ClassVar, cast
+from unittest.mock import MagicMock
+
+from botocraft.services.abstract import Boto3ModelManager
+
+if TYPE_CHECKING:
+    import boto3
+
+
+class FakeSession:
+    """Stand-in session. ``client()`` returns one stable fake client."""
+
+    def __init__(self, name: str) -> None:
+        self.name = name
+        self.built = MagicMock(name=f"client-{name}")
+        self.built.marker = name
+
+    def client(self, service_name: str) -> MagicMock:
+        self.built.service_name = service_name
+        return self.built
+
+
+class ProbeManager(Boto3ModelManager):
+    """Manager double. Does not construct a real boto3 client."""
+
+    service_name = "sts"
+    invoked: ClassVar[list[Any]] = []
+
+    def __init__(self) -> None:
+        # Do not call Boto3ModelManager.__init__. That builds a real client.
+        self.client = MagicMock(name="default-client")
+        self.client.marker = "default"
+        self.session = None  # type: ignore[assignment]
+
+    def get(self, name: str) -> str:
+        self.client.invoke(name)
+        self.invoked.append(self.client)
+        return name
+
+
+def _as_session(session: FakeSession) -> boto3.session.Session:
+    return cast("boto3.session.Session", session)
+
+
+def test_using_does_not_mutate_the_receiver() -> None:
+    shared = ProbeManager()
+    original = shared.client
+    session_a = FakeSession("a")
+    session_b = FakeSession("b")
+
+    bound_a = shared.using(_as_session(session_a))
+    bound_b = shared.using(_as_session(session_b))
+    bound_a.get("alpha")
+
+    assert bound_a is not shared
+    assert bound_b is not shared
+    assert bound_a is not bound_b
+    assert shared.client is original
+    assert bound_a.client is session_a.built
+    assert bound_b.client is session_b.built
+    assert bound_a.session is session_a
+    session_a.built.invoke.assert_called_once_with("alpha")
+    session_b.built.invoke.assert_not_called()
+    original.invoke.assert_not_called()
+
+
+def test_using_none_returns_the_same_manager() -> None:
+    shared = ProbeManager()
+    original = shared.client
+    assert shared.using(None) is shared
+    assert shared.client is original
+
+
+def test_later_using_does_not_change_an_earlier_bound_manager() -> None:
+    shared = ProbeManager()
+    session_a = FakeSession("a")
+    session_b = FakeSession("b")
+    bound_a = shared.using(_as_session(session_a))
+    shared.using(_as_session(session_b))
+    bound_a.get("alpha")
+    assert bound_a.client is session_a.built
+    session_a.built.invoke.assert_called_once_with("alpha")
+
+
+def test_using_is_isolated_across_threads() -> None:
+    shared = ProbeManager()
+    original = shared.client
+    sessions = [FakeSession("a"), FakeSession("b")]
+    barrier = threading.Barrier(2)
+    errors: list[object] = []
+
+    def worker(session: FakeSession) -> None:
+        try:
+            for _ in range(50):
+                barrier.wait(timeout=5)
+                bound = shared.using(_as_session(session))
+                bound.get(session.name)
+                if bound.client is not session.built:
+                    errors.append(("client", session.name))
+                if shared.client is not original:
+                    errors.append("receiver")
+        except Exception as exc:  # noqa: BLE001
+            errors.append(exc)
+
+    threads = [threading.Thread(target=worker, args=(session,)) for session in sessions]
+    for thread in threads:
+        thread.start()
+    for thread in threads:
+        thread.join(timeout=30)
+    assert errors == []
+    assert not any(thread.is_alive() for thread in threads)
+    for session in sessions:
+        assert session.built.invoke.call_count == 50
