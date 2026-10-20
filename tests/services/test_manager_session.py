@@ -7,7 +7,7 @@ from functools import cached_property
 from typing import TYPE_CHECKING, Any, ClassVar, cast
 from unittest.mock import MagicMock
 
-from botocraft.services.abstract import Boto3ModelManager
+from botocraft.services.abstract import Boto3ModelManager, PrimaryBoto3Model
 
 if TYPE_CHECKING:
     import boto3
@@ -42,6 +42,21 @@ class ProbeManager(Boto3ModelManager):
         self.client.invoke(name)
         self.invoked.append(self.client)
         return name
+
+    def update(self, model: Any, **_kwargs: Any) -> Any:
+        self.client.invoke("update")
+        self.invoked.append(self.client)
+        return model
+
+    def create(self, model: Any, **_kwargs: Any) -> Any:
+        self.client.invoke("create")
+        self.invoked.append(self.client)
+        return model
+
+    def delete(self, pk: str, **_kwargs: Any) -> str:
+        self.client.invoke("delete")
+        self.invoked.append(self.client)
+        return pk
 
 
 class SessionLabelManager(ProbeManager):
@@ -143,3 +158,49 @@ def test_using_is_isolated_across_threads() -> None:
     assert not any(thread.is_alive() for thread in threads)
     for session in sessions:
         assert session.built.invoke.call_count == 50
+
+
+class Probe(PrimaryBoto3Model):
+    """Tiny primary model whose manager records the client each call used."""
+
+    manager_class: ClassVar[type[Boto3ModelManager]] = ProbeManager
+    widget_id: str | None = None
+
+    @property
+    def pk(self) -> str | None:
+        return self.widget_id
+
+
+def test_save_update_uses_model_session() -> None:
+    ProbeManager.invoked = []
+    session = FakeSession("role")
+    model = Probe(widget_id="widget")
+    model.session = session
+    model.save()
+    assert ProbeManager.invoked == [session.built]
+
+
+def test_save_create_uses_model_session() -> None:
+    ProbeManager.invoked = []
+    session = FakeSession("role")
+    model = Probe(widget_id=None)
+    model.session = session
+    model.save()
+    assert ProbeManager.invoked == [session.built]
+
+
+def test_delete_uses_model_session() -> None:
+    ProbeManager.invoked = []
+    session = FakeSession("role")
+    model = Probe(widget_id="widget")
+    model.session = session
+    model.delete()
+    assert ProbeManager.invoked == [session.built]
+
+
+def test_save_without_session_uses_the_default_client() -> None:
+    ProbeManager.invoked = []
+    model = Probe(widget_id="widget")
+    assert model.session is None
+    model.save()
+    assert [client.marker for client in ProbeManager.invoked] == ["default"]

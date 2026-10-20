@@ -416,29 +416,53 @@ class PrimaryBoto3Model(  # pylint: disable=abstract-method
 
     def save(self, **kwargs):
         """
-        Save the model.
+        Save the model through a manager bound to this model's session.
+
+        A model with no session uses a default manager, because
+        ``using(None)`` returns that manager unchanged.
+
+        Keyword Args:
+            kwargs: Arguments forwarded to the manager ``create`` or ``update``.
+
+        Returns:
+            The manager ``create`` or ``update`` result.
+
+        Raises:
+            NotUpdatableError: The model has a primary key and no ``update``.
+
+        Side Effects:
+            Calls AWS through the bound manager.
+
         """
+        manager = self.objects.using(self.session)
         if self.pk:
-            if hasattr(self.objects, "update"):
-                # If the model has a primary key, we assume it is already
-                # created and we need to update it.
-                # We also assume that the model has a manager.
-                return self.objects.update(self, **kwargs)
+            if hasattr(manager, "update"):
+                return manager.update(self, **kwargs)
             msg = f"Model {self.__class__.__name__} is not updatable."
             raise NotUpdatableError(msg)
-
-        return self.objects.create(self, **kwargs)
+        return manager.create(self, **kwargs)
 
     def delete(self):
         """
-        Delete the model.
+        Delete the model through a manager bound to this model's session.
+
+        Returns:
+            The manager ``delete`` result.
+
+        Raises:
+            ValueError: The model has no primary key.
+
+        Side Effects:
+            Calls AWS through the bound manager.
+
         """
         if not self.pk:
             msg = "Cannot delete a model that has not been saved."
             raise ValueError(msg)
+        manager = self.objects.using(self.session)
         if isinstance(self.pk, OrderedDict):
-            return self.objects.delete(**self.pk)
-        return self.objects.delete(self.pk)
+            return manager.delete(**self.pk)
+        return manager.delete(self.pk)
 
 
 class PrimaryBoto3ModelQuerySet:
