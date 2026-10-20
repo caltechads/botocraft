@@ -105,7 +105,7 @@ def test_using_recomputes_cached_properties_for_the_new_session() -> None:
     shared.session = _as_session(session_a)
     assert shared.session_label == "a"
 
-    bound = shared.using(_as_session(session_b))
+    bound = cast("SessionLabelManager", shared.using(_as_session(session_b)))
 
     assert bound.session_label == "b"
     assert shared.session_label == "a"
