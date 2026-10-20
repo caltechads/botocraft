@@ -30,9 +30,10 @@ Overview examples use:
         KinesisStreamModeDetails,
     )
 
-If you use a non-default AWS session, call
-``KinesisStream.objects.using(session)`` before ``get`` or ``list``. General
-session usage is covered in :doc:`/overview/services`.
+If you use a non-default AWS session, chain it:
+``KinesisStream.objects.using(session).get(...)`` or
+``KinesisStream.objects.using(session).list(...)``. General session usage is
+covered in :doc:`/overview/services`.
 
 Retrieve one stream
 -------------------

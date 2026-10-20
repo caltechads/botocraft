@@ -267,9 +267,10 @@ Overview examples use the SESv2 service module directly:
         SESV2Template,
     )
 
-If your application uses a non-default AWS session, call
-``EmailIdentity.objects.using(session)`` before ``get`` or ``list``. General
-session usage is covered in :doc:`/overview/services`.
+If your application uses a non-default AWS session, chain it:
+``EmailIdentity.objects.using(session).get(...)`` or
+``EmailIdentity.objects.using(session).list(...)``. General session usage is
+covered in :doc:`/overview/services`.
 
 Resolve a sending identity
 --------------------------

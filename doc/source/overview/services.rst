@@ -93,12 +93,26 @@ You may need to manage multiple AWS accounts and regions in the same codebase.
 ``botocraft`` provides a way to do this via sessions, which are simply
 ``boto3.session.Session`` objects bound to the proper account user or role.
 
-To use a specific session, you can use the ``using`` method on the manager.  For
-example:
+``using(session)`` returns a new manager bound to that session. It does not
+change the manager you called it on. Keep the returned manager and use it for
+every call that must run with those credentials. ``using(None)`` returns the
+same manager and does not rebind. One ``using()`` call does not affect any
+other manager in the process.
+
+The manager's methods call its client. The client on the manager returned by
+``using(session)`` is built from that session.
+
+A model returned by a bound manager carries that session on the top-level
+model. ``save()`` and ``delete()`` on that model use it. Nested models are
+not stamped. Their ``save()`` and ``delete()`` use a default manager.
+
+Calling ``using(session)`` and then using the original manager does not raise.
+Those later calls still use the original manager's client, usually the process
+identity. Use the manager ``using()`` returns.
 
 .. code-block:: python
 
-    from botocraft.models import Service
+    from botocraft.services import Service
 
     session = boto3.session.Session(
         aws_access_key_id='my-access-key',
@@ -107,6 +121,10 @@ example:
     )
 
     service = Service.objects.using(session).get('my-service', cluster='my-cluster')
+
+    mgr = Service.objects.using(session)
+    same = mgr.get('my-service', cluster='my-cluster')
+    services = mgr.list()
 
 Managers
 --------
