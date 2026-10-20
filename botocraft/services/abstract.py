@@ -149,8 +149,9 @@ class Boto3ModelManager(TransformMixin):
         bound = copy.copy(self)
         seen: set[str] = set()
         for cls in type(bound).mro():
-            namespace = getattr(cls, "__dict__", None)
-            if not hasattr(namespace, "items"):
+            try:
+                namespace = vars(cls)
+            except TypeError:
                 continue
             for name, value in namespace.items():
                 if name in seen:
