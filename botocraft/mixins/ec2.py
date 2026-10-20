@@ -830,7 +830,7 @@ class SecurityGroupModelMixin:
         """
         # TODO: this needs to be enhanced to handle egress rules as well.
         if not self.pk:
-            group_id = self.objects.create(self, **kwargs)
+            group_id = self.objects.using(self.session).create(self, **kwargs)
             self.objects.using(self.session).authorize_ingress(
                 group_id, self.IpPermissions, **kwargs
             )

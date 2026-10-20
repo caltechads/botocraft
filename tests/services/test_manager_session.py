@@ -204,3 +204,36 @@ def test_save_without_session_uses_the_default_client() -> None:
     assert model.session is None
     model.save()
     assert [client.marker for client in ProbeManager.invoked] == ["default"]
+
+
+def test_security_group_create_uses_model_session() -> None:
+    from botocraft.mixins.ec2 import SecurityGroupModelMixin
+
+    log: list[tuple[str, object]] = []
+    session = FakeSession("role")
+
+    class RecordingManager:
+        def __init__(self) -> None:
+            self.session: object | None = None
+
+        def using(self, bound_session: object) -> RecordingManager:
+            child = RecordingManager()
+            child.session = bound_session
+            return child
+
+        def create(self, _model: object, **_kwargs: object) -> str:
+            log.append(("create", self.session))
+            return "sg-1"
+
+        def authorize_ingress(
+            self, _group_id: str, _permissions: object, **_kwargs: object
+        ) -> None:
+            log.append(("ingress", self.session))
+
+    target = type("SG", (), {})()
+    target.pk = None
+    target.session = session
+    target.IpPermissions = ["perm"]
+    target.objects = RecordingManager()
+    SecurityGroupModelMixin.save(target)
+    assert log == [("create", session), ("ingress", session)]
