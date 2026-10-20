@@ -108,24 +108,21 @@ _ARN_ACCOUNT_ID_INDEX = 4
 
 def _bind_manager_session(manager: Any, session: boto3.session.Session | None) -> Any:
     """
-    Bind a boto3 session to a manager when one is supplied.
+    Return a manager bound to ``session`` when one is supplied.
 
     Args:
         manager: Generated DataSync manager instance or compatible fake.
         session: Session to bind, if any.
 
     Returns:
-        Same manager instance with session applied when supported.
-
-    Side Effects:
-        Mutates manager session/client state when a session is supplied.
+        ``manager`` when ``session`` is ``None`` or ``manager`` has no
+        ``using`` method. Otherwise the manager ``using(session)`` returns.
 
     """
     if session is None:
         return manager
     if hasattr(manager, "using"):
-        manager.using(session)
-        return manager
+        return manager.using(session)
     manager.session = session
     return manager
 

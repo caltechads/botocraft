@@ -237,3 +237,22 @@ def test_security_group_create_uses_model_session() -> None:
     target.objects = RecordingManager()
     SecurityGroupModelMixin.save(target)
     assert log == [("create", session), ("ingress", session)]
+
+
+def test_bind_manager_session_returns_the_bound_manager() -> None:
+    from botocraft.datasync import _bind_manager_session
+
+    session = FakeSession("role")
+    manager = ProbeManager()
+    original = manager.client
+    bound = _bind_manager_session(manager, _as_session(session))
+    assert bound is not manager
+    assert bound.client is session.built
+    assert manager.client is original
+
+
+def test_bind_manager_session_none_returns_the_same_manager() -> None:
+    from botocraft.datasync import _bind_manager_session
+
+    manager = ProbeManager()
+    assert _bind_manager_session(manager, None) is manager
