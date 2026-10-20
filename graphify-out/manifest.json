@@ -1,10 +1,4 @@
 {
-  ".claude/settings.local.json": {
-    "mtime": 1788198865.7093146,
-    "seen": 1788210420.925695,
-    "ast_hash": "57e55a938e82a0f040c74e0861a5c507",
-    "semantic_hash": ""
-  },
   ".skills/botocraft-eventbridge-authoring/evals/evals.json": {
     "mtime": 1779897010.768924,
     "seen": 1788210420.925699,
@@ -18,9 +12,9 @@
     "semantic_hash": ""
   },
   "bin/check_napoleon_gate.py": {
-    "mtime": 1779226467.3160284,
-    "seen": 1788210420.9257011,
-    "ast_hash": "70e4dfe39d579bffd85bf118b4c15be1",
+    "mtime": 1788385537.748406,
+    "seen": 1792533697.823882,
+    "ast_hash": "6e892b837972015c222d7a3c5b534ae4",
     "semantic_hash": ""
   },
   "bin/release.sh": {
@@ -30,9 +24,9 @@
     "semantic_hash": ""
   },
   "botocraft/__init__.py": {
-    "mtime": 1788211219.0071688,
-    "seen": 1788213518.879128,
-    "ast_hash": "db02e06397bdde7f4268dcd0aaad6e88",
+    "mtime": 1792445766.5914302,
+    "seen": 1792533697.8239,
+    "ast_hash": "5182abda32abf29690a3574aa8abf0a0",
     "semantic_hash": ""
   },
   "botocraft/cli/__init__.py": {
@@ -90,9 +84,9 @@
     "semantic_hash": ""
   },
   "botocraft/datasync.py": {
-    "mtime": 1780082388.6691525,
-    "seen": 1788210420.925708,
-    "ast_hash": "dbdd510fee73dbf492c15fa8852f3910",
+    "mtime": 1792533002.3652768,
+    "seen": 1792533697.8240461,
+    "ast_hash": "e88733124970a225dcb246109329b8a4",
     "semantic_hash": ""
   },
   "botocraft/eventbridge/__init__.py": {
@@ -708,9 +702,9 @@
     "semantic_hash": ""
   },
   "botocraft/mixins/ec2.py": {
-    "mtime": 1781217252.2136624,
-    "seen": 1788210420.92576,
-    "ast_hash": "b3e2f5a9ef168052298646ca3bba9487",
+    "mtime": 1792532552.0219655,
+    "seen": 1792533697.825921,
+    "ast_hash": "9fe957981ee6cc65eaf20be1313ac992",
     "semantic_hash": ""
   },
   "botocraft/mixins/ecr.py": {
@@ -852,93 +846,93 @@
     "semantic_hash": ""
   },
   "botocraft/services/__init__.py": {
-    "mtime": 1788213454.502984,
-    "seen": 1788213518.8816462,
+    "mtime": 1792445417.9776783,
+    "seen": 1792533697.826278,
     "ast_hash": "e5f1b6f6974930f7a70bba2e5b0f55c2",
     "semantic_hash": ""
   },
   "botocraft/services/abstract.py": {
-    "mtime": 1779125722.277039,
-    "seen": 1788210420.9257731,
-    "ast_hash": "6b974ab43bc372549a0e441d935d6581",
+    "mtime": 1792531994.3997047,
+    "seen": 1792533697.826279,
+    "ast_hash": "18e08b71ff09b3eb52a85a879652f95c",
     "semantic_hash": ""
   },
   "botocraft/services/acm.py": {
-    "mtime": 1788213479.0422585,
-    "seen": 1788213518.881665,
-    "ast_hash": "edf699c1b51e05fa592172338d91da86",
+    "mtime": 1792445413.000785,
+    "seen": 1792533697.8262799,
+    "ast_hash": "583ecc2c5030ca65bbcd7c1a5f46bfc4",
     "semantic_hash": ""
   },
   "botocraft/services/application_autoscaling.py": {
-    "mtime": 1788213479.0426576,
-    "seen": 1788213518.881666,
-    "ast_hash": "8b2776c7e50e5e4de2f1c38daf07d7c5",
+    "mtime": 1792445407.1604886,
+    "seen": 1792533697.826281,
+    "ast_hash": "4523fe0900ca992d5047b14ad1cf0181",
     "semantic_hash": ""
   },
   "botocraft/services/autoscaling.py": {
-    "mtime": 1788213479.0429811,
-    "seen": 1788213518.881666,
-    "ast_hash": "536a8af7b103c8389d74bfdca881acda",
+    "mtime": 1792445411.1174943,
+    "seen": 1792533697.826281,
+    "ast_hash": "e484ef35c714b51b42cf4b80b2568fd3",
     "semantic_hash": ""
   },
   "botocraft/services/bedrock.py": {
-    "mtime": 1788213479.0435684,
-    "seen": 1788213518.8816671,
-    "ast_hash": "b3b2b804591cc4c96c7e7288aaa348f8",
+    "mtime": 1792445409.5265577,
+    "seen": 1792533697.826282,
+    "ast_hash": "07ebfac1f83e6466ad1501bf6572e0f9",
     "semantic_hash": ""
   },
   "botocraft/services/bedrock_agentcore.py": {
-    "mtime": 1788213479.0438557,
-    "seen": 1788213518.8816671,
-    "ast_hash": "b233f135282a81a54eef313035556da2",
+    "mtime": 1792445403.0094814,
+    "seen": 1792533697.826282,
+    "ast_hash": "c85e282d5b9cb14f3e3cc997fd7b021b",
     "semantic_hash": ""
   },
   "botocraft/services/bedrock_agentcore_control.py": {
-    "mtime": 1788213479.0445235,
-    "seen": 1788213518.881668,
-    "ast_hash": "99c743087e3670dc8ba651ee1ab8506c",
+    "mtime": 1792445402.7675307,
+    "seen": 1792533697.826283,
+    "ast_hash": "eb84e03431c363eb00096f76eefab4b9",
     "semantic_hash": ""
   },
   "botocraft/services/bedrock_runtime.py": {
-    "mtime": 1788213479.0448983,
-    "seen": 1788213518.881668,
-    "ast_hash": "89633efcf3bfa6c12159e573ac7c65c4",
+    "mtime": 1792445397.8523939,
+    "seen": 1792533697.826284,
+    "ast_hash": "932a1678997a46d45fc40eee00f4929b",
     "semantic_hash": ""
   },
   "botocraft/services/cloudwatch.py": {
-    "mtime": 1788213479.0452888,
-    "seen": 1788213518.881669,
-    "ast_hash": "8a87f8179c3e9d6a74473f76504f9c7c",
+    "mtime": 1792445399.600624,
+    "seen": 1792533697.826284,
+    "ast_hash": "7e1f5078232c82247c7b4ac9593901e8",
     "semantic_hash": ""
   },
   "botocraft/services/codebuild.py": {
-    "mtime": 1788213479.0457006,
-    "seen": 1788213518.88167,
-    "ast_hash": "15b55cd58a45c7c42c267b5be9190b91",
+    "mtime": 1792445398.5457227,
+    "seen": 1792533697.8262851,
+    "ast_hash": "e6016b9bbf6b962962bc9d96810fc1e0",
     "semantic_hash": ""
   },
   "botocraft/services/codeconnections.py": {
-    "mtime": 1788213479.0459347,
-    "seen": 1788213518.88167,
-    "ast_hash": "c055a62c239de6fe82ea518a1d4b5aaa",
+    "mtime": 1792445412.3195703,
+    "seen": 1792533697.826286,
+    "ast_hash": "3159b7e1c1cf57c4d7d0e9bd947b38d8",
     "semantic_hash": ""
   },
   "botocraft/services/codepipeline.py": {
-    "mtime": 1788213479.046241,
-    "seen": 1788213518.881671,
-    "ast_hash": "dcf47e7bb3bdb0c64d6b632856a87c47",
+    "mtime": 1792445407.3900628,
+    "seen": 1792533697.826286,
+    "ast_hash": "e1029eb213a665a35def688caf073c4b",
     "semantic_hash": ""
   },
   "botocraft/services/cognito_identity.py": {
-    "mtime": 1788213479.0466232,
-    "seen": 1788213518.881675,
-    "ast_hash": "8de739435c546b0c07948103a61970b0",
+    "mtime": 1792445412.6659124,
+    "seen": 1792533697.826287,
+    "ast_hash": "2ebdc57f672a041a8c715534d017a6f4",
     "semantic_hash": ""
   },
   "botocraft/services/cognito_idp.py": {
-    "mtime": 1788213439.0593603,
-    "seen": 1788213518.881675,
-    "ast_hash": "62c3d6322581269855dd51c9809b6acc",
+    "mtime": 1792445403.9734395,
+    "seen": 1792533697.826287,
+    "ast_hash": "c38d909e7e18a360a83fac25bf8bd700",
     "semantic_hash": ""
   },
   "botocraft/services/common.py": {
@@ -948,63 +942,63 @@
     "semantic_hash": ""
   },
   "botocraft/services/datasync.py": {
-    "mtime": 1788213479.0470026,
-    "seen": 1788213518.881692,
-    "ast_hash": "aa3deb89573856959a02963c92cfa2d7",
+    "mtime": 1792445403.595448,
+    "seen": 1792533697.826304,
+    "ast_hash": "53ecd373ab34a4b417e0086da0feaab6",
     "semantic_hash": ""
   },
   "botocraft/services/docdb.py": {
-    "mtime": 1788213479.0472846,
-    "seen": 1788213518.881693,
-    "ast_hash": "43c9bb6cd3b9aa8d8bab79199ab066c9",
+    "mtime": 1792445410.4201314,
+    "seen": 1792533697.826305,
+    "ast_hash": "4b81e2c58a52204ad49f77a1c754a63c",
     "semantic_hash": ""
   },
   "botocraft/services/ec2.py": {
-    "mtime": 1788213479.0485535,
-    "seen": 1788213518.8816938,
-    "ast_hash": "60e28cf2582fb04892836feb30161521",
+    "mtime": 1792445417.975951,
+    "seen": 1792533697.826306,
+    "ast_hash": "365df548ba60128563a4a19af0eaa063",
     "semantic_hash": ""
   },
   "botocraft/services/ecr.py": {
-    "mtime": 1788213479.0488062,
-    "seen": 1788213518.8816938,
-    "ast_hash": "57fb39d1873bec50bcfde1e05e793542",
+    "mtime": 1792445405.0305183,
+    "seen": 1792533697.826306,
+    "ast_hash": "de7a8876e08e5f1a298d92b052d2c8c6",
     "semantic_hash": ""
   },
   "botocraft/services/ecs.py": {
-    "mtime": 1788213479.0496123,
-    "seen": 1788213518.881695,
-    "ast_hash": "a116fb45f767815785efa857fe337752",
+    "mtime": 1792445406.9303377,
+    "seen": 1792533697.826307,
+    "ast_hash": "1ea3889891936c825a811c62a2579fdd",
     "semantic_hash": ""
   },
   "botocraft/services/efs.py": {
-    "mtime": 1788213479.0499096,
-    "seen": 1788213518.881696,
-    "ast_hash": "df16cad66023ff0a7b188145bc1b8bea",
+    "mtime": 1792445412.561912,
+    "seen": 1792533697.826307,
+    "ast_hash": "87f90307a608d36b0c0cbfedd8369053",
     "semantic_hash": ""
   },
   "botocraft/services/elasticache.py": {
-    "mtime": 1788213479.050269,
-    "seen": 1788213518.881696,
-    "ast_hash": "d5ec51a5bc0d5cdbee446efd0fa3c6cc",
+    "mtime": 1792445411.8613865,
+    "seen": 1792533697.826308,
+    "ast_hash": "89abcef033249046a2ab6b3f1e4278e1",
     "semantic_hash": ""
   },
   "botocraft/services/elb.py": {
-    "mtime": 1788213479.050505,
-    "seen": 1788213518.881697,
-    "ast_hash": "02a4e468f1db1ea818ab60ce92cf98bd",
+    "mtime": 1792445407.630359,
+    "seen": 1792533697.8263092,
+    "ast_hash": "058157bde46513c5a2315551bfde1633",
     "semantic_hash": ""
   },
   "botocraft/services/elbv2.py": {
-    "mtime": 1788213479.0507817,
-    "seen": 1788213518.8816981,
-    "ast_hash": "0186985ea084736595d5c5aa97a1b31c",
+    "mtime": 1792445411.371842,
+    "seen": 1792533697.8263092,
+    "ast_hash": "735d1cf158c4a741c8f9f75d9067e9d0",
     "semantic_hash": ""
   },
   "botocraft/services/events.py": {
-    "mtime": 1788213479.0510604,
-    "seen": 1788213518.8816981,
-    "ast_hash": "2d0f812cfd456c71e4a301c4c7883371",
+    "mtime": 1792445410.867397,
+    "seen": 1792533697.82631,
+    "ast_hash": "5f97e523cda6904ee3b05a3eff69c48f",
     "semantic_hash": ""
   },
   "botocraft/services/exceptions.py": {
@@ -1014,105 +1008,105 @@
     "semantic_hash": ""
   },
   "botocraft/services/grafana.py": {
-    "mtime": 1788213479.0513158,
-    "seen": 1788213518.881718,
-    "ast_hash": "56cd994ba5957c910c6bf2906693c932",
+    "mtime": 1792445405.212835,
+    "seen": 1792533697.8263261,
+    "ast_hash": "cd352ad479159bafd0d67859aee8219d",
     "semantic_hash": ""
   },
   "botocraft/services/iam.py": {
-    "mtime": 1788213479.0518389,
-    "seen": 1788213518.881719,
-    "ast_hash": "0b20ef3125ee6024983e075dc9af9c12",
+    "mtime": 1792445409.9814906,
+    "seen": 1792533697.826327,
+    "ast_hash": "9599820fcf32fbb3909a705c1fc3a95b",
     "semantic_hash": ""
   },
   "botocraft/services/inspector2.py": {
-    "mtime": 1788213479.0522091,
-    "seen": 1788213518.881719,
-    "ast_hash": "99dcd56f3e123ee2d7dd37d9c15a0a09",
+    "mtime": 1792445404.5536153,
+    "seen": 1792533697.826327,
+    "ast_hash": "a6bac816c5866def9fd9e85a4f195e4e",
     "semantic_hash": ""
   },
   "botocraft/services/kinesis.py": {
-    "mtime": 1788213479.0524273,
-    "seen": 1788213518.88172,
-    "ast_hash": "fb6d2e89209900e3a3a0ac0ada577990",
+    "mtime": 1792445398.7384536,
+    "seen": 1792533697.826328,
+    "ast_hash": "3817d131e7d62a015fc8954f60379b31",
     "semantic_hash": ""
   },
   "botocraft/services/kms.py": {
-    "mtime": 1788213479.0526671,
-    "seen": 1788213518.88172,
-    "ast_hash": "68b376b5800d76eed5b5ea785375a518",
+    "mtime": 1792445399.2031803,
+    "seen": 1792533697.826329,
+    "ast_hash": "55e211a9a718fc2f1c418fa9615ce8ff",
     "semantic_hash": ""
   },
   "botocraft/services/logs.py": {
-    "mtime": 1788213479.0529168,
-    "seen": 1788213518.881721,
-    "ast_hash": "669ddd020d63a483d7b1faf052292c43",
+    "mtime": 1792445410.1350265,
+    "seen": 1792533697.826329,
+    "ast_hash": "324bc3e975b26b16cddd2daecae3c089",
     "semantic_hash": ""
   },
   "botocraft/services/opensearch.py": {
-    "mtime": 1788213479.0532396,
-    "seen": 1788213518.8817222,
-    "ast_hash": "982f067af98d1018a2d140e175f0b229",
+    "mtime": 1792445404.8698997,
+    "seen": 1792533697.8263302,
+    "ast_hash": "5ae589dd258347a4cb746ed81f1013de",
     "semantic_hash": ""
   },
   "botocraft/services/rds.py": {
-    "mtime": 1788213479.0535223,
-    "seen": 1788213518.8817222,
-    "ast_hash": "a09ee9342e407cb20d9a7d250963b7e0",
+    "mtime": 1792445412.1531181,
+    "seen": 1792533697.8263302,
+    "ast_hash": "29920f8f62ca2450bff41df2bd901cef",
     "semantic_hash": ""
   },
   "botocraft/services/route53.py": {
-    "mtime": 1788213479.053823,
-    "seen": 1788213518.881723,
-    "ast_hash": "561a557aa7a26007fbb359fd73dbecd7",
+    "mtime": 1792445413.268409,
+    "seen": 1792533697.826331,
+    "ast_hash": "0b3e39c01eb3802d633354311a84f400",
     "semantic_hash": ""
   },
   "botocraft/services/s3.py": {
-    "mtime": 1788213479.0545552,
-    "seen": 1788213518.881723,
-    "ast_hash": "d8d6d4057ec7188c288d27b40b2b2b6b",
+    "mtime": 1792445400.3887556,
+    "seen": 1792533697.8263319,
+    "ast_hash": "cd7067c8c1d7dfd764cf5ad0c3a322dc",
     "semantic_hash": ""
   },
   "botocraft/services/schemas.py": {
-    "mtime": 1788213479.054856,
-    "seen": 1788213518.8817239,
-    "ast_hash": "c2f2102b7459d3ac4c0158ed1eddae25",
+    "mtime": 1792445407.7793834,
+    "seen": 1792533697.8263319,
+    "ast_hash": "2b85a577d1a4b986dfddde6080f8600e",
     "semantic_hash": ""
   },
   "botocraft/services/secretsmanager.py": {
-    "mtime": 1788213479.0552807,
-    "seen": 1788213518.8817239,
-    "ast_hash": "b6ba4123709fe3f7bf6bfee53c32579d",
+    "mtime": 1792445399.0601923,
+    "seen": 1792533697.826333,
+    "ast_hash": "23c42177f5ff5ea7bf2464d0fc038ea3",
     "semantic_hash": ""
   },
   "botocraft/services/ses.py": {
-    "mtime": 1788213479.0555956,
-    "seen": 1788213518.8817248,
-    "ast_hash": "fa9b9f22c125e113b6911fd3b0984f28",
+    "mtime": 1792445410.648831,
+    "seen": 1792533697.826334,
+    "ast_hash": "4a5e3f0fecb325f0d3a2852bb654e508",
     "semantic_hash": ""
   },
   "botocraft/services/sesv2.py": {
-    "mtime": 1788213479.0559587,
-    "seen": 1788213518.881726,
-    "ast_hash": "9afbcd2e468cc4bcd353e201c109ca01",
+    "mtime": 1792445400.732293,
+    "seen": 1792533697.826334,
+    "ast_hash": "de17eddc5a21dee37d9084f481b98472",
     "semantic_hash": ""
   },
   "botocraft/services/sqs.py": {
-    "mtime": 1788213479.0562043,
-    "seen": 1788213518.881726,
-    "ast_hash": "4ea1f1b7c28402c696cae3ff94cee64b",
+    "mtime": 1792445407.9510026,
+    "seen": 1792533697.826335,
+    "ast_hash": "664b7609d8b929ba701b6d131f30c9de",
     "semantic_hash": ""
   },
   "botocraft/services/ssm.py": {
-    "mtime": 1788213479.0563972,
-    "seen": 1788213518.881727,
-    "ast_hash": "96d5f69940cbc93f650a00e5e2ef69ab",
+    "mtime": 1792445398.8727226,
+    "seen": 1792533697.826336,
+    "ast_hash": "910f755d58e517805027f0ace4d2ee81",
     "semantic_hash": ""
   },
   "botocraft/services/sts.py": {
-    "mtime": 1788213479.0566134,
-    "seen": 1788213518.881727,
-    "ast_hash": "0872fc1b04f9840c25ad4bf8323f49b6",
+    "mtime": 1792445412.8564484,
+    "seen": 1792533697.826336,
+    "ast_hash": "1068b219e4026667c83aeb00294e7378",
     "semantic_hash": ""
   },
   "botocraft/sync/__init__.py": {
@@ -1254,15 +1248,15 @@
     "semantic_hash": ""
   },
   "doc/source/conf.py": {
-    "mtime": 1788211219.0073988,
-    "seen": 1788213518.8821492,
-    "ast_hash": "56f9f19c26a96a99ac68d34be6c65cf6",
+    "mtime": 1792445766.5922303,
+    "seen": 1792533697.8267362,
+    "ast_hash": "5f9a1b0d7375729dddcd31af301c880d",
     "semantic_hash": ""
   },
   "pyproject.toml": {
-    "mtime": 1788211219.0084276,
-    "seen": 1788213518.8821492,
-    "ast_hash": "a7a9a73f6d176a5ac18d05343140d916",
+    "mtime": 1792445766.5935276,
+    "seen": 1792533697.8267362,
+    "ast_hash": "624449508121e7b7b278eb83138055dd",
     "semantic_hash": ""
   },
   "tests/__init__.py": {
@@ -1619,12 +1613,6 @@
     "ast_hash": "254cbe6101d1509401b1324c81e92f40",
     "semantic_hash": ""
   },
-  ".aidex/summary.md": {
-    "mtime": 1780010334.2012358,
-    "seen": 1788210420.925836,
-    "ast_hash": "c74aad6cf06de1f419c49921ea1938fc",
-    "semantic_hash": ""
-  },
   ".readthedocs.yaml": {
     "mtime": 1748973907.4766846,
     "seen": 1788210420.925836,
@@ -1794,9 +1782,9 @@
     "semantic_hash": ""
   },
   "botocraft/data/bedrock-agentcore-control/models.yml": {
-    "mtime": 1787959044.7315414,
-    "seen": 1788210420.9258502,
-    "ast_hash": "927ee26dc8d4349fb47cf47c1f93b037",
+    "mtime": 1788470084.957969,
+    "seen": 1792533697.8280928,
+    "ast_hash": "212b74e4817024c75d2fbf207708fc42",
     "semantic_hash": ""
   },
   "botocraft/data/bedrock-agentcore/managers.yml": {
@@ -1806,8 +1794,8 @@
     "semantic_hash": ""
   },
   "botocraft/data/bedrock-agentcore/models.yml": {
-    "mtime": 1787956823.848744,
-    "seen": 1788210420.9258509,
+    "mtime": 1788470070.228389,
+    "seen": 1792533697.8281112,
     "ast_hash": "8f52495fe2e5b8317fee5c5b3e00713b",
     "semantic_hash": ""
   },
@@ -1962,9 +1950,9 @@
     "semantic_hash": ""
   },
   "botocraft/data/ecs/models.yml": {
-    "mtime": 1779297416.949523,
-    "seen": 1788210420.925864,
-    "ast_hash": "c2267a7123a777caee684073ab3c1414",
+    "mtime": 1792445389.179327,
+    "seen": 1792533697.828516,
+    "ast_hash": "294db65b69c588199e30b9b469254c36",
     "semantic_hash": ""
   },
   "botocraft/data/efs/managers.yml": {
@@ -2208,15 +2196,15 @@
     "semantic_hash": ""
   },
   "botocraft/data/ssm/managers.yml": {
-    "mtime": 1775242316.535196,
-    "seen": 1788210420.925888,
-    "ast_hash": "5900d6f5ab865b0567186e1e7d33d6bb",
+    "mtime": 1790699613.978765,
+    "seen": 1792533697.829206,
+    "ast_hash": "e187eac46991df046d94b6d3f7a38638",
     "semantic_hash": ""
   },
   "botocraft/data/ssm/models.yml": {
-    "mtime": 1693941081.9783297,
-    "seen": 1788210420.925889,
-    "ast_hash": "4f55c0df31b89b2255e5319ee74e43ca",
+    "mtime": 1790699613.9790783,
+    "seen": 1792533697.829206,
+    "ast_hash": "0a54f4157ff2ec0283eb415b31a21942",
     "semantic_hash": ""
   },
   "botocraft/data/sts/managers.yml": {
@@ -2238,8 +2226,8 @@
     "semantic_hash": ""
   },
   "doc/source/_services_index.rst": {
-    "mtime": 1788213454.5031273,
-    "seen": 1788213518.884862,
+    "mtime": 1792445417.9778247,
+    "seen": 1792533697.8292532,
     "ast_hash": "0e3b5e9da7e63b50a4ddd2ca207ddc14",
     "semantic_hash": ""
   },
@@ -2742,242 +2730,242 @@
     "semantic_hash": ""
   },
   "doc/source/api/services/acm.rst": {
-    "mtime": 1788213449.239505,
-    "seen": 1788213518.8865159,
+    "mtime": 1792445413.001193,
+    "seen": 1792533697.8309271,
     "ast_hash": "eebf3e324a40db320802d6d32138e675",
     "semantic_hash": ""
   },
   "doc/source/api/services/application_autoscaling.rst": {
-    "mtime": 1788213442.5402882,
-    "seen": 1788213518.8865159,
+    "mtime": 1792445407.1609366,
+    "seen": 1792533697.8309278,
     "ast_hash": "49d63729597b4423294dca8787c74792",
     "semantic_hash": ""
   },
   "doc/source/api/services/autoscaling.rst": {
-    "mtime": 1788213447.0593822,
-    "seen": 1788213518.886517,
+    "mtime": 1792445411.1178203,
+    "seen": 1792533697.8309288,
     "ast_hash": "2ff6578879714ca445d9969cec570204",
     "semantic_hash": ""
   },
   "doc/source/api/services/bedrock.rst": {
-    "mtime": 1788213445.2123973,
-    "seen": 1788213518.886518,
+    "mtime": 1792445409.5274992,
+    "seen": 1792533697.830933,
     "ast_hash": "a5d1d48ced177dbda1cfd04704ab5dda",
     "semantic_hash": ""
   },
   "doc/source/api/services/bedrock_agentcore.rst": {
-    "mtime": 1788213437.986228,
-    "seen": 1788213518.886519,
+    "mtime": 1792445403.0103862,
+    "seen": 1792533697.830934,
     "ast_hash": "751fbb5425434931ee01c53f50856183",
     "semantic_hash": ""
   },
   "doc/source/api/services/bedrock_agentcore_control.rst": {
-    "mtime": 1788213437.7347584,
-    "seen": 1788213518.886519,
-    "ast_hash": "24ad2e4c0023e6b88ed4da3911d2b89d",
+    "mtime": 1792445402.792717,
+    "seen": 1792533697.830934,
+    "ast_hash": "e401de89190d3a95657f3a603c8eca4b",
     "semantic_hash": ""
   },
   "doc/source/api/services/bedrock_runtime.rst": {
-    "mtime": 1788213432.3404071,
-    "seen": 1788213518.886524,
+    "mtime": 1792445397.8536417,
+    "seen": 1792533697.830935,
     "ast_hash": "9cfe806f59a44f935ff88720b84e44ca",
     "semantic_hash": ""
   },
   "doc/source/api/services/cloudwatch.rst": {
-    "mtime": 1788213434.3402965,
-    "seen": 1788213518.886525,
+    "mtime": 1792445399.6021295,
+    "seen": 1792533697.830936,
     "ast_hash": "db9ce78ecde1ae473f86326b3fe478f6",
     "semantic_hash": ""
   },
   "doc/source/api/services/codebuild.rst": {
-    "mtime": 1788213433.096619,
-    "seen": 1788213518.886525,
+    "mtime": 1792445398.5470393,
+    "seen": 1792533697.830936,
     "ast_hash": "a4dfddb98c0748e933acf8848fed8732",
     "semantic_hash": ""
   },
   "doc/source/api/services/codeconnections.rst": {
-    "mtime": 1788213448.3649137,
-    "seen": 1788213518.88654,
+    "mtime": 1792445412.319946,
+    "seen": 1792533697.8309371,
     "ast_hash": "1cce529db575c4415bcfe95873183f71",
     "semantic_hash": ""
   },
   "doc/source/api/services/codepipeline.rst": {
-    "mtime": 1788213442.8116415,
-    "seen": 1788213518.88654,
+    "mtime": 1792445407.3915906,
+    "seen": 1792533697.830938,
     "ast_hash": "e33998375b2e47253d7b036204d026b3",
     "semantic_hash": ""
   },
   "doc/source/api/services/cognito_identity.rst": {
-    "mtime": 1788213448.782638,
-    "seen": 1788213518.8865411,
+    "mtime": 1792445412.6662488,
+    "seen": 1792533697.830938,
     "ast_hash": "4b599ca11523384925f16ebc16c1e908",
     "semantic_hash": ""
   },
   "doc/source/api/services/cognito_idp.rst": {
-    "mtime": 1788213439.0601523,
-    "seen": 1788213518.886542,
+    "mtime": 1792445403.9742122,
+    "seen": 1792533697.8309388,
     "ast_hash": "b445f8ff7e131fd9faed0c5aaef70589",
     "semantic_hash": ""
   },
   "doc/source/api/services/datasync.rst": {
-    "mtime": 1788213438.629429,
-    "seen": 1788213518.886542,
+    "mtime": 1792445403.5972288,
+    "seen": 1792533697.83094,
     "ast_hash": "2e7c6b75cb5379c500e8ea29e3ec77ba",
     "semantic_hash": ""
   },
   "doc/source/api/services/docdb.rst": {
-    "mtime": 1788213446.2501805,
-    "seen": 1788213518.886543,
+    "mtime": 1792445410.4208882,
+    "seen": 1792533697.83094,
     "ast_hash": "89bb420d30b1fe41244b9218f41c403e",
     "semantic_hash": ""
   },
   "doc/source/api/services/ec2.rst": {
-    "mtime": 1788213454.5026104,
-    "seen": 1788213518.886543,
+    "mtime": 1792445417.977309,
+    "seen": 1792533697.830941,
     "ast_hash": "9ceedec9eaef7acfc7c62eeeb9b77a5c",
     "semantic_hash": ""
   },
   "doc/source/api/services/ecr.rst": {
-    "mtime": 1788213440.236872,
-    "seen": 1788213518.886544,
+    "mtime": 1792445405.0311704,
+    "seen": 1792533697.830942,
     "ast_hash": "806f30894c5c118fcc2c13503f5b05e7",
     "semantic_hash": ""
   },
   "doc/source/api/services/ecs.rst": {
-    "mtime": 1788213442.2689812,
-    "seen": 1788213518.886545,
-    "ast_hash": "9c5851c7e3fef86a1db5e6bdbe2e8a68",
+    "mtime": 1792445406.9314985,
+    "seen": 1792533697.830942,
+    "ast_hash": "00d417152d9cb1cab090cee826d3bde7",
     "semantic_hash": ""
   },
   "doc/source/api/services/efs.rst": {
-    "mtime": 1788213448.634949,
-    "seen": 1788213518.886545,
+    "mtime": 1792445412.563515,
+    "seen": 1792533697.8309429,
     "ast_hash": "734bb43c7c4ba0090d80d493a9e1e386",
     "semantic_hash": ""
   },
   "doc/source/api/services/elasticache.rst": {
-    "mtime": 1788213447.8821929,
-    "seen": 1788213518.886546,
+    "mtime": 1792445411.862656,
+    "seen": 1792533697.830944,
     "ast_hash": "aa4a18e1e5cea9d2b0cac41b0c4db7c4",
     "semantic_hash": ""
   },
   "doc/source/api/services/elb.rst": {
-    "mtime": 1788213443.0993724,
-    "seen": 1788213518.886546,
+    "mtime": 1792445407.6308725,
+    "seen": 1792533697.830945,
     "ast_hash": "24373f7a05da4addb959d634c1e34353",
     "semantic_hash": ""
   },
   "doc/source/api/services/elbv2.rst": {
-    "mtime": 1788213447.3375294,
-    "seen": 1788213518.8865469,
+    "mtime": 1792445411.3732789,
+    "seen": 1792533697.830945,
     "ast_hash": "ffd9edf04cb5abb542489c3974d87889",
     "semantic_hash": ""
   },
   "doc/source/api/services/events.rst": {
-    "mtime": 1788213446.7709203,
-    "seen": 1788213518.886548,
+    "mtime": 1792445410.868874,
+    "seen": 1792533697.830946,
     "ast_hash": "cd13be1ddc08a259b2de992f3ded038b",
     "semantic_hash": ""
   },
   "doc/source/api/services/grafana.rst": {
-    "mtime": 1788213440.4604096,
-    "seen": 1788213518.886548,
+    "mtime": 1792445405.2144825,
+    "seen": 1792533697.8309472,
     "ast_hash": "7c35bbc795ec90f700fa5fdadfd0202a",
     "semantic_hash": ""
   },
   "doc/source/api/services/iam.rst": {
-    "mtime": 1788213445.7379644,
-    "seen": 1788213518.886549,
+    "mtime": 1792445409.9819791,
+    "seen": 1792533697.8309472,
     "ast_hash": "55ad028e4a0a92da3d4fbf27b214d8a2",
     "semantic_hash": ""
   },
   "doc/source/api/services/inspector2.rst": {
-    "mtime": 1788213439.6932032,
-    "seen": 1788213518.886549,
+    "mtime": 1792445404.555741,
+    "seen": 1792533697.830948,
     "ast_hash": "e957003cd1e5ee7384384d163db6b67e",
     "semantic_hash": ""
   },
   "doc/source/api/services/kinesis.rst": {
-    "mtime": 1788213433.3227491,
-    "seen": 1788213518.88655,
+    "mtime": 1792445398.7388031,
+    "seen": 1792533697.830949,
     "ast_hash": "aa1d9861b9dfe982eabedf578ebfcef3",
     "semantic_hash": ""
   },
   "doc/source/api/services/kms.rst": {
-    "mtime": 1788213433.8999023,
-    "seen": 1788213518.88655,
+    "mtime": 1792445399.2036133,
+    "seen": 1792533697.830949,
     "ast_hash": "24e1185338988bd80595275bde3c70b7",
     "semantic_hash": ""
   },
   "doc/source/api/services/logs.rst": {
-    "mtime": 1788213445.92817,
-    "seen": 1788213518.8865511,
+    "mtime": 1792445410.1358151,
+    "seen": 1792533697.8309498,
     "ast_hash": "631e58b9c50d5d4a5e12fc8467baf29c",
     "semantic_hash": ""
   },
   "doc/source/api/services/opensearch.rst": {
-    "mtime": 1788213440.0486732,
-    "seen": 1788213518.886552,
+    "mtime": 1792445404.8708844,
+    "seen": 1792533697.830951,
     "ast_hash": "82688cf51e6513afbf439f86d5044a34",
     "semantic_hash": ""
   },
   "doc/source/api/services/rds.rst": {
-    "mtime": 1788213448.1833296,
-    "seen": 1788213518.886552,
+    "mtime": 1792445412.153571,
+    "seen": 1792533697.830951,
     "ast_hash": "1c533faf5c4aa8065207b1e3a280f403",
     "semantic_hash": ""
   },
   "doc/source/api/services/route53.rst": {
-    "mtime": 1788213449.5841124,
-    "seen": 1788213518.886553,
+    "mtime": 1792445413.2693777,
+    "seen": 1792533697.830952,
     "ast_hash": "4ae4d0219625cec88df082d58c8e7b6f",
     "semantic_hash": ""
   },
   "doc/source/api/services/s3.rst": {
-    "mtime": 1788213435.18766,
-    "seen": 1788213518.886554,
+    "mtime": 1792445400.3903263,
+    "seen": 1792533697.830952,
     "ast_hash": "66a64b3abc064a3d2919621cbeaf85d1",
     "semantic_hash": ""
   },
   "doc/source/api/services/schemas.rst": {
-    "mtime": 1788213443.2990625,
-    "seen": 1788213518.886555,
+    "mtime": 1792445407.7797377,
+    "seen": 1792533697.830953,
     "ast_hash": "5dd94fae4fce44158f68a17a54c28829",
     "semantic_hash": ""
   },
   "doc/source/api/services/secretsmanager.rst": {
-    "mtime": 1788213433.7249272,
-    "seen": 1788213518.886555,
+    "mtime": 1792445399.0614884,
+    "seen": 1792533697.830954,
     "ast_hash": "48410a074d8c5e8cc6c3468dc4241e81",
     "semantic_hash": ""
   },
   "doc/source/api/services/ses.rst": {
-    "mtime": 1788213446.506627,
-    "seen": 1788213518.886556,
+    "mtime": 1792445410.649657,
+    "seen": 1792533697.830954,
     "ast_hash": "06004be147d53b206f94dfa11b27e41e",
     "semantic_hash": ""
   },
   "doc/source/api/services/sesv2.rst": {
-    "mtime": 1788213435.5825481,
-    "seen": 1788213518.8865569,
+    "mtime": 1792445400.7335978,
+    "seen": 1792533697.830955,
     "ast_hash": "e89fa594e267db7b442b8e9b3c14e456",
     "semantic_hash": ""
   },
   "doc/source/api/services/sqs.rst": {
-    "mtime": 1788213443.5140882,
-    "seen": 1788213518.8865569,
+    "mtime": 1792445407.9516215,
+    "seen": 1792533697.830955,
     "ast_hash": "083f4980c6344f2458cbd688bdc5a3b9",
     "semantic_hash": ""
   },
   "doc/source/api/services/ssm.rst": {
-    "mtime": 1788213433.4994433,
-    "seen": 1788213518.886558,
+    "mtime": 1792445398.873022,
+    "seen": 1792533697.830956,
     "ast_hash": "4ea0c184dd586f97529276eb5c20078a",
     "semantic_hash": ""
   },
   "doc/source/api/services/sts.rst": {
-    "mtime": 1788213449.0398333,
-    "seen": 1788213518.886558,
+    "mtime": 1792445412.8569803,
+    "seen": 1792533697.8309572,
     "ast_hash": "64f1bcbe011bbdec0824e3c27f60fda0",
     "semantic_hash": ""
   },
@@ -2988,8 +2976,8 @@
     "semantic_hash": ""
   },
   "doc/source/overview/_services_list.rst": {
-    "mtime": 1788213454.5032358,
-    "seen": 1788213518.8865762,
+    "mtime": 1792445417.9779446,
+    "seen": 1792533697.8309739,
     "ast_hash": "efa2760adafbae9bef57a88340f9889c",
     "semantic_hash": ""
   },
@@ -3042,9 +3030,9 @@
     "semantic_hash": ""
   },
   "doc/source/overview/kinesis.rst": {
-    "mtime": 1779986411.741617,
-    "seen": 1788210420.925958,
-    "ast_hash": "94c365b1ff3e5af8d7ea43c582c138b1",
+    "mtime": 1792533203.854036,
+    "seen": 1792533697.831109,
+    "ast_hash": "088ab8245090b39734ed11447957f6fe",
     "semantic_hash": ""
   },
   "doc/source/overview/queryset.rst": {
@@ -3054,15 +3042,15 @@
     "semantic_hash": ""
   },
   "doc/source/overview/services.rst": {
-    "mtime": 1748973914.6032856,
-    "seen": 1788210420.9259589,
-    "ast_hash": "9b21f012a531ec3e4126c95d2521eed4",
+    "mtime": 1792533202.6568027,
+    "seen": 1792533697.83113,
+    "ast_hash": "bcad7b925923081b4a853e40df7e7e89",
     "semantic_hash": ""
   },
   "doc/source/overview/ses.rst": {
-    "mtime": 1780074979.386924,
-    "seen": 1788210420.9259589,
-    "ast_hash": "bf6d28bb378a4d3c3be84f9b50347065",
+    "mtime": 1792533203.2700315,
+    "seen": 1792533697.831131,
+    "ast_hash": "2669c4a2d1e636bdf25102fa6f11856c",
     "semantic_hash": ""
   },
   "doc/source/overview/tags.rst": {
@@ -3141,6 +3129,36 @@
     "mtime": 1788213505.1810293,
     "seen": 1788213518.8825972,
     "ast_hash": "0cdaf28540f3d8a6076649a7ec253a55",
+    "semantic_hash": ""
+  },
+  "botocraft/mixins/ssm.py": {
+    "mtime": 1790699613.9792402,
+    "seen": 1792533697.826262,
+    "ast_hash": "54ebedff3af52976386bb5c08ed7795b",
+    "semantic_hash": ""
+  },
+  "tests/mixins/test_ssm.py": {
+    "mtime": 1790699613.9807832,
+    "seen": 1792533697.827015,
+    "ast_hash": "15432edb54d0ab395e9999feec197b2f",
+    "semantic_hash": ""
+  },
+  "tests/services/test_manager_session.py": {
+    "mtime": 1792532994.6457589,
+    "seen": 1792533697.827452,
+    "ast_hash": "454065b317a068057f095a127b406fbb",
+    "semantic_hash": ""
+  },
+  "docs/adr/0002-using-returns-a-session-bound-manager.md": {
+    "mtime": 1792528594.0842102,
+    "seen": 1792533697.831267,
+    "ast_hash": "18c5eff851e6216099451dd6bf5ee40a",
+    "semantic_hash": ""
+  },
+  "docs/superpowers/plans/2026-10-20-session-bound-manager.md": {
+    "mtime": 1792529639.702998,
+    "seen": 1792533697.831298,
+    "ast_hash": "43648f534775d868a18324522e38a8da",
     "semantic_hash": ""
   }
 }
