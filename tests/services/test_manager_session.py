@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import threading
+from functools import cached_property
 from typing import TYPE_CHECKING, Any, ClassVar, cast
 from unittest.mock import MagicMock
 
@@ -43,6 +44,17 @@ class ProbeManager(Boto3ModelManager):
         return name
 
 
+class SessionLabelManager(ProbeManager):
+    """Probe whose cached label is the bound session name."""
+
+    @cached_property
+    def session_label(self) -> str:
+        """Return ``session.name``, or ``none`` when no session is bound."""
+        if self.session is None:
+            return "none"
+        return self.session.name  # type: ignore[attr-defined]
+
+
 def _as_session(session: FakeSession) -> boto3.session.Session:
     return cast("boto3.session.Session", session)
 
@@ -64,9 +76,24 @@ def test_using_does_not_mutate_the_receiver() -> None:
     assert bound_a.client is session_a.built
     assert bound_b.client is session_b.built
     assert bound_a.session is session_a
+    assert shared.session is None
+    assert session_a.built.service_name == "sts"
     session_a.built.invoke.assert_called_once_with("alpha")
     session_b.built.invoke.assert_not_called()
     original.invoke.assert_not_called()
+
+
+def test_using_recomputes_cached_properties_for_the_new_session() -> None:
+    shared = SessionLabelManager()
+    session_a = FakeSession("a")
+    session_b = FakeSession("b")
+    shared.session = _as_session(session_a)
+    assert shared.session_label == "a"
+
+    bound = shared.using(_as_session(session_b))
+
+    assert bound.session_label == "b"
+    assert shared.session_label == "a"
 
 
 def test_using_none_returns_the_same_manager() -> None:

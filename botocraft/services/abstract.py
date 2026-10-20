@@ -143,9 +143,21 @@ class Boto3ModelManager(TransformMixin):
         """
         if session is None:
             return self
-        # ponytail: shallow copy, then replace session and client.
-        # Per-field clone if a manager stores mutable state that must not be shared.
+        # ponytail: shallow copy shares other mutable state.
+        # Cached properties are cleared because they may have been computed
+        # from the old session.
         bound = copy.copy(self)
+        seen: set[str] = set()
+        for cls in type(bound).mro():
+            namespace = getattr(cls, "__dict__", None)
+            if not hasattr(namespace, "items"):
+                continue
+            for name, value in namespace.items():
+                if name in seen:
+                    continue
+                seen.add(name)
+                if isinstance(value, cached_property):
+                    bound.__dict__.pop(name, None)
         bound.session = session
         bound.client = session.client(self.service_name)  # type: ignore[call-overload]
         return bound
