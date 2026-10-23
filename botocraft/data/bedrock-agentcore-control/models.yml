@@ -245,3 +245,7 @@ secondary:
         python_type: "dict[str, str] | None"
   NetworkConfiguration:
     alternate_name: AgentCoreNetworkConfiguration
+  HarnessHookTarget:
+    fields:
+      lambda:
+        rename: lambdaConfiguration

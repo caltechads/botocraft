@@ -321,3 +321,7 @@ secondary:
     force_create: true
   Route:
     alternate_name: SESV2MultiRegionEndpointRoute
+  SigningScheme:
+    alternate_name: SESV2SigningScheme
+  MessageSecurityOptions:
+    alternate_name: SESV2MessageSecurityOptions

@@ -33,3 +33,9 @@ secondary:
         # Have to override the default type because the botocore model has a Literal[...] with the
         # values using underscores, but the returned value from AWS uses hyphens.
         python_type: str
+  DomainValidationUpdateSummary:
+    alternate_name: ACMDomainValidationUpdateSummary
+  DomainValidationMethodUpdateSummary:
+    alternate_name: ACMDomainValidationMethodUpdateSummary
+  UpdateSummary:
+    alternate_name: ACMUpdateSummary

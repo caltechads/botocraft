@@ -103,6 +103,14 @@ secondary:
     fields:
       tags:
         rename: Tags
+  VmInstanceAggregationResponse:
+    fields:
+      tags:
+        rename: Tags
+  ServerlessFunctionAggregationResponse:
+    fields:
+      tags:
+        rename: Tags
   VulnerablePackage:
     fields:
       packageManager:

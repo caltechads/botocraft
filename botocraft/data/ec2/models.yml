@@ -875,3 +875,5 @@ secondary:
     fields:
       Status:
         python_type: "Literal['attaching', 'attached', 'detaching', 'detached', 'in-use']"
+  InstanceTypeSpecification:
+    alternate_name: EC2InstanceTypeSpecification

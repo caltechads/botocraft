@@ -301,3 +301,5 @@ secondary:
         rename: RuleTag
   PublicAccessBlockConfiguration:
     alternate_name: S3PublicAccessBlockConfiguration
+  EventHoldDuration:
+    alternate_name: S3EventHoldDuration

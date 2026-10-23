@@ -460,3 +460,5 @@ secondary:
     alternate_name: IAMRoleLastUsed
   AccessKeyLastUsed:
     alternate_name: IAMAccessKeyLastUsed
+  SourceRoleTemplate:
+    alternate_name: IAMSourceRoleTemplate

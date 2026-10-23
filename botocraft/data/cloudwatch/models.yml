@@ -237,3 +237,9 @@ secondary:
     alternate_name: CloudWatchEvaluationWindow
   ScheduledQueryConfiguration:
     alternate_name: CloudWatchScheduledQueryConfiguration
+  WarmUpConfiguration:
+    alternate_name: CloudWatchWarmUpConfiguration
+  AlarmTagsPropagation:
+    alternate_name: CloudWatchAlarmTagsPropagation
+  ActionConfiguration:
+    alternate_name: CloudWatchActionConfiguration
