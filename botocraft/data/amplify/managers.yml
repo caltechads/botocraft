@@ -1,0 +1,158 @@
+---
+App:
+  mixins:
+    - name: AmplifyAppManagerMixin
+      import_path: botocraft.mixins.amplify
+  methods:
+    get:
+      boto3_name: get_app
+      response_attr: app
+    list:
+      boto3_name: list_apps
+      response_attr: apps
+    update:
+      boto3_name: update_app
+      response_attr: app
+      decorators:
+        - name: amplify_sync_tags
+          import_path: botocraft.mixins.amplify
+    delete:
+      boto3_name: delete_app
+      response_attr: app
+    generate_access_logs:
+      boto3_name: generate_access_logs
+      response_attr: logUrl
+      docstring: >-
+        Return a URL for this app's access logs. domainName is required.
+
+Branch:
+  mixins:
+    - name: AmplifyBranchManagerMixin
+      import_path: botocraft.mixins.amplify
+  methods:
+    get:
+      boto3_name: get_branch
+      response_attr: branch
+      decorators:
+        - name: amplify_stamp_app_id
+          import_path: botocraft.mixins.amplify
+    list:
+      boto3_name: list_branches
+      response_attr: branches
+      decorators:
+        - name: amplify_stamp_app_id
+          import_path: botocraft.mixins.amplify
+    update:
+      boto3_name: update_branch
+      response_attr: branch
+      decorators:
+        - name: amplify_stamp_app_id
+          import_path: botocraft.mixins.amplify
+        - name: amplify_sync_tags
+          import_path: botocraft.mixins.amplify
+    delete:
+      boto3_name: delete_branch
+      response_attr: branch
+      decorators:
+        - name: amplify_stamp_app_id
+          import_path: botocraft.mixins.amplify
+    create_deployment:
+      boto3_name: create_deployment
+      response_attr: None
+      return_type: '"CreateDeploymentResult | None"'
+      docstring: >-
+        Reserve a manual deploy and return the presigned zip upload URL.
+        Prefer deploy_zip when the zip is on local disk.
+    start_deployment:
+      boto3_name: start_deployment
+      response_attr: jobSummary
+      docstring: >-
+        Start a manual deploy from a job id or from a source URL. This does
+        not run an Amplify build.
+
+DomainAssociation:
+  mixins:
+    - name: AmplifyDomainAssociationManagerMixin
+      import_path: botocraft.mixins.amplify
+  methods:
+    get:
+      boto3_name: get_domain_association
+      response_attr: domainAssociation
+      decorators:
+        - name: amplify_stamp_app_id
+          import_path: botocraft.mixins.amplify
+    list:
+      boto3_name: list_domain_associations
+      response_attr: domainAssociations
+      decorators:
+        - name: amplify_stamp_app_id
+          import_path: botocraft.mixins.amplify
+    update:
+      boto3_name: update_domain_association
+      response_attr: domainAssociation
+      decorators:
+        - name: amplify_stamp_app_id
+          import_path: botocraft.mixins.amplify
+    delete:
+      boto3_name: delete_domain_association
+      response_attr: domainAssociation
+      decorators:
+        - name: amplify_stamp_app_id
+          import_path: botocraft.mixins.amplify
+
+Webhook:
+  mixins:
+    - name: AmplifyWebhookManagerMixin
+      import_path: botocraft.mixins.amplify
+  methods:
+    get:
+      boto3_name: get_webhook
+      response_attr: webhook
+    update:
+      boto3_name: update_webhook
+      response_attr: webhook
+    delete:
+      boto3_name: delete_webhook
+      response_attr: webhook
+
+BackendEnvironment:
+  mixins:
+    - name: AmplifyBackendEnvironmentManagerMixin
+      import_path: botocraft.mixins.amplify
+  methods:
+    get:
+      boto3_name: get_backend_environment
+      response_attr: backendEnvironment
+      decorators:
+        - name: amplify_stamp_app_id
+          import_path: botocraft.mixins.amplify
+    delete:
+      boto3_name: delete_backend_environment
+      response_attr: backendEnvironment
+      decorators:
+        - name: amplify_stamp_app_id
+          import_path: botocraft.mixins.amplify
+
+Job:
+  mixins:
+    - name: AmplifyJobManagerMixin
+      import_path: botocraft.mixins.amplify
+  methods:
+    get:
+      boto3_name: get_job
+      response_attr: job
+      decorators:
+        - name: amplify_stamp_job_scope
+          import_path: botocraft.mixins.amplify
+
+Artifact:
+  mixins:
+    - name: AmplifyArtifactManagerMixin
+      import_path: botocraft.mixins.amplify
+  methods:
+    url:
+      boto3_name: get_artifact_url
+      response_attr: artifactUrl
+      docstring: >-
+        Return a download URL for one artifact. artifactId is the only
+        argument Amplify accepts.

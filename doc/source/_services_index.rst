@@ -4,6 +4,7 @@
    :hidden:
 
    api/services/acm
+   api/services/amplify
    api/services/application_autoscaling
    api/services/autoscaling
    api/services/bedrock

@@ -1,4 +1,5 @@
 - :doc:`/api/services/acm`
+- :doc:`/api/services/amplify`
 - :doc:`/api/services/application_autoscaling`
 - :doc:`/api/services/autoscaling`
 - :doc:`/api/services/bedrock`

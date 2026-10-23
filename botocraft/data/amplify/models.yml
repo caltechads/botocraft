@@ -1,0 +1,246 @@
+---
+primary:
+  App:
+    primary_key: appId
+    arn_key: appArn
+    name_key: appName
+    input_shapes:
+      - CreateAppRequest
+      - UpdateAppRequest
+    fields:
+      name:
+        rename: appName
+      tags:
+        rename: Tags
+      basicAuthCredentials:
+        repr: false
+    extra_fields:
+      oauthToken:
+        python_type: str | None
+        default: None
+        repr: false
+        docstring: >-
+          Repository OAuth token sent only on create or update. Amplify does
+          not return it.
+      accessToken:
+        python_type: str | None
+        default: None
+        repr: false
+        docstring: >-
+          Repository access token sent only on create or update. Amplify does
+          not return it.
+    relations:
+      branches:
+        primary_model_name: AmplifyBranch
+        many: true
+        docstring: >-
+          Branches that belong to this app.
+        transformer:
+          mapping:
+            appId: appId
+      domain_associations:
+        primary_model_name: DomainAssociation
+        many: true
+        docstring: >-
+          Domain associations that belong to this app.
+        transformer:
+          mapping:
+            appId: appId
+      webhooks:
+        primary_model_name: AmplifyWebhook
+        many: true
+        docstring: >-
+          Webhooks that belong to this app.
+        transformer:
+          mapping:
+            appId: appId
+      backend_environments:
+        primary_model_name: BackendEnvironment
+        many: true
+        docstring: >-
+          Backend environments that belong to this app.
+        transformer:
+          mapping:
+            appId: appId
+    docstring: >-
+      An Amplify Hosting app.
+
+  Branch:
+    alternate_name: AmplifyBranch
+    arn_key: branchArn
+    name_key: branchName
+    input_shapes:
+      - CreateBranchRequest
+      - UpdateBranchRequest
+    fields:
+      tags:
+        rename: Tags
+      basicAuthCredentials:
+        repr: false
+    extra_fields:
+      appId:
+        python_type: str | None
+        default: None
+        docstring: >-
+          Owning app id. The branch shape does not carry it. Call results
+          copy it from the request.
+    properties:
+      pk:
+        docstring: >-
+          App id plus branch name. Delete and update need both.
+        transformer:
+          mapping:
+            appId: appId
+            branchName: branchName
+    relations:
+      active_job:
+        primary_model_name: Job
+        cached: false
+        docstring: >-
+          The job named by ``activeJobId``. Uses the app id stamped onto
+          this branch.
+        transformer:
+          mapping:
+            appId: appId
+            branchName: branchName
+            jobId: activeJobId
+    docstring: >-
+      A deploy target that belongs to one Amplify app.
+
+  DomainAssociation:
+    arn_key: domainAssociationArn
+    name_key: domainName
+    input_shapes:
+      - CreateDomainAssociationRequest
+      - UpdateDomainAssociationRequest
+    extra_fields:
+      appId:
+        python_type: str | None
+        default: None
+        docstring: >-
+          Owning app id. The domain association shape does not carry it.
+          Call results copy it from the request.
+      subDomainSettings:
+        python_type: "list[dict[str, str]] | None"
+        default: None
+        docstring: >-
+          Subdomain prefix to branch name mappings sent on create and update.
+          Each item has prefix and branchName. The response field is subDomains.
+      certificateSettings:
+        python_type: "dict[str, str] | None"
+        default: None
+        docstring: >-
+          Certificate request sent on create and update. type is
+          AMPLIFY_MANAGED or CUSTOM. customCertificateArn is the ACM certificate
+          ARN when type is CUSTOM.
+    properties:
+      pk:
+        docstring: >-
+          App id plus domain name. Delete and update need both.
+        transformer:
+          mapping:
+            appId: appId
+            domainName: domainName
+    docstring: >-
+      A custom domain attached to an Amplify app.
+
+  Webhook:
+    alternate_name: AmplifyWebhook
+    primary_key: webhookId
+    arn_key: webhookArn
+    input_shapes:
+      - CreateWebhookRequest
+      - UpdateWebhookRequest
+    relations:
+      app:
+        primary_model_name: App
+        docstring: >-
+          The Amplify app this webhook calls.
+        transformer:
+          mapping:
+            appId: appId
+      branch:
+        primary_model_name: AmplifyBranch
+        docstring: >-
+          The branch this webhook deploys.
+        transformer:
+          mapping:
+            appId: appId
+            branchName: branchName
+    docstring: >-
+      An HTTPS hook that starts work for one branch of an Amplify app.
+
+  BackendEnvironment:
+    arn_key: backendEnvironmentArn
+    name_key: environmentName
+    input_shapes:
+      - CreateBackendEnvironmentRequest
+    extra_fields:
+      appId:
+        python_type: str | None
+        default: None
+        docstring: >-
+          Owning app id. The backend environment shape does not carry it.
+          Call results copy it from the request.
+    properties:
+      pk:
+        docstring: >-
+          App id plus environment name. Delete needs both.
+        transformer:
+          mapping:
+            appId: appId
+            environmentName: environmentName
+    docstring: >-
+      A Gen 1 backend environment for an Amplify app. Amplify has no update
+      operation for it.
+
+  Job:
+    mixins:
+      - name: AmplifyJobModelMixin
+        import_path: botocraft.mixins.amplify
+    extra_fields:
+      appId:
+        python_type: str | None
+        default: None
+        docstring: >-
+          Owning app id. Copied from the get or list request.
+      branchName:
+        python_type: str | None
+        default: None
+        docstring: >-
+          Owning branch name. Copied from the get or list request.
+    properties:
+      pk:
+        docstring: >-
+          App id, branch name, and job id. Delete needs all three.
+        transformer:
+          mapping:
+            appId: appId
+            branchName: branchName
+            jobId: summary.jobId
+    docstring: >-
+      One Amplify job, including its summary and steps. Botocraft can read
+      and delete a job. It does not start or stop one.
+
+  Artifact:
+    readonly: true
+    primary_key: artifactId
+    docstring: >-
+      A file produced by an Amplify job. Readable only.
+
+secondary:
+  Certificate:
+    alternate_name: AmplifyCertificate
+  Step:
+    alternate_name: AmplifyStep
+    mixins:
+      - name: AmplifyStepModelMixin
+        import_path: botocraft.mixins.amplify
+  WafConfiguration:
+    alternate_name: AmplifyWafConfiguration
+  AutoBranchCreationConfig:
+    fields:
+      basicAuthCredentials:
+        repr: false
+  CreateDeploymentResult:
+    force_create: true
