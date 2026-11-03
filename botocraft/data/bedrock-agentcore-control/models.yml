@@ -179,6 +179,18 @@ secondary:
     fields:
       tags:
         rename: Tags
+  # NOTE: botocore 1.43.123 added PortRange with a member named `from`, which
+  # is a Python keyword and makes the generated module unparseable.  The wire
+  # name is preserved via Field(alias="from").
+  # alternate_name avoids a cross-service name collision with inspector2's
+  # (different) PortRange shape.
+  PortRange:
+    alternate_name: AgentCorePortRange
+    fields:
+      from:
+        rename: from_port
+      to:
+        rename: to_port
   # NOTE: the raw "GatewayTarget" shape is used as output_shape on the
   # TargetSummary-keyed primary model (public name GatewayTarget via
   # alternate_name above) -- without this alias the two would generate two
