@@ -51,3 +51,15 @@ secondary:
   # generated instead of leaving `return_type` referencing an undefined name.
   BatchCreateMemoryRecordsOutput: {}
   BatchUpdateMemoryRecordsOutput: {}
+  # Declared explicitly because the PayloadType.json_data python_type override
+  # hides MemoryJsonData from the dependency walk.
+  MemoryJsonData:
+    force_create: true
+  # NOTE: a field named `json` shadows pydantic BaseModel.json (UserWarning on
+  # import).  Rename it; the wire name is preserved via Field(alias="json").
+  PayloadType:
+    fields:
+      json:
+        rename: json_data
+        python_type: '"MemoryJsonData | None"'
+        default: None
