@@ -5,6 +5,11 @@ primary:
     name_key: Name
     input_shapes:
       - CreateHostedZoneRequest
+    fields:
+      # A model attribute named `Config` triggers pydantic's class-based
+      # config deprecation warning.
+      Config:
+        rename: ZoneConfig
     mixins:
       - name: HostedZoneModelMixin
         import_path: botocraft.mixins.route53

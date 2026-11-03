@@ -144,6 +144,11 @@ primary:
     fields:
       Architecture:
         readonly: true
+      # NOTE: botocore 1.43.123 added Image.ScanResults whose type is also
+      # named ScanResults; a same-named readonly field breaks forward refs.
+      ScanResults:
+        readonly: true
+        rename: InspectorScanResults
       ImageId:
         readonly: true
       ImageType:

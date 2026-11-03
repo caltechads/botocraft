@@ -173,7 +173,7 @@ class TagsDictMixin:
         )
         candidates = ["key", "Key"]
         for candidate in candidates:
-            if candidate in self.tag_class.__fields__:
+            if candidate in self.tag_class.model_fields:
                 return candidate
         msg = f"Could not find a key attribute in {self.tag_class.__name__}"
         raise RuntimeError(msg)
@@ -188,7 +188,7 @@ class TagsDictMixin:
         )
         candidates = ["value", "Value"]
         for candidate in candidates:
-            if candidate in self.tag_class.__fields__:
+            if candidate in self.tag_class.model_fields:
                 return candidate
         msg = f"Could not find a value attribute in {self.tag_class.__name__}"
         raise RuntimeError(msg)
