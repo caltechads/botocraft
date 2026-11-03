@@ -38,6 +38,7 @@ class TestInstanceModelMixinTunnel:
 
         with (
             patch("botocraft.mixins.ec2.shutil.which", return_value=None),
+            pytest.warns(RuntimeWarning, match="AWS CLI is not installed"),
             pytest.raises(RuntimeError, match="AWS CLI is not installed"),
         ):
             instance.open_tunnel(
@@ -54,6 +55,7 @@ class TestInstanceModelMixinTunnel:
         with (
             patch("botocraft.mixins.ec2.shutil.which", return_value="/usr/bin/aws"),
             patch("botocraft.mixins.ec2.subprocess.run", help_result),
+            pytest.warns(RuntimeWarning, match="does not support"),
             pytest.raises(
                 RuntimeError,
                 match="does not support `aws ssm start-session`",

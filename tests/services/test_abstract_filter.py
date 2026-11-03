@@ -27,6 +27,8 @@ class SecurityGroup(BaseModel):
 
 
 class TestModel(Boto3Model):
+    __test__ = False
+
     name: str
     status: str
     type: str
@@ -119,6 +121,8 @@ class RelatedTestModel(Boto3Model):
 
 class TestModelWithRelation(Boto3Model):
     """A model with relationship properties for testing filters."""
+
+    __test__ = False
 
     id: str
     name: str
