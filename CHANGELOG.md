@@ -1,5 +1,15 @@
 # Changelog
 
+## [0.36.2] - 2026-11-03
+
+### Added
+
+- Add `AgentCoreAgentRuntimeManager.list_versions(agentRuntimeId)` to list every version of an AgentCore Runtime across all result pages. It returns a queryset of `AgentCoreAgentRuntime` items with `agentRuntimeVersion`, `status` and `lastUpdatedAt`.
+
+### Fixed
+
+- Generated `list()` methods no longer stop at an empty page that still has a token for the next page. Before this fix, an API that names its token `nextToken`, `Marker` or similar could silently return only the pages before the empty one.
+
 ## [0.36.0] - 2026-10-23
 
 ### Added
