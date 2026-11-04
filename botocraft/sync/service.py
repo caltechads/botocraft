@@ -1550,7 +1550,7 @@ class ServiceGenerator:
         """
         The code for this service.
         """
-        imports = "\n".join(list(self.imports))
+        imports = "\n".join(sorted(self.imports))
         model_classes = "\n\n".join(self.model_classes.values())
         response_classes = "\n\n".join(self.response_classes.values())
         manager_classes = "\n\n".join(self.manager_classes.values())
