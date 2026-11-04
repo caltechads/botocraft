@@ -11,9 +11,11 @@ from .abstract import (
 from .abstract import PrimaryBoto3ModelQuerySet
 from botocraft.mixins.docdb import DocDBClusterModelMixin
 from botocraft.mixins.docdb import multiple_docdb_cluster_include_tags
+from botocraft.mixins.docdb import multiple_docdb_cluster_parameter_group_include_tags
 from botocraft.mixins.docdb import multiple_docdb_instance_include_tags
 from botocraft.mixins.docdb import multiple_docdb_subnet_group_include_tags
 from botocraft.mixins.docdb import single_docdb_cluster_include_tags
+from botocraft.mixins.docdb import single_docdb_cluster_parameter_group_include_tags
 from botocraft.mixins.docdb import single_docdb_instance_include_tags
 from botocraft.mixins.docdb import single_docdb_subnet_group_include_tags
 from botocraft.mixins.tags import TagsDictMixin
@@ -24,6 +26,7 @@ from botocraft.services.ec2 import Subnet
 from botocraft.services.ec2 import SubnetManager
 from botocraft.services.ec2 import Vpc, VpcManager
 from botocraft.services.kms import KMSKey, KMSKeyManager
+from botocraft.services.ssm import Parameter
 from collections import OrderedDict
 from datetime import datetime
 from functools import cached_property
@@ -867,6 +870,241 @@ class DocDBSubnetGroupManager(Boto3ModelManager):
                 results.extend(response.DBSubnetGroups)
         self.sessionize(results)
         return PrimaryBoto3ModelQuerySet(results)
+
+
+class DocDBClusterParameterGroupManager(Boto3ModelManager):
+    service_name: str = "docdb"
+
+    @single_docdb_cluster_parameter_group_include_tags
+    def create(
+        self, model: "DocDBClusterParameterGroup"
+    ) -> "DocDBClusterParameterGroup":
+        """
+        Creates a new cluster parameter group.
+
+        Args:
+            model: The :py:class:`DBClusterParameterGroup` to create.
+        """
+        data = model.model_dump(exclude_none=True, by_alias=True)
+        args = dict(
+            DBClusterParameterGroupName=data.get("DBClusterParameterGroupName"),
+            DBParameterGroupFamily=data.get("DBParameterGroupFamily"),
+            Description=data.get("Description"),
+            Tags=data.get("Tags"),
+        )
+        _response = self.client.create_db_cluster_parameter_group(
+            **{k: v for k, v in args.items() if v is not None}
+        )
+        response = DocDBCreateDBClusterParameterGroupResult(**_response)
+
+        self.sessionize(response.DBClusterParameterGroup)
+        return cast("DocDBClusterParameterGroup", response.DBClusterParameterGroup)
+
+    def update(
+        self,
+        model: "DocDBClusterParameterGroup",
+        Parameters: "builtins.list[Parameter]",
+    ) -> str:
+        """
+        Modifies the parameters of a cluster parameter group.
+
+        To modify more than one parameter, submit a list of the following: ``ParameterName``,
+            ``ParameterValue``, and ``ApplyMethod``. A maximum of 20 parameters can be
+            modified in a single
+        request.
+
+        Args:
+            model: The :py:class:`DBClusterParameterGroup` to update.
+            Parameters: A list of parameters in the cluster parameter group to modify.
+        """
+        data = model.model_dump(exclude_none=True, by_alias=True)
+        args = dict(
+            DBClusterParameterGroupName=data.get("DBClusterParameterGroupName"),
+            Parameters=self.serialize(Parameters),
+        )
+        _response = self.client.modify_db_cluster_parameter_group(
+            **{k: v for k, v in args.items() if v is not None}
+        )
+        response = DocDBClusterParameterGroupNameMessage(**_response)
+
+        self.sessionize(response.DBClusterParameterGroupName)
+        return cast("str", response.DBClusterParameterGroupName)
+
+    def delete(self, DBClusterParameterGroupName: str) -> None:
+        """
+        Deletes a specified cluster parameter group.
+
+        The cluster parameter group to be deleted can't be associated with any clusters.
+
+        Args:
+            DBClusterParameterGroupName: The name of the cluster parameter group.
+        """
+        args: dict[str, Any] = dict(
+            DBClusterParameterGroupName=self.serialize(DBClusterParameterGroupName)
+        )
+        self.client.delete_db_cluster_parameter_group(
+            **{k: v for k, v in args.items() if v is not None}
+        )
+
+    @single_docdb_cluster_parameter_group_include_tags
+    def get(
+        self, DBClusterParameterGroupName: str
+    ) -> "DocDBClusterParameterGroup | None":
+        """
+        Returns a list of ``DBClusterParameterGroup`` descriptions.
+
+        If a ``DBClusterParameterGroupName`` parameter is specified, the list contains
+        only the description of the specified cluster parameter group.
+
+        Args:
+            DBClusterParameterGroupName: The name of a specific cluster parameter group
+                to return details for.
+        """
+        args: dict[str, Any] = dict(
+            DBClusterParameterGroupName=self.serialize(DBClusterParameterGroupName)
+        )
+        _response = self.client.describe_db_cluster_parameter_groups(
+            **{k: v for k, v in args.items() if v is not None}
+        )
+        response = DocDBClusterParameterGroupsMessage(**_response)
+
+        if response and response.DBClusterParameterGroups:
+            self.sessionize(response.DBClusterParameterGroups[0])
+            return response.DBClusterParameterGroups[0]
+        return None
+
+    @multiple_docdb_cluster_parameter_group_include_tags
+    def list(
+        self,
+        *,
+        DBClusterParameterGroupName: "str | None" = None,
+        Filters: "builtins.list[Filter] | None" = None,
+    ) -> PrimaryBoto3ModelQuerySet["DocDBClusterParameterGroup"]:
+        """
+        Returns a list of ``DBClusterParameterGroup`` descriptions.
+
+        If a ``DBClusterParameterGroupName`` parameter is specified, the list contains
+        only the description of the specified cluster parameter group.
+
+        Keyword Args:
+            DBClusterParameterGroupName: The name of a specific cluster parameter group
+                to return details for.
+            Filters: This parameter is not currently supported.
+        """
+        paginator = self.client.get_paginator("describe_db_cluster_parameter_groups")
+        args: dict[str, Any] = dict(
+            DBClusterParameterGroupName=self.serialize(DBClusterParameterGroupName),
+            Filters=self.serialize(Filters),
+        )
+        response_iterator = paginator.paginate(
+            **{k: v for k, v in args.items() if v is not None}
+        )
+        results: "builtins.list[DocDBClusterParameterGroup]" = []
+        for _response in response_iterator:
+            if list(_response.keys()) == ["ResponseMetadata"]:
+                break
+            if "ResponseMetadata" in _response:
+                del _response["ResponseMetadata"]
+            response = DocDBClusterParameterGroupsMessage(**_response)
+            if response.DBClusterParameterGroups:
+                results.extend(response.DBClusterParameterGroups)
+        self.sessionize(results)
+        return PrimaryBoto3ModelQuerySet(results)
+
+    @single_docdb_cluster_parameter_group_include_tags
+    def copy(
+        self,
+        SourceDBClusterParameterGroupIdentifier: str,
+        TargetDBClusterParameterGroupIdentifier: str,
+        TargetDBClusterParameterGroupDescription: str,
+        *,
+        Tags: "builtins.list[Tag] | None" = None,
+    ) -> "DocDBClusterParameterGroup":
+        """
+        Copies the specified cluster parameter group.
+
+        Args:
+            SourceDBClusterParameterGroupIdentifier: The identifier or Amazon Resource
+                Name (ARN) for the source cluster
+                parameter group.
+            TargetDBClusterParameterGroupIdentifier: The identifier for the copied
+                cluster parameter group.
+            TargetDBClusterParameterGroupDescription: A description for the copied
+                cluster parameter group.
+
+        Keyword Args:
+            Tags: The tags that are to be assigned to the parameter group.
+        """
+        args: dict[str, Any] = dict(
+            SourceDBClusterParameterGroupIdentifier=self.serialize(
+                SourceDBClusterParameterGroupIdentifier
+            ),
+            TargetDBClusterParameterGroupIdentifier=self.serialize(
+                TargetDBClusterParameterGroupIdentifier
+            ),
+            TargetDBClusterParameterGroupDescription=self.serialize(
+                TargetDBClusterParameterGroupDescription
+            ),
+            Tags=self.serialize(Tags),
+        )
+        _response = self.client.copy_db_cluster_parameter_group(
+            **{k: v for k, v in args.items() if v is not None}
+        )
+        response = DocDBCopyDBClusterParameterGroupResult(**_response)
+
+        results: "DocDBClusterParameterGroup" = None
+        if response is not None:
+            results = response.DBClusterParameterGroup
+
+        self.sessionize(results)
+        return cast("DocDBClusterParameterGroup", results)
+
+    def reset(
+        self,
+        DBClusterParameterGroupName: str,
+        *,
+        ResetAllParameters: "bool | None" = None,
+        Parameters: "builtins.list[Parameter] | None" = None,
+    ) -> str:
+        """
+        Modifies the parameters of a cluster parameter group to the default value.
+
+        To reset specific parameters, submit a list of the following: ``ParameterName``
+            and ``ApplyMethod``. To reset the entire cluster parameter group, specify
+            the
+        ``DBClusterParameterGroupName`` and ``ResetAllParameters`` parameters.
+
+        Args:
+            DBClusterParameterGroupName: The name of the cluster parameter group to
+                reset.
+
+        Keyword Args:
+            ResetAllParameters: A value that is set to ``true`` to reset all parameters
+                in the cluster parameter group to their
+                default values, and ``false`` otherwise. You can't use this parameter if
+                there is a list of parameter names
+                specified for the ``Parameters`` parameter.
+            Parameters: A list of parameter names in the cluster parameter group to
+                reset to the default values. You can't use
+                this parameter if the ``ResetAllParameters`` parameter is set to
+                ``true``.
+        """
+        args: dict[str, Any] = dict(
+            DBClusterParameterGroupName=self.serialize(DBClusterParameterGroupName),
+            ResetAllParameters=self.serialize(ResetAllParameters),
+            Parameters=self.serialize(Parameters),
+        )
+        _response = self.client.reset_db_cluster_parameter_group(
+            **{k: v for k, v in args.items() if v is not None}
+        )
+        response = DocDBClusterParameterGroupNameMessage(**_response)
+
+        results: str = None
+        if response is not None:
+            results = response.DBClusterParameterGroupName
+
+        self.sessionize(results)
+        return cast("str", results)
 
 
 # ==============
@@ -2026,7 +2264,6 @@ class DocDBSubnetGroup(PrimaryBoto3Model):
             The primary key of the model instance.
         """
         return self.DBSubnetGroupArn
-
     @property
     def arn(self) -> str | None:
         """
@@ -2038,6 +2275,7 @@ class DocDBSubnetGroup(PrimaryBoto3Model):
             The ARN of the model instance.
         """
         return self.DBSubnetGroupArn
+
     @property
     def name(self) -> str | None:
         """
@@ -2049,7 +2287,6 @@ class DocDBSubnetGroup(PrimaryBoto3Model):
             The name of the model instance.
         """
         return self.DBSubnetGroupName
-
     def __hash__(self) -> int:
         """
         Return the hash of the model.
@@ -2058,10 +2295,90 @@ class DocDBSubnetGroup(PrimaryBoto3Model):
         :py:attr:`DBSubnetGroupArn` attribute.
         """
         return hash(self.DBSubnetGroupArn)
+
+
+class DocDBClusterParameterGroup(TagsDictMixin, PrimaryBoto3Model):
+    """
+    Detailed information about a cluster parameter group.
+    """
+    tag_class: ClassVar[ModelType[Boto3Model]] = Tag
+    manager_class: ClassVar[ModelType[Boto3ModelManager]] = (
+        DocDBClusterParameterGroupManager
+    )
+
+    DBClusterParameterGroupName: "str | None" = None
+    """
+    Provides the name of the cluster parameter group.
+    """
+
+    DBParameterGroupFamily: "str | None" = None
+    """
+    Provides the name of the parameter group family that this cluster parameter group is
+    compatible with.
+    """
+
+    Description: "str | None" = None
+    """
+    Provides the customer-specified description for this cluster parameter group.
+    """
+
+    DBClusterParameterGroupArn: str = Field(default=None, frozen=True)
+    """
+    The Amazon Resource Name (ARN) for the cluster parameter group.
+    """
+
+    Tags: "builtins.list[Tag] | None" = Field(default_factory=list)
+    """
+    The tags associated with the parameter group.
+    """
+
+    @property
+    def pk(self) -> str | None:
+        """
+        Return the primary key of the model.
+
+        This is the value of the :py:attr:`DBClusterParameterGroupArn` attribute.
+
+        Returns:
+            The primary key of the model instance.
+        """
+        return self.DBClusterParameterGroupArn
+
+    @property
+    def arn(self) -> str | None:
+        """
+        Return the ARN of the model.
+
+        This is the value of the :py:attr:`DBClusterParameterGroupArn` attribute.
+
+        Returns:
+            The ARN of the model instance.
+        """
+        return self.DBClusterParameterGroupArn
+
+    @property
+    def name(self) -> str | None:
+        """
+        Return the name of the model.
+
+        This is the value of the :py:attr:`DBClusterParameterGroupName` attribute.
+
+        Returns:
+            The name of the model instance.
+        """
+        return self.DBClusterParameterGroupName
+
+    def __hash__(self) -> int:
+        """
+        Return the hash of the model.
+
+        This is the value of the
+        :py:attr:`DBClusterParameterGroupArn` attribute.
+        """
+        return hash(self.DBClusterParameterGroupArn)
 # =======================
 # Request/Response Models
 # =======================
-
 
 class ServerlessV2ScalingConfiguration(Boto3Model):
     """
@@ -2099,12 +2416,10 @@ class CloudwatchLogsExportConfiguration(Boto3Model):
     exported (or not exported) to CloudWatch Logs. The values within these arrays depend
     on the engine that is being used.
     """
-
     EnableLogTypes: "builtins.list[str] | None" = Field(default_factory=list)
     """
     The list of log types to enable.
     """
-
     DisableLogTypes: "builtins.list[str] | None" = Field(default_factory=list)
     """
     The list of log types to disable.
@@ -2199,7 +2514,6 @@ class DocDBInstanceMessage(Boto3Model):
     """
     Detailed information about one or more instances.
     """
-
 class RebootDBInstanceResult(Boto3Model):
     DBInstance: "DocDBInstance | None" = None
     """
@@ -2236,4 +2550,46 @@ class DocDBSubnetGroupMessage(Boto3Model):
     )
     """
     Detailed information about one or more subnet groups.
+    """
+
+class DocDBCreateDBClusterParameterGroupResult(Boto3Model):
+    DBClusterParameterGroup: "DocDBClusterParameterGroup | None" = None
+    """
+    Detailed information about a cluster parameter group.
+    """
+
+class DocDBClusterParameterGroupNameMessage(Boto3Model):
+    """
+    Contains the name of a cluster parameter group.
+    """
+
+    DBClusterParameterGroupName: "str | None" = None
+    """
+    The name of a cluster parameter group.
+    """
+
+class DocDBClusterParameterGroupsMessage(Boto3Model):
+    """
+    Represents the output of DBClusterParameterGroups.
+    """
+
+    Marker: "str | None" = None
+    """
+    An optional pagination token provided by a previous request.
+
+    If this parameter is specified, the response includes only records beyond the
+    marker, up to the value specified by ``MaxRecords``.
+    """
+
+    DBClusterParameterGroups: "builtins.list[DocDBClusterParameterGroup] | None" = (
+        Field(default_factory=list)
+    )
+    """
+    A list of cluster parameter groups.
+    """
+
+class DocDBCopyDBClusterParameterGroupResult(Boto3Model):
+    DBClusterParameterGroup: "DocDBClusterParameterGroup | None" = None
+    """
+    Detailed information about a cluster parameter group.
     """
