@@ -142,39 +142,45 @@ DBSubnetGroup:
         - name: multiple_docdb_subnet_group_include_tags
           import_path: botocraft.mixins.docdb
       boto3_name: describe_db_subnet_groups
-  DBClusterParameterGroup:
-    methods:
-      create:
-        boto3_name: create_db_parameter_group
-        response_attr: DBParameterGroup
-      update:
-        boto3_name: modify_db_parameter_group
-        response_attr: DBParameterGroup
-      delete:
-        boto3_name: delete_db_parameter_group
-        response_attr: DBParameterGroup
-      get:
-        boto3_name: describe_db_parameter_groups
-        args:
-          DBParameterGroupName:
-            required: true
+DBClusterParameterGroup:
+  methods:
+    create:
+      decorators:
+        - name: single_docdb_cluster_parameter_group_include_tags
+          import_path: botocraft.mixins.docdb
+      boto3_name: create_db_cluster_parameter_group
+      response_attr: DBClusterParameterGroup
+    update:
+      boto3_name: modify_db_cluster_parameter_group
+      response_attr: DBClusterParameterGroupName
+    delete:
+      boto3_name: delete_db_cluster_parameter_group
+      return_type: None
+      args:
+        DBClusterParameterGroupName:
+          required: true
+    get:
+      decorators:
+        - name: single_docdb_cluster_parameter_group_include_tags
+          import_path: botocraft.mixins.docdb
+      boto3_name: describe_db_cluster_parameter_groups
+      args:
+        DBClusterParameterGroupName:
+          required: true
         Filters:
           hidden: true
-      list:
-        boto3_name: describe_db_parameter_groups
-        response_attr: DBParameterGroups
-      copy:
-        boto3_name: copy_db_cluster_parameter_group
-        response_attr: DBClusterParameterGroup
-      reset:
-        boto3_name: reset_db_cluster_parameter_group
-        response_attr: DBClusterParameterGroupName
-
-
-
-
-
-
-
-
-
+    list:
+      decorators:
+        - name: multiple_docdb_cluster_parameter_group_include_tags
+          import_path: botocraft.mixins.docdb
+      boto3_name: describe_db_cluster_parameter_groups
+      response_attr: DBClusterParameterGroups
+    copy:
+      decorators:
+        - name: single_docdb_cluster_parameter_group_include_tags
+          import_path: botocraft.mixins.docdb
+      boto3_name: copy_db_cluster_parameter_group
+      response_attr: DBClusterParameterGroup
+    reset:
+      boto3_name: reset_db_cluster_parameter_group
+      response_attr: DBClusterParameterGroupName

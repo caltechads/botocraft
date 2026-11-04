@@ -6,6 +6,8 @@
 
 - Add `AgentCoreAgentRuntimeManager.list_versions(agentRuntimeId)` to list every version of an AgentCore Runtime across all result pages. It returns a queryset of `AgentCoreAgentRuntime` items with `agentRuntimeVersion`, `status` and `lastUpdatedAt`.
 
+- Add DocumentDB cluster parameter groups: `DocDBClusterParameterGroup` with `create`, `update`, `delete`, `get`, `list`, `copy` and `reset` on `DocDBClusterParameterGroupManager`. The model and manager were always in the service config but were never generated, because the config was indented under another model. Tags are filled in on `get`, `list`, `create` and `copy`.
+
 ### Changed
 
 - `PrimaryBoto3ModelQuerySet` is now generic over its model class. Generated `list()` and `get_many()` methods return `PrimaryBoto3ModelQuerySet[Model]`, so type checkers know what iterating, indexing, `first()` and `all()` give back. A bare `PrimaryBoto3ModelQuerySet` annotation still works. This removes several hundred mypy errors from the generated services.

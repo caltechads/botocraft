@@ -14,11 +14,11 @@ if TYPE_CHECKING:
     from botocraft.connectivity import ResolvedConnectionTarget
     from botocraft.services.abstract import PrimaryBoto3ModelQuerySet
     from botocraft.services.common import Credentials
-    from botocraft.services.docdb import (  # type: ignore[attr-defined]
+    from botocraft.services.docdb import (
         ClusterMasterUserSecret,
         DocDBCluster,
+        DocDBClusterParameterGroup,
         DocDBInstance,
-        DocDBParameterGroup,
         DocDBSubnetGroup,
     )
 
@@ -217,13 +217,12 @@ def multiple_docdb_subnet_group_include_tags(
     return wrapper
 
 
-def single_docdb_parameter_group_include_tags(
-    func: Callable[..., "DocDBParameterGroup"],
-) -> Callable[..., "DocDBParameterGroup"]:
+def single_docdb_cluster_parameter_group_include_tags(
+    func: Callable[..., "DocDBClusterParameterGroup"],
+) -> Callable[..., "DocDBClusterParameterGroup"]:
     """
-    Decorator to convert a :py:class:`botocraft.services.docdb.DocDBParameterGroup`
-    object to a :py:class:`botocraft.services.docdb.DocDBParameterGroup` object
-    with tags included.
+    Decorator that adds tags to a returned
+    :py:class:`botocraft.services.docdb.DocDBClusterParameterGroup`.
 
     Args:
         func: The manager method returning a single parameter group.
@@ -235,10 +234,10 @@ def single_docdb_parameter_group_include_tags(
     """
 
     @wraps(func)
-    def wrapper(self, *args, **kwargs) -> "DocDBParameterGroup":
+    def wrapper(self, *args, **kwargs) -> "DocDBClusterParameterGroup":
         response = func(self, *args, **kwargs)
         tags = self.client.list_tags_for_resource(
-            ResourceName=response.DBParameterGroupArn
+            ResourceName=response.DBClusterParameterGroupArn
         )
         response.Tags = tags["TagList"]
         return response
@@ -246,15 +245,15 @@ def single_docdb_parameter_group_include_tags(
     return wrapper
 
 
-def multiple_docdb_parameter_group_include_tags(
+def multiple_docdb_cluster_parameter_group_include_tags(
     func: Callable[..., "PrimaryBoto3ModelQuerySet"],
 ) -> Callable[..., "PrimaryBoto3ModelQuerySet"]:
     """
     Decorator to convert a
     :py:class:`botocraft.services.abstract.PrimaryBoto3ModelQuerySet` of
-    :py:class:`botocraft.services.docdb.DocDBParameterGroup` objects to a
+    :py:class:`botocraft.services.docdb.DocDBClusterParameterGroup` objects to a
     :py:class:`botocraft.services.abstract.PrimaryBoto3ModelQuerySet` of
-    :py:class:`botocraft.services.docdb.DocDBParameterGroup` objects with tags
+    :py:class:`botocraft.services.docdb.DocDBClusterParameterGroup` objects with tags
     included.
 
     Args:
@@ -262,7 +261,7 @@ def multiple_docdb_parameter_group_include_tags(
 
     Returns:
         A wrapper that calls ``func`` and returns a new queryset whose
-        parameter groups have ``Tags`` populated.
+        cluster parameter groups have ``Tags`` populated.
 
     """
 
@@ -271,10 +270,10 @@ def multiple_docdb_parameter_group_include_tags(
         from botocraft.services.abstract import PrimaryBoto3ModelQuerySet
 
         response = func(self, *args, **kwargs)
-        parameter_groups: list[DocDBParameterGroup] = []
+        parameter_groups: list[DocDBClusterParameterGroup] = []
         for parameter_group in response.all():
             tags = self.client.list_tags_for_resource(
-                ResourceName=parameter_group.DBParameterGroupArn
+                ResourceName=parameter_group.DBClusterParameterGroupArn
             )
             parameter_group.Tags = tags["TagList"]
             parameter_groups.append(parameter_group)
