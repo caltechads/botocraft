@@ -77,21 +77,29 @@ class ACMManagerMixin:
 
     def update(self, model: "ACMCertificate") -> None:
         """
+        Replace the tags on a certificate with the tags on ``model``.
+
+        ACM has no operation that edits tags in place, so every existing tag is
+        removed and then the tags on ``model`` are added.
+
         Args:
             model: the :py:class:`ACMCertificate` to update.
 
         """
-        # First let's deal with tags.  It looks like we have to untag all existing tags,
-        # and then tag the new ones.
-        response = self.client.list_tags_for_certificate(  # type: ignore[attr-defined]
+        client = self.client  # type: ignore[attr-defined]
+        existing = client.list_tags_for_certificate(
             CertificateArn=model.CertificateArn,
-        )
-        self.client.remove_tags_from_certificate(  # type: ignore[attr-defined]
-            CertificateArn=model.CertificateArn,
-            Tags=response.Tags,
-        )
-        # reformat our tags to the format expected by the API
-        self.client.add_tags_to_certificate(  # type: ignore[attr-defined]
-            CertificateArn=model.CertificateArn,
-            Tags=model.Tags,
-        )
+        )["Tags"]
+        # ACM rejects an empty ``Tags`` list, so only call it when there is work.
+        if existing:
+            client.remove_tags_from_certificate(
+                CertificateArn=model.CertificateArn,
+                Tags=existing,
+            )
+        # boto3 wants plain dicts, not our Tag models.
+        desired = [tag.model_dump(exclude_none=True) for tag in model.Tags or []]
+        if desired:
+            client.add_tags_to_certificate(
+                CertificateArn=model.CertificateArn,
+                Tags=desired,
+            )
