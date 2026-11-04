@@ -10,6 +10,7 @@ from .abstract import (
 )
 from .abstract import PrimaryBoto3ModelQuerySet
 from botocraft.mixins.docdb import DocDBClusterModelMixin
+from botocraft.mixins.docdb import DocDBClusterParameterGroupManagerMixin
 from botocraft.mixins.docdb import multiple_docdb_cluster_include_tags
 from botocraft.mixins.docdb import multiple_docdb_cluster_parameter_group_include_tags
 from botocraft.mixins.docdb import multiple_docdb_instance_include_tags
@@ -26,7 +27,6 @@ from botocraft.services.ec2 import Subnet
 from botocraft.services.ec2 import SubnetManager
 from botocraft.services.ec2 import Vpc, VpcManager
 from botocraft.services.kms import KMSKey, KMSKeyManager
-from botocraft.services.ssm import Parameter
 from collections import OrderedDict
 from datetime import datetime
 from functools import cached_property
@@ -872,7 +872,9 @@ class DocDBSubnetGroupManager(Boto3ModelManager):
         return PrimaryBoto3ModelQuerySet(results)
 
 
-class DocDBClusterParameterGroupManager(Boto3ModelManager):
+class DocDBClusterParameterGroupManager(
+    DocDBClusterParameterGroupManagerMixin, Boto3ModelManager
+):
     service_name: str = "docdb"
 
     @single_docdb_cluster_parameter_group_include_tags
@@ -899,36 +901,6 @@ class DocDBClusterParameterGroupManager(Boto3ModelManager):
 
         self.sessionize(response.DBClusterParameterGroup)
         return cast("DocDBClusterParameterGroup", response.DBClusterParameterGroup)
-
-    def update(
-        self,
-        model: "DocDBClusterParameterGroup",
-        Parameters: "builtins.list[Parameter]",
-    ) -> str:
-        """
-        Modifies the parameters of a cluster parameter group.
-
-        To modify more than one parameter, submit a list of the following: ``ParameterName``,
-            ``ParameterValue``, and ``ApplyMethod``. A maximum of 20 parameters can be
-            modified in a single
-        request.
-
-        Args:
-            model: The :py:class:`DBClusterParameterGroup` to update.
-            Parameters: A list of parameters in the cluster parameter group to modify.
-        """
-        data = model.model_dump(exclude_none=True, by_alias=True)
-        args = dict(
-            DBClusterParameterGroupName=data.get("DBClusterParameterGroupName"),
-            Parameters=self.serialize(Parameters),
-        )
-        _response = self.client.modify_db_cluster_parameter_group(
-            **{k: v for k, v in args.items() if v is not None}
-        )
-        response = DocDBClusterParameterGroupNameMessage(**_response)
-
-        self.sessionize(response.DBClusterParameterGroupName)
-        return cast("str", response.DBClusterParameterGroupName)
 
     def delete(self, DBClusterParameterGroupName: str) -> None:
         """
@@ -1064,7 +1036,7 @@ class DocDBClusterParameterGroupManager(Boto3ModelManager):
         DBClusterParameterGroupName: str,
         *,
         ResetAllParameters: "bool | None" = None,
-        Parameters: "builtins.list[Parameter] | None" = None,
+        Parameters: "builtins.list[DocDBParameter] | None" = None,
     ) -> str:
         """
         Modifies the parameters of a cluster parameter group to the default value.
@@ -2558,16 +2530,6 @@ class DocDBCreateDBClusterParameterGroupResult(Boto3Model):
     Detailed information about a cluster parameter group.
     """
 
-class DocDBClusterParameterGroupNameMessage(Boto3Model):
-    """
-    Contains the name of a cluster parameter group.
-    """
-
-    DBClusterParameterGroupName: "str | None" = None
-    """
-    The name of a cluster parameter group.
-    """
-
 class DocDBClusterParameterGroupsMessage(Boto3Model):
     """
     Represents the output of DBClusterParameterGroups.
@@ -2580,7 +2542,6 @@ class DocDBClusterParameterGroupsMessage(Boto3Model):
     If this parameter is specified, the response includes only records beyond the
     marker, up to the value specified by ``MaxRecords``.
     """
-
     DBClusterParameterGroups: "builtins.list[DocDBClusterParameterGroup] | None" = (
         Field(default_factory=list)
     )
@@ -2592,4 +2553,72 @@ class DocDBCopyDBClusterParameterGroupResult(Boto3Model):
     DBClusterParameterGroup: "DocDBClusterParameterGroup | None" = None
     """
     Detailed information about a cluster parameter group.
+    """
+
+class DocDBParameter(Boto3Model):
+    """
+    Detailed information about an individual parameter.
+    """
+    ParameterName: "str | None" = None
+    """
+    Specifies the name of the parameter.
+    """
+    ParameterValue: "str | None" = None
+    """
+    Specifies the value of the parameter.
+
+    Must be one or more of the cluster parameter's ``AllowedValues`` in CSV format:
+    """
+
+    Description: "str | None" = None
+    """
+    Provides a description of the parameter.
+    """
+
+    Source: "str | None" = None
+    """
+    Indicates the source of the parameter value.
+    """
+
+    ApplyType: "str | None" = None
+    """
+    Specifies the engine-specific parameters type.
+    """
+
+    DataType: "str | None" = None
+    """
+    Specifies the valid data type for the parameter.
+    """
+
+    AllowedValues: "str | None" = None
+    """
+    Specifies the valid range of values for the parameter.
+    """
+
+    IsModifiable: "bool | None" = None
+    """
+    Indicates whether (``true``) or not (``false``) the parameter can be modified.
+
+    Some parameters have security or operational implications that prevent them from
+    being changed.
+    """
+
+    MinimumEngineVersion: "str | None" = None
+    """
+    The earliest engine version to which the parameter can apply.
+    """
+
+    ApplyMethod: "Literal['immediate', 'pending-reboot'] | None" = None
+    """
+    Indicates when to apply parameter updates.
+    """
+
+class DocDBClusterParameterGroupNameMessage(Boto3Model):
+    """
+    Contains the name of a cluster parameter group.
+    """
+
+    DBClusterParameterGroupName: "str | None" = None
+    """
+    The name of a cluster parameter group.
     """
