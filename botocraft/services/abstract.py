@@ -9,8 +9,11 @@ from typing import (
     Any,
     ClassVar,
     Callable,
+    Generic,
     Iterator,
+    TypeVar,
     cast,
+    overload,
 )
 
 import boto3
@@ -466,20 +469,38 @@ class PrimaryBoto3Model(  # pylint: disable=abstract-method
         return manager.delete(self.pk)
 
 
-class PrimaryBoto3ModelQuerySet:
-    def __init__(self, results: list[Boto3Model]) -> None:
+#: The model class held by a :py:class:`PrimaryBoto3ModelQuerySet`.
+ModelT = TypeVar("ModelT", bound=Boto3Model)
+
+
+class PrimaryBoto3ModelQuerySet(Generic[ModelT]):
+    """
+    A Django-style collection of model instances.
+
+    The queryset is generic over the model class it holds, so
+    ``PrimaryBoto3ModelQuerySet[Volume]`` iterates, indexes and filters
+    :py:class:`Volume` objects.  An unparameterized
+    ``PrimaryBoto3ModelQuerySet`` annotation is still valid and means
+    "any model".
+
+    Args:
+        results: The model instances to hold.
+    """
+
+    def __init__(self, results: list[ModelT]) -> None:
         """
         Initialize the queryset with a list of results.
 
         Args:
-            results: List of Boto3Model objects
+            results: List of model objects
         """
-        self.results = results
+        #: The model instances currently in the queryset.
+        self.results: list[ModelT] = results
         if not self.results:
             self.results = []
         self._relationship_cache: dict[str, dict[int, Any]] = {}
 
-    def first(self) -> Boto3Model | None:
+    def first(self) -> ModelT | None:
         """
         Get the first model in the queryset.
 
@@ -526,7 +547,7 @@ class PrimaryBoto3ModelQuerySet:
         """
         return bool(self.results)
 
-    def order_by(self, field_spec: str) -> "PrimaryBoto3ModelQuerySet":
+    def order_by(self, field_spec: str) -> "PrimaryBoto3ModelQuerySet[ModelT]":
         """
         Order the queryset by the specified field.
 
@@ -574,7 +595,7 @@ class PrimaryBoto3ModelQuerySet:
         self.results = sorted(self.results, key=get_field_value, reverse=reverse)
         return self
 
-    def filter(self, **kwargs) -> "PrimaryBoto3ModelQuerySet":
+    def filter(self, **kwargs) -> "PrimaryBoto3ModelQuerySet[ModelT]":
         """
         Filter the model using the manager's filter method.
 
@@ -592,9 +613,11 @@ class PrimaryBoto3ModelQuerySet:
         # Create a new relationship cache for this filter operation
         self._relationship_cache = {}
         filter_obj = Boto3ModelManagerFilter(
-            self.results, relationship_cache=self._relationship_cache, **kwargs
+            cast("list[Boto3Model]", self.results),
+            relationship_cache=self._relationship_cache,
+            **kwargs,
         )
-        self.results = filter_obj()
+        self.results = cast("list[ModelT]", filter_obj())
         return self
 
     def values(self, *fields) -> list[dict]:
@@ -689,7 +712,7 @@ class PrimaryBoto3ModelQuerySet:
 
         return result_list
 
-    def __iter__(self) -> Iterator[Boto3Model]:
+    def __iter__(self) -> Iterator[ModelT]:
         """
         Enable iteration over the filtered results.
 
@@ -698,7 +721,7 @@ class PrimaryBoto3ModelQuerySet:
         """
         return iter(self.results)
 
-    def all(self) -> list[Boto3Model]:
+    def all(self) -> list[ModelT]:
         """
         Return all models in the queryset.
 
@@ -707,7 +730,15 @@ class PrimaryBoto3ModelQuerySet:
         """
         return self.results
 
-    def __getitem__(self, index) -> "PrimaryBoto3ModelQuerySet | Boto3Model":
+    @overload
+    def __getitem__(self, index: int) -> ModelT: ...
+
+    @overload
+    def __getitem__(self, index: slice) -> "PrimaryBoto3ModelQuerySet[ModelT]": ...
+
+    def __getitem__(
+        self, index: int | slice
+    ) -> "PrimaryBoto3ModelQuerySet[ModelT] | ModelT":
         """
         Enable indexed access to the filtered results.
 
@@ -721,14 +752,13 @@ class PrimaryBoto3ModelQuerySet:
             Either a new queryset if a slice is used, or a single model instance
             if a single index is used.
         """
-        new_results = self.results[index]
-        if not isinstance(new_results, list):
-            return new_results
-        return self.__class__(new_results)
+        if isinstance(index, slice):
+            return self.__class__(self.results[index])
+        return self.results[index]
 
     def __add__(
-        self, other: "PrimaryBoto3ModelQuerySet"
-    ) -> "PrimaryBoto3ModelQuerySet":
+        self, other: "PrimaryBoto3ModelQuerySet[ModelT]"
+    ) -> "PrimaryBoto3ModelQuerySet[ModelT]":
         """
         Add two querysets together.
         """

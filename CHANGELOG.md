@@ -6,6 +6,11 @@
 
 - Add `AgentCoreAgentRuntimeManager.list_versions(agentRuntimeId)` to list every version of an AgentCore Runtime across all result pages. It returns a queryset of `AgentCoreAgentRuntime` items with `agentRuntimeVersion`, `status` and `lastUpdatedAt`.
 
+### Changed
+
+- `PrimaryBoto3ModelQuerySet` is now generic over its model class. Generated `list()` and `get_many()` methods return `PrimaryBoto3ModelQuerySet[Model]`, so type checkers know what iterating, indexing, `first()` and `all()` give back. A bare `PrimaryBoto3ModelQuerySet` annotation still works. This removes several hundred mypy errors from the generated services.
+- Generated service code now sorts its imports, so regenerating no longer reorders them.
+
 ### Fixed
 
 - Generated `list()` methods no longer stop at an empty page that still has a token for the next page. Before this fix, an API that names its token `nextToken`, `Marker` or similar could silently return only the pages before the empty one.

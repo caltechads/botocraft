@@ -519,6 +519,31 @@ class ManagerMethodGenerator:
         raise ValueError(msg)
 
     @property
+    def queryset_item_type(self) -> str | None:
+        """
+        The model class a ``list``/``get_many`` queryset holds, when it is
+        a model we generate.
+
+        Returns:
+            The item class name, or ``None`` when the item type is not a
+            generated model (a primitive, a union, a bespoke ``return_type``
+            override); callers then fall back to an unparameterized queryset.
+
+        """
+        _ = self.response_class
+        if self.method_def.return_type or self.output_shape is None:
+            return None
+        shape = self.output_shape.members[cast("str", self.response_attr)]
+        converted = self.shape_converter.convert(shape, quote=True).strip('"')
+        match = re.fullmatch(r"(?:builtins\.)?list\[(\w+)\]", converted)
+        if match is None:
+            return None
+        item = match.group(1)
+        if item not in self.model_generator.classes:
+            return None
+        return item
+
+    @property
     def response_attr_multiplicity(self) -> Literal["one", "many"]:
         """
         Determine if the response attribute is a list or not.

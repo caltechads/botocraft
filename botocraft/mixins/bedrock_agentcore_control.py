@@ -1,6 +1,9 @@
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from botocraft.services.abstract import PrimaryBoto3ModelQuerySet
+
+if TYPE_CHECKING:
+    from botocraft.services.bedrock_agentcore_control import AgentCoreAgentRuntime
 
 # -------------
 # Manager mixins
@@ -19,7 +22,10 @@ class AgentCoreAgentRuntimeManagerMixin:
     runtime versions the same return type as ``list``.
     """
 
-    def list_versions(self, agentRuntimeId: str) -> PrimaryBoto3ModelQuerySet:  # noqa: N803
+    def list_versions(
+        self,
+        agentRuntimeId: str,  # noqa: N803
+    ) -> "PrimaryBoto3ModelQuerySet[AgentCoreAgentRuntime]":
         """
         List every version of an AgentCore Runtime, following all result pages.
 
@@ -52,4 +58,4 @@ class AgentCoreAgentRuntimeManagerMixin:
                 AgentCoreAgentRuntime(**item) for item in data.get("agentRuntimes", [])
             )
         self.sessionize(results)  # type: ignore[attr-defined]
-        return PrimaryBoto3ModelQuerySet(results)  # type: ignore[arg-type]
+        return PrimaryBoto3ModelQuerySet(results)

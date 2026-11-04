@@ -29,7 +29,13 @@ class GetManyMethodGenerator(ManagerMethodGenerator):
 
         """
         _ = self.response_class
-        return_type = f"PrimaryBoto3ModelQuerySet | {self.response_class}"
+        item = self.queryset_item_type
+        queryset = (
+            f"PrimaryBoto3ModelQuerySet[{item}]"
+            if item is not None
+            else "PrimaryBoto3ModelQuerySet"
+        )
+        return_type = f"{queryset} | {self.response_class}"
         output_shape = self.output_shape
         if (
             self.response_attr

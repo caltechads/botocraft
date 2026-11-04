@@ -10,6 +10,7 @@ def build_list_method_generator(
     interface.load()
     service = interface.services[service_name]
     generator = ServiceGenerator(service)
+    generator.model_generator.generate_all_service_models()
     manager_def = service.managers[model_name]
     return ListMethodGenerator(
         generator.manager_generator,
@@ -31,3 +32,20 @@ def test_paginated_list_body_does_not_stop_on_empty_page() -> None:
     assert "NextToken" not in body
     # Only the ResponseMetadata-only guard may break out of the loop.
     assert body.count("break") == 1
+
+
+def test_list_return_type_names_the_model_class() -> None:
+    generator = build_list_method_generator("bedrock-agentcore-control", "AgentRuntime")
+
+    assert generator.queryset_item_type == "AgentCoreAgentRuntime"
+    assert generator.return_type == 'PrimaryBoto3ModelQuerySet["AgentCoreAgentRuntime"]'
+
+
+def test_typed_list_body_returns_queryset_without_runtime_type_check() -> None:
+    generator = build_list_method_generator("bedrock-agentcore-control", "AgentRuntime")
+
+    body = generator.body
+
+    assert 'results: "builtins.list[AgentCoreAgentRuntime]" = []' in body
+    assert "return PrimaryBoto3ModelQuerySet(results)" in body
+    assert "isinstance(results[0]" not in body
