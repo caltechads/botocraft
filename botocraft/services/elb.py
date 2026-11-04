@@ -77,7 +77,7 @@ class ClassicELBManager(ClassicELBManagerMixin, Boto3ModelManager):
     @add_tags_for_list
     def list(
         self, *, LoadBalancerNames: "builtins.list[str] | None" = None
-    ) -> PrimaryBoto3ModelQuerySet:
+    ) -> PrimaryBoto3ModelQuerySet["ClassicELB"]:
         """
         Describes the specified the load balancers.
 
@@ -92,7 +92,7 @@ class ClassicELBManager(ClassicELBManagerMixin, Boto3ModelManager):
         response_iterator = paginator.paginate(
             **{k: v for k, v in args.items() if v is not None}
         )
-        results = []
+        results: "builtins.list[ClassicELB]" = []
         for _response in response_iterator:
             if list(_response.keys()) == ["ResponseMetadata"]:
                 break
@@ -102,9 +102,7 @@ class ClassicELBManager(ClassicELBManagerMixin, Boto3ModelManager):
             if response.LoadBalancerDescriptions:
                 results.extend(response.LoadBalancerDescriptions)
         self.sessionize(results)
-        if results and isinstance(results[0], Boto3Model):
-            return PrimaryBoto3ModelQuerySet(results)
-        return results
+        return PrimaryBoto3ModelQuerySet(results)
 
     def add_tags(
         self, LoadBalancerNames: "builtins.list[str]", Tags: "builtins.list[Tag]"

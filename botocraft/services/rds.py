@@ -473,7 +473,7 @@ class DBInstanceManager(Boto3ModelManager):
         *,
         DBInstanceIdentifier: "str | None" = None,
         Filters: "builtins.list[Filter] | None" = None,
-    ) -> PrimaryBoto3ModelQuerySet:
+    ) -> PrimaryBoto3ModelQuerySet["DBInstance"]:
         """
         Describes provisioned RDS instances.
 
@@ -495,7 +495,7 @@ class DBInstanceManager(Boto3ModelManager):
         response_iterator = paginator.paginate(
             **{k: v for k, v in args.items() if v is not None}
         )
-        results = []
+        results: "builtins.list[DBInstance]" = []
         for _response in response_iterator:
             if list(_response.keys()) == ["ResponseMetadata"]:
                 break
@@ -505,9 +505,7 @@ class DBInstanceManager(Boto3ModelManager):
             if response.DBInstances:
                 results.extend(response.DBInstances)
         self.sessionize(results)
-        if results and isinstance(results[0], Boto3Model):
-            return PrimaryBoto3ModelQuerySet(results)
-        return results
+        return PrimaryBoto3ModelQuerySet(results)
 
 
 class RDSDBSubnetGroupManager(Boto3ModelManager):
@@ -606,7 +604,7 @@ class RDSDBSubnetGroupManager(Boto3ModelManager):
         *,
         DBSubnetGroupName: "str | None" = None,
         Filters: "builtins.list[Filter] | None" = None,
-    ) -> PrimaryBoto3ModelQuerySet:
+    ) -> PrimaryBoto3ModelQuerySet["RDSDBSubnetGroup"]:
         """
         Returns a list of DBSubnetGroup descriptions.
 
@@ -625,7 +623,7 @@ class RDSDBSubnetGroupManager(Boto3ModelManager):
         response_iterator = paginator.paginate(
             **{k: v for k, v in args.items() if v is not None}
         )
-        results = []
+        results: "builtins.list[RDSDBSubnetGroup]" = []
         for _response in response_iterator:
             if list(_response.keys()) == ["ResponseMetadata"]:
                 break
@@ -635,9 +633,7 @@ class RDSDBSubnetGroupManager(Boto3ModelManager):
             if response.DBSubnetGroups:
                 results.extend(response.DBSubnetGroups)
         self.sessionize(results)
-        if results and isinstance(results[0], Boto3Model):
-            return PrimaryBoto3ModelQuerySet(results)
-        return results
+        return PrimaryBoto3ModelQuerySet(results)
 
 
 # ==============

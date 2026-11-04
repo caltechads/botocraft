@@ -113,7 +113,9 @@ class KMSKeyManager(Boto3ModelManager):
         return None
 
     @kms_keys_only
-    def list(self, *, Limit: "int | None" = None) -> PrimaryBoto3ModelQuerySet:
+    def list(
+        self, *, Limit: "int | None" = None
+    ) -> PrimaryBoto3ModelQuerySet["KeyListEntry"]:
         """
         Gets a list of all KMS keys in the caller's Amazon Web Services account and
         Region.
@@ -129,7 +131,7 @@ class KMSKeyManager(Boto3ModelManager):
         response_iterator = paginator.paginate(
             **{k: v for k, v in args.items() if v is not None}
         )
-        results = []
+        results: "builtins.list[KeyListEntry]" = []
         for _response in response_iterator:
             if list(_response.keys()) == ["ResponseMetadata"]:
                 break
@@ -139,9 +141,7 @@ class KMSKeyManager(Boto3ModelManager):
             if response.Keys:
                 results.extend(response.Keys)
         self.sessionize(results)
-        if results and isinstance(results[0], Boto3Model):
-            return PrimaryBoto3ModelQuerySet(results)
-        return results
+        return PrimaryBoto3ModelQuerySet(results)
 
     def delete(
         self, KeyId: str, *, PendingWindowInDays: int = 7

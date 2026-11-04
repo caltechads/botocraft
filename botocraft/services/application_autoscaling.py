@@ -158,7 +158,7 @@ class ScalingPolicyManager(Boto3ModelManager):
         PolicyNames: "builtins.list[str] | None" = None,
         ResourceId: "str | None" = None,
         ScalableDimension: "Literal['ecs:service:DesiredCount', 'ec2:spot-fleet-request:TargetCapacity', 'elasticmapreduce:instancegroup:InstanceCount', 'appstream:fleet:DesiredCapacity', 'dynamodb:table:ReadCapacityUnits', 'dynamodb:table:WriteCapacityUnits', 'dynamodb:index:ReadCapacityUnits', 'dynamodb:index:WriteCapacityUnits', 'rds:cluster:ReadReplicaCount', 'sagemaker:variant:DesiredInstanceCount', 'custom-resource:ResourceType:Property', 'comprehend:document-classifier-endpoint:DesiredInferenceUnits', 'comprehend:entity-recognizer-endpoint:DesiredInferenceUnits', 'lambda:function:ProvisionedConcurrency', 'cassandra:table:ReadCapacityUnits', 'cassandra:table:WriteCapacityUnits', 'kafka:broker-storage:VolumeSize', 'elasticache:cache-cluster:Nodes', 'elasticache:replication-group:NodeGroups', 'elasticache:replication-group:Replicas', 'neptune:cluster:ReadReplicaCount', 'sagemaker:variant:DesiredProvisionedConcurrency', 'sagemaker:inference-component:DesiredCopyCount', 'workspaces:workspacespool:DesiredUserSessions'] | None" = None,
-    ) -> PrimaryBoto3ModelQuerySet:
+    ) -> PrimaryBoto3ModelQuerySet["ScalingPolicy"]:
         """
         Describes the Application Auto Scaling scaling policies for the specified
         service namespace.
@@ -189,7 +189,7 @@ class ScalingPolicyManager(Boto3ModelManager):
         response_iterator = paginator.paginate(
             **{k: v for k, v in args.items() if v is not None}
         )
-        results = []
+        results: "builtins.list[ScalingPolicy]" = []
         for _response in response_iterator:
             if list(_response.keys()) == ["ResponseMetadata"]:
                 break
@@ -199,9 +199,7 @@ class ScalingPolicyManager(Boto3ModelManager):
             if response.ScalingPolicies:
                 results.extend(response.ScalingPolicies)
         self.sessionize(results)
-        if results and isinstance(results[0], Boto3Model):
-            return PrimaryBoto3ModelQuerySet(results)
-        return results
+        return PrimaryBoto3ModelQuerySet(results)
 
     @scaling_policy_only
     def update(self, model: "ScalingPolicy") -> "PutScalingPolicyResponse":
@@ -432,7 +430,7 @@ class ScalableTargetManager(Boto3ModelManager):
         *,
         ResourceIds: "builtins.list[str] | None" = None,
         ScalableDimension: "Literal['ecs:service:DesiredCount', 'ec2:spot-fleet-request:TargetCapacity', 'elasticmapreduce:instancegroup:InstanceCount', 'appstream:fleet:DesiredCapacity', 'dynamodb:table:ReadCapacityUnits', 'dynamodb:table:WriteCapacityUnits', 'dynamodb:index:ReadCapacityUnits', 'dynamodb:index:WriteCapacityUnits', 'rds:cluster:ReadReplicaCount', 'sagemaker:variant:DesiredInstanceCount', 'custom-resource:ResourceType:Property', 'comprehend:document-classifier-endpoint:DesiredInferenceUnits', 'comprehend:entity-recognizer-endpoint:DesiredInferenceUnits', 'lambda:function:ProvisionedConcurrency', 'cassandra:table:ReadCapacityUnits', 'cassandra:table:WriteCapacityUnits', 'kafka:broker-storage:VolumeSize', 'elasticache:cache-cluster:Nodes', 'elasticache:replication-group:NodeGroups', 'elasticache:replication-group:Replicas', 'neptune:cluster:ReadReplicaCount', 'sagemaker:variant:DesiredProvisionedConcurrency', 'sagemaker:inference-component:DesiredCopyCount', 'workspaces:workspacespool:DesiredUserSessions'] | None" = None,
-    ) -> PrimaryBoto3ModelQuerySet:
+    ) -> PrimaryBoto3ModelQuerySet["ScalableTarget"]:
         """
         Gets information about the scalable targets in the specified namespace.
 
@@ -461,7 +459,7 @@ class ScalableTargetManager(Boto3ModelManager):
         response_iterator = paginator.paginate(
             **{k: v for k, v in args.items() if v is not None}
         )
-        results = []
+        results: "builtins.list[ScalableTarget]" = []
         for _response in response_iterator:
             if list(_response.keys()) == ["ResponseMetadata"]:
                 break
@@ -471,9 +469,7 @@ class ScalableTargetManager(Boto3ModelManager):
             if response.ScalableTargets:
                 results.extend(response.ScalableTargets)
         self.sessionize(results)
-        if results and isinstance(results[0], Boto3Model):
-            return PrimaryBoto3ModelQuerySet(results)
-        return results
+        return PrimaryBoto3ModelQuerySet(results)
 
     def get(
         self,
@@ -682,7 +678,7 @@ class ScheduledActionManager(Boto3ModelManager):
         ScheduledActionNames: "builtins.list[str] | None" = None,
         ResourceId: "str | None" = None,
         ScalableDimension: "Literal['ecs:service:DesiredCount', 'ec2:spot-fleet-request:TargetCapacity', 'elasticmapreduce:instancegroup:InstanceCount', 'appstream:fleet:DesiredCapacity', 'dynamodb:table:ReadCapacityUnits', 'dynamodb:table:WriteCapacityUnits', 'dynamodb:index:ReadCapacityUnits', 'dynamodb:index:WriteCapacityUnits', 'rds:cluster:ReadReplicaCount', 'sagemaker:variant:DesiredInstanceCount', 'custom-resource:ResourceType:Property', 'comprehend:document-classifier-endpoint:DesiredInferenceUnits', 'comprehend:entity-recognizer-endpoint:DesiredInferenceUnits', 'lambda:function:ProvisionedConcurrency', 'cassandra:table:ReadCapacityUnits', 'cassandra:table:WriteCapacityUnits', 'kafka:broker-storage:VolumeSize', 'elasticache:cache-cluster:Nodes', 'elasticache:replication-group:NodeGroups', 'elasticache:replication-group:Replicas', 'neptune:cluster:ReadReplicaCount', 'sagemaker:variant:DesiredProvisionedConcurrency', 'sagemaker:inference-component:DesiredCopyCount', 'workspaces:workspacespool:DesiredUserSessions'] | None" = None,
-    ) -> PrimaryBoto3ModelQuerySet:
+    ) -> PrimaryBoto3ModelQuerySet["ScheduledAction"]:
         """
         Describes the Application Auto Scaling scheduled actions for the specified
         service namespace.
@@ -713,7 +709,7 @@ class ScheduledActionManager(Boto3ModelManager):
         response_iterator = paginator.paginate(
             **{k: v for k, v in args.items() if v is not None}
         )
-        results = []
+        results: "builtins.list[ScheduledAction]" = []
         for _response in response_iterator:
             if list(_response.keys()) == ["ResponseMetadata"]:
                 break
@@ -723,9 +719,7 @@ class ScheduledActionManager(Boto3ModelManager):
             if response.ScheduledActions:
                 results.extend(response.ScheduledActions)
         self.sessionize(results)
-        if results and isinstance(results[0], Boto3Model):
-            return PrimaryBoto3ModelQuerySet(results)
-        return results
+        return PrimaryBoto3ModelQuerySet(results)
 
     def get(
         self,

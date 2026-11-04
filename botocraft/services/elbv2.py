@@ -91,7 +91,7 @@ class LoadBalancerManager(LoadBalancerManagerMixin, Boto3ModelManager):
         *,
         LoadBalancerArns: "builtins.list[str] | None" = None,
         Names: "builtins.list[str] | None" = None,
-    ) -> PrimaryBoto3ModelQuerySet:
+    ) -> PrimaryBoto3ModelQuerySet["LoadBalancer"]:
         """
         Describes the specified load balancers or all of your load balancers.
 
@@ -109,7 +109,7 @@ class LoadBalancerManager(LoadBalancerManagerMixin, Boto3ModelManager):
         response_iterator = paginator.paginate(
             **{k: v for k, v in args.items() if v is not None}
         )
-        results = []
+        results: "builtins.list[LoadBalancer]" = []
         for _response in response_iterator:
             if list(_response.keys()) == ["ResponseMetadata"]:
                 break
@@ -119,9 +119,7 @@ class LoadBalancerManager(LoadBalancerManagerMixin, Boto3ModelManager):
             if response.LoadBalancers:
                 results.extend(response.LoadBalancers)
         self.sessionize(results)
-        if results and isinstance(results[0], Boto3Model):
-            return PrimaryBoto3ModelQuerySet(results)
-        return results
+        return PrimaryBoto3ModelQuerySet(results)
 
     @load_balancer_attributes_to_dict
     def attributes(
@@ -247,7 +245,7 @@ class ListenerManager(Boto3ModelManager):
         *,
         LoadBalancerArn: "str | None" = None,
         ListenerArns: "builtins.list[str] | None" = None,
-    ) -> PrimaryBoto3ModelQuerySet:
+    ) -> PrimaryBoto3ModelQuerySet["Listener"]:
         """
         Describes the specified listeners or the listeners for the specified Application
         Load Balancer, Network Load Balancer, or Gateway Load Balancer. You must specify
@@ -265,7 +263,7 @@ class ListenerManager(Boto3ModelManager):
         response_iterator = paginator.paginate(
             **{k: v for k, v in args.items() if v is not None}
         )
-        results = []
+        results: "builtins.list[Listener]" = []
         for _response in response_iterator:
             if list(_response.keys()) == ["ResponseMetadata"]:
                 break
@@ -275,9 +273,7 @@ class ListenerManager(Boto3ModelManager):
             if response.Listeners:
                 results.extend(response.Listeners)
         self.sessionize(results)
-        if results and isinstance(results[0], Boto3Model):
-            return PrimaryBoto3ModelQuerySet(results)
-        return results
+        return PrimaryBoto3ModelQuerySet(results)
 
 
 class RuleManager(Boto3ModelManager):
@@ -383,7 +379,7 @@ class RuleManager(Boto3ModelManager):
         *,
         ListenerArn: "str | None" = None,
         RuleArns: "builtins.list[str] | None" = None,
-    ) -> PrimaryBoto3ModelQuerySet:
+    ) -> PrimaryBoto3ModelQuerySet["Rule"]:
         """
         Describes the specified rules or the rules for the specified listener.
 
@@ -400,7 +396,7 @@ class RuleManager(Boto3ModelManager):
         response_iterator = paginator.paginate(
             **{k: v for k, v in args.items() if v is not None}
         )
-        results = []
+        results: "builtins.list[Rule]" = []
         for _response in response_iterator:
             if list(_response.keys()) == ["ResponseMetadata"]:
                 break
@@ -410,9 +406,7 @@ class RuleManager(Boto3ModelManager):
             if response.Rules:
                 results.extend(response.Rules)
         self.sessionize(results)
-        if results and isinstance(results[0], Boto3Model):
-            return PrimaryBoto3ModelQuerySet(results)
-        return results
+        return PrimaryBoto3ModelQuerySet(results)
 
 
 class TargetGroupManager(Boto3ModelManager):
@@ -537,7 +531,7 @@ class TargetGroupManager(Boto3ModelManager):
         LoadBalancerArn: "str | None" = None,
         TargetGroupArns: "builtins.list[str] | None" = None,
         Names: "builtins.list[str] | None" = None,
-    ) -> PrimaryBoto3ModelQuerySet:
+    ) -> PrimaryBoto3ModelQuerySet["TargetGroup"]:
         """
         Describes the specified target groups or all of your target groups.
 
@@ -559,7 +553,7 @@ class TargetGroupManager(Boto3ModelManager):
         response_iterator = paginator.paginate(
             **{k: v for k, v in args.items() if v is not None}
         )
-        results = []
+        results: "builtins.list[TargetGroup]" = []
         for _response in response_iterator:
             if list(_response.keys()) == ["ResponseMetadata"]:
                 break
@@ -569,9 +563,7 @@ class TargetGroupManager(Boto3ModelManager):
             if response.TargetGroups:
                 results.extend(response.TargetGroups)
         self.sessionize(results)
-        if results and isinstance(results[0], Boto3Model):
-            return PrimaryBoto3ModelQuerySet(results)
-        return results
+        return PrimaryBoto3ModelQuerySet(results)
 
     def targets(
         self,
@@ -661,6 +653,7 @@ class LoadBalancerAddress(Boto3Model):
     [Network Load Balancers] The IPv6 address.
     """
 
+
 class AvailabilityZone(Boto3Model):
     """
     Information about an Availability Zone.
@@ -670,7 +663,6 @@ class AvailabilityZone(Boto3Model):
     """
     The name of the Availability Zone.
     """
-
     SubnetId: "str | None" = None
     """
     The ID of the subnet.
@@ -710,6 +702,7 @@ class ElbV2IpamPools(Boto3Model):
     IPAM pools enable you to organize your IP addresses according to your routing and
     security needs.
     """
+
     Ipv4IpamPoolId: "str | None" = None
     """
     The ID of the IPv4 IPAM pool.
@@ -726,6 +719,7 @@ class LoadBalancer(PrimaryBoto3Model):
     """
     The name of the load balancer.
     """
+
     Scheme: "Literal['internet-facing', 'internal'] | None" = "internet-facing"
     """
     The nodes of an Internet-facing load balancer have public IP addresses.
@@ -765,7 +759,6 @@ class LoadBalancer(PrimaryBoto3Model):
     """
     The date and time the load balancer was created.
     """
-
     VpcId: str = Field(default=None, frozen=True)
     """
     The ID of the VPC for the load balancer.
@@ -774,7 +767,6 @@ class LoadBalancer(PrimaryBoto3Model):
     """
     The state of the load balancer.
     """
-
     AvailabilityZones: "builtins.list[AvailabilityZone]" = Field(
         default_factory=list, frozen=True
     )
@@ -993,7 +985,6 @@ class AuthenticateOidcActionConfig(Boto3Model):
 
     This must be a full URL, including the HTTPS protocol, the domain, and the path.
     """
-
     AuthorizationEndpoint: str
     """
     The authorization endpoint of the IdP.
@@ -1006,7 +997,6 @@ class AuthenticateOidcActionConfig(Boto3Model):
 
     This must be a full URL, including the HTTPS protocol, the domain, and the path.
     """
-
     UserInfoEndpoint: str
     """
     The user info endpoint of the IdP.
@@ -1040,6 +1030,7 @@ class AuthenticateOidcActionConfig(Boto3Model):
 
     The default is ``openid``.
     """
+
     SessionTimeout: "int | None" = None
     """
     The maximum duration of the authentication session, in seconds.
@@ -1061,7 +1052,6 @@ class AuthenticateOidcActionConfig(Boto3Model):
 
     The following are possible values:
     """
-
     UseExistingClientSecret: "bool | None" = None
     """
     Indicates whether to use the existing client secret when modifying a rule.
@@ -1078,7 +1068,6 @@ class AuthenticateCognitoActionConfig(Boto3Model):
     """
     The Amazon Resource Name (ARN) of the Amazon Cognito user pool.
     """
-
     UserPoolClientId: str
     """
     The ID of the Amazon Cognito user pool client.
@@ -1095,7 +1084,6 @@ class AuthenticateCognitoActionConfig(Boto3Model):
 
     The default is AWSELBAuthSessionCookie.
     """
-
     Scope: "str | None" = None
     """
     The set of user claims to be requested from the IdP.
@@ -1153,13 +1141,13 @@ class RedirectActionConfig(Boto3Model):
     You can specify HTTP, HTTPS, or #{protocol}. You can redirect HTTP to HTTP, HTTP to
     HTTPS, and HTTPS to HTTPS. You can't redirect HTTPS to HTTP.
     """
+
     Port: "str | None" = None
     """
     The port.
 
     You can specify a value from 1 to 65535 or #{port}.
     """
-
     Host: "str | None" = None
     """
     The hostname.
@@ -1194,10 +1182,12 @@ class FixedResponseActionConfig(Boto3Model):
     """
     Information about an action that returns a custom HTTP response.
     """
+
     MessageBody: "str | None" = None
     """
     The message.
     """
+
     StatusCode: str
     """
     The HTTP response code (2XX, 4XX, or 5XX).
@@ -1212,7 +1202,6 @@ class TargetGroupTuple(Boto3Model):
     Information about how traffic will be distributed between multiple target groups in
     a forward rule.
     """
-
     TargetGroupArn: "str | None" = None
     """
     The Amazon Resource Name (ARN) of the target group.
@@ -1261,7 +1250,6 @@ class JwtValidationActionAdditionalClaim(Boto3Model):
     """
     Information about an additional claim to validate.
     """
-
     Format: Literal["single-string", "string-array", "space-separated-values"]
     """
     The format of the claim value.
@@ -1338,6 +1326,7 @@ class Action(Boto3Model):
     """
     The type of action.
     """
+
     TargetGroupArn: "str | None" = None
     """
     The Amazon Resource Name (ARN) of the target group.
@@ -1383,6 +1372,7 @@ class Action(Boto3Model):
     Specify only when
     ``Type`` is ``fixed-response``.
     """
+
     ForwardConfig: "ForwardActionConfig | None" = None
     """
     Information for creating an action that distributes requests among multiple target
@@ -1419,6 +1409,7 @@ class MutualAuthenticationAttributes(Boto3Model):
     """
     Indicates whether expired client certificates are ignored.
     """
+
     TrustStoreAssociationStatus: "Literal['active', 'removed'] | None" = None
     """
     Indicates a shared trust stores association status.
@@ -1435,6 +1426,7 @@ class Listener(PrimaryBoto3Model):
     """
 
     manager_class: ClassVar[ModelType[Boto3ModelManager]] = ListenerManager
+
     LoadBalancerArn: str
     """
     The Amazon Resource Name (ARN) of the load balancer.
@@ -1454,7 +1446,6 @@ class Listener(PrimaryBoto3Model):
     """
     The Amazon Resource Name (ARN) of the listener.
     """
-
     Certificates: "builtins.list[Certificate] | None" = Field(default_factory=list)
     """
     [HTTPS or TLS listener] The default certificate for the listener.
@@ -1491,7 +1482,6 @@ class Listener(PrimaryBoto3Model):
             The primary key of the model instance.
         """
         return self.ListenerArn
-
     @property
     def arn(self) -> str | None:
         """
@@ -1618,6 +1608,7 @@ class HttpHeaderConditionConfig(Boto3Model):
     The maximum length is 40 characters. The header name is case insensitive. The
     allowed characters are specified by RFC 7230. Wildcards are not supported.
     """
+
     Values: "builtins.list[str] | None" = Field(default_factory=list)
     """
     The strings to compare against the value of the HTTP header.
@@ -1637,7 +1628,6 @@ class QueryStringKeyValuePair(Boto3Model):
     """
     Information about a key/value pair.
     """
-
     Key: "str | None" = None
     """
     The key.
@@ -1734,6 +1724,7 @@ class RuleCondition(Boto3Model):
     For more information, see `Quotas for your Application Load
     Balancers <https://docs.aws.amazon.com/elasticloadbalancing/latest/application/load-balancer-limits.html>`_.
     """
+
     FieldName: str = Field(default=None, alias="Field")
     """
     The name of the field.
@@ -1763,6 +1754,7 @@ class RuleCondition(Boto3Model):
 
     Specify only when ``Field`` is ``path-pattern``.
     """
+
     HttpHeaderConfig: "HttpHeaderConditionConfig | None" = None
     """
     Information for an HTTP header condition.
@@ -1858,12 +1850,10 @@ class RuleTransform(Boto3Model):
 
     Transforms are applied to requests before they are sent to targets.
     """
-
     Type: Literal["host-header-rewrite", "url-rewrite"]
     """
     The type of transform.
     """
-
     HostHeaderRewriteConfig: "ElbV2HostHeaderRewriteConfig | None" = None
     """
     Information about a host header rewrite transform.
@@ -1878,6 +1868,7 @@ class RuleTransform(Boto3Model):
     This transform modifies the request URL. Specify only when ``Type`` is ``url-
     rewrite``.
     """
+
 class Rule(PrimaryBoto3Model):
     """
     Information about a rule.
@@ -1953,6 +1944,7 @@ class Rule(PrimaryBoto3Model):
         """
         return hash(self.RuleArn)
 
+
 class ResponseCodeMatcher(Boto3Model):
     """
     The codes to use when checking for a successful response from a target.
@@ -2010,6 +2002,7 @@ class TargetDescription(Boto3Model):
     the specified Availability Zone or from all enabled Availability Zones for the load
     balancer.
     """
+
     QuicServerId: "str | None" = None
     """
     The server ID for the targets.
@@ -2046,6 +2039,7 @@ class TargetGroup(PrimaryBoto3Model):
     """
     The ID of the VPC for the targets.
     """
+
     TargetType: "Literal['instance', 'ip', 'lambda', 'alb'] | None" = "ip"
     """
     The type of target that you must specify when registering targets with this target
@@ -2078,6 +2072,7 @@ class TargetGroup(PrimaryBoto3Model):
     """
     The port to use to connect with the target.
     """
+
     HealthCheckEnabled: "bool | None" = None
     """
     Indicates whether health checks are enabled.
@@ -2149,6 +2144,7 @@ class TargetGroup(PrimaryBoto3Model):
             The primary key of the model instance.
         """
         return self.TargetGroupArn
+
     @property
     def arn(self) -> str | None:
         """
@@ -2181,6 +2177,7 @@ class TargetGroup(PrimaryBoto3Model):
         :py:attr:`TargetGroupArn` attribute.
         """
         return hash(self.TargetGroupArn)
+
     @cached_property
     def load_balancers(self) -> "list[LoadBalancer] | None":
         """
@@ -2237,6 +2234,7 @@ class TargetGroup(PrimaryBoto3Model):
                 cast("str", self.arn),
             )
         )
+
 # =======================
 # Request/Response Models
 # =======================
@@ -2257,6 +2255,7 @@ class SubnetMapping(Boto3Model):
     [Network Load Balancers] The allocation ID of the Elastic IP address for an
     internet-facing load balancer.
     """
+
     PrivateIPv4Address: "str | None" = None
     """
     [Network Load Balancers] The private IPv4 address for an internal load balancer.
@@ -2288,7 +2287,6 @@ class DescribeLoadBalancersOutput(Boto3Model):
     """
     Information about the load balancers.
     """
-
     NextMarker: "str | None" = None
     """
     If there are additional results, this is the marker for the next set of results.
@@ -2424,6 +2422,7 @@ class TargetHealthInfo(Boto3Model):
 
     If the state is ``healthy``, a description is not provided.
     """
+
 class AnomalyDetectionInfo(Boto3Model):
     """
     Information about anomaly detection and mitigation.

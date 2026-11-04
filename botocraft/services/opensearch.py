@@ -276,7 +276,9 @@ class OpenSearchVpcEndpointManager(Boto3ModelManager):
             return response.VpcEndpoints[0]
         return None
 
-    def list(self, VpcEndpointIds: "builtins.list[str]") -> PrimaryBoto3ModelQuerySet:
+    def list(
+        self, VpcEndpointIds: "builtins.list[str]"
+    ) -> PrimaryBoto3ModelQuerySet["OpenSearchVpcEndpoint"]:
         """
         Describes one or more Amazon OpenSearch Service-managed VPC endpoints.
 
@@ -397,7 +399,7 @@ class OpenSearchPackageManager(OpenSearchPackageManagerMixin, Boto3ModelManager)
         Filters: "builtins.list[DescribePackagesFilter] | None" = None,
         MaxResults: "int | None" = None,
         NextToken: "str | None" = None,
-    ) -> PrimaryBoto3ModelQuerySet:
+    ) -> PrimaryBoto3ModelQuerySet["OpenSearchPackage"]:
         """
         Describes all packages available to OpenSearch Service.
 

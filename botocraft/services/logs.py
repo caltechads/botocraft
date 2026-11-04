@@ -135,7 +135,7 @@ class LogGroupManager(LogGroupManagerMixin, Boto3ModelManager):
         includeLinkedAccounts: "bool | None" = None,
         logGroupClass: "Literal['STANDARD', 'INFREQUENT_ACCESS', 'DELIVERY'] | None" = None,
         logGroupIdentifiers: "builtins.list[str] | None" = None,
-    ) -> PrimaryBoto3ModelQuerySet:
+    ) -> PrimaryBoto3ModelQuerySet["LogGroup"]:
         """
         Returns information about log groups, including data sources that ingest into
         each log group.
@@ -182,7 +182,7 @@ class LogGroupManager(LogGroupManagerMixin, Boto3ModelManager):
         response_iterator = paginator.paginate(
             **{k: v for k, v in args.items() if v is not None}
         )
-        results = []
+        results: "builtins.list[LogGroup]" = []
         for _response in response_iterator:
             if list(_response.keys()) == ["ResponseMetadata"]:
                 break
@@ -192,9 +192,7 @@ class LogGroupManager(LogGroupManagerMixin, Boto3ModelManager):
             if response.logGroups:
                 results.extend(response.logGroups)
         self.sessionize(results)
-        if results and isinstance(results[0], Boto3Model):
-            return PrimaryBoto3ModelQuerySet(results)
-        return results
+        return PrimaryBoto3ModelQuerySet(results)
 
     def get_fields(
         self,
@@ -444,7 +442,7 @@ class QueryDefinitionManager(QueryDefinitionManagerMixin, Boto3ModelManager):
         queryDefinitionNamePrefix: "str | None" = None,
         maxResults: "int | None" = None,
         nextToken: "str | None" = None,
-    ) -> PrimaryBoto3ModelQuerySet:
+    ) -> PrimaryBoto3ModelQuerySet["QueryDefinition"]:
         """
         This operation returns a paginated list of your saved CloudWatch Logs Insights
         query definitions.

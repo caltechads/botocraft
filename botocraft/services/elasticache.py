@@ -326,7 +326,7 @@ class CacheClusterManager(ElastiCacheManagerTagsMixin, Boto3ModelManager):
         CacheClusterId: "str | None" = None,
         ShowCacheNodeInfo: bool = True,
         ShowCacheClustersNotInReplicationGroups: "bool | None" = None,
-    ) -> PrimaryBoto3ModelQuerySet:
+    ) -> PrimaryBoto3ModelQuerySet["CacheCluster"]:
         """
         Returns information about all provisioned clusters if no cluster identifier is
         specified, or about a specific cache cluster if a cluster identifier is
@@ -356,7 +356,7 @@ class CacheClusterManager(ElastiCacheManagerTagsMixin, Boto3ModelManager):
         response_iterator = paginator.paginate(
             **{k: v for k, v in args.items() if v is not None}
         )
-        results = []
+        results: "builtins.list[CacheCluster]" = []
         for _response in response_iterator:
             if list(_response.keys()) == ["ResponseMetadata"]:
                 break
@@ -366,9 +366,7 @@ class CacheClusterManager(ElastiCacheManagerTagsMixin, Boto3ModelManager):
             if response.CacheClusters:
                 results.extend(response.CacheClusters)
         self.sessionize(results)
-        if results and isinstance(results[0], Boto3Model):
-            return PrimaryBoto3ModelQuerySet(results)
-        return results
+        return PrimaryBoto3ModelQuerySet(results)
 
 
 class CacheParameterGroupManager(Boto3ModelManager):
@@ -474,7 +472,7 @@ class CacheParameterGroupManager(Boto3ModelManager):
 
     def list(
         self, *, CacheParameterGroupName: "str | None" = None
-    ) -> PrimaryBoto3ModelQuerySet:
+    ) -> PrimaryBoto3ModelQuerySet["CacheParameterGroup"]:
         """
         Returns a list of cache parameter group descriptions.
 
@@ -492,7 +490,7 @@ class CacheParameterGroupManager(Boto3ModelManager):
         response_iterator = paginator.paginate(
             **{k: v for k, v in args.items() if v is not None}
         )
-        results = []
+        results: "builtins.list[CacheParameterGroup]" = []
         for _response in response_iterator:
             if list(_response.keys()) == ["ResponseMetadata"]:
                 break
@@ -502,9 +500,7 @@ class CacheParameterGroupManager(Boto3ModelManager):
             if response.CacheParameterGroups:
                 results.extend(response.CacheParameterGroups)
         self.sessionize(results)
-        if results and isinstance(results[0], Boto3Model):
-            return PrimaryBoto3ModelQuerySet(results)
-        return results
+        return PrimaryBoto3ModelQuerySet(results)
 
     def reset(
         self,
@@ -687,7 +683,7 @@ class CacheSubnetGroupManager(Boto3ModelManager):
 
     def list(
         self, *, CacheSubnetGroupName: "str | None" = None
-    ) -> PrimaryBoto3ModelQuerySet:
+    ) -> PrimaryBoto3ModelQuerySet["CacheSubnetGroup"]:
         """
         Returns a list of cache subnet group descriptions.
 
@@ -707,7 +703,7 @@ class CacheSubnetGroupManager(Boto3ModelManager):
         response_iterator = paginator.paginate(
             **{k: v for k, v in args.items() if v is not None}
         )
-        results = []
+        results: "builtins.list[CacheSubnetGroup]" = []
         for _response in response_iterator:
             if list(_response.keys()) == ["ResponseMetadata"]:
                 break
@@ -717,9 +713,7 @@ class CacheSubnetGroupManager(Boto3ModelManager):
             if response.CacheSubnetGroups:
                 results.extend(response.CacheSubnetGroups)
         self.sessionize(results)
-        if results and isinstance(results[0], Boto3Model):
-            return PrimaryBoto3ModelQuerySet(results)
-        return results
+        return PrimaryBoto3ModelQuerySet(results)
 
 
 class CacheSecurityGroupManager(Boto3ModelManager):
@@ -796,7 +790,7 @@ class CacheSecurityGroupManager(Boto3ModelManager):
 
     def list(
         self, *, CacheSecurityGroupName: "str | None" = None
-    ) -> PrimaryBoto3ModelQuerySet:
+    ) -> PrimaryBoto3ModelQuerySet["CacheSecurityGroup"]:
         """
         Returns a list of cache security group descriptions.
 
@@ -815,7 +809,7 @@ class CacheSecurityGroupManager(Boto3ModelManager):
         response_iterator = paginator.paginate(
             **{k: v for k, v in args.items() if v is not None}
         )
-        results = []
+        results: "builtins.list[CacheSecurityGroup]" = []
         for _response in response_iterator:
             if list(_response.keys()) == ["ResponseMetadata"]:
                 break
@@ -825,9 +819,7 @@ class CacheSecurityGroupManager(Boto3ModelManager):
             if response.CacheSecurityGroups:
                 results.extend(response.CacheSecurityGroups)
         self.sessionize(results)
-        if results and isinstance(results[0], Boto3Model):
-            return PrimaryBoto3ModelQuerySet(results)
-        return results
+        return PrimaryBoto3ModelQuerySet(results)
 
     def authorize_ingress(
         self,
@@ -1279,7 +1271,7 @@ class ReplicationGroupManager(ElastiCacheManagerTagsMixin, Boto3ModelManager):
 
     def list(
         self, *, ReplicationGroupId: "str | None" = None
-    ) -> PrimaryBoto3ModelQuerySet:
+    ) -> PrimaryBoto3ModelQuerySet["ReplicationGroup"]:
         """
         Returns information about a particular replication group.
 
@@ -1297,7 +1289,7 @@ class ReplicationGroupManager(ElastiCacheManagerTagsMixin, Boto3ModelManager):
         response_iterator = paginator.paginate(
             **{k: v for k, v in args.items() if v is not None}
         )
-        results = []
+        results: "builtins.list[ReplicationGroup]" = []
         for _response in response_iterator:
             if list(_response.keys()) == ["ResponseMetadata"]:
                 break
@@ -1307,9 +1299,7 @@ class ReplicationGroupManager(ElastiCacheManagerTagsMixin, Boto3ModelManager):
             if response.ReplicationGroups:
                 results.extend(response.ReplicationGroups)
         self.sessionize(results)
-        if results and isinstance(results[0], Boto3Model):
-            return PrimaryBoto3ModelQuerySet(results)
-        return results
+        return PrimaryBoto3ModelQuerySet(results)
 
 
 class CacheParameterManager(ReadonlyBoto3ModelManager):
@@ -1509,7 +1499,7 @@ class ElastiCacheUserManager(Boto3ModelManager):
         Engine: "str | None" = None,
         UserId: "str | None" = None,
         Filters: "builtins.list[Filter] | None" = None,
-    ) -> PrimaryBoto3ModelQuerySet:
+    ) -> PrimaryBoto3ModelQuerySet["ElastiCacheUser"]:
         """
         Returns a list of users.
 
@@ -1527,7 +1517,7 @@ class ElastiCacheUserManager(Boto3ModelManager):
         response_iterator = paginator.paginate(
             **{k: v for k, v in args.items() if v is not None}
         )
-        results = []
+        results: "builtins.list[ElastiCacheUser]" = []
         for _response in response_iterator:
             if list(_response.keys()) == ["ResponseMetadata"]:
                 break
@@ -1537,9 +1527,7 @@ class ElastiCacheUserManager(Boto3ModelManager):
             if response.Users:
                 results.extend(response.Users)
         self.sessionize(results)
-        if results and isinstance(results[0], Boto3Model):
-            return PrimaryBoto3ModelQuerySet(results)
-        return results
+        return PrimaryBoto3ModelQuerySet(results)
 
 
 class ElastiCacheUserGroupManager(Boto3ModelManager):
@@ -1640,7 +1628,9 @@ class ElastiCacheUserGroupManager(Boto3ModelManager):
         return None
 
     @elasticache_user_groups_get_add_tags
-    def list(self, *, UserGroupId: "str | None" = None) -> PrimaryBoto3ModelQuerySet:
+    def list(
+        self, *, UserGroupId: "str | None" = None
+    ) -> PrimaryBoto3ModelQuerySet["ElastiCacheUserGroup"]:
         """
         Returns a list of user groups.
 
@@ -1652,7 +1642,7 @@ class ElastiCacheUserGroupManager(Boto3ModelManager):
         response_iterator = paginator.paginate(
             **{k: v for k, v in args.items() if v is not None}
         )
-        results = []
+        results: "builtins.list[ElastiCacheUserGroup]" = []
         for _response in response_iterator:
             if list(_response.keys()) == ["ResponseMetadata"]:
                 break
@@ -1662,9 +1652,7 @@ class ElastiCacheUserGroupManager(Boto3ModelManager):
             if response.UserGroups:
                 results.extend(response.UserGroups)
         self.sessionize(results)
-        if results and isinstance(results[0], Boto3Model):
-            return PrimaryBoto3ModelQuerySet(results)
-        return results
+        return PrimaryBoto3ModelQuerySet(results)
 
 
 # ==============

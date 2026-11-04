@@ -40,7 +40,7 @@ class BucketManager(BucketManagerMixin, Boto3ModelManager):
         ContinuationToken: "str | None" = None,
         Prefix: "str | None" = None,
         BucketRegion: "str | None" = None,
-    ) -> PrimaryBoto3ModelQuerySet:
+    ) -> PrimaryBoto3ModelQuerySet["Bucket"]:
         """
         This operation is not supported for directory buckets.
 
@@ -74,7 +74,7 @@ class BucketManager(BucketManagerMixin, Boto3ModelManager):
         response_iterator = paginator.paginate(
             **{k: v for k, v in args.items() if v is not None}
         )
-        results = []
+        results: "builtins.list[Bucket]" = []
         for _response in response_iterator:
             if list(_response.keys()) == ["ResponseMetadata"]:
                 break
@@ -84,9 +84,7 @@ class BucketManager(BucketManagerMixin, Boto3ModelManager):
             if response.Buckets:
                 results.extend(response.Buckets)
         self.sessionize(results)
-        if results and isinstance(results[0], Boto3Model):
-            return PrimaryBoto3ModelQuerySet(results)
-        return results
+        return PrimaryBoto3ModelQuerySet(results)
 
     def get_bucket_policy(
         self, Bucket: str, *, ExpectedBucketOwner: "str | None" = None
@@ -1388,7 +1386,7 @@ class S3ObjectManager(Boto3ModelManager):
         ExpectedBucketOwner: "str | None" = None,
         OptionalObjectAttributes: "builtins.list[Literal['RestoreStatus']] | None" = None,
         Include: "builtins.list[Literal['TAGS']] | None" = None,
-    ) -> PrimaryBoto3ModelQuerySet:
+    ) -> PrimaryBoto3ModelQuerySet["S3Object"]:
         """
         Returns some or all (up to 1,000) of the objects in a bucket with each request.
 
@@ -1477,7 +1475,7 @@ class S3ObjectManager(Boto3ModelManager):
         response_iterator = paginator.paginate(
             **{k: v for k, v in args.items() if v is not None}
         )
-        results = []
+        results: "builtins.list[S3Object]" = []
         for _response in response_iterator:
             if list(_response.keys()) == ["ResponseMetadata"]:
                 break
@@ -1487,9 +1485,7 @@ class S3ObjectManager(Boto3ModelManager):
             if response.Contents:
                 results.extend(response.Contents)
         self.sessionize(results)
-        if results and isinstance(results[0], Boto3Model):
-            return PrimaryBoto3ModelQuerySet(results)
-        return results
+        return PrimaryBoto3ModelQuerySet(results)
 
     def copy(
         self,

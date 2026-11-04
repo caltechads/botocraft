@@ -395,7 +395,7 @@ class ContactListManager(Boto3ModelManager):
 
     def list(
         self, *, PageSize: "int | None" = None, NextToken: "str | None" = None
-    ) -> PrimaryBoto3ModelQuerySet:
+    ) -> PrimaryBoto3ModelQuerySet["ContactList"]:
         """
         Lists all of the contact lists available.
 
@@ -505,7 +505,7 @@ class EmailTemplateManager(Boto3ModelManager):
 
     def list(
         self, *, NextToken: "str | None" = None, PageSize: "int | None" = None
-    ) -> PrimaryBoto3ModelQuerySet:
+    ) -> PrimaryBoto3ModelQuerySet["EmailTemplateMetadata"]:
         """
         Lists the email templates present in your Amazon SES account in the current
         Amazon Web Services Region.
@@ -612,7 +612,7 @@ class SuppressedDestinationManager(Boto3ModelManager):
         EndDate: "datetime | None" = None,
         NextToken: "str | None" = None,
         PageSize: "int | None" = None,
-    ) -> PrimaryBoto3ModelQuerySet:
+    ) -> PrimaryBoto3ModelQuerySet["SuppressedDestinationSummary"]:
         """
         Retrieves a list of email addresses that are on the suppression list for your
         account or for a specific tenant.
@@ -696,7 +696,7 @@ class DeliverabilityTestReportManager(
 
     def list(
         self, *, NextToken: "str | None" = None, PageSize: "int | None" = None
-    ) -> PrimaryBoto3ModelQuerySet:
+    ) -> PrimaryBoto3ModelQuerySet["DeliverabilityTestReport"]:
         """
         Show a list of the predictive inbox placement tests that you've performed,
         regardless of their statuses.
@@ -778,7 +778,7 @@ class MultiRegionEndpointManager(Boto3ModelManager):
 
     def list(
         self,
-    ) -> PrimaryBoto3ModelQuerySet:
+    ) -> PrimaryBoto3ModelQuerySet["MultiRegionEndpoint"]:
         """
         List the multi-region endpoints (global-endpoints).
         """
@@ -787,7 +787,7 @@ class MultiRegionEndpointManager(Boto3ModelManager):
         response_iterator = paginator.paginate(
             **{k: v for k, v in args.items() if v is not None}
         )
-        results = []
+        results: "builtins.list[MultiRegionEndpoint]" = []
         for _response in response_iterator:
             if list(_response.keys()) == ["ResponseMetadata"]:
                 break
@@ -797,9 +797,7 @@ class MultiRegionEndpointManager(Boto3ModelManager):
             if response.MultiRegionEndpoints:
                 results.extend(response.MultiRegionEndpoints)
         self.sessionize(results)
-        if results and isinstance(results[0], Boto3Model):
-            return PrimaryBoto3ModelQuerySet(results)
-        return results
+        return PrimaryBoto3ModelQuerySet(results)
 
     def delete(self, EndpointName: str) -> None:
         """
@@ -863,7 +861,7 @@ class TenantManager(Boto3ModelManager):
         self,
         *,
         Filter: "dict[Literal['TENANT_NAME_CONTAINS', 'SENDING_STATUS'], str] | None" = None,
-    ) -> PrimaryBoto3ModelQuerySet:
+    ) -> PrimaryBoto3ModelQuerySet["TenantInfo"]:
         """
         List all tenants associated with your account in the current Amazon Web Services
         Region.
@@ -878,7 +876,7 @@ class TenantManager(Boto3ModelManager):
         response_iterator = paginator.paginate(
             **{k: v for k, v in args.items() if v is not None}
         )
-        results = []
+        results: "builtins.list[TenantInfo]" = []
         for _response in response_iterator:
             if list(_response.keys()) == ["ResponseMetadata"]:
                 break
@@ -888,9 +886,7 @@ class TenantManager(Boto3ModelManager):
             if response.Tenants:
                 results.extend(response.Tenants)
         self.sessionize(results)
-        if results and isinstance(results[0], Boto3Model):
-            return PrimaryBoto3ModelQuerySet(results)
-        return results
+        return PrimaryBoto3ModelQuerySet(results)
 
     def delete(self, TenantName: str) -> None:
         """
@@ -1042,7 +1038,7 @@ class DedicatedIpManager(Boto3ModelManager):
         PoolName: "str | None" = None,
         NextToken: "str | None" = None,
         PageSize: "int | None" = None,
-    ) -> PrimaryBoto3ModelQuerySet:
+    ) -> PrimaryBoto3ModelQuerySet["DedicatedIp"]:
         """
         List the dedicated IP addresses that are associated with your Amazon Web
         Services account.

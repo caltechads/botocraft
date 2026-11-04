@@ -106,7 +106,7 @@ class AgentCoreAgentRuntimeManager(
 
     def list(
         self,
-    ) -> PrimaryBoto3ModelQuerySet:
+    ) -> PrimaryBoto3ModelQuerySet["AgentCoreAgentRuntime"]:
         """
         Lists all Amazon Secure Agents in your account.
         """
@@ -115,7 +115,7 @@ class AgentCoreAgentRuntimeManager(
         response_iterator = paginator.paginate(
             **{k: v for k, v in args.items() if v is not None}
         )
-        results = []
+        results: "builtins.list[AgentCoreAgentRuntime]" = []
         for _response in response_iterator:
             if list(_response.keys()) == ["ResponseMetadata"]:
                 break
@@ -125,9 +125,7 @@ class AgentCoreAgentRuntimeManager(
             if response.agentRuntimes:
                 results.extend(response.agentRuntimes)
         self.sessionize(results)
-        if results and isinstance(results[0], Boto3Model):
-            return PrimaryBoto3ModelQuerySet(results)
-        return results
+        return PrimaryBoto3ModelQuerySet(results)
 
     def update(
         self, model: "AgentCoreAgentRuntime", clientToken: "str | None" = None
@@ -274,7 +272,9 @@ class AgentCoreAgentRuntimeEndpointManager(Boto3ModelManager):
             return response
         return None
 
-    def list(self, agentRuntimeId: str) -> PrimaryBoto3ModelQuerySet:
+    def list(
+        self, agentRuntimeId: str
+    ) -> PrimaryBoto3ModelQuerySet["AgentCoreAgentRuntimeEndpoint"]:
         """
         Lists all endpoints for a specific Amazon Secure Agent.
 
@@ -287,7 +287,7 @@ class AgentCoreAgentRuntimeEndpointManager(Boto3ModelManager):
         response_iterator = paginator.paginate(
             **{k: v for k, v in args.items() if v is not None}
         )
-        results = []
+        results: "builtins.list[AgentCoreAgentRuntimeEndpoint]" = []
         for _response in response_iterator:
             if list(_response.keys()) == ["ResponseMetadata"]:
                 break
@@ -297,9 +297,7 @@ class AgentCoreAgentRuntimeEndpointManager(Boto3ModelManager):
             if response.runtimeEndpoints:
                 results.extend(response.runtimeEndpoints)
         self.sessionize(results)
-        if results and isinstance(results[0], Boto3Model):
-            return PrimaryBoto3ModelQuerySet(results)
-        return results
+        return PrimaryBoto3ModelQuerySet(results)
 
     def update(
         self,
@@ -580,7 +578,7 @@ class AgentCoreApiKeyCredentialProviderManager(Boto3ModelManager):
 
     def list(
         self,
-    ) -> PrimaryBoto3ModelQuerySet:
+    ) -> PrimaryBoto3ModelQuerySet["AgentCoreApiKeyCredentialProvider"]:
         """
         Lists all API key credential providers in your account.
         """
@@ -589,7 +587,7 @@ class AgentCoreApiKeyCredentialProviderManager(Boto3ModelManager):
         response_iterator = paginator.paginate(
             **{k: v for k, v in args.items() if v is not None}
         )
-        results = []
+        results: "builtins.list[AgentCoreApiKeyCredentialProvider]" = []
         for _response in response_iterator:
             if list(_response.keys()) == ["ResponseMetadata"]:
                 break
@@ -599,9 +597,7 @@ class AgentCoreApiKeyCredentialProviderManager(Boto3ModelManager):
             if response.credentialProviders:
                 results.extend(response.credentialProviders)
         self.sessionize(results)
-        if results and isinstance(results[0], Boto3Model):
-            return PrimaryBoto3ModelQuerySet(results)
-        return results
+        return PrimaryBoto3ModelQuerySet(results)
 
     def update(
         self,
@@ -716,7 +712,7 @@ class AgentCoreOauth2CredentialProviderManager(Boto3ModelManager):
 
     def list(
         self,
-    ) -> PrimaryBoto3ModelQuerySet:
+    ) -> PrimaryBoto3ModelQuerySet["AgentCoreOauth2CredentialProvider"]:
         """
         Lists all OAuth2 credential providers in your account.
         """
@@ -725,7 +721,7 @@ class AgentCoreOauth2CredentialProviderManager(Boto3ModelManager):
         response_iterator = paginator.paginate(
             **{k: v for k, v in args.items() if v is not None}
         )
-        results = []
+        results: "builtins.list[AgentCoreOauth2CredentialProvider]" = []
         for _response in response_iterator:
             if list(_response.keys()) == ["ResponseMetadata"]:
                 break
@@ -735,9 +731,7 @@ class AgentCoreOauth2CredentialProviderManager(Boto3ModelManager):
             if response.credentialProviders:
                 results.extend(response.credentialProviders)
         self.sessionize(results)
-        if results and isinstance(results[0], Boto3Model):
-            return PrimaryBoto3ModelQuerySet(results)
-        return results
+        return PrimaryBoto3ModelQuerySet(results)
 
     def update(
         self,
@@ -834,7 +828,7 @@ class AgentCorePaymentCredentialProviderManager(Boto3ModelManager):
 
     def list(
         self,
-    ) -> PrimaryBoto3ModelQuerySet:
+    ) -> PrimaryBoto3ModelQuerySet["AgentCorePaymentCredentialProvider"]:
         """
         Lists all payment credential providers in the account.
         """
@@ -843,7 +837,7 @@ class AgentCorePaymentCredentialProviderManager(Boto3ModelManager):
         response_iterator = paginator.paginate(
             **{k: v for k, v in args.items() if v is not None}
         )
-        results = []
+        results: "builtins.list[AgentCorePaymentCredentialProvider]" = []
         for _response in response_iterator:
             if list(_response.keys()) == ["ResponseMetadata"]:
                 break
@@ -853,9 +847,7 @@ class AgentCorePaymentCredentialProviderManager(Boto3ModelManager):
             if response.credentialProviders:
                 results.extend(response.credentialProviders)
         self.sessionize(results)
-        if results and isinstance(results[0], Boto3Model):
-            return PrimaryBoto3ModelQuerySet(results)
-        return results
+        return PrimaryBoto3ModelQuerySet(results)
 
     def update(
         self,
@@ -963,7 +955,7 @@ class AgentCoreCodeInterpreterManager(Boto3ModelManager):
 
     def list(
         self, *, type: "Literal['SYSTEM', 'CUSTOM'] | None" = None
-    ) -> PrimaryBoto3ModelQuerySet:
+    ) -> PrimaryBoto3ModelQuerySet["AgentCoreCodeInterpreter"]:
         """
         Lists all custom code interpreters in your account.
 
@@ -975,7 +967,7 @@ class AgentCoreCodeInterpreterManager(Boto3ModelManager):
         response_iterator = paginator.paginate(
             **{k: v for k, v in args.items() if v is not None}
         )
-        results = []
+        results: "builtins.list[AgentCoreCodeInterpreter]" = []
         for _response in response_iterator:
             if list(_response.keys()) == ["ResponseMetadata"]:
                 break
@@ -985,9 +977,7 @@ class AgentCoreCodeInterpreterManager(Boto3ModelManager):
             if response.codeInterpreterSummaries:
                 results.extend(response.codeInterpreterSummaries)
         self.sessionize(results)
-        if results and isinstance(results[0], Boto3Model):
-            return PrimaryBoto3ModelQuerySet(results)
-        return results
+        return PrimaryBoto3ModelQuerySet(results)
 
     def delete(
         self, codeInterpreterId: str, *, clientToken: "str | None" = None
@@ -1084,7 +1074,7 @@ class AgentCoreGatewayManager(Boto3ModelManager):
 
     def list(
         self,
-    ) -> PrimaryBoto3ModelQuerySet:
+    ) -> PrimaryBoto3ModelQuerySet["AgentCoreGateway"]:
         """
         Lists all gateways in the account.
         """
@@ -1093,7 +1083,7 @@ class AgentCoreGatewayManager(Boto3ModelManager):
         response_iterator = paginator.paginate(
             **{k: v for k, v in args.items() if v is not None}
         )
-        results = []
+        results: "builtins.list[AgentCoreGateway]" = []
         for _response in response_iterator:
             if list(_response.keys()) == ["ResponseMetadata"]:
                 break
@@ -1103,9 +1093,7 @@ class AgentCoreGatewayManager(Boto3ModelManager):
             if response.items:
                 results.extend(response.items)
         self.sessionize(results)
-        if results and isinstance(results[0], Boto3Model):
-            return PrimaryBoto3ModelQuerySet(results)
-        return results
+        return PrimaryBoto3ModelQuerySet(results)
 
     def update(
         self, model: "AgentCoreGateway", gatewayIdentifier: str
@@ -1217,7 +1205,9 @@ class AgentCoreGatewayRuleManager(Boto3ModelManager):
             return response
         return None
 
-    def list(self, gatewayIdentifier: str) -> PrimaryBoto3ModelQuerySet:
+    def list(
+        self, gatewayIdentifier: str
+    ) -> PrimaryBoto3ModelQuerySet["AgentCoreGatewayRule"]:
         """
         Lists all rules for a gateway.
 
@@ -1229,7 +1219,7 @@ class AgentCoreGatewayRuleManager(Boto3ModelManager):
         response_iterator = paginator.paginate(
             **{k: v for k, v in args.items() if v is not None}
         )
-        results = []
+        results: "builtins.list[AgentCoreGatewayRule]" = []
         for _response in response_iterator:
             if list(_response.keys()) == ["ResponseMetadata"]:
                 break
@@ -1239,9 +1229,7 @@ class AgentCoreGatewayRuleManager(Boto3ModelManager):
             if response.gatewayRules:
                 results.extend(response.gatewayRules)
         self.sessionize(results)
-        if results and isinstance(results[0], Boto3Model):
-            return PrimaryBoto3ModelQuerySet(results)
-        return results
+        return PrimaryBoto3ModelQuerySet(results)
 
     def update(self, model: "AgentCoreGatewayRule") -> "UpdateGatewayRuleResponse":
         """
@@ -1353,7 +1341,9 @@ class AgentCoreGatewayTargetManager(Boto3ModelManager):
             return response
         return None
 
-    def list(self, gatewayIdentifier: str) -> PrimaryBoto3ModelQuerySet:
+    def list(
+        self, gatewayIdentifier: str
+    ) -> PrimaryBoto3ModelQuerySet["AgentCoreGatewayTarget"]:
         """
         Lists all targets for a specific gateway.
 
@@ -1365,7 +1355,7 @@ class AgentCoreGatewayTargetManager(Boto3ModelManager):
         response_iterator = paginator.paginate(
             **{k: v for k, v in args.items() if v is not None}
         )
-        results = []
+        results: "builtins.list[AgentCoreGatewayTarget]" = []
         for _response in response_iterator:
             if list(_response.keys()) == ["ResponseMetadata"]:
                 break
@@ -1375,9 +1365,7 @@ class AgentCoreGatewayTargetManager(Boto3ModelManager):
             if response.items:
                 results.extend(response.items)
         self.sessionize(results)
-        if results and isinstance(results[0], Boto3Model):
-            return PrimaryBoto3ModelQuerySet(results)
-        return results
+        return PrimaryBoto3ModelQuerySet(results)
 
     def update(self, model: "AgentCoreGatewayTarget") -> "UpdateGatewayTargetResponse":
         """
@@ -1506,7 +1494,7 @@ class AgentCoreHarnessManager(Boto3ModelManager):
 
     def list(
         self,
-    ) -> PrimaryBoto3ModelQuerySet:
+    ) -> PrimaryBoto3ModelQuerySet["HarnessSummary"]:
         """
         Operation to list harnesses.
         """
@@ -1515,7 +1503,7 @@ class AgentCoreHarnessManager(Boto3ModelManager):
         response_iterator = paginator.paginate(
             **{k: v for k, v in args.items() if v is not None}
         )
-        results = []
+        results: "builtins.list[HarnessSummary]" = []
         for _response in response_iterator:
             if list(_response.keys()) == ["ResponseMetadata"]:
                 break
@@ -1525,9 +1513,7 @@ class AgentCoreHarnessManager(Boto3ModelManager):
             if response.harnesses:
                 results.extend(response.harnesses)
         self.sessionize(results)
-        if results and isinstance(results[0], Boto3Model):
-            return PrimaryBoto3ModelQuerySet(results)
-        return results
+        return PrimaryBoto3ModelQuerySet(results)
 
     def update(
         self, model: "AgentCoreHarness", clientToken: "str | None" = None
@@ -1664,7 +1650,9 @@ class AgentCoreHarnessEndpointManager(Boto3ModelManager):
             return response.endpoint
         return None
 
-    def list(self, harnessId: str) -> PrimaryBoto3ModelQuerySet:
+    def list(
+        self, harnessId: str
+    ) -> PrimaryBoto3ModelQuerySet["AgentCoreHarnessEndpoint"]:
         """
         Operation to list the endpoints of a harness.
 
@@ -1676,7 +1664,7 @@ class AgentCoreHarnessEndpointManager(Boto3ModelManager):
         response_iterator = paginator.paginate(
             **{k: v for k, v in args.items() if v is not None}
         )
-        results = []
+        results: "builtins.list[AgentCoreHarnessEndpoint]" = []
         for _response in response_iterator:
             if list(_response.keys()) == ["ResponseMetadata"]:
                 break
@@ -1686,9 +1674,7 @@ class AgentCoreHarnessEndpointManager(Boto3ModelManager):
             if response.endpoints:
                 results.extend(response.endpoints)
         self.sessionize(results)
-        if results and isinstance(results[0], Boto3Model):
-            return PrimaryBoto3ModelQuerySet(results)
-        return results
+        return PrimaryBoto3ModelQuerySet(results)
 
     def update(
         self, model: "AgentCoreHarnessEndpoint", clientToken: "str | None" = None
@@ -1824,7 +1810,7 @@ class PolicyEngineManager(Boto3ModelManager):
 
     def list(
         self,
-    ) -> PrimaryBoto3ModelQuerySet:
+    ) -> PrimaryBoto3ModelQuerySet["PolicyEngine"]:
         """
         Retrieves a list of policy engines within the AgentCore Policy system.
 
@@ -1837,7 +1823,7 @@ class PolicyEngineManager(Boto3ModelManager):
         response_iterator = paginator.paginate(
             **{k: v for k, v in args.items() if v is not None}
         )
-        results = []
+        results: "builtins.list[PolicyEngine]" = []
         for _response in response_iterator:
             if list(_response.keys()) == ["ResponseMetadata"]:
                 break
@@ -1847,9 +1833,7 @@ class PolicyEngineManager(Boto3ModelManager):
             if response.policyEngines:
                 results.extend(response.policyEngines)
         self.sessionize(results)
-        if results and isinstance(results[0], Boto3Model):
-            return PrimaryBoto3ModelQuerySet(results)
-        return results
+        return PrimaryBoto3ModelQuerySet(results)
 
     def update(self, model: "PolicyEngine") -> "UpdatePolicyEngineResponse":
         """
@@ -1996,7 +1980,7 @@ class PolicyManager(Boto3ModelManager):
 
     def list(
         self, policyEngineId: str, *, targetResourceScope: "str | None" = None
-    ) -> PrimaryBoto3ModelQuerySet:
+    ) -> PrimaryBoto3ModelQuerySet["PolicySummary"]:
         """
         Retrieves a paginated list of metadata-only policy summaries within a policy
         engine without decrypting customer content. This lightweight read operation
@@ -2025,7 +2009,7 @@ class PolicyManager(Boto3ModelManager):
         response_iterator = paginator.paginate(
             **{k: v for k, v in args.items() if v is not None}
         )
-        results = []
+        results: "builtins.list[PolicySummary]" = []
         for _response in response_iterator:
             if list(_response.keys()) == ["ResponseMetadata"]:
                 break
@@ -2035,9 +2019,7 @@ class PolicyManager(Boto3ModelManager):
             if response.policies:
                 results.extend(response.policies)
         self.sessionize(results)
-        if results and isinstance(results[0], Boto3Model):
-            return PrimaryBoto3ModelQuerySet(results)
-        return results
+        return PrimaryBoto3ModelQuerySet(results)
 
     def update(
         self,
@@ -2198,7 +2180,9 @@ class AgentCorePolicyGenerationManager(Boto3ModelManager):
             return response
         return None
 
-    def list(self, policyEngineId: str) -> PrimaryBoto3ModelQuerySet:
+    def list(
+        self, policyEngineId: str
+    ) -> PrimaryBoto3ModelQuerySet["PolicyGenerationSummary"]:
         """
         Retrieves a paginated list of metadata-only policy generation summaries within a
         policy engine without decrypting customer content. This lightweight read
@@ -2217,7 +2201,7 @@ class AgentCorePolicyGenerationManager(Boto3ModelManager):
         response_iterator = paginator.paginate(
             **{k: v for k, v in args.items() if v is not None}
         )
-        results = []
+        results: "builtins.list[PolicyGenerationSummary]" = []
         for _response in response_iterator:
             if list(_response.keys()) == ["ResponseMetadata"]:
                 break
@@ -2227,9 +2211,7 @@ class AgentCorePolicyGenerationManager(Boto3ModelManager):
             if response.policyGenerations:
                 results.extend(response.policyGenerations)
         self.sessionize(results)
-        if results and isinstance(results[0], Boto3Model):
-            return PrimaryBoto3ModelQuerySet(results)
-        return results
+        return PrimaryBoto3ModelQuerySet(results)
 
 
 class PolicyGenerationAssetManager(Boto3ModelManager):
@@ -2237,7 +2219,7 @@ class PolicyGenerationAssetManager(Boto3ModelManager):
 
     def list(
         self, policyGenerationId: str, policyEngineId: str
-    ) -> PrimaryBoto3ModelQuerySet:
+    ) -> PrimaryBoto3ModelQuerySet["PolicyGenerationAsset"]:
         """
         Retrieves a list of generated policy assets from a policy generation request
         within the AgentCore Policy system.
@@ -2266,7 +2248,7 @@ class PolicyGenerationAssetManager(Boto3ModelManager):
         response_iterator = paginator.paginate(
             **{k: v for k, v in args.items() if v is not None}
         )
-        results = []
+        results: "builtins.list[PolicyGenerationAsset]" = []
         for _response in response_iterator:
             if list(_response.keys()) == ["ResponseMetadata"]:
                 break
@@ -2276,9 +2258,7 @@ class PolicyGenerationAssetManager(Boto3ModelManager):
             if response.policyGenerationAssets:
                 results.extend(response.policyGenerationAssets)
         self.sessionize(results)
-        if results and isinstance(results[0], Boto3Model):
-            return PrimaryBoto3ModelQuerySet(results)
-        return results
+        return PrimaryBoto3ModelQuerySet(results)
 
 
 # ==============

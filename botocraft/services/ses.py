@@ -77,7 +77,9 @@ class SESIdentityManager(SESIdentityManagerMixin, Boto3ModelManager):
 class SESConfigurationSetManager(SESConfigurationSetManagerMixin, Boto3ModelManager):
     service_name: str = "ses"
 
-    def list(self, *, MaxItems: "int | None" = None) -> PrimaryBoto3ModelQuerySet:
+    def list(
+        self, *, MaxItems: "int | None" = None
+    ) -> PrimaryBoto3ModelQuerySet["SESConfigurationSet"]:
         """
         Provides a list of the configuration sets associated with your Amazon SES
         account in the current Amazon Web Services
@@ -94,7 +96,7 @@ class SESConfigurationSetManager(SESConfigurationSetManagerMixin, Boto3ModelMana
         response_iterator = paginator.paginate(
             **{k: v for k, v in args.items() if v is not None}
         )
-        results = []
+        results: "builtins.list[SESConfigurationSet]" = []
         for _response in response_iterator:
             if list(_response.keys()) == ["ResponseMetadata"]:
                 break
@@ -104,9 +106,7 @@ class SESConfigurationSetManager(SESConfigurationSetManagerMixin, Boto3ModelMana
             if response.ConfigurationSets:
                 results.extend(response.ConfigurationSets)
         self.sessionize(results)
-        if results and isinstance(results[0], Boto3Model):
-            return PrimaryBoto3ModelQuerySet(results)
-        return results
+        return PrimaryBoto3ModelQuerySet(results)
 
     def delete(self, name: str) -> None:
         """
@@ -147,7 +147,9 @@ class SESTemplateManager(SESTemplateManagerMixin, Boto3ModelManager):
         return None
 
     @template_metadata_to_models
-    def list(self, *, MaxItems: "int | None" = None) -> PrimaryBoto3ModelQuerySet:
+    def list(
+        self, *, MaxItems: "int | None" = None
+    ) -> PrimaryBoto3ModelQuerySet["TemplateMetadata"]:
         """
         Lists the email templates present in your Amazon SES account in the current
         Amazon Web Services Region.
@@ -164,7 +166,7 @@ class SESTemplateManager(SESTemplateManagerMixin, Boto3ModelManager):
         response_iterator = paginator.paginate(
             **{k: v for k, v in args.items() if v is not None}
         )
-        results = []
+        results: "builtins.list[TemplateMetadata]" = []
         for _response in response_iterator:
             if list(_response.keys()) == ["ResponseMetadata"]:
                 break
@@ -174,9 +176,7 @@ class SESTemplateManager(SESTemplateManagerMixin, Boto3ModelManager):
             if response.TemplatesMetadata:
                 results.extend(response.TemplatesMetadata)
         self.sessionize(results)
-        if results and isinstance(results[0], Boto3Model):
-            return PrimaryBoto3ModelQuerySet(results)
-        return results
+        return PrimaryBoto3ModelQuerySet(results)
 
     def delete(self, name: str) -> None:
         """
@@ -258,7 +258,7 @@ class SESCustomVerificationEmailTemplateManager(
 
     def list(
         self,
-    ) -> PrimaryBoto3ModelQuerySet:
+    ) -> PrimaryBoto3ModelQuerySet["SESCustomVerificationEmailTemplate"]:
         """
         Lists the existing custom verification email templates for your account in the
         current Amazon Web Services Region.
@@ -270,7 +270,7 @@ class SESCustomVerificationEmailTemplateManager(
         response_iterator = paginator.paginate(
             **{k: v for k, v in args.items() if v is not None}
         )
-        results = []
+        results: "builtins.list[SESCustomVerificationEmailTemplate]" = []
         for _response in response_iterator:
             if list(_response.keys()) == ["ResponseMetadata"]:
                 break
@@ -280,9 +280,7 @@ class SESCustomVerificationEmailTemplateManager(
             if response.CustomVerificationEmailTemplates:
                 results.extend(response.CustomVerificationEmailTemplates)
         self.sessionize(results)
-        if results and isinstance(results[0], Boto3Model):
-            return PrimaryBoto3ModelQuerySet(results)
-        return results
+        return PrimaryBoto3ModelQuerySet(results)
 
     def delete(self, name: str) -> None:
         """
@@ -302,7 +300,7 @@ class SESReceiptFilterManager(SESReceiptFilterManagerMixin, Boto3ModelManager):
 
     def list(
         self,
-    ) -> PrimaryBoto3ModelQuerySet:
+    ) -> PrimaryBoto3ModelQuerySet["SESReceiptFilter"]:
         """
         Lists the IP address filters associated with your Amazon Web Services account in
         the current Amazon Web Services Region.
@@ -335,7 +333,7 @@ class SESReceiptRuleSetManager(SESReceiptRuleSetManagerMixin, Boto3ModelManager)
 
     def list(
         self,
-    ) -> PrimaryBoto3ModelQuerySet:
+    ) -> PrimaryBoto3ModelQuerySet["SESReceiptRuleSet"]:
         """
         Lists the receipt rule sets that exist under your Amazon Web Services account in
         the current Amazon Web Services Region.
@@ -349,7 +347,7 @@ class SESReceiptRuleSetManager(SESReceiptRuleSetManagerMixin, Boto3ModelManager)
         response_iterator = paginator.paginate(
             **{k: v for k, v in args.items() if v is not None}
         )
-        results = []
+        results: "builtins.list[SESReceiptRuleSet]" = []
         for _response in response_iterator:
             if list(_response.keys()) == ["ResponseMetadata"]:
                 break
@@ -359,9 +357,7 @@ class SESReceiptRuleSetManager(SESReceiptRuleSetManagerMixin, Boto3ModelManager)
             if response.RuleSets:
                 results.extend(response.RuleSets)
         self.sessionize(results)
-        if results and isinstance(results[0], Boto3Model):
-            return PrimaryBoto3ModelQuerySet(results)
-        return results
+        return PrimaryBoto3ModelQuerySet(results)
 
     def delete(self, name: str) -> None:
         """

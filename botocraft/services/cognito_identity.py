@@ -74,7 +74,9 @@ class CognitoIdentityPoolManager(Boto3ModelManager):
             return response
         return None
 
-    def list(self, MaxResults: int) -> PrimaryBoto3ModelQuerySet:
+    def list(
+        self, MaxResults: int
+    ) -> PrimaryBoto3ModelQuerySet["IdentityPoolShortDescription"]:
         """
         Lists all of the Cognito identity pools registered for your account.
 
@@ -86,7 +88,7 @@ class CognitoIdentityPoolManager(Boto3ModelManager):
         response_iterator = paginator.paginate(
             **{k: v for k, v in args.items() if v is not None}
         )
-        results = []
+        results: "builtins.list[IdentityPoolShortDescription]" = []
         for _response in response_iterator:
             if list(_response.keys()) == ["ResponseMetadata"]:
                 break
@@ -96,9 +98,7 @@ class CognitoIdentityPoolManager(Boto3ModelManager):
             if response.IdentityPools:
                 results.extend(response.IdentityPools)
         self.sessionize(results)
-        if results and isinstance(results[0], Boto3Model):
-            return PrimaryBoto3ModelQuerySet(results)
-        return results
+        return PrimaryBoto3ModelQuerySet(results)
 
     def update(self, model: "CognitoIdentityPool") -> "CognitoIdentityPool":
         """
@@ -172,7 +172,7 @@ class CognitoIdentityManager(Boto3ModelManager):
         *,
         NextToken: "str | None" = None,
         HideDisabled: "bool | None" = None,
-    ) -> PrimaryBoto3ModelQuerySet:
+    ) -> PrimaryBoto3ModelQuerySet["CognitoIdentity"]:
         """
         Lists the identities in an identity pool.
 

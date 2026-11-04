@@ -142,7 +142,7 @@ class RepositoryManager(Boto3ModelManager):
         registryId: "str | None" = None,
         repositoryNames: "builtins.list[str] | None" = None,
         include: "builtins.list[Literal['TAGS']] | None" = None,
-    ) -> PrimaryBoto3ModelQuerySet:
+    ) -> PrimaryBoto3ModelQuerySet["Repository"]:
         """
         Describes image repositories in a registry.
 
@@ -166,7 +166,7 @@ class RepositoryManager(Boto3ModelManager):
         response_iterator = paginator.paginate(
             **{k: v for k, v in args.items() if v is not None}
         )
-        results = []
+        results: "builtins.list[Repository]" = []
         for _response in response_iterator:
             if list(_response.keys()) == ["ResponseMetadata"]:
                 break
@@ -176,9 +176,7 @@ class RepositoryManager(Boto3ModelManager):
             if response.repositories:
                 results.extend(response.repositories)
         self.sessionize(results)
-        if results and isinstance(results[0], Boto3Model):
-            return PrimaryBoto3ModelQuerySet(results)
-        return results
+        return PrimaryBoto3ModelQuerySet(results)
 
     @repo_list_images_ecr_images_only
     def list_images(
@@ -407,7 +405,7 @@ class ECRImageManager(ECRImageManagerMixin, Boto3ModelManager):
     @image_list_images_ecr_images_only
     def list(
         self, repositoryName: str, *, filter: "ListImagesFilter | None" = None
-    ) -> PrimaryBoto3ModelQuerySet:
+    ) -> PrimaryBoto3ModelQuerySet["ImageIdentifier"]:
         """
         Lists all the image IDs for the specified repository.
 
@@ -425,7 +423,7 @@ class ECRImageManager(ECRImageManagerMixin, Boto3ModelManager):
         response_iterator = paginator.paginate(
             **{k: v for k, v in args.items() if v is not None}
         )
-        results = []
+        results: "builtins.list[ImageIdentifier]" = []
         for _response in response_iterator:
             if list(_response.keys()) == ["ResponseMetadata"]:
                 break
@@ -435,9 +433,7 @@ class ECRImageManager(ECRImageManagerMixin, Boto3ModelManager):
             if response.imageIds:
                 results.extend(response.imageIds)
         self.sessionize(results)
-        if results and isinstance(results[0], Boto3Model):
-            return PrimaryBoto3ModelQuerySet(results)
-        return results
+        return PrimaryBoto3ModelQuerySet(results)
 
     def delete(
         self, repositoryName: str, imageId: "ImageIdentifier"

@@ -694,7 +694,7 @@ class SecretVersionManager(Boto3ModelManager):
         MaxResults: "int | None" = None,
         NextToken: "str | None" = None,
         IncludeDeprecated: "bool | None" = None,
-    ) -> PrimaryBoto3ModelQuerySet:
+    ) -> PrimaryBoto3ModelQuerySet["SecretVersion"]:
         """
         Lists the versions of a secret.
 

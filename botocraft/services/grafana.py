@@ -554,7 +554,9 @@ class ManagedGrafanaServiceAccountManager(Boto3ModelManager):
         return cast("ManagedGrafanaServiceAccount", response)
 
     @service_accounts_add_workspace_context
-    def list(self, workspaceId: str) -> PrimaryBoto3ModelQuerySet:
+    def list(
+        self, workspaceId: str
+    ) -> PrimaryBoto3ModelQuerySet["ManagedGrafanaServiceAccount"]:
         """
         List the service accounts in an AWS Managed Grafana workspace.
 
@@ -566,7 +568,7 @@ class ManagedGrafanaServiceAccountManager(Boto3ModelManager):
         response_iterator = paginator.paginate(
             **{k: v for k, v in args.items() if v is not None}
         )
-        results = []
+        results: "builtins.list[ManagedGrafanaServiceAccount]" = []
         for _response in response_iterator:
             if list(_response.keys()) == ["ResponseMetadata"]:
                 break
@@ -576,9 +578,7 @@ class ManagedGrafanaServiceAccountManager(Boto3ModelManager):
             if response.serviceAccounts:
                 results.extend(response.serviceAccounts)
         self.sessionize(results)
-        if results and isinstance(results[0], Boto3Model):
-            return PrimaryBoto3ModelQuerySet(results)
-        return results
+        return PrimaryBoto3ModelQuerySet(results)
 
     def delete(self, serviceAccountId: str, workspaceId: str) -> None:
         """
@@ -636,7 +636,7 @@ class ManagedGrafanaServiceAccountTokenManager(
     @service_account_tokens_add_context
     def list(
         self, serviceAccountId: str, workspaceId: str
-    ) -> PrimaryBoto3ModelQuerySet:
+    ) -> PrimaryBoto3ModelQuerySet["ManagedGrafanaServiceAccountToken"]:
         """
         List the service account tokens for a service account.
 
@@ -655,7 +655,7 @@ class ManagedGrafanaServiceAccountTokenManager(
         response_iterator = paginator.paginate(
             **{k: v for k, v in args.items() if v is not None}
         )
-        results = []
+        results: "builtins.list[ManagedGrafanaServiceAccountToken]" = []
         for _response in response_iterator:
             if list(_response.keys()) == ["ResponseMetadata"]:
                 break
@@ -665,9 +665,7 @@ class ManagedGrafanaServiceAccountTokenManager(
             if response.serviceAccountTokens:
                 results.extend(response.serviceAccountTokens)
         self.sessionize(results)
-        if results and isinstance(results[0], Boto3Model):
-            return PrimaryBoto3ModelQuerySet(results)
-        return results
+        return PrimaryBoto3ModelQuerySet(results)
 
     def delete(self, tokenId: str, serviceAccountId: str, workspaceId: str) -> None:
         """

@@ -163,7 +163,7 @@ class ParameterManager(Boto3ModelManager):
 
     def get_many(
         self, Names: "builtins.list[str]", *, WithDecryption: bool = True
-    ) -> "PrimaryBoto3ModelQuerySet | GetParametersResult | None":
+    ) -> "PrimaryBoto3ModelQuerySet[Parameter] | GetParametersResult | None":
         """
         Get information about one or more parameters by specifying multiple parameter
         names.

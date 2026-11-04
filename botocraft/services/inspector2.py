@@ -95,7 +95,7 @@ class CisScanConfigurationManager(CisScanConfigurationManagerMixin, Boto3ModelMa
         filterCriteria: "ListCisScanConfigurationsFilterCriteria | None" = None,
         sortBy: "Literal['SCAN_NAME', 'SCAN_CONFIGURATION_ARN'] | None" = None,
         sortOrder: "Literal['ASC', 'DESC'] | None" = None,
-    ) -> PrimaryBoto3ModelQuerySet:
+    ) -> PrimaryBoto3ModelQuerySet["CisScanConfiguration"]:
         """
         Lists CIS scan configurations.
 
@@ -113,7 +113,7 @@ class CisScanConfigurationManager(CisScanConfigurationManagerMixin, Boto3ModelMa
         response_iterator = paginator.paginate(
             **{k: v for k, v in args.items() if v is not None}
         )
-        results = []
+        results: "builtins.list[CisScanConfiguration]" = []
         for _response in response_iterator:
             if list(_response.keys()) == ["ResponseMetadata"]:
                 break
@@ -123,9 +123,7 @@ class CisScanConfigurationManager(CisScanConfigurationManagerMixin, Boto3ModelMa
             if response.scanConfigurations:
                 results.extend(response.scanConfigurations)
         self.sessionize(results)
-        if results and isinstance(results[0], Boto3Model):
-            return PrimaryBoto3ModelQuerySet(results)
-        return results
+        return PrimaryBoto3ModelQuerySet(results)
 
 
 class Inspector2FilterManager(Boto3ModelManager):
@@ -229,7 +227,7 @@ class Inspector2FilterManager(Boto3ModelManager):
         *,
         arns: "builtins.list[str] | None" = None,
         action: "Literal['NONE', 'SUPPRESS'] | None" = None,
-    ) -> PrimaryBoto3ModelQuerySet:
+    ) -> PrimaryBoto3ModelQuerySet["Inspector2Filter"]:
         """
         Lists the filters associated with your account.
 
@@ -244,7 +242,7 @@ class Inspector2FilterManager(Boto3ModelManager):
         response_iterator = paginator.paginate(
             **{k: v for k, v in args.items() if v is not None}
         )
-        results = []
+        results: "builtins.list[Inspector2Filter]" = []
         for _response in response_iterator:
             if list(_response.keys()) == ["ResponseMetadata"]:
                 break
@@ -254,9 +252,7 @@ class Inspector2FilterManager(Boto3ModelManager):
             if response.filters:
                 results.extend(response.filters)
         self.sessionize(results)
-        if results and isinstance(results[0], Boto3Model):
-            return PrimaryBoto3ModelQuerySet(results)
-        return results
+        return PrimaryBoto3ModelQuerySet(results)
 
 
 class FindingManager(ReadonlyBoto3ModelManager):
@@ -294,7 +290,7 @@ class FindingManager(ReadonlyBoto3ModelManager):
         *,
         filterCriteria: "FilterCriteria | None" = None,
         sortCriteria: "SortCriteria | None" = None,
-    ) -> PrimaryBoto3ModelQuerySet:
+    ) -> PrimaryBoto3ModelQuerySet["Finding"]:
         """
         Lists findings for your environment.
 
@@ -310,7 +306,7 @@ class FindingManager(ReadonlyBoto3ModelManager):
         response_iterator = paginator.paginate(
             **{k: v for k, v in args.items() if v is not None}
         )
-        results = []
+        results: "builtins.list[Finding]" = []
         for _response in response_iterator:
             if list(_response.keys()) == ["ResponseMetadata"]:
                 break
@@ -320,9 +316,7 @@ class FindingManager(ReadonlyBoto3ModelManager):
             if response.findings:
                 results.extend(response.findings)
         self.sessionize(results)
-        if results and isinstance(results[0], Boto3Model):
-            return PrimaryBoto3ModelQuerySet(results)
-        return results
+        return PrimaryBoto3ModelQuerySet(results)
 
     def list_aggregations(
         self,
@@ -622,7 +616,7 @@ class VulnerabilityManager(VulnerabilityManagerMixin, ReadonlyBoto3ModelManager)
 
     def list(
         self, filterCriteria: "SearchVulnerabilitiesFilterCriteria"
-    ) -> PrimaryBoto3ModelQuerySet:
+    ) -> PrimaryBoto3ModelQuerySet["Vulnerability"]:
         """
         Lists Amazon Inspector coverage details for a specific vulnerability.
 
@@ -635,7 +629,7 @@ class VulnerabilityManager(VulnerabilityManagerMixin, ReadonlyBoto3ModelManager)
         response_iterator = paginator.paginate(
             **{k: v for k, v in args.items() if v is not None}
         )
-        results = []
+        results: "builtins.list[Vulnerability]" = []
         for _response in response_iterator:
             if list(_response.keys()) == ["ResponseMetadata"]:
                 break
@@ -645,9 +639,7 @@ class VulnerabilityManager(VulnerabilityManagerMixin, ReadonlyBoto3ModelManager)
             if response.vulnerabilities:
                 results.extend(response.vulnerabilities)
         self.sessionize(results)
-        if results and isinstance(results[0], Boto3Model):
-            return PrimaryBoto3ModelQuerySet(results)
-        return results
+        return PrimaryBoto3ModelQuerySet(results)
 
 
 # ==============
@@ -1948,6 +1940,7 @@ class Image(Boto3Model):
     The platform of the container image.
     """
 
+
 class ServerlessFunction(Boto3Model):
     """
     Contains details about a serverless function involved in a finding.
@@ -2050,6 +2043,7 @@ class ResourceDetails(Boto3Model):
     """
     An object that contains details about a VM instance involved in the finding.
     """
+
     image: "Image | None" = None
     """
     An object that contains details about a container image involved in the finding.
@@ -2084,6 +2078,7 @@ class Inspector2Resource(Boto3Model):
     """
     The type of resource.
     """
+
     id: str
     """
     The ID of the resource.
@@ -2126,10 +2121,12 @@ class CvssScoreAdjustment(Boto3Model):
     """
     The metric used to adjust the CVSS score.
     """
+
     reason: str
     """
     The reason the CVSS score has been adjustment.
     """
+
 
 class CvssScoreDetails(Boto3Model):
     """
@@ -2215,7 +2212,6 @@ class Step(Boto3Model):
 
     The ARN can be null and is not displayed in the Amazon Web Services console.
     """
-
 class NetworkPath(Boto3Model):
     """
     Information on the network path associated with a finding.
@@ -2225,6 +2221,7 @@ class NetworkPath(Boto3Model):
     """
     The details on the steps in the network path.
     """
+
 class NetworkReachabilityDetails(Boto3Model):
     """
     Contains the details of a network reachability finding.
@@ -2247,7 +2244,6 @@ class VulnerablePackage(Boto3Model):
     """
     Information on the vulnerable package identified by a finding.
     """
-
     packageManager: (
         Literal[
             "BUNDLER",
@@ -2290,7 +2286,6 @@ class VulnerablePackage(Boto3Model):
     """
     The name of the vulnerable package.
     """
-
     version: str
     """
     The version of the vulnerable package.
@@ -2310,12 +2305,10 @@ class VulnerablePackage(Boto3Model):
     """
     The release of the vulnerable package.
     """
-
     arch: "str | None" = None
     """
     The architecture of the vulnerable package.
     """
-
     filePath: "str | None" = None
     """
     The file path of the vulnerable package.
@@ -2378,7 +2371,6 @@ class PackageVulnerabilityDetails(Boto3Model):
     """
     The packages impacted by this vulnerability.
     """
-
     source: str
     """
     The source of the vulnerability information.
@@ -2387,6 +2379,7 @@ class PackageVulnerabilityDetails(Boto3Model):
     """
     An object that contains details about the CVSS score of a finding.
     """
+
     relatedVulnerabilities: "builtins.list[str] | None" = Field(default_factory=list)
     """
     One or more vulnerabilities related to the one identified in this finding.
@@ -2437,7 +2430,6 @@ class CodeFilePath(Boto3Model):
     """
     The name of the file the code vulnerability was found in.
     """
-
     filePath: str
     """
     The file path to the code that a vulnerability was found in.
@@ -2446,7 +2438,6 @@ class CodeFilePath(Boto3Model):
     """
     The line number of the first line of code that a vulnerability was found in.
     """
-
     endLine: int
     """
     The line number of the last line of code that a vulnerability was found in.
@@ -2461,7 +2452,6 @@ class CodeVulnerabilityDetails(Boto3Model):
     """
     Contains information on where the code vulnerability is located in your code.
     """
-
     detectorTags: "builtins.list[str] | None" = Field(default_factory=list)
     """
     The detector tag associated with the vulnerability.
@@ -2537,6 +2527,7 @@ class Finding(ReadonlyPrimaryBoto3Model):
     """
     The Amazon Web Services account ID associated with the finding.
     """
+
     type: Literal["NETWORK_REACHABILITY", "PACKAGE_VULNERABILITY", "CODE_VULNERABILITY"]
     """
     The type of the finding.
@@ -2577,7 +2568,6 @@ class Finding(ReadonlyPrimaryBoto3Model):
     """
     The date and time that the finding was first observed.
     """
-
     lastObservedAt: datetime
     """
     The date and time the finding was last observed.
@@ -2688,6 +2678,7 @@ class Finding(ReadonlyPrimaryBoto3Model):
         """
         return hash(self.findingArn)
 
+
 class FindingsReport(ReadonlyPrimaryBoto3Model):
     manager_class: ClassVar[ModelType[Boto3ModelManager]] = FindingsReportManager
 
@@ -2755,6 +2746,7 @@ class DelegatedAdminAccount(ReadonlyPrimaryBoto3Model):
     """
     The status of the Amazon Inspector delegated administrator.
     """
+
     accountId: "str | None" = None
     """
     The Amazon Web Services account ID of the Amazon Inspector delegated administrator
@@ -2781,6 +2773,7 @@ class DelegatedAdminAccount(ReadonlyPrimaryBoto3Model):
     """
     The status of the relationship.
     """
+
     @property
     def pk(self) -> str | None:
         """
@@ -2825,8 +2818,6 @@ class DelegatedAdminAccount(ReadonlyPrimaryBoto3Model):
                 cast("str", self.accountId),
             )
         )
-
-
 class CisaData(Boto3Model):
     """
     The Cybersecurity and Infrastructure Security Agency (CISA) details for a specific
@@ -2852,6 +2843,7 @@ class AtigData(Boto3Model):
     The Amazon Web Services Threat Intel Group (ATIG) details for a specific
     vulnerability.
     """
+
     firstSeen: "datetime | None" = None
     """
     The date and time this vulnerability was first observed.
@@ -2866,6 +2858,7 @@ class AtigData(Boto3Model):
     """
     The commercial sectors this vulnerability targets.
     """
+
     ttps: "builtins.list[str] | None" = Field(default_factory=list)
     """
 The `MITRE ATT&CK <https://attack.mitre.org/>`_ tactics, techniques, and procedures (TTPs) associated with vulnerability.
@@ -2882,7 +2875,6 @@ class Cvss4(Boto3Model):
     The base CVSS v4 score for the vulnerability finding, which rates the severity of
     the vulnerability on a scale from 0 to 10.
     """
-
     scoringVector: "str | None" = None
     """
     The CVSS v4 scoring vector, which contains the metrics and measurements that were
@@ -2902,6 +2894,7 @@ class Cvss3(Boto3Model):
     """
     The scoring vector associated with the CVSS v3 score.
     """
+
 class Cvss2(Boto3Model):
     """
     The Common Vulnerability Scoring System (CVSS) version 2 details for the
@@ -2911,6 +2904,7 @@ class Cvss2(Boto3Model):
     """
     The CVSS v2 base score for the vulnerability.
     """
+
     scoringVector: "str | None" = None
     """
     The scoring vector associated with the CVSS v2 score.
@@ -2945,7 +2939,6 @@ class Vulnerability(ReadonlyPrimaryBoto3Model):
     """
     Contains details about a specific vulnerability Amazon Inspector can detect.
     """
-
     manager_class: ClassVar[ModelType[Boto3ModelManager]] = VulnerabilityManager
 
     id: str
@@ -2970,7 +2963,6 @@ class Vulnerability(ReadonlyPrimaryBoto3Model):
 
     Possible results are ``RHEL``, ``AMAZON_CVE``, ``DEBIAN`` or ``NVD``.
     """
-
     description: "str | None" = None
     """
     A description of the vulnerability.
@@ -2986,7 +2978,6 @@ class Vulnerability(ReadonlyPrimaryBoto3Model):
     """
     The severity assigned by the vendor.
     """
-
     cvss4: "Cvss4 | None" = None
     """
     An object that contains the Common Vulnerability Scoring System (CVSS) Version 4
@@ -3003,7 +2994,6 @@ class Vulnerability(ReadonlyPrimaryBoto3Model):
     """
     A list of related vulnerabilities.
     """
-
     cvss2: "Cvss2 | None" = None
     """
     An object that contains the Common Vulnerability Scoring System (CVSS) Version 2
@@ -3019,7 +3009,6 @@ class Vulnerability(ReadonlyPrimaryBoto3Model):
     """
     The date and time when the vendor last updated this vulnerability.
     """
-
     sourceUrl: "str | None" = None
     """
     A link to the official source material for this vulnerability.
@@ -3147,6 +3136,7 @@ class TagFilter(Boto3Model):
     """
     The tag filter comparison value.
     """
+
     key: str
     """
     The tag filter key.
@@ -3169,7 +3159,6 @@ class ListCisScanConfigurationsFilterCriteria(Boto3Model):
     """
     The list of scan name filters.
     """
-
     targetResourceTagFilters: "builtins.list[TagFilter] | None" = Field(
         default_factory=list
     )
@@ -3224,6 +3213,7 @@ class ListFiltersResponse(Boto3Model):
     """
     Contains details on the filters associated with your account.
     """
+
     nextToken: "str | None" = None
     """
     A token to use for paginating results that are returned in the response.
@@ -3265,6 +3255,7 @@ class SortCriteria(Boto3Model):
     """
     The order by which findings are sorted.
     """
+
 
 class ListFindingsResponse(Boto3Model):
     nextToken: "str | None" = None
@@ -3315,6 +3306,7 @@ class AmiAggregation(Boto3Model):
     """
     The IDs of AMIs to aggregate findings for.
     """
+
     sortOrder: "Literal['ASC', 'DESC'] | None" = None
     """
     The order to sort results by.
@@ -3335,7 +3327,6 @@ class AwsEcrContainerAggregation(Boto3Model):
     """
     An aggregation of information about Amazon ECR containers.
     """
-
     resourceIds: "builtins.list[StringFilter] | None" = Field(default_factory=list)
     """
     The container resource IDs.
@@ -3344,6 +3335,7 @@ class AwsEcrContainerAggregation(Boto3Model):
     """
     The image SHA values.
     """
+
     repositories: "builtins.list[StringFilter] | None" = Field(default_factory=list)
     """
     The container repositories.
@@ -3367,6 +3359,7 @@ class AwsEcrContainerAggregation(Boto3Model):
     """
     The value to sort by.
     """
+
     lastInUseAt: "builtins.list[DateFilter] | None" = Field(default_factory=list)
     """
     The last time an Amazon ECR image was used in an Amazon ECS task or Amazon EKS pod.
@@ -3410,7 +3403,6 @@ class Ec2InstanceAggregation(Boto3Model):
     """
     The order to sort results by.
     """
-
     sortBy: "Literal['NETWORK_FINDINGS', 'CRITICAL', 'HIGH', 'ALL'] | None" = None
     """
     The value to sort results by.
@@ -3491,7 +3483,6 @@ class ImageLayerAggregation(Boto3Model):
 
     Valid values:
     """
-
     sortOrder: "Literal['ASC', 'DESC'] | None" = None
     """
     The order to sort results by.
@@ -3510,6 +3501,7 @@ class PackageAggregation(Boto3Model):
     """
     The names of packages to aggregate findings on.
     """
+
     sortOrder: "Literal['ASC', 'DESC'] | None" = None
     """
     The order to sort results by.
@@ -3580,6 +3572,7 @@ class LambdaLayerAggregation(Boto3Model):
     The details that define a findings aggregation based on an Amazon Web Services
     Lambda function's layers.
     """
+
     functionNames: "builtins.list[StringFilter] | None" = Field(default_factory=list)
     """
     The names of the Amazon Web Services Lambda functions associated with the layers.
@@ -3645,7 +3638,6 @@ class CodeRepositoryAggregation(Boto3Model):
     """
     The details that define an aggregation based on code repositories.
     """
-
     projectNames: "builtins.list[StringFilter] | None" = Field(default_factory=list)
     """
     The project names to include in the aggregation results.
@@ -3654,6 +3646,7 @@ class CodeRepositoryAggregation(Boto3Model):
     """
     The repository provider types to include in the aggregation results.
     """
+
     sortOrder: "Literal['ASC', 'DESC'] | None" = None
     """
     The order to sort results by (ascending or descending) in the code repository
@@ -3679,7 +3672,6 @@ class VmInstanceAggregation(Boto3Model):
     """
     The resource IDs to aggregate findings for.
     """
-
     operatingSystems: "builtins.list[StringFilter] | None" = Field(default_factory=list)
     """
     The operating systems to aggregate findings for.
@@ -3722,7 +3714,6 @@ class VmInstanceAggregation(Boto3Model):
     """
     The cloud organization IDs to aggregate findings for.
     """
-
     cloudAccountIds: "builtins.list[StringFilter] | None" = Field(default_factory=list)
     """
     The cloud account IDs to aggregate findings for.
@@ -3821,7 +3812,6 @@ class ContainerImageAggregation(Boto3Model):
 
     Valid values are ``ASC`` and ``DESC``.
     """
-
     sortBy: "Literal['CRITICAL', 'HIGH', 'ALL'] | None" = None
     """
     The value to sort results by.
@@ -3888,6 +3878,7 @@ class ServerlessFunctionAggregation(Boto3Model):
 
     Valid values are ``ASC`` and ``DESC``.
     """
+
     sortBy: "Literal['CRITICAL', 'HIGH', 'ALL'] | None" = None
     """
     The value to sort results by.
@@ -3900,6 +3891,7 @@ class AggregationRequest(Boto3Model):
     """
     Contains details about an aggregation request.
     """
+
     accountAggregation: "AccountAggregation | None" = None
     """
     An object that contains details about an aggregation request based on Amazon Web
@@ -3990,7 +3982,6 @@ class SeverityCounts(Boto3Model):
     """
     An object that contains the counts of aggregated finding per severity.
     """
-
     all: "int | None" = None
     """
     The total count of findings from all severities.
@@ -4020,7 +4011,6 @@ class SeverityCounts(Boto3Model):
     """
     The total count of informational severity findings.
     """
-
     untriaged: "int | None" = None
     """
     The total count of untriaged findings.
@@ -4072,7 +4062,6 @@ class AmiAggregationResponse(Boto3Model):
 
     Valid values:
     """
-
     cloudPartition: "str | None" = None
     """
     The cloud infrastructure partition associated with this AMI aggregation.
@@ -4085,6 +4074,7 @@ class AmiAggregationResponse(Boto3Model):
 
     The value format depends on the cloud provider:
     """
+
     cloudOrgId: "str | None" = None
     """
     The cloud organization ID for the AMI aggregation.
@@ -4103,6 +4093,7 @@ class AmiAggregationResponse(Boto3Model):
     """
     The IDs of Amazon EC2 instances using this AMI.
     """
+
     scanSource: "Literal['INSTANCE_SCAN', 'MACHINE_IMAGE_SCAN'] | None" = None
     """
     The source of the scan that generated the findings for the Amazon Machine Image
@@ -4113,10 +4104,12 @@ class AwsEcrContainerAggregationResponse(Boto3Model):
     """
     An aggregation of information about Amazon ECR containers.
     """
+
     resourceId: str
     """
     The resource ID of the container.
     """
+
     imageSha: "str | None" = None
     """
     The SHA value of the container image.
@@ -4157,6 +4150,7 @@ class AwsEcrContainerAggregationResponse(Boto3Model):
     The number of Amazon ECS tasks or Amazon EKS pods where the Amazon ECR container
     image is in use.
     """
+
 class Ec2InstanceAggregationResponse(Boto3Model):
     """
     A response that contains the results of a finding aggregation by Amazon EC2
@@ -4182,6 +4176,7 @@ class Ec2InstanceAggregationResponse(Boto3Model):
     """
     The tags attached to the instance.
     """
+
     accountId: "str | None" = None
     """
     The Amazon Web Services account for the Amazon EC2 instance.
@@ -4191,6 +4186,7 @@ class Ec2InstanceAggregationResponse(Boto3Model):
     """
     An object that contains the count of matched findings per severity.
     """
+
     networkFindings: "int | None" = None
     """
     The number of network findings for the Amazon EC2 instance.
@@ -4200,6 +4196,7 @@ class FindingTypeAggregationResponse(Boto3Model):
     """
     A response that contains the results of a finding type aggregation.
     """
+
     accountId: "str | None" = None
     """
     The ID of the Amazon Web Services account associated with the findings.
@@ -4219,6 +4216,7 @@ class FindingTypeAggregationResponse(Boto3Model):
     """
     Details about the number of fixes.
     """
+
     cloudProvider: "str | None" = None
     """
     The cloud service provider associated with this finding type aggregation.
@@ -4286,7 +4284,6 @@ class ImageLayerAggregationResponse(Boto3Model):
     """
     The cloud account ID for the image layer aggregation.
     """
-
     cloudOrgId: "str | None" = None
     """
     The cloud organization ID for the image layer aggregation.
@@ -4320,6 +4317,7 @@ class PackageAggregationResponse(Boto3Model):
     """
     The name of the operating system package.
     """
+
     accountId: "str | None" = None
     """
     The ID of the Amazon Web Services account associated with the findings.
@@ -4335,7 +4333,6 @@ class RepositoryAggregationResponse(Boto3Model):
     A response that contains details on the results of a finding aggregation by
     repository.
     """
-
     repository: str
     """
     The name of the repository associated with the findings.
@@ -4345,7 +4342,6 @@ class RepositoryAggregationResponse(Boto3Model):
     """
     The ID of the Amazon Web Services account associated with the findings.
     """
-
     cloudProvider: "Literal['AWS', 'AZURE'] | None" = None
     """
     The cloud service provider associated with this repository aggregation.
@@ -4358,6 +4354,7 @@ class RepositoryAggregationResponse(Boto3Model):
 
     Valid values:
     """
+
     cloudRegion: "str | None" = None
     """
     The cloud Region associated with this repository aggregation.
@@ -4378,6 +4375,7 @@ class RepositoryAggregationResponse(Boto3Model):
     """
     An object that represent the count of matched findings per severity.
     """
+
     affectedImages: "int | None" = None
     """
     The number of container images impacted by the findings.
@@ -4402,7 +4400,6 @@ class TitleAggregationResponse(Boto3Model):
     """
     The ID of the Amazon Web Services account associated with the findings.
     """
-
     severityCounts: "SeverityCounts | None" = None
     """
     An object that represent the count of matched findings per severity.
@@ -4447,7 +4444,6 @@ class LambdaFunctionAggregationResponse(Boto3Model):
     """
     The resource IDs included in the aggregation results.
     """
-
     functionName: "str | None" = None
     """
     The Amazon Web Services Lambda function names included in the aggregation results.
@@ -4473,7 +4469,6 @@ class LambdaFunctionAggregationResponse(Boto3Model):
     """
     An object that contains the counts of aggregated finding per severity.
     """
-
     lastModifiedAt: "datetime | None" = None
     """
     The date that the Amazon Web Services Lambda function included in the aggregation
@@ -4509,7 +4504,6 @@ class CodeRepositoryAggregationResponse(Boto3Model):
     """
     The number of active findings that have a fix available for the code repository.
     """
-
     accountId: "str | None" = None
     """
     The Amazon Web Services account ID associated with the code repository.
@@ -4518,6 +4512,7 @@ class CodeRepositoryAggregationResponse(Boto3Model):
     """
     The resource ID of the code repository.
     """
+
 class VmInstanceAggregationResponse(Boto3Model):
     """
     A response that contains the results of a VM instance aggregation.
@@ -4544,7 +4539,6 @@ class VmInstanceAggregationResponse(Boto3Model):
     """
     The cloud account ID for the VM instance aggregation.
     """
-
     cloudPartition: "str | None" = None
     """
     The cloud infrastructure partition associated with this VM instance aggregation.
@@ -4557,6 +4551,7 @@ class VmInstanceAggregationResponse(Boto3Model):
 
     The value format depends on the cloud provider:
     """
+
     cloudOrgId: "str | None" = None
     """
     The cloud organization ID for the VM instance aggregation.
@@ -4588,7 +4583,6 @@ class VmInstanceAggregationResponse(Boto3Model):
 
     This field applies only to Amazon Web Services resources.
     """
-
     exploitAvailableActiveFindingsCount: "int | None" = None
     """
     The number of active findings with an exploit available for the VM instance.
@@ -4633,7 +4627,6 @@ class ContainerImageAggregationResponse(Boto3Model):
 
     The value format depends on the cloud provider:
     """
-
     cloudOrgId: "str | None" = None
     """
     The cloud organization ID for the container image aggregation.
@@ -4653,15 +4646,16 @@ class ContainerImageAggregationResponse(Boto3Model):
     """
     The registry for the container image.
     """
+
     architecture: "str | None" = None
     """
     The architecture of the container image.
     """
+
     imageTags: "builtins.list[str] | None" = Field(default_factory=list)
     """
     The image tags attached to the container image.
     """
-
     accountId: "str | None" = None
     """
     The account ID associated with the container image.
@@ -4696,6 +4690,7 @@ class ServerlessFunctionAggregationResponse(Boto3Model):
     """
     A response that contains the results of a serverless function aggregation.
     """
+
     Tags: dict[str, str] = Field(default_factory=dict, alias="tags")
     """
     The tags attached to the serverless function.
@@ -4732,11 +4727,11 @@ class ServerlessFunctionAggregationResponse(Boto3Model):
 
     The value format depends on the cloud provider:
     """
-
     cloudOrgId: "str | None" = None
     """
     The cloud organization ID for the serverless function aggregation.
     """
+
     functionName: "str | None" = None
     """
     The name of the serverless function.
@@ -4761,7 +4756,6 @@ class ServerlessFunctionAggregationResponse(Boto3Model):
     """
     The date and time the serverless function was last modified.
     """
-
     exploitAvailableActiveFindingsCount: "int | None" = None
     """
     The number of active findings with an exploit available for the serverless function.
@@ -4793,6 +4787,7 @@ class AggregationResponse(Boto3Model):
     An object that contains details about an aggregation response based on Amazon ECR
     container images.
     """
+
     ec2InstanceAggregation: "Ec2InstanceAggregationResponse | None" = None
     """
     An object that contains details about an aggregation response based on Amazon EC2
@@ -4815,7 +4810,6 @@ class AggregationResponse(Boto3Model):
     An object that contains details about an aggregation response based on operating
     system package type.
     """
-
     repositoryAggregation: "RepositoryAggregationResponse | None" = None
     """
     An object that contains details about an aggregation response based on Amazon ECR
@@ -4826,6 +4820,7 @@ class AggregationResponse(Boto3Model):
     An object that contains details about an aggregation response based on finding
     title.
     """
+
     lambdaLayerAggregation: "LambdaLayerAggregationResponse | None" = None
     """
     An aggregation of findings by Amazon Web Services Lambda layer.
@@ -4894,6 +4889,7 @@ class ListFindingAggregationsResponse(Boto3Model):
     subsequent calls, use the ``NextToken`` value returned from the previous request to
     continue listing results after the first page.
     """
+
 class Evidence(Boto3Model):
     """
     Details of the evidence for a vulnerability identified in a finding.
@@ -4908,6 +4904,7 @@ class Evidence(Boto3Model):
     """
     The evidence details.
     """
+
     severity: "str | None" = None
     """
     The evidence severity.
@@ -4922,7 +4919,6 @@ class FindingDetail(Boto3Model):
     """
     The finding ARN that the vulnerability details are associated with.
     """
-
     cisaData: "CisaData | None" = None
     """
     The Cybersecurity and Infrastructure Security Agency (CISA) details for a specific

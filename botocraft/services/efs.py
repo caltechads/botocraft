@@ -129,7 +129,7 @@ class FileSystemManager(FileSystemManagerMixin, Boto3ModelManager):
         MaxItems: "int | None" = None,
         CreationToken: "str | None" = None,
         FileSystemId: "str | None" = None,
-    ) -> PrimaryBoto3ModelQuerySet:
+    ) -> PrimaryBoto3ModelQuerySet["FileSystem"]:
         """
         Returns the description of a specific Amazon EFS file system if either the file
         system ``CreationToken`` or the ``FileSystemId`` is provided. Otherwise, it
@@ -157,7 +157,7 @@ class FileSystemManager(FileSystemManagerMixin, Boto3ModelManager):
         response_iterator = paginator.paginate(
             **{k: v for k, v in args.items() if v is not None}
         )
-        results = []
+        results: "builtins.list[FileSystem]" = []
         for _response in response_iterator:
             if list(_response.keys()) == ["ResponseMetadata"]:
                 break
@@ -167,9 +167,7 @@ class FileSystemManager(FileSystemManagerMixin, Boto3ModelManager):
             if response.FileSystems:
                 results.extend(response.FileSystems)
         self.sessionize(results)
-        if results and isinstance(results[0], Boto3Model):
-            return PrimaryBoto3ModelQuerySet(results)
-        return results
+        return PrimaryBoto3ModelQuerySet(results)
 
     def delete(self, FileSystemId: str) -> None:
         """
@@ -588,7 +586,7 @@ class AccessPointManager(AccessPointManagerMixin, Boto3ModelManager):
     @efs_access_points_add_tags
     def list(
         self, *, AccessPointId: "str | None" = None, FileSystemId: "str | None" = None
-    ) -> PrimaryBoto3ModelQuerySet:
+    ) -> PrimaryBoto3ModelQuerySet["AccessPoint"]:
         """
         Returns the description of a specific Amazon EFS access point if the
         ``AccessPointId`` is provided.
@@ -613,7 +611,7 @@ class AccessPointManager(AccessPointManagerMixin, Boto3ModelManager):
         response_iterator = paginator.paginate(
             **{k: v for k, v in args.items() if v is not None}
         )
-        results = []
+        results: "builtins.list[AccessPoint]" = []
         for _response in response_iterator:
             if list(_response.keys()) == ["ResponseMetadata"]:
                 break
@@ -623,9 +621,7 @@ class AccessPointManager(AccessPointManagerMixin, Boto3ModelManager):
             if response.AccessPoints:
                 results.extend(response.AccessPoints)
         self.sessionize(results)
-        if results and isinstance(results[0], Boto3Model):
-            return PrimaryBoto3ModelQuerySet(results)
-        return results
+        return PrimaryBoto3ModelQuerySet(results)
 
     def delete(self, AccessPointId: str) -> None:
         """
@@ -744,7 +740,7 @@ class MountTargetManager(MountTargetManagerMixin, Boto3ModelManager):
         FileSystemId: "str | None" = None,
         MountTargetId: "str | None" = None,
         AccessPointId: "str | None" = None,
-    ) -> PrimaryBoto3ModelQuerySet:
+    ) -> PrimaryBoto3ModelQuerySet["MountTarget"]:
         """
         Returns the descriptions of all the current mount targets, or a specific mount
         target, for a file system.
@@ -783,7 +779,7 @@ class MountTargetManager(MountTargetManagerMixin, Boto3ModelManager):
         response_iterator = paginator.paginate(
             **{k: v for k, v in args.items() if v is not None}
         )
-        results = []
+        results: "builtins.list[MountTarget]" = []
         for _response in response_iterator:
             if list(_response.keys()) == ["ResponseMetadata"]:
                 break
@@ -793,9 +789,7 @@ class MountTargetManager(MountTargetManagerMixin, Boto3ModelManager):
             if response.MountTargets:
                 results.extend(response.MountTargets)
         self.sessionize(results)
-        if results and isinstance(results[0], Boto3Model):
-            return PrimaryBoto3ModelQuerySet(results)
-        return results
+        return PrimaryBoto3ModelQuerySet(results)
 
     def modify_security_groups(
         self, MountTargetId: str, SecurityGroups: "builtins.list[str]"
@@ -880,7 +874,9 @@ class ReplicationConfigurationManager(Boto3ModelManager):
             return response.Replications[0]
         return None
 
-    def list(self, *, FileSystemId: "str | None" = None) -> PrimaryBoto3ModelQuerySet:
+    def list(
+        self, *, FileSystemId: "str | None" = None
+    ) -> PrimaryBoto3ModelQuerySet["ReplicationConfiguration"]:
         """
         Retrieves the replication configuration for a specific file system.
 
@@ -899,7 +895,7 @@ class ReplicationConfigurationManager(Boto3ModelManager):
         response_iterator = paginator.paginate(
             **{k: v for k, v in args.items() if v is not None}
         )
-        results = []
+        results: "builtins.list[ReplicationConfiguration]" = []
         for _response in response_iterator:
             if list(_response.keys()) == ["ResponseMetadata"]:
                 break
@@ -909,9 +905,7 @@ class ReplicationConfigurationManager(Boto3ModelManager):
             if response.Replications:
                 results.extend(response.Replications)
         self.sessionize(results)
-        if results and isinstance(results[0], Boto3Model):
-            return PrimaryBoto3ModelQuerySet(results)
-        return results
+        return PrimaryBoto3ModelQuerySet(results)
 
     def delete(
         self,

@@ -65,7 +65,7 @@ class FoundationModelManager(ReadonlyBoto3ModelManager):
         byCustomizationType: "Literal['FINE_TUNING', 'CONTINUED_PRE_TRAINING', 'DISTILLATION'] | None" = None,
         byOutputModality: "Literal['TEXT', 'IMAGE', 'EMBEDDING'] | None" = None,
         byInferenceType: "Literal['ON_DEMAND', 'PROVISIONED'] | None" = None,
-    ) -> PrimaryBoto3ModelQuerySet:
+    ) -> PrimaryBoto3ModelQuerySet["FoundationModel"]:
         """
         Lists Amazon Bedrock foundation models that you can use.
 
@@ -286,7 +286,7 @@ class CustomModelManager(Boto3ModelManager):
         sortOrder: "Literal['Ascending', 'Descending'] | None" = None,
         isOwned: "bool | None" = None,
         modelStatus: "Literal['Active', 'Creating', 'Failed'] | None" = None,
-    ) -> PrimaryBoto3ModelQuerySet:
+    ) -> PrimaryBoto3ModelQuerySet["CustomModel"]:
         """
         Returns a list of the custom models that you have created with the
         ``CreateModelCustomizationJob`` operation.
@@ -324,7 +324,7 @@ class CustomModelManager(Boto3ModelManager):
         response_iterator = paginator.paginate(
             **{k: v for k, v in args.items() if v is not None}
         )
-        results = []
+        results: "builtins.list[CustomModel]" = []
         for _response in response_iterator:
             if list(_response.keys()) == ["ResponseMetadata"]:
                 break
@@ -334,9 +334,7 @@ class CustomModelManager(Boto3ModelManager):
             if response.modelSummaries:
                 results.extend(response.modelSummaries)
         self.sessionize(results)
-        if results and isinstance(results[0], Boto3Model):
-            return PrimaryBoto3ModelQuerySet(results)
-        return results
+        return PrimaryBoto3ModelQuerySet(results)
 
     def delete(self, modelArn: str) -> None:
         """
@@ -383,7 +381,7 @@ class ImportedModelManager(Boto3ModelManager):
         nameContains: "str | None" = None,
         sortBy: "Literal['CreationTime'] | None" = None,
         sortOrder: "Literal['Ascending', 'Descending'] | None" = None,
-    ) -> PrimaryBoto3ModelQuerySet:
+    ) -> PrimaryBoto3ModelQuerySet["ImportedModel"]:
         """
         Returns a list of models you've imported.
 
@@ -413,7 +411,7 @@ class ImportedModelManager(Boto3ModelManager):
         response_iterator = paginator.paginate(
             **{k: v for k, v in args.items() if v is not None}
         )
-        results = []
+        results: "builtins.list[ImportedModel]" = []
         for _response in response_iterator:
             if list(_response.keys()) == ["ResponseMetadata"]:
                 break
@@ -423,9 +421,7 @@ class ImportedModelManager(Boto3ModelManager):
             if response.modelSummaries:
                 results.extend(response.modelSummaries)
         self.sessionize(results)
-        if results and isinstance(results[0], Boto3Model):
-            return PrimaryBoto3ModelQuerySet(results)
-        return results
+        return PrimaryBoto3ModelQuerySet(results)
 
     def delete(self, modelArn: str) -> None:
         """
@@ -558,7 +554,7 @@ class GuardrailManager(Boto3ModelManager):
 
     def list(
         self, *, guardrailIdentifier: "str | None" = None
-    ) -> PrimaryBoto3ModelQuerySet:
+    ) -> PrimaryBoto3ModelQuerySet["GuardrailSummary"]:
         """
         Lists details about all the guardrails in an account.
 
@@ -578,7 +574,7 @@ class GuardrailManager(Boto3ModelManager):
         response_iterator = paginator.paginate(
             **{k: v for k, v in args.items() if v is not None}
         )
-        results = []
+        results: "builtins.list[GuardrailSummary]" = []
         for _response in response_iterator:
             if list(_response.keys()) == ["ResponseMetadata"]:
                 break
@@ -588,9 +584,7 @@ class GuardrailManager(Boto3ModelManager):
             if response.guardrails:
                 results.extend(response.guardrails)
         self.sessionize(results)
-        if results and isinstance(results[0], Boto3Model):
-            return PrimaryBoto3ModelQuerySet(results)
-        return results
+        return PrimaryBoto3ModelQuerySet(results)
 
     def update(
         self,
@@ -800,7 +794,9 @@ class AutomatedReasoningPolicyManager(Boto3ModelManager):
             return response
         return None
 
-    def list(self, *, policyArn: "str | None" = None) -> PrimaryBoto3ModelQuerySet:
+    def list(
+        self, *, policyArn: "str | None" = None
+    ) -> PrimaryBoto3ModelQuerySet["AutomatedReasoningPolicy"]:
         """
         Lists all Automated Reasoning policies in your account, with optional filtering
         by policy ARN.
@@ -817,7 +813,7 @@ class AutomatedReasoningPolicyManager(Boto3ModelManager):
         response_iterator = paginator.paginate(
             **{k: v for k, v in args.items() if v is not None}
         )
-        results = []
+        results: "builtins.list[AutomatedReasoningPolicy]" = []
         for _response in response_iterator:
             if list(_response.keys()) == ["ResponseMetadata"]:
                 break
@@ -827,9 +823,7 @@ class AutomatedReasoningPolicyManager(Boto3ModelManager):
             if response.automatedReasoningPolicySummaries:
                 results.extend(response.automatedReasoningPolicySummaries)
         self.sessionize(results)
-        if results and isinstance(results[0], Boto3Model):
-            return PrimaryBoto3ModelQuerySet(results)
-        return results
+        return PrimaryBoto3ModelQuerySet(results)
 
     def update(
         self,
@@ -1048,7 +1042,9 @@ class AutomatedReasoningPolicyBuildWorkflowManager(Boto3ModelManager):
             return response
         return None
 
-    def list(self, policyArn: str) -> PrimaryBoto3ModelQuerySet:
+    def list(
+        self, policyArn: str
+    ) -> PrimaryBoto3ModelQuerySet["AutomatedReasoningPolicyBuildWorkflowSummary"]:
         """
         Lists all build workflows for an Automated Reasoning policy, showing the history
         of policy creation and modification attempts.
@@ -1064,7 +1060,7 @@ class AutomatedReasoningPolicyBuildWorkflowManager(Boto3ModelManager):
         response_iterator = paginator.paginate(
             **{k: v for k, v in args.items() if v is not None}
         )
-        results = []
+        results: "builtins.list[AutomatedReasoningPolicyBuildWorkflowSummary]" = []
         for _response in response_iterator:
             if list(_response.keys()) == ["ResponseMetadata"]:
                 break
@@ -1074,9 +1070,7 @@ class AutomatedReasoningPolicyBuildWorkflowManager(Boto3ModelManager):
             if response.automatedReasoningPolicyBuildWorkflowSummaries:
                 results.extend(response.automatedReasoningPolicyBuildWorkflowSummaries)
         self.sessionize(results)
-        if results and isinstance(results[0], Boto3Model):
-            return PrimaryBoto3ModelQuerySet(results)
-        return results
+        return PrimaryBoto3ModelQuerySet(results)
 
     def cancel(
         self, policyArn: str, buildWorkflowId: str
@@ -1253,7 +1247,9 @@ class AutomatedReasoningPolicyTestCaseManager(Boto3ModelManager):
             return response.testCase
         return None
 
-    def list(self, policyArn: str) -> PrimaryBoto3ModelQuerySet:
+    def list(
+        self, policyArn: str
+    ) -> PrimaryBoto3ModelQuerySet["AutomatedReasoningPolicyTestCase"]:
         """
         Lists tests for an Automated Reasoning policy.
 
@@ -1271,7 +1267,7 @@ class AutomatedReasoningPolicyTestCaseManager(Boto3ModelManager):
         response_iterator = paginator.paginate(
             **{k: v for k, v in args.items() if v is not None}
         )
-        results = []
+        results: "builtins.list[AutomatedReasoningPolicyTestCase]" = []
         for _response in response_iterator:
             if list(_response.keys()) == ["ResponseMetadata"]:
                 break
@@ -1281,9 +1277,7 @@ class AutomatedReasoningPolicyTestCaseManager(Boto3ModelManager):
             if response.testCases:
                 results.extend(response.testCases)
         self.sessionize(results)
-        if results and isinstance(results[0], Boto3Model):
-            return PrimaryBoto3ModelQuerySet(results)
-        return results
+        return PrimaryBoto3ModelQuerySet(results)
 
     def update(
         self,
@@ -1383,7 +1377,9 @@ class AutomatedReasoningPolicyTestResultManager(ReadonlyBoto3ModelManager):
             return response.testResult
         return None
 
-    def list(self, policyArn: str, buildWorkflowId: str) -> PrimaryBoto3ModelQuerySet:
+    def list(
+        self, policyArn: str, buildWorkflowId: str
+    ) -> PrimaryBoto3ModelQuerySet["AutomatedReasoningPolicyTestResult"]:
         """
         Lists test results for an Automated Reasoning policy, showing how the policy
         performed against various test scenarios and validation checks.
@@ -1404,7 +1400,7 @@ class AutomatedReasoningPolicyTestResultManager(ReadonlyBoto3ModelManager):
         response_iterator = paginator.paginate(
             **{k: v for k, v in args.items() if v is not None}
         )
-        results = []
+        results: "builtins.list[AutomatedReasoningPolicyTestResult]" = []
         for _response in response_iterator:
             if list(_response.keys()) == ["ResponseMetadata"]:
                 break
@@ -1414,9 +1410,7 @@ class AutomatedReasoningPolicyTestResultManager(ReadonlyBoto3ModelManager):
             if response.testResults:
                 results.extend(response.testResults)
         self.sessionize(results)
-        if results and isinstance(results[0], Boto3Model):
-            return PrimaryBoto3ModelQuerySet(results)
-        return results
+        return PrimaryBoto3ModelQuerySet(results)
 
 
 class AutomatedReasoningPolicyNextScenarioManager(ReadonlyBoto3ModelManager):
@@ -1638,7 +1632,7 @@ class PromptRouterManager(Boto3ModelManager):
 
     def list(
         self, *, type: "Literal['custom', 'default'] | None" = None
-    ) -> PrimaryBoto3ModelQuerySet:
+    ) -> PrimaryBoto3ModelQuerySet["PromptRouter"]:
         """
         Retrieves a list of prompt routers.
 
@@ -1651,7 +1645,7 @@ class PromptRouterManager(Boto3ModelManager):
         response_iterator = paginator.paginate(
             **{k: v for k, v in args.items() if v is not None}
         )
-        results = []
+        results: "builtins.list[PromptRouter]" = []
         for _response in response_iterator:
             if list(_response.keys()) == ["ResponseMetadata"]:
                 break
@@ -1661,9 +1655,7 @@ class PromptRouterManager(Boto3ModelManager):
             if response.promptRouterSummaries:
                 results.extend(response.promptRouterSummaries)
         self.sessionize(results)
-        if results and isinstance(results[0], Boto3Model):
-            return PrimaryBoto3ModelQuerySet(results)
-        return results
+        return PrimaryBoto3ModelQuerySet(results)
 
     def delete(self, promptRouterArn: str) -> None:
         """
@@ -1755,7 +1747,7 @@ class EvaluationJobManager(Boto3ModelManager):
         nameContains: "str | None" = None,
         sortBy: "Literal['CreationTime'] | None" = None,
         sortOrder: "Literal['Ascending', 'Descending'] | None" = None,
-    ) -> PrimaryBoto3ModelQuerySet:
+    ) -> PrimaryBoto3ModelQuerySet["EvaluationSummary"]:
         """
         Lists all existing evaluation jobs.
 
@@ -1789,7 +1781,7 @@ class EvaluationJobManager(Boto3ModelManager):
         response_iterator = paginator.paginate(
             **{k: v for k, v in args.items() if v is not None}
         )
-        results = []
+        results: "builtins.list[EvaluationSummary]" = []
         for _response in response_iterator:
             if list(_response.keys()) == ["ResponseMetadata"]:
                 break
@@ -1799,9 +1791,7 @@ class EvaluationJobManager(Boto3ModelManager):
             if response.jobSummaries:
                 results.extend(response.jobSummaries)
         self.sessionize(results)
-        if results and isinstance(results[0], Boto3Model):
-            return PrimaryBoto3ModelQuerySet(results)
-        return results
+        return PrimaryBoto3ModelQuerySet(results)
 
     def stop(self, jobArn: str) -> "StopEvaluationJobResponse":
         """
@@ -1857,7 +1847,7 @@ class EnforcedGuardrailsConfigurationManager(Boto3ModelManager):
 
     def list(
         self,
-    ) -> PrimaryBoto3ModelQuerySet:
+    ) -> PrimaryBoto3ModelQuerySet["EnforcedGuardrailsConfiguration"]:
         """
         Lists the account-level enforced guardrail configurations.
         """
@@ -1866,7 +1856,7 @@ class EnforcedGuardrailsConfigurationManager(Boto3ModelManager):
         response_iterator = paginator.paginate(
             **{k: v for k, v in args.items() if v is not None}
         )
-        results = []
+        results: "builtins.list[EnforcedGuardrailsConfiguration]" = []
         for _response in response_iterator:
             if list(_response.keys()) == ["ResponseMetadata"]:
                 break
@@ -1876,9 +1866,7 @@ class EnforcedGuardrailsConfigurationManager(Boto3ModelManager):
             if response.guardrailsConfig:
                 results.extend(response.guardrailsConfig)
         self.sessionize(results)
-        if results and isinstance(results[0], Boto3Model):
-            return PrimaryBoto3ModelQuerySet(results)
-        return results
+        return PrimaryBoto3ModelQuerySet(results)
 
     def put(
         self,
@@ -2007,7 +1995,7 @@ class ModelCustomizationJobManager(Boto3ModelManager):
         nameContains: "str | None" = None,
         sortBy: "Literal['CreationTime'] | None" = None,
         sortOrder: "Literal['Ascending', 'Descending'] | None" = None,
-    ) -> PrimaryBoto3ModelQuerySet:
+    ) -> PrimaryBoto3ModelQuerySet["ModelCustomizationJobSummary"]:
         """
         Returns a list of model customization jobs that you have submitted.
 
@@ -2036,7 +2024,7 @@ class ModelCustomizationJobManager(Boto3ModelManager):
         response_iterator = paginator.paginate(
             **{k: v for k, v in args.items() if v is not None}
         )
-        results = []
+        results: "builtins.list[ModelCustomizationJobSummary]" = []
         for _response in response_iterator:
             if list(_response.keys()) == ["ResponseMetadata"]:
                 break
@@ -2046,9 +2034,7 @@ class ModelCustomizationJobManager(Boto3ModelManager):
             if response.modelCustomizationJobSummaries:
                 results.extend(response.modelCustomizationJobSummaries)
         self.sessionize(results)
-        if results and isinstance(results[0], Boto3Model):
-            return PrimaryBoto3ModelQuerySet(results)
-        return results
+        return PrimaryBoto3ModelQuerySet(results)
 
     def stop(self, jobArn: str) -> "StopModelCustomizationJobResponse":
         """
@@ -2158,7 +2144,7 @@ class InferenceProfileManager(Boto3ModelManager):
 
     def list(
         self, *, typeEquals: "Literal['SYSTEM_DEFINED', 'APPLICATION'] | None" = None
-    ) -> PrimaryBoto3ModelQuerySet:
+    ) -> PrimaryBoto3ModelQuerySet["InferenceProfile"]:
         """
         Returns a list of inference profiles that you can use.
 
@@ -2173,7 +2159,7 @@ class InferenceProfileManager(Boto3ModelManager):
         response_iterator = paginator.paginate(
             **{k: v for k, v in args.items() if v is not None}
         )
-        results = []
+        results: "builtins.list[InferenceProfile]" = []
         for _response in response_iterator:
             if list(_response.keys()) == ["ResponseMetadata"]:
                 break
@@ -2183,9 +2169,7 @@ class InferenceProfileManager(Boto3ModelManager):
             if response.inferenceProfileSummaries:
                 results.extend(response.inferenceProfileSummaries)
         self.sessionize(results)
-        if results and isinstance(results[0], Boto3Model):
-            return PrimaryBoto3ModelQuerySet(results)
-        return results
+        return PrimaryBoto3ModelQuerySet(results)
 
     def delete(self, inferenceProfileArn: str) -> None:
         """
@@ -2282,7 +2266,7 @@ class ModelCopyJobManager(Boto3ModelManager):
         targetModelNameContains: "str | None" = None,
         sortBy: "Literal['CreationTime'] | None" = None,
         sortOrder: "Literal['Ascending', 'Descending'] | None" = None,
-    ) -> PrimaryBoto3ModelQuerySet:
+    ) -> PrimaryBoto3ModelQuerySet["ModelCopyJob"]:
         """
         Returns a list of model copy jobs that you have submitted.
 
@@ -2325,7 +2309,7 @@ class ModelCopyJobManager(Boto3ModelManager):
         response_iterator = paginator.paginate(
             **{k: v for k, v in args.items() if v is not None}
         )
-        results = []
+        results: "builtins.list[ModelCopyJob]" = []
         for _response in response_iterator:
             if list(_response.keys()) == ["ResponseMetadata"]:
                 break
@@ -2335,9 +2319,7 @@ class ModelCopyJobManager(Boto3ModelManager):
             if response.modelCopyJobSummaries:
                 results.extend(response.modelCopyJobSummaries)
         self.sessionize(results)
-        if results and isinstance(results[0], Boto3Model):
-            return PrimaryBoto3ModelQuerySet(results)
-        return results
+        return PrimaryBoto3ModelQuerySet(results)
 
 
 class ModelInvocationJobManager(Boto3ModelManager):
@@ -2411,7 +2393,7 @@ class ModelInvocationJobManager(Boto3ModelManager):
         nameContains: "str | None" = None,
         sortBy: "Literal['CreationTime'] | None" = None,
         sortOrder: "Literal['Ascending', 'Descending'] | None" = None,
-    ) -> PrimaryBoto3ModelQuerySet:
+    ) -> PrimaryBoto3ModelQuerySet["ModelInvocationJob"]:
         """
         Lists all batch inference jobs in the account.
 
@@ -2442,7 +2424,7 @@ class ModelInvocationJobManager(Boto3ModelManager):
         response_iterator = paginator.paginate(
             **{k: v for k, v in args.items() if v is not None}
         )
-        results = []
+        results: "builtins.list[ModelInvocationJob]" = []
         for _response in response_iterator:
             if list(_response.keys()) == ["ResponseMetadata"]:
                 break
@@ -2452,9 +2434,7 @@ class ModelInvocationJobManager(Boto3ModelManager):
             if response.invocationJobSummaries:
                 results.extend(response.invocationJobSummaries)
         self.sessionize(results)
-        if results and isinstance(results[0], Boto3Model):
-            return PrimaryBoto3ModelQuerySet(results)
-        return results
+        return PrimaryBoto3ModelQuerySet(results)
 
     def stop(self, jobArn: str) -> "StopModelInvocationJobResponse":
         """
@@ -2650,7 +2630,7 @@ class MarketplaceModelEndpointManager(Boto3ModelManager):
 
     def list(
         self, *, modelSourceEquals: "str | None" = None
-    ) -> PrimaryBoto3ModelQuerySet:
+    ) -> PrimaryBoto3ModelQuerySet["MarketplaceModelEndpointSummary"]:
         """
         Lists the endpoints for models from Amazon Bedrock Marketplace in your Amazon
         Web Services account.
@@ -2664,7 +2644,7 @@ class MarketplaceModelEndpointManager(Boto3ModelManager):
         response_iterator = paginator.paginate(
             **{k: v for k, v in args.items() if v is not None}
         )
-        results = []
+        results: "builtins.list[MarketplaceModelEndpointSummary]" = []
         for _response in response_iterator:
             if list(_response.keys()) == ["ResponseMetadata"]:
                 break
@@ -2674,9 +2654,7 @@ class MarketplaceModelEndpointManager(Boto3ModelManager):
             if response.marketplaceModelEndpoints:
                 results.extend(response.marketplaceModelEndpoints)
         self.sessionize(results)
-        if results and isinstance(results[0], Boto3Model):
-            return PrimaryBoto3ModelQuerySet(results)
-        return results
+        return PrimaryBoto3ModelQuerySet(results)
 
     def update(
         self, model: "MarketplaceModelEndpoint", clientRequestToken: "str | None" = None
@@ -2868,7 +2846,7 @@ class ProvisionedModelThroughputManager(Boto3ModelManager):
         nameContains: "str | None" = None,
         sortBy: "Literal['CreationTime'] | None" = None,
         sortOrder: "Literal['Ascending', 'Descending'] | None" = None,
-    ) -> PrimaryBoto3ModelQuerySet:
+    ) -> PrimaryBoto3ModelQuerySet["ProvisionedModelThroughput"]:
         """
         Lists the Provisioned Throughputs in the account.
 
@@ -2904,7 +2882,7 @@ class ProvisionedModelThroughputManager(Boto3ModelManager):
         response_iterator = paginator.paginate(
             **{k: v for k, v in args.items() if v is not None}
         )
-        results = []
+        results: "builtins.list[ProvisionedModelThroughput]" = []
         for _response in response_iterator:
             if list(_response.keys()) == ["ResponseMetadata"]:
                 break
@@ -2914,9 +2892,7 @@ class ProvisionedModelThroughputManager(Boto3ModelManager):
             if response.provisionedModelSummaries:
                 results.extend(response.provisionedModelSummaries)
         self.sessionize(results)
-        if results and isinstance(results[0], Boto3Model):
-            return PrimaryBoto3ModelQuerySet(results)
-        return results
+        return PrimaryBoto3ModelQuerySet(results)
 
     def update(
         self,
@@ -3384,6 +3360,7 @@ class GuardrailTopicPolicy(Boto3Model):
     The tier that your guardrail uses for denied topic filters.
     """
 
+
 class GuardrailContentFiltersTier(Boto3Model):
     """
     The tier that your guardrail uses for content filters.
@@ -3395,8 +3372,6 @@ class GuardrailContentFiltersTier(Boto3Model):
 
     Valid values include:
     """
-
-
 class GuardrailContentPolicy(Boto3Model):
     """
     Contains details about how to handle harmful content.
@@ -3414,7 +3389,6 @@ class GuardrailContentPolicy(Boto3Model):
     Contains the type of the content filter and how strongly it should apply to prompts
     and model responses.
     """
-
     tier: "GuardrailContentFiltersTier | None" = None
     """
     The tier that your guardrail uses for content filters.
@@ -3449,7 +3423,6 @@ class GuardrailWord(Boto3Model):
     When disabled, you aren't charged for the evaluation. The evaluation doesn't appear
     in the response.
     """
-
     outputEnabled: "bool | None" = None
     """
     Indicates whether guardrail evaluation is enabled on the output.
@@ -3587,6 +3560,7 @@ class GuardrailPiiEntity(Boto3Model):
     When disabled, you aren't charged for the evaluation. The evaluation doesn't appear
     in the response.
     """
+
     outputEnabled: "bool | None" = None
     """
     Indicates whether guardrail evaluation is enabled on the output.
@@ -3655,6 +3629,7 @@ class GuardrailSensitiveInformationPolicy(Boto3Model):
     Contains details about PII entities and regular expressions configured for the
     guardrail.
     """
+
     piiEntities: "builtins.list[GuardrailPiiEntity] | None" = Field(
         default_factory=list
     )
@@ -3666,7 +3641,6 @@ class GuardrailSensitiveInformationPolicy(Boto3Model):
     """
     The list of regular expressions configured for the guardrail.
     """
-
 class GuardrailContextualGroundingTier(Boto3Model):
     """
     Specifies the tier that your guardrail uses for contextual grounding checks.
@@ -3737,12 +3711,15 @@ class GuardrailCrossRegionDetails(Boto3Model):
     The Amazon Resource Name (ARN) of the guardrail profile that you're using with your
     guardrail.
     """
+
 class Guardrail(GuardrailRuntimeMixin, PrimaryBoto3Model):
     manager_class: ClassVar[ModelType[Boto3ModelManager]] = GuardrailManager
+
     guardrailName: str = Field(default=None, alias="name")
     """
     The name of the guardrail.
     """
+
     blockedInputMessaging: "str | None" = None
     """
     The message that the guardrail returns when it blocks a prompt.
@@ -3756,6 +3733,7 @@ class Guardrail(GuardrailRuntimeMixin, PrimaryBoto3Model):
     """
     The description of the guardrail.
     """
+
     guardrailId: str
     """
     The unique identifier of the guardrail.
@@ -3764,7 +3742,6 @@ class Guardrail(GuardrailRuntimeMixin, PrimaryBoto3Model):
     """
     The ARN of the guardrail.
     """
-
     version: str
     """
     The version of the guardrail.
@@ -3798,6 +3775,7 @@ class Guardrail(GuardrailRuntimeMixin, PrimaryBoto3Model):
     """
     The contextual grounding policy used in the guardrail.
     """
+
     automatedReasoningPolicy: "GuardrailAutomatedReasoningPolicy | None" = None
     """
     The current Automated Reasoning policy configuration for the guardrail, if any is
@@ -3916,8 +3894,6 @@ class Guardrail(GuardrailRuntimeMixin, PrimaryBoto3Model):
             .using(self.session)
             .create_version(cast("str", self.guardrailId), description=description)
         )
-
-
 class AutomatedReasoningPolicyDefinitionTypeValue(Boto3Model):
     """
     Represents a single value within a custom type definition, including its identifier
@@ -3934,6 +3910,7 @@ class AutomatedReasoningPolicyDefinitionTypeValue(Boto3Model):
     A human-readable description explaining what this type value represents and when it
     should be used.
     """
+
 class AutomatedReasoningPolicyDefinitionType(Boto3Model):
     """
     Represents a custom user-defined viarble type in an Automated Reasoning policy.
@@ -3946,11 +3923,11 @@ class AutomatedReasoningPolicyDefinitionType(Boto3Model):
     """
     The name of the custom type.
     """
-
     description: "str | None" = None
     """
     The description of what the custom type represents.
     """
+
     values: "builtins.list[AutomatedReasoningPolicyDefinitionTypeValue]"
     """
     The possible values for this enum-based type, each with its own description.
@@ -4072,6 +4049,7 @@ class AutomatedReasoningPolicyBuildWorkflowDocument(Boto3Model):
     The MIME type of the document content (e.g., text/plain, application/pdf,
     text/markdown).
     """
+
     documentName: str
     """
     A descriptive name for the document that helps identify its purpose and content.
@@ -4087,6 +4065,7 @@ class AutomatedReasoningPolicyAddTypeAnnotation(Boto3Model):
     An annotation for adding a new custom type to an Automated Reasoning policy,
     defining a set of possible values for variables.
     """
+
     name: str
     """
     The name of the new custom type.
@@ -4098,7 +4077,6 @@ class AutomatedReasoningPolicyAddTypeAnnotation(Boto3Model):
     A description of what the custom type represents and how it should be used in the
     policy.
     """
-
     values: "builtins.list[AutomatedReasoningPolicyDefinitionTypeValue]"
     """
     The list of possible values that variables of this type can take, each with its own
@@ -4111,7 +4089,6 @@ class AutomatedReasoningPolicyAddTypeValue(Boto3Model):
     Represents a single value that can be added to an existing custom type in the
     policy.
     """
-
     value: str
     """
     The identifier or name of the new value to add to the type.
@@ -4141,6 +4118,7 @@ class AutomatedReasoningPolicyUpdateTypeValue(Boto3Model):
     """
     The new description for the type value, replacing the previous description.
     """
+
 class AutomatedReasoningPolicyDeleteTypeValue(Boto3Model):
     """
     Represents a value to be removed from an existing custom type in the policy.
@@ -4205,7 +4183,6 @@ class AutomatedReasoningPolicyDeleteTypeAnnotation(Boto3Model):
     """
     An annotation for removing a custom type from an Automated Reasoning policy.
     """
-
     name: str
     """
     The name of the custom type to delete from the policy.
@@ -4219,7 +4196,6 @@ class AutomatedReasoningPolicyAddVariableAnnotation(Boto3Model):
     An annotation for adding a new variable to an Automated Reasoning policy, which can
     be used in rule expressions.
     """
-
     name: str
     """
     The name of the new variable.
@@ -4236,6 +4212,7 @@ class AutomatedReasoningPolicyAddVariableAnnotation(Boto3Model):
     """
     A description of what the variable represents and how it should be used in rules.
     """
+
 class AutomatedReasoningPolicyUpdateVariableAnnotation(Boto3Model):
     """
     An annotation for modifying an existing variable in an Automated Reasoning policy.
@@ -4255,7 +4232,6 @@ class AutomatedReasoningPolicyUpdateVariableAnnotation(Boto3Model):
     """
     The new description for the variable, replacing the previous description.
     """
-
 class AutomatedReasoningPolicyDeleteVariableAnnotation(Boto3Model):
     """
     An annotation for removing a variable from an Automated Reasoning policy.
@@ -4267,8 +4243,6 @@ class AutomatedReasoningPolicyDeleteVariableAnnotation(Boto3Model):
 
     The variable must not be referenced by any rules.
     """
-
-
 class AutomatedReasoningPolicyAddRuleAnnotation(Boto3Model):
     """
     An annotation for adding a new rule to an Automated Reasoning policy using a formal
@@ -4280,8 +4254,6 @@ class AutomatedReasoningPolicyAddRuleAnnotation(Boto3Model):
     The formal logical expression that defines the rule, using mathematical notation and
     referencing policy variables and types.
     """
-
-
 class AutomatedReasoningPolicyUpdateRuleAnnotation(Boto3Model):
     """
     An annotation for modifying an existing rule in an Automated Reasoning policy.
@@ -4307,8 +4279,6 @@ class AutomatedReasoningPolicyDeleteRuleAnnotation(Boto3Model):
     """
     The unique identifier of the rule to delete from the policy.
     """
-
-
 class AutomatedReasoningPolicyAddRuleFromNaturalLanguageAnnotation(Boto3Model):
     """
     An annotation for adding a new rule to the policy by converting a natural language
@@ -4372,6 +4342,7 @@ class AutomatedReasoningPolicyIngestContentAnnotation(Boto3Model):
     documents or rule descriptions.
     """
 
+
 class AutomatedReasoningPolicyAnnotation(Boto3Model):
     """
     Contains the various operations that can be performed on an Automated Reasoning
@@ -4383,7 +4354,6 @@ class AutomatedReasoningPolicyAnnotation(Boto3Model):
     An operation to add a new custom type to the policy, defining a set of possible
     values for policy variables.
     """
-
     updateType: "AutomatedReasoningPolicyUpdateTypeAnnotation | None" = None
     """
     An operation to modify an existing custom type in the policy, such as changing its
@@ -4395,6 +4365,7 @@ class AutomatedReasoningPolicyAnnotation(Boto3Model):
 
     The type must not be referenced by any variables or rules.
     """
+
     addVariable: "AutomatedReasoningPolicyAddVariableAnnotation | None" = None
     """
     An operation to add a new variable to the policy, which can be used in rule
@@ -4406,7 +4377,6 @@ class AutomatedReasoningPolicyAnnotation(Boto3Model):
     An operation to modify an existing variable in the policy, such as changing its
     name, type, or description.
     """
-
     deleteVariable: "AutomatedReasoningPolicyDeleteVariableAnnotation | None" = None
     """
     An operation to remove a variable from the policy.
@@ -4453,7 +4423,6 @@ class AutomatedReasoningPolicyAnnotation(Boto3Model):
     An operation to process and incorporate new content into the policy, extracting
     additional rules and concepts.
     """
-
 class AutomatedReasoningPolicyBuildWorkflowRepairContent(Boto3Model):
     """
     Contains content and instructions for repairing or improving an existing Automated
@@ -4465,11 +4434,13 @@ class AutomatedReasoningPolicyBuildWorkflowRepairContent(Boto3Model):
     Specific annotations or modifications to apply during the policy repair process,
     such as rule corrections or variable updates.
     """
+
 class AutomatedReasoningPolicyGenerateFidelityReportContent(Boto3Model):
     """
     Configuration for generating a fidelity report, which can either analyze new
     documents or update an existing fidelity report with a new policy definition.
     """
+
     documents: "builtins.list[AutomatedReasoningPolicyBuildWorkflowDocument] | None" = (
         Field(default_factory=list)
     )
@@ -4498,6 +4469,7 @@ class AutomatedReasoningPolicyIterativeRefinementContent(Boto3Model):
 
     Provide specific instructions or constraints for policy refinement.
     """
+
 class AutomatedReasoningPolicyWorkflowTypeContent(Boto3Model):
     """
     Defines the content and configuration for different types of policy build workflows.
@@ -4544,6 +4516,7 @@ class AutomatedReasoningPolicyBuildWorkflowSource(Boto3Model):
     An existing policy definition that serves as the starting point for the build
     workflow, typically used in policy repair or update scenarios.
     """
+
     workflowContent: "AutomatedReasoningPolicyWorkflowTypeContent | None" = None
     """
     The actual content to be processed in the build workflow, such as documents to
@@ -4758,7 +4731,6 @@ class AutomatedReasoningPolicyBuildWorkflow(PrimaryBoto3Model):
     """
     The Amazon Resource Name (ARN) of the Automated Reasoning policy.
     """
-
     buildWorkflowId: str
     """
     The unique identifier of the build workflow.
@@ -4878,6 +4850,7 @@ class AutomatedReasoningPolicyTestCase(PrimaryBoto3Model):
 
     tests contain sample inputs and expected outcomes to verify policy behavior.
     """
+
     manager_class: ClassVar[ModelType[Boto3ModelManager]] = (
         AutomatedReasoningPolicyTestCaseManager
     )
@@ -4886,6 +4859,7 @@ class AutomatedReasoningPolicyTestCase(PrimaryBoto3Model):
     """
     The unique identifier of the test.
     """
+
     guardContent: str
     """
     The output content to be validated by the policy, typically representing a
@@ -4908,7 +4882,6 @@ class AutomatedReasoningPolicyTestCase(PrimaryBoto3Model):
     """
     The timestamp when the test was created.
     """
-
     updatedAt: datetime = Field(frozen=True)
     """
     The timestamp when the test was last updated.
@@ -5048,6 +5021,7 @@ class AutomatedReasoningCheckRule(Boto3Model):
     """
     The unique identifier of the automated reasoning rule.
     """
+
     policyVersionArn: "str | None" = None
     """
     The ARN of the automated reasoning policy version that contains this rule.
@@ -5058,11 +5032,13 @@ class AutomatedReasoningCheckLogicWarning(Boto3Model):
     Identifies logical issues in the translated statements that exist independent of any
     policy rules, such as statements that are always true or always false.
     """
+
     type: "Literal['ALWAYS_TRUE', 'ALWAYS_FALSE'] | None" = None
     """
     The category of the detected logical issue, such as statements that are always true
     or always false.
     """
+
     premises: "builtins.list[AutomatedReasoningLogicStatement] | None" = Field(
         default_factory=list
     )
@@ -5086,6 +5062,7 @@ class AutomatedReasoningCheckValidFinding(Boto3Model):
     """
     The logical translation of the input that this finding validates.
     """
+
     claimsTrueScenario: "AutomatedReasoningCheckScenario | None" = None
     """
     An example scenario demonstrating how the claims are logically true.
@@ -5139,7 +5116,6 @@ class AutomatedReasoningCheckSatisfiableFinding(Boto3Model):
     """
     The logical translation of the input that this finding evaluates.
     """
-
     claimsTrueScenario: "AutomatedReasoningCheckScenario | None" = None
     """
     An example scenario demonstrating how the claims could be logically true.
@@ -5149,6 +5125,7 @@ class AutomatedReasoningCheckSatisfiableFinding(Boto3Model):
     """
     An example scenario demonstrating how the claims could be logically false.
     """
+
     logicWarning: "AutomatedReasoningCheckLogicWarning | None" = None
     """
     Indication of a logic issue with the translation without needing to consider the
@@ -5165,6 +5142,7 @@ class AutomatedReasoningCheckImpossibleFinding(Boto3Model):
     """
     The logical translation of the input that this finding evaluates.
     """
+
     contradictingRules: "builtins.list[AutomatedReasoningCheckRule] | None" = Field(
         default_factory=list
     )
@@ -5183,6 +5161,7 @@ class AutomatedReasoningCheckTranslationOption(Boto3Model):
     """
     Represents one possible logical interpretation of ambiguous input content.
     """
+
     translations: "builtins.list[AutomatedReasoningCheckTranslation] | None" = Field(
         default_factory=list
     )
@@ -5190,6 +5169,7 @@ class AutomatedReasoningCheckTranslationOption(Boto3Model):
     Different logical interpretations that were detected during translation of the
     input.
     """
+
 class AutomatedReasoningCheckTranslationAmbiguousFinding(Boto3Model):
     """
     Indicates that the input has multiple valid logical interpretations, requiring
@@ -5274,7 +5254,6 @@ class AutomatedReasoningCheckFinding(Boto3Model):
     Additional context or follow-up questions might be needed to get translation to
     succeed.
     """
-
     tooComplex: "AutomatedReasoningCheckTooComplexFinding | None" = None
     """
     Indicates that the input contains too much information for Automated Reasoning to
@@ -5288,7 +5267,6 @@ class AutomatedReasoningCheckFinding(Boto3Model):
     This can happen if the input isn't relevant to the Automated Reasoning policy, or if
     the policy doesn't have variables to model relevant input.
     """
-
 class AutomatedReasoningPolicyTestResult(ReadonlyPrimaryBoto3Model):
     """
     Contains the results of testing an Automated Reasoning policy against various
@@ -5309,6 +5287,7 @@ class AutomatedReasoningPolicyTestResult(ReadonlyPrimaryBoto3Model):
     """
     The Amazon Resource Name (ARN) of the Automated Reasoning policy that was tested.
     """
+
     testRunStatus: Literal[
         "NOT_STARTED", "SCHEDULED", "IN_PROGRESS", "COMPLETED", "FAILED"
     ]
@@ -5441,8 +5420,6 @@ class AutomatedReasoningPolicyNextScenario(ReadonlyPrimaryBoto3Model):
         :py:attr:`policyArn` attribute.
         """
         return hash(self.policyArn)
-
-
 class AutomatedReasoningPolicyDefinitionTypeValuePair(Boto3Model):
     """
     Associates a type name with a specific value name, used for referencing type values
@@ -5476,8 +5453,6 @@ class AutomatedReasoningPolicyDisjointRuleSet(Boto3Model):
     The list of rules that form this disjoint set, all operating on the same set of
     variables.
     """
-
-
 class AutomatedReasoningPolicyDefinitionQualityReport(Boto3Model):
     """
     Provides a comprehensive analysis of the quality and completeness of an Automated
@@ -5505,13 +5480,11 @@ class AutomatedReasoningPolicyDefinitionQualityReport(Boto3Model):
     A list of custom types that are defined but not referenced by any variables or
     rules, suggesting they may be unnecessary.
     """
-
     unusedTypeValues: "builtins.list[AutomatedReasoningPolicyDefinitionTypeValuePair]"
     """
     A list of type values that are defined but never used in any rules, indicating
     potential cleanup opportunities.
     """
-
     unusedVariables: "builtins.list[str]"
     """
     A list of variables that are defined but not referenced by any rules, suggesting
@@ -5528,11 +5501,13 @@ class AutomatedReasoningPolicyDefinitionQualityReport(Boto3Model):
     Groups of rules that operate on completely separate sets of variables, indicating
     the policy may be addressing multiple unrelated concerns.
     """
+
 class AutomatedReasoningPolicyPlanning(Boto3Model):
     """
     Represents the planning phase of policy build workflow, where the system analyzes
     source content and determines what operations to perform.
     """
+
 class AutomatedReasoningPolicyAddTypeMutation(Boto3Model):
     """
     A mutation operation that adds a new custom type to the policy definition during the
@@ -5544,6 +5519,7 @@ class AutomatedReasoningPolicyAddTypeMutation(Boto3Model):
     The type definition that specifies the name, description, and possible values for
     the new custom type being added to the policy.
     """
+
 class AutomatedReasoningPolicyUpdateTypeMutation(Boto3Model):
     """
     A mutation operation that modifies an existing custom type in the policy definition
@@ -5555,6 +5531,7 @@ class AutomatedReasoningPolicyUpdateTypeMutation(Boto3Model):
     The updated type definition containing the modified name, description, or values for
     the existing custom type.
     """
+
 class AutomatedReasoningPolicyDeleteTypeMutation(Boto3Model):
     """
     A mutation operation that removes a custom type from the policy definition during
@@ -5565,6 +5542,7 @@ class AutomatedReasoningPolicyDeleteTypeMutation(Boto3Model):
     """
     The name of the custom type to delete.
     """
+
 class AutomatedReasoningPolicyAddVariableMutation(Boto3Model):
     """
     A mutation operation that adds a new variable to the policy definition during the
@@ -5646,6 +5624,7 @@ class AutomatedReasoningPolicyMutation(Boto3Model):
     """
     A mutation to add a new custom type to the policy.
     """
+
     updateType: "AutomatedReasoningPolicyUpdateTypeMutation | None" = None
     """
     A mutation to modify an existing custom type in the policy.
@@ -5655,7 +5634,6 @@ class AutomatedReasoningPolicyMutation(Boto3Model):
     """
     A mutation to remove a custom type from the policy.
     """
-
     addVariable: "AutomatedReasoningPolicyAddVariableMutation | None" = None
     """
     A mutation to add a new variable to the policy.
@@ -5702,7 +5680,6 @@ class AutomatedReasoningPolicyBuildStepContext(Boto3Model):
     Indicates that this build step involved modifying the policy structure, such as
     adding or updating rules, variables, or types.
     """
-
 class AutomatedReasoningPolicyDefinitionElement(Boto3Model):
     """
     Represents a single element in an Automated Reasoning policy definition, such as a
@@ -5810,7 +5787,6 @@ class AutomatedReasoningPolicyGeneratedTestCase(Boto3Model):
     Represents a generated test case, consisting of query content, guard content, and
     expected results.
     """
-
     queryContent: str
     """
     The input query or prompt that generated the content.
@@ -5859,6 +5835,7 @@ class AutomatedReasoningPolicyScenarios(Boto3Model):
     """
     Represents a collection of generated policy scenarios.
     """
+
 class AutomatedReasoningPolicyBuildResultAssetManifestEntry(Boto3Model):
     """
     Represents a single entry in the asset manifest, describing one artifact produced by
@@ -5879,7 +5856,6 @@ class AutomatedReasoningPolicyBuildResultAssetManifestEntry(Boto3Model):
     GENERATED_TEST_CASES, POLICY_SCENARIOS, FIDELITY_REPORT, ASSET_MANIFEST,
     SOURCE_DOCUMENT).
     """
-
     assetName: "str | None" = None
     """
     A human-readable name for the asset, if applicable.
@@ -5931,7 +5907,6 @@ class AutomatedReasoningPolicySourceDocument(Boto3Model):
     """
     An optional description providing context about the document's content and purpose.
     """
-
     documentHash: str
     """
     A SHA-256 hash of the document content, used for verification and integrity
@@ -5984,6 +5959,7 @@ class AutomatedReasoningPolicyRuleReport(Boto3Model):
     A score from 0.0 to 1.0 indicating how accurately this rule represents the source
     material.
     """
+
     accuracyJustification: "str | None" = None
     """
     A textual explanation of the accuracy score, describing why the rule received this
@@ -6007,6 +5983,7 @@ class AutomatedReasoningPolicyVariableReport(Boto3Model):
     References to statements from the source documents that provide the basis or
     justification for this variable.
     """
+
     groundingJustifications: "builtins.list[str] | None" = Field(default_factory=list)
     """
     Explanations describing how the source statements support and justify this specific
@@ -6024,10 +6001,12 @@ class AutomatedReasoningPolicyVariableReport(Boto3Model):
     A textual explanation of the accuracy score, describing why the variable received
     this particular accuracy rating.
     """
+
 class AutomatedReasoningPolicyStatementLocation(Boto3Model):
     """
     Describes the location of a statement within a source document using line numbers.
     """
+
     lines: "builtins.list[int]"
     """
     The line numbers in the source document where this statement appears.
@@ -6063,6 +6042,7 @@ class AutomatedReasoningPolicyAnnotatedLine(Boto3Model):
     Represents a single line of text from a source document, annotated with its line
     number for precise referencing.
     """
+
     lineNumber: "int | None" = None
     """
     The line number of this text within the source document.
@@ -6096,6 +6076,7 @@ class AutomatedReasoningPolicyAnnotatedChunk(Boto3Model):
     """
     The page number where this chunk begins, if the document is divided into pages.
     """
+
     content: "builtins.list[AutomatedReasoningPolicyAnnotatedContent]"
     """
     The lines of text contained within this chunk, each annotated with its line number.
@@ -6439,6 +6420,7 @@ class AutomatedReasoningPolicyAnnotations(PrimaryBoto3Model):
         except AttributeError:
             return None
         return AutomatedReasoningPolicy.objects.using(self.session).get(**pk)  # type: ignore[arg-type]
+
     @cached_property
     def build_workflow(self) -> "AutomatedReasoningPolicyBuildWorkflow | None":
         """
@@ -6555,6 +6537,7 @@ class PromptRouter(PromptRouterModelMixin, PrimaryBoto3Model):
             The primary key of the model instance.
         """
         return self.promptRouterArn
+
     @property
     def arn(self) -> str | None:
         """
@@ -6725,7 +6708,6 @@ class EvaluationJob(PrimaryBoto3Model):
             The name of the model instance.
         """
         return self.jobName
-
     def __hash__(self) -> int:
         """
         Return the hash of the model.
@@ -6886,6 +6868,7 @@ class EnforcedGuardrailsConfiguration(PrimaryBoto3Model):
         :py:attr:`configId` attribute.
         """
         return hash(self.configId)
+
     @cached_property
     def guardrail(self) -> "Guardrail | None":
         """
@@ -6930,6 +6913,7 @@ class InferenceProfile(InferenceProfileModelMixin, PrimaryBoto3Model):
     """
     The name of the inference profile.
     """
+
     description: "str | None" = None
     """
     The description of the inference profile.
@@ -7007,6 +6991,7 @@ class InferenceProfile(InferenceProfileModelMixin, PrimaryBoto3Model):
             The name of the model instance.
         """
         return self.inferenceProfileName
+
     def __hash__(self) -> int:
         """
         Return the hash of the model.
@@ -7073,6 +7058,7 @@ class RequestMetadataFilters(Boto3Model):
     """
     Include results where any of the base filters match.
     """
+
 class InvocationLogsConfig(Boto3Model):
     """
     Settings for using invocation logs to customize a model.
@@ -7129,6 +7115,7 @@ class ValidationDataConfig(Boto3Model):
     """
     Information about the validators.
     """
+
 class OutputDataConfig(Boto3Model):
     """
     S3 Location of the output data.
@@ -7137,6 +7124,7 @@ class OutputDataConfig(Boto3Model):
     """
     The S3 URI where the output data is stored.
     """
+
 class ValidationDetails(Boto3Model):
     """
     For a Distillation job, the status details for the validation sub-task of the job.
@@ -7224,7 +7212,6 @@ class StatusDetails(Boto3Model):
     """
     The status details for the training sub-task of the job.
     """
-
 class TrainingMetrics(Boto3Model):
     """
     Metrics associated with the custom job.
@@ -7257,6 +7244,7 @@ class BedrockVpcConfig(Boto3Model):
     """
     An array of IDs for each subnet in the VPC to use.
     """
+
     securityGroupIds: "builtins.list[str]"
     """
     An array of IDs for each security group in the VPC to use.
@@ -7315,6 +7303,7 @@ class RFTHyperParameters(Boto3Model):
     Hyperparameters for controlling the reinforcement fine-tuning training process,
     including learning settings and evaluation intervals.
     """
+
     epochCount: "int | None" = None
     """
     Number of training epochs to run during reinforcement fine-tuning.
@@ -7343,7 +7332,6 @@ class RFTHyperParameters(Boto3Model):
 
     Longer prompts allow more context but increase memory usage and training-time.
     """
-
     trainingSamplePerPrompt: "int | None" = None
     """
     Number of response samples generated per prompt during RFT training.
@@ -7362,7 +7350,6 @@ class RFTHyperParameters(Boto3Model):
 
     Higher values may improve response quality but increase training time.
     """
-
     evalInterval: "int | None" = None
     """
     Interval between evaluation runs during RFT training, measured in training steps.
@@ -7386,7 +7373,6 @@ class RFTConfig(Boto3Model):
     Hyperparameters that control the reinforcement fine-tuning training process,
     including learning rate, batch size, and epoch count.
     """
-
 class CustomizationConfig(Boto3Model):
     """
     A model customization configuration.
@@ -7639,7 +7625,6 @@ class ModelCustomizationJob(PrimaryBoto3Model):
         except AttributeError:
             return None
         return CustomModel.objects.using(self.session).get(**pk)  # type: ignore[arg-type]
-
     @cached_property
     def output_model_kms_key(self) -> "KMSKey | None":
         """
@@ -7717,7 +7702,6 @@ class ModelCopyJob(PrimaryBoto3Model):
     """
 
     manager_class: ClassVar[ModelType[Boto3ModelManager]] = ModelCopyJobManager
-
     jobArn: str
     """
     The Amazon Resoource Name (ARN) of the model copy job.
@@ -7731,7 +7715,6 @@ class ModelCopyJob(PrimaryBoto3Model):
     """
     The time that the model copy job was created.
     """
-
     targetModelArn: str
     """
     The Amazon Resource Name (ARN) of the copied model.
@@ -7746,11 +7729,11 @@ class ModelCopyJob(PrimaryBoto3Model):
     """
     The unique identifier of the account that the model being copied originated from.
     """
+
     sourceModelArn: str
     """
     The Amazon Resource Name (ARN) of the original model being copied.
     """
-
     targetModelKmsKeyArn: "str | None" = None
     """
     The Amazon Resource Name (ARN) of the KMS key used to encrypt the copied model.
@@ -7771,6 +7754,7 @@ class ModelCopyJob(PrimaryBoto3Model):
     """
     The name of the original model being copied.
     """
+
     @property
     def pk(self) -> str | None:
         """
@@ -7782,7 +7766,6 @@ class ModelCopyJob(PrimaryBoto3Model):
             The primary key of the model instance.
         """
         return self.jobArn
-
     @property
     def arn(self) -> str | None:
         """
@@ -7814,6 +7797,7 @@ class ModelCopyJob(PrimaryBoto3Model):
         :py:attr:`jobArn` attribute.
         """
         return hash(self.jobArn)
+
 class ModelInvocationJobS3InputDataConfig(Boto3Model):
     """
     Contains the configuration of the S3 location of the input data.
@@ -7823,7 +7807,6 @@ class ModelInvocationJobS3InputDataConfig(Boto3Model):
     """
     The format of the input data.
     """
-
     s3Uri: str
     """
     The S3 location of the input data.
@@ -7834,7 +7817,6 @@ class ModelInvocationJobS3InputDataConfig(Boto3Model):
     The ID of the Amazon Web Services account that owns the S3 bucket containing the
     input data.
     """
-
 class ModelInvocationJobInputDataConfig(Boto3Model):
     """
     Details about the location of the input to the batch inference job.
@@ -8144,6 +8126,7 @@ class ModelInvocationLoggingConfiguration(
     s3Config: Any | None = None
     textDataDeliveryEnabled: bool | None = None
     videoDataDeliveryEnabled: bool | None = None
+
     @property
     def pk(self) -> str | None:
         """
@@ -8257,7 +8240,6 @@ class SageMakerEndpoint(Boto3Model):
     and docker image for deployment on Amazon EC2 compute instances or for batch
     transform jobs.
     """
-
     kmsEncryptionKey: "str | None" = None
     """
     The Amazon Web Services KMS key that Amazon SageMaker uses to encrypt data on the
@@ -8268,12 +8250,10 @@ class SageMakerEndpoint(Boto3Model):
     """
     The VPC configuration for the endpoint.
     """
-
 class EndpointConfig(Boto3Model):
     """
     Specifies the configuration for the endpoint.
     """
-
     sageMaker: "SageMakerEndpoint | None" = None
     """
     The configuration specific to Amazon SageMaker for the endpoint.
@@ -8301,6 +8281,7 @@ class MarketplaceModelEndpoint(PrimaryBoto3Model):
     """
     The Amazon Resource Name (ARN) of the endpoint.
     """
+
     modelSourceIdentifier: str
     """
     The ARN of the model from Amazon Bedrock Marketplace that is deployed on this
@@ -8332,6 +8313,7 @@ class MarketplaceModelEndpoint(PrimaryBoto3Model):
     """
     Additional information about the endpoint status, if available.
     """
+
     @property
     def pk(self) -> str | None:
         """
@@ -8450,7 +8432,6 @@ class ProvisionedModelThroughput(PrimaryBoto3Model):
     """
     The time that the Provisioned Throughput was created.
     """
-
     lastModifiedTime: datetime
     """
     The time that the Provisioned Throughput was last modified.
@@ -8585,7 +8566,6 @@ class AgreementAvailability(Boto3Model):
     """
     Information about the agreement availability.
     """
-
     status: Literal["AVAILABLE", "PENDING", "NOT_AVAILABLE", "ERROR"]
     """
     Status of the agreement.
@@ -8628,6 +8608,7 @@ class CreateFoundationModelAgreementResponse(Boto3Model):
     Model Id of the model for the access request.
     """
 
+
 class DeleteFoundationModelAgreementResponse(Boto3Model):
     pass
 
@@ -8646,7 +8627,6 @@ class DimensionalPriceRate(Boto3Model):
     """
     Single-dimensional rate information.
     """
-
     description: "str | None" = None
     """
     Description of the price rate.
@@ -8691,7 +8671,6 @@ class ValidityTerm(Boto3Model):
     """
     Describes the validity terms.
     """
-
     agreementDuration: "str | None" = None
     """
     Describes the agreement duration.
@@ -8725,6 +8704,7 @@ class Offer(Boto3Model):
     """
     An offer dictates usage terms for the model.
     """
+
     offerId: "str | None" = None
     """
     Offer Id for a model offer.
@@ -8760,8 +8740,6 @@ class S3DataSource(Boto3Model):
     """
     The URI of the Amazon S3 data source.
     """
-
-
 class ModelDataSource(Boto3Model):
     """
     The data source of the model to import.
@@ -8794,6 +8772,7 @@ class CustomModelDataSource(Boto3Model):
         * ``modelPackageArnDataSource`` — Specifies a SageMaker AI model package as the
         data source.
     """
+
     modelPackageArnDataSource: "ModelPackageArnDataSource | None" = None
     """
     A SageMaker AI model package ARN as the data source for the custom model.
@@ -8857,6 +8836,7 @@ class GetCustomModelResponse(Boto3Model):
     For details on the format for different models, see
     `Custom model hyperparameters <https://docs.aws.amazon.com/bedrock/latest/userguide/custom-models-hp.html>`_.
     """
+
     trainingDataConfig: "TrainingDataConfig | None" = None
     """
     Contains information about the training dataset.
@@ -8888,6 +8868,7 @@ class GetCustomModelResponse(Boto3Model):
     """
     Creation time of the model.
     """
+
     customizationConfig: "CustomizationConfig | None" = None
     """
     The customization configuration for the custom model.
@@ -8920,8 +8901,10 @@ class ListCustomModelsResponse(Boto3Model):
     the request, use this token when making another request in the ``nextToken`` field
     to return the next batch of results.
     """
+
 class DeleteCustomModelResponse(Boto3Model):
     pass
+
 class CustomModelUnits(Boto3Model):
     """
     A ``CustomModelUnit`` (CMU) is an abstract view of the hardware utilization that
@@ -9024,6 +9007,7 @@ class GuardrailTopicConfig(Boto3Model):
     """
     The name of the topic to deny.
     """
+
     definition: str
     """
     A definition of the topic to deny.
@@ -9076,12 +9060,14 @@ class GuardrailTopicsTierConfig(Boto3Model):
     Consider using a tier that balances performance, accuracy, and compatibility with
     your existing generative AI workflows.
     """
+
     tierName: Literal["CLASSIC", "STANDARD"]
     """
     The tier that your guardrail uses for denied topic filters.
 
     Valid values include:
     """
+
 class GuardrailTopicPolicyConfig(Boto3Model):
     """
     Contains details about topics that the guardrail should identify and deny.
@@ -9210,7 +9196,6 @@ class GuardrailContentFiltersTierConfig(Boto3Model):
     Consider using a tier that balances performance, accuracy, and compatibility with
     your existing generative AI workflows.
     """
-
     tierName: Literal["CLASSIC", "STANDARD"]
     """
     The tier that your guardrail uses for content filters.
@@ -9266,7 +9251,6 @@ class GuardrailWordConfig(Boto3Model):
     When disabled, you aren't charged for the evaluation. The evaluation doesn't appear
     in the response.
     """
-
     outputEnabled: "bool | None" = None
     """
     Specifies whether to enable guardrail evaluation on the output.
@@ -9278,7 +9262,6 @@ class GuardrailManagedWordsConfig(Boto3Model):
     """
     The managed word list to configure for the guardrail.
     """
-
     type: Literal["PROFANITY"]
     """
     The managed word type to configure for the guardrail.
@@ -9313,10 +9296,12 @@ class GuardrailManagedWordsConfig(Boto3Model):
     When disabled, you aren't charged for the evaluation. The evaluation doesn't appear
     in the response.
     """
+
 class GuardrailWordPolicyConfig(Boto3Model):
     """
     Contains details about the word policy to configured for the guardrail.
     """
+
     wordsConfig: "builtins.list[GuardrailWordConfig] | None" = Field(
         default_factory=list
     )
@@ -9399,7 +9384,6 @@ class GuardrailPiiEntityConfig(Boto3Model):
     When disabled, you aren't charged for the evaluation. The evaluation doesn't appear
     in the response.
     """
-
     outputEnabled: "bool | None" = None
     """
     Specifies whether to enable guardrail evaluation on the output.
@@ -9416,6 +9400,7 @@ class GuardrailRegexConfig(Boto3Model):
     """
     The name of the regular expression to configure for the guardrail.
     """
+
     description: "str | None" = None
     """
     The description of the regular expression to configure for the guardrail.
@@ -9437,6 +9422,7 @@ class GuardrailRegexConfig(Boto3Model):
 
     Supported values include:
     """
+
     outputAction: "Literal['BLOCK', 'ANONYMIZE', 'NONE'] | None" = None
     """
     Specifies the action to take when harmful content is detected in the output.
@@ -9451,7 +9437,6 @@ class GuardrailRegexConfig(Boto3Model):
     When disabled, you aren't charged for the evaluation. The evaluation doesn't appear
     in the response.
     """
-
     outputEnabled: "bool | None" = None
     """
     Specifies whether to enable guardrail evaluation on the output.
@@ -9472,6 +9457,7 @@ class GuardrailSensitiveInformationPolicyConfig(Boto3Model):
     """
     A list of PII entities to configure to the guardrail.
     """
+
     regexesConfig: "builtins.list[GuardrailRegexConfig] | None" = Field(
         default_factory=list
     )
@@ -9483,7 +9469,6 @@ class GuardrailContextualGroundingFilterConfig(Boto3Model):
     """
     The filter configuration details for the guardrails contextual grounding filter.
     """
-
     type: Literal["GROUNDING", "RELEVANCE"]
     """
     The filter details for the guardrails contextual grounding filter.
@@ -9508,6 +9493,7 @@ class GuardrailContextualGroundingFilterConfig(Boto3Model):
     When disabled, you aren't charged for the evaluation. The evaluation doesn't appear
     in the response.
     """
+
 class GuardrailContextualGroundingTierConfig(Boto3Model):
     """
     Specifies the tier that your guardrail uses for contextual grounding checks.
@@ -9564,6 +9550,7 @@ class GuardrailCrossRegionConfig(Boto3Model):
     For more information, see the
     `Amazon Bedrock User Guide <https://docs.aws.amazon.com/bedrock/latest/userguide/guardrails-cross-region.html>`_.
     """
+
     guardrailProfileIdentifier: str
     """
     The ID or Amazon Resource Name (ARN) of the guardrail profile that your guardrail is
@@ -9591,7 +9578,6 @@ class CreateGuardrailResponse(Boto3Model):
 
     This value will always be ``DRAFT``.
     """
-
     createdAt: datetime
     """
     The time at which the guardrail was created.
@@ -9603,6 +9589,7 @@ class ListGuardrailsResponse(Boto3Model):
     """
     A list of objects, each of which contains details about a guardrail.
     """
+
     nextToken: "str | None" = None
     """
     If there are more results than were returned in the response, the response returns a
@@ -9637,6 +9624,7 @@ class GuardrailSummary(Boto3Model):
     """
     The name of the guardrail.
     """
+
     description: "str | None" = None
     """
     A description of the guardrail.
@@ -9651,6 +9639,7 @@ class GuardrailSummary(Boto3Model):
     """
     The date and time at which the guardrail was created.
     """
+
     updatedAt: datetime
     """
     The date and time at which the guardrail was last updated.
@@ -9692,6 +9681,7 @@ class CreateGuardrailVersionResponse(Boto3Model):
     """
     The unique identifier of the guardrail.
     """
+
     version: str
     """
     The number of the version of the guardrail.
@@ -9710,7 +9700,6 @@ class CreateAutomatedReasoningPolicyResponse(Boto3Model):
 
     The initial version is always DRAFT.
     """
-
     name: str
     """
     The name of the Automated Reasoning policy.
@@ -9733,6 +9722,7 @@ class CreateAutomatedReasoningPolicyResponse(Boto3Model):
     """
     The timestamp when the policy was created.
     """
+
     updatedAt: datetime
     """
     The timestamp when the policy was last updated.
@@ -9763,7 +9753,6 @@ class GetAutomatedReasoningPolicyResponse(Boto3Model):
     """
     The description of the policy.
     """
-
     definitionHash: str
     """
     The hash of the policy definition used as a concurrency token.
@@ -9783,6 +9772,7 @@ class GetAutomatedReasoningPolicyResponse(Boto3Model):
     """
     The timestamp when the policy was created.
     """
+
     updatedAt: datetime
     """
     The timestamp when the policy was last updated.
@@ -9816,7 +9806,6 @@ class UpdateAutomatedReasoningPolicyResponse(Boto3Model):
     """
     The hash of the updated policy definition.
     """
-
     updatedAt: datetime
     """
     The timestamp when the policy was last updated.
@@ -9842,6 +9831,7 @@ class CreateAutomatedReasoningPolicyVersionResponse(Boto3Model):
     """
     The name of the policy version.
     """
+
     description: "str | None" = None
     """
     The description of the policy version.
@@ -9856,7 +9846,6 @@ class CreateAutomatedReasoningPolicyVersionResponse(Boto3Model):
     """
     The timestamp when the policy version was created.
     """
-
 class ExportAutomatedReasoningPolicyVersionResponse(Boto3Model):
     policyDefinition: AutomatedReasoningPolicyDefinition
     """
@@ -10010,6 +9999,7 @@ class UpdateAutomatedReasoningPolicyTestCaseResponse(Boto3Model):
     The unique identifier of the updated test.
     """
 
+
 class DeleteAutomatedReasoningPolicyTestCaseResponse(Boto3Model):
     pass
 
@@ -10048,6 +10038,7 @@ class UpdateAutomatedReasoningPolicyAnnotationsResponse(Boto3Model):
     """
     The new hash value representing the updated state of the annotations.
     """
+
     updatedAt: datetime
     """
     The timestamp when the annotations were updated.
@@ -10059,6 +10050,7 @@ class CreatePromptRouterResponse(Boto3Model):
     """
     The Amazon Resource Name (ARN) that uniquely identifies the prompt router.
     """
+
 class GetPromptRouterResponse(Boto3Model):
     promptRouterName: str
     """
@@ -10104,7 +10096,6 @@ class GetPromptRouterResponse(Boto3Model):
     """
     The router's status.
     """
-
     type: Literal["custom", "default"]
     """
     The router's type.
@@ -10148,7 +10139,6 @@ class ListEvaluationJobsResponse(Boto3Model):
     Continuation token from the previous response, for Amazon Bedrock to list the next
     set of results.
     """
-
 class EvaluationModelConfigSummary(Boto3Model):
     """
     A summary of the models used in an Amazon Bedrock model evaluation job.
@@ -10223,7 +10213,6 @@ class EvaluationSummary(Boto3Model):
     """
     Summary information of an evaluation job.
     """
-
     jobArn: str
     """
     The Amazon Resource Name (ARN) of the evaluation job.
@@ -10284,13 +10273,11 @@ class EvaluationSummary(Boto3Model):
     Identifies the models, Knowledge Bases, or other RAG sources evaluated in a model or
     Knowledge Base evaluation job.
     """
-
     applicationType: "Literal['ModelEvaluation', 'RagEvaluation'] | None" = None
     """
     Specifies whether the evaluation job is for evaluating a model or evaluating a
     knowledge base (retrieval and response generation).
     """
-
 class StopEvaluationJobResponse(Boto3Model):
     pass
 
@@ -10299,7 +10286,6 @@ class BatchDeleteEvaluationJobError(Boto3Model):
     """
     A JSON array that provides the status of the evaluation jobs being deleted.
     """
-
     jobIdentifier: str
     """
     The ARN of the evaluation job being deleted.
@@ -10319,6 +10305,7 @@ class BatchDeleteEvaluationJobItem(Boto3Model):
     """
     An evaluation job for deletion, and it’s current status.
     """
+
     jobIdentifier: str
     """
     The Amazon Resource Name (ARN) of the evaluation job for deletion.
@@ -10337,6 +10324,7 @@ class BatchDeleteEvaluationJobResponse(Boto3Model):
     A JSON object containing the HTTP status codes and the ARNs of evaluation jobs that
     failed to be deleted.
     """
+
     evaluationJobs: "builtins.list[BatchDeleteEvaluationJobItem]"
     """
     The list of evaluation jobs for deletion.
@@ -10348,7 +10336,6 @@ class ListEnforcedGuardrailsConfigurationResponse(Boto3Model):
     """
     Array of AccountEnforcedGuardrailOutputConfiguration objects.
     """
-
     nextToken: "str | None" = None
     """
     Opaque continuation token of previous paginated response.
@@ -10390,13 +10377,13 @@ class PutEnforcedGuardrailConfigurationResponse(Boto3Model):
     """
     Timestamp.
     """
-
     updatedBy: "str | None" = None
     """
     The ARN of the role used to update the configuration.
     """
 class DeleteEnforcedGuardrailConfigurationResponse(Boto3Model):
     pass
+
 class CreateModelCustomizationJobResponse(Boto3Model):
     jobArn: str
     """
@@ -10423,6 +10410,7 @@ class ModelCustomizationJobSummary(Boto3Model):
     """
     Information about one customization job.
     """
+
     jobArn: str
     """
     Amazon Resource Name (ARN) of the customization job.
@@ -10446,7 +10434,6 @@ class ModelCustomizationJobSummary(Boto3Model):
     """
     Details about the status of the data processing sub-task of the job.
     """
-
     lastModifiedTime: "datetime | None" = None
     """
     Time that the customization job was last modified.
@@ -10456,6 +10443,7 @@ class ModelCustomizationJobSummary(Boto3Model):
     """
     Creation time of the custom model.
     """
+
     endTime: "datetime | None" = None
     """
     Time that the customization job ended.
@@ -10478,6 +10466,7 @@ class ModelCustomizationJobSummary(Boto3Model):
     For more information, see
     `Custom models <https://docs.aws.amazon.com/bedrock/latest/userguide/custom-models.html>`_.
     """
+
 class StopModelCustomizationJobResponse(Boto3Model):
     pass
 class InferenceProfileModelSource(Boto3Model):
@@ -10491,13 +10480,11 @@ class InferenceProfileModelSource(Boto3Model):
     The ARN of the model or system-defined inference profile that is the source for the
     inference profile.
     """
-
 class CreateInferenceProfileResponse(Boto3Model):
     inferenceProfileArn: str
     """
     The ARN of the inference profile that you created.
     """
-
     status: "Literal['ACTIVE'] | None" = None
     """
     The status of the inference profile.
@@ -10513,6 +10500,7 @@ class GetInferenceProfileResponse(Boto3Model):
     """
     The description of the inference profile.
     """
+
     createdAt: "datetime | None" = None
     """
     The time at which the inference profile was created.
@@ -10531,7 +10519,6 @@ class GetInferenceProfileResponse(Boto3Model):
     """
     A list of information about each model in the inference profile.
     """
-
     inferenceProfileId: str
     """
     The unique identifier of the inference profile.
@@ -10582,6 +10569,7 @@ class GetModelCopyJobResponse(Boto3Model):
     """
     The Amazon Resource Name (ARN) of the model copy job.
     """
+
     status: Literal["InProgress", "Completed", "Failed"]
     """
     The status of the model copy job.
@@ -10610,7 +10598,6 @@ class GetModelCopyJobResponse(Boto3Model):
     """
     The Amazon Resource Name (ARN) of the original model being copied.
     """
-
     targetModelKmsKeyArn: "str | None" = None
     """
     The Amazon Resource Name (ARN) of the KMS key encrypting the copied model.
@@ -10678,6 +10665,7 @@ class GetModelInvocationJobResponse(Boto3Model):
     does not return an error. For more information, see
     `Ensuring idempotency <https://docs.aws.amazon.com/AWSEC2/latest/APIReference/Run_Instance_Idempotency.html>`_.
     """
+
     roleArn: str
     """
     The Amazon Resource Name (ARN) of the service role with permissions to carry out and
@@ -10706,6 +10694,7 @@ class GetModelInvocationJobResponse(Boto3Model):
     """
     The time at which the batch inference job was last modified.
     """
+
     endTime: "datetime | None" = None
     """
     The time at which the batch inference job ended.
@@ -10763,7 +10752,6 @@ class GetModelInvocationJobResponse(Boto3Model):
     """
     The number of records that failed to process in the batch inference job.
     """
-
 class ListModelInvocationJobsResponse(Boto3Model):
     invocationJobSummaries: "builtins.list[ModelInvocationJob] | None" = Field(
         default_factory=list

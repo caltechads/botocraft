@@ -74,7 +74,7 @@ class KinesisStreamManager(KinesisStreamManagerMixin, Boto3ModelManager):
         *,
         Limit: "int | None" = None,
         ExclusiveStartStreamName: "str | None" = None,
-    ) -> PrimaryBoto3ModelQuerySet:
+    ) -> PrimaryBoto3ModelQuerySet["KinesisStream"]:
         """
         Lists your Kinesis data streams.
 
@@ -92,7 +92,7 @@ class KinesisStreamManager(KinesisStreamManagerMixin, Boto3ModelManager):
         response_iterator = paginator.paginate(
             **{k: v for k, v in args.items() if v is not None}
         )
-        results = []
+        results: "builtins.list[KinesisStream]" = []
         for _response in response_iterator:
             if list(_response.keys()) == ["ResponseMetadata"]:
                 break
@@ -102,9 +102,7 @@ class KinesisStreamManager(KinesisStreamManagerMixin, Boto3ModelManager):
             if response.StreamSummaries:
                 results.extend(response.StreamSummaries)
         self.sessionize(results)
-        if results and isinstance(results[0], Boto3Model):
-            return PrimaryBoto3ModelQuerySet(results)
-        return results
+        return PrimaryBoto3ModelQuerySet(results)
 
     def delete(
         self,
@@ -368,7 +366,7 @@ class KinesisConsumerManager(KinesisConsumerManagerMixin, Boto3ModelManager):
         *,
         StreamCreationTimestamp: "datetime | None" = None,
         StreamId: "str | None" = None,
-    ) -> PrimaryBoto3ModelQuerySet:
+    ) -> PrimaryBoto3ModelQuerySet["KinesisConsumer"]:
         """
         Lists the consumers registered to receive data from a stream using enhanced fan-
         out, and provides information about each consumer.
@@ -398,7 +396,7 @@ class KinesisConsumerManager(KinesisConsumerManagerMixin, Boto3ModelManager):
         response_iterator = paginator.paginate(
             **{k: v for k, v in args.items() if v is not None}
         )
-        results = []
+        results: "builtins.list[KinesisConsumer]" = []
         for _response in response_iterator:
             if list(_response.keys()) == ["ResponseMetadata"]:
                 break
@@ -408,9 +406,7 @@ class KinesisConsumerManager(KinesisConsumerManagerMixin, Boto3ModelManager):
             if response.Consumers:
                 results.extend(response.Consumers)
         self.sessionize(results)
-        if results and isinstance(results[0], Boto3Model):
-            return PrimaryBoto3ModelQuerySet(results)
-        return results
+        return PrimaryBoto3ModelQuerySet(results)
 
     def delete(
         self,

@@ -115,7 +115,7 @@ class AgentCoreEventManager(Boto3ModelManager):
         *,
         includePayloads: "bool | None" = None,
         filter: "FilterInput | None" = None,
-    ) -> PrimaryBoto3ModelQuerySet:
+    ) -> PrimaryBoto3ModelQuerySet["AgentCoreEvent"]:
         """
         Lists events in an AgentCore Memory resource based on specified criteria.
 
@@ -145,7 +145,7 @@ class AgentCoreEventManager(Boto3ModelManager):
         response_iterator = paginator.paginate(
             **{k: v for k, v in args.items() if v is not None}
         )
-        results = []
+        results: "builtins.list[AgentCoreEvent]" = []
         for _response in response_iterator:
             if list(_response.keys()) == ["ResponseMetadata"]:
                 break
@@ -155,9 +155,7 @@ class AgentCoreEventManager(Boto3ModelManager):
             if response.events:
                 results.extend(response.events)
         self.sessionize(results)
-        if results and isinstance(results[0], Boto3Model):
-            return PrimaryBoto3ModelQuerySet(results)
-        return results
+        return PrimaryBoto3ModelQuerySet(results)
 
     def delete(self, memoryId: str, sessionId: str, eventId: str, actorId: str) -> None:
         """
@@ -267,7 +265,7 @@ class AgentCorePaymentInstrumentManager(Boto3ModelManager):
         userId: "str | None" = None,
         agentName: "str | None" = None,
         paymentConnectorId: "str | None" = None,
-    ) -> PrimaryBoto3ModelQuerySet:
+    ) -> PrimaryBoto3ModelQuerySet["PaymentInstrumentSummary"]:
         """
         List payment instruments for a manager.
 
@@ -291,7 +289,7 @@ class AgentCorePaymentInstrumentManager(Boto3ModelManager):
         response_iterator = paginator.paginate(
             **{k: v for k, v in args.items() if v is not None}
         )
-        results = []
+        results: "builtins.list[PaymentInstrumentSummary]" = []
         for _response in response_iterator:
             if list(_response.keys()) == ["ResponseMetadata"]:
                 break
@@ -301,9 +299,7 @@ class AgentCorePaymentInstrumentManager(Boto3ModelManager):
             if response.paymentInstruments:
                 results.extend(response.paymentInstruments)
         self.sessionize(results)
-        if results and isinstance(results[0], Boto3Model):
-            return PrimaryBoto3ModelQuerySet(results)
-        return results
+        return PrimaryBoto3ModelQuerySet(results)
 
     def delete(
         self,
@@ -421,7 +417,7 @@ class AgentCorePaymentSessionManager(Boto3ModelManager):
         *,
         userId: "str | None" = None,
         agentName: "str | None" = None,
-    ) -> PrimaryBoto3ModelQuerySet:
+    ) -> PrimaryBoto3ModelQuerySet["PaymentSessionSummary"]:
         """
         List payment sessions.
 
@@ -442,7 +438,7 @@ class AgentCorePaymentSessionManager(Boto3ModelManager):
         response_iterator = paginator.paginate(
             **{k: v for k, v in args.items() if v is not None}
         )
-        results = []
+        results: "builtins.list[PaymentSessionSummary]" = []
         for _response in response_iterator:
             if list(_response.keys()) == ["ResponseMetadata"]:
                 break
@@ -452,9 +448,7 @@ class AgentCorePaymentSessionManager(Boto3ModelManager):
             if response.paymentSessions:
                 results.extend(response.paymentSessions)
         self.sessionize(results)
-        if results and isinstance(results[0], Boto3Model):
-            return PrimaryBoto3ModelQuerySet(results)
-        return results
+        return PrimaryBoto3ModelQuerySet(results)
 
     def delete(
         self,
@@ -619,7 +613,7 @@ class AgentCoreMemoryRecordManager(Boto3ModelManager):
         namespacePath: "str | None" = None,
         memoryStrategyId: "str | None" = None,
         metadataFilters: "builtins.list[MemoryMetadataFilterExpression] | None" = None,
-    ) -> PrimaryBoto3ModelQuerySet:
+    ) -> PrimaryBoto3ModelQuerySet["MemoryRecordSummary"]:
         """
         Lists memory records in an AgentCore Memory resource based on specified
         criteria.
@@ -656,7 +650,7 @@ class AgentCoreMemoryRecordManager(Boto3ModelManager):
         response_iterator = paginator.paginate(
             **{k: v for k, v in args.items() if v is not None}
         )
-        results = []
+        results: "builtins.list[MemoryRecordSummary]" = []
         for _response in response_iterator:
             if list(_response.keys()) == ["ResponseMetadata"]:
                 break
@@ -666,9 +660,7 @@ class AgentCoreMemoryRecordManager(Boto3ModelManager):
             if response.memoryRecordSummaries:
                 results.extend(response.memoryRecordSummaries)
         self.sessionize(results)
-        if results and isinstance(results[0], Boto3Model):
-            return PrimaryBoto3ModelQuerySet(results)
-        return results
+        return PrimaryBoto3ModelQuerySet(results)
 
     def delete(
         self, memoryId: str, memoryRecordId: str, *, namespace: "str | None" = None
@@ -775,7 +767,7 @@ class AgentCoreExtractionJobManager(Boto3ModelManager):
 
     def list(
         self, memoryId: str, *, filter: "ExtractionJobFilterInput | None" = None
-    ) -> PrimaryBoto3ModelQuerySet:
+    ) -> PrimaryBoto3ModelQuerySet["AgentCoreExtractionJob"]:
         """
         Lists all long-term memory extraction jobs that are eligible to be started with
         optional filtering.
@@ -793,7 +785,7 @@ class AgentCoreExtractionJobManager(Boto3ModelManager):
         response_iterator = paginator.paginate(
             **{k: v for k, v in args.items() if v is not None}
         )
-        results = []
+        results: "builtins.list[AgentCoreExtractionJob]" = []
         for _response in response_iterator:
             if list(_response.keys()) == ["ResponseMetadata"]:
                 break
@@ -803,9 +795,7 @@ class AgentCoreExtractionJobManager(Boto3ModelManager):
             if response.jobs:
                 results.extend(response.jobs)
         self.sessionize(results)
-        if results and isinstance(results[0], Boto3Model):
-            return PrimaryBoto3ModelQuerySet(results)
-        return results
+        return PrimaryBoto3ModelQuerySet(results)
 
 
 # ==============

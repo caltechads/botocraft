@@ -303,7 +303,7 @@ class DocDBClusterManager(Boto3ModelManager):
         *,
         DBClusterIdentifier: "str | None" = None,
         Filters: "builtins.list[Filter] | None" = None,
-    ) -> PrimaryBoto3ModelQuerySet:
+    ) -> PrimaryBoto3ModelQuerySet["DocDBCluster"]:
         """
         Returns information about provisioned Amazon DocumentDB clusters.
 
@@ -328,7 +328,7 @@ class DocDBClusterManager(Boto3ModelManager):
         response_iterator = paginator.paginate(
             **{k: v for k, v in args.items() if v is not None}
         )
-        results = []
+        results: "builtins.list[DocDBCluster]" = []
         for _response in response_iterator:
             if list(_response.keys()) == ["ResponseMetadata"]:
                 break
@@ -338,9 +338,7 @@ class DocDBClusterManager(Boto3ModelManager):
             if response.DBClusters:
                 results.extend(response.DBClusters)
         self.sessionize(results)
-        if results and isinstance(results[0], Boto3Model):
-            return PrimaryBoto3ModelQuerySet(results)
-        return results
+        return PrimaryBoto3ModelQuerySet(results)
 
     @single_docdb_cluster_include_tags
     def failover(
@@ -640,7 +638,7 @@ class DocDBInstanceManager(Boto3ModelManager):
         *,
         DBInstanceIdentifier: "str | None" = None,
         Filters: "builtins.list[Filter] | None" = None,
-    ) -> PrimaryBoto3ModelQuerySet:
+    ) -> PrimaryBoto3ModelQuerySet["DocDBInstance"]:
         """
         Returns information about provisioned Amazon DocumentDB instances.
 
@@ -660,7 +658,7 @@ class DocDBInstanceManager(Boto3ModelManager):
         response_iterator = paginator.paginate(
             **{k: v for k, v in args.items() if v is not None}
         )
-        results = []
+        results: "builtins.list[DocDBInstance]" = []
         for _response in response_iterator:
             if list(_response.keys()) == ["ResponseMetadata"]:
                 break
@@ -670,9 +668,7 @@ class DocDBInstanceManager(Boto3ModelManager):
             if response.DBInstances:
                 results.extend(response.DBInstances)
         self.sessionize(results)
-        if results and isinstance(results[0], Boto3Model):
-            return PrimaryBoto3ModelQuerySet(results)
-        return results
+        return PrimaryBoto3ModelQuerySet(results)
 
     @single_docdb_instance_include_tags
     def get(self, DBInstanceIdentifier: str) -> "DocDBInstance | None":
@@ -841,7 +837,7 @@ class DocDBSubnetGroupManager(Boto3ModelManager):
         *,
         DBSubnetGroupName: "str | None" = None,
         Filters: "builtins.list[Filter] | None" = None,
-    ) -> PrimaryBoto3ModelQuerySet:
+    ) -> PrimaryBoto3ModelQuerySet["DocDBSubnetGroup"]:
         """
         Returns a list of ``DBSubnetGroup`` descriptions.
 
@@ -860,7 +856,7 @@ class DocDBSubnetGroupManager(Boto3ModelManager):
         response_iterator = paginator.paginate(
             **{k: v for k, v in args.items() if v is not None}
         )
-        results = []
+        results: "builtins.list[DocDBSubnetGroup]" = []
         for _response in response_iterator:
             if list(_response.keys()) == ["ResponseMetadata"]:
                 break
@@ -870,9 +866,7 @@ class DocDBSubnetGroupManager(Boto3ModelManager):
             if response.DBSubnetGroups:
                 results.extend(response.DBSubnetGroups)
         self.sessionize(results)
-        if results and isinstance(results[0], Boto3Model):
-            return PrimaryBoto3ModelQuerySet(results)
-        return results
+        return PrimaryBoto3ModelQuerySet(results)
 
 
 # ==============

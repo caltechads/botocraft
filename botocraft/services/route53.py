@@ -114,7 +114,7 @@ class HostedZoneManager(Boto3ModelManager):
         MaxItems: "str | None" = None,
         DelegationSetId: "str | None" = None,
         HostedZoneType: "Literal['PrivateHostedZone'] | None" = None,
-    ) -> PrimaryBoto3ModelQuerySet:
+    ) -> PrimaryBoto3ModelQuerySet["HostedZone"]:
         """
         Retrieves a list of the public and private hosted zones that are associated with
         the current Amazon Web Services account. The response includes a ``HostedZones``
@@ -143,7 +143,7 @@ class HostedZoneManager(Boto3ModelManager):
         response_iterator = paginator.paginate(
             **{k: v for k, v in args.items() if v is not None}
         )
-        results = []
+        results: "builtins.list[HostedZone]" = []
         for _response in response_iterator:
             if list(_response.keys()) == ["ResponseMetadata"]:
                 break
@@ -153,9 +153,7 @@ class HostedZoneManager(Boto3ModelManager):
             if response.HostedZones:
                 results.extend(response.HostedZones)
         self.sessionize(results)
-        if results and isinstance(results[0], Boto3Model):
-            return PrimaryBoto3ModelQuerySet(results)
-        return results
+        return PrimaryBoto3ModelQuerySet(results)
 
     def list_records(
         self,
@@ -779,7 +777,7 @@ class Route53CidrCollectionManager(Boto3ModelManager):
 
     def list(
         self,
-    ) -> PrimaryBoto3ModelQuerySet:
+    ) -> PrimaryBoto3ModelQuerySet["CollectionSummary"]:
         """
         Returns a paginated list of CIDR collections in the Amazon Web Services account
         (metadata only).
@@ -789,7 +787,7 @@ class Route53CidrCollectionManager(Boto3ModelManager):
         response_iterator = paginator.paginate(
             **{k: v for k, v in args.items() if v is not None}
         )
-        results = []
+        results: "builtins.list[CollectionSummary]" = []
         for _response in response_iterator:
             if list(_response.keys()) == ["ResponseMetadata"]:
                 break
@@ -799,9 +797,7 @@ class Route53CidrCollectionManager(Boto3ModelManager):
             if response.CidrCollections:
                 results.extend(response.CidrCollections)
         self.sessionize(results)
-        if results and isinstance(results[0], Boto3Model):
-            return PrimaryBoto3ModelQuerySet(results)
-        return results
+        return PrimaryBoto3ModelQuerySet(results)
 
     def update(
         self, model: "Route53CidrCollection", CollectionVersion: "int | None" = None
@@ -840,7 +836,7 @@ class CidrBlockSummaryManager(Boto3ModelManager):
 
     def list(
         self, CollectionId: str, *, LocationName: "str | None" = None
-    ) -> PrimaryBoto3ModelQuerySet:
+    ) -> PrimaryBoto3ModelQuerySet["CidrBlockSummary"]:
         """
         Returns a paginated list of location objects and their CIDR blocks.
 
@@ -858,7 +854,7 @@ class CidrBlockSummaryManager(Boto3ModelManager):
         response_iterator = paginator.paginate(
             **{k: v for k, v in args.items() if v is not None}
         )
-        results = []
+        results: "builtins.list[CidrBlockSummary]" = []
         for _response in response_iterator:
             if list(_response.keys()) == ["ResponseMetadata"]:
                 break
@@ -868,9 +864,7 @@ class CidrBlockSummaryManager(Boto3ModelManager):
             if response.CidrBlocks:
                 results.extend(response.CidrBlocks)
         self.sessionize(results)
-        if results and isinstance(results[0], Boto3Model):
-            return PrimaryBoto3ModelQuerySet(results)
-        return results
+        return PrimaryBoto3ModelQuerySet(results)
 
 
 class Route53QueryLoggingConfigManager(Boto3ModelManager):
@@ -934,7 +928,9 @@ class Route53QueryLoggingConfigManager(Boto3ModelManager):
             return response.QueryLoggingConfig
         return None
 
-    def list(self, *, HostedZoneId: "str | None" = None) -> PrimaryBoto3ModelQuerySet:
+    def list(
+        self, *, HostedZoneId: "str | None" = None
+    ) -> PrimaryBoto3ModelQuerySet["Route53QueryLoggingConfig"]:
         """
         Lists the configurations for DNS query logging that are associated with the
         current Amazon Web Services account or the configuration that is associated with
@@ -950,7 +946,7 @@ class Route53QueryLoggingConfigManager(Boto3ModelManager):
         response_iterator = paginator.paginate(
             **{k: v for k, v in args.items() if v is not None}
         )
-        results = []
+        results: "builtins.list[Route53QueryLoggingConfig]" = []
         for _response in response_iterator:
             if list(_response.keys()) == ["ResponseMetadata"]:
                 break
@@ -960,9 +956,7 @@ class Route53QueryLoggingConfigManager(Boto3ModelManager):
             if response.QueryLoggingConfigs:
                 results.extend(response.QueryLoggingConfigs)
         self.sessionize(results)
-        if results and isinstance(results[0], Boto3Model):
-            return PrimaryBoto3ModelQuerySet(results)
-        return results
+        return PrimaryBoto3ModelQuerySet(results)
 
 
 class Route53ResourceRecordSetManager(Boto3ModelManager):
@@ -1006,7 +1000,7 @@ class Route53ResourceRecordSetManager(Boto3ModelManager):
         StartRecordType: "Literal['SOA', 'A', 'TXT', 'NS', 'CNAME', 'MX', 'NAPTR', 'PTR', 'SRV', 'SPF', 'AAAA', 'CAA', 'DS', 'TLSA', 'SSHFP', 'SVCB', 'HTTPS'] | None" = None,
         StartRecordIdentifier: "str | None" = None,
         MaxItems: "str | None" = None,
-    ) -> PrimaryBoto3ModelQuerySet:
+    ) -> PrimaryBoto3ModelQuerySet["Route53ResourceRecordSet"]:
         """
         Lists the resource record sets in a specified hosted zone.
 
@@ -1048,7 +1042,7 @@ class Route53ResourceRecordSetManager(Boto3ModelManager):
         response_iterator = paginator.paginate(
             **{k: v for k, v in args.items() if v is not None}
         )
-        results = []
+        results: "builtins.list[Route53ResourceRecordSet]" = []
         for _response in response_iterator:
             if list(_response.keys()) == ["ResponseMetadata"]:
                 break
@@ -1058,9 +1052,7 @@ class Route53ResourceRecordSetManager(Boto3ModelManager):
             if response.ResourceRecordSets:
                 results.extend(response.ResourceRecordSets)
         self.sessionize(results)
-        if results and isinstance(results[0], Boto3Model):
-            return PrimaryBoto3ModelQuerySet(results)
-        return results
+        return PrimaryBoto3ModelQuerySet(results)
 
 
 # ==============

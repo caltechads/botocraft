@@ -57,7 +57,7 @@ class AppManager(AmplifyAppManagerMixin, Boto3ModelManager):
 
     def list(
         self,
-    ) -> PrimaryBoto3ModelQuerySet:
+    ) -> PrimaryBoto3ModelQuerySet["App"]:
         """
         Returns a list of the existing Amplify apps.
         """
@@ -66,7 +66,7 @@ class AppManager(AmplifyAppManagerMixin, Boto3ModelManager):
         response_iterator = paginator.paginate(
             **{k: v for k, v in args.items() if v is not None}
         )
-        results = []
+        results: "builtins.list[App]" = []
         for _response in response_iterator:
             if list(_response.keys()) == ["ResponseMetadata"]:
                 break
@@ -76,9 +76,7 @@ class AppManager(AmplifyAppManagerMixin, Boto3ModelManager):
             if response.apps:
                 results.extend(response.apps)
         self.sessionize(results)
-        if results and isinstance(results[0], Boto3Model):
-            return PrimaryBoto3ModelQuerySet(results)
-        return results
+        return PrimaryBoto3ModelQuerySet(results)
 
     @amplify_sync_tags
     def update(self, model: "App") -> "App":
@@ -203,7 +201,7 @@ class AmplifyBranchManager(AmplifyBranchManagerMixin, Boto3ModelManager):
         return None
 
     @amplify_stamp_app_id
-    def list(self, appId: str) -> PrimaryBoto3ModelQuerySet:
+    def list(self, appId: str) -> PrimaryBoto3ModelQuerySet["AmplifyBranch"]:
         """
         Lists the branches of an Amplify app.
 
@@ -215,7 +213,7 @@ class AmplifyBranchManager(AmplifyBranchManagerMixin, Boto3ModelManager):
         response_iterator = paginator.paginate(
             **{k: v for k, v in args.items() if v is not None}
         )
-        results = []
+        results: "builtins.list[AmplifyBranch]" = []
         for _response in response_iterator:
             if list(_response.keys()) == ["ResponseMetadata"]:
                 break
@@ -225,9 +223,7 @@ class AmplifyBranchManager(AmplifyBranchManagerMixin, Boto3ModelManager):
             if response.branches:
                 results.extend(response.branches)
         self.sessionize(results)
-        if results and isinstance(results[0], Boto3Model):
-            return PrimaryBoto3ModelQuerySet(results)
-        return results
+        return PrimaryBoto3ModelQuerySet(results)
 
     @amplify_stamp_app_id
     @amplify_sync_tags
@@ -401,7 +397,7 @@ class DomainAssociationManager(AmplifyDomainAssociationManagerMixin, Boto3ModelM
         return None
 
     @amplify_stamp_app_id
-    def list(self, appId: str) -> PrimaryBoto3ModelQuerySet:
+    def list(self, appId: str) -> PrimaryBoto3ModelQuerySet["DomainAssociation"]:
         """
         Returns the domain associations for an Amplify app.
 
@@ -413,7 +409,7 @@ class DomainAssociationManager(AmplifyDomainAssociationManagerMixin, Boto3ModelM
         response_iterator = paginator.paginate(
             **{k: v for k, v in args.items() if v is not None}
         )
-        results = []
+        results: "builtins.list[DomainAssociation]" = []
         for _response in response_iterator:
             if list(_response.keys()) == ["ResponseMetadata"]:
                 break
@@ -423,9 +419,7 @@ class DomainAssociationManager(AmplifyDomainAssociationManagerMixin, Boto3ModelM
             if response.domainAssociations:
                 results.extend(response.domainAssociations)
         self.sessionize(results)
-        if results and isinstance(results[0], Boto3Model):
-            return PrimaryBoto3ModelQuerySet(results)
-        return results
+        return PrimaryBoto3ModelQuerySet(results)
 
     @amplify_stamp_app_id
     def update(self, model: "DomainAssociation") -> "DomainAssociation":

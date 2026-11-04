@@ -220,7 +220,7 @@ class MetricAlarmManager(Boto3ModelManager):
         ParentsOfAlarmName: "str | None" = None,
         StateValue: "Literal['OK', 'ALARM', 'INSUFFICIENT_DATA'] | None" = None,
         ActionPrefix: "str | None" = None,
-    ) -> PrimaryBoto3ModelQuerySet:
+    ) -> PrimaryBoto3ModelQuerySet["MetricAlarm"]:
         """
         Retrieves the specified alarms.
 
@@ -269,7 +269,7 @@ class MetricAlarmManager(Boto3ModelManager):
         response_iterator = paginator.paginate(
             **{k: v for k, v in args.items() if v is not None}
         )
-        results = []
+        results: "builtins.list[MetricAlarm]" = []
         for _response in response_iterator:
             if list(_response.keys()) == ["ResponseMetadata"]:
                 break
@@ -279,9 +279,7 @@ class MetricAlarmManager(Boto3ModelManager):
             if response.MetricAlarms:
                 results.extend(response.MetricAlarms)
         self.sessionize(results)
-        if results and isinstance(results[0], Boto3Model):
-            return PrimaryBoto3ModelQuerySet(results)
-        return results
+        return PrimaryBoto3ModelQuerySet(results)
 
     def delete(self, AlarmName: str) -> None:
         """
@@ -587,7 +585,7 @@ class CompositeAlarmManager(Boto3ModelManager):
         ParentsOfAlarmName: "str | None" = None,
         StateValue: "Literal['OK', 'ALARM', 'INSUFFICIENT_DATA'] | None" = None,
         ActionPrefix: "str | None" = None,
-    ) -> PrimaryBoto3ModelQuerySet:
+    ) -> PrimaryBoto3ModelQuerySet["CompositeAlarm"]:
         """
         Retrieves the specified alarms.
 
@@ -636,7 +634,7 @@ class CompositeAlarmManager(Boto3ModelManager):
         response_iterator = paginator.paginate(
             **{k: v for k, v in args.items() if v is not None}
         )
-        results = []
+        results: "builtins.list[CompositeAlarm]" = []
         for _response in response_iterator:
             if list(_response.keys()) == ["ResponseMetadata"]:
                 break
@@ -646,9 +644,7 @@ class CompositeAlarmManager(Boto3ModelManager):
             if response.CompositeAlarms:
                 results.extend(response.CompositeAlarms)
         self.sessionize(results)
-        if results and isinstance(results[0], Boto3Model):
-            return PrimaryBoto3ModelQuerySet(results)
-        return results
+        return PrimaryBoto3ModelQuerySet(results)
 
     def delete(self, AlarmName: str) -> None:
         """
@@ -931,7 +927,7 @@ class CloudWatchMetricStreamManager(Boto3ModelManager):
 
     def list(
         self, *, NextToken: "str | None" = None, MaxResults: "int | None" = None
-    ) -> PrimaryBoto3ModelQuerySet:
+    ) -> PrimaryBoto3ModelQuerySet["CloudWatchMetricStream"]:
         """
         Returns a list of metric streams in this account.
 
@@ -1068,7 +1064,7 @@ class CloudWatchDashboardManager(Boto3ModelManager):
 
     def list(
         self, *, DashboardNamePrefix: "str | None" = None
-    ) -> PrimaryBoto3ModelQuerySet:
+    ) -> PrimaryBoto3ModelQuerySet["CloudWatchDashboard"]:
         """
         Returns a list of the dashboards for your account.
 
@@ -1089,7 +1085,7 @@ class CloudWatchDashboardManager(Boto3ModelManager):
         response_iterator = paginator.paginate(
             **{k: v for k, v in args.items() if v is not None}
         )
-        results = []
+        results: "builtins.list[CloudWatchDashboard]" = []
         for _response in response_iterator:
             if list(_response.keys()) == ["ResponseMetadata"]:
                 break
@@ -1099,9 +1095,7 @@ class CloudWatchDashboardManager(Boto3ModelManager):
             if response.DashboardEntries:
                 results.extend(response.DashboardEntries)
         self.sessionize(results)
-        if results and isinstance(results[0], Boto3Model):
-            return PrimaryBoto3ModelQuerySet(results)
-        return results
+        return PrimaryBoto3ModelQuerySet(results)
 
     def delete(self, DashboardName: str) -> None:
         """
@@ -1299,7 +1293,7 @@ class CloudWatchAnomalyDetectorManager(
         MetricName: "str | None" = None,
         Dimensions: "builtins.list[CloudWatchDimension] | None" = None,
         AnomalyDetectorTypes: "builtins.list[Literal['SINGLE_METRIC', 'METRIC_MATH']] | None" = None,
-    ) -> PrimaryBoto3ModelQuerySet:
+    ) -> PrimaryBoto3ModelQuerySet["CloudWatchAnomalyDetector"]:
         """
         Lists the anomaly detection models that you have created in your account.
 
@@ -1344,7 +1338,7 @@ class CloudWatchAnomalyDetectorManager(
         response_iterator = paginator.paginate(
             **{k: v for k, v in args.items() if v is not None}
         )
-        results = []
+        results: "builtins.list[CloudWatchAnomalyDetector]" = []
         for _response in response_iterator:
             if list(_response.keys()) == ["ResponseMetadata"]:
                 break
@@ -1354,9 +1348,7 @@ class CloudWatchAnomalyDetectorManager(
             if response.AnomalyDetectors:
                 results.extend(response.AnomalyDetectors)
         self.sessionize(results)
-        if results and isinstance(results[0], Boto3Model):
-            return PrimaryBoto3ModelQuerySet(results)
-        return results
+        return PrimaryBoto3ModelQuerySet(results)
 
 
 class CloudWatchMetricManager(CloudWatchMetricManagerMixin, ReadonlyBoto3ModelManager):
@@ -1371,7 +1363,7 @@ class CloudWatchMetricManager(CloudWatchMetricManagerMixin, ReadonlyBoto3ModelMa
         RecentlyActive: "Literal['PT3H'] | None" = None,
         IncludeLinkedAccounts: "bool | None" = None,
         OwningAccount: "str | None" = None,
-    ) -> PrimaryBoto3ModelQuerySet:
+    ) -> PrimaryBoto3ModelQuerySet["CloudWatchMetric"]:
         """
         List the specified metrics.
 
@@ -1414,7 +1406,7 @@ class CloudWatchMetricManager(CloudWatchMetricManagerMixin, ReadonlyBoto3ModelMa
         response_iterator = paginator.paginate(
             **{k: v for k, v in args.items() if v is not None}
         )
-        results = []
+        results: "builtins.list[CloudWatchMetric]" = []
         for _response in response_iterator:
             if list(_response.keys()) == ["ResponseMetadata"]:
                 break
@@ -1424,9 +1416,7 @@ class CloudWatchMetricManager(CloudWatchMetricManagerMixin, ReadonlyBoto3ModelMa
             if response.Metrics:
                 results.extend(response.Metrics)
         self.sessionize(results)
-        if results and isinstance(results[0], Boto3Model):
-            return PrimaryBoto3ModelQuerySet(results)
-        return results
+        return PrimaryBoto3ModelQuerySet(results)
 
 
 class AlarmMuteRuleManager(Boto3ModelManager):
@@ -1511,7 +1501,7 @@ class AlarmMuteRuleManager(Boto3ModelManager):
         *,
         AlarmName: "str | None" = None,
         Statuses: "builtins.list[Literal['SCHEDULED', 'ACTIVE', 'EXPIRED']] | None" = None,
-    ) -> PrimaryBoto3ModelQuerySet:
+    ) -> PrimaryBoto3ModelQuerySet["AlarmMuteRule"]:
         """
         Lists alarm mute rules in your Amazon Web Services account and region.
 
@@ -1529,7 +1519,7 @@ class AlarmMuteRuleManager(Boto3ModelManager):
         response_iterator = paginator.paginate(
             **{k: v for k, v in args.items() if v is not None}
         )
-        results = []
+        results: "builtins.list[AlarmMuteRule]" = []
         for _response in response_iterator:
             if list(_response.keys()) == ["ResponseMetadata"]:
                 break
@@ -1539,9 +1529,7 @@ class AlarmMuteRuleManager(Boto3ModelManager):
             if response.AlarmMuteRuleSummaries:
                 results.extend(response.AlarmMuteRuleSummaries)
         self.sessionize(results)
-        if results and isinstance(results[0], Boto3Model):
-            return PrimaryBoto3ModelQuerySet(results)
-        return results
+        return PrimaryBoto3ModelQuerySet(results)
 
     def delete(self, Name: str) -> None:
         """

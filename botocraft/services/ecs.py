@@ -134,7 +134,7 @@ class CapacityProviderManager(CapacityProviderManagerMixin, Boto3ModelManager):
         include: "builtins.list[Literal['TAGS']] | None" = None,
         maxResults: "int | None" = None,
         nextToken: "str | None" = None,
-    ) -> "PrimaryBoto3ModelQuerySet | DescribeCapacityProvidersResponse | None":
+    ) -> "PrimaryBoto3ModelQuerySet[CapacityProvider] | DescribeCapacityProvidersResponse | None":
         """
         Describes one or more of your capacity providers.
 
@@ -388,7 +388,7 @@ class ServiceManager(ECSServiceManagerMixin, Boto3ModelManager):
         *,
         cluster: str = "default",
         include: "builtins.list[Literal['TAGS']] | None" = None,
-    ) -> "PrimaryBoto3ModelQuerySet | DescribeServicesResponse | None":
+    ) -> "PrimaryBoto3ModelQuerySet[Service] | DescribeServicesResponse | None":
         """
         Describes the specified services running in your cluster.
 
@@ -810,7 +810,7 @@ class ClusterManager(Boto3ModelManager):
             "STATISTICS",
             "TAGS",
         ],
-    ) -> "PrimaryBoto3ModelQuerySet | DescribeClustersResponse | None":
+    ) -> "PrimaryBoto3ModelQuerySet[Cluster] | DescribeClustersResponse | None":
         """
         Describes one or more of your clusters.
 
@@ -1287,7 +1287,7 @@ class ContainerInstanceManager(ReadonlyBoto3ModelManager):
             "TAGS",
             "CONTAINER_INSTANCE_HEALTH",
         ],
-    ) -> "PrimaryBoto3ModelQuerySet | DescribeContainerInstancesResponse | None":
+    ) -> "PrimaryBoto3ModelQuerySet[ContainerInstance] | DescribeContainerInstancesResponse | None":
         """
         Describes one or more container instances.
 
@@ -1515,7 +1515,7 @@ class TaskManager(Boto3ModelManager):
         *,
         cluster: str = "default",
         include: "builtins.list[Literal['TAGS']]" = ["TAGS"],
-    ) -> "PrimaryBoto3ModelQuerySet | DescribeTasksResponse | None":
+    ) -> "PrimaryBoto3ModelQuerySet[Task] | DescribeTasksResponse | None":
         """
         Describes a specified task or tasks.
 
@@ -1854,7 +1854,7 @@ class TaskSetManager(TaskSetManagerMixin, Boto3ModelManager):
         *,
         taskSets: "builtins.list[str] | None" = None,
         include: "builtins.list[Literal['TAGS']] | None" = None,
-    ) -> "PrimaryBoto3ModelQuerySet | DescribeTaskSetsResponse | None":
+    ) -> "PrimaryBoto3ModelQuerySet[TaskSet] | DescribeTaskSetsResponse | None":
         """
         Describes the task sets in the specified cluster and service.
 
@@ -1983,7 +1983,7 @@ class ServiceDeploymentManager(ReadonlyBoto3ModelManager):
 
     def get_many(
         self, serviceDeploymentArns: "builtins.list[str]"
-    ) -> "PrimaryBoto3ModelQuerySet | DescribeServiceDeploymentsResponse | None":
+    ) -> "PrimaryBoto3ModelQuerySet[ServiceDeployment] | DescribeServiceDeploymentsResponse | None":
         """
         Describes one or more of your service deployments.
 
@@ -2013,7 +2013,7 @@ class ServiceDeploymentManager(ReadonlyBoto3ModelManager):
         createdAt: "CreatedAt | None" = None,
         nextToken: "str | None" = None,
         maxResults: "int | None" = None,
-    ) -> PrimaryBoto3ModelQuerySet:
+    ) -> PrimaryBoto3ModelQuerySet["ServiceDeploymentBrief"]:
         """
         This operation lists all the service deployments that meet the specified filter
         criteria.
@@ -2129,7 +2129,7 @@ class ServiceRevisionManager(ServiceRevisionManagerMixin, ReadonlyBoto3ModelMana
 
     def get_many(
         self, serviceRevisionArns: "builtins.list[str]"
-    ) -> "PrimaryBoto3ModelQuerySet | DescribeServiceRevisionsResponse | None":
+    ) -> "PrimaryBoto3ModelQuerySet[ServiceRevision] | DescribeServiceRevisionsResponse | None":
         """
         Describes one or more service revisions.
 
@@ -2226,7 +2226,7 @@ class DaemonRevisionManager(ReadonlyBoto3ModelManager):
 
     def get_many(
         self, daemonRevisionArns: "builtins.list[str]"
-    ) -> "PrimaryBoto3ModelQuerySet | DescribeDaemonRevisionsResponse | None":
+    ) -> "PrimaryBoto3ModelQuerySet[DaemonRevision] | DescribeDaemonRevisionsResponse | None":
         """
         Describes one or more of your daemon revisions.
 

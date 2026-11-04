@@ -107,7 +107,7 @@ class ConnectionManager(Boto3ModelManager):
         HostArnFilter: "str | None" = None,
         MaxResults: "int | None" = None,
         NextToken: "str | None" = None,
-    ) -> PrimaryBoto3ModelQuerySet:
+    ) -> PrimaryBoto3ModelQuerySet["Connection"]:
         """
         Lists the connections associated with your account.
 
@@ -205,7 +205,7 @@ class HostManager(Boto3ModelManager):
     @hosts_include_tags
     def list(
         self, *, MaxResults: "int | None" = None, NextToken: "str | None" = None
-    ) -> PrimaryBoto3ModelQuerySet:
+    ) -> PrimaryBoto3ModelQuerySet["Host"]:
         """
         Lists the hosts associated with your account.
 
@@ -335,7 +335,7 @@ class SyncConfigurationManager(Boto3ModelManager):
         *,
         MaxResults: "int | None" = None,
         NextToken: "str | None" = None,
-    ) -> PrimaryBoto3ModelQuerySet:
+    ) -> PrimaryBoto3ModelQuerySet["SyncConfiguration"]:
         """
         Returns a list of sync configurations for a specified repository.
 
@@ -403,7 +403,7 @@ class RepositorySyncDefinitionManager(ReadonlyBoto3ModelManager):
     @repository_sync_definitions_add_context
     def list(
         self, RepositoryLinkId: str, SyncType: Literal["CFN_STACK_SYNC"]
-    ) -> PrimaryBoto3ModelQuerySet:
+    ) -> PrimaryBoto3ModelQuerySet["RepositorySyncDefinition"]:
         """
         Lists the repository sync definitions for repository links in your account.
 

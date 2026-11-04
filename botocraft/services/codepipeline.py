@@ -175,7 +175,9 @@ class PipelineManager(Boto3ModelManager):
         return None
 
     @pipeline_summaries_to_pipelines
-    def list(self, *, version: "int | None" = None) -> PrimaryBoto3ModelQuerySet:
+    def list(
+        self, *, version: "int | None" = None
+    ) -> PrimaryBoto3ModelQuerySet["PipelineSummary"]:
         """
         Returns every pipeline in the account.
 
@@ -196,7 +198,7 @@ class PipelineManager(Boto3ModelManager):
         response_iterator = paginator.paginate(
             **{k: v for k, v in args.items() if v is not None}
         )
-        results = []
+        results: "builtins.list[PipelineSummary]" = []
         for _response in response_iterator:
             if list(_response.keys()) == ["ResponseMetadata"]:
                 break
@@ -206,9 +208,7 @@ class PipelineManager(Boto3ModelManager):
             if response.pipelines:
                 results.extend(response.pipelines)
         self.sessionize(results)
-        if results and isinstance(results[0], Boto3Model):
-            return PrimaryBoto3ModelQuerySet(results)
-        return results
+        return PrimaryBoto3ModelQuerySet(results)
 
     def start_execution(
         self,
@@ -342,7 +342,7 @@ class PipelineExecutionManager(ReadonlyBoto3ModelManager):
     @pipeline_execution_list_add_pipeline_name
     def list(
         self, pipelineName: str, *, filter: "PipelineExecutionFilter | None" = None
-    ) -> PrimaryBoto3ModelQuerySet:
+    ) -> PrimaryBoto3ModelQuerySet["PipelineExecutionSummary"]:
         """
         Gets a summary of the most recent executions for a pipeline.
 
@@ -360,7 +360,7 @@ class PipelineExecutionManager(ReadonlyBoto3ModelManager):
         response_iterator = paginator.paginate(
             **{k: v for k, v in args.items() if v is not None}
         )
-        results = []
+        results: "builtins.list[PipelineExecutionSummary]" = []
         for _response in response_iterator:
             if list(_response.keys()) == ["ResponseMetadata"]:
                 break
@@ -370,9 +370,7 @@ class PipelineExecutionManager(ReadonlyBoto3ModelManager):
             if response.pipelineExecutionSummaries:
                 results.extend(response.pipelineExecutionSummaries)
         self.sessionize(results)
-        if results and isinstance(results[0], Boto3Model):
-            return PrimaryBoto3ModelQuerySet(results)
-        return results
+        return PrimaryBoto3ModelQuerySet(results)
 
     def stop(
         self,
@@ -538,7 +536,7 @@ class ActionTypeManager(Boto3ModelManager):
         *,
         actionOwnerFilter: "Literal['AWS', 'ThirdParty', 'Custom'] | None" = None,
         regionFilter: "str | None" = None,
-    ) -> PrimaryBoto3ModelQuerySet:
+    ) -> PrimaryBoto3ModelQuerySet["ActionType"]:
         """
         Gets a summary of all CodePipeline action types associated with your account.
 
@@ -555,7 +553,7 @@ class ActionTypeManager(Boto3ModelManager):
         response_iterator = paginator.paginate(
             **{k: v for k, v in args.items() if v is not None}
         )
-        results = []
+        results: "builtins.list[ActionType]" = []
         for _response in response_iterator:
             if list(_response.keys()) == ["ResponseMetadata"]:
                 break
@@ -565,9 +563,7 @@ class ActionTypeManager(Boto3ModelManager):
             if response.actionTypes:
                 results.extend(response.actionTypes)
         self.sessionize(results)
-        if results and isinstance(results[0], Boto3Model):
-            return PrimaryBoto3ModelQuerySet(results)
-        return results
+        return PrimaryBoto3ModelQuerySet(results)
 
     def update(self, model: "ActionType") -> None:
         """
@@ -680,11 +676,13 @@ class OutputArtifact(Boto3Model):
     from the compute action.
     """
 
+
 class InputArtifact(Boto3Model):
     """
     Represents information about an artifact to be worked on, such as a test or build
     artifact.
     """
+
     name: str
     """
     The name of the artifact to be worked on (for example, "My App").
@@ -695,6 +693,7 @@ class ActionDeclaration(Boto3Model):
     """
     Represents information about an action declaration.
     """
+
     name: str
     """
     The action declaration's name.
@@ -704,6 +703,7 @@ class ActionDeclaration(Boto3Model):
     """
     Specifies the action type and the provider of the action.
     """
+
     runOrder: "int | None" = None
     """
     The order in which actions are run.
@@ -745,13 +745,13 @@ class ActionDeclaration(Boto3Model):
     The name or ID of the artifact consumed by the action, such as a test or build
     artifact.
     """
+
     outputVariables: "builtins.list[str] | None" = Field(default_factory=list)
     """
     The list of variables that are to be exported from the compute action.
 
     This is specifically CodeBuild environment variables as used for that action.
     """
-
     roleArn: "str | None" = None
     """
     The ARN of the IAM service role that performs the declared action.
@@ -762,6 +762,7 @@ class ActionDeclaration(Boto3Model):
     """
     The action declaration's Amazon Web Services Region, such as us-east-1.
     """
+
     namespace: "str | None" = None
     """
     The variable namespace associated with the action.
@@ -809,6 +810,7 @@ class FailureConditions(Boto3Model):
     `How do stage conditions work? <https://docs.aws.amazon.com/codepipeline/latest/userguide/concepts-how-it-works-
     conditions.html>`_.
     """
+
     result: "Literal['ROLLBACK', 'FAIL', 'RETRY', 'SKIP'] | None" = None
     """
     The specified result for when the failure conditions are met, such as rolling back
@@ -839,7 +841,6 @@ class SuccessConditions(Boto3Model):
     and
     `How do stage conditions work? <https://docs.aws.amazon.com/codepipeline/latest/userguide/concepts-how-it-works-conditions.html>`_.
     """
-
     conditions: "builtins.list[Condition]"
     """
     The conditions that are success conditions.
@@ -853,7 +854,6 @@ class BeforeEntryConditions(Boto3Model):
     and
     `How do stage conditions work? <https://docs.aws.amazon.com/codepipeline/latest/userguide/concepts-how-it-works-conditions.html>`_.
     """
-
     conditions: "builtins.list[Condition]"
     """
     The conditions that are configured as entry conditions.
@@ -862,7 +862,6 @@ class StageDeclaration(Boto3Model):
     """
     Represents information about a stage and its definition.
     """
-
     name: str
     """
     The name of the stage.
@@ -914,12 +913,14 @@ class EncryptionKey(Boto3Model):
     For an Amazon Web Services KMS key, you can use the key ID, the key ARN, or the
     alias ARN.
     """
+
     type: Literal["KMS"]
     """
     The type of encryption key, such as an Amazon Web Services KMS key.
 
     When creating or updating a pipeline, the value must be set to 'KMS'.
     """
+
 
 class ArtifactStore(Boto3Model):
     """
@@ -979,7 +980,6 @@ class GitTagFilterCriteria(Boto3Model):
     The Git tags specified as filter criteria for whether a Git tag repository event
     will start the pipeline.
     """
-
     includes: "builtins.list[str] | None" = Field(default_factory=list)
     """
     The list of patterns of Git tags that, when pushed, are to be included as criteria
@@ -994,7 +994,6 @@ class GitBranchFilterCriteria(Boto3Model):
     """
     The Git repository branches specified as filter criteria to start the pipeline.
     """
-
     includes: "builtins.list[str] | None" = Field(default_factory=list)
     """
     The list of patterns of Git branches that, when a commit is pushed, are to be
@@ -1009,7 +1008,6 @@ class GitFilePathFilterCriteria(Boto3Model):
     """
     The Git repository file paths specified as filter criteria to start the pipeline.
     """
-
     includes: "builtins.list[str] | None" = Field(default_factory=list)
     """
     The list of patterns of Git repository file paths that, when a commit is pushed, are
@@ -1044,7 +1042,6 @@ class GitPushFilter(TagsDictMixin, Boto3Model):
     """
     The field that specifies to filter on file paths for the push trigger configuration.
     """
-
 class GitPullRequestFilter(Boto3Model):
     """
     The event criteria for the pull request trigger configuration, such as the lists of
@@ -1096,6 +1093,7 @@ class GitConfiguration(Boto3Model):
     The field where the repository event that will start the pipeline, such as pushing
     Git tags, is specified with details.
     """
+
     pullRequest: "builtins.list[GitPullRequestFilter] | None" = Field(
         default_factory=list
     )
@@ -1103,6 +1101,7 @@ class GitConfiguration(Boto3Model):
     The field where the repository event that will start the pipeline is specified as
     pull requests.
     """
+
 class PipelineTriggerDeclaration(Boto3Model):
     """
     Represents information about the specified trigger configuration, such as the filter
@@ -1154,6 +1153,7 @@ class SourceRevisionOverride(Boto3Model):
     either of the types can be used independently, or they can be used together to
     override the source with a specific ObjectKey and VersionID.
     """
+
     actionName: str
     """
     The name of the action where the override will be applied.
@@ -1203,7 +1203,6 @@ class Pipeline(PrimaryBoto3Model):
     Represents information about the S3 bucket where artifacts are stored for the
     pipeline.
     """
-
     artifactStores: "dict[str, ArtifactStore] | None" = Field(default_factory=dict)
     """
     A mapping of ``artifactStore`` objects and their corresponding Amazon Web Services
@@ -1227,6 +1226,7 @@ class Pipeline(PrimaryBoto3Model):
 
     The default mode is SUPERSEDED.
     """
+
     pipelineType: "Literal['V1', 'V2'] | None" = None
     """
     CodePipeline provides the following pipeline types, which differ in characteristics
@@ -1255,6 +1255,7 @@ class Pipeline(PrimaryBoto3Model):
     """
     The ARN of the pipeline when returned by detail APIs.
     """
+
     @property
     def pk(self) -> str | None:
         """
@@ -1326,6 +1327,7 @@ class ArtifactRevision(Boto3Model):
     """
     Represents revision details of an artifact.
     """
+
     name: "str | None" = None
     """
     The name of an artifact.
@@ -1353,7 +1355,6 @@ class ArtifactRevision(Boto3Model):
     actions, the user-provided content of a ``codepipeline-artifact-revision-summary``
     key specified in the object metadata.
     """
-
     created: "datetime | None" = None
     """
     The date and time when the most recent revision of the artifact was created, in
@@ -1372,7 +1373,6 @@ class ResolvedPipelineVariable(Boto3Model):
     """
     A pipeline-level variable used for a pipeline execution.
     """
-
     name: "str | None" = None
     """
     The name of a pipeline-level variable.
@@ -1415,7 +1415,6 @@ class PipelineExecution(ReadonlyPrimaryBoto3Model):
     """
     Represents information about an execution of a pipeline.
     """
-
     manager_class: ClassVar[ModelType[Boto3ModelManager]] = PipelineExecutionManager
 
     pipelineName: "str | None" = None
@@ -1432,6 +1431,7 @@ class PipelineExecution(ReadonlyPrimaryBoto3Model):
     """
     The ID of the pipeline execution.
     """
+
     status: "Literal['Cancelled', 'InProgress', 'Stopped', 'Stopping', 'Succeeded', 'Superseded', 'Failed'] | None" = None
     """
     The status of the pipeline execution.
@@ -1495,6 +1495,7 @@ class ActionTypeSettings(Boto3Model):
     """
     Returns information about the settings for an action type.
     """
+
     thirdPartyConfigurationUrl: "str | None" = None
     """
     The URL of a sign-up page where users can sign up for an external service and
@@ -1509,6 +1510,7 @@ class ActionTypeSettings(Boto3Model):
 
     This link is provided as part of the action display in the pipeline.
     """
+
     executionUrlTemplate: "str | None" = None
     """
     The URL returned to the CodePipeline console that contains a link to the top-level
@@ -1533,10 +1535,12 @@ class ActionConfigurationProperty(Boto3Model):
     """
     The name of the action configuration property.
     """
+
     required: bool
     """
     Whether the configuration property is a required value.
     """
+
     key: bool
     """
     Whether the configuration property is a key.
@@ -1577,11 +1581,11 @@ class ArtifactDetails(Boto3Model):
     """
     The minimum number of artifacts allowed for the action type.
     """
-
     maximumCount: int
     """
     The maximum number of artifacts allowed for the action type.
     """
+
 class ActionType(PrimaryBoto3Model):
     """
     Returns information about the details of an action type.
@@ -1669,6 +1673,7 @@ class CreatePipelineOutput(TagsDictMixin, Boto3Model):
     """
     The created pipeline definition.
     """
+
     Tags: "builtins.list[Tag]" = Field(default_factory=list, alias="tags")
     """
     Specifies the tags applied to the pipeline.
@@ -1718,6 +1723,7 @@ class GetPipelineOutput(Boto3Model):
     """
     The requested pipeline definition.
     """
+
     metadata: "PipelineMetadata | None" = None
     """
     Metadata returned for the requested pipeline.
@@ -1744,12 +1750,14 @@ class PipelineSummary(Boto3Model):
     and price, so that you can tailor your pipeline features and cost to the needs of
     your applications.
     """
+
     executionMode: "Literal['QUEUED', 'SUPERSEDED', 'PARALLEL'] | None" = None
     """
     The method that the pipeline will use to handle multiple executions.
 
     The default mode is SUPERSEDED.
     """
+
     created: "datetime | None" = None
     """
     The date and time the pipeline was created, in timestamp format.
@@ -1763,7 +1771,6 @@ class ListPipelinesOutput(Boto3Model):
     """
     Represents the output of a ``ListPipelines`` action.
     """
-
     pipelines: "builtins.list[PipelineSummary] | None" = Field(default_factory=list)
     """
     The list of pipelines.
@@ -1786,7 +1793,6 @@ class StartPipelineExecutionOutput(Boto3Model):
     """
     The unique system-generated ID of the pipeline execution that was started.
     """
-
 class StopPipelineExecutionOutput(Boto3Model):
     pipelineExecutionId: "str | None" = None
     """
@@ -1801,6 +1807,7 @@ class GetPipelineExecutionOutput(Boto3Model):
     """
     Represents information about the execution of a pipeline.
     """
+
 class SucceededInStageFilter(Boto3Model):
     """
     Filter for pipeline executions that have successfully completed the stage in the
@@ -1871,7 +1878,6 @@ class PipelineExecutionSummary(Boto3Model):
     """
     Summary information about a pipeline execution.
     """
-
     pipelineExecutionId: "str | None" = None
     """
     The ID of the pipeline execution.
@@ -1880,6 +1886,7 @@ class PipelineExecutionSummary(Boto3Model):
     """
     The status of the pipeline execution.
     """
+
     statusSummary: "str | None" = None
     """
     Status summary for the pipeline.
@@ -1940,6 +1947,7 @@ class ListPipelineExecutionsOutput(Boto3Model):
     """
     A list of executions in the history of a pipeline.
     """
+
     nextToken: "str | None" = None
     """
     A token that can be used in the next ``ListPipelineExecutions`` call.
@@ -1958,11 +1966,11 @@ class CreateCustomActionTypeOutput(TagsDictMixin, Boto3Model):
     """
     Specifies the tags applied to the custom action.
     """
+
     actionType: ActionType
     """
     Returns information about the details of an action type.
     """
-
 class LambdaExecutorConfiguration(Boto3Model):
     """
     Details about the configuration for the ``Lambda`` action engine, or executor.
@@ -1979,11 +1987,13 @@ class JobWorkerExecutorConfiguration(Boto3Model):
     Details about the polling configuration for the ``JobWorker`` action engine, or
     executor.
     """
+
     pollingAccounts: "builtins.list[str] | None" = Field(default_factory=list)
     """
     The accounts in which the job worker is configured and might poll for jobs as part
     of the action execution.
     """
+
     pollingServicePrincipals: "builtins.list[str] | None" = Field(default_factory=list)
     """
     The service Principals in which the job worker is configured and might poll for jobs
@@ -2033,7 +2043,6 @@ class ActionTypeExecutor(Boto3Model):
     The policy statement that specifies the permissions in the CodePipeline customer
     account that are needed to successfully run an action.
     """
-
     jobTimeout: "int | None" = None
     """
     The timeout in seconds for the job.
@@ -2046,6 +2055,7 @@ class ActionTypeIdentifier(Boto3Model):
     """
     Specifies the category, owner, provider, and version of the action type.
     """
+
     category: Literal[
         "Source", "Build", "Deploy", "Test", "Invoke", "Approval", "Compute"
     ]
@@ -2057,7 +2067,6 @@ class ActionTypeIdentifier(Boto3Model):
     """
     The creator of the action type being called: ``AWS`` or ``ThirdParty``.
     """
-
     provider: str
     """
     The provider of the action type being called.
@@ -2068,6 +2077,7 @@ class ActionTypeIdentifier(Boto3Model):
     """
     A string that describes the action type version.
     """
+
 
 class ActionTypeArtifactDetails(Boto3Model):
     """
@@ -2108,7 +2118,6 @@ class ActionTypeProperty(Boto3Model):
     such as the description and key name that display for the customer using the action
     type.
     """
-
     name: str
     """
     The property name that is displayed to users.
@@ -2129,7 +2138,6 @@ class ActionTypeProperty(Boto3Model):
 
     If ``true``, the value is not saved in CloudTrail logs for the action execution.
     """
-
     queryable: "bool | None" = None
     """
     Indicates that the property is used with polling.
@@ -2142,7 +2150,6 @@ class ActionTypeProperty(Boto3Model):
     """
     The description of the property that is displayed to users.
     """
-
 class ActionTypeUrls(Boto3Model):
     """
     Returns information about URLs for web pages that display to customers as links on
@@ -2154,7 +2161,6 @@ class ActionTypeUrls(Boto3Model):
     The URL returned to the CodePipeline console that contains a link to the page where
     customers can configure the external action.
     """
-
     entityUrlTemplate: "str | None" = None
     """
     The URL returned to the CodePipeline console that provides a deep link to the
@@ -2175,7 +2181,6 @@ class ActionTypeUrls(Boto3Model):
     The URL returned to the CodePipeline console that contains a link to the page where
     customers can update or change the configuration of the external action.
     """
-
 class ActionTypeDeclaration(Boto3Model):
     """
     The parameters for the action type definition that are provided when the action type
@@ -2191,7 +2196,6 @@ class ActionTypeDeclaration(Boto3Model):
     Information about the executor for an action type that was created with any
     supported integration model.
     """
-
     id: ActionTypeIdentifier
     """
     The action category, owner, provider, and version of the action type to be updated.

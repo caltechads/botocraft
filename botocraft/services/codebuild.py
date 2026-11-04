@@ -1667,7 +1667,7 @@ class SourceCredentialsManager(Boto3ModelManager):
 
     def list(
         self,
-    ) -> PrimaryBoto3ModelQuerySet:
+    ) -> PrimaryBoto3ModelQuerySet["SourceCredentials"]:
         """
         Returns a list of ``SourceCredentialsInfo`` objects.
         """
@@ -1954,7 +1954,7 @@ class CodeCoverageManager(Boto3ModelManager):
         sortBy: "Literal['LINE_COVERAGE_PERCENTAGE', 'FILE_PATH'] | None" = None,
         minLineCoveragePercentage: "float | None" = None,
         maxLineCoveragePercentage: "float | None" = None,
-    ) -> PrimaryBoto3ModelQuerySet:
+    ) -> PrimaryBoto3ModelQuerySet["CodeCoverage"]:
         """
         Retrieves one or more code coverage reports.
 
@@ -1979,7 +1979,7 @@ class CodeCoverageManager(Boto3ModelManager):
         response_iterator = paginator.paginate(
             **{k: v for k, v in args.items() if v is not None}
         )
-        results = []
+        results: "builtins.list[CodeCoverage]" = []
         for _response in response_iterator:
             if list(_response.keys()) == ["ResponseMetadata"]:
                 break
@@ -1989,9 +1989,7 @@ class CodeCoverageManager(Boto3ModelManager):
             if response.codeCoverages:
                 results.extend(response.codeCoverages)
         self.sessionize(results)
-        if results and isinstance(results[0], Boto3Model):
-            return PrimaryBoto3ModelQuerySet(results)
-        return results
+        return PrimaryBoto3ModelQuerySet(results)
 
 
 class CodeBuildTestCaseManager(Boto3ModelManager):
@@ -1999,7 +1997,7 @@ class CodeBuildTestCaseManager(Boto3ModelManager):
 
     def list(
         self, reportArn: str, *, filter: "TestCaseFilter | None" = None
-    ) -> PrimaryBoto3ModelQuerySet:
+    ) -> PrimaryBoto3ModelQuerySet["CodeBuildTestCase"]:
         """
         Returns a list of details about test cases for a report.
 
@@ -2016,7 +2014,7 @@ class CodeBuildTestCaseManager(Boto3ModelManager):
         response_iterator = paginator.paginate(
             **{k: v for k, v in args.items() if v is not None}
         )
-        results = []
+        results: "builtins.list[CodeBuildTestCase]" = []
         for _response in response_iterator:
             if list(_response.keys()) == ["ResponseMetadata"]:
                 break
@@ -2026,9 +2024,7 @@ class CodeBuildTestCaseManager(Boto3ModelManager):
             if response.testCases:
                 results.extend(response.testCases)
         self.sessionize(results)
-        if results and isinstance(results[0], Boto3Model):
-            return PrimaryBoto3ModelQuerySet(results)
-        return results
+        return PrimaryBoto3ModelQuerySet(results)
 
 
 class CodeBuildEnvironmentPlatformManager(Boto3ModelManager):

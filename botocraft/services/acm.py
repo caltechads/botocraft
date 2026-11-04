@@ -128,7 +128,7 @@ class ACMCertificateManager(Boto3ModelManager):
         MaxItems: "int | None" = None,
         SortBy: "Literal['CREATED_AT'] | None" = None,
         SortOrder: "Literal['ASCENDING', 'DESCENDING'] | None" = None,
-    ) -> PrimaryBoto3ModelQuerySet:
+    ) -> PrimaryBoto3ModelQuerySet["CertificateSummary"]:
         """
         Retrieves a list of certificate ARNs and domain names.
 
@@ -169,7 +169,7 @@ class ACMCertificateManager(Boto3ModelManager):
         response_iterator = paginator.paginate(
             **{k: v for k, v in args.items() if v is not None}
         )
-        results = []
+        results: "builtins.list[CertificateSummary]" = []
         for _response in response_iterator:
             if list(_response.keys()) == ["ResponseMetadata"]:
                 break
@@ -179,9 +179,7 @@ class ACMCertificateManager(Boto3ModelManager):
             if response.CertificateSummaryList:
                 results.extend(response.CertificateSummaryList)
         self.sessionize(results)
-        if results and isinstance(results[0], Boto3Model):
-            return PrimaryBoto3ModelQuerySet(results)
-        return results
+        return PrimaryBoto3ModelQuerySet(results)
 
     def renew(self, CertificateArn: str) -> "None":
         """

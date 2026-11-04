@@ -74,7 +74,7 @@ class IAMAccessKeyManager(Boto3ModelManager):
 
     def list(
         self, *, UserName: "str | None" = None, MaxItems: "int | None" = None
-    ) -> PrimaryBoto3ModelQuerySet:
+    ) -> PrimaryBoto3ModelQuerySet["AccessKeyMetadata"]:
         """
         Returns information about the access key IDs associated with the specified IAM
         user.
@@ -95,7 +95,7 @@ class IAMAccessKeyManager(Boto3ModelManager):
         response_iterator = paginator.paginate(
             **{k: v for k, v in args.items() if v is not None}
         )
-        results = []
+        results: "builtins.list[AccessKeyMetadata]" = []
         for _response in response_iterator:
             if list(_response.keys()) == ["ResponseMetadata"]:
                 break
@@ -105,9 +105,7 @@ class IAMAccessKeyManager(Boto3ModelManager):
             if response.AccessKeyMetadata:
                 results.extend(response.AccessKeyMetadata)
         self.sessionize(results)
-        if results and isinstance(results[0], Boto3Model):
-            return PrimaryBoto3ModelQuerySet(results)
-        return results
+        return PrimaryBoto3ModelQuerySet(results)
 
     def update(self, model: "IAMAccessKey") -> None:
         """
@@ -273,7 +271,7 @@ class IAMGroupManager(Boto3ModelManager):
 
     def list(
         self, *, PathPrefix: "str | None" = None, MaxItems: "int | None" = None
-    ) -> PrimaryBoto3ModelQuerySet:
+    ) -> PrimaryBoto3ModelQuerySet["IAMGroup"]:
         """
         Lists the IAM groups that have the specified path prefix.
 
@@ -294,7 +292,7 @@ class IAMGroupManager(Boto3ModelManager):
         response_iterator = paginator.paginate(
             **{k: v for k, v in args.items() if v is not None}
         )
-        results = []
+        results: "builtins.list[IAMGroup]" = []
         for _response in response_iterator:
             if list(_response.keys()) == ["ResponseMetadata"]:
                 break
@@ -304,9 +302,7 @@ class IAMGroupManager(Boto3ModelManager):
             if response.Groups:
                 results.extend(response.Groups)
         self.sessionize(results)
-        if results and isinstance(results[0], Boto3Model):
-            return PrimaryBoto3ModelQuerySet(results)
-        return results
+        return PrimaryBoto3ModelQuerySet(results)
 
     def list_for_user(
         self, UserName: str, *, MaxItems: "int | None" = None
@@ -584,7 +580,7 @@ class InstanceProfileManager(Boto3ModelManager):
 
     def list(
         self, *, PathPrefix: "str | None" = None, MaxItems: "int | None" = None
-    ) -> PrimaryBoto3ModelQuerySet:
+    ) -> PrimaryBoto3ModelQuerySet["InstanceProfile"]:
         """
         Lists the instance profiles that have the specified path prefix.
 
@@ -610,7 +606,7 @@ class InstanceProfileManager(Boto3ModelManager):
         response_iterator = paginator.paginate(
             **{k: v for k, v in args.items() if v is not None}
         )
-        results = []
+        results: "builtins.list[InstanceProfile]" = []
         for _response in response_iterator:
             if list(_response.keys()) == ["ResponseMetadata"]:
                 break
@@ -620,9 +616,7 @@ class InstanceProfileManager(Boto3ModelManager):
             if response.InstanceProfiles:
                 results.extend(response.InstanceProfiles)
         self.sessionize(results)
-        if results and isinstance(results[0], Boto3Model):
-            return PrimaryBoto3ModelQuerySet(results)
-        return results
+        return PrimaryBoto3ModelQuerySet(results)
 
     def list_for_role(
         self, RoleName: str, *, MaxItems: "int | None" = None
@@ -850,7 +844,7 @@ class IAMPolicyManager(IAMPolicyManagerMixin, Boto3ModelManager):
         PathPrefix: "str | None" = None,
         PolicyUsageFilter: "Literal['PermissionsPolicy', 'PermissionsBoundary'] | None" = None,
         MaxItems: "int | None" = None,
-    ) -> PrimaryBoto3ModelQuerySet:
+    ) -> PrimaryBoto3ModelQuerySet["IAMPolicy"]:
         """
         Lists all the managed policies that are available in your Amazon Web Services
         account, including your own customer- defined managed policies and all Amazon
@@ -886,7 +880,7 @@ class IAMPolicyManager(IAMPolicyManagerMixin, Boto3ModelManager):
         response_iterator = paginator.paginate(
             **{k: v for k, v in args.items() if v is not None}
         )
-        results = []
+        results: "builtins.list[IAMPolicy]" = []
         for _response in response_iterator:
             if list(_response.keys()) == ["ResponseMetadata"]:
                 break
@@ -896,9 +890,7 @@ class IAMPolicyManager(IAMPolicyManagerMixin, Boto3ModelManager):
             if response.Policies:
                 results.extend(response.Policies)
         self.sessionize(results)
-        if results and isinstance(results[0], Boto3Model):
-            return PrimaryBoto3ModelQuerySet(results)
-        return results
+        return PrimaryBoto3ModelQuerySet(results)
 
     def list_entities(
         self,
@@ -1087,7 +1079,7 @@ class IAMPolicyVersionManager(Boto3ModelManager):
 
     def list(
         self, PolicyArn: str, *, MaxItems: "int | None" = None
-    ) -> PrimaryBoto3ModelQuerySet:
+    ) -> PrimaryBoto3ModelQuerySet["IAMPolicyVersion"]:
         """
         Lists information about the versions of the specified managed policy, including
         the version that is currently set as the policy's default version.
@@ -1109,7 +1101,7 @@ class IAMPolicyVersionManager(Boto3ModelManager):
         response_iterator = paginator.paginate(
             **{k: v for k, v in args.items() if v is not None}
         )
-        results = []
+        results: "builtins.list[IAMPolicyVersion]" = []
         for _response in response_iterator:
             if list(_response.keys()) == ["ResponseMetadata"]:
                 break
@@ -1119,9 +1111,7 @@ class IAMPolicyVersionManager(Boto3ModelManager):
             if response.Versions:
                 results.extend(response.Versions)
         self.sessionize(results)
-        if results and isinstance(results[0], Boto3Model):
-            return PrimaryBoto3ModelQuerySet(results)
-        return results
+        return PrimaryBoto3ModelQuerySet(results)
 
     def set_default(self, PolicyArn: str, VersionId: str) -> "None":
         """
@@ -1319,7 +1309,7 @@ class IAMRoleManager(Boto3ModelManager):
 
     def list(
         self, *, PathPrefix: "str | None" = None, MaxItems: "int | None" = None
-    ) -> PrimaryBoto3ModelQuerySet:
+    ) -> PrimaryBoto3ModelQuerySet["IAMRole"]:
         """
         Lists the IAM roles that have the specified path prefix.
 
@@ -1343,7 +1333,7 @@ class IAMRoleManager(Boto3ModelManager):
         response_iterator = paginator.paginate(
             **{k: v for k, v in args.items() if v is not None}
         )
-        results = []
+        results: "builtins.list[IAMRole]" = []
         for _response in response_iterator:
             if list(_response.keys()) == ["ResponseMetadata"]:
                 break
@@ -1353,9 +1343,7 @@ class IAMRoleManager(Boto3ModelManager):
             if response.Roles:
                 results.extend(response.Roles)
         self.sessionize(results)
-        if results and isinstance(results[0], Boto3Model):
-            return PrimaryBoto3ModelQuerySet(results)
-        return results
+        return PrimaryBoto3ModelQuerySet(results)
 
     @role_inline_policies_only
     def list_policies(
@@ -1719,7 +1707,7 @@ class IAMUserManager(Boto3ModelManager):
 
     def list(
         self, *, PathPrefix: "str | None" = None, MaxItems: "int | None" = None
-    ) -> PrimaryBoto3ModelQuerySet:
+    ) -> PrimaryBoto3ModelQuerySet["IAMUser"]:
         """
         Lists the IAM users that have the specified path prefix.
 
@@ -1743,7 +1731,7 @@ class IAMUserManager(Boto3ModelManager):
         response_iterator = paginator.paginate(
             **{k: v for k, v in args.items() if v is not None}
         )
-        results = []
+        results: "builtins.list[IAMUser]" = []
         for _response in response_iterator:
             if list(_response.keys()) == ["ResponseMetadata"]:
                 break
@@ -1753,9 +1741,7 @@ class IAMUserManager(Boto3ModelManager):
             if response.Users:
                 results.extend(response.Users)
         self.sessionize(results)
-        if results and isinstance(results[0], Boto3Model):
-            return PrimaryBoto3ModelQuerySet(results)
-        return results
+        return PrimaryBoto3ModelQuerySet(results)
 
     def update(
         self,
@@ -2098,7 +2084,7 @@ class IAMSSHPublicKeyManager(Boto3ModelManager):
 
     def list(
         self, UserName: str, *, MaxItems: "int | None" = None
-    ) -> PrimaryBoto3ModelQuerySet:
+    ) -> PrimaryBoto3ModelQuerySet["SSHPublicKeyMetadata"]:
         """
         List SSH public keys.
 
@@ -2121,7 +2107,7 @@ class IAMSSHPublicKeyManager(Boto3ModelManager):
         response_iterator = paginator.paginate(
             **{k: v for k, v in args.items() if v is not None}
         )
-        results = []
+        results: "builtins.list[SSHPublicKeyMetadata]" = []
         for _response in response_iterator:
             if list(_response.keys()) == ["ResponseMetadata"]:
                 break
@@ -2131,9 +2117,7 @@ class IAMSSHPublicKeyManager(Boto3ModelManager):
             if response.SSHPublicKeys:
                 results.extend(response.SSHPublicKeys)
         self.sessionize(results)
-        if results and isinstance(results[0], Boto3Model):
-            return PrimaryBoto3ModelQuerySet(results)
-        return results
+        return PrimaryBoto3ModelQuerySet(results)
 
     def update(self, model: "IAMSSHPublicKey") -> None:
         """

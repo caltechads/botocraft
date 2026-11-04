@@ -105,7 +105,9 @@ class CognitoUserPoolManager(Boto3ModelManager):
             return response.UserPool
         return None
 
-    def list(self, MaxResults: int) -> PrimaryBoto3ModelQuerySet:
+    def list(
+        self, MaxResults: int
+    ) -> PrimaryBoto3ModelQuerySet["UserPoolDescriptionType"]:
         """
         Lists user pools and their details in the current Amazon Web Services account.
 
@@ -118,7 +120,7 @@ class CognitoUserPoolManager(Boto3ModelManager):
         response_iterator = paginator.paginate(
             **{k: v for k, v in args.items() if v is not None}
         )
-        results = []
+        results: "builtins.list[UserPoolDescriptionType]" = []
         for _response in response_iterator:
             if list(_response.keys()) == ["ResponseMetadata"]:
                 break
@@ -128,9 +130,7 @@ class CognitoUserPoolManager(Boto3ModelManager):
             if response.UserPools:
                 results.extend(response.UserPools)
         self.sessionize(results)
-        if results and isinstance(results[0], Boto3Model):
-            return PrimaryBoto3ModelQuerySet(results)
-        return results
+        return PrimaryBoto3ModelQuerySet(results)
 
     def update(
         self, model: "CognitoUserPool", UserPoolId: str, PoolName: "str | None" = None
@@ -280,7 +280,9 @@ class CognitoUserPoolClientManager(Boto3ModelManager):
             return response.UserPoolClient
         return None
 
-    def list(self, UserPoolId: str) -> PrimaryBoto3ModelQuerySet:
+    def list(
+        self, UserPoolId: str
+    ) -> PrimaryBoto3ModelQuerySet["UserPoolClientDescription"]:
         """
         Given a user pool ID, lists app clients.
 
@@ -297,7 +299,7 @@ class CognitoUserPoolClientManager(Boto3ModelManager):
         response_iterator = paginator.paginate(
             **{k: v for k, v in args.items() if v is not None}
         )
-        results = []
+        results: "builtins.list[UserPoolClientDescription]" = []
         for _response in response_iterator:
             if list(_response.keys()) == ["ResponseMetadata"]:
                 break
@@ -307,9 +309,7 @@ class CognitoUserPoolClientManager(Boto3ModelManager):
             if response.UserPoolClients:
                 results.extend(response.UserPoolClients)
         self.sessionize(results)
-        if results and isinstance(results[0], Boto3Model):
-            return PrimaryBoto3ModelQuerySet(results)
-        return results
+        return PrimaryBoto3ModelQuerySet(results)
 
     def update(self, model: "CognitoUserPoolClient") -> "CognitoUserPoolClient":
         """
@@ -430,7 +430,7 @@ class CognitoGroupManager(Boto3ModelManager):
 
     def list(
         self, UserPoolId: str, *, Limit: "int | None" = None
-    ) -> PrimaryBoto3ModelQuerySet:
+    ) -> PrimaryBoto3ModelQuerySet["CognitoGroup"]:
         """
         Given a user pool ID, returns user pool groups and their details.
 
@@ -448,7 +448,7 @@ class CognitoGroupManager(Boto3ModelManager):
         response_iterator = paginator.paginate(
             **{k: v for k, v in args.items() if v is not None}
         )
-        results = []
+        results: "builtins.list[CognitoGroup]" = []
         for _response in response_iterator:
             if list(_response.keys()) == ["ResponseMetadata"]:
                 break
@@ -458,9 +458,7 @@ class CognitoGroupManager(Boto3ModelManager):
             if response.Groups:
                 results.extend(response.Groups)
         self.sessionize(results)
-        if results and isinstance(results[0], Boto3Model):
-            return PrimaryBoto3ModelQuerySet(results)
-        return results
+        return PrimaryBoto3ModelQuerySet(results)
 
     def update(self, model: "CognitoGroup") -> "CognitoGroup":
         """
@@ -570,7 +568,7 @@ class CognitoIdentityProviderManager(Boto3ModelManager):
             return response.IdentityProvider
         return None
 
-    def list(self, UserPoolId: str) -> PrimaryBoto3ModelQuerySet:
+    def list(self, UserPoolId: str) -> PrimaryBoto3ModelQuerySet["ProviderDescription"]:
         """
         Given a user pool ID, returns information about configured identity providers
         (IdPs).
@@ -586,7 +584,7 @@ class CognitoIdentityProviderManager(Boto3ModelManager):
         response_iterator = paginator.paginate(
             **{k: v for k, v in args.items() if v is not None}
         )
-        results = []
+        results: "builtins.list[ProviderDescription]" = []
         for _response in response_iterator:
             if list(_response.keys()) == ["ResponseMetadata"]:
                 break
@@ -596,9 +594,7 @@ class CognitoIdentityProviderManager(Boto3ModelManager):
             if response.Providers:
                 results.extend(response.Providers)
         self.sessionize(results)
-        if results and isinstance(results[0], Boto3Model):
-            return PrimaryBoto3ModelQuerySet(results)
-        return results
+        return PrimaryBoto3ModelQuerySet(results)
 
     def update(self, model: "CognitoIdentityProvider") -> "CognitoIdentityProvider":
         """
@@ -707,7 +703,9 @@ class CognitoResourceServerManager(Boto3ModelManager):
             return response.ResourceServer
         return None
 
-    def list(self, UserPoolId: str) -> PrimaryBoto3ModelQuerySet:
+    def list(
+        self, UserPoolId: str
+    ) -> PrimaryBoto3ModelQuerySet["CognitoResourceServer"]:
         """
         Given a user pool ID, returns all resource servers and their details.
 
@@ -722,7 +720,7 @@ class CognitoResourceServerManager(Boto3ModelManager):
         response_iterator = paginator.paginate(
             **{k: v for k, v in args.items() if v is not None}
         )
-        results = []
+        results: "builtins.list[CognitoResourceServer]" = []
         for _response in response_iterator:
             if list(_response.keys()) == ["ResponseMetadata"]:
                 break
@@ -732,9 +730,7 @@ class CognitoResourceServerManager(Boto3ModelManager):
             if response.ResourceServers:
                 results.extend(response.ResourceServers)
         self.sessionize(results)
-        if results and isinstance(results[0], Boto3Model):
-            return PrimaryBoto3ModelQuerySet(results)
-        return results
+        return PrimaryBoto3ModelQuerySet(results)
 
     def update(self, model: "CognitoResourceServer") -> "CognitoResourceServer":
         """
@@ -885,7 +881,7 @@ class CognitoUserManager(Boto3ModelManager):
         Limit: "int | None" = None,
         PaginationToken: "str | None" = None,
         Filter: "str | None" = None,
-    ) -> PrimaryBoto3ModelQuerySet:
+    ) -> PrimaryBoto3ModelQuerySet["CognitoUser"]:
         """
         Given a user pool ID, returns a list of users and their basic details in a user
         pool.
@@ -930,7 +926,7 @@ class CognitoUserManager(Boto3ModelManager):
         response_iterator = paginator.paginate(
             **{k: v for k, v in args.items() if v is not None}
         )
-        results = []
+        results: "builtins.list[CognitoUser]" = []
         for _response in response_iterator:
             if list(_response.keys()) == ["ResponseMetadata"]:
                 break
@@ -940,9 +936,7 @@ class CognitoUserManager(Boto3ModelManager):
             if response.Users:
                 results.extend(response.Users)
         self.sessionize(results)
-        if results and isinstance(results[0], Boto3Model):
-            return PrimaryBoto3ModelQuerySet(results)
-        return results
+        return PrimaryBoto3ModelQuerySet(results)
 
     def partial_update(
         self,

@@ -160,7 +160,7 @@ class EventRuleManager(Boto3ModelManager):
         NamePrefix: "str | None" = None,
         EventBusName: "str | None" = None,
         Limit: "int | None" = None,
-    ) -> PrimaryBoto3ModelQuerySet:
+    ) -> PrimaryBoto3ModelQuerySet["EventRule"]:
         """
         Lists your Amazon EventBridge rules.
 
@@ -183,7 +183,7 @@ class EventRuleManager(Boto3ModelManager):
         response_iterator = paginator.paginate(
             **{k: v for k, v in args.items() if v is not None}
         )
-        results = []
+        results: "builtins.list[EventRule]" = []
         for _response in response_iterator:
             if list(_response.keys()) == ["ResponseMetadata"]:
                 break
@@ -193,9 +193,7 @@ class EventRuleManager(Boto3ModelManager):
             if response.Rules:
                 results.extend(response.Rules)
         self.sessionize(results)
-        if results and isinstance(results[0], Boto3Model):
-            return PrimaryBoto3ModelQuerySet(results)
-        return results
+        return PrimaryBoto3ModelQuerySet(results)
 
     @event_rules_only
     def list_by_target(
@@ -430,7 +428,7 @@ class EventTargetManager(Boto3ModelManager):
         *,
         EventBusName: "str | None" = None,
         Limit: "int | None" = None,
-    ) -> PrimaryBoto3ModelQuerySet:
+    ) -> PrimaryBoto3ModelQuerySet["EventTarget"]:
         """
         Lists the targets assigned to the specified rule.
 
@@ -452,7 +450,7 @@ class EventTargetManager(Boto3ModelManager):
         response_iterator = paginator.paginate(
             **{k: v for k, v in args.items() if v is not None}
         )
-        results = []
+        results: "builtins.list[EventTarget]" = []
         for _response in response_iterator:
             if list(_response.keys()) == ["ResponseMetadata"]:
                 break
@@ -462,9 +460,7 @@ class EventTargetManager(Boto3ModelManager):
             if response.Targets:
                 results.extend(response.Targets)
         self.sessionize(results)
-        if results and isinstance(results[0], Boto3Model):
-            return PrimaryBoto3ModelQuerySet(results)
-        return results
+        return PrimaryBoto3ModelQuerySet(results)
 
     @event_rules_only
     def list_rules(
@@ -648,7 +644,7 @@ class EventBusManager(Boto3ModelManager):
         NamePrefix: "str | None" = None,
         NextToken: "str | None" = None,
         Limit: "int | None" = None,
-    ) -> PrimaryBoto3ModelQuerySet:
+    ) -> PrimaryBoto3ModelQuerySet["EventBus"]:
         """
         Lists all the event buses in your account, including the default event bus,
         custom event buses, and partner event buses.

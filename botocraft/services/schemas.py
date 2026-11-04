@@ -104,7 +104,7 @@ class RegistryManager(Boto3ModelManager):
         Limit: "int | None" = None,
         RegistryNamePrefix: "str | None" = None,
         Scope: "str | None" = None,
-    ) -> PrimaryBoto3ModelQuerySet:
+    ) -> PrimaryBoto3ModelQuerySet["Registry"]:
         """
         List the registries.
 
@@ -125,7 +125,7 @@ class RegistryManager(Boto3ModelManager):
         response_iterator = paginator.paginate(
             **{k: v for k, v in args.items() if v is not None}
         )
-        results = []
+        results: "builtins.list[Registry]" = []
         for _response in response_iterator:
             if list(_response.keys()) == ["ResponseMetadata"]:
                 break
@@ -135,9 +135,7 @@ class RegistryManager(Boto3ModelManager):
             if response.Registries:
                 results.extend(response.Registries)
         self.sessionize(results)
-        if results and isinstance(results[0], Boto3Model):
-            return PrimaryBoto3ModelQuerySet(results)
-        return results
+        return PrimaryBoto3ModelQuerySet(results)
 
 
 class DiscovererManager(Boto3ModelManager):
@@ -225,7 +223,7 @@ class DiscovererManager(Boto3ModelManager):
         DiscovererIdPrefix: "str | None" = None,
         Limit: "int | None" = None,
         SourceArnPrefix: "str | None" = None,
-    ) -> PrimaryBoto3ModelQuerySet:
+    ) -> PrimaryBoto3ModelQuerySet["Discoverer"]:
         """
         List the discoverers.
 
@@ -246,7 +244,7 @@ class DiscovererManager(Boto3ModelManager):
         response_iterator = paginator.paginate(
             **{k: v for k, v in args.items() if v is not None}
         )
-        results = []
+        results: "builtins.list[Discoverer]" = []
         for _response in response_iterator:
             if list(_response.keys()) == ["ResponseMetadata"]:
                 break
@@ -256,9 +254,7 @@ class DiscovererManager(Boto3ModelManager):
             if response.Discoverers:
                 results.extend(response.Discoverers)
         self.sessionize(results)
-        if results and isinstance(results[0], Boto3Model):
-            return PrimaryBoto3ModelQuerySet(results)
-        return results
+        return PrimaryBoto3ModelQuerySet(results)
 
     def start(self, DiscovererId: str) -> "StartDiscovererResponse":
         """
@@ -410,7 +406,7 @@ class SchemaManager(Boto3ModelManager):
         *,
         Limit: "int | None" = None,
         SchemaNamePrefix: "str | None" = None,
-    ) -> PrimaryBoto3ModelQuerySet:
+    ) -> PrimaryBoto3ModelQuerySet["Schema"]:
         """
         List the schemas.
 
@@ -432,7 +428,7 @@ class SchemaManager(Boto3ModelManager):
         response_iterator = paginator.paginate(
             **{k: v for k, v in args.items() if v is not None}
         )
-        results = []
+        results: "builtins.list[Schema]" = []
         for _response in response_iterator:
             if list(_response.keys()) == ["ResponseMetadata"]:
                 break
@@ -442,9 +438,7 @@ class SchemaManager(Boto3ModelManager):
             if response.Schemas:
                 results.extend(response.Schemas)
         self.sessionize(results)
-        if results and isinstance(results[0], Boto3Model):
-            return PrimaryBoto3ModelQuerySet(results)
-        return results
+        return PrimaryBoto3ModelQuerySet(results)
 
     def list_versions(
         self, RegistryName: str, SchemaName: str, *, Limit: "int | None" = None

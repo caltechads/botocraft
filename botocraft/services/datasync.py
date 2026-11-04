@@ -92,7 +92,7 @@ class DataSyncAgentManager(Boto3ModelManager):
     @datasync_add_tags_to_queryset
     def list(
         self,
-    ) -> PrimaryBoto3ModelQuerySet:
+    ) -> PrimaryBoto3ModelQuerySet["AgentListEntry"]:
         """
         Returns a list of DataSync agents that belong to an Amazon Web Services account
         in the Amazon Web Services Region specified in the request.
@@ -102,7 +102,7 @@ class DataSyncAgentManager(Boto3ModelManager):
         response_iterator = paginator.paginate(
             **{k: v for k, v in args.items() if v is not None}
         )
-        results = []
+        results: "builtins.list[AgentListEntry]" = []
         for _response in response_iterator:
             if list(_response.keys()) == ["ResponseMetadata"]:
                 break
@@ -112,9 +112,7 @@ class DataSyncAgentManager(Boto3ModelManager):
             if response.Agents:
                 results.extend(response.Agents)
         self.sessionize(results)
-        if results and isinstance(results[0], Boto3Model):
-            return PrimaryBoto3ModelQuerySet(results)
-        return results
+        return PrimaryBoto3ModelQuerySet(results)
 
     @datasync_refresh_after_update
     def update(self, model: "DataSyncAgent") -> "DataSyncAgent | None":
@@ -205,7 +203,7 @@ class DataSyncTaskManager(Boto3ModelManager):
     @datasync_add_tags_to_queryset
     def list(
         self, *, Filters: "builtins.list[TaskFilter] | None" = None
-    ) -> PrimaryBoto3ModelQuerySet:
+    ) -> PrimaryBoto3ModelQuerySet["TaskListEntry"]:
         """
         Returns a list of the DataSync tasks you created.
 
@@ -221,7 +219,7 @@ class DataSyncTaskManager(Boto3ModelManager):
         response_iterator = paginator.paginate(
             **{k: v for k, v in args.items() if v is not None}
         )
-        results = []
+        results: "builtins.list[TaskListEntry]" = []
         for _response in response_iterator:
             if list(_response.keys()) == ["ResponseMetadata"]:
                 break
@@ -231,9 +229,7 @@ class DataSyncTaskManager(Boto3ModelManager):
             if response.Tasks:
                 results.extend(response.Tasks)
         self.sessionize(results)
-        if results and isinstance(results[0], Boto3Model):
-            return PrimaryBoto3ModelQuerySet(results)
-        return results
+        return PrimaryBoto3ModelQuerySet(results)
 
     @datasync_refresh_after_update
     def update(self, model: "DataSyncTask") -> "DataSyncTask | None":
@@ -372,7 +368,9 @@ class DataSyncTaskExecutionManager(Boto3ModelManager):
             return response
         return None
 
-    def list(self, *, TaskArn: "str | None" = None) -> PrimaryBoto3ModelQuerySet:
+    def list(
+        self, *, TaskArn: "str | None" = None
+    ) -> PrimaryBoto3ModelQuerySet["TaskExecutionListEntry"]:
         """
         Returns a list of executions for an DataSync transfer task.
 
@@ -385,7 +383,7 @@ class DataSyncTaskExecutionManager(Boto3ModelManager):
         response_iterator = paginator.paginate(
             **{k: v for k, v in args.items() if v is not None}
         )
-        results = []
+        results: "builtins.list[TaskExecutionListEntry]" = []
         for _response in response_iterator:
             if list(_response.keys()) == ["ResponseMetadata"]:
                 break
@@ -395,9 +393,7 @@ class DataSyncTaskExecutionManager(Boto3ModelManager):
             if response.TaskExecutions:
                 results.extend(response.TaskExecutions)
         self.sessionize(results)
-        if results and isinstance(results[0], Boto3Model):
-            return PrimaryBoto3ModelQuerySet(results)
-        return results
+        return PrimaryBoto3ModelQuerySet(results)
 
     @datasync_refresh_after_update
     def update(self, model: "DataSyncTaskExecution") -> "DataSyncTaskExecution | None":
@@ -500,7 +496,7 @@ class DataSyncLocationAzureBlobManager(Boto3ModelManager):
     @datasync_list_azure_blob_locations
     def list(
         self, *, Filters: "builtins.list[LocationFilter] | None" = None
-    ) -> PrimaryBoto3ModelQuerySet:
+    ) -> PrimaryBoto3ModelQuerySet["LocationListEntry"]:
         """
         Returns a list of source and destination locations.
 
@@ -516,7 +512,7 @@ class DataSyncLocationAzureBlobManager(Boto3ModelManager):
         response_iterator = paginator.paginate(
             **{k: v for k, v in args.items() if v is not None}
         )
-        results = []
+        results: "builtins.list[LocationListEntry]" = []
         for _response in response_iterator:
             if list(_response.keys()) == ["ResponseMetadata"]:
                 break
@@ -526,9 +522,7 @@ class DataSyncLocationAzureBlobManager(Boto3ModelManager):
             if response.Locations:
                 results.extend(response.Locations)
         self.sessionize(results)
-        if results and isinstance(results[0], Boto3Model):
-            return PrimaryBoto3ModelQuerySet(results)
-        return results
+        return PrimaryBoto3ModelQuerySet(results)
 
     @datasync_refresh_after_update
     def update(
@@ -627,7 +621,7 @@ class DataSyncLocationEfsManager(Boto3ModelManager):
     @datasync_list_efs_locations
     def list(
         self, *, Filters: "builtins.list[LocationFilter] | None" = None
-    ) -> PrimaryBoto3ModelQuerySet:
+    ) -> PrimaryBoto3ModelQuerySet["LocationListEntry"]:
         """
         Returns a list of source and destination locations.
 
@@ -643,7 +637,7 @@ class DataSyncLocationEfsManager(Boto3ModelManager):
         response_iterator = paginator.paginate(
             **{k: v for k, v in args.items() if v is not None}
         )
-        results = []
+        results: "builtins.list[LocationListEntry]" = []
         for _response in response_iterator:
             if list(_response.keys()) == ["ResponseMetadata"]:
                 break
@@ -653,9 +647,7 @@ class DataSyncLocationEfsManager(Boto3ModelManager):
             if response.Locations:
                 results.extend(response.Locations)
         self.sessionize(results)
-        if results and isinstance(results[0], Boto3Model):
-            return PrimaryBoto3ModelQuerySet(results)
-        return results
+        return PrimaryBoto3ModelQuerySet(results)
 
     @datasync_refresh_after_update
     def update(self, model: "DataSyncLocationEfs") -> "DataSyncLocationEfs | None":
@@ -747,7 +739,7 @@ class DataSyncLocationFsxLustreManager(Boto3ModelManager):
     @datasync_list_fsx_lustre_locations
     def list(
         self, *, Filters: "builtins.list[LocationFilter] | None" = None
-    ) -> PrimaryBoto3ModelQuerySet:
+    ) -> PrimaryBoto3ModelQuerySet["LocationListEntry"]:
         """
         Returns a list of source and destination locations.
 
@@ -763,7 +755,7 @@ class DataSyncLocationFsxLustreManager(Boto3ModelManager):
         response_iterator = paginator.paginate(
             **{k: v for k, v in args.items() if v is not None}
         )
-        results = []
+        results: "builtins.list[LocationListEntry]" = []
         for _response in response_iterator:
             if list(_response.keys()) == ["ResponseMetadata"]:
                 break
@@ -773,9 +765,7 @@ class DataSyncLocationFsxLustreManager(Boto3ModelManager):
             if response.Locations:
                 results.extend(response.Locations)
         self.sessionize(results)
-        if results and isinstance(results[0], Boto3Model):
-            return PrimaryBoto3ModelQuerySet(results)
-        return results
+        return PrimaryBoto3ModelQuerySet(results)
 
     @datasync_refresh_after_update
     def update(
@@ -867,7 +857,7 @@ class DataSyncLocationFsxOntapManager(Boto3ModelManager):
     @datasync_list_fsx_ontap_locations
     def list(
         self, *, Filters: "builtins.list[LocationFilter] | None" = None
-    ) -> PrimaryBoto3ModelQuerySet:
+    ) -> PrimaryBoto3ModelQuerySet["LocationListEntry"]:
         """
         Returns a list of source and destination locations.
 
@@ -883,7 +873,7 @@ class DataSyncLocationFsxOntapManager(Boto3ModelManager):
         response_iterator = paginator.paginate(
             **{k: v for k, v in args.items() if v is not None}
         )
-        results = []
+        results: "builtins.list[LocationListEntry]" = []
         for _response in response_iterator:
             if list(_response.keys()) == ["ResponseMetadata"]:
                 break
@@ -893,9 +883,7 @@ class DataSyncLocationFsxOntapManager(Boto3ModelManager):
             if response.Locations:
                 results.extend(response.Locations)
         self.sessionize(results)
-        if results and isinstance(results[0], Boto3Model):
-            return PrimaryBoto3ModelQuerySet(results)
-        return results
+        return PrimaryBoto3ModelQuerySet(results)
 
     @datasync_refresh_after_update
     def update(
@@ -988,7 +976,7 @@ class DataSyncLocationFsxOpenZfsManager(Boto3ModelManager):
     @datasync_list_fsx_openzfs_locations
     def list(
         self, *, Filters: "builtins.list[LocationFilter] | None" = None
-    ) -> PrimaryBoto3ModelQuerySet:
+    ) -> PrimaryBoto3ModelQuerySet["LocationListEntry"]:
         """
         Returns a list of source and destination locations.
 
@@ -1004,7 +992,7 @@ class DataSyncLocationFsxOpenZfsManager(Boto3ModelManager):
         response_iterator = paginator.paginate(
             **{k: v for k, v in args.items() if v is not None}
         )
-        results = []
+        results: "builtins.list[LocationListEntry]" = []
         for _response in response_iterator:
             if list(_response.keys()) == ["ResponseMetadata"]:
                 break
@@ -1014,9 +1002,7 @@ class DataSyncLocationFsxOpenZfsManager(Boto3ModelManager):
             if response.Locations:
                 results.extend(response.Locations)
         self.sessionize(results)
-        if results and isinstance(results[0], Boto3Model):
-            return PrimaryBoto3ModelQuerySet(results)
-        return results
+        return PrimaryBoto3ModelQuerySet(results)
 
     @datasync_refresh_after_update
     def update(
@@ -1114,7 +1100,7 @@ class DataSyncLocationFsxWindowsManager(Boto3ModelManager):
     @datasync_list_fsx_windows_locations
     def list(
         self, *, Filters: "builtins.list[LocationFilter] | None" = None
-    ) -> PrimaryBoto3ModelQuerySet:
+    ) -> PrimaryBoto3ModelQuerySet["LocationListEntry"]:
         """
         Returns a list of source and destination locations.
 
@@ -1130,7 +1116,7 @@ class DataSyncLocationFsxWindowsManager(Boto3ModelManager):
         response_iterator = paginator.paginate(
             **{k: v for k, v in args.items() if v is not None}
         )
-        results = []
+        results: "builtins.list[LocationListEntry]" = []
         for _response in response_iterator:
             if list(_response.keys()) == ["ResponseMetadata"]:
                 break
@@ -1140,9 +1126,7 @@ class DataSyncLocationFsxWindowsManager(Boto3ModelManager):
             if response.Locations:
                 results.extend(response.Locations)
         self.sessionize(results)
-        if results and isinstance(results[0], Boto3Model):
-            return PrimaryBoto3ModelQuerySet(results)
-        return results
+        return PrimaryBoto3ModelQuerySet(results)
 
     @datasync_refresh_after_update
     def update(
@@ -1246,7 +1230,7 @@ class DataSyncLocationHdfsManager(Boto3ModelManager):
     @datasync_list_hdfs_locations
     def list(
         self, *, Filters: "builtins.list[LocationFilter] | None" = None
-    ) -> PrimaryBoto3ModelQuerySet:
+    ) -> PrimaryBoto3ModelQuerySet["LocationListEntry"]:
         """
         Returns a list of source and destination locations.
 
@@ -1262,7 +1246,7 @@ class DataSyncLocationHdfsManager(Boto3ModelManager):
         response_iterator = paginator.paginate(
             **{k: v for k, v in args.items() if v is not None}
         )
-        results = []
+        results: "builtins.list[LocationListEntry]" = []
         for _response in response_iterator:
             if list(_response.keys()) == ["ResponseMetadata"]:
                 break
@@ -1272,9 +1256,7 @@ class DataSyncLocationHdfsManager(Boto3ModelManager):
             if response.Locations:
                 results.extend(response.Locations)
         self.sessionize(results)
-        if results and isinstance(results[0], Boto3Model):
-            return PrimaryBoto3ModelQuerySet(results)
-        return results
+        return PrimaryBoto3ModelQuerySet(results)
 
     @datasync_refresh_after_update
     def update(self, model: "DataSyncLocationHdfs") -> "DataSyncLocationHdfs | None":
@@ -1375,7 +1357,7 @@ class DataSyncLocationNfsManager(Boto3ModelManager):
     @datasync_list_nfs_locations
     def list(
         self, *, Filters: "builtins.list[LocationFilter] | None" = None
-    ) -> PrimaryBoto3ModelQuerySet:
+    ) -> PrimaryBoto3ModelQuerySet["LocationListEntry"]:
         """
         Returns a list of source and destination locations.
 
@@ -1391,7 +1373,7 @@ class DataSyncLocationNfsManager(Boto3ModelManager):
         response_iterator = paginator.paginate(
             **{k: v for k, v in args.items() if v is not None}
         )
-        results = []
+        results: "builtins.list[LocationListEntry]" = []
         for _response in response_iterator:
             if list(_response.keys()) == ["ResponseMetadata"]:
                 break
@@ -1401,9 +1383,7 @@ class DataSyncLocationNfsManager(Boto3ModelManager):
             if response.Locations:
                 results.extend(response.Locations)
         self.sessionize(results)
-        if results and isinstance(results[0], Boto3Model):
-            return PrimaryBoto3ModelQuerySet(results)
-        return results
+        return PrimaryBoto3ModelQuerySet(results)
 
     @datasync_refresh_after_update
     def update(self, model: "DataSyncLocationNfs") -> "DataSyncLocationNfs | None":
@@ -1505,7 +1485,7 @@ class DataSyncLocationObjectStorageManager(Boto3ModelManager):
     @datasync_list_object_storage_locations
     def list(
         self, *, Filters: "builtins.list[LocationFilter] | None" = None
-    ) -> PrimaryBoto3ModelQuerySet:
+    ) -> PrimaryBoto3ModelQuerySet["LocationListEntry"]:
         """
         Returns a list of source and destination locations.
 
@@ -1521,7 +1501,7 @@ class DataSyncLocationObjectStorageManager(Boto3ModelManager):
         response_iterator = paginator.paginate(
             **{k: v for k, v in args.items() if v is not None}
         )
-        results = []
+        results: "builtins.list[LocationListEntry]" = []
         for _response in response_iterator:
             if list(_response.keys()) == ["ResponseMetadata"]:
                 break
@@ -1531,9 +1511,7 @@ class DataSyncLocationObjectStorageManager(Boto3ModelManager):
             if response.Locations:
                 results.extend(response.Locations)
         self.sessionize(results)
-        if results and isinstance(results[0], Boto3Model):
-            return PrimaryBoto3ModelQuerySet(results)
-        return results
+        return PrimaryBoto3ModelQuerySet(results)
 
     @datasync_refresh_after_update
     def update(
@@ -1633,7 +1611,7 @@ class DataSyncLocationS3Manager(Boto3ModelManager):
     @datasync_list_s3_locations
     def list(
         self, *, Filters: "builtins.list[LocationFilter] | None" = None
-    ) -> PrimaryBoto3ModelQuerySet:
+    ) -> PrimaryBoto3ModelQuerySet["LocationListEntry"]:
         """
         Returns a list of source and destination locations.
 
@@ -1649,7 +1627,7 @@ class DataSyncLocationS3Manager(Boto3ModelManager):
         response_iterator = paginator.paginate(
             **{k: v for k, v in args.items() if v is not None}
         )
-        results = []
+        results: "builtins.list[LocationListEntry]" = []
         for _response in response_iterator:
             if list(_response.keys()) == ["ResponseMetadata"]:
                 break
@@ -1659,9 +1637,7 @@ class DataSyncLocationS3Manager(Boto3ModelManager):
             if response.Locations:
                 results.extend(response.Locations)
         self.sessionize(results)
-        if results and isinstance(results[0], Boto3Model):
-            return PrimaryBoto3ModelQuerySet(results)
-        return results
+        return PrimaryBoto3ModelQuerySet(results)
 
     @datasync_refresh_after_update
     def update(self, model: "DataSyncLocationS3") -> "DataSyncLocationS3 | None":
@@ -1761,7 +1737,7 @@ class DataSyncLocationSmbManager(Boto3ModelManager):
     @datasync_list_smb_locations
     def list(
         self, *, Filters: "builtins.list[LocationFilter] | None" = None
-    ) -> PrimaryBoto3ModelQuerySet:
+    ) -> PrimaryBoto3ModelQuerySet["LocationListEntry"]:
         """
         Returns a list of source and destination locations.
 
@@ -1777,7 +1753,7 @@ class DataSyncLocationSmbManager(Boto3ModelManager):
         response_iterator = paginator.paginate(
             **{k: v for k, v in args.items() if v is not None}
         )
-        results = []
+        results: "builtins.list[LocationListEntry]" = []
         for _response in response_iterator:
             if list(_response.keys()) == ["ResponseMetadata"]:
                 break
@@ -1787,9 +1763,7 @@ class DataSyncLocationSmbManager(Boto3ModelManager):
             if response.Locations:
                 results.extend(response.Locations)
         self.sessionize(results)
-        if results and isinstance(results[0], Boto3Model):
-            return PrimaryBoto3ModelQuerySet(results)
-        return results
+        return PrimaryBoto3ModelQuerySet(results)
 
     @datasync_refresh_after_update
     def update(self, model: "DataSyncLocationSmb") -> "DataSyncLocationSmb | None":
