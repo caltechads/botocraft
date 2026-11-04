@@ -2,7 +2,6 @@ from functools import wraps
 from typing import TYPE_CHECKING, Any, Callable
 
 if TYPE_CHECKING:
-
     from botocraft.services.abstract import PrimaryBoto3ModelQuerySet
     from botocraft.services.elbv2 import LoadBalancer
 
@@ -18,6 +17,14 @@ def load_balancer_attributes_to_dict(
     """
     Wraps :py:meth:`botocraft.services.elbv2.LoadBalancerManager.attributes` to
     return a dictionary instead of a list of dictionaries.
+
+    Args:
+        func: The manager method returning load balancer attributes.
+
+    Returns:
+        A wrapper that calls ``func`` and maps each attribute ``Key`` to its
+        ``Value``.
+
     """
 
     @wraps(func)
@@ -69,15 +76,15 @@ class LoadBalancerManagerMixin:
             msg = "LoadBalancerArn or Name must be provided"
             raise ValueError(msg)
         if LoadBalancerArn:
-            args = {"LoadBalancerArns": self.serialize([LoadBalancerArn])}
+            args = {"LoadBalancerArns": self.serialize([LoadBalancerArn])}  # type: ignore[attr-defined]
         else:
-            args = {"Names": self.serialize([Name])}
-        _response = self.client.describe_load_balancers(
+            args = {"Names": self.serialize([Name])}  # type: ignore[attr-defined]
+        _response = self.client.describe_load_balancers(  # type: ignore[attr-defined]
             **{k: v for k, v in args.items() if v is not None}
         )
         response = DescribeLoadBalancersOutput(**_response)
 
         if response and response.LoadBalancers:
-            self.sessionize(response.LoadBalancers[0])
+            self.sessionize(response.LoadBalancers[0])  # type: ignore[attr-defined]
             return response.LoadBalancers[0]
         return None

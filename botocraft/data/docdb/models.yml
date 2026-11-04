@@ -170,19 +170,19 @@ primary:
       SubnetGroupStatus:
         default: >-
           "Complete"
-    DBClusterParameterGroup:
-      alternate_name: DocDBClusterParameterGroup
-      primary_key: DBClusterParameterGroupArn
-      arn_key: DBClusterParameterGroupArn
-      name_key: DBClusterParameterGroupName
-      input_shapes:
-        - CreateDBClusterParameterGroupMessage
-        - ModifyDBClusterParameterGroupMessage
-      extra_fields:
-        Tags:
-          python_type: builtins.list[Tag]
-          docstring: >-
-            The tags associated with the parameter group.
+  DBClusterParameterGroup:
+    alternate_name: DocDBClusterParameterGroup
+    primary_key: DBClusterParameterGroupArn
+    arn_key: DBClusterParameterGroupArn
+    name_key: DBClusterParameterGroupName
+    input_shapes:
+      - CreateDBClusterParameterGroupMessage
+      - ModifyDBClusterParameterGroupMessage
+    extra_fields:
+      Tags:
+        python_type: builtins.list[Tag]
+        docstring: >-
+          The tags associated with the parameter group.
 secondary:
   Endpoint:
     alternate_name: DocDBEndpoint
@@ -206,10 +206,14 @@ secondary:
     alternate_name: DocDBDeleteDBSubnetGroupResult
   CreateDBClusterParameterGroupResult:
     alternate_name: DocDBCreateDBClusterParameterGroupResult
-  ModifyDBClusterParameterGroupResult:
-    alternate_name: DocDBModifyDBClusterParameterGroupResult
-  DeleteDBClusterParameterGroupResult:
-    alternate_name: DocDBDeleteDBClusterParameterGroupResult
+  CopyDBClusterParameterGroupResult:
+    alternate_name: DocDBCopyDBClusterParameterGroupResult
+  DBClusterParameterGroupNameMessage:
+    alternate_name: DocDBClusterParameterGroupNameMessage
+  DBClusterParameterGroupsMessage:
+    alternate_name: DocDBClusterParameterGroupsMessage
+  Parameter:
+    alternate_name: DocDBParameter
   DBInstanceMessage:
     alternate_name: DocDBInstanceMessage
   DBClusterMessage:

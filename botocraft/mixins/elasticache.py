@@ -27,6 +27,14 @@ if TYPE_CHECKING:
 def elasticache_user_add_tags(func: Callable) -> Callable:
     """
     A decorator to add tags to the elasticache user.
+
+    Args:
+        func: The manager method returning a single user.
+
+    Returns:
+        A wrapper that calls ``func`` and sets ``Tags`` on the returned
+        user.
+
     """
 
     @wraps(func)
@@ -42,6 +50,14 @@ def elasticache_user_add_tags(func: Callable) -> Callable:
 def elasticache_users_get_add_tags(func: Callable) -> Callable:
     """
     A decorator to add tags to the elasticache users.
+
+    Args:
+        func: The manager method returning a collection of users.
+
+    Returns:
+        A wrapper that calls ``func``, sets ``Tags`` on each user, and returns
+        them as a queryset.
+
     """
 
     @wraps(func)
@@ -58,6 +74,14 @@ def elasticache_users_get_add_tags(func: Callable) -> Callable:
 def elasticache_user_group_add_tags(func: Callable) -> Callable:
     """
     A decorator to add tags to the elasticache user group.
+
+    Args:
+        func: The manager method returning a single user group.
+
+    Returns:
+        A wrapper that calls ``func`` and sets ``Tags`` on the returned
+        user group.
+
     """
 
     @wraps(func)
@@ -73,6 +97,14 @@ def elasticache_user_group_add_tags(func: Callable) -> Callable:
 def elasticache_user_groups_get_add_tags(func: Callable) -> Callable:
     """
     A decorator to add tags to the elasticache user groups.
+
+    Args:
+        func: The manager method returning a collection of user groups.
+
+    Returns:
+        A wrapper that calls ``func``, sets ``Tags`` on each user group, and
+        returns them as a queryset.
+
     """
 
     @wraps(func)
@@ -143,6 +175,12 @@ class CacheClusterModelMixin:
             a cluster with multiple nodes, you will need to use the ``CacheNodes``
             property to get the hostnames of the other nodes.
 
+        Returns:
+            The address of the endpoint of the first cache node.
+
+        Raises:
+            ConnectionResolutionError: If the cache cluster has no usable endpoint.
+
         """
         endpoint = self.CacheNodes[0].Endpoint
         if endpoint is None or endpoint.Address is None:
@@ -163,6 +201,12 @@ class CacheClusterModelMixin:
             a cluster with multiple nodes, you will need to use the ``CacheNodes``
             property to get the ports of the other nodes.
 
+        Returns:
+            The port of the endpoint of the first cache node.
+
+        Raises:
+            ConnectionResolutionError: If the cache cluster has no usable endpoint.
+
         """
         endpoint = self.CacheNodes[0].Endpoint
         if endpoint is None or endpoint.Port is None:
@@ -180,6 +224,10 @@ class CacheClusterModelMixin:
 
         This is a dictionary of key/value pairs, where the key is the tag name
         and the value is the tag value
+
+        Returns:
+            A mapping of tag names to tag values.
+
         """
         return self.objects.using(self.session).get_tags(self.arn)  # type: ignore[attr-defined]
 
@@ -344,6 +392,10 @@ class ReplicationGroupModelMixin:
         """
         The engine version of the replication group.  This is the same as the
         engine version of the first cluster in the replication group.
+
+        Returns:
+            The engine version of the first member cluster.
+
         """
         from botocraft.services import CacheCluster
 
@@ -356,6 +408,13 @@ class ReplicationGroupModelMixin:
     def hostname(self) -> str:
         """
         The hostname of the cache cluster.
+
+        Returns:
+            The address of the primary endpoint of the first node group.
+
+        Raises:
+            ConnectionResolutionError: If the replication group has no usable endpoint.
+
         """
         endpoint = self.NodeGroups[0].PrimaryEndpoint
         if endpoint is None or endpoint.Address is None:
@@ -370,6 +429,13 @@ class ReplicationGroupModelMixin:
     def port(self) -> int:
         """
         The port of the cache cluster.
+
+        Returns:
+            The port of the primary endpoint of the first node group.
+
+        Raises:
+            ConnectionResolutionError: If the replication group has no usable endpoint.
+
         """
         endpoint = self.NodeGroups[0].PrimaryEndpoint
         if endpoint is None or endpoint.Port is None:
@@ -387,6 +453,10 @@ class ReplicationGroupModelMixin:
 
         This is a dictionary of key/value pairs, where the key is the tag name
         and the value is the tag value
+
+        Returns:
+            A mapping of tag names to tag values.
+
         """
         return self.objects.using(self.session).get_tags(self.arn)  # type: ignore[attr-defined]
 

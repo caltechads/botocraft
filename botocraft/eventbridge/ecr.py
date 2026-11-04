@@ -38,6 +38,10 @@ class ECRImageActionEvent(EventBridgeEvent, RawECRImageActionEvent):
     def __str__(self) -> str:
         """
         Return a string representation of the event.
+
+        Returns:
+            A human-readable summary of the event.
+
         """
         return (
             f"<Event: ECR Image Action: account={self.account}, "
@@ -56,6 +60,11 @@ class ECRImageActionEvent(EventBridgeEvent, RawECRImageActionEvent):
     def image(self) -> "ECRImage | None":
         """
         Return the ECR image object named by the event.
+
+        Returns:
+            The ECR image named by the event, or ``None`` if the event has no
+            image digest.
+
         """
         from botocraft.services.ecr import ECRImage, ImageIdentifier
 
@@ -77,6 +86,10 @@ class ECRImageScanEvent(EventBridgeEvent, RawECRImageScanEvent):
     def __str__(self) -> str:
         """
         Return a string representation of the event.
+
+        Returns:
+            A human-readable summary of the event.
+
         """
         return (
             f"<Event: ECR Scan Action: account={self.account}, "
@@ -94,6 +107,11 @@ class ECRImageScanEvent(EventBridgeEvent, RawECRImageScanEvent):
     def image(self) -> "ECRImage | None":
         """
         Return the ECR image object named by the event.
+
+        Returns:
+            The ECR image named by the event, or ``None`` if the event has no
+            image digest.
+
         """
         from botocraft.services.ecr import ECRImage, ImageIdentifier
 
@@ -115,6 +133,10 @@ class ECRReferrerActionEvent(EventBridgeEvent, RawECRReferrerActionEvent):
     def __str__(self) -> str:
         """
         Return a string representation of the event.
+
+        Returns:
+            A human-readable summary of the event.
+
         """
         return (
             f"<Event: ECR Referrer Action: account={self.account}, "
@@ -132,6 +154,11 @@ class ECRReferrerActionEvent(EventBridgeEvent, RawECRReferrerActionEvent):
     def image(self) -> "ECRImage | None":
         """
         Return the ECR image object named by the event.
+
+        Returns:
+            The ECR image named by the event, or ``None`` if the event has no
+            image digest.
+
         """
         from botocraft.services.ecr import ECRImage, ImageIdentifier
 
@@ -147,6 +174,10 @@ class ECRReferrerActionEvent(EventBridgeEvent, RawECRReferrerActionEvent):
     def repository(self) -> "Repository | None":
         """
         Return the ECR repository object named by the event.
+
+        Returns:
+            The ECR repository named by the event, with its tags loaded.
+
         """
         from botocraft.services.ecr import Repository
 
@@ -170,6 +201,10 @@ class ECRPullThroughCacheActionEvent(
     def __str__(self) -> str:
         """
         Return a string representation of the event.
+
+        Returns:
+            A human-readable summary of the event.
+
         """
         return (
             f"<Event: ECR PullThroughCache Action: account={self.account}, "
@@ -189,6 +224,11 @@ class ECRPullThroughCacheActionEvent(
     def image(self) -> "ECRImage | None":
         """
         Return the ECR image object named by the event.
+
+        Returns:
+            The ECR image named by the event, or ``None`` if the event has no
+            image digest.
+
         """
         from botocraft.services.ecr import ECRImage, ImageIdentifier
 
@@ -204,6 +244,10 @@ class ECRPullThroughCacheActionEvent(
     def repository(self) -> "Repository | None":
         """
         Return the ECR repository object named by the event.
+
+        Returns:
+            The ECR repository named by the event, with its tags loaded.
+
         """
         from botocraft.services.ecr import Repository
 
@@ -224,6 +268,10 @@ class ECRReplicationActionEvent(EventBridgeEvent, RawECRReplicationActionEvent):
     def __str__(self) -> str:
         """
         Return a string representation of the event.
+
+        Returns:
+            A human-readable summary of the event.
+
         """
         return (
             f"<Event: ECR PullThroughCache Action: account={self.account}, "
@@ -242,6 +290,11 @@ class ECRReplicationActionEvent(EventBridgeEvent, RawECRReplicationActionEvent):
     def image(self) -> "ECRImage | None":
         """
         Return the ECR image object named by the event.
+
+        Returns:
+            The ECR image named by the event, or ``None`` if the event has no
+            image digest.
+
         """
         from botocraft.services.ecr import ECRImage, ImageIdentifier
 
@@ -257,6 +310,10 @@ class ECRReplicationActionEvent(EventBridgeEvent, RawECRReplicationActionEvent):
     def repository(self) -> "Repository | None":
         """
         Return the ECR repository object named by the event.
+
+        Returns:
+            The ECR repository named by the event, with its tags loaded.
+
         """
         from botocraft.services.ecr import Repository
 
@@ -276,6 +333,10 @@ class ECRScanResourceChangeEvent(EventBridgeEvent, RawECRScanResourceChangeEvent
     def __str__(self) -> str:
         """
         Return a string representation of the event.
+
+        Returns:
+            A human-readable summary of the event.
+
         """
         return (
             f"<Event: ECR Scan Resource Change: account={self.account}, "
@@ -293,6 +354,11 @@ class ECRScanResourceChangeEvent(EventBridgeEvent, RawECRScanResourceChangeEvent
     def repositories(self) -> "list[Repository] | None":
         """
         Return the ECR image object named by the event.
+
+        Returns:
+            The ECR repositories named in the event detail, each with its tags
+            loaded.
+
         """
         from botocraft.services.ecr import Repository
 
@@ -325,6 +391,10 @@ class ECRAWSAPICallViaCloudTrailEvent(
     def __str__(self) -> str:
         """
         Return a string representation of the event.
+
+        Returns:
+            A human-readable summary of the event.
+
         """
         return (
             f"<Event: ECR AWS API Call Via CloudTrail: account={self.account}, "
@@ -338,6 +408,11 @@ class ECRAWSAPICallViaCloudTrailEvent(
     def images(self) -> list["ECRImage"]:
         """
         Return the ECR image object named by the event.
+
+        Returns:
+            The ECR images identified by the CloudTrail request parameters, or an
+            empty list if the request names no repository or images.
+
         """
         from botocraft.services.ecr import ECRImage, ImageIdentifier
 
@@ -369,7 +444,7 @@ class ECRAWSAPICallViaCloudTrailEvent(
 
 
 #: Declarative mapping from EventBridge source/detail-type pairs to wrappers.
-EVENT_CLASS_MAP = {
+EVENT_CLASS_MAP: dict[tuple[str, str], type[EventBridgeEvent]] = {
     ("aws.ecr", "ECR Image Action"): ECRImageActionEvent,
     ("aws.ecr", "ECR Image Scan"): ECRImageScanEvent,
     ("aws.ecr", "ECR Referrer Action"): ECRReferrerActionEvent,

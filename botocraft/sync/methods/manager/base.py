@@ -397,6 +397,10 @@ class ManagerMethodGenerator:
         Example:
             ``name=name, description=description``
 
+        Returns:
+            The ``args: dict[str, Any] = dict(...)`` statement that builds the
+            arguments for the boto3 call.
+
         """
         args = self.args(location="operation")
         kwargs = self.kwargs(location="operation")
@@ -517,6 +521,31 @@ class ManagerMethodGenerator:
             f"{self.output_shape.name}: {attrs}"
         )
         raise ValueError(msg)
+
+    @property
+    def queryset_item_type(self) -> str | None:
+        """
+        The model class a ``list``/``get_many`` queryset holds, when it is
+        a model we generate.
+
+        Returns:
+            The item class name, or ``None`` when the item type is not a
+            generated model (a primitive, a union, a bespoke ``return_type``
+            override); callers then fall back to an unparameterized queryset.
+
+        """
+        _ = self.response_class
+        if self.method_def.return_type or self.output_shape is None:
+            return None
+        shape = self.output_shape.members[cast("str", self.response_attr)]
+        converted = self.shape_converter.convert(shape, quote=True).strip('"')
+        match = re.fullmatch(r"(?:builtins\.)?list\[(\w+)\]", converted)
+        if match is None:
+            return None
+        item = match.group(1)
+        if item not in self.model_generator.classes:
+            return None
+        return item
 
     @property
     def response_attr_multiplicity(self) -> Literal["one", "many"]:
@@ -712,6 +741,11 @@ class ManagerMethodGenerator:
     def docstring(self) -> str | None:
         """
         Return the docstring for the method.
+
+        Returns:
+            The rendered method docstring with the backslash escapes removed, or
+            ``None`` if the docstring definition is empty.
+
         """
         docs = self.docstrings_def.render(self.docformatter)
         if not docs:

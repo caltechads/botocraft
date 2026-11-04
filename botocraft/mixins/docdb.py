@@ -17,8 +17,9 @@ if TYPE_CHECKING:
     from botocraft.services.docdb import (
         ClusterMasterUserSecret,
         DocDBCluster,
+        DocDBClusterParameterGroup,
         DocDBInstance,
-        DocDBParameterGroup,
+        DocDBParameter,
         DocDBSubnetGroup,
     )
 
@@ -33,6 +34,14 @@ def single_docdb_cluster_include_tags(
     """
     Decorator to convert a :py:class:`botocraft.services.docdb.DocDBCluster` object
     to a :py:class:`botocraft.services.docdb.DocDBCluster` object with tags included.
+
+    Args:
+        func: The manager method returning a single cluster.
+
+    Returns:
+        A wrapper that calls ``func`` and sets ``Tags`` on the returned
+        cluster.
+
     """
 
     @wraps(func)
@@ -55,6 +64,14 @@ def multiple_docdb_cluster_include_tags(
     :py:class:`botocraft.services.abstract.PrimaryBoto3ModelQuerySet` of
     :py:class:`botocraft.services.docdb.DocDBCluster` objects with tags
     included.
+
+    Args:
+        func: The manager method returning a queryset of clusters.
+
+    Returns:
+        A wrapper that calls ``func`` and returns a new queryset whose
+        clusters have ``Tags`` populated.
+
     """
 
     @wraps(func)
@@ -78,6 +95,14 @@ def single_docdb_instance_include_tags(
     """
     Decorator to convert a :py:class:`botocraft.services.docdb.DocDBInstance` object
     to a :py:class:`botocraft.services.docdb.DocDBInstance` object with tags included.
+
+    Args:
+        func: The manager method returning a single instance.
+
+    Returns:
+        A wrapper that calls ``func`` and sets ``Tags`` on the returned
+        instance.
+
     """
 
     @wraps(func)
@@ -100,6 +125,14 @@ def multiple_docdb_instance_include_tags(
     :py:class:`botocraft.services.abstract.PrimaryBoto3ModelQuerySet` of
     :py:class:`botocraft.services.docdb.DocDBInstance` objects with tags
     included.
+
+    Args:
+        func: The manager method returning a queryset of instances.
+
+    Returns:
+        A wrapper that calls ``func`` and returns a new queryset whose
+        instances have ``Tags`` populated.
+
     """
 
     @wraps(func)
@@ -126,6 +159,14 @@ def single_docdb_subnet_group_include_tags(
     Decorator to convert a :py:class:`botocraft.services.docdb.DocDBSubnetGroup`
     object to a :py:class:`botocraft.services.docdb.DocDBSubnetGroup` object
     with tags included.
+
+    Args:
+        func: The manager method returning a single subnet group.
+
+    Returns:
+        A wrapper that calls ``func`` and sets ``Tags`` on the returned
+        subnet group.
+
     """
 
     @wraps(func)
@@ -134,7 +175,7 @@ def single_docdb_subnet_group_include_tags(
         tags = self.client.list_tags_for_resource(
             ResourceName=response.DBSubnetGroupArn
         )
-        response.Tags = tags["TagList"]
+        response.Tags = tags["TagList"]  # type: ignore[attr-defined]
         return response
 
     return wrapper
@@ -150,6 +191,14 @@ def multiple_docdb_subnet_group_include_tags(
     :py:class:`botocraft.services.abstract.PrimaryBoto3ModelQuerySet` of
     :py:class:`botocraft.services.docdb.DocDBSubnetGroup` objects with tags
     included.
+
+    Args:
+        func: The manager method returning a queryset of subnet groups.
+
+    Returns:
+        A wrapper that calls ``func`` and returns a new queryset whose
+        subnet groups have ``Tags`` populated.
+
     """
 
     @wraps(func)
@@ -169,20 +218,27 @@ def multiple_docdb_subnet_group_include_tags(
     return wrapper
 
 
-def single_docdb_parameter_group_include_tags(
-    func: Callable[..., "DocDBParameterGroup"],
-) -> Callable[..., "DocDBParameterGroup"]:
+def single_docdb_cluster_parameter_group_include_tags(
+    func: Callable[..., "DocDBClusterParameterGroup"],
+) -> Callable[..., "DocDBClusterParameterGroup"]:
     """
-    Decorator to convert a :py:class:`botocraft.services.docdb.DocDBParameterGroup`
-    object to a :py:class:`botocraft.services.docdb.DocDBParameterGroup` object
-    with tags included.
+    Decorator that adds tags to a returned
+    :py:class:`botocraft.services.docdb.DocDBClusterParameterGroup`.
+
+    Args:
+        func: The manager method returning a single parameter group.
+
+    Returns:
+        A wrapper that calls ``func`` and sets ``Tags`` on the returned
+        parameter group.
+
     """
 
     @wraps(func)
-    def wrapper(self, *args, **kwargs) -> "DocDBParameterGroup":
+    def wrapper(self, *args, **kwargs) -> "DocDBClusterParameterGroup":
         response = func(self, *args, **kwargs)
         tags = self.client.list_tags_for_resource(
-            ResourceName=response.DBParameterGroupArn
+            ResourceName=response.DBClusterParameterGroupArn
         )
         response.Tags = tags["TagList"]
         return response
@@ -190,16 +246,24 @@ def single_docdb_parameter_group_include_tags(
     return wrapper
 
 
-def multiple_docdb_parameter_group_include_tags(
+def multiple_docdb_cluster_parameter_group_include_tags(
     func: Callable[..., "PrimaryBoto3ModelQuerySet"],
 ) -> Callable[..., "PrimaryBoto3ModelQuerySet"]:
     """
     Decorator to convert a
     :py:class:`botocraft.services.abstract.PrimaryBoto3ModelQuerySet` of
-    :py:class:`botocraft.services.docdb.DocDBParameterGroup` objects to a
+    :py:class:`botocraft.services.docdb.DocDBClusterParameterGroup` objects to a
     :py:class:`botocraft.services.abstract.PrimaryBoto3ModelQuerySet` of
-    :py:class:`botocraft.services.docdb.DocDBParameterGroup` objects with tags
+    :py:class:`botocraft.services.docdb.DocDBClusterParameterGroup` objects with tags
     included.
+
+    Args:
+        func: The manager method returning a queryset of parameter groups.
+
+    Returns:
+        A wrapper that calls ``func`` and returns a new queryset whose
+        cluster parameter groups have ``Tags`` populated.
+
     """
 
     @wraps(func)
@@ -207,10 +271,10 @@ def multiple_docdb_parameter_group_include_tags(
         from botocraft.services.abstract import PrimaryBoto3ModelQuerySet
 
         response = func(self, *args, **kwargs)
-        parameter_groups: list[DocDBParameterGroup] = []
+        parameter_groups: list[DocDBClusterParameterGroup] = []
         for parameter_group in response.all():
             tags = self.client.list_tags_for_resource(
-                ResourceName=parameter_group.DBParameterGroupArn
+                ResourceName=parameter_group.DBClusterParameterGroupArn
             )
             parameter_group.Tags = tags["TagList"]
             parameter_groups.append(parameter_group)
@@ -222,6 +286,45 @@ def multiple_docdb_parameter_group_include_tags(
 # ----------
 # Mixins
 # ----------
+
+
+class DocDBClusterParameterGroupManagerMixin:
+    """
+    A mixin for
+    :py:class:`botocraft.services.docdb.DocDBClusterParameterGroupManager` that
+    adds ``update``.
+
+    ``ModifyDBClusterParameterGroup`` only returns the group name, so ``update``
+    is written by hand to fetch and return the refreshed model instead.
+    """
+
+    def update(
+        self,
+        model: "DocDBClusterParameterGroup",
+        Parameters: "list[DocDBParameter]",  # noqa: N803
+    ) -> "DocDBClusterParameterGroup":
+        """
+        Modify the parameters of a cluster parameter group and return the group
+        as it exists afterwards.
+
+        A maximum of 20 parameters can be modified in a single request.
+
+        Args:
+            model: The :py:class:`DocDBClusterParameterGroup` to update.
+            Parameters: The parameters to modify. Each needs ``ParameterName``,
+                ``ParameterValue`` and ``ApplyMethod``.
+
+        Returns:
+            The refreshed :py:class:`DocDBClusterParameterGroup`, with tags.
+
+        """
+        self.client.modify_db_cluster_parameter_group(  # type: ignore[attr-defined]
+            DBClusterParameterGroupName=model.DBClusterParameterGroupName,
+            Parameters=self.serialize(Parameters),  # type: ignore[attr-defined]
+        )
+        return self.get(  # type: ignore[attr-defined]
+            DBClusterParameterGroupName=model.DBClusterParameterGroupName
+        )
 
 
 class DocDBClusterModelMixin:

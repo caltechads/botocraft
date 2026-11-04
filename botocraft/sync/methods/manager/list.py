@@ -55,20 +55,47 @@ class ListMethodGenerator(ManagerMethodGenerator):
             _return_type = _return_type.split(",")[1].strip()
         if _return_type in ("str", "int", "float", "bool", "None"):
             return return_type
+        item = self.queryset_item_type
+        if item is not None:
+            return f'PrimaryBoto3ModelQuerySet["{item}"]'
         return "PrimaryBoto3ModelQuerySet"
 
     @property
     def body(self) -> str:
+        """
+        The generated method body.
+
+        When the item class is a generated model, the body collects typed
+        results and always returns a ``PrimaryBoto3ModelQuerySet``; otherwise it
+        returns the raw list for non-model items.
+
+        Returns:
+            The method body source code.
+
+        """
         # This is a hard attribute to guess. Sometimes it's CamelCase, sometimes
         # it's camelCase, sometimes it's snake_case.  We'll just assume it's a
         # lowercase plural of the model name.
         self.imports.add("from .abstract import PrimaryBoto3ModelQuerySet")
         if self.client.can_paginate(self.boto3_name):
+            item = self.queryset_item_type
+            results_decl = (
+                f'results: "builtins.list[{item}]" = []'
+                if item is not None
+                else "results = []"
+            )
+            if item is not None:
+                tail = "        return PrimaryBoto3ModelQuerySet(results)"
+            else:
+                tail = """        if results and isinstance(results[0], Boto3Model):
+            return PrimaryBoto3ModelQuerySet(results)
+        else:
+            return results"""
             code = f"""
         paginator = self.client.get_paginator('{self.boto3_name}')
         {self.operation_args}
         response_iterator = paginator.paginate(**{{k: v for k, v in args.items() if v is not None}})
-        results = []
+        {results_decl}
         for _response in response_iterator:
             if list(_response.keys()) == ['ResponseMetadata']:
                 break
@@ -77,15 +104,8 @@ class ListMethodGenerator(ManagerMethodGenerator):
             response = {self.response_class}(**_response)
             if response.{self.response_attr}:
                 results.extend(response.{self.response_attr})
-            else:
-                if getattr(response, "NextToken", None):
-                    continue
-                break
         self.sessionize(results)
-        if results and isinstance(results[0], Boto3Model):
-            return PrimaryBoto3ModelQuerySet(results)
-        else:
-            return results
+{tail}
 """  # noqa: E501
         else:
             code = f"""

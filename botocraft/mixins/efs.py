@@ -95,10 +95,10 @@ class EFSTagsManagerMixin:
         current = {tag.Key: tag.Value for tag in current_tags}
         desired = {tag.Key: tag.Value for tag in tags}
 
-        keys_to_remove = sorted(set(current) - set(desired))
-        tags_to_upsert = [
-            tag for tag in tags if current.get(tag.Key) != tag.Value
-        ]
+        keys_to_remove = sorted(
+            key for key in set(current) - set(desired) if key is not None
+        )
+        tags_to_upsert = [tag for tag in tags if current.get(tag.Key) != tag.Value]
 
         if keys_to_remove:
             self.client.untag_resource(  # type: ignore[attr-defined]

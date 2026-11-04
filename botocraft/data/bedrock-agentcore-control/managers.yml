@@ -1,5 +1,8 @@
 ---
 AgentRuntime:
+  mixins:
+    - name: AgentCoreAgentRuntimeManagerMixin
+      import_path: botocraft.mixins.bedrock_agentcore_control
   methods:
     create:
       boto3_name: create_agent_runtime

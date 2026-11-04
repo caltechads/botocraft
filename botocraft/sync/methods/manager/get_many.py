@@ -29,7 +29,13 @@ class GetManyMethodGenerator(ManagerMethodGenerator):
 
         """
         _ = self.response_class
-        return_type = f"PrimaryBoto3ModelQuerySet | {self.response_class}"
+        item = self.queryset_item_type
+        queryset = (
+            f"PrimaryBoto3ModelQuerySet[{item}]"
+            if item is not None
+            else "PrimaryBoto3ModelQuerySet"
+        )
+        return_type = f"{queryset} | {self.response_class}"
         output_shape = self.output_shape
         if (
             self.response_attr
@@ -44,6 +50,18 @@ class GetManyMethodGenerator(ManagerMethodGenerator):
 
     @property
     def body(self) -> str:
+        """
+        Return the body of the ``get_many`` method.
+
+        Side Effects:
+            Adds the ``PrimaryBoto3ModelQuerySet`` import to the generator's
+            imports.
+
+        Returns:
+            The source code of the method body, which makes the boto3 call and
+            returns the results as a ``PrimaryBoto3ModelQuerySet``.
+
+        """
         self.imports.add("from .abstract import PrimaryBoto3ModelQuerySet")
         code = f"""
         {self.operation_args}

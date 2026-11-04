@@ -466,8 +466,8 @@ class GetObjectOutputMixin:
         """
         if self._body_cache is not None:
             return self._body_cache
-        if self.Body:
-            body = self.Body.read()
+        if self.Body:  # type: ignore[attr-defined]
+            body = self.Body.read()  # type: ignore[attr-defined]
             self._body_cache = body
             if body.startswith(b"gz"):
                 self._body_cache = gzip.decompress(body)

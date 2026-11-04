@@ -139,6 +139,16 @@ def ec2_instances_only(
     """
     Wraps a boto3 method that returns a list of :py:class:`Reservation` objects
     to return a list of :py:class:`Instance` objects instead.
+
+    Args:
+        func: The manager method returning a queryset of :py:class:`Reservation`
+            objects.
+
+    Returns:
+        A wrapper that calls ``func`` and returns a queryset of the
+        :py:class:`Instance` objects from every reservation, or an empty
+        queryset if there are none.
+
     """
 
     @wraps(func)
@@ -160,6 +170,15 @@ def ec2_instance_only(
     """
     Wraps a boto3 method that returns a list of :py:class:`Reservation` objects
     to return a single :py:class:`Instance` object instead.
+
+    Args:
+        func: The manager method returning a single :py:class:`Reservation`.
+
+    Returns:
+        A wrapper that calls ``func`` and returns the first
+        :py:class:`Instance` in the reservation, or ``None`` if there is no
+        reservation.
+
     """
 
     @wraps(func)
@@ -353,6 +372,10 @@ class AMIManagerMixin:
             created_since: Filters the AMIs to those created since this date.
             amis: Filters the AMIs to those in this list.  All other filters are
                 ignored if this is specified.
+
+        Returns:
+            A queryset of the AMIs that are in use by an instance or by an
+            autoscaling group's launch configuration or launch template.
 
         """
         from botocraft.services import (
@@ -827,6 +850,14 @@ class SecurityGroupModelMixin:
         separate boto3 calls than the security group itself.  This override of
         the ``save`` method will allow the user to create a security group and
         add ingress rules in one step.
+
+        Side Effects:
+            Creates the security group or authorizes and revokes ingress rules in AWS.
+
+        Keyword Args:
+            **kwargs: Extra keyword arguments passed through to the manager's
+                ``create``, ``authorize_ingress`` and ``revoke_ingress`` calls.
+
         """
         # TODO: this needs to be enhanced to handle egress rules as well.
         if not self.pk:
@@ -848,10 +879,20 @@ class SecurityGroupModelMixin:
 
 
 class AMIModelMixin:
+    """
+    A mixin used on :py:class:`botocraft.services.ec2.AMI` to add convenience
+    properties for checking whether the image is in use and for looking up
+    its vulnerabilities.
+    """
+
     @property
     def in_use(self) -> bool:
         """
         Return ``True`` if the AMI is in use by a running or stopped instance.
+
+        Returns:
+            ``True`` if the AMI is in use, ``False`` otherwise.
+
         """
         ids = self.objects.in_use(image_id=self.ImageId).values_list(  # type: ignore[attr-defined]
             "ImageId", flat=True

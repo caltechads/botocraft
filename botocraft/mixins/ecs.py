@@ -109,6 +109,14 @@ def ecs_services_only(
     :py:class:`PrimaryBoto3ModelQuerySet` of
     :py:class:`botocraft.services.ecs.Service` objects instead of only a list of
     ARNs.
+
+    Args:
+        func: The manager ``list`` method returning service ARNs.
+
+    Returns:
+        A wrapper that calls ``func`` and returns a queryset of the full
+        :py:class:`botocraft.services.ecs.Service` objects, with tags.
+
     """
 
     @wraps(func)
@@ -140,6 +148,14 @@ def ecs_clusters_only(
     of :py:class:`botocraft.services.abstract.PrimaryBoto3ModelQuerySet` of
     :py:class:`botocraft.services.ecs.Cluster` objects instead of only a list of
     ARNs.
+
+    Args:
+        func: The manager ``list`` method returning cluster ARNs.
+
+    Returns:
+        A wrapper that calls ``func`` and returns a queryset of the full
+        :py:class:`botocraft.services.ecs.Cluster` objects, with tags.
+
     """
 
     @wraps(func)
@@ -166,6 +182,15 @@ def ecs_task_definition_include_tags(
     Unwrap :py:class:`botocraft.services.ecs.DescribeTaskDefinitionResponse` and
     attach top-level tags to the nested
     :py:class:`botocraft.services.ecs.TaskDefinition`.
+
+    Args:
+        func: The manager method returning a ``DescribeTaskDefinitionResponse``.
+
+    Returns:
+        A wrapper that calls ``func`` and returns the nested task definition
+        with the response tags attached, or ``None`` if there is no task
+        definition.
+
     """
 
     @wraps(func)
@@ -186,6 +211,14 @@ def ecs_task_definitions_only(
     """
     Decorator to convert a list of ECS task definition identifiers to a list of
     :py:class:`botocraft.services.ecs.TaskDefinition` objects.
+
+    Args:
+        func: The manager ``list`` method returning task definition identifiers.
+
+    Returns:
+        A wrapper that calls ``func`` and returns a queryset of the full
+        :py:class:`botocraft.services.ecs.TaskDefinition` objects, with tags.
+
     """
 
     @wraps(func)
@@ -209,6 +242,14 @@ def ecs_container_instances_only(
     Decorator to convert a list of ECS container instance arns to a
     :py:class:`botocraft.services.abstract.PrimaryBoto3ModelQuerySet` of
     :py:class:`botocraft.services.ecs.ContainerInstance` objects.
+
+    Args:
+        func: The manager ``list`` method returning container instance ARNs.
+
+    Returns:
+        A wrapper that calls ``func`` and returns a queryset of the full
+        :py:class:`botocraft.services.ecs.ContainerInstance` objects.
+
     """
 
     def wrapper(self, *args, **kwargs) -> "PrimaryBoto3ModelQuerySet":
@@ -234,6 +275,14 @@ def ecs_container_instances_tasks_only(
     """
     Decorator to convert a list of ECS container instance arns to a list of
     :py:class:`botocraft.services.ecs.ContainerInstance` objects.
+
+    Args:
+        func: The manager ``list`` method returning task ARNs.
+
+    Returns:
+        A wrapper that calls ``func`` and returns a queryset of the full
+        :py:class:`botocraft.services.ecs.Task` objects.
+
     """
 
     @wraps(func)
@@ -257,6 +306,14 @@ def ecs_service_deployments_only(
     """
     Decorator to convert a list of service deployment arns to a list of
     :py:class:`botocraft.services.ecs.Deployment` objects.
+
+    Args:
+        func: The manager ``list`` method returning service deployment briefs.
+
+    Returns:
+        A wrapper that calls ``func`` and returns a queryset of the full
+        service deployment objects, or an empty queryset if there are none.
+
     """
 
     @wraps(func)
@@ -301,6 +358,14 @@ def ecs_task_populate_taskDefinition(
     format ``<family>:<revision>``.  ``taskDefinition`` is an extra field that we
     add to the :py:class:`botocraft.services.ecs.Task` object that is not in the
     original botocore shape, but is useful for our purposes.
+
+    Args:
+        func: The manager ``get`` method returning a single task.
+
+    Returns:
+        A wrapper that calls ``func`` and sets ``taskDefinition`` on the
+        returned task, if any.
+
     """
 
     @wraps(func)
@@ -327,6 +392,14 @@ def ecs_task_populate_taskDefinitions(
     format ``<family>:<revision>``.  ``taskDefinition`` is an extra field that we
     add to the :py:class:`botocraft.services.ecs.Task` object that is not in the
     original botocore shape, but is useful for our purposes.
+
+    Args:
+        func: The manager ``get_many`` method returning a queryset of tasks.
+
+    Returns:
+        A wrapper that calls ``func`` and sets ``taskDefinition`` on each
+        returned task.
+
     """
 
     @wraps(func)
@@ -348,6 +421,14 @@ def ecs_tasks_only(
     Wrap :py:meth:`botocraft.services.ecs.TaskManager.list` to return a list of
     :py:class:`botocraft.services.ecs.Task` objects instead of only a list of
     ARNs.
+
+    Args:
+        func: The manager ``list`` method returning task ARNs.
+
+    Returns:
+        A wrapper that calls ``func`` and returns a queryset of the full
+        :py:class:`botocraft.services.ecs.Task` objects.
+
     """
 
     @wraps(func)
@@ -374,6 +455,15 @@ def ecs_task_definition_delete_all(
     :py:meth:`botocraft.services.ecs.TaskDefinitionManager.delete` method only
     accepts up to 10 task definitions at a time, so we need to delete them in
     batches of 10 if the user passes in more than 10 task definitions.
+
+    Args:
+        func: The manager ``delete`` method for task definitions.
+
+    Returns:
+        A wrapper that calls ``func`` in batches of 10 task definitions and
+        returns a single response combining the task definitions and failures
+        from every batch.
+
     """
 
     @wraps(func)
@@ -628,6 +718,11 @@ class ECSServiceModelMixin(ECSExecMixin):
         """
         The required CPU for the service in CPU shares.  One full CPU is
         equivalent to 1024 CPU shares.
+
+        Returns:
+            The required CPU, in CPU shares, taken from the task definition or
+            summed over its container definitions.
+
         """
         cpu: int = 0
         td = self.task_definition  # type: ignore[attr-defined]
@@ -643,6 +738,11 @@ class ECSServiceModelMixin(ECSExecMixin):
     def required_memory(self) -> int:
         """
         Return the required memory for the service in MiB.
+
+        Returns:
+            The required memory in MiB, taken from the task definition or summed
+            over its container definitions.
+
         """
         memory: int = 0
         td = self.task_definition  # type: ignore[attr-defined]
@@ -659,6 +759,10 @@ class ECSServiceModelMixin(ECSExecMixin):
         """
         Return the :py:class:`botocraft.services.ecs.ContainerInstance` objects which
         are running our tasks for the service.
+
+        Returns:
+            A queryset of the container instances running the service's tasks.
+
         """
         return PrimaryBoto3ModelQuerySet(
             [task.container_instance for task in self.tasks]  # type: ignore[attr-defined]
@@ -668,6 +772,11 @@ class ECSServiceModelMixin(ECSExecMixin):
     def is_stable(self) -> bool:
         """
         Return whether the service is stable or not.
+
+        Returns:
+            ``True`` if the service has a single deployment and its running count
+            equals its desired count, ``False`` otherwise.
+
         """
         # this is the same test that the `services_stable` waiter uses
         return len(self.deployments) == 1 and (self.runningCount == self.desiredCount)  # type: ignore[attr-defined]
@@ -732,6 +841,11 @@ class ECSServiceModelMixin(ECSExecMixin):
         """
         Return the :py:class:`LoadBalancer` objects that are associated with the
         service.
+
+        Returns:
+            A queryset of the load balancers attached to the service's target
+            groups, or an empty queryset if there are none.
+
         """
         from botocraft.services import LoadBalancer
 
@@ -1491,11 +1605,20 @@ class ExpressGatewayServiceManagerMixin:
 
 
 class ECSContainerInstanceModelMixin:
+    """
+    A mixin for :py:class:`botocraft.services.ecs.ContainerInstance` that adds
+    properties reporting the free CPU and memory on the instance.
+    """
+
     @property
     def free_cpu(self) -> int:
         """
         Return the free CPU shares on the container instance.  One full CPU is
         equivalent to 1024 CPU shares.
+
+        Returns:
+            The unreserved CPU shares remaining on the container instance.
+
         """
         value: int = 0
         for resource in self.remainingResources:  # type: ignore[attr-defined]
@@ -1507,6 +1630,10 @@ class ECSContainerInstanceModelMixin:
     def free_ram(self) -> int:
         """
         Return the free RAM in MiB on the container instance.
+
+        Returns:
+            The unreserved memory in MiB remaining on the container instance.
+
         """
         value: int = 0
         for resource in self.remainingResources:  # type: ignore[attr-defined]
@@ -1516,6 +1643,11 @@ class ECSContainerInstanceModelMixin:
 
 
 class TaskDefinitionManagerMixin:
+    """
+    A mixin for :py:class:`botocraft.services.ecs.TaskDefinitionManager` that
+    adds a method for finding the task definitions that are in use.
+    """
+
     def in_use(
         self,
         tags: dict[str, str] | None = None,
@@ -1595,11 +1727,20 @@ class TaskDefinitionManagerMixin:
 
 
 class TaskDefinitionModelMixin:
+    """
+    A mixin for :py:class:`botocraft.services.ecs.TaskDefinition` that adds
+    convenience properties that we can't auto generate.
+    """
+
     @property
     def family_revision(self) -> str:
         """
         Return the family and revision of the task definition in the format
         ``<family>:<revision>``.
+
+        Returns:
+            The task definition family and revision as ``<family>:<revision>``.
+
         """
         return f"{self.family}:{self.revision}"
 
@@ -1685,6 +1826,11 @@ class ServiceDeploymentModelMixin:
     def source_task_definitions(self) -> "PrimaryBoto3ModelQuerySet":
         """
         Return the task definition for the deployment.
+
+        Returns:
+            A queryset of the task definitions of the deployment's source
+            service revisions.
+
         """
         from botocraft.services import TaskDefinition
 

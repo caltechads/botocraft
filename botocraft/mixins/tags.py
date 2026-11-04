@@ -88,7 +88,10 @@ class TagsDict(dict):
                 break
         if not found:
             tag = cast("Type", self.tag_class)(
-                **{self.tag_Key: key, self.tag_Value: value}
+                **{
+                    cast("str", self.tag_Key): key,
+                    cast("str", self.tag_Value): value,
+                }
             )
             instance.Tags.append(tag)  # type: ignore[attr-defined]
         super().__setitem__(key, value)
@@ -150,6 +153,13 @@ class TagsDictMixin:
         One important assumption this mixin makes is the caller modifies tags
         via either self.tags or self.Tags, but not both at the same time.  If
         you do use both at the same time, you will get unexpected results.
+
+    Args:
+        *args: Positional arguments passed to the next class in the MRO.
+
+    Keyword Args:
+        **kwargs: Keyword arguments passed to the next class in the MRO.
+
     """
 
     #: The boto3 tag class.  This has to be configurable because once
@@ -157,16 +167,35 @@ class TagsDictMixin:
     tag_class: Type | None = None
 
     def __init__(self, *args, **kwargs) -> None:
+        """
+        Initialize the model and default ``tag_class`` to
+        :py:class:`botocraft.services.common.Tag` when a subclass did not set it.
+
+        Args:
+            *args: Positional arguments passed to the next class in the MRO.
+
+        Keyword Args:
+            **kwargs: Keyword arguments passed to the next class in the MRO.
+
+        """
         super().__init__(*args, **kwargs)
         if self.tag_class is None:
             from botocraft.services.common import Tag
 
+            #: The tag class used to build new tags.
             self.tag_class = Tag
 
     @cached_property
     def __tag_Key(self) -> str:
         """
         The name of the key attribute in the tag class.
+
+        Raises:
+            RuntimeError: The tag class has neither a ``key`` nor a ``Key`` field.
+
+        Returns:
+            The key attribute name, ``key`` or ``Key``.
+
         """
         assert self.tag_class is not None, (
             "The tag_class class attribute must be set before using tags."
@@ -182,6 +211,14 @@ class TagsDictMixin:
     def __tag_Value(self) -> str:
         """
         The name of the value attribute in the tag class.
+
+        Raises:
+            RuntimeError: The tag class has neither a ``value`` nor a ``Value``
+                field.
+
+        Returns:
+            The value attribute name, ``value`` or ``Value``.
+
         """
         assert self.tag_class is not None, (
             "The tag_class class attribute must be set before using tags."

@@ -66,7 +66,7 @@ class ElasticsearchAutoTuneNotificationEvent(
 
 
 #: Declarative mapping from EventBridge source/detail-type pairs to wrappers.
-EVENT_CLASS_MAP = {
+EVENT_CLASS_MAP: dict[tuple[str, str], type[EventBridgeEvent]] = {
     (
         "aws.es",
         "Amazon ES Service Software Update Notification",

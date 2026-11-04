@@ -24,6 +24,20 @@ if TYPE_CHECKING:
 def _attach_domain_tags(
     client: object, domain: "OpenSearchDomain"
 ) -> "OpenSearchDomain":
+    """
+    Fetch the tags for an OpenSearch domain and store them on the domain.
+
+    Side Effects:
+        Sets ``Tags`` on ``domain``.
+
+    Args:
+        client: The OpenSearch boto3 client used to list the domain tags.
+        domain: The domain to populate with tags.
+
+    Returns:
+        The same ``domain`` object, with ``Tags`` populated.
+
+    """
     tags = client.list_tags(ARN=domain.ARN)  # type: ignore[attr-defined]
     domain.Tags = tags["TagList"]
     return domain
@@ -34,6 +48,14 @@ def single_opensearch_domain_include_tags(
 ) -> Callable[..., "OpenSearchDomain"]:
     """
     Decorate a manager method so the returned domain includes tags.
+
+    Args:
+        func: The manager method returning a single domain.
+
+    Returns:
+        A wrapper that calls ``func`` and sets ``Tags`` on the returned
+        domain.
+
     """
 
     @wraps(func)
@@ -49,6 +71,14 @@ def multiple_opensearch_domains_include_tags(
 ) -> Callable[..., "PrimaryBoto3ModelQuerySet"]:
     """
     Decorate a manager method so listed domains include tags.
+
+    Args:
+        func: The manager method returning a queryset of domains.
+
+    Returns:
+        A wrapper that calls ``func`` and returns a new queryset whose
+        domains have ``Tags`` populated.
+
     """
 
     @wraps(func)
@@ -72,6 +102,14 @@ def single_opensearch_domain_update_include_tags(
 ) -> Callable[..., "OpenSearchDomain"]:
     """
     Decorate domain updates so the returned domain is re-described with tags.
+
+    Args:
+        func: The manager method that updates a domain.
+
+    Returns:
+        A wrapper that calls ``func``, then re-fetches the domain and sets
+        ``Tags`` on it.
+
     """
 
     @wraps(func)

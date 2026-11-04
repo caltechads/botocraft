@@ -622,6 +622,10 @@ class MethodDocstringDefinition:
     def is_empty(self) -> bool:
         """
         Return ``True`` if the docstring is empty, ``False`` otherwise.
+
+        Returns:
+            ``True`` if no part of the docstring is set, ``False`` otherwise.
+
         """
         return (
             self.method is None
@@ -633,6 +637,14 @@ class MethodDocstringDefinition:
     def Args(self, formatter: DocumentationFormatter) -> str:
         """
         Return the docstring for the positional arguments.
+
+        Args:
+            formatter: The formatter used to render each argument.
+
+        Returns:
+            The ``Args:`` section of the docstring, one entry per positional
+            argument.
+
         """
         assert self.args, "No kwargs"
         docstring = """
@@ -647,6 +659,14 @@ class MethodDocstringDefinition:
     def Keyword_Args(self, formatter: DocumentationFormatter) -> str:
         """
         Return the docstring for the keyword arguments.
+
+        Args:
+            formatter: The formatter used to render each argument.
+
+        Returns:
+            The ``Keyword Args:`` section of the docstring, one entry per
+            keyword argument.
+
         """
         assert self.kwargs, "No args"
         docstring = """
@@ -660,6 +680,14 @@ class MethodDocstringDefinition:
     def render(self, formatter: DocumentationFormatter) -> str | None:
         """
         Return the entire method docstring.
+
+        Args:
+            formatter: The formatter used to clean and render each section.
+
+        Returns:
+            The complete, indented docstring text, or ``None`` if the
+            definition is empty.
+
         """
         if self.is_empty:
             return None
@@ -750,6 +778,11 @@ class ServiceDefinition(BaseModel):
             This does not include models that we generate on the fly, like
             dependent models for primary models, or models for the request and
             response classes for methods on managers.
+
+        Returns:
+            A mapping of model names to their definitions, covering both
+            primary and secondary models.
+
         """
         return {**self.primary_models, **self.secondary_models}
 
@@ -835,6 +868,12 @@ class ServiceDefinition(BaseModel):
 
 
 class BotocraftInterface(BaseModel):
+    """
+    The top-level definition of everything botocraft generates: the services
+    to generate and the mapping of model names to the modules that define
+    them.
+    """
+
     #: The services to generate
     services: dict[str, ServiceDefinition] = {}
     #: The model name to import path mappings
