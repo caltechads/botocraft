@@ -3230,8 +3230,8 @@ class CapacityProvider(TagsDictMixin, PrimaryBoto3Model):
     used within their associated cluster.
     """
 
-    status: Literal["PROVISIONING", "ACTIVE", "DEPROVISIONING", "INACTIVE"] = Field(
-        default=None, frozen=True
+    status: "Literal['PROVISIONING', 'ACTIVE', 'DEPROVISIONING', 'INACTIVE'] | None" = (
+        Field(default=None, frozen=True)
     )
     """
     The current status of the capacity provider.
@@ -3239,11 +3239,11 @@ class CapacityProvider(TagsDictMixin, PrimaryBoto3Model):
     Only capacity providers in an ``ACTIVE`` state can be used in a cluster. When a
     capacity provider is successfully deleted, it has an ``INACTIVE`` status.
     """
+
     autoScalingGroupProvider: "AutoScalingGroupProvider | None" = None
     """
     The Auto Scaling group settings for the capacity provider.
     """
-
     managedInstancesProvider: "ManagedInstancesProvider | None" = None
     """
     The configuration for the Amazon ECS Managed Instances provider.
@@ -3251,22 +3251,16 @@ class CapacityProvider(TagsDictMixin, PrimaryBoto3Model):
     This includes the infrastructure role, the launch template configuration, and tag
     propagation settings.
     """
-    updateStatus: Literal[
-        "CREATE_IN_PROGRESS",
-        "CREATE_COMPLETE",
-        "CREATE_FAILED",
-        "DELETE_IN_PROGRESS",
-        "DELETE_COMPLETE",
-        "DELETE_FAILED",
-        "UPDATE_IN_PROGRESS",
-        "UPDATE_COMPLETE",
-        "UPDATE_FAILED",
-    ] = Field(default=None, frozen=True)
+
+    updateStatus: "Literal['CREATE_IN_PROGRESS', 'CREATE_COMPLETE', 'CREATE_FAILED', 'DELETE_IN_PROGRESS', 'DELETE_COMPLETE', 'DELETE_FAILED', 'UPDATE_IN_PROGRESS', 'UPDATE_COMPLETE', 'UPDATE_FAILED'] | None" = Field(
+        default=None, frozen=True
+    )
     """
     The update status of the capacity provider.
 
     The following are the possible states that is returned.
     """
+
     updateStatusReason: str = Field(default=None, frozen=True)
     """
     The update status reason.
@@ -3274,8 +3268,8 @@ class CapacityProvider(TagsDictMixin, PrimaryBoto3Model):
     This provides further details about the update status for the capacity provider.
     """
 
-    type: Literal["EC2_AUTOSCALING", "MANAGED_INSTANCES", "FARGATE", "FARGATE_SPOT"] = (
-        Field(default=None, frozen=True)
+    type: "Literal['EC2_AUTOSCALING', 'MANAGED_INSTANCES', 'FARGATE', 'FARGATE_SPOT'] | None" = Field(
+        default=None, frozen=True
     )
     """
     The type of capacity provider.
@@ -4125,12 +4119,14 @@ class TaskSet(TagsDictMixin, PrimaryBoto3Model):
     in the *Amazon Elastic
     Container Service Developer Guide*.
     """
+
     platformFamily: str = Field(default=None, frozen=True)
     """
     The operating system that your tasks in the set are running on.
 
     A platform family is specified only for tasks that use the Fargate launch type.
     """
+
     networkConfiguration: "NetworkConfiguration | None" = None
     """
     The network configuration for the task set.
@@ -4159,7 +4155,7 @@ class TaskSet(TagsDictMixin, PrimaryBoto3Model):
     running in the task set.
     """
 
-    stabilityStatus: Literal["STEADY_STATE", "STABILIZING"] = Field(
+    stabilityStatus: "Literal['STEADY_STATE', 'STABILIZING'] | None" = Field(
         default=None, frozen=True
     )
     """
@@ -5506,6 +5502,7 @@ network interface by using the
     unhealthy Elastic Load Balancing, VPC Lattice, and container health checks after a
     task has first started.
     """
+
     deploymentController: "DeploymentController | None" = None
     """
     The deployment controller type the service is using.
@@ -5547,7 +5544,7 @@ network interface by using the
     Indicates whether to use Availability Zone rebalancing for the service.
     """
 
-    resourceManagementType: Literal["CUSTOMER", "ECS"] = Field(
+    resourceManagementType: "Literal['CUSTOMER', 'ECS'] | None" = Field(
         default=None, frozen=True
     )
     """
@@ -7676,6 +7673,7 @@ class ECSProxyConfiguration(Boto3Model):
     information, see `Amazon ECS-optimized Linux AMI
     <https://docs.aws.amazon.com/AmazonECS/latest/developerguide/ecs-optimized_AMI.html>`_
     """
+
     type: "Literal['APPMESH'] | None" = None
     """
     The proxy type.
@@ -7687,12 +7685,12 @@ class ECSProxyConfiguration(Boto3Model):
     """
     The name of the container that will serve as the App Mesh proxy.
     """
-
     properties: "builtins.list[KeyValuePair] | None" = Field(default_factory=list)
     """
     The set of network configuration parameters to provide the Container Network
     Interface (CNI) plugin, specified as key- value pairs.
     """
+
 class EphemeralStorage(Boto3Model):
     """
     The amount of ephemeral storage to allocate for the task.
@@ -7717,7 +7715,6 @@ class EphemeralStorage(Boto3Model):
     GiB.
     """
 
-
 class TaskDefinition(TagsDictMixin, TaskDefinitionModelMixin, PrimaryBoto3Model):
     """
     The details of a task definition which describes the container and volume
@@ -7727,7 +7724,6 @@ class TaskDefinition(TagsDictMixin, TaskDefinitionModelMixin, PrimaryBoto3Model)
     configurations related to launching the task definition through an Amazon ECS
     service or task.
     """
-
     tag_class: ClassVar[ModelType[Boto3Model]] = ECSTag
     manager_class: ClassVar[ModelType[Boto3ModelManager]] = TaskDefinitionManager
 
@@ -7757,6 +7753,7 @@ class TaskDefinition(TagsDictMixin, TaskDefinitionModelMixin, PrimaryBoto3Model)
     The valid values are ``none``, ``bridge``, ``awsvpc``, and ``host``. If no network
     mode is specified, the default is ``bridge``.
     """
+
     taskDefinitionArn: str = Field(default=None, frozen=True)
     """
     The full Amazon Resource Name (ARN) of the task definition.
@@ -7805,7 +7802,7 @@ class TaskDefinition(TagsDictMixin, TaskDefinitionModelMixin, PrimaryBoto3Model)
     Container Service Developer Guide*.
     """
 
-    status: Literal["ACTIVE", "INACTIVE", "DELETE_IN_PROGRESS"] = Field(
+    status: "Literal['ACTIVE', 'INACTIVE', 'DELETE_IN_PROGRESS'] | None" = Field(
         default=None, frozen=True
     )
     """
@@ -7837,7 +7834,7 @@ class TaskDefinition(TagsDictMixin, TaskDefinitionModelMixin, PrimaryBoto3Model)
     An array of placement constraint objects to use for tasks.
     """
 
-    compatibilities: "builtins.list[Literal['EC2', 'FARGATE', 'EXTERNAL', 'MANAGED_INSTANCES']]" = Field(
+    compatibilities: "builtins.list[Literal['EC2', 'FARGATE', 'EXTERNAL', 'MANAGED_INSTANCES']] | None" = Field(
         default_factory=list, frozen=True
     )
     """
@@ -8294,12 +8291,14 @@ class TaskOverride(Boto3Model):
     """
     The overrides that are associated with a task.
     """
+
     containerOverrides: "builtins.list[ContainerOverride] | None" = Field(
         default_factory=list
     )
     """
     One or more container overrides that are sent to a task.
     """
+
     cpu: "str | None" = None
     """
     The CPU override for the task.
@@ -8311,6 +8310,7 @@ class TaskOverride(Boto3Model):
     """
     The Elastic Inference accelerator override for the task.
     """
+
     executionRoleArn: "str | None" = None
     """
     The Amazon Resource Name (ARN) of the task execution role override for the task.
@@ -8325,6 +8325,7 @@ class TaskOverride(Boto3Model):
     """
     The memory override for the task.
     """
+
     taskRoleArn: "str | None" = None
     """
     The Amazon Resource Name (ARN) of the role that containers in this task can assume.
@@ -8428,7 +8429,7 @@ class Task(TagsDictMixin, ECSTaskModelMixin, PrimaryBoto3Model):
     The capacity provider that's associated with the task.
     """
 
-    connectivity: Literal["CONNECTED", "DISCONNECTED"] = Field(
+    connectivity: "Literal['CONNECTED', 'DISCONNECTED'] | None" = Field(
         default=None, frozen=True
     )
     """
@@ -8493,7 +8494,7 @@ class Task(TagsDictMixin, ECSTaskModelMixin, PrimaryBoto3Model):
     The name of the task group that's associated with the task.
     """
 
-    healthStatus: Literal["HEALTHY", "UNHEALTHY", "UNKNOWN"] = Field(
+    healthStatus: "Literal['HEALTHY', 'UNHEALTHY', 'UNKNOWN'] | None" = Field(
         default=None, frozen=True
     )
     """
@@ -8520,6 +8521,7 @@ class Task(TagsDictMixin, ECSTaskModelMixin, PrimaryBoto3Model):
     For more information, see
     `Task Lifecycle <https://docs.aws.amazon.com/AmazonECS/latest/developerguide/task-lifecycle.html>`_.
     """
+
     memory: str = Field(default=None, frozen=True)
     """
     The amount of memory (in MiB) that the task uses as expressed in a task definition.
@@ -8533,6 +8535,7 @@ class Task(TagsDictMixin, ECSTaskModelMixin, PrimaryBoto3Model):
     """
     One or more container overrides.
     """
+
     platformFamily: str = Field(default=None, frozen=True)
     """
     The operating system that your tasks are running on.
@@ -8566,15 +8569,9 @@ class Task(TagsDictMixin, ECSTaskModelMixin, PrimaryBoto3Model):
     deployment ID of that service.
     """
 
-    stopCode: Literal[
-        "TaskFailedToStart",
-        "EssentialContainerExited",
-        "UserInitiated",
-        "ServiceSchedulerInitiated",
-        "SpotInterruption",
-        "TerminationNotice",
-        "InfrastructureHealth",
-    ] = Field(default=None, frozen=True)
+    stopCode: "Literal['TaskFailedToStart', 'EssentialContainerExited', 'UserInitiated', 'ServiceSchedulerInitiated', 'SpotInterruption', 'TerminationNotice', 'InfrastructureHealth'] | None" = Field(
+        default=None, frozen=True
+    )
     """
     The stop code indicating why a task was stopped.
 
@@ -11009,7 +11006,6 @@ class DaemonLinuxParameters(Boto3Model):
     """
     The container path, mount options, and size (in MiB) of the tmpfs mount.
     """
-
 class DaemonContainerDefinition(Boto3Model):
     """
     A container definition for a daemon task.
@@ -11085,6 +11081,7 @@ class DaemonContainerDefinition(Boto3Model):
     """
     The working directory to run commands inside the container in.
     """
+
     environmentFiles: "builtins.list[EnvironmentFile] | None" = Field(
         default_factory=list
     )
@@ -11119,6 +11116,7 @@ class DaemonContainerDefinition(Boto3Model):
     """
     The log configuration specification for the container.
     """
+
     firelensConfiguration: "FirelensConfiguration | None" = None
     """
     The FireLens configuration for the container.
@@ -11209,11 +11207,11 @@ class HostVolumeProperties(Boto3Model):
     instance, the Docker daemon creates it. If the location does exist, the contents of
     the source path folder are exported.
     """
+
 class DaemonVolume(Boto3Model):
     """
     A data volume definition for a daemon task.
     """
-
     name: "str | None" = None
     """
     The name of the volume.
@@ -11236,6 +11234,7 @@ class DaemonTaskDefinition(TagsDictMixin, PrimaryBoto3Model):
     daemon. Daemons deploy cross-cutting software agents independently across your
     Amazon ECS infrastructure.
     """
+
     tag_class: ClassVar[ModelType[Boto3Model]] = ECSTag | None
     manager_class: ClassVar[ModelType[Boto3ModelManager]] = DaemonTaskDefinitionManager
 
@@ -11294,7 +11293,8 @@ class DaemonTaskDefinition(TagsDictMixin, PrimaryBoto3Model):
     """
     The amount of memory (in MiB) used by the daemon task.
     """
-    status: Literal["ACTIVE", "DELETE_IN_PROGRESS", "DELETED"] = Field(
+
+    status: "Literal['ACTIVE', 'DELETE_IN_PROGRESS', 'DELETED'] | None" = Field(
         default=None, frozen=True
     )
     """

@@ -588,7 +588,7 @@ class KinesisStream(TagsDictMixin, KinesisStreamModelMixin, PrimaryBoto3Model):
     Represents the current enhanced monitoring settings of the stream.
     """
 
-    EncryptionType: Literal["NONE", "KMS"] = Field(default=None, frozen=True)
+    EncryptionType: "Literal['NONE', 'KMS'] | None" = Field(default=None, frozen=True)
     """
     The encryption type used.
 
@@ -630,8 +630,7 @@ class KinesisStream(TagsDictMixin, KinesisStreamModelMixin, PrimaryBoto3Model):
     """
     The number of channels associated with the stream.
     """
-
-    RecordDistributionStrategy: Literal["AUTO", "USER_PARTITION_KEY"] = Field(
+    RecordDistributionStrategy: "Literal['AUTO', 'USER_PARTITION_KEY'] | None" = Field(
         default=None, frozen=True
     )
     """

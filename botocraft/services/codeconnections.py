@@ -533,7 +533,7 @@ class Connection(TagsDictMixin, PrimaryBoto3Model):
     For Bitbucket, this is the account ID of the owner of the Bitbucket repository.
     """
 
-    ConnectionStatus: Literal["PENDING", "AVAILABLE", "ERROR"] = Field(
+    ConnectionStatus: "Literal['PENDING', 'AVAILABLE', 'ERROR'] | None" = Field(
         default=None, frozen=True
     )
     """

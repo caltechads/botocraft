@@ -1480,6 +1480,7 @@ class OpenSearchDomain(TagsDictMixin, DomainModelMixin, PrimaryBoto3Model):
     """
     The current status of the domain's service software.
     """
+
     DomainEndpointOptions: "OpenSearchDomainEndpointOptions | None" = None
     """
     Additional options for the domain endpoint, such as whether to require HTTPS for all
@@ -1490,11 +1491,13 @@ class OpenSearchDomain(TagsDictMixin, DomainModelMixin, PrimaryBoto3Model):
     """
     Settings for fine-grained access control.
     """
+
     IdentityCenterOptions: "OpenSearchIdentityCenterOptions | None" = None
     """
     Configuration options for controlling IAM Identity Center integration within a
     domain.
     """
+
     AutoTuneOptions: "AutoTuneOptionsOutput | None" = None
     """
     Auto-Tune settings for the domain.
@@ -1518,15 +1521,9 @@ class OpenSearchDomain(TagsDictMixin, DomainModelMixin, PrimaryBoto3Model):
     Service software update options for the domain.
     """
 
-    DomainProcessingStatus: Literal[
-        "Creating",
-        "Active",
-        "Modifying",
-        "UpgradingEngineVersion",
-        "UpdatingServiceSoftware",
-        "Isolated",
-        "Deleting",
-    ] = Field(default=None, frozen=True)
+    DomainProcessingStatus: "Literal['Creating', 'Active', 'Modifying', 'UpgradingEngineVersion', 'UpdatingServiceSoftware', 'Isolated', 'Deleting'] | None" = Field(
+        default=None, frozen=True
+    )
     """
     The status of any changes that are currently in progress for the domain.
     """
@@ -1683,8 +1680,6 @@ class OpenSearchDomain(TagsDictMixin, DomainModelMixin, PrimaryBoto3Model):
         except AttributeError:
             return []
         return SecurityGroup.objects.using(self.session).list(**pk)  # type: ignore[arg-type]
-
-
 class OpenSearchVpcEndpoint(PrimaryBoto3Model):
     """
     The connection endpoint for connecting to an Amazon OpenSearch Service domain
@@ -1692,7 +1687,6 @@ class OpenSearchVpcEndpoint(PrimaryBoto3Model):
     """
 
     manager_class: ClassVar[ModelType[Boto3ModelManager]] = OpenSearchVpcEndpointManager
-
     VpcEndpointId: "str | None" = None
     """
     The unique identifier of the endpoint.
@@ -1714,15 +1708,9 @@ class OpenSearchVpcEndpoint(PrimaryBoto3Model):
     VPC endpoint.
     """
 
-    Status: Literal[
-        "CREATING",
-        "CREATE_FAILED",
-        "ACTIVE",
-        "UPDATING",
-        "UPDATE_FAILED",
-        "DELETING",
-        "DELETE_FAILED",
-    ] = Field(default=None, frozen=True)
+    Status: "Literal['CREATING', 'CREATE_FAILED', 'ACTIVE', 'UPDATING', 'UPDATE_FAILED', 'DELETING', 'DELETE_FAILED'] | None" = Field(
+        default=None, frozen=True
+    )
     """
     The current status of the endpoint.
     """
@@ -1947,11 +1935,11 @@ class OpenSearchPackageEncryptionOptions(Boto3Model):
     """
     Encryption options for a package.
     """
-
     KmsKeyIdentifier: "str | None" = None
     """
     KMS key ID for encrypting the package.
     """
+
     EncryptionEnabled: bool
     """
     Whether encryption is enabled for the package.
@@ -1973,25 +1961,20 @@ class OpenSearchPackage(PrimaryBoto3Model):
     """
     The user-specified name of the package.
     """
+
     PackageType: "Literal['TXT-DICTIONARY', 'ZIP-PLUGIN', 'PACKAGE-LICENSE', 'PACKAGE-CONFIG'] | None" = None
     """
     The type of package.
     """
+
     PackageDescription: "str | None" = None
     """
     User-specified description of the package.
     """
 
-    PackageStatus: Literal[
-        "COPYING",
-        "COPY_FAILED",
-        "VALIDATING",
-        "VALIDATION_FAILED",
-        "AVAILABLE",
-        "DELETING",
-        "DELETED",
-        "DELETE_FAILED",
-    ] = Field(default=None, frozen=True)
+    PackageStatus: "Literal['COPYING', 'COPY_FAILED', 'VALIDATING', 'VALIDATION_FAILED', 'AVAILABLE', 'DELETING', 'DELETED', 'DELETE_FAILED'] | None" = Field(
+        default=None, frozen=True
+    )
     """
     The current status of the package.
 

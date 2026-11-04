@@ -1721,9 +1721,9 @@ class AccessPoint(TagsDictMixin, PrimaryBoto3Model):
     Identifies the Amazon Web Services account that owns the access point resource.
     """
 
-    LifeCycleState: Literal[
-        "creating", "available", "updating", "deleting", "deleted", "error"
-    ] = Field(default=None, frozen=True)
+    LifeCycleState: "Literal['creating', 'available', 'updating', 'deleting', 'deleted', 'error'] | None" = Field(
+        default=None, frozen=True
+    )
     """
     Identifies the lifecycle phase of the access point.
     """

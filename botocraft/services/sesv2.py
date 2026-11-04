@@ -2092,12 +2092,13 @@ class EmailIdentity(TagsDictMixin, PrimaryBoto3Model):
     """
     The address or domain of the identity.
     """
+
     SendingEnabled: "bool | None" = None
     """
     Indicates whether or not you can send email from the identity.
     """
 
-    IdentityType: Literal["EMAIL_ADDRESS", "DOMAIN", "MANAGED_DOMAIN"] = Field(
+    IdentityType: "Literal['EMAIL_ADDRESS', 'DOMAIN', 'MANAGED_DOMAIN'] | None" = Field(
         default=None, frozen=True
     )
     """
@@ -2106,9 +2107,9 @@ class EmailIdentity(TagsDictMixin, PrimaryBoto3Model):
     Note: the ``MANAGED_DOMAIN`` type is not supported for email identity types.
     """
 
-    VerificationStatus: Literal[
-        "PENDING", "SUCCESS", "FAILED", "TEMPORARY_FAILURE", "NOT_STARTED"
-    ] = Field(default=None, frozen=True)
+    VerificationStatus: "Literal['PENDING', 'SUCCESS', 'FAILED', 'TEMPORARY_FAILURE', 'NOT_STARTED'] | None" = Field(
+        default=None, frozen=True
+    )
     """
     The verification status of the identity.
 
@@ -2603,16 +2604,17 @@ class DeliverabilityTestReport(TagsDictMixin, PrimaryBoto3Model):
     The subject line for an email that you submitted in a predictive inbox placement
     test.
     """
+
     FromEmailAddress: "str | None" = None
     """
     The sender address that you specified for the predictive inbox placement test.
     """
+
     CreateDate: datetime = Field(default=None, frozen=True)
     """
     The date and time when the predictive inbox placement test was created.
     """
-
-    DeliverabilityTestStatus: Literal["IN_PROGRESS", "COMPLETED"] = Field(
+    DeliverabilityTestStatus: "Literal['IN_PROGRESS', 'COMPLETED'] | None" = Field(
         default=None, frozen=True
     )
     """
@@ -2686,6 +2688,7 @@ class MultiRegionEndpoint(PrimaryBoto3Model):
     """
     An object that contains multi-region endpoint (global-endpoint) properties.
     """
+
     manager_class: ClassVar[ModelType[Boto3ModelManager]] = MultiRegionEndpointManager
 
     EndpointName: "str | None" = None
@@ -2693,7 +2696,7 @@ class MultiRegionEndpoint(PrimaryBoto3Model):
     The name of the multi-region endpoint (global-endpoint).
     """
 
-    Status: Literal["CREATING", "READY", "FAILED", "DELETING"] = Field(
+    Status: "Literal['CREATING', 'READY', 'FAILED', 'DELETING'] | None" = Field(
         default=None, frozen=True
     )
     """
@@ -2799,12 +2802,10 @@ class Tenant(TagsDictMixin, PrimaryBoto3Model):
     """
     A unique identifier for the tenant.
     """
-
     TenantArn: str = Field(default=None, frozen=True)
     """
     The Amazon Resource Name (ARN) of the tenant.
     """
-
     CreatedTimestamp: datetime = Field(default=None, frozen=True)
     """
     The date and time when the tenant was created.
@@ -2816,7 +2817,7 @@ class Tenant(TagsDictMixin, PrimaryBoto3Model):
     tenant.
     """
 
-    SendingStatus: Literal["ENABLED", "REINSTATED", "DISABLED"] = Field(
+    SendingStatus: "Literal['ENABLED', 'REINSTATED', 'DISABLED'] | None" = Field(
         default=None, frozen=True
     )
     """

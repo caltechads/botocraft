@@ -1315,14 +1315,9 @@ class Action(Boto3Model):
     ``authenticate-oidc``, ``authenticate-cognito``, or ``jwt-validation``.
     """
 
-    ActionType: Literal[
-        "forward",
-        "authenticate-oidc",
-        "authenticate-cognito",
-        "redirect",
-        "fixed-response",
-        "jwt-validation",
-    ] = Field(default=None, alias="Type")
+    ActionType: "Literal['forward', 'authenticate-oidc', 'authenticate-cognito', 'redirect', 'fixed-response', 'jwt-validation'] | None" = Field(
+        default=None, alias="Type"
+    )
     """
     The type of action.
     """

@@ -4039,8 +4039,6 @@ class AgentCoreMemory(PrimaryBoto3Model):
         :py:attr:`id` attribute.
         """
         return hash(self.id)
-
-
 class AgentCoreApiKeyCredentialProvider(PrimaryBoto3Model):
     """
     Contains information about an API key credential provider.
@@ -4054,11 +4052,11 @@ class AgentCoreApiKeyCredentialProvider(PrimaryBoto3Model):
     """
     The name of the API key credential provider.
     """
+
     credentialProviderArn: str = Field(frozen=True)
     """
     The Amazon Resource Name (ARN) of the API key credential provider.
     """
-
     createdTime: datetime = Field(frozen=True)
     """
     The timestamp when the API key credential provider was created.
@@ -4068,18 +4066,20 @@ class AgentCoreApiKeyCredentialProvider(PrimaryBoto3Model):
     """
     The timestamp when the API key credential provider was last updated.
     """
+
     apiKeySecretArn: Secret = Field(default=None, frozen=True)
     """
     The Amazon Resource Name (ARN) of the API key secret in Amazon Web Services Secrets
     Manager.
     """
+
     apiKeySecretJsonKey: str = Field(default=None, frozen=True)
     """
     The JSON key used to extract the API key value from the Amazon Web Services Secrets
     Manager secret.
     """
 
-    apiKeySecretSource: Literal["MANAGED", "EXTERNAL"] = Field(
+    apiKeySecretSource: "Literal['MANAGED', 'EXTERNAL'] | None" = Field(
         default=None, frozen=True
     )
     """
@@ -4557,7 +4557,6 @@ class AgentCoreOauth2CredentialProvider(PrimaryBoto3Model):
     """
     The timestamp when the OAuth2 credential provider was created.
     """
-
     lastUpdatedTime: datetime = Field(frozen=True)
     """
     The timestamp when the OAuth2 credential provider was last updated.
@@ -4575,7 +4574,7 @@ class AgentCoreOauth2CredentialProvider(PrimaryBoto3Model):
     Secrets Manager secret.
     """
 
-    clientSecretSource: Literal["MANAGED", "EXTERNAL"] = Field(
+    clientSecretSource: "Literal['MANAGED', 'EXTERNAL'] | None" = Field(
         default=None, frozen=True
     )
     """
@@ -4600,15 +4599,9 @@ class AgentCoreOauth2CredentialProvider(PrimaryBoto3Model):
     The configuration output for the OAuth2 provider.
     """
 
-    status: Literal[
-        "CREATING",
-        "CREATE_FAILED",
-        "UPDATING",
-        "UPDATE_FAILED",
-        "READY",
-        "DELETING",
-        "DELETE_FAILED",
-    ] = Field(default=None, frozen=True)
+    status: "Literal['CREATING', 'CREATE_FAILED', 'UPDATING', 'UPDATE_FAILED', 'READY', 'DELETING', 'DELETE_FAILED'] | None" = Field(
+        default=None, frozen=True
+    )
     """
     The current status of the OAuth2 credential provider.
     """
@@ -5394,6 +5387,7 @@ class AgentCoreGateway(PrimaryBoto3Model):
     """
     The type of authorizer used by the gateway.
     """
+
     protocolType: "Literal['MCP'] | None" = None
     """
     The protocol type used by the gateway.
@@ -5465,7 +5459,8 @@ class AgentCoreGateway(PrimaryBoto3Model):
     """
     The workload identity details for the gateway.
     """
-    exceptionLevel: Literal["DEBUG"] = Field(default=None, frozen=True)
+
+    exceptionLevel: "Literal['DEBUG'] | None" = Field(default=None, frozen=True)
     """
     The level of detail in error messages returned when invoking the gateway.
     """
@@ -7078,7 +7073,6 @@ class CertificateConfiguration(Boto3Model):
     The Amazon Web Services Secrets Manager location of the PEM-encoded private CA
     certificate.
     """
-
 class AgentCoreGatewayTarget(PrimaryBoto3Model):
     """
     Contains summary information about a gateway target.
@@ -7099,7 +7093,6 @@ class AgentCoreGatewayTarget(PrimaryBoto3Model):
     """
     The unique identifier of the target.
     """
-
     status: Literal[
         "CREATING",
         "UPDATING",
@@ -7150,24 +7143,15 @@ class AgentCoreGatewayTarget(PrimaryBoto3Model):
     with a credential provider with authorization code grant type and requires user
     federation.
     """
-
-    targetType: Literal[
-        "OPEN_API_SCHEMA",
-        "SMITHY_MODEL",
-        "MCP_SERVER",
-        "LAMBDA",
-        "API_GATEWAY",
-        "CONNECTOR",
-        "AGENTCORE_RUNTIME",
-        "PASSTHROUGH",
-        "PROVIDER",
-        "HTTP_CONNECTOR",
-    ] = Field(default=None, frozen=True)
+    targetType: "Literal['OPEN_API_SCHEMA', 'SMITHY_MODEL', 'MCP_SERVER', 'LAMBDA', 'API_GATEWAY', 'CONNECTOR', 'AGENTCORE_RUNTIME', 'PASSTHROUGH', 'PROVIDER', 'HTTP_CONNECTOR'] | None" = Field(
+        default=None, frozen=True
+    )
     """
     The type of the target.
     """
-
-    listingMode: Literal["DEFAULT", "DYNAMIC"] = Field(default=None, frozen=True)
+    listingMode: "Literal['DEFAULT', 'DYNAMIC'] | None" = Field(
+        default=None, frozen=True
+    )
     """
     The listing mode for the target.
 
@@ -7185,6 +7169,7 @@ class AgentCoreGatewayTarget(PrimaryBoto3Model):
     """
     The status reasons for the target status.
     """
+
     targetConfiguration: TargetConfiguration = Field(default=None, frozen=True)
     """
     The configuration for a gateway target.
@@ -7192,7 +7177,6 @@ class AgentCoreGatewayTarget(PrimaryBoto3Model):
     This structure defines how the gateway connects to and interacts with the target
     endpoint.
     """
-
     credentialProviderConfigurations: "builtins.list[CredentialProviderConfiguration]" = Field(
         default_factory=list, frozen=True
     )
@@ -7212,6 +7196,7 @@ class AgentCoreGatewayTarget(PrimaryBoto3Model):
 
     Defines how the gateway connects to private resources in your VPC.
     """
+
     privateEndpointManagedResources: "builtins.list[ManagedResourceDetails]" = Field(
         default_factory=list, frozen=True
     )
@@ -7223,7 +7208,7 @@ class AgentCoreGatewayTarget(PrimaryBoto3Model):
     resource configuration.
     """
 
-    protocolType: Literal["MCP", "HTTP"] = Field(default=None, frozen=True)
+    protocolType: "Literal['MCP', 'HTTP'] | None" = Field(default=None, frozen=True)
     """
     The protocol type of the gateway target.
     """

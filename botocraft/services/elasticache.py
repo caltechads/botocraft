@@ -2264,7 +2264,6 @@ class CacheCluster(CacheClusterModelMixin, PrimaryBoto3Model):
     A boolean value indicating whether log delivery is enabled for the replication
     group.
     """
-
     LogDeliveryConfigurations: "builtins.list[LogDeliveryConfiguration] | None" = Field(
         default_factory=list
     )
@@ -2290,7 +2289,7 @@ class CacheCluster(CacheClusterModelMixin, PrimaryBoto3Model):
     `Nitro system <http://aws.amazon.com/ec2/nitro/>`_.
     """
 
-    TransitEncryptionMode: Literal["preferred", "required"] = Field(
+    TransitEncryptionMode: "Literal['preferred', 'required'] | None" = Field(
         default=None, frozen=True
     )
     """
@@ -2670,14 +2669,13 @@ class CacheSubnetGroup(PrimaryBoto3Model):
     """
     A list of subnets associated with the cache subnet group.
     """
-
     ARN: str = Field(default=None, frozen=True)
     """
     The ARN (Amazon Resource Name) of the cache subnet group.
     """
 
-    SupportedNetworkTypes: "builtins.list[Literal['ipv4', 'ipv6', 'dual_stack']]" = (
-        Field(default_factory=list, frozen=True)
+    SupportedNetworkTypes: "builtins.list[Literal['ipv4', 'ipv6', 'dual_stack']] | None" = Field(
+        default_factory=list, frozen=True
     )
     """
     Either ``ipv4`` | ``ipv6`` | ``dual_stack``.
@@ -3179,7 +3177,6 @@ failed``, ``snapshotting``.
     """
     The names of all the cache clusters that are part of this replication group.
     """
-
     NodeGroups: "builtins.list[NodeGroup]" = Field(default_factory=list, frozen=True)
     """
     A list of node groups in this replication group.
@@ -3188,12 +3185,12 @@ failed``, ``snapshotting``.
     single-element list. For Valkey or Redis OSS (cluster mode enabled) replication
     groups, the list contains an entry for each node group (shard).
     """
-
     SnapshottingClusterId: "str | None" = None
     """
     The cluster ID that is used as the daily snapshot source for the replication group.
     """
-    AutomaticFailover: Literal["enabled", "disabled", "enabling", "disabling"] = Field(
+
+    AutomaticFailover: "Literal['enabled', 'disabled', 'enabling', 'disabling'] | None" = Field(
         default=None, frozen=True
     )
     """
@@ -3240,10 +3237,12 @@ failed``, ``snapshotting``.
     A flag that enables using an ``AuthToken`` (password) when issuing Valkey or Redis
     OSS commands.
     """
+
     AuthTokenLastModifiedDate: datetime = Field(default=None, frozen=True)
     """
     The date the auth token was last modified.
     """
+
     TransitEncryptionEnabled: "bool | None" = None
     """
     A flag that enables in-transit encryption when set to ``true``.
@@ -3269,8 +3268,8 @@ failed``, ``snapshotting``.
     The ID of the KMS key used to encrypt the disk in the cluster.
     """
 
-    StorageEncryptionType: Literal["none", "sse-elasticache", "sse-kms"] = Field(
-        default=None, frozen=True
+    StorageEncryptionType: "Literal['none', 'sse-elasticache', 'sse-kms'] | None" = (
+        Field(default=None, frozen=True)
     )
     """
     Indicates the type of encryption for data stored at rest in the replication group.
@@ -3279,6 +3278,7 @@ failed``, ``snapshotting``.
     an ElastiCache service-managed key is used, or ``sse-kms`` if a customer-managed KMS
     key is used.
     """
+
     ARN: str = Field(default=None, frozen=True)
     """
     The ARN (Amazon Resource Name) of the replication group.
@@ -3288,18 +3288,22 @@ failed``, ``snapshotting``.
     """
     The ID of the user group associated to the replication group.
     """
+
     LogDeliveryConfigurations: "builtins.list[LogDeliveryConfiguration] | None" = Field(
         default_factory=list
     )
     """
     Returns the destination, format and type of the logs.
     """
+
     ReplicationGroupCreateTime: datetime = Field(default=None, frozen=True)
     """
     The date and time when the cluster was created.
     """
 
-    DataTiering: Literal["enabled", "disabled"] = Field(default=None, frozen=True)
+    DataTiering: "Literal['enabled', 'disabled'] | None" = Field(
+        default=None, frozen=True
+    )
     """
     Enables data tiering.
 
@@ -3334,6 +3338,7 @@ failed``, ``snapshotting``.
     6.2 to 7.1 or Memcached engine version 1.6.6 and above on all instances built on the
     `Nitro system <http://aws.amazon.com/ec2/nitro/>`_.
     """
+
     TransitEncryptionMode: "Literal['preferred', 'required'] | None" = None
     """
     A setting that allows you to migrate your clients to use in-transit encryption, with
@@ -3350,7 +3355,6 @@ failed``, ``snapshotting``.
     Valkey or Redis OSS clients to use cluster mode enabled, you can then complete
     cluster mode configuration and set the cluster mode to Enabled.
     """
-
     Engine: "str | None" = None
     """
     The engine used in a replication group.
@@ -3365,8 +3369,7 @@ failed``, ``snapshotting``.
     For more information, see
     `Durability <https://docs.aws.amazon.com/AmazonElastiCache/latest/dg/durability.html>`_.
     """
-
-    EffectiveDurability: Literal["async", "sync", "disabled"] = Field(
+    EffectiveDurability: "Literal['async', 'sync', 'disabled'] | None" = Field(
         default=None, frozen=True
     )
     """

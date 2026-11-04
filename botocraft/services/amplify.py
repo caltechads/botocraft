@@ -938,7 +938,7 @@ class App(PrimaryBoto3Model):
     Describes the automated branch creation configuration for the Amplify app.
     """
 
-    repositoryCloneMethod: Literal["SSH", "TOKEN", "SIGV4"] = Field(
+    repositoryCloneMethod: "Literal['SSH', 'TOKEN', 'SIGV4'] | None" = Field(
         default=None, frozen=True
     )
     """
@@ -1451,7 +1451,6 @@ class DomainAssociation(PrimaryBoto3Model):
     The required AWS Identity and Access Management (IAM) service role for the Amazon
     Resource Name (ARN) for automatically creating subdomains.
     """
-
     domainStatus: Literal[
         "PENDING_VERIFICATION",
         "IN_PROGRESS",
@@ -1467,16 +1466,9 @@ class DomainAssociation(PrimaryBoto3Model):
     """
     The current status of the domain association.
     """
-
-    updateStatus: Literal[
-        "REQUESTING_CERTIFICATE",
-        "PENDING_VERIFICATION",
-        "IMPORTING_CUSTOM_CERTIFICATE",
-        "PENDING_DEPLOYMENT",
-        "AWAITING_APP_CNAME",
-        "UPDATE_COMPLETE",
-        "UPDATE_FAILED",
-    ] = Field(default=None, frozen=True)
+    updateStatus: "Literal['REQUESTING_CERTIFICATE', 'PENDING_VERIFICATION', 'IMPORTING_CUSTOM_CERTIFICATE', 'PENDING_DEPLOYMENT', 'AWAITING_APP_CNAME', 'UPDATE_COMPLETE', 'UPDATE_FAILED'] | None" = Field(
+        default=None, frozen=True
+    )
     """
     The status of the domain update operation that is currently in progress.
 

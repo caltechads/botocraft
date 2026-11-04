@@ -605,7 +605,7 @@ class Discoverer(PrimaryBoto3Model):
     The ARN of the event bus.
     """
 
-    State: Literal["STARTED", "STOPPED"] = Field(default=None, frozen=True)
+    State: "Literal['STARTED', 'STOPPED'] | None" = Field(default=None, frozen=True)
     """
     The state of the discoverer.
     """

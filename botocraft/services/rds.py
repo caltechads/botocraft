@@ -1355,7 +1355,6 @@ class DBInstance(TagsDictMixin, RDSInstanceModelMixin, PrimaryBoto3Model):
     """
     The list of DB parameter groups applied to this DB instance.
     """
-
     AvailabilityZone: "str | None" = None
     """
     The name of the Availability Zone where the DB instance is located.
@@ -1366,8 +1365,7 @@ class DBInstance(TagsDictMixin, RDSInstanceModelMixin, PrimaryBoto3Model):
     The weekly time range during which system maintenance can occur, in Universal
     Coordinated Time (UTC).
     """
-
-    UpgradeRolloutOrder: Literal["first", "second", "last"] = Field(
+    UpgradeRolloutOrder: "Literal['first', 'second', 'last'] | None" = Field(
         default=None, frozen=True
     )
     """
@@ -1478,8 +1476,7 @@ class DBInstance(TagsDictMixin, RDSInstanceModelMixin, PrimaryBoto3Model):
     """
     The storage type associated with the DB instance.
     """
-
-    StorageEncryptionType: Literal["none", "sse-kms", "sse-rds"] = Field(
+    StorageEncryptionType: "Literal['none', 'sse-kms', 'sse-rds'] | None" = Field(
         default=None, frozen=True
     )
     """
@@ -1595,7 +1592,6 @@ class DBInstance(TagsDictMixin, RDSInstanceModelMixin, PrimaryBoto3Model):
     The number of CPU cores and the number of threads per core for the DB instance class
     of the DB instance.
     """
-
     DeletionProtection: "bool | None" = None
     """
     Indicates whether the DB instance has deletion protection enabled.
@@ -1604,6 +1600,7 @@ class DBInstance(TagsDictMixin, RDSInstanceModelMixin, PrimaryBoto3Model):
     information, see
     `Deleting a DB Instance <https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/USER_DeleteInstance.html>`_.
     """
+
     AssociatedRoles: "builtins.list[DBInstanceRole]" = Field(
         default_factory=list, frozen=True
     )
@@ -1631,6 +1628,7 @@ class DBInstance(TagsDictMixin, RDSInstanceModelMixin, PrimaryBoto3Model):
     paused``, the instance pauses automation for the duration set by ``--resume- full-
     automation-mode-minutes``.
     """
+
     ResumeFullAutomationModeTime: datetime = Field(default=None, frozen=True)
     """
     The number of minutes to pause the automation.
@@ -1638,11 +1636,13 @@ class DBInstance(TagsDictMixin, RDSInstanceModelMixin, PrimaryBoto3Model):
     When the time period ends, RDS Custom resumes full automation. The minimum value is
     60 (default). The maximum value is 1,440.
     """
+
     NetworkType: "str | None" = None
     """
     The network type of the DB instance.
     """
-    ActivityStreamStatus: Literal["stopped", "starting", "started", "stopping"] = Field(
+
+    ActivityStreamStatus: "Literal['stopped', 'starting', 'started', 'stopping'] | None" = Field(
         default=None, frozen=True
     )
     """
@@ -1663,14 +1663,15 @@ class DBInstance(TagsDictMixin, RDSInstanceModelMixin, PrimaryBoto3Model):
     The name of the Amazon Kinesis data stream used for the database activity stream.
     """
 
-    ActivityStreamMode: Literal["sync", "async"] = Field(default=None, frozen=True)
+    ActivityStreamMode: "Literal['sync', 'async'] | None" = Field(
+        default=None, frozen=True
+    )
     """
     The mode of the database activity stream.
 
     Database events such as a change or access generate an activity stream event. RDS
     for Oracle always handles these events asynchronously.
     """
-
     ActivityStreamEngineNativeAuditFieldsIncluded: bool = Field(
         default=None, frozen=True
     )
@@ -1696,11 +1697,11 @@ class DBInstance(TagsDictMixin, RDSInstanceModelMixin, PrimaryBoto3Model):
     The location where automated backups and manual snapshots are stored: Dedicated
     Local Zones, Amazon Web Services Outposts or the Amazon Web Services Region.
     """
-
     AutomaticRestartTime: datetime = Field(default=None, frozen=True)
     """
     The time when a stopped DB instance is restarted automatically.
     """
+
     CustomIamInstanceProfile: "str | None" = None
     """
     The instance profile associated with the underlying Amazon EC2 instance of an RDS
@@ -1710,9 +1711,9 @@ class DBInstance(TagsDictMixin, RDSInstanceModelMixin, PrimaryBoto3Model):
     profile must meet the following requirements:
     """
 
-    ActivityStreamPolicyStatus: Literal[
-        "locked", "unlocked", "locking-policy", "unlocking-policy"
-    ] = Field(default=None, frozen=True)
+    ActivityStreamPolicyStatus: "Literal['locked', 'unlocked', 'locking-policy', 'unlocking-policy'] | None" = Field(
+        default=None, frozen=True
+    )
     """
     The status of the policy state of the activity stream.
     """

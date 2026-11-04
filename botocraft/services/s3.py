@@ -4006,7 +4006,9 @@ class S3Object(TagsDictMixin, PrimaryBoto3Model):
     The algorithm that was used to create a checksum of the object.
     """
 
-    ChecksumType: Literal["COMPOSITE", "FULL_OBJECT"] = Field(default=None, frozen=True)
+    ChecksumType: "Literal['COMPOSITE', 'FULL_OBJECT'] | None" = Field(
+        default=None, frozen=True
+    )
     """
     The checksum type that is used to calculate the object’s checksum value.
 

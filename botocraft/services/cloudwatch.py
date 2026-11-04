@@ -2033,7 +2033,7 @@ class MetricAlarm(PrimaryBoto3Model):
     Each action is specified as an Amazon Resource Name (ARN).
     """
 
-    StateValue: Literal["OK", "ALARM", "INSUFFICIENT_DATA"] = Field(
+    StateValue: "Literal['OK', 'ALARM', 'INSUFFICIENT_DATA'] | None" = Field(
         default=None, frozen=True
     )
     """
@@ -2148,15 +2148,15 @@ class MetricAlarm(PrimaryBoto3Model):
     the Metrics array is the math expression that the alarm watches. This expression by
     designated by having ``ReturnData`` set to true.
     """
+
     ThresholdMetricId: "str | None" = None
     """
     In an alarm based on an anomaly detection model, this is the ID of the
     ``ANOMALY_DETECTION_BAND`` function used as the threshold for the alarm.
     """
-
-    EvaluationState: Literal[
-        "PARTIAL_DATA", "EVALUATION_FAILURE", "EVALUATION_ERROR"
-    ] = Field(default=None, frozen=True)
+    EvaluationState: "Literal['PARTIAL_DATA', 'EVALUATION_FAILURE', 'EVALUATION_ERROR'] | None" = Field(
+        default=None, frozen=True
+    )
     """
     If the value of this field is ``PARTIAL_DATA``, it indicates that not all the
     available data was able to be retrieved due to quota limitations.
@@ -2355,7 +2355,7 @@ class CompositeAlarm(PrimaryBoto3Model):
     Tracks the timestamp of any state update, even if ``StateValue`` doesn't change.
     """
 
-    StateValue: Literal["OK", "ALARM", "INSUFFICIENT_DATA"] = Field(
+    StateValue: "Literal['OK', 'ALARM', 'INSUFFICIENT_DATA'] | None" = Field(
         default=None, frozen=True
     )
     """
@@ -2366,9 +2366,8 @@ class CompositeAlarm(PrimaryBoto3Model):
     """
     The timestamp of the last change to the alarm's ``StateValue``.
     """
-
-    ActionsSuppressedBy: Literal["WaitPeriod", "ExtensionPeriod", "Alarm"] = Field(
-        default=None, frozen=True
+    ActionsSuppressedBy: "Literal['WaitPeriod', 'ExtensionPeriod', 'Alarm'] | None" = (
+        Field(default=None, frozen=True)
     )
     """
     When the value is ``ALARM``, it means that the actions are suppressed because the
@@ -2912,8 +2911,8 @@ class CloudWatchAnomalyDetector(PrimaryBoto3Model):
     time zone to use for the metric.
     """
 
-    StateValue: Literal["PENDING_TRAINING", "TRAINED_INSUFFICIENT_DATA", "TRAINED"] = (
-        Field(default=None, frozen=True)
+    StateValue: "Literal['PENDING_TRAINING', 'TRAINED_INSUFFICIENT_DATA', 'TRAINED'] | None" = Field(
+        default=None, frozen=True
     )
     """
     The current status of the anomaly detector's training.
@@ -3028,7 +3027,6 @@ class CloudWatchAlarmMuteTargets(Boto3Model):
     You can specify up to 100 alarm names.
     """
 
-
 class AlarmMuteRule(PrimaryBoto3Model):
     """
     Summary information about an alarm mute rule, including its name, status, and
@@ -3049,7 +3047,9 @@ class AlarmMuteRule(PrimaryBoto3Model):
     This field is only present if an expiration date was configured.
     """
 
-    Status: Literal["SCHEDULED", "ACTIVE", "EXPIRED"] = Field(default=None, frozen=True)
+    Status: "Literal['SCHEDULED', 'ACTIVE', 'EXPIRED'] | None" = Field(
+        default=None, frozen=True
+    )
     """
     The current status of the alarm mute rule.
 

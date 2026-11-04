@@ -3086,10 +3086,12 @@ class Project(TagsDictMixin, PrimaryBoto3Model):
     """
     Information about the VPC configuration that CodeBuild accesses.
     """
+
     badge: ProjectBadge = Field(default=None, frozen=True)
     """
     Information about the build badge for the build project.
     """
+
     logsConfig: "LogsConfig | None" = None
     """
     Information about logs for the build project.
@@ -3107,6 +3109,7 @@ class Project(TagsDictMixin, PrimaryBoto3Model):
     ``mountOptions``, ``mountPoint``, and ``type`` of a file system created using Amazon
     Elastic File System.
     """
+
     buildBatchConfig: "ProjectBuildBatchConfig | None" = None
     """
     A ProjectBuildBatchConfig object that defines the batch build options for the
@@ -3117,7 +3120,8 @@ class Project(TagsDictMixin, PrimaryBoto3Model):
     """
     The maximum number of concurrent builds that are allowed for this project.
     """
-    projectVisibility: Literal["PUBLIC_READ", "PRIVATE"] = Field(
+
+    projectVisibility: "Literal['PUBLIC_READ', 'PRIVATE'] | None" = Field(
         default=None, frozen=True
     )
     """
@@ -3819,6 +3823,7 @@ class BuildBatch(PrimaryBoto3Model):
     """
     The identifier of the batch build.
     """
+
     startTime: datetime = Field(default=None, frozen=True)
     """
     The date and time that the batch build started.
@@ -3834,9 +3839,9 @@ class BuildBatch(PrimaryBoto3Model):
     The current phase of the batch build.
     """
 
-    buildBatchStatus: Literal[
-        "SUCCEEDED", "FAILED", "FAULT", "TIMED_OUT", "IN_PROGRESS", "STOPPED"
-    ] = Field(default=None, frozen=True)
+    buildBatchStatus: "Literal['SUCCEEDED', 'FAILED', 'FAULT', 'TIMED_OUT', 'IN_PROGRESS', 'STOPPED'] | None" = Field(
+        default=None, frozen=True
+    )
     """
     The status of the batch build.
     """
@@ -4341,7 +4346,6 @@ class ReportGroup(TagsDictMixin, PrimaryBoto3Model):
     """
     A list of tag key and value pairs associated with this report group.
     """
-
     Arn: str = Field(default=None, alias="arn")
     """
     The ARN of the ``ReportGroup``.
@@ -4364,12 +4368,13 @@ class ReportGroup(TagsDictMixin, PrimaryBoto3Model):
     """
     The date and time this ``ReportGroup`` was created.
     """
+
     lastModified: datetime = Field(default=None, frozen=True)
     """
     The date and time this ``ReportGroup`` was last modified.
     """
 
-    status: Literal["ACTIVE", "DELETING"] = Field(default=None, frozen=True)
+    status: "Literal['ACTIVE', 'DELETING'] | None" = Field(default=None, frozen=True)
     """
     The status of the report group.
 

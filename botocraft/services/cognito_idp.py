@@ -2167,6 +2167,7 @@ class CognitoUserPool(PrimaryBoto3Model):
     Before you can delete a user pool that you have protected against deletion, you must
     deactivate this feature.
     """
+
     LambdaConfig: "LambdaConfigType | None" = None
     """
     A collection of user pool Lambda triggers.
@@ -2175,7 +2176,7 @@ class CognitoUserPool(PrimaryBoto3Model):
     Triggers can modify the outcome of the operations that invoked them.
     """
 
-    Status: Literal["Enabled", "Disabled"] = Field(default=None, frozen=True)
+    Status: "Literal['Enabled', 'Disabled'] | None" = Field(default=None, frozen=True)
     """
     This parameter is no longer used.
     """
@@ -3165,16 +3166,9 @@ class CognitoUser(PrimaryBoto3Model):
     Indicates whether the user's account is enabled or disabled.
     """
 
-    UserStatus: Literal[
-        "UNCONFIRMED",
-        "CONFIRMED",
-        "ARCHIVED",
-        "COMPROMISED",
-        "UNKNOWN",
-        "RESET_REQUIRED",
-        "FORCE_CHANGE_PASSWORD",
-        "EXTERNAL_PROVIDER",
-    ] = Field(default=None, frozen=True)
+    UserStatus: "Literal['UNCONFIRMED', 'CONFIRMED', 'ARCHIVED', 'COMPROMISED', 'UNKNOWN', 'RESET_REQUIRED', 'FORCE_CHANGE_PASSWORD', 'EXTERNAL_PROVIDER'] | None" = Field(
+        default=None, frozen=True
+    )
     """
     The user status.
 
@@ -3291,7 +3285,6 @@ class CognitoUserPoolDomain(PrimaryBoto3Model):
     A container for information about the user pool domain associated with the hosted UI
     and OAuth endpoints.
     """
-
     manager_class: ClassVar[ModelType[Boto3ModelManager]] = CognitoUserPoolDomainManager
 
     UserPoolId: "str | None" = None
@@ -3327,8 +3320,8 @@ class CognitoUserPoolDomain(PrimaryBoto3Model):
     The app version.
     """
 
-    Status: Literal["CREATING", "DELETING", "UPDATING", "ACTIVE", "FAILED"] = Field(
-        default=None, frozen=True
+    Status: "Literal['CREATING', 'DELETING', 'UPDATING', 'ACTIVE', 'FAILED'] | None" = (
+        Field(default=None, frozen=True)
     )
     """
     The domain status.

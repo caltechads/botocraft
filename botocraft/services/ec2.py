@@ -6870,7 +6870,6 @@ class VpcEncryptionControl(TagsDictMixin, Boto3Model):
     The tags assigned to the VPC Encryption Control configuration.
     """
 
-
 class EC2BlockPublicAccessStates(Boto3Model):
     """
     The state of VPC Block Public Access (BPA).
@@ -6879,7 +6878,6 @@ class EC2BlockPublicAccessStates(Boto3Model):
     """
     The mode of VPC BPA.
     """
-
 
 class Vpc(TagsDictMixin, VpcModelMixin, PrimaryBoto3Model):
     """
@@ -6898,12 +6896,10 @@ class Vpc(TagsDictMixin, VpcModelMixin, PrimaryBoto3Model):
     """
     Any tags assigned to the VPC.
     """
-
     OwnerId: str = Field(default=None, frozen=True)
     """
     The ID of the Amazon Web Services account that owns the VPC.
     """
-
     InstanceTenancy: "Literal['default', 'dedicated', 'host'] | None" = None
     """
     The allowed tenancy of instances launched into the VPC.
@@ -6945,13 +6941,12 @@ class Vpc(TagsDictMixin, VpcModelMixin, PrimaryBoto3Model):
     The ID of the VPC.
     """
 
-    State: Literal["pending", "available", "deleting"] = Field(
+    State: "Literal['pending', 'available', 'deleting'] | None" = Field(
         default=None, frozen=True
     )
     """
     The current state of the VPC.
     """
-
     DhcpOptionsId: str = Field(default=None, frozen=True)
     """
     The ID of the set of DHCP options you've associated with the VPC.
@@ -7077,12 +7072,10 @@ class SubnetIpv6CidrBlockAssociation(Boto3Model):
     """
     Describes an association between a subnet and an IPv6 CIDR block.
     """
-
     AssociationId: "str | None" = None
     """
     The ID of the association.
     """
-
     Ipv6CidrBlock: "str | None" = None
     """
     The IPv6 CIDR block.
@@ -7100,6 +7093,7 @@ class SubnetIpv6CidrBlockAssociation(Boto3Model):
     Private IP addresses are not and cannot be advertised on the internet from Amazon
     Web Services.
     """
+
     IpSource: "Literal['amazon', 'byoip', 'none'] | None" = None
     """
     The source that allocated the IP address space.
@@ -7108,6 +7102,7 @@ class SubnetIpv6CidrBlockAssociation(Boto3Model):
     space that you have allocated with Bring your own IP (BYOIP). ``none`` indicates
     private space.
     """
+
 class EC2PrivateDnsNameOptionsOnLaunch(Boto3Model):
     """
     Describes the options for instance hostnames.
@@ -7139,6 +7134,7 @@ class Subnet(TagsDictMixin, SubnetModelMixin, PrimaryBoto3Model):
     """
     Describes a subnet.
     """
+
     tag_class: ClassVar[ModelType[Boto3Model]] = Tag
     manager_class: ClassVar[ModelType[Boto3ModelManager]] = SubnetManager
 
@@ -7166,6 +7162,7 @@ class Subnet(TagsDictMixin, SubnetModelMixin, PrimaryBoto3Model):
     """
     Any tags assigned to the subnet.
     """
+
     AvailabilityZoneId: "str | None" = None
     """
     The AZ ID of the subnet.
@@ -7200,7 +7197,6 @@ class Subnet(TagsDictMixin, SubnetModelMixin, PrimaryBoto3Model):
     Indicates whether a network interface created in this subnet (including a network
     interface created by RunInstances) receives an IPv6 address.
     """
-
     Ipv6CidrBlockAssociationSet: "builtins.list[SubnetIpv6CidrBlockAssociation]" = (
         Field(default_factory=list, frozen=True)
     )
@@ -7232,13 +7228,13 @@ class Subnet(TagsDictMixin, SubnetModelMixin, PrimaryBoto3Model):
 
     An instance hostname is based on the IPv4 address or ID of the instance.
     """
+
     BlockPublicAccessStates: EC2BlockPublicAccessStates = Field(
         default=None, frozen=True
     )
     """
     The state of VPC Block Public Access (BPA).
     """
-
     Type: str = Field(default=None, frozen=True)
     """
     Indicates if this is a subnet used with Amazon Elastic VMware Service (EVS).
@@ -7247,15 +7243,14 @@ class Subnet(TagsDictMixin, SubnetModelMixin, PrimaryBoto3Model):
     about Amazon EVS, see  `*Amazon Elastic VMware Service API
     Reference* <https://docs.aws.amazon.com/evs/latest/APIReference/Welcome.html>`_ .
     """
-
     SubnetId: str = Field(default=None, frozen=True)
     """
     The ID of the subnet.
     """
 
-    State: Literal[
-        "pending", "available", "unavailable", "failed", "failed-insufficient-capacity"
-    ] = Field(default=None, frozen=True)
+    State: "Literal['pending', 'available', 'unavailable', 'failed', 'failed-insufficient-capacity'] | None" = Field(
+        default=None, frozen=True
+    )
     """
     The current state of the subnet.
     """
@@ -7271,6 +7266,7 @@ class Subnet(TagsDictMixin, SubnetModelMixin, PrimaryBoto3Model):
     """
     Indicates whether this is the default subnet for the Availability Zone.
     """
+
     MapPublicIpOnLaunch: bool = Field(default=None, frozen=True)
     """
     Indicates whether instances launched in this subnet receive a public IPv4 address.
@@ -7371,7 +7367,6 @@ class UserIdGroupPair(Boto3Model):
     """
     Describes a security group and Amazon Web Services account ID pair.
     """
-
     Description: "str | None" = None
     """
     A description for the security group rule that references this user ID group pair.
@@ -7454,7 +7449,6 @@ class PrefixListId(Boto3Model):
     """
     A description for the security group rule that references this prefix list ID.
     """
-
     PrefixListId: "str | None" = None
     """
     The ID of the prefix.
@@ -7477,7 +7471,6 @@ Numbers <http://www.iana.org/assignments/protocol-numbers/protocol-numbers.xhtml
 
     If the protocol is ICMP or ICMPv6, this is the ICMP type or -1 (all ICMP types).
     """
-
     ToPort: "int | None" = None
     """
     If the protocol is TCP or UDP, this is the end of the port range.
@@ -7503,6 +7496,7 @@ Numbers <http://www.iana.org/assignments/protocol-numbers/protocol-numbers.xhtml
     """
     The IPv6 address ranges.
     """
+
     PrefixListIds: "builtins.list[PrefixListId] | None" = Field(default_factory=list)
     """
     The prefix list IDs.
@@ -7628,6 +7622,7 @@ class NetworkAclAssociation(Boto3Model):
     """
     The ID of the association between a network ACL and a subnet.
     """
+
     NetworkAclId: "str | None" = None
     """
     The ID of the network ACL.
@@ -7642,19 +7637,20 @@ class EC2IcmpTypeCode(Boto3Model):
     """
     Describes the ICMP type and code.
     """
+
     Code: "int | None" = None
     """
     The ICMP code.
 
     A value of -1 means all codes for the specified ICMP type.
     """
+
     Type: "int | None" = None
     """
     The ICMP type.
 
     A value of -1 means all types.
     """
-
 class NetworkAclPortRange(Boto3Model):
     """
     Describes a range of ports.
@@ -7669,6 +7665,7 @@ class NetworkAclPortRange(Boto3Model):
     """
     The last port in the range.
     """
+
 class NetworkAclEntry(Boto3Model):
     """
     Describes an entry in a network ACL.
@@ -7748,7 +7745,6 @@ class NetworkAcl(TagsDictMixin, PrimaryBoto3Model):
     """
     The ID of the network ACL.
     """
-
     Tags: "builtins.list[Tag]" = Field(default_factory=list, frozen=True)
     """
     Any tags assigned to the network ACL.
@@ -7797,7 +7793,6 @@ class NetworkAcl(TagsDictMixin, PrimaryBoto3Model):
         :py:attr:`NetworkAclId` attribute.
         """
         return hash(self.NetworkAclId)
-
     @cached_property
     def vpc(self) -> "Vpc | None":
         """
@@ -7844,7 +7839,6 @@ class NetworkAcl(TagsDictMixin, PrimaryBoto3Model):
             return []
         return Subnet.objects.using(self.session).list(**pk)  # type: ignore[arg-type]
 
-
 class ScanResults(Boto3Model):
     """
     The Amazon Inspector scan results for an AMI.
@@ -7860,6 +7854,7 @@ class ScanResults(Boto3Model):
     a result, a date can be later than the vendor's release date, and AMIs with the same
     vulnerability can have different dates.
     """
+
     HighestFindingSeverityLabel: "Literal['informational', 'low', 'medium', 'high', 'critical'] | None" = None
     """
     The highest severity among the AMI's Amazon Inspector findings, whether or not a fix
@@ -7901,7 +7896,6 @@ class ScanResults(Boto3Model):
     This value is present only if the AMI has at least one ``medium`` severity finding
     with a fix available. Amazon Inspector recomputes this value on each scan.
     """
-
     HighFixAvailableSince: "datetime | None" = None
     """
     The earliest date and time, in the ISO 8601 format in the UTC time zone (YYYY-MM-
@@ -7911,7 +7905,6 @@ class ScanResults(Boto3Model):
     This value is present only if the AMI has at least one ``high`` severity finding
     with a fix available. Amazon Inspector recomputes this value on each scan.
     """
-
     CriticalFixAvailableSince: "datetime | None" = None
     """
     The earliest date and time, in the ISO 8601 format in the UTC time zone (YYYY-MM-
@@ -7921,7 +7914,6 @@ class ScanResults(Boto3Model):
     This value is present only if the AMI has at least one ``critical`` severity finding
     with a fix available. Amazon Inspector recomputes this value on each scan.
     """
-
 class ProductCode(Boto3Model):
     """
     Describes a product code.
@@ -7931,10 +7923,12 @@ class ProductCode(Boto3Model):
     """
     The product code.
     """
+
     ProductCodeType: "Literal['devpay', 'marketplace'] | None" = None
     """
     The type of product code.
     """
+
 class EC2StateReason(Boto3Model):
     """
     Describes a state change.
@@ -7954,7 +7948,6 @@ class EbsBlockDevice(Boto3Model):
     """
     Describes a block device for an EBS volume.
     """
-
     DeleteOnTermination: "bool | None" = None
     """
     Indicates whether the EBS volume is deleted on instance termination.
@@ -7977,6 +7970,7 @@ class EbsBlockDevice(Boto3Model):
     """
     The ID of the snapshot.
     """
+
     VolumeSize: "int | None" = None
     """
     The size of the volume, in GiBs.
@@ -7985,6 +7979,7 @@ class EbsBlockDevice(Boto3Model):
     the default is the snapshot size. You can specify a volume size that is equal to or
     larger than the snapshot size.
     """
+
     VolumeType: "Literal['standard', 'io1', 'io2', 'gp2', 'sc1', 'st1', 'gp3'] | None" = None
     """
     The volume type.
@@ -7993,13 +7988,11 @@ class EbsBlockDevice(Boto3Model):
     `Amazon EBS volume types <https://docs.aws.amazon.com/ebs/latest/userguide/ebs-volume-types.html>`_
     in the *Amazon EBS User Guide*.
     """
-
     KmsKeyId: "str | None" = None
     """
     Identifier (key ID, key alias, key ARN, or alias ARN) of the customer managed KMS
     key to use for EBS encryption.
     """
-
     Throughput: "int | None" = None
     """
     The throughput that the volume supports, in MiB/s.
@@ -8009,11 +8002,13 @@ class EbsBlockDevice(Boto3Model):
     """
     The ARN of the Outpost on which the snapshot is stored.
     """
+
     AvailabilityZone: "str | None" = None
     """
     The Availability Zone where the EBS volume will be created (for example, ``us-
     east-1a``).
     """
+
     Encrypted: "bool | None" = None
     """
     Indicates whether the encryption state of an EBS volume is changed while being
@@ -8026,6 +8021,7 @@ class EbsBlockDevice(Boto3Model):
     in the *Amazon
     EBS User Guide*.
     """
+
     VolumeInitializationRate: "int | None" = None
     """
     Specifies the Amazon EBS Provisioned Rate for Volume Initialization (volume
@@ -8038,13 +8034,11 @@ class EbsBlockDevice(Boto3Model):
     `Initialize Amazon EBS volumes <https://docs.aws.amazon.com/ebs/latest/userguide/initalize-
     volume.html>`_ in the *Amazon EC2 User Guide*.
     """
-
     AvailabilityZoneId: "str | None" = None
     """
     The ID of the Availability Zone where the EBS volume will be created (for example,
     ``use1-az1``).
     """
-
     EbsCardIndex: "int | None" = None
     """
     The index of the EBS card.
@@ -8057,12 +8051,10 @@ class EC2BlockDeviceMapping(Boto3Model):
     Describes a block device mapping, which defines the EBS volumes and instance store
     volumes to attach to an instance at launch.
     """
-
     Ebs: "EbsBlockDevice | None" = None
     """
     Parameters used to automatically set up EBS volumes when the instance is launched.
     """
-
     NoDevice: "str | None" = None
     """
     To omit the device from the block device mapping, specify an empty string.
@@ -8088,6 +8080,7 @@ class EC2BlockDeviceMapping(Boto3Model):
     ``ephemeral1``. The number of available instance store volumes depends on the
     instance type. After you connect to the instance, you must mount the volume.
     """
+
 class ImageWatermark(Boto3Model):
     """
     Describes a watermark attached to an AMI.
@@ -8134,7 +8127,6 @@ class InstanceTypeItem(Boto3Model):
     """
     The instance type or wildcard pattern (for example, ``t3.*`` or ``m5.large``).
     """
-
 class EC2InstanceTypeSpecification(Boto3Model):
     """
     Describes the instance type compatibility rules for an AMI, including lists of
@@ -8159,11 +8151,10 @@ class AMI(TagsDictMixin, AMIModelMixin, PrimaryBoto3Model):
     """
     Describes an image.
     """
-
     tag_class: ClassVar[ModelType[Boto3Model]] = Tag
     manager_class: ClassVar[ModelType[Boto3ModelManager]] = AMIManager
 
-    Architecture: Literal["i386", "x86_64", "arm64", "x86_64_mac", "arm64_mac"] = Field(
+    Architecture: "Literal['i386', 'x86_64', 'arm64', 'x86_64_mac', 'arm64_mac'] | None" = Field(
         default=None, frozen=True
     )
     """
@@ -8184,12 +8175,13 @@ class AMI(TagsDictMixin, AMIModelMixin, PrimaryBoto3Model):
     The ID of the AMI.
     """
 
-    ImageType: Literal["machine", "kernel", "ramdisk"] = Field(
+    ImageType: "Literal['machine', 'kernel', 'ramdisk'] | None" = Field(
         default=None, frozen=True
     )
     """
     The type of image.
     """
+
     Public: bool = Field(default=None, frozen=True)
     """
     Indicates whether the image has public launch permissions.
@@ -8197,7 +8189,6 @@ class AMI(TagsDictMixin, AMIModelMixin, PrimaryBoto3Model):
     The value is ``true`` if this image has public launch permissions or ``false`` if it
     has only implicit and explicit launch permissions.
     """
-
     KernelId: str = Field(default=None, frozen=True)
     """
     The kernel associated with the image, if any.
@@ -8218,6 +8209,7 @@ class AMI(TagsDictMixin, AMIModelMixin, PrimaryBoto3Model):
     `Understand AMI billing information <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ami-billing-info.html>`_
     in the *Amazon EC2 User Guide*.
     """
+
     UsageOperation: str = Field(default=None, frozen=True)
     """
     The operation of the Amazon EC2 instance and the billing code that is associated
@@ -8235,6 +8227,7 @@ class AMI(TagsDictMixin, AMIModelMixin, PrimaryBoto3Model):
     EC2 API, or the `describe-images <https://docs.aws.amazon.com/cli/latest/reference/ec2/describe-images.html>`_ command in
     the CLI.
     """
+
     ProductCodes: "builtins.list[ProductCode]" = Field(
         default_factory=list, frozen=True
     )
@@ -8248,16 +8241,10 @@ class AMI(TagsDictMixin, AMIModelMixin, PrimaryBoto3Model):
 
     Only applicable for machine images.
     """
-    State: Literal[
-        "pending",
-        "available",
-        "invalid",
-        "deregistered",
-        "transient",
-        "failed",
-        "error",
-        "disabled",
-    ] = Field(default=None, frozen=True)
+
+    State: "Literal['pending', 'available', 'invalid', 'deregistered', 'transient', 'failed', 'error', 'disabled'] | None" = Field(
+        default=None, frozen=True
+    )
     """
     The current state of the AMI.
 
@@ -8279,7 +8266,10 @@ class AMI(TagsDictMixin, AMIModelMixin, PrimaryBoto3Model):
     """
     The device name of the root device volume (for example, ``/dev/sda1``).
     """
-    RootDeviceType: Literal["ebs", "instance-store"] = Field(default=None, frozen=True)
+
+    RootDeviceType: "Literal['ebs', 'instance-store'] | None" = Field(
+        default=None, frozen=True
+    )
     """
     The type of root device used by the AMI.
 
@@ -8292,7 +8282,9 @@ class AMI(TagsDictMixin, AMIModelMixin, PrimaryBoto3Model):
     interface is enabled.
     """
 
-    VirtualizationType: Literal["hvm", "paravirtual"] = Field(default=None, frozen=True)
+    VirtualizationType: "Literal['hvm', 'paravirtual'] | None" = Field(
+        default=None, frozen=True
+    )
     """
     The type of virtualization of the AMI.
     """
@@ -8302,7 +8294,7 @@ class AMI(TagsDictMixin, AMIModelMixin, PrimaryBoto3Model):
     The reason for the state change.
     """
 
-    BootMode: Literal["legacy-bios", "uefi", "uefi-preferred"] = Field(
+    BootMode: "Literal['legacy-bios', 'uefi', 'uefi-preferred'] | None" = Field(
         default=None, frozen=True
     )
     """
@@ -8321,7 +8313,8 @@ class AMI(TagsDictMixin, AMIModelMixin, PrimaryBoto3Model):
     If you specified a value for seconds, Amazon EC2 rounds the seconds to the nearest
     minute.
     """
-    ImdsSupport: Literal["v2.0"] = Field(default=None, frozen=True)
+
+    ImdsSupport: "Literal['v2.0'] | None" = Field(default=None, frozen=True)
     """
     If ``v2.0``, it indicates that IMDSv2 is specified in the AMI.
 
@@ -8344,13 +8337,13 @@ class AMI(TagsDictMixin, AMIModelMixin, PrimaryBoto3Model):
     """
     The description of the AMI that was provided during image creation.
     """
-
-    Hypervisor: Literal["ovm", "xen"] = Field(default=None, frozen=True)
+    Hypervisor: "Literal['ovm', 'xen'] | None" = Field(default=None, frozen=True)
     """
     The hypervisor type of the image.
 
     Only ``xen`` is supported. ``ovm`` is not supported.
     """
+
     Name: "str | None" = None
     """
     The name of the AMI that was provided during image creation.
@@ -8361,7 +8354,7 @@ class AMI(TagsDictMixin, AMIModelMixin, PrimaryBoto3Model):
     Any tags assigned to the image.
     """
 
-    TpmSupport: Literal["v2.0"] = Field(default=None, frozen=True)
+    TpmSupport: "Literal['v2.0'] | None" = Field(default=None, frozen=True)
     """
     If the image is configured for NitroTPM support, the value is ``v2.0``.
 
@@ -8461,7 +8454,6 @@ before that usage is reported.
             The primary key of the model instance.
         """
         return self.ImageId
-
     @property
     def name(self) -> str | None:
         """
@@ -8504,6 +8496,7 @@ before that usage is reported.
         except AttributeError:
             return []
         return Instance.objects.using(self.session).list(**pk)  # type: ignore[arg-type]
+
     @cached_property
     def snapshot(self) -> "Snapshot | None":
         """
@@ -8592,6 +8585,7 @@ class EbsInstanceBlockDevice(Boto3Model):
     """
     Indicates whether the volume is deleted on instance termination.
     """
+
     VolumeId: "str | None" = None
     """
     The ID of the EBS volume.
@@ -8638,7 +8632,6 @@ class EC2IamInstanceProfile(Boto3Model):
     """
     Describes an IAM instance profile.
     """
-
     Arn: "str | None" = None
     """
     The Amazon Resource Name (ARN) of the instance profile.
@@ -8665,39 +8658,43 @@ class ElasticGpuAssociation(Boto3Model):
     """
     The ID of the association.
     """
+
     ElasticGpuAssociationState: "str | None" = None
     """
     The state of the association between the instance and the Elastic Graphics
     accelerator.
     """
+
     ElasticGpuAssociationTime: "str | None" = None
     """
     The time the Elastic Graphics accelerator was associated with the instance.
     """
+
 class ElasticInferenceAcceleratorAssociation(Boto3Model):
     """
     Amazon Elastic Inference is no longer available.
 
     Describes the association between an instance and an elastic inference accelerator.
     """
+
     ElasticInferenceAcceleratorArn: "str | None" = None
     """
     The Amazon Resource Name (ARN) of the elastic inference accelerator.
     """
+
     ElasticInferenceAcceleratorAssociationId: "str | None" = None
     """
     The ID of the association.
     """
+
     ElasticInferenceAcceleratorAssociationState: "str | None" = None
     """
     The state of the elastic inference accelerator.
     """
-
     ElasticInferenceAcceleratorAssociationTime: "datetime | None" = None
     """
     The time at which the elastic inference accelerator is associated with an instance.
     """
-
 class InstanceNetworkInterfaceAssociation(Boto3Model):
     """
     Describes association information for an Elastic IP address (IPv4).
@@ -8707,10 +8704,12 @@ class InstanceNetworkInterfaceAssociation(Boto3Model):
     """
     The carrier IP address associated with the network interface.
     """
+
     CustomerOwnedIp: "str | None" = None
     """
     The customer-owned IP address associated with the network interface.
     """
+
     IpOwnerId: "str | None" = None
     """
     The ID of the owner of the Elastic IP address.
@@ -8758,6 +8757,7 @@ class InstanceAttachmentEnaSrdSpecification(Boto3Model):
     packet delivery at the network layer. When ENA Express is enabled, you can specify
     whether UDP network traffic uses it.
     """
+
     EnaSrdEnabled: "bool | None" = None
     """
     Indicates whether ENA Express is enabled for the network interface.
@@ -8772,16 +8772,15 @@ class InstanceNetworkInterfaceAttachment(Boto3Model):
     """
     Describes a network interface attachment.
     """
+
     AttachTime: "datetime | None" = None
     """
     The time stamp when the attachment initiated.
     """
-
     AttachmentId: "str | None" = None
     """
     The ID of the network interface attachment.
     """
-
     DeleteOnTermination: "bool | None" = None
     """
     Indicates whether the network interface is deleted when the instance is terminated.
@@ -8812,11 +8811,11 @@ class InstanceNetworkInterfaceAttachment(Boto3Model):
     """
     The number of ENA queues created with the instance.
     """
+
 class GroupIdentifier(Boto3Model):
     """
     Describes a security group.
     """
-
     GroupId: "str | None" = None
     """
     The ID of the security group.
@@ -8868,10 +8867,12 @@ class InstancePrivateIpAddress(Boto3Model):
     """
     The private IPv4 DNS name.
     """
+
     PrivateIpAddress: "str | None" = None
     """
     The private IPv4 address of the network interface.
     """
+
 class InstanceIpv4Prefix(Boto3Model):
     """
     Information about an IPv4 prefix.
@@ -8901,6 +8902,7 @@ class ConnectionTrackingSpecificationResponse(Boto3Model):
     `Connection tracking timeouts <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/security-group-connection-tracking.html#connection-
     tracking-timeouts>`_ in the *Amazon EC2 User Guide*.
     """
+
     TcpEstablishedTimeout: "int | None" = None
     """
     Timeout (in seconds) for idle TCP connections in an established state.
@@ -8910,6 +8912,7 @@ class ConnectionTrackingSpecificationResponse(Boto3Model):
         types
     (including P6e-GB200). Recommended: Less than 432000 seconds.
     """
+
     UdpStreamTimeout: "int | None" = None
     """
     Timeout (in seconds) for idle UDP flows classified as streams which have seen more
@@ -8917,7 +8920,6 @@ class ConnectionTrackingSpecificationResponse(Boto3Model):
 
     Min: 60 seconds. Max: 180 seconds (3 minutes). Default: 180 seconds.
     """
-
     UdpTimeout: "int | None" = None
     """
     Timeout (in seconds) for idle UDP flows that have seen traffic only in a single
@@ -8925,11 +8927,11 @@ class ConnectionTrackingSpecificationResponse(Boto3Model):
 
     Min: 30 seconds. Max: 60 seconds. Default: 30 seconds.
     """
-
 class InstanceNetworkInterface(Boto3Model):
     """
     Describes a network interface.
     """
+
     Association: "InstanceNetworkInterfaceAssociation | None" = None
     """
     The association information for an Elastic IPv4 associated with the network
@@ -8940,7 +8942,6 @@ class InstanceNetworkInterface(Boto3Model):
     """
     The network interface attachment.
     """
-
     Description: "str | None" = None
     """
     The description.
@@ -8977,12 +8978,10 @@ class InstanceNetworkInterface(Boto3Model):
     """
     The private DNS name.
     """
-
     PrivateIpAddress: "str | None" = None
     """
     The IPv4 address of the network interface within the subnet.
     """
-
     PrivateIpAddresses: "builtins.list[InstancePrivateIpAddress] | None" = Field(
         default_factory=list
     )
@@ -9028,6 +9027,7 @@ class InstanceNetworkInterface(Boto3Model):
     """
     The IPv6 delegated prefixes that are assigned to the network interface.
     """
+
     ConnectionTrackingConfiguration: "ConnectionTrackingSpecificationResponse | None" = None
     """
     A security group connection tracking configuration that enables you to set the
@@ -9037,11 +9037,11 @@ class InstanceNetworkInterface(Boto3Model):
     `Connection tracking timeouts <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/security-group-connection-tracking.html#connection-
     tracking-timeouts>`_ in the *Amazon EC2 User Guide*.
     """
+
     Operator: "OperatorResponse | None" = None
     """
     The service provider that manages the network interface.
     """
-
 class EC2CpuOptions(Boto3Model):
     """
     The CPU options for the instance.
@@ -9056,6 +9056,7 @@ class EC2CpuOptions(Boto3Model):
     """
     The number of threads per CPU core.
     """
+
     AmdSevSnp: "Literal['enabled', 'disabled'] | None" = None
     """
     Indicates whether the instance is enabled for AMD SEV-SNP.
@@ -9095,6 +9096,7 @@ class CapacityReservationSpecificationResponse(Boto3Model):
     response element if the instance explicily targets a specific Capacity Reservation
     or Capacity Reservation group.
     """
+
     CapacityReservationPreference: "Literal['capacity-reservations-only', 'open', 'none'] | None" = None
     """
     Describes the instance's Capacity Reservation preferences.
@@ -9117,6 +9119,7 @@ class EC2HibernationOptions(Boto3Model):
     `Hibernate your Amazon EC2 instance <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/Hibernate.html>`_
     in the *Amazon EC2 User Guide*.
     """
+
     Configured: "bool | None" = None
     """
     If ``true``, your instance is enabled for hibernation; otherwise, it is not enabled
@@ -9147,22 +9150,22 @@ class InstanceMetadataOptionsResponse(Boto3Model):
     """
     Indicates whether IMDSv2 is required.
     """
+
     HttpPutResponseHopLimit: "int | None" = None
     """
     The maximum number of hops that the metadata token can travel.
     """
+
     HttpEndpoint: "Literal['disabled', 'enabled'] | None" = None
     """
     Indicates whether the HTTP metadata endpoint on your instances is enabled or
     disabled.
     """
-
     HttpProtocolIpv6: "Literal['disabled', 'enabled'] | None" = None
     """
     Indicates whether the IPv6 endpoint for the instance metadata service is enabled or
     disabled.
     """
-
     InstanceMetadataTags: "Literal['disabled', 'enabled'] | None" = None
     """
     Indicates whether access to instance tags from the instance metadata is enabled or
@@ -9177,7 +9180,6 @@ class EC2EnclaveOptions(Boto3Model):
     """
     Indicates whether the instance is enabled for Amazon Web Services Nitro Enclaves.
     """
-
     Enabled: "bool | None" = None
     """
     If this parameter is set to ``true``, the instance is enabled for Amazon Web
@@ -9189,17 +9191,16 @@ class PrivateDnsNameOptionsResponse(Boto3Model):
     """
     Describes the options for instance hostnames.
     """
+
     HostnameType: "Literal['ip-name', 'resource-name'] | None" = None
     """
     The type of hostname to assign to an instance.
     """
-
     EnableResourceNameDnsARecord: "bool | None" = None
     """
     Indicates whether to respond to DNS queries for instance hostnames with DNS A
     records.
     """
-
     EnableResourceNameDnsAAAARecord: "bool | None" = None
     """
     Indicates whether to respond to DNS queries for instance hostnames with DNS AAAA
@@ -9210,17 +9211,16 @@ class InstanceMaintenanceOptions(Boto3Model):
     """
     The maintenance options for the instance.
     """
+
     AutoRecovery: "Literal['disabled', 'default'] | None" = None
     """
     Provides information on the current automatic recovery behavior of your instance.
     """
-
     RebootMigration: "Literal['disabled', 'default'] | None" = None
     """
     Specifies whether to attempt reboot migration during a user-initiated reboot of an
     instance that has a scheduled ``system-reboot`` event:
     """
-
 class InstanceNetworkPerformanceOptions(Boto3Model):
     """
     With network performance options, you can adjust your bandwidth preferences to meet
@@ -9235,6 +9235,7 @@ class InstanceNetworkPerformanceOptions(Boto3Model):
     The total available baseline bandwidth for your instance remains the same. The
     default option uses the standard bandwidth configuration for your instance type.
     """
+
 class InstanceSecondaryInterfaceAttachment(Boto3Model):
     """
     Describes the attachment of a secondary interface to an instance.
@@ -9249,6 +9250,7 @@ class InstanceSecondaryInterfaceAttachment(Boto3Model):
     """
     The ID of the attachment.
     """
+
     DeleteOnTermination: "bool | None" = None
     """
     Indicates whether the secondary interface is deleted when the instance is
@@ -9274,12 +9276,10 @@ class InstanceSecondaryInterfacePrivateIpAddress(Boto3Model):
     """
     Describes a private IPv4 address for a secondary interface.
     """
-
     PrivateIpAddress: "str | None" = None
     """
     The private IPv4 address.
     """
-
 class InstanceSecondaryInterface(Boto3Model):
     """
     Describes a secondary interface attached to an instance.
@@ -9289,15 +9289,16 @@ class InstanceSecondaryInterface(Boto3Model):
     """
     The attachment information for the secondary interface.
     """
+
     MacAddress: "str | None" = None
     """
     The MAC address of the secondary interface.
     """
+
     SecondaryInterfaceId: "str | None" = None
     """
     The ID of the secondary interface.
     """
-
     OwnerId: "str | None" = None
     """
     The Amazon Web Services account ID of the owner of the secondary interface.
@@ -9344,6 +9345,7 @@ class InstanceState(Boto3Model):
     """
     The state of the instance as a 16-bit unsigned integer.
     """
+
     Name: "Literal['pending', 'running', 'shutting-down', 'terminated', 'stopping', 'stopped'] | None" = None
     """
     The current state of the instance.
@@ -9353,11 +9355,11 @@ class EC2Placement(Boto3Model):
     """
     Describes the placement of an instance.
     """
-
     AvailabilityZoneId: "str | None" = None
     """
     The ID of the Availability Zone of the instance.
     """
+
     Affinity: "str | None" = None
     """
     The affinity setting for the instance on the Dedicated Host.
@@ -9418,7 +9420,6 @@ class EC2DetailedMonitoring(Boto3Model):
 
     Otherwise, basic monitoring is enabled.
     """
-
 class Instance(TagsDictMixin, InstanceModelMixin, PrimaryBoto3Model):
     """
     Describes an instance.
@@ -9441,7 +9442,7 @@ class Instance(TagsDictMixin, InstanceModelMixin, PrimaryBoto3Model):
     This is used by :py:meth:`open_tunnel` and :py:meth:`close_tunnel`.
     """
 
-    Architecture: Literal["i386", "x86_64", "arm64", "x86_64_mac", "arm64_mac"] = Field(
+    Architecture: "Literal['i386', 'x86_64', 'arm64', 'x86_64_mac', 'arm64_mac'] | None" = Field(
         default="x86_64", frozen=True
     )
     """
@@ -9475,7 +9476,7 @@ class Instance(TagsDictMixin, InstanceModelMixin, PrimaryBoto3Model):
     Specifies whether enhanced networking with ENA is enabled.
     """
 
-    Hypervisor: Literal["ovm", "xen"] = Field(default=None, frozen=True)
+    Hypervisor: "Literal['ovm', 'xen'] | None" = Field(default=None, frozen=True)
     """
     The hypervisor type of the instance.
 
@@ -9486,14 +9487,12 @@ class Instance(TagsDictMixin, InstanceModelMixin, PrimaryBoto3Model):
     """
     The IAM instance profile associated with the instance, if applicable.
     """
-
-    InstanceLifecycle: Literal[
-        "spot", "scheduled", "capacity-block", "interruptible-capacity-reservation"
-    ] = Field(default=None, frozen=True)
+    InstanceLifecycle: "Literal['spot', 'scheduled', 'capacity-block', 'interruptible-capacity-reservation'] | None" = Field(
+        default=None, frozen=True
+    )
     """
     Indicates whether this is a Spot Instance or a Scheduled Instance.
     """
-
     ElasticGpuAssociations: "builtins.list[ElasticGpuAssociation]" = Field(
         default_factory=list, frozen=True
     )
@@ -9524,26 +9523,24 @@ class Instance(TagsDictMixin, InstanceModelMixin, PrimaryBoto3Model):
     """
     The device name of the root device volume (for example, ``/dev/sda1``).
     """
-
-    RootDeviceType: Literal["ebs", "instance-store"] = Field(default=None, frozen=True)
+    RootDeviceType: "Literal['ebs', 'instance-store'] | None" = Field(
+        default=None, frozen=True
+    )
     """
     The root device type used by the AMI.
 
     The AMI can use an EBS volume or an instance store volume.
     """
-
     SecurityGroups: "builtins.list[GroupIdentifier] | None" = Field(
         default_factory=list
     )
     """
     The security groups for the instance.
     """
-
     SourceDestCheck: bool = Field(default=None, frozen=True)
     """
     Indicates whether source/destination checking is enabled.
     """
-
     SpotInstanceRequestId: str = Field(default=None, frozen=True)
     """
     If the request is a Spot Instance request, the ID of the request.
@@ -9560,7 +9557,9 @@ class Instance(TagsDictMixin, InstanceModelMixin, PrimaryBoto3Model):
     The reason for the most recent state transition.
     """
 
-    VirtualizationType: Literal["hvm", "paravirtual"] = Field(default=None, frozen=True)
+    VirtualizationType: "Literal['hvm', 'paravirtual'] | None" = Field(
+        default=None, frozen=True
+    )
     """
     The virtualization type of the instance.
     """
@@ -9574,7 +9573,6 @@ class Instance(TagsDictMixin, InstanceModelMixin, PrimaryBoto3Model):
     """
     The ID of the Capacity Block.
     """
-
     CapacityReservationId: str = Field(default=None, frozen=True)
     """
     The ID of the Capacity Reservation.
@@ -9606,8 +9604,7 @@ class Instance(TagsDictMixin, InstanceModelMixin, PrimaryBoto3Model):
     """
     Indicates whether the instance is enabled for Amazon Web Services Nitro Enclaves.
     """
-
-    BootMode: Literal["legacy-bios", "uefi", "uefi-preferred"] = Field(
+    BootMode: "Literal['legacy-bios', 'uefi', 'uefi-preferred'] | None" = Field(
         default=None, frozen=True
     )
     """
@@ -9617,6 +9614,7 @@ class Instance(TagsDictMixin, InstanceModelMixin, PrimaryBoto3Model):
     ``currentInstanceBootMode`` parameter is the boot mode that is used to boot the
     instance at launch or start.
     """
+
     PlatformDetails: str = Field(default=None, frozen=True)
     """
     The platform details value for the instance.
@@ -9625,6 +9623,7 @@ class Instance(TagsDictMixin, InstanceModelMixin, PrimaryBoto3Model):
     `AMI billing information fields <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/billing-info-fields.html>`_
     in the *Amazon EC2 User Guide*.
     """
+
     UsageOperation: str = Field(default=None, frozen=True)
     """
     The usage operation value for the instance.
@@ -9657,13 +9656,11 @@ class Instance(TagsDictMixin, InstanceModelMixin, PrimaryBoto3Model):
     `NitroTPM <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/nitrotpm.html>`_
     in the *Amazon EC2 User Guide*.
     """
-
     MaintenanceOptions: "InstanceMaintenanceOptions | None" = None
     """
     Provides information on the recovery and maintenance options of your instance.
     """
-
-    CurrentInstanceBootMode: Literal["legacy-bios", "uefi"] = Field(
+    CurrentInstanceBootMode: "Literal['legacy-bios', 'uefi'] | None" = Field(
         default=None, frozen=True
     )
     """
@@ -9775,7 +9772,7 @@ class Instance(TagsDictMixin, InstanceModelMixin, PrimaryBoto3Model):
     The RAM disk associated with this instance, if applicable.
     """
 
-    Platform: Literal["Windows"] = Field(default=None, frozen=True)
+    Platform: "Literal['Windows'] | None" = Field(default=None, frozen=True)
     """
     The platform.
 
@@ -9885,7 +9882,6 @@ class Instance(TagsDictMixin, InstanceModelMixin, PrimaryBoto3Model):
         except AttributeError:
             return None
         return Vpc.objects.using(self.session).get(**pk)  # type: ignore[arg-type]
-
     @cached_property
     def subnet(self) -> "Subnet | None":
         """
@@ -9907,6 +9903,7 @@ class Instance(TagsDictMixin, InstanceModelMixin, PrimaryBoto3Model):
         except AttributeError:
             return None
         return Subnet.objects.using(self.session).get(**pk)  # type: ignore[arg-type]
+
     @cached_property
     def security_groups(self) -> "list[SecurityGroup] | None":
         """
@@ -10107,6 +10104,7 @@ class LaunchTemplate(TagsDictMixin, PrimaryBoto3Model):
     """
     The version number of the latest version of the launch template.
     """
+
     Tags: "builtins.list[Tag]" = Field(default_factory=list, frozen=True)
     """
     The tags for the launch template.
@@ -10140,7 +10138,6 @@ class LaunchTemplate(TagsDictMixin, PrimaryBoto3Model):
             The name of the model instance.
         """
         return self.LaunchTemplateName
-
     def __hash__(self) -> int:
         """
         Return the hash of the model.
@@ -10172,6 +10169,7 @@ class LaunchTemplate(TagsDictMixin, PrimaryBoto3Model):
         except AttributeError:
             return []
         return LaunchTemplateVersion.objects.using(self.session).list(**pk)  # type: ignore[arg-type]
+
     @cached_property
     def default_version(self) -> "LaunchTemplateVersion | None":
         """
@@ -10195,6 +10193,7 @@ class LaunchTemplate(TagsDictMixin, PrimaryBoto3Model):
         except AttributeError:
             return None
         return LaunchTemplateVersion.objects.using(self.session).get(**pk)  # type: ignore[arg-type]
+
     @cached_property
     def latest_version(self) -> "LaunchTemplateVersion | None":
         """
@@ -10218,6 +10217,8 @@ class LaunchTemplate(TagsDictMixin, PrimaryBoto3Model):
         except AttributeError:
             return None
         return LaunchTemplateVersion.objects.using(self.session).get(**pk)  # type: ignore[arg-type]
+
+
 class LaunchTemplateIamInstanceProfileSpecification(Boto3Model):
     """
     Describes an IAM instance profile.
@@ -10227,10 +10228,12 @@ class LaunchTemplateIamInstanceProfileSpecification(Boto3Model):
     """
     The Amazon Resource Name (ARN) of the instance profile.
     """
+
     Name: "str | None" = None
     """
     The name of the instance profile.
     """
+
 class LaunchTemplateEbsBlockDevice(Boto3Model):
     """
     Describes a block device for an EBS volume.
@@ -10240,20 +10243,22 @@ class LaunchTemplateEbsBlockDevice(Boto3Model):
     """
     Indicates whether the EBS volume is encrypted.
     """
+
     DeleteOnTermination: "bool | None" = None
     """
     Indicates whether the EBS volume is deleted on instance termination.
     """
+
     Iops: "int | None" = None
     """
     The number of I/O operations per second (IOPS) that the volume supports.
     """
+
     KmsKeyId: "str | None" = None
     """
     Identifier (key ID, key alias, key ARN, or alias ARN) of the customer managed KMS
     key to use for EBS encryption.
     """
-
     SnapshotId: "str | None" = None
     """
     The ID of the snapshot.
@@ -10273,6 +10278,7 @@ class LaunchTemplateEbsBlockDevice(Boto3Model):
     """
     The throughput that the volume supports, in MiB/s.
     """
+
     VolumeInitializationRate: "int | None" = None
     """
     The Amazon EBS Provisioned Rate for Volume Initialization (volume initialization
@@ -10280,27 +10286,26 @@ class LaunchTemplateEbsBlockDevice(Boto3Model):
 
     If no volume initialization rate was specified, the value is ``null``.
     """
+
     EbsCardIndex: "int | None" = None
     """
     The index of the EBS card.
 
     Some instance types support multiple EBS cards. The default EBS card index is 0.
     """
-
 class LaunchTemplateBlockDeviceMapping(Boto3Model):
     """
     Describes a block device mapping.
     """
+
     DeviceName: "str | None" = None
     """
     The device name.
     """
-
     VirtualName: "str | None" = None
     """
     The virtual device name (ephemeralN).
     """
-
     Ebs: "LaunchTemplateEbsBlockDevice | None" = None
     """
     Information about the block device for an EBS volume.
@@ -10315,7 +10320,6 @@ class PrivateIpAddressSpecification(Boto3Model):
     """
     Describes a secondary private IPv4 address for a network interface.
     """
-
     Primary: "bool | None" = None
     """
     Indicates whether the private IPv4 address is the primary private IPv4 address.
@@ -10332,11 +10336,11 @@ class Ipv4PrefixSpecificationResponse(Boto3Model):
     """
     Information about the IPv4 delegated prefixes assigned to a network interface.
     """
+
     Ipv4Prefix: "str | None" = None
     """
     The IPv4 delegated prefixes assigned to the network interface.
     """
-
 class Ipv6PrefixSpecificationResponse(Boto3Model):
     """
     Information about the IPv6 delegated prefixes assigned to a network interface.
@@ -10346,6 +10350,7 @@ class Ipv6PrefixSpecificationResponse(Boto3Model):
     """
     The IPv6 delegated prefixes assigned to the network interface.
     """
+
 class LaunchTemplateEnaSrdUdpSpecification(Boto3Model):
     """
     ENA Express is compatible with both TCP and UDP transport protocols.
@@ -10378,12 +10383,10 @@ class LaunchTemplateEnaSrdSpecification(Boto3Model):
     packet delivery at the network layer. When ENA Express is enabled, you can specify
     whether UDP network traffic uses it.
     """
-
     EnaSrdEnabled: "bool | None" = None
     """
     Indicates whether ENA Express is enabled for the network interface.
     """
-
     EnaSrdUdpSpecification: "LaunchTemplateEnaSrdUdpSpecification | None" = None
     """
     Configures ENA Express for UDP network traffic.
@@ -10424,11 +10427,11 @@ class EC2ConnectionTrackingSpecification(Boto3Model):
 
     Min: 60 seconds. Max: 180 seconds (3 minutes). Default: 180 seconds.
     """
+
 class LaunchTemplateInstanceNetworkInterfaceSpecification(Boto3Model):
     """
     Describes a network interface.
     """
-
     AssociateCarrierIpAddress: "bool | None" = None
     """
     Indicates whether to associate a Carrier IP address with eth0 for a new network
@@ -10455,6 +10458,7 @@ class LaunchTemplateInstanceNetworkInterfaceSpecification(Boto3Model):
     """
     The device index for the network interface attachment.
     """
+
     Groups: "builtins.list[str] | None" = Field(default_factory=list)
     """
     The IDs of one or more security groups.
@@ -10508,12 +10512,14 @@ class LaunchTemplateInstanceNetworkInterfaceSpecification(Boto3Model):
     """
     The index of the network card.
     """
+
     Ipv4Prefixes: "builtins.list[Ipv4PrefixSpecificationResponse] | None" = Field(
         default_factory=list
     )
     """
     One or more IPv4 prefixes assigned to the network interface.
     """
+
     Ipv4PrefixCount: "int | None" = None
     """
     The number of IPv4 prefixes that Amazon Web Services automatically assigned to the
@@ -10526,7 +10532,6 @@ class LaunchTemplateInstanceNetworkInterfaceSpecification(Boto3Model):
     """
     One or more IPv6 prefixes assigned to the network interface.
     """
-
     Ipv6PrefixCount: "int | None" = None
     """
     The number of IPv6 prefixes that Amazon Web Services automatically assigned to the
@@ -10557,7 +10562,6 @@ class LaunchTemplateInstanceNetworkInterfaceSpecification(Boto3Model):
     `Idle connection tracking timeout <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/security-group-connection-tracking.html#connection-
     tracking-timeouts>`_ in the *Amazon EC2 User Guide*.
     """
-
     EnaQueueCount: "int | None" = None
     """
     The number of ENA queues created with the instance.
@@ -10567,24 +10571,20 @@ class LaunchTemplatesMonitoring(Boto3Model):
     """
     Describes the monitoring for the instance.
     """
-
     Enabled: "bool | None" = None
     """
     Indicates whether detailed monitoring is enabled.
 
     Otherwise, basic monitoring is enabled.
     """
-
 class LaunchTemplatePlacement(Boto3Model):
     """
     Describes the placement of an instance.
     """
-
     AvailabilityZone: "str | None" = None
     """
     The Availability Zone of the instance.
     """
-
     AvailabilityZoneId: "str | None" = None
     """
     The ID of the Availability Zone of the instance.
@@ -10604,12 +10604,14 @@ class LaunchTemplatePlacement(Boto3Model):
     """
     The ID of the Dedicated Host for the instance.
     """
+
     Tenancy: "Literal['default', 'dedicated', 'host'] | None" = None
     """
     The tenancy of the instance.
 
     An instance with a tenancy of ``dedicated`` runs on single-tenant hardware.
     """
+
     SpreadDomain: "str | None" = None
     """
     Reserved for future use.
@@ -10658,12 +10660,10 @@ class ElasticGpuSpecificationResponse(Boto3Model):
 
     Amazon Elastic Graphics reached end of life on January 8, 2024.
     """
-
     Type: "str | None" = None
     """
     Deprecated.
     """
-
 class LaunchTemplateElasticInferenceAcceleratorResponse(Boto3Model):
     """
     Amazon Elastic Inference is no longer available.
@@ -10677,14 +10677,17 @@ class LaunchTemplateElasticInferenceAcceleratorResponse(Boto3Model):
 
     The possible values are eia1.medium, eia1.large, and eia1.xlarge.
     """
+
     Count: "int | None" = None
     """
     The number of elastic inference accelerators to attach to the instance.
     """
+
 class LaunchTemplateSpotMarketOptions(Boto3Model):
     """
     The options for Spot Instances.
     """
+
     MaxPrice: "str | None" = None
     """
     The maximum hourly price you're willing to pay for a Spot Instance.
@@ -10695,6 +10698,7 @@ class LaunchTemplateSpotMarketOptions(Boto3Model):
     a value below USD $0.001 will result in an ``InvalidParameterValue`` error message
     when the launch template is used to launch an instance.
     """
+
     SpotInstanceType: "Literal['one-time', 'persistent'] | None" = None
     """
     The Spot Instance request type.
@@ -10728,10 +10732,12 @@ class LaunchTemplateInstanceMarketOptions(Boto3Model):
     """
     The market (purchasing) option for the instances.
     """
+
     MarketType: "Literal['spot', 'capacity-block', 'interruptible-capacity-reservation', 'on-demand'] | None" = None
     """
     The market type.
     """
+
     SpotOptions: "LaunchTemplateSpotMarketOptions | None" = None
     """
     The options for Spot Instances.
@@ -10741,22 +10747,27 @@ class InstanceCreditSpecification(Boto3Model):
     """
     Describes the credit option for CPU usage of a T instance.
     """
+
     CpuCredits: "str | None" = None
     """
     The credit option for CPU usage of a T instance.
     """
+
 class LaunchTemplateCpuOptions(Boto3Model):
     """
     The CPU options for the instance.
     """
+
     CoreCount: "int | None" = None
     """
     The number of CPU cores for the instance.
     """
+
     ThreadsPerCore: "int | None" = None
     """
     The number of threads per CPU core.
     """
+
     AmdSevSnp: "Literal['enabled', 'disabled'] | None" = None
     """
     Indicates whether the instance is enabled for AMD SEV-SNP.
@@ -10774,6 +10785,7 @@ class LaunchTemplateCapacityReservationSpecificationResponse(Boto3Model):
     """
     Information about the Capacity Reservation targeting option.
     """
+
     CapacityReservationPreference: "Literal['capacity-reservations-only', 'open', 'none'] | None" = None
     """
     Indicates the instance's Capacity Reservation preferences.
@@ -10790,6 +10802,7 @@ class LaunchTemplateLicenseConfiguration(Boto3Model):
     """
     Describes a license configuration.
     """
+
     LicenseConfigurationArn: "str | None" = None
     """
     The Amazon Resource Name (ARN) of the license configuration.
@@ -10799,11 +10812,13 @@ class LaunchTemplateHibernationOptions(Boto3Model):
     """
     Indicates whether an instance is configured for hibernation.
     """
+
     Configured: "bool | None" = None
     """
     If this parameter is set to ``true``, the instance is enabled for hibernation;
     otherwise, it is not enabled for hibernation.
     """
+
 class LaunchTemplateInstanceMetadataOptions(Boto3Model):
     """
     The metadata options for the instance.
@@ -10813,14 +10828,17 @@ class LaunchTemplateInstanceMetadataOptions(Boto3Model):
     in the *Amazon EC2 User
     Guide*.
     """
+
     State: "Literal['pending', 'applied'] | None" = None
     """
     The state of the metadata option changes.
     """
+
     HttpTokens: "Literal['optional', 'required'] | None" = None
     """
     Indicates whether IMDSv2 is required.
     """
+
     HttpPutResponseHopLimit: "int | None" = None
     """
     The desired HTTP PUT response hop limit for instance metadata requests.
@@ -10898,7 +10916,6 @@ class InstanceMemoryMiB(Boto3Model):
 
     If this parameter is not specified, there is no maximum limit.
     """
-
 class InstanceMemoryGiBPerVCpu(Boto3Model):
     """
     The minimum and maximum amount of memory per vCPU, in GiB.
@@ -10917,6 +10934,7 @@ class InstanceMemoryGiBPerVCpu(Boto3Model):
 
     If this parameter is not specified, there is no maximum limit.
     """
+
 class InstanceNetworkInterfaceCount(Boto3Model):
     """
     The minimum and maximum number of network interfaces.
@@ -10928,6 +10946,7 @@ class InstanceNetworkInterfaceCount(Boto3Model):
 
     If this parameter is not specified, there is no minimum limit.
     """
+
     Max: "int | None" = None
     """
     The maximum number of network interfaces.
@@ -10953,6 +10972,7 @@ class InstanceTotalLocalStorageGB(Boto3Model):
 
     If this parameter is not specified, there is no maximum limit.
     """
+
 class InstanceBaselineEbsBandwidthMbps(Boto3Model):
     """
     The minimum and maximum baseline bandwidth to Amazon EBS, in Mbps.
@@ -11006,7 +11026,6 @@ class InstanceAcceleratorTotalMemoryMiB(Boto3Model):
 
     If this parameter is not specified, there is no minimum limit.
     """
-
     Max: "int | None" = None
     """
     The maximum amount of accelerator memory, in MiB.
@@ -11025,6 +11044,7 @@ class InstanceNetworkBandwidthGbps(Boto3Model):
     `Available instance bandwidth <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-instance-network-bandwidth.html#available-instance-
     bandwidth>`_ in the *Amazon EC2 User Guide*.
     """
+
     Min: "float | None" = None
     """
     The minimum amount of network bandwidth, in Gbps.
@@ -11049,6 +11069,7 @@ class PerformanceFactorReference(Boto3Model):
 
     Currently, only one instance family can be specified in the list.
     """
+
     InstanceFamily: "str | None" = None
     """
     The instance family to use as a baseline reference.
@@ -11058,6 +11079,7 @@ class CpuPerformanceFactor(Boto3Model):
     """
     The CPU performance to consider, using an instance family as the baseline reference.
     """
+
     References: "builtins.list[PerformanceFactorReference] | None" = Field(
         default_factory=list
     )
@@ -11068,6 +11090,7 @@ class CpuPerformanceFactor(Boto3Model):
     CPU performance of the referenced instance family, regardless of CPU manufacturer or
     architecture differences.
     """
+
 class EC2BaselinePerformanceFactors(Boto3Model):
     """
     The baseline performance to consider, using an instance family as a baseline
@@ -11132,7 +11155,6 @@ class LaunchTemplateInstanceRequirements(Boto3Model):
     instance-type-selection.html>`_ and `Spot placement score <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/spot-
     placement-score.html>`_ in the *Amazon EC2 User Guide*.
     """
-
     VCpuCount: "VCpuCountRange | None" = None
     """
     The minimum and maximum number of vCPUs.
@@ -11142,6 +11164,7 @@ class LaunchTemplateInstanceRequirements(Boto3Model):
     """
     The minimum and maximum amount of memory, in MiB.
     """
+
     CpuManufacturers: "builtins.list[Literal['intel', 'amd', 'amazon-web-services', 'apple']] | None" = Field(
         default_factory=list
     )
@@ -11153,7 +11176,6 @@ class LaunchTemplateInstanceRequirements(Boto3Model):
     """
     The minimum and maximum amount of memory per vCPU, in GiB.
     """
-
     ExcludedInstanceTypes: "builtins.list[str] | None" = Field(default_factory=list)
     """
     The instance types to exclude.
@@ -11171,7 +11193,6 @@ class LaunchTemplateInstanceRequirements(Boto3Model):
     `Instance types <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/instance-types.html>`_
     in the *Amazon EC2 User Guide*.
     """
-
     SpotMaxPricePercentageOverLowestPrice: "int | None" = None
     """
     [Price protection] The price protection threshold for Spot Instances, as a
@@ -11216,12 +11237,10 @@ class LaunchTemplateInstanceRequirements(Boto3Model):
     """
     Indicates whether instance types must support hibernation for On-Demand Instances.
     """
-
     NetworkInterfaceCount: "InstanceNetworkInterfaceCount | None" = None
     """
     The minimum and maximum number of network interfaces.
     """
-
     LocalStorage: "Literal['included', 'required', 'excluded'] | None" = None
     """
     Indicates whether instance types with instance store volumes are included, excluded,
@@ -11244,6 +11263,7 @@ class LaunchTemplateInstanceRequirements(Boto3Model):
     """
     The minimum and maximum amount of total local storage, in GB.
     """
+
     BaselineEbsBandwidthMbps: "InstanceBaselineEbsBandwidthMbps | None" = None
     """
     The minimum and maximum baseline bandwidth to Amazon EBS, in Mbps.
@@ -11251,12 +11271,14 @@ class LaunchTemplateInstanceRequirements(Boto3Model):
     For more information, see `Amazon EBS-optimized
     instances <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ebs-optimized.html>`_ in the *Amazon EC2 User Guide*.
     """
+
     AcceleratorTypes: "builtins.list[Literal['gpu', 'fpga', 'inference', 'media']] | None" = Field(
         default_factory=list
     )
     """
     The accelerator types that must be on the instance type.
     """
+
     AcceleratorCount: "InstanceAcceleratorCount | None" = None
     """
     The minimum and maximum number of accelerators (GPUs, FPGAs, or Amazon Web Services
@@ -11276,22 +11298,22 @@ class LaunchTemplateInstanceRequirements(Boto3Model):
     """
     The accelerators that must be on the instance type.
     """
+
     AcceleratorTotalMemoryMiB: "InstanceAcceleratorTotalMemoryMiB | None" = None
     """
     The minimum and maximum amount of total accelerator memory, in MiB.
     """
-
     NetworkBandwidthGbps: "InstanceNetworkBandwidthGbps | None" = None
     """
     The minimum and maximum amount of network bandwidth, in gigabits per second (Gbps).
     """
-
     AllowedInstanceTypes: "builtins.list[str] | None" = Field(default_factory=list)
     """
     The instance types to apply your specified attributes against.
 
     All other instance types are ignored, even if they match your specified attributes.
     """
+
     MaxSpotPriceAsPercentageOfOptimalOnDemandPrice: "int | None" = None
     """
     [Price protection] The price protection threshold for Spot Instances, as a
@@ -11305,7 +11327,6 @@ class LaunchTemplateInstanceRequirements(Boto3Model):
     EC2 selects instance types with your attributes, it will exclude instance types
     whose price exceeds your specified threshold.
     """
-
     BaselinePerformanceFactors: "EC2BaselinePerformanceFactors | None" = None
     """
     The baseline performance to consider, using an instance family as a baseline
@@ -11321,7 +11342,6 @@ class LaunchTemplateInstanceRequirements(Boto3Model):
     selection.html#ec2fleet-abis-performance-protection>`_ in the *Amazon EC2 User
     Guide*.
     """
-
     RequireEncryptionInTransit: "bool | None" = None
     """
     Specifies whether instance types must support encrypting in-transit traffic between
@@ -11342,7 +11362,6 @@ class LaunchTemplatePrivateDnsNameOptions(Boto3Model):
     """
     The type of hostname to assign to an instance.
     """
-
     EnableResourceNameDnsARecord: "bool | None" = None
     """
     Indicates whether to respond to DNS queries for instance hostnames with DNS A
@@ -11359,7 +11378,6 @@ class LaunchTemplateInstanceMaintenanceOptions(Boto3Model):
     """
     The maintenance options of your instance.
     """
-
     AutoRecovery: "Literal['default', 'disabled'] | None" = None
     """
     Disables the automatic recovery behavior of your instance or sets it to default.
@@ -11384,12 +11402,10 @@ class SecondaryInterfacePrivateIpAddressSpecification(Boto3Model):
     """
     Describes a private IPv4 address specification for a secondary interface.
     """
-
     PrivateIpAddress: "str | None" = None
     """
     The private IPv4 address.
     """
-
 class LaunchTemplateInstanceSecondaryInterfaceSpecification(Boto3Model):
     """
     Describes a secondary interface specification in a launch template.
@@ -11400,23 +11416,21 @@ class LaunchTemplateInstanceSecondaryInterfaceSpecification(Boto3Model):
     Indicates whether the secondary interface is deleted when the instance is
     terminated.
     """
+
     DeviceIndex: "int | None" = None
     """
     The device index for the secondary interface attachment.
     """
-
     PrivateIpAddresses: "builtins.list[SecondaryInterfacePrivateIpAddressSpecification] | None" = Field(
         default_factory=list
     )
     """
     The private IPv4 addresses to assign to the secondary interface.
     """
-
     PrivateIpAddressCount: "int | None" = None
     """
     The number of private IPv4 addresses to assign to the secondary interface.
     """
-
     SecondarySubnetId: "str | None" = None
     """
     The ID of the secondary subnet.
@@ -11436,7 +11450,6 @@ class ResponseLaunchTemplateData(Boto3Model):
     """
     The information for a launch template.
     """
-
     KernelId: "str | None" = None
     """
     The ID of the kernel, if applicable.
@@ -11451,6 +11464,7 @@ class ResponseLaunchTemplateData(Boto3Model):
     """
     The IAM instance profile.
     """
+
     BlockDeviceMappings: "builtins.list[LaunchTemplateBlockDeviceMapping] | None" = (
         Field(default_factory=list)
     )
@@ -11496,6 +11510,7 @@ class ResponseLaunchTemplateData(Boto3Model):
     """
     The ID of the RAM disk, if applicable.
     """
+
     DisableApiTermination: "bool | None" = None
     """
     If set to ``true``, indicates that the instance cannot be terminated using the
@@ -11507,17 +11522,18 @@ class ResponseLaunchTemplateData(Boto3Model):
     Indicates whether an instance stops or terminates when you initiate shutdown from
     the instance (using the operating system command for system shutdown).
     """
+
     UserData: "str | None" = None
     """
     The user data for the instance.
     """
-
     TagSpecifications: "builtins.list[LaunchTemplateTagSpecification] | None" = Field(
         default_factory=list
     )
     """
     The tags that are applied to the resources that are created during instance launch.
     """
+
     ElasticGpuSpecifications: "builtins.list[ElasticGpuSpecificationResponse] | None" = Field(
         default_factory=list
     )
@@ -11561,7 +11577,6 @@ class ResponseLaunchTemplateData(Boto3Model):
     in the *Amazon EC2 User
     Guide*.
     """
-
     CapacityReservationSpecification: "LaunchTemplateCapacityReservationSpecificationResponse | None" = None
     """
     Information about the Capacity Reservation targeting option.
@@ -11610,7 +11625,6 @@ class ResponseLaunchTemplateData(Boto3Model):
     """
     The options for the instance hostname.
     """
-
     MaintenanceOptions: "LaunchTemplateInstanceMaintenanceOptions | None" = None
     """
     The maintenance options for your instance.
@@ -11685,14 +11699,17 @@ class LaunchTemplateVersion(PrimaryBoto3Model):
     """
     Indicates whether the version is the default version.
     """
+
     LaunchTemplateData: "ResponseLaunchTemplateData | None" = None
     """
     Information about the launch template.
     """
+
     Operator: OperatorResponse = Field(default=None, frozen=True)
     """
     The entity that manages the launch template.
     """
+
     @property
     def name(self) -> str | None:
         """
@@ -11712,6 +11729,7 @@ class LaunchTemplateVersion(PrimaryBoto3Model):
                 "Version": self.VersionNumber,
             }
         )
+
     @cached_property
     def ami(self) -> "AMI | None":
         """
@@ -11733,7 +11751,6 @@ class LaunchTemplateVersion(PrimaryBoto3Model):
         except AttributeError:
             return None
         return AMI.objects.using(self.session).get(**pk)  # type: ignore[arg-type]
-
     @cached_property
     def instance_type(self) -> "EC2InstanceType | None":
         """
@@ -11755,6 +11772,7 @@ class LaunchTemplateVersion(PrimaryBoto3Model):
         except AttributeError:
             return None
         return EC2InstanceType.objects.using(self.session).get(**pk)  # type: ignore[arg-type]
+
     @cached_property
     def launch_template(self) -> "LaunchTemplate | None":
         """
@@ -11785,7 +11803,6 @@ class NetworkInterfaceAssociation(Boto3Model):
     Carrier IP address (for a network interface which resides in a subnet in a
     Wavelength Zone).
     """
-
     AllocationId: "str | None" = None
     """
     The allocation ID.
@@ -11800,10 +11817,12 @@ class NetworkInterfaceAssociation(Boto3Model):
     """
     The ID of the Elastic IP address owner.
     """
+
     PublicDnsName: "str | None" = None
     """
     The public DNS name.
     """
+
     PublicIp: "str | None" = None
     """
     The address of the Elastic IP address bound to the network interface.
@@ -11896,6 +11915,7 @@ class NetworkInterfaceAttachment(Boto3Model):
     """
     The ID of the instance.
     """
+
     InstanceOwnerId: "str | None" = None
     """
     The Amazon Web Services account ID of the owner of the instance.
@@ -11905,6 +11925,7 @@ class NetworkInterfaceAttachment(Boto3Model):
     """
     The attachment state.
     """
+
     EnaSrdSpecification: "AttachmentEnaSrdSpecification | None" = None
     """
     Configures ENA Express for the network interface that this action attaches to the
@@ -11915,6 +11936,7 @@ class NetworkInterfaceAttachment(Boto3Model):
     """
     The number of ENA queues created with the instance.
     """
+
 class EC2ConnectionTrackingConfiguration(Boto3Model):
     """
     A security group connection tracking configuration that enables you to set the idle
@@ -11934,6 +11956,7 @@ class EC2ConnectionTrackingConfiguration(Boto3Model):
         types
     (including P6e-GB200). Recommended: Less than 432000 seconds.
     """
+
     UdpStreamTimeout: "int | None" = None
     """
     Timeout (in seconds) for idle UDP flows classified as streams which have seen more
@@ -11949,7 +11972,6 @@ class EC2ConnectionTrackingConfiguration(Boto3Model):
 
     Min: 30 seconds. Max: 60 seconds. Default: 30 seconds.
     """
-
 class NetworkInterfaceIpv6Address(Boto3Model):
     """
     Describes an IPv6 address associated with a network interface.
@@ -11987,7 +12009,6 @@ class EC2PublicIpDnsNameOptions(Boto3Model):
     For more information, see `EC2 instance hostnames, DNS names, and
     domains <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-instance-naming.html>`_ in the *Amazon EC2 User Guide*.
     """
-
     DnsHostnameType: "str | None" = None
     """
     The public hostname type.
@@ -12026,6 +12047,7 @@ class NetworkInterfacePrivateIpAddress(Boto3Model):
     """
     Describes the private IPv4 address of a network interface.
     """
+
     Association: "NetworkInterfaceAssociation | None" = None
     """
     The association information for an Elastic IP address (IPv4) associated with the
@@ -12037,11 +12059,11 @@ class NetworkInterfacePrivateIpAddress(Boto3Model):
     Indicates whether this IPv4 address is the primary private IPv4 address of the
     network interface.
     """
+
     PrivateDnsName: "str | None" = None
     """
     The private DNS name.
     """
-
     PrivateIpAddress: "str | None" = None
     """
     The private IPv4 address.
@@ -12060,6 +12082,7 @@ class Ipv4PrefixSpecification(Boto3Model):
     `Assigning prefixes to network interfaces <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-prefix-eni.html>`_
     in the *Amazon EC2 User Guide*.
     """
+
 class Ipv6PrefixSpecification(Boto3Model):
     """
     Describes the IPv6 prefix.
@@ -12080,6 +12103,7 @@ class EC2EnaSrdUdpSpecification(Boto3Model):
     applications. For UDP traffic, you can specify whether to use ENA Express, based on
     your application environment needs.
     """
+
     EnaSrdUdpEnabled: "bool | None" = None
     """
     Indicates whether UDP traffic to and from the instance uses ENA Express.
@@ -12156,11 +12180,11 @@ class NetworkInterface(PrimaryBoto3Model):
     """
     A description.
     """
+
     Groups: "builtins.list[GroupIdentifier] | None" = Field(default_factory=list)
     """
     Any security groups for the network interface.
     """
-
     Ipv6Addresses: "builtins.list[NetworkInterfaceIpv6Address] | None" = Field(
         default_factory=list
     )
@@ -12254,8 +12278,8 @@ class NetworkInterface(PrimaryBoto3Model):
     Indicates whether source/destination checking is enabled.
     """
 
-    Status: Literal["available", "associated", "attaching", "in-use", "detaching"] = (
-        Field(default=None, frozen=True)
+    Status: "Literal['available', 'associated', 'attaching', 'in-use', 'detaching'] | None" = Field(
+        default=None, frozen=True
     )
     """
     The status of the network interface.
@@ -12286,7 +12310,6 @@ class NetworkInterface(PrimaryBoto3Model):
     is reachable from peered VPCs and resources connected through a transit gateway,
     including on-premises networks.
     """
-
     Ipv6Native: bool = Field(default=None, frozen=True)
     """
     Indicates whether this is an IPv6 only network interface.
@@ -12311,7 +12334,6 @@ class NetworkInterface(PrimaryBoto3Model):
     """
     The ID of the Availability Zone.
     """
-
     @property
     def pk(self) -> str | None:
         """
@@ -12382,6 +12404,7 @@ class NetworkInterface(PrimaryBoto3Model):
         except AttributeError:
             return []
         return SecurityGroup.objects.using(self.session).list(**pk)  # type: ignore[arg-type]
+
     def reset(
         self, DryRun: bool = False, SourceDestCheck: "str | None" = None
     ) -> "None":
@@ -12404,6 +12427,7 @@ class NetworkInterface(PrimaryBoto3Model):
                 self.NetworkInterfaceId, DryRun=DryRun, SourceDestCheck=SourceDestCheck
             )
         )
+
     def attach(
         self,
         InstanceId: str,
@@ -12462,7 +12486,6 @@ class NetworkInterface(PrimaryBoto3Model):
             .using(self.session)
             .detach(self.Attachment.AttachmentId, Force=Force, DryRun=DryRun)
         )
-
 class EC2ProcessorInfo(Boto3Model):
     """
     Describes the processor used by the instance type.
@@ -12479,6 +12502,7 @@ class EC2ProcessorInfo(Boto3Model):
     """
     The speed of the processor, in GHz.
     """
+
     SupportedFeatures: "builtins.list[Literal['amd-sev-snp', 'nested-virtualization']] | None" = Field(
         default_factory=list
     )
@@ -12489,7 +12513,6 @@ class EC2ProcessorInfo(Boto3Model):
     not supported. For more information, see  `AMD SEV- SNP
     <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/sev-snp.html>`_.
     """
-
     Manufacturer: "str | None" = None
     """
     The manufacturer of the processor.
@@ -12499,12 +12522,10 @@ class EC2VCpuInfo(Boto3Model):
     """
     Describes the vCPU configurations for the instance type.
     """
-
     DefaultVCpus: "int | None" = None
     """
     The default number of vCPUs for the instance type.
     """
-
     DefaultCores: "int | None" = None
     """
     The default number of cores for the instance type.
@@ -12519,11 +12540,11 @@ class EC2VCpuInfo(Boto3Model):
     """
     The valid number of cores that can be configured for the instance type.
     """
-
     ValidThreadsPerCore: "builtins.list[int] | None" = Field(default_factory=list)
     """
     The valid number of threads per core that can be configured for the instance type.
     """
+
 class EC2MemoryInfo(Boto3Model):
     """
     Describes the memory for the instance type.
@@ -12553,7 +12574,6 @@ class DiskInfo(Boto3Model):
     """
     The type of disk.
     """
-
 class EC2InstanceStorageInfo(Boto3Model):
     """
     Describes the instance store features that are supported by the instance type.
@@ -12568,14 +12588,17 @@ class EC2InstanceStorageInfo(Boto3Model):
     """
     Describes the disks that are available for the instance type.
     """
+
     NvmeSupport: "Literal['unsupported', 'supported', 'required'] | None" = None
     """
     Indicates whether non-volatile memory express (NVMe) is supported.
     """
+
     EncryptionSupport: "Literal['unsupported', 'required'] | None" = None
     """
     Indicates whether data is encrypted at rest.
     """
+
 class EC2EbsOptimizedInfo(Boto3Model):
     """
     Describes the optimized EBS performance for supported instance types.
@@ -12590,13 +12613,11 @@ class EC2EbsOptimizedInfo(Boto3Model):
     """
     The baseline throughput performance for an EBS-optimized instance type, in MB/s.
     """
-
     BaselineIops: "int | None" = None
     """
     The baseline input/output storage operations per seconds for an EBS-optimized
     instance type.
     """
-
     MaximumBandwidthInMbps: "int | None" = None
     """
     The maximum bandwidth performance for an EBS-optimized instance type, in Mbps.
@@ -12617,12 +12638,10 @@ class EbsCardInfo(Boto3Model):
     """
     Describes the performance characteristics of an EBS card on the instance type.
     """
-
     EbsCardIndex: "int | None" = None
     """
     The index of the EBS card.
     """
-
     BaselineBandwidthInMbps: "int | None" = None
     """
     The baseline bandwidth performance for the EBS card, in Mbps.
@@ -12657,7 +12676,6 @@ class EC2EbsInfo(Boto3Model):
     """
     Describes the Amazon EBS features supported by the instance type.
     """
-
     EbsOptimizedSupport: "Literal['unsupported', 'supported', 'default'] | None" = None
     """
     Indicates whether the instance type is Amazon EBS-optimized.
@@ -12680,7 +12698,6 @@ class EC2EbsInfo(Boto3Model):
     """
     Indicates whether non-volatile memory express (NVMe) is supported.
     """
-
     MaximumEbsAttachments: "int | None" = None
     """
     Indicates the maximum number of Amazon EBS volumes that can be attached to the
@@ -12690,7 +12707,6 @@ class EC2EbsInfo(Boto3Model):
     `Amazon EBS volume limits for Amazon EC2 instances <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/volume_limits.html>`_
     in the *Amazon EC2 User Guide*.
     """
-
     AttachmentLimitType: "Literal['shared', 'dedicated'] | None" = None
     """
     Indicates whether the instance type features a shared or dedicated Amazon EBS volume
@@ -12710,17 +12726,14 @@ class EC2EbsInfo(Boto3Model):
     """
     Describes the EBS cards available for the instance type.
     """
-
 class NetworkCardInfo(Boto3Model):
     """
     Describes the network card support of the instance type.
     """
-
     NetworkCardIndex: "int | None" = None
     """
     The index of the network card.
     """
-
     NetworkPerformance: "str | None" = None
     """
     The network performance of the network card.
@@ -12739,7 +12752,6 @@ class NetworkCardInfo(Boto3Model):
     This number is in addition to the base number specified by
     ``maximumNetworkInterfaces``.
     """
-
     BaselineBandwidthInGbps: "float | None" = None
     """
     The baseline network performance of the network card, in Gbps.
@@ -12749,10 +12761,12 @@ class NetworkCardInfo(Boto3Model):
     """
     The peak (burst) network performance of the network card, in Gbps.
     """
+
     DefaultEnaQueueCountPerInterface: "int | None" = None
     """
     The default number of the ENA queues for each interface.
     """
+
     MaximumEnaQueueCount: "int | None" = None
     """
     The maximum number of the ENA queues.
@@ -12774,6 +12788,7 @@ class EC2EfaInfo(Boto3Model):
     """
     Describes the Elastic Fabric Adapters for the instance type.
     """
+
     MaximumEfaInterfaces: "int | None" = None
     """
     The maximum number of Elastic Fabric Adapters for the instance type.
@@ -12792,7 +12807,6 @@ class DefaultConnectionTrackingConfiguration(Boto3Model):
     """
     Default timeout (in seconds) for idle TCP connections in an established state.
     """
-
     DefaultUdpTimeout: "int | None" = None
     """
     Default timeout (in seconds) for idle UDP flows that have seen traffic only in a
@@ -12804,6 +12818,7 @@ class DefaultConnectionTrackingConfiguration(Boto3Model):
     Default timeout (in seconds) for idle UDP flows classified as streams which have
     seen more than one request-response transaction.
     """
+
 class EC2NetworkInfo(Boto3Model):
     """
     Describes the networking features of the instance type.
@@ -12818,10 +12833,12 @@ class EC2NetworkInfo(Boto3Model):
     """
     The maximum number of network interfaces for the instance type.
     """
+
     MaximumNetworkCards: "int | None" = None
     """
     The maximum number of physical network cards that can be allocated to the instance.
     """
+
     DefaultNetworkCardIndex: "int | None" = None
     """
     The index of the default network card, starting at 0.
@@ -12831,12 +12848,10 @@ class EC2NetworkInfo(Boto3Model):
     """
     Describes the network cards for the instance type.
     """
-
     Ipv4AddressesPerInterface: "int | None" = None
     """
     The maximum number of IPv4 addresses per network interface.
     """
-
     Ipv6AddressesPerInterface: "int | None" = None
     """
     The maximum number of IPv6 addresses per network interface.
@@ -12851,6 +12866,7 @@ class EC2NetworkInfo(Boto3Model):
     """
     Indicates whether Elastic Network Adapter (ENA) is supported.
     """
+
     EfaSupported: "bool | None" = None
     """
     Indicates whether Elastic Fabric Adapter (EFA) is supported.
@@ -12860,7 +12876,6 @@ class EC2NetworkInfo(Boto3Model):
     """
     Describes the Elastic Fabric Adapters for the instance type.
     """
-
     EncryptionInTransitSupported: "bool | None" = None
     """
     Indicates whether the instance type automatically encrypts in-transit traffic
@@ -12875,6 +12890,7 @@ class EC2NetworkInfo(Boto3Model):
     increase the maximum bandwidth used per stream and minimize tail latency of network
     traffic between EC2 instances.
     """
+
     BandwidthWeightings: "builtins.list[Literal['default', 'vpc-1', 'ebs-1']] | None" = Field(
         default_factory=list
     )
@@ -12882,7 +12898,6 @@ class EC2NetworkInfo(Boto3Model):
     A list of valid settings for configurable bandwidth weighting for the instance type,
     if supported.
     """
-
     FlexibleEnaQueuesSupport: "Literal['unsupported', 'supported'] | None" = None
     """
     Indicates whether changing the number of ENA queues is supported.
@@ -12894,7 +12909,6 @@ class EC2NetworkInfo(Boto3Model):
     """
     Indicates conntrack information for the instance type.
     """
-
     SecondaryNetworkSupported: "bool | None" = None
     """
     Indicates whether secondary interface attachments from secondary network are
@@ -12915,7 +12929,6 @@ class GpuDeviceMemoryInfo(Boto3Model):
     """
     Describes the memory available to the GPU accelerator.
     """
-
     SizeInMiB: "int | None" = None
     """
     The size of the memory available to the GPU accelerator, in MiB.
@@ -12925,7 +12938,6 @@ class GpuDeviceInfo(Boto3Model):
     """
     Describes the GPU accelerators for the instance type.
     """
-
     Name: "str | None" = None
     """
     The name of the GPU accelerator.
@@ -12971,11 +12983,11 @@ class EC2GpuInfo(Boto3Model):
     """
     Describes the GPU accelerators for the instance type.
     """
+
     TotalGpuMemoryInMiB: "int | None" = None
     """
     The total size of the memory for the GPU accelerators for the instance type, in MiB.
     """
-
 class FpgaDeviceMemoryInfo(Boto3Model):
     """
     Describes the memory for the FPGA accelerator for the instance type.
@@ -13000,6 +13012,7 @@ class FpgaDeviceInfo(Boto3Model):
     """
     The manufacturer of the FPGA accelerator.
     """
+
     Count: "int | None" = None
     """
     The count of FPGA accelerators for the instance type.
@@ -13019,11 +13032,11 @@ class EC2FpgaInfo(Boto3Model):
     """
     Describes the FPGAs for the instance type.
     """
+
     TotalFpgaMemoryInMiB: "int | None" = None
     """
     The total memory of all FPGA accelerators for the instance type.
     """
-
 class EC2PlacementGroupInfo(Boto3Model):
     """
     Describes the placement group support of the instance type.
@@ -13035,6 +13048,7 @@ class EC2PlacementGroupInfo(Boto3Model):
     """
     The supported placement group types.
     """
+
 class InferenceDeviceMemoryInfo(Boto3Model):
     """
     Amazon Elastic Inference is no longer available.
@@ -13053,12 +13067,10 @@ class InferenceDeviceInfo(Boto3Model):
 
     Describes the Inference accelerators for the instance type.
     """
-
     Count: "int | None" = None
     """
     The number of Inference accelerators for the instance type.
     """
-
     Name: "str | None" = None
     """
     The name of the Inference accelerator.
@@ -13080,20 +13092,17 @@ class EC2InferenceAcceleratorInfo(Boto3Model):
 
     Describes the Inference accelerators for the instance type.
     """
-
     Accelerators: "builtins.list[InferenceDeviceInfo] | None" = Field(
         default_factory=list
     )
     """
     Describes the Inference accelerators for the instance type.
     """
-
     TotalInferenceMemoryInMiB: "int | None" = None
     """
     The total size of the memory for the inference accelerators for the instance type,
     in MiB.
     """
-
 class EC2NitroTpmInfo(Boto3Model):
     """
     Describes the supported NitroTPM versions for the instance type.
@@ -13108,11 +13117,11 @@ class MediaDeviceMemoryInfo(Boto3Model):
     """
     Describes the memory available to the media accelerator.
     """
+
     SizeInMiB: "int | None" = None
     """
     The size of the memory available to each media accelerator, in MiB.
     """
-
 class MediaDeviceInfo(Boto3Model):
     """
     Describes the media accelerators for the instance type.
@@ -13122,20 +13131,20 @@ class MediaDeviceInfo(Boto3Model):
     """
     The number of media accelerators for the instance type.
     """
+
     Name: "str | None" = None
     """
     The name of the media accelerator.
     """
+
     Manufacturer: "str | None" = None
     """
     The manufacturer of the media accelerator.
     """
-
     MemoryInfo: "MediaDeviceMemoryInfo | None" = None
     """
     Describes the memory available to the media accelerator.
     """
-
 class EC2MediaAcceleratorInfo(Boto3Model):
     """
     Describes the media accelerators for the instance type.
@@ -13156,6 +13165,7 @@ class NeuronDeviceCoreInfo(Boto3Model):
     """
     Describes the cores available to the neuron accelerator.
     """
+
     Count: "int | None" = None
     """
     The number of cores available to the neuron accelerator.
@@ -13190,6 +13200,7 @@ class NeuronDeviceInfo(Boto3Model):
     """
     The name of the neuron accelerator.
     """
+
     CoreInfo: "NeuronDeviceCoreInfo | None" = None
     """
     Describes the cores available to each neuron accelerator.
@@ -13280,6 +13291,7 @@ class EC2InstanceType(ReadonlyPrimaryBoto3Model):
     """
     Describes the processor.
     """
+
     VCpuInfo: "EC2VCpuInfo | None" = None
     """
     Describes the vCPU configurations for the instance type.
@@ -13289,6 +13301,7 @@ class EC2InstanceType(ReadonlyPrimaryBoto3Model):
     """
     Describes the memory for the instance type.
     """
+
     InstanceStorageSupported: "bool | None" = None
     """
     Indicates whether instance storage is supported.
@@ -13323,6 +13336,7 @@ class EC2InstanceType(ReadonlyPrimaryBoto3Model):
     """
     Describes the placement group settings for the instance type.
     """
+
     InferenceAcceleratorInfo: "EC2InferenceAcceleratorInfo | None" = None
     """
     Describes the Inference accelerator settings for the instance type.
@@ -13381,7 +13395,6 @@ class EC2InstanceType(ReadonlyPrimaryBoto3Model):
     """
     Describes the media accelerator settings for the instance type.
     """
-
     NeuronInfo: "EC2NeuronInfo | None" = None
     """
     Describes the Neuron accelerator settings for the instance type.
@@ -13391,6 +13404,7 @@ class EC2InstanceType(ReadonlyPrimaryBoto3Model):
     Indicates whether a local Precision Time Protocol (PTP) hardware clock (PHC) is
     supported.
     """
+
     RebootMigrationSupport: "Literal['unsupported', 'supported'] | None" = None
     """
     Indicates whether reboot migration during a user-initiated reboot is supported for
@@ -13401,7 +13415,6 @@ class EC2InstanceType(ReadonlyPrimaryBoto3Model):
     in the
     *Amazon EC2 User Guide*.
     """
-
     SupportedInRegion: "bool | None" = None
     """
     Indicates whether the instance type is supported in the current Region.
@@ -13418,7 +13431,6 @@ class EC2InstanceType(ReadonlyPrimaryBoto3Model):
             The primary key of the model instance.
         """
         return self.InstanceType
-
     @property
     def name(self) -> str | None:
         """
@@ -13430,6 +13442,7 @@ class EC2InstanceType(ReadonlyPrimaryBoto3Model):
             The name of the model instance.
         """
         return self.InstanceType
+
     def __hash__(self) -> int:
         """
         Return the hash of the model.
@@ -13462,8 +13475,6 @@ class EC2InstanceType(ReadonlyPrimaryBoto3Model):
         except AttributeError:
             return []
         return Instance.objects.using(self.session).list(**pk)  # type: ignore[arg-type]
-
-
 class TagSpecification(TagsDictMixin, Boto3Model):
     """
     The tags to apply to a resource when the resource is being created.
@@ -13518,7 +13529,9 @@ class Snapshot(TagsDictMixin, PrimaryBoto3Model):
     Any tags assigned to the snapshot.
     """
 
-    StorageTier: Literal["archive", "standard"] = Field(default=None, frozen=True)
+    StorageTier: "Literal['archive', 'standard'] | None" = Field(
+        default=None, frozen=True
+    )
     """
     The storage tier in which the snapshot is stored.
 
@@ -13535,7 +13548,9 @@ class Snapshot(TagsDictMixin, PrimaryBoto3Model):
     automatically re-archived.
     """
 
-    SseType: Literal["sse-ebs", "sse-kms", "none"] = Field(default=None, frozen=True)
+    SseType: "Literal['sse-ebs', 'sse-kms', 'none'] | None" = Field(
+        default=None, frozen=True
+    )
     """
     Reserved for future use.
     """
@@ -13548,7 +13563,9 @@ class Snapshot(TagsDictMixin, PrimaryBoto3Model):
     Zone).
     """
 
-    TransferType: Literal["time-based", "standard"] = Field(default=None, frozen=True)
+    TransferType: "Literal['time-based', 'standard'] | None" = Field(
+        default=None, frozen=True
+    )
     """
     Only for snapshot copies.
     """
@@ -13583,8 +13600,8 @@ class Snapshot(TagsDictMixin, PrimaryBoto3Model):
     should not use for any purpose.
     """
 
-    State: Literal["pending", "completed", "error", "recoverable", "recovering"] = (
-        Field(default=None, frozen=True)
+    State: "Literal['pending', 'completed', 'error', 'recoverable', 'recovering'] | None" = Field(
+        default=None, frozen=True
     )
     """
     The snapshot state.
@@ -13645,6 +13662,7 @@ class Snapshot(TagsDictMixin, PrimaryBoto3Model):
     share the same data encryption key identifier, then they belong to the same
     volume/snapshot lineage. This parameter is only returned by DescribeSnapshots.
     """
+
     @property
     def pk(self) -> str | None:
         """
@@ -13656,6 +13674,7 @@ class Snapshot(TagsDictMixin, PrimaryBoto3Model):
             The primary key of the model instance.
         """
         return self.SnapshotId
+
     @property
     def name(self) -> str | None:
         """
@@ -13726,6 +13745,7 @@ class Snapshot(TagsDictMixin, PrimaryBoto3Model):
         except AttributeError:
             return []
         return Instance.objects.using(self.session).list(**pk)  # type: ignore[arg-type]
+
     def copy(self) -> "str":
         """
         Copy the snapshot.
@@ -13762,6 +13782,8 @@ class Snapshot(TagsDictMixin, PrimaryBoto3Model):
                 self.SnapshotId,
             )
         )
+
+
 class KeyPair(TagsDictMixin, PrimaryBoto3Model):
     """
     Describes a key pair.
@@ -13774,6 +13796,7 @@ class KeyPair(TagsDictMixin, PrimaryBoto3Model):
     """
     Any tags applied to the key pair.
     """
+
     KeyPairId: str = Field(default=None, frozen=True)
     """
     The ID of the key pair.
@@ -13795,7 +13818,7 @@ key.
     An unencrypted PEM encoded RSA or ED25519 private key.
     """
 
-    KeyType: Literal["rsa", "ed25519"] = Field(default=None, frozen=True)
+    KeyType: "Literal['rsa', 'ed25519'] | None" = Field(default=None, frozen=True)
     """
     The type of key pair.
     """
@@ -13858,16 +13881,19 @@ class PlacementGroup(TagsDictMixin, PrimaryBoto3Model):
     """
     Any tags applied to the placement group.
     """
+
     GroupName: "str | None" = None
     """
     The name of the placement group.
     """
-    State: Literal["pending", "available", "deleting", "deleted"] = Field(
+
+    State: "Literal['pending', 'available', 'deleting', 'deleted'] | None" = Field(
         default=None, frozen=True
     )
     """
     The state of the placement group.
     """
+
     Strategy: "Literal['cluster', 'spread', 'partition', 'precision-time'] | None" = (
         None
     )
@@ -13908,6 +13934,7 @@ class PlacementGroup(TagsDictMixin, PrimaryBoto3Model):
     """
     The service provider that manages the Placement Group.
     """
+
     ParentGroupId: "str | None" = None
     """
     The ID of the parent placement group.
@@ -13974,6 +14001,7 @@ class DhcpConfiguration(Boto3Model):
     """
     Describes a DHCP configuration option.
     """
+
     Key: "str | None" = None
     """
     The name of a DHCP option.
@@ -13988,9 +14016,9 @@ class DhcpOptions(TagsDictMixin, PrimaryBoto3Model):
     """
     The set of DHCP options.
     """
-
     tag_class: ClassVar[ModelType[Boto3Model]] = Tag
     manager_class: ClassVar[ModelType[Boto3ModelManager]] = DhcpOptionsManager
+
     Tags: "builtins.list[Tag] | None" = Field(default_factory=list)
     """
     Any tags assigned to the DHCP options set.
@@ -14024,6 +14052,7 @@ class DhcpOptions(TagsDictMixin, PrimaryBoto3Model):
             The primary key of the model instance.
         """
         return self.DhcpOptionsId
+
     @property
     def name(self) -> str | None:
         """
@@ -14076,6 +14105,7 @@ class CustomerGateway(TagsDictMixin, PrimaryBoto3Model):
     The customer gateway device's Border Gateway Protocol (BGP) Autonomous System Number
     (ASN).
     """
+
     Tags: "builtins.list[Tag] | None" = Field(default_factory=list)
     """
     Any tags assigned to the customer gateway.
@@ -14106,7 +14136,6 @@ class CustomerGateway(TagsDictMixin, PrimaryBoto3Model):
     """
     The type of VPN connection the customer gateway supports (``ipsec.1``).
     """
-
     @property
     def pk(self) -> str | None:
         """
@@ -14129,6 +14158,7 @@ class CustomerGateway(TagsDictMixin, PrimaryBoto3Model):
             The name of the model instance.
         """
         return self.CustomerGatewayId
+
     def __hash__(self) -> int:
         """
         Return the hash of the model.
@@ -14137,6 +14167,8 @@ class CustomerGateway(TagsDictMixin, PrimaryBoto3Model):
         :py:attr:`CustomerGatewayId` attribute.
         """
         return hash(self.CustomerGatewayId)
+
+
 class EC2VpcAttachment(Boto3Model):
     """
     Describes an attachment between a virtual private gateway and a VPC.
@@ -14175,13 +14207,12 @@ class VpnGateway(TagsDictMixin, PrimaryBoto3Model):
     The ID of the virtual private gateway.
     """
 
-    State: Literal["pending", "available", "deleting", "deleted"] = Field(
+    State: "Literal['pending', 'available', 'deleting', 'deleted'] | None" = Field(
         default=None, frozen=True
     )
     """
     The current state of the virtual private gateway.
     """
-
     Type: "Literal['ipsec.1'] | None" = None
     """
     The type of VPN connection the virtual private gateway supports.
@@ -14200,6 +14231,7 @@ class VpnGateway(TagsDictMixin, PrimaryBoto3Model):
     """
     Any VPCs attached to the virtual private gateway.
     """
+
     @property
     def pk(self) -> str | None:
         """
@@ -14211,6 +14243,7 @@ class VpnGateway(TagsDictMixin, PrimaryBoto3Model):
             The primary key of the model instance.
         """
         return self.VpnGatewayId
+
     @property
     def name(self) -> str | None:
         """
@@ -14231,13 +14264,12 @@ class VpnGateway(TagsDictMixin, PrimaryBoto3Model):
         :py:attr:`VpnGatewayId` attribute.
         """
         return hash(self.VpnGatewayId)
-
-
 class InternetGatewayAttachment(Boto3Model):
     """
     Describes the attachment of a VPC to an internet gateway or an egress-only internet
     gateway.
     """
+
     State: "Literal['attaching', 'attached', 'detaching', 'detached'] | None" = None
     """
     The current state of the attachment.
@@ -14274,6 +14306,7 @@ class InternetGateway(TagsDictMixin, PrimaryBoto3Model):
     """
     The ID of the internet gateway.
     """
+
     OwnerId: str = Field(default=None, frozen=True)
     """
     The ID of the Amazon Web Services account that owns the internet gateway.
@@ -14290,6 +14323,7 @@ class InternetGateway(TagsDictMixin, PrimaryBoto3Model):
             The primary key of the model instance.
         """
         return self.InternetGatewayId
+
     @property
     def name(self) -> str | None:
         """
@@ -14301,6 +14335,7 @@ class InternetGateway(TagsDictMixin, PrimaryBoto3Model):
             The name of the model instance.
         """
         return self.InternetGatewayId
+
     def __hash__(self) -> int:
         """
         Return the hash of the model.
@@ -14309,8 +14344,6 @@ class InternetGateway(TagsDictMixin, PrimaryBoto3Model):
         :py:attr:`InternetGatewayId` attribute.
         """
         return hash(self.InternetGatewayId)
-
-
 class VolumeAttachment(Boto3Model):
     """
     Describes volume attachment details.
@@ -14416,7 +14449,10 @@ class Volume(TagsDictMixin, PrimaryBoto3Model):
     """
     The throughput that the volume supports, in MiB/s.
     """
-    SseType: Literal["sse-ebs", "sse-kms", "none"] = Field(default=None, frozen=True)
+
+    SseType: "Literal['sse-ebs', 'sse-kms', 'none'] | None" = Field(
+        default=None, frozen=True
+    )
     """
     This parameter is not returned by CreateVolume.
     """
@@ -14438,6 +14474,7 @@ class Volume(TagsDictMixin, PrimaryBoto3Model):
     """
     The Amazon Resource Name (ARN) of the volume.
     """
+
     OwnerId: str = Field(default=None, frozen=True)
     """
     The ID of the Amazon Web Services account that owns the volume.
@@ -14452,7 +14489,6 @@ class Volume(TagsDictMixin, PrimaryBoto3Model):
     """
     The size of the volume, in GiBs.
     """
-
     SnapshotId: "str | None" = None
     """
     The snapshot from which the volume was created, if applicable.
@@ -14463,9 +14499,9 @@ class Volume(TagsDictMixin, PrimaryBoto3Model):
     The Availability Zone for the volume.
     """
 
-    State: Literal[
-        "creating", "available", "in-use", "deleting", "deleted", "error"
-    ] = Field(default=None, frozen=True)
+    State: "Literal['creating', 'available', 'in-use', 'deleting', 'deleted', 'error'] | None" = Field(
+        default=None, frozen=True
+    )
     """
     The volume state.
     """
@@ -14494,7 +14530,6 @@ class Volume(TagsDictMixin, PrimaryBoto3Model):
     """
 
     AllocationId: str | None = None
-
     @property
     def pk(self) -> str | None:
         """
@@ -14518,7 +14553,6 @@ class Volume(TagsDictMixin, PrimaryBoto3Model):
             The name of the model instance.
         """
         return self.VolumeId
-
     def __hash__(self) -> int:
         """
         Return the hash of the model.
@@ -14527,7 +14561,6 @@ class Volume(TagsDictMixin, PrimaryBoto3Model):
         :py:attr:`VolumeId` attribute.
         """
         return hash(self.VolumeId)
-
 class RouteTableAssociationState(Boto3Model):
     """
     Describes the state of an association between a route table and a subnet or gateway.
@@ -14537,34 +14570,37 @@ class RouteTableAssociationState(Boto3Model):
     """
     The state of the association.
     """
+
     StatusMessage: "str | None" = None
     """
     The status message, if applicable.
     """
+
 class RouteTableAssociation(Boto3Model):
     """
     Describes an association between a route table and a subnet or gateway.
     """
+
     Main: "bool | None" = None
     """
     Indicates whether this is the main route table.
     """
+
     RouteTableAssociationId: "str | None" = None
     """
     The ID of the association.
     """
+
     RouteTableId: "str | None" = None
     """
     The ID of the route table.
     """
-
     SubnetId: "str | None" = None
     """
     The ID of the subnet.
 
     A subnet ID is not returned for an implicit association.
     """
-
     GatewayId: "str | None" = None
     """
     The ID of the internet gateway or virtual private gateway.
@@ -14577,10 +14613,12 @@ class RouteTableAssociation(Boto3Model):
     A public IPv4 pool is a pool of IPv4 addresses that you've brought to Amazon Web
     Services with BYOIP.
     """
+
     AssociationState: "RouteTableAssociationState | None" = None
     """
     The state of the association.
     """
+
 class PropagatingVgw(Boto3Model):
     """
     Describes a virtual private gateway propagating route.
@@ -14595,16 +14633,15 @@ class Route(Boto3Model):
     """
     Describes a route in a route table.
     """
+
     DestinationCidrBlock: "str | None" = None
     """
     The IPv4 CIDR block used for the destination match.
     """
-
     DestinationIpv6CidrBlock: "str | None" = None
     """
     The IPv6 CIDR block used for the destination match.
     """
-
     DestinationPrefixListId: "str | None" = None
     """
     The prefix of the Amazon Web Services service.
@@ -14634,7 +14671,6 @@ class Route(Boto3Model):
     """
     The ID of a NAT gateway.
     """
-
     TransitGatewayId: "str | None" = None
     """
     The ID of a transit gateway.
@@ -14694,7 +14730,6 @@ class RouteTable(TagsDictMixin, PrimaryBoto3Model):
     """
     Describes a route table.
     """
-
     tag_class: ClassVar[ModelType[Boto3Model]] = Tag
     manager_class: ClassVar[ModelType[Boto3ModelManager]] = RouteTableManager
 
@@ -14768,8 +14803,6 @@ class RouteTable(TagsDictMixin, PrimaryBoto3Model):
         :py:attr:`RouteTableId` attribute.
         """
         return hash(self.RouteTableId)
-
-
 class NatGatewayAddress(Boto3Model):
     """
     Describes the IP addresses and network interface associated with a NAT gateway.
@@ -14780,12 +14813,10 @@ class NatGatewayAddress(Boto3Model):
     [Public NAT gateway only] The allocation ID of the Elastic IP address that's
     associated with the NAT gateway.
     """
-
     NetworkInterfaceId: "str | None" = None
     """
     The ID of the network interface associated with the NAT gateway.
     """
-
     PrivateIp: "str | None" = None
     """
     The private IP address associated with the NAT gateway.
@@ -14806,12 +14837,10 @@ class NatGatewayAddress(Boto3Model):
     """
     Defines if the IP address is the primary address.
     """
-
     FailureMessage: "str | None" = None
     """
     The address failure message.
     """
-
     Status: "Literal['assigning', 'unassigning', 'associating', 'disassociating', 'succeeded', 'failed'] | None" = None
     """
     The address status.
@@ -14861,12 +14890,10 @@ class EC2ProvisionedBandwidth(Boto3Model):
     """
     Reserved.
     """
-
     Status: "str | None" = None
     """
     Reserved.
     """
-
 class NatGatewayAttachedAppliance(Boto3Model):
     """
     Information about an appliance attached to a NAT Gateway, providing managed security
@@ -14885,6 +14912,7 @@ class NatGatewayAttachedAppliance(Boto3Model):
     The Amazon Resource Name (ARN) of the attached appliance, identifying the specific
     proxy or security appliance resource.
     """
+
     VpcEndpointId: "str | None" = None
     """
     The VPC endpoint ID used to route traffic from application VPCs to the proxy for
@@ -14911,6 +14939,7 @@ class NatGatewayAttachedAppliance(Boto3Model):
     A descriptive message explaining the failure if the appliance attachment or
     modification operation failed.
     """
+
 class NatGateway(TagsDictMixin, PrimaryBoto3Model):
     """
     Describes a NAT gateway.
@@ -14918,6 +14947,7 @@ class NatGateway(TagsDictMixin, PrimaryBoto3Model):
 
     tag_class: ClassVar[ModelType[Boto3Model]] = Tag
     manager_class: ClassVar[ModelType[Boto3ModelManager]] = NatGatewayManager
+
     Tags: "builtins.list[Tag] | None" = Field(default_factory=list)
     """
     The tags for the NAT gateway.
@@ -14941,11 +14971,13 @@ class NatGateway(TagsDictMixin, PrimaryBoto3Model):
     ``InvalidAllocationID.NotFound`` | ``Resource.AlreadyAssociated`` |
     ``InternalError`` | ``InvalidSubnetID.NotFound``)
     """
+
     FailureMessage: str = Field(default=None, frozen=True)
     """
     If the NAT gateway could not be created, specifies the error message for the
     failure, that corresponds to the error code.
     """
+
     NatGatewayAddresses: "builtins.list[NatGatewayAddress]" = Field(
         default_factory=list, frozen=True
     )
@@ -14968,9 +15000,8 @@ class NatGateway(TagsDictMixin, PrimaryBoto3Model):
     contact Amazon Web
     Services Support.
     """
-
-    State: Literal["pending", "failed", "available", "deleting", "deleted"] = Field(
-        default=None, frozen=True
+    State: "Literal['pending', 'failed', 'available', 'deleting', 'deleted'] | None" = (
+        Field(default=None, frozen=True)
     )
     """
     The state of the NAT gateway.
@@ -14995,8 +15026,9 @@ class NatGateway(TagsDictMixin, PrimaryBoto3Model):
     """
     Indicates whether this is a zonal (single-AZ) or regional (multi-AZ) NAT gateway.
     """
-
-    AutoScalingIps: Literal["enabled", "disabled"] = Field(default=None, frozen=True)
+    AutoScalingIps: "Literal['enabled', 'disabled'] | None" = Field(
+        default=None, frozen=True
+    )
     """
     For regional NAT gateways only: Indicates whether Amazon Web Services automatically
     allocates additional Elastic IP addresses (EIPs) in an AZ when the NAT gateway needs
@@ -15004,7 +15036,7 @@ class NatGateway(TagsDictMixin, PrimaryBoto3Model):
     AZ.
     """
 
-    AutoProvisionZones: Literal["enabled", "disabled"] = Field(
+    AutoProvisionZones: "Literal['enabled', 'disabled'] | None" = Field(
         default=None, frozen=True
     )
     """
@@ -15054,6 +15086,7 @@ class NatGateway(TagsDictMixin, PrimaryBoto3Model):
             The name of the model instance.
         """
         return self.NatGatewayId
+
     def __hash__(self) -> int:
         """
         Return the hash of the model.
@@ -15068,16 +15101,15 @@ class Ipv6CidrBlock(Boto3Model):
     """
     Describes an IPv6 CIDR block.
     """
-
     Ipv6CidrBlock: "str | None" = None
     """
     The IPv6 CIDR block.
     """
-
 class EC2CidrBlockAssociation(Boto3Model):
     """
     Describes an IPv4 CIDR block.
     """
+
     CidrBlock: "str | None" = None
     """
     The IPv4 CIDR block.
@@ -15098,6 +15130,7 @@ class VpcPeeringConnectionOptionsDescription(Boto3Model):
     """
     Deprecated.
     """
+
     AllowEgressFromLocalVpcToRemoteClassicLink: "bool | None" = None
     """
     Deprecated.
@@ -15126,12 +15159,10 @@ class VpcPeeringConnectionVpcInfo(Boto3Model):
     """
     Information about the IPv4 CIDR blocks for the VPC.
     """
-
     OwnerId: "str | None" = None
     """
     The ID of the Amazon Web Services account that owns the VPC.
     """
-
     PeeringOptions: "VpcPeeringConnectionOptionsDescription | None" = None
     """
     Information about the VPC peering connection options for the accepter or requester
@@ -15142,6 +15173,7 @@ class VpcPeeringConnectionVpcInfo(Boto3Model):
     """
     The ID of the VPC.
     """
+
     Region: "str | None" = None
     """
     The Region in which the VPC is located.
@@ -15151,6 +15183,7 @@ class VpcPeeringConnectionStateReason(Boto3Model):
     """
     Describes the status of a VPC peering connection.
     """
+
     Code: "Literal['initiating-request', 'pending-acceptance', 'active', 'deleted', 'rejected', 'failed', 'expired', 'provisioning', 'deleting'] | None" = None
     """
     The status of the VPC peering connection.
@@ -15165,6 +15198,7 @@ class VpcPeeringConnection(TagsDictMixin, PrimaryBoto3Model):
     """
     Describes a VPC peering connection.
     """
+
     tag_class: ClassVar[ModelType[Boto3Model]] = Tag
     manager_class: ClassVar[ModelType[Boto3ModelManager]] = VpcPeeringConnectionManager
 
@@ -15180,10 +15214,12 @@ class VpcPeeringConnection(TagsDictMixin, PrimaryBoto3Model):
     CIDR block information is only returned when describing an active VPC peering
     connection.
     """
+
     ExpirationTime: datetime = Field(default=None, frozen=True)
     """
     The time that an unaccepted VPC peering connection will expire.
     """
+
     RequesterVpcInfo: VpcPeeringConnectionVpcInfo = Field(default=None, frozen=True)
     """
     Information about the requester VPC.
@@ -15206,7 +15242,6 @@ class VpcPeeringConnection(TagsDictMixin, PrimaryBoto3Model):
     PeerVpcId: str | None = None
     PeerOwnerId: str | None = None
     PeerRegion: str | None = None
-
     @property
     def pk(self) -> str | None:
         """
@@ -15290,19 +15325,21 @@ class EC2DnsOptions(Boto3Model):
     Only supported when private DNS is enabled and the private DNS preference is
     ``VERIFIED_DOMAINS_AND_SPECIFIED_DOMAINS`` or ``SPECIFIED_DOMAINS_ONLY``.
     """
+
 class DnsEntry(Boto3Model):
     """
     Describes a DNS entry.
     """
+
     DnsName: "str | None" = None
     """
     The DNS name.
     """
+
     HostedZoneId: "str | None" = None
     """
     The ID of the private hosted zone.
     """
-
 class EC2LastError(Boto3Model):
     """
     The last error that occurred for a VPC endpoint.
@@ -15360,6 +15397,7 @@ class EC2VpcEndpoint(TagsDictMixin, PrimaryBoto3Model):
     """
     The tags assigned to the endpoint.
     """
+
     VpcEndpointId: str = Field(default=None, frozen=True)
     """
     The ID of the endpoint.
@@ -15380,30 +15418,21 @@ class EC2VpcEndpoint(TagsDictMixin, PrimaryBoto3Model):
     The name of the service to which the endpoint is associated.
     """
 
-    State: Literal[
-        "PendingAcceptance",
-        "Pending",
-        "Available",
-        "Deleting",
-        "Deleted",
-        "Rejected",
-        "Failed",
-        "Expired",
-        "Partial",
-    ] = Field(default=None, frozen=True)
+    State: "Literal['PendingAcceptance', 'Pending', 'Available', 'Deleting', 'Deleted', 'Rejected', 'Failed', 'Expired', 'Partial'] | None" = Field(
+        default=None, frozen=True
+    )
     """
     The state of the endpoint.
     """
-
     PolicyDocument: "str | None" = None
     """
     The policy document associated with the endpoint, if applicable.
     """
-
     RouteTableIds: "builtins.list[str] | None" = Field(default_factory=list)
     """
     (Gateway endpoint) The IDs of the route tables associated with the endpoint.
     """
+
     SubnetIds: "builtins.list[str] | None" = Field(default_factory=list)
     """
     (Interface, Gateway Load Balancer endpoints, Resource, ServiceNetwork, and Tunnel
@@ -15449,7 +15478,6 @@ class EC2VpcEndpoint(TagsDictMixin, PrimaryBoto3Model):
     """
     (Interface endpoint) The DNS entries for the endpoint.
     """
-
     CreationTimestamp: datetime = Field(default=None, frozen=True)
     """
     The date and time that the endpoint was created.
@@ -15478,7 +15506,6 @@ class EC2VpcEndpoint(TagsDictMixin, PrimaryBoto3Model):
     """
     Array of IPv6 prefixes.
     """
-
     FailureReason: str = Field(default=None, frozen=True)
     """
     Reason for the failure.
@@ -15498,14 +15525,12 @@ class EC2VpcEndpoint(TagsDictMixin, PrimaryBoto3Model):
     """
     The Region where the service is hosted.
     """
-
     PayerResponsibilities: "builtins.list[PayerResponsibilityEntry]" = Field(
         default_factory=list, frozen=True
     )
     """
     The payer responsibility settings for the endpoint.
     """
-
     @property
     def pk(self) -> str | None:
         """
@@ -15528,7 +15553,6 @@ class EC2VpcEndpoint(TagsDictMixin, PrimaryBoto3Model):
             The name of the model instance.
         """
         return self.VpcEndpointId
-
     def __hash__(self) -> int:
         """
         Return the hash of the model.
@@ -15571,6 +15595,7 @@ class Phase2IntegrityAlgorithmsListValue(Boto3Model):
     """
     The integrity algorithm for phase 2 IKE negotiations.
     """
+
     Value: "str | None" = None
     """
     The integrity algorithm.
@@ -15595,7 +15620,6 @@ class Phase2DHGroupNumbersListValue(Boto3Model):
     """
     The Diffie-Hellmann group number.
     """
-
 class IKEVersionsListValue(Boto3Model):
     """
     The internet key exchange (IKE) version permitted for the VPN tunnel.
@@ -15622,6 +15646,7 @@ class EC2CloudWatchLogOptions(Boto3Model):
     """
     The Amazon Resource Name (ARN) of the CloudWatch log group to send logs to.
     """
+
     LogOutputFormat: "str | None" = None
     """
     Configured log format.
@@ -15636,6 +15661,7 @@ class EC2CloudWatchLogOptions(Boto3Model):
 
     Default value is ``False``.
     """
+
     BgpLogGroupArn: "str | None" = None
     """
     The Amazon Resource Name (ARN) of the CloudWatch log group for BGP logs.
@@ -15647,6 +15673,7 @@ class EC2CloudWatchLogOptions(Boto3Model):
 
     Default format is ``json``.
     """
+
 class VpnTunnelLogOptions(Boto3Model):
     """
     Options for logging VPN tunnel activity.
@@ -15697,12 +15724,12 @@ class TunnelOption(Boto3Model):
     The margin time, in seconds, before the phase 2 lifetime expires, during which the
     Amazon Web Services side of the VPN connection performs an IKE rekey.
     """
+
     RekeyFuzzPercentage: "int | None" = None
     """
     The percentage of the rekey window determined by ``RekeyMarginTimeSeconds`` during
     which the rekey time is randomly selected.
     """
-
     ReplayWindowSize: "int | None" = None
     """
     The number of packets in an IKE replay window.
@@ -15724,20 +15751,19 @@ class TunnelOption(Boto3Model):
     """
     The permitted encryption algorithms for the VPN tunnel for phase 1 IKE negotiations.
     """
-
     Phase2EncryptionAlgorithms: "builtins.list[Phase2EncryptionAlgorithmsListValue] | None" = Field(
         default_factory=list
     )
     """
     The permitted encryption algorithms for the VPN tunnel for phase 2 IKE negotiations.
     """
+
     Phase1IntegrityAlgorithms: "builtins.list[Phase1IntegrityAlgorithmsListValue] | None" = Field(
         default_factory=list
     )
     """
     The permitted integrity algorithms for the VPN tunnel for phase 1 IKE negotiations.
     """
-
     Phase2IntegrityAlgorithms: "builtins.list[Phase2IntegrityAlgorithmsListValue] | None" = Field(
         default_factory=list
     )
@@ -15751,6 +15777,7 @@ class TunnelOption(Boto3Model):
     The permitted Diffie-Hellman group numbers for the VPN tunnel for phase 1 IKE
     negotiations.
     """
+
     Phase2DHGroupNumbers: "builtins.list[Phase2DHGroupNumbersListValue] | None" = Field(
         default_factory=list
     )
@@ -15775,6 +15802,7 @@ class TunnelOption(Boto3Model):
     """
     Options for logging VPN tunnel activity.
     """
+
     EnableTunnelLifecycleControl: "bool | None" = None
     """
     Status of tunnel endpoint lifecycle control feature.
@@ -15816,6 +15844,7 @@ class VpnConnectionOptions(Boto3Model):
     """
     The IPv6 CIDR on the Amazon Web Services side of the VPN connection.
     """
+
     OutsideIpAddressType: "str | None" = None
     """
     The type of IPv4 address assigned to the outside interface of the customer gateway.
@@ -15869,11 +15898,11 @@ class VgwTelemetry(Boto3Model):
     """
     Describes telemetry for a VPN tunnel.
     """
+
     AcceptedRouteCount: "int | None" = None
     """
     The number of accepted routes.
     """
-
     LastStatusChange: "datetime | None" = None
     """
     The date and time of the last change in status.
@@ -15946,9 +15975,9 @@ class VpnConnection(TagsDictMixin, PrimaryBoto3Model):
     The ARN of the core network attachment.
     """
 
-    GatewayAssociationState: Literal[
-        "associated", "not-associated", "associating", "disassociating"
-    ] = Field(default=None, frozen=True)
+    GatewayAssociationState: "Literal['associated', 'not-associated', 'associating', 'disassociating'] | None" = Field(
+        default=None, frozen=True
+    )
     """
     The current state of the gateway association.
     """
@@ -15969,6 +15998,7 @@ class VpnConnection(TagsDictMixin, PrimaryBoto3Model):
     """
     Information about the VPN tunnel.
     """
+
     PreSharedKeyArn: str = Field(default=None, frozen=True)
     """
     The Amazon Resource Name (ARN) of the Secrets Manager secret storing the pre-shared
@@ -15979,7 +16009,8 @@ class VpnConnection(TagsDictMixin, PrimaryBoto3Model):
     """
     The ID of the VPN connection.
     """
-    State: Literal["pending", "available", "deleting", "deleted"] = Field(
+
+    State: "Literal['pending', 'available', 'deleting', 'deleted'] | None" = Field(
         default=None, frozen=True
     )
     """
@@ -15995,7 +16026,6 @@ class VpnConnection(TagsDictMixin, PrimaryBoto3Model):
     present in the DescribeVpnConnections response only if the VPN connection is in the
     ``pending`` or ``available`` state.
     """
-
     Type: "Literal['ipsec.1'] | None" = None
     """
     The type of VPN connection.
@@ -16050,12 +16080,10 @@ class DestinationOptionsResponse(Boto3Model):
     """
     Describes the destination options for a flow log.
     """
-
     FileFormat: "Literal['plain-text', 'parquet'] | None" = None
     """
     The format for the flow log.
     """
-
     HiveCompatiblePartitions: "bool | None" = None
     """
     Indicates whether to use Hive-compatible prefixes for flow logs stored in Amazon S3.
@@ -16071,17 +16099,18 @@ class TagFieldSpecificationResponse(Boto3Model):
     A single resource's tag configuration associated with the Flow Logs Amazon EC2 Tags
     feature fields in your custom log format.
     """
+
     ResourceType: "Literal['network-interface', 'instance', 'auto-scaling-group'] | None" = None
     """
     The resource type for the tag keys associated with the Flow Logs Amazon EC2 Tags
     feature fields in your custom log format.
     """
-
     TagKeys: "builtins.list[str] | None" = Field(default_factory=list)
     """
     The tag keys on your tagged resources to be displayed by the Flow Logs Amazon EC2
     Tags feature fields in your custom log format.
     """
+
 class FlowLog(TagsDictMixin, PrimaryBoto3Model):
     """
     Describes a flow log.
@@ -16094,6 +16123,7 @@ class FlowLog(TagsDictMixin, PrimaryBoto3Model):
     """
     The date and time the flow log was created.
     """
+
     DeliverLogsErrorMessage: str = Field(default=None, frozen=True)
     """
     Information about the error that occurred.
@@ -16120,24 +16150,25 @@ class FlowLog(TagsDictMixin, PrimaryBoto3Model):
     """
     The status of the logs delivery (``SUCCESS`` | ``FAILED``).
     """
+
     FlowLogId: str = Field(default=None, frozen=True)
     """
     The ID of the flow log.
     """
-
     FlowLogStatus: str = Field(default=None, frozen=True)
     """
     The status of the flow log (``ACTIVE``).
     """
+
     LogGroupName: "str | None" = None
     """
     The name of the flow log group.
     """
+
     ResourceId: str = Field(default=None, frozen=True)
     """
     The ID of the resource being monitored.
     """
-
     TrafficType: "Literal['ACCEPT', 'REJECT', 'ALL'] | None" = None
     """
     The type of traffic captured for the flow log.
@@ -16162,12 +16193,12 @@ class FlowLog(TagsDictMixin, PrimaryBoto3Model):
     """
     The tags for the flow log.
     """
+
     MaxAggregationInterval: "int | None" = None
     """
     The maximum interval of time, in seconds, during which a flow of packets is captured
     and aggregated into a flow log record.
     """
-
     DestinationOptions: "DestinationOptionsResponse | None" = None
     """
     The destination options.
@@ -16249,12 +16280,14 @@ class AttributeBooleanValue(Boto3Model):
     """
     Describes a value for a resource attribute that is a Boolean value.
     """
+
     Value: "bool | None" = None
     """
     The attribute value.
 
     The valid values are ``true`` or ``false``.
     """
+
 class DescribeVpcAttributeResult(Boto3Model):
     EnableDnsHostnames: "AttributeBooleanValue | None" = None
     """
@@ -16263,6 +16296,7 @@ class DescribeVpcAttributeResult(Boto3Model):
     If this attribute is ``true``, instances in the VPC get DNS hostnames; otherwise,
     they do not.
     """
+
     EnableDnsSupport: "AttributeBooleanValue | None" = None
     """
     Indicates whether DNS resolution is enabled for the VPC.
@@ -16329,7 +16363,6 @@ class DescribeSecurityGroupsResult(Boto3Model):
 
     This value is ``null`` when there are no more items to return.
     """
-
     SecurityGroups: "builtins.list[SecurityGroup] | None" = Field(default_factory=list)
     """
     Information about the security groups.
@@ -16381,17 +16414,14 @@ class RevokedSecurityGroupRule(Boto3Model):
     """
     The IPv6 CIDR of the traffic source.
     """
-
     PrefixListId: "str | None" = None
     """
     The ID of a prefix list that's the traffic source.
     """
-
     ReferencedGroupId: "str | None" = None
     """
     The ID of a referenced security group.
     """
-
     Description: "str | None" = None
     """
     A description of the revoked security group rule.
@@ -16402,7 +16432,6 @@ class RevokeSecurityGroupIngressResult(Boto3Model):
     """
     Returns ``true`` if the request succeeds; otherwise, returns an error.
     """
-
     UnknownIpPermissions: "builtins.list[IpPermission] | None" = Field(
         default_factory=list
     )
@@ -16424,7 +16453,6 @@ class ReferencedSecurityGroup(Boto3Model):
     """
     Describes the security group that is referenced in the security group rule.
     """
-
     GroupId: "str | None" = None
     """
     The ID of the security group.
@@ -16434,10 +16462,12 @@ class ReferencedSecurityGroup(Boto3Model):
     """
     The status of a VPC peering connection, if applicable.
     """
+
     UserId: "str | None" = None
     """
     The Amazon Web Services account ID.
     """
+
     VpcId: "str | None" = None
     """
     The ID of the VPC.
@@ -16452,6 +16482,7 @@ class SecurityGroupRule(TagsDictMixin, Boto3Model):
     """
     Describes a security group rule.
     """
+
     tag_class: ClassVar[ModelType[Boto3Model]] = Tag
     SecurityGroupRuleId: "str | None" = None
     """
@@ -16472,20 +16503,17 @@ class SecurityGroupRule(TagsDictMixin, Boto3Model):
     """
     Indicates whether the security group rule is an outbound rule.
     """
-
     IpProtocol: "str | None" = None
     """
 The IP protocol name (``tcp``, ``udp``, ``icmp``, ``icmpv6``) or number (see `Protocol
 Numbers <http://www.iana.org/assignments/protocol-numbers/protocol-numbers.xhtml>`_).
     """
-
     FromPort: "int | None" = None
     """
     If the protocol is TCP or UDP, this is the start of the port range.
 
     If the protocol is ICMP or ICMPv6, this is the ICMP type or -1 (all ICMP types).
     """
-
     ToPort: "int | None" = None
     """
     If the protocol is TCP or UDP, this is the end of the port range.
@@ -16504,6 +16532,7 @@ Numbers <http://www.iana.org/assignments/protocol-numbers/protocol-numbers.xhtml
     """
     The IPv6 CIDR range.
     """
+
     PrefixListId: "str | None" = None
     """
     The ID of the prefix list.
@@ -16534,6 +16563,7 @@ class AuthorizeSecurityGroupIngressResult(Boto3Model):
     """
     Returns ``true`` if the request succeeds; otherwise, returns an error.
     """
+
     SecurityGroupRules: "builtins.list[SecurityGroupRule] | None" = Field(
         default_factory=list
     )
@@ -16569,7 +16599,6 @@ class AuthorizeSecurityGroupEgressResult(Boto3Model):
     """
     Returns ``true`` if the request succeeds; otherwise, returns an error.
     """
-
     SecurityGroupRules: "builtins.list[SecurityGroupRule] | None" = Field(
         default_factory=list
     )
@@ -16582,14 +16611,12 @@ class CreateNetworkAclResult(Boto3Model):
     """
     Information about the network ACL.
     """
-
     ClientToken: "str | None" = None
     """
     Unique, case-sensitive identifier to ensure the idempotency of the request.
 
     Only returned if a client token was provided in the request.
     """
-
 class DescribeNetworkAclsResult(Boto3Model):
     NetworkAcls: "builtins.list[NetworkAcl] | None" = Field(default_factory=list)
     """
@@ -16602,12 +16629,12 @@ class DescribeNetworkAclsResult(Boto3Model):
 
     This value is ``null`` when there are no more items to return.
     """
+
 class CreateImageResult(Boto3Model):
     ImageId: "str | None" = None
     """
     The ID of the new AMI.
     """
-
 class DeleteSnapshotReturnCode(Boto3Model):
     """
     The snapshot ID and its deletion result code.
@@ -16617,18 +16644,19 @@ class DeleteSnapshotReturnCode(Boto3Model):
     """
     The ID of the snapshot.
     """
+
     ReturnCode: "Literal['success', 'skipped', 'missing-permissions', 'internal-error', 'client-error'] | None" = None
     """
     The result code from the snapshot deletion attempt.
 
     Possible values:
     """
+
 class DeregisterImageResult(Boto3Model):
     Return: "bool | None" = None
     """
     Returns ``true`` if the request succeeds; otherwise, it returns an error.
     """
-
     DeleteSnapshotResults: "builtins.list[DeleteSnapshotReturnCode] | None" = Field(
         default_factory=list
     )
@@ -16644,7 +16672,6 @@ class DescribeImagesResult(Boto3Model):
 
     This value is ``null`` when there are no more items to return.
     """
-
     Images: "builtins.list[AMI] | None" = Field(default_factory=list)
     """
     Information about the images.
@@ -16665,7 +16692,6 @@ class EnableImageDeregistrationProtectionResult(Boto3Model):
     """
     Returns ``true`` if the request succeeds; otherwise, it returns an error.
     """
-
 class DisableImageDeregistrationProtectionResult(Boto3Model):
     Return: "str | None" = None
     """
@@ -16678,12 +16704,10 @@ class ElasticGpuSpecification(Boto3Model):
 
     A specification for an Elastic Graphics accelerator.
     """
-
     Type: str
     """
     The type of Elastic Graphics accelerator.
     """
-
 class ElasticInferenceAccelerator(Boto3Model):
     """
     Amazon Elastic Inference is no longer available.
@@ -16698,10 +16722,12 @@ class ElasticInferenceAccelerator(Boto3Model):
     The possible values are ``eia1.medium``, ``eia1.large``, ``eia1.xlarge``,
     ``eia2.medium``, ``eia2.large``, and ``eia2.xlarge``.
     """
+
     Count: "int | None" = None
     """
     The number of elastic inference accelerators to attach to the instance.
     """
+
 class EC2LaunchTemplateSpecification(Boto3Model):
     """
     Describes the launch template to use.
@@ -16721,7 +16747,6 @@ class EC2LaunchTemplateSpecification(Boto3Model):
     """
     The launch template version number, ``$Latest``, or ``$Default``.
     """
-
 class SpotMarketOptions(Boto3Model):
     """
     The options for Spot Instances.
@@ -16735,6 +16760,7 @@ class SpotMarketOptions(Boto3Model):
     interruptions. If you do not specify this parameter, you will pay the current Spot
     price.
     """
+
     SpotInstanceType: "Literal['one-time', 'persistent'] | None" = None
     """
     The Spot Instance request type.
@@ -16745,11 +16771,11 @@ class SpotMarketOptions(Boto3Model):
     requests are only supported when the instance interruption behavior is either
     ``hibernate`` or ``stop``.
     """
+
     BlockDurationMinutes: "int | None" = None
     """
     Deprecated.
     """
-
     ValidUntil: "datetime | None" = None
     """
     The end date of the request, in UTC format (*YYYY*-*MM*-*DD*T*HH*:*MM*:*SS*Z).
@@ -16763,6 +16789,7 @@ class SpotMarketOptions(Boto3Model):
     """
     The behavior when a Spot Instance is interrupted.
     """
+
 class InstanceMarketOptionsRequest(Boto3Model):
     """
     Describes the market (purchasing) option for the instances.
@@ -16788,7 +16815,6 @@ class CreditSpecificationRequest(Boto3Model):
     The credit option for CPU usage of a T instance.
     """
 
-
 class LicenseConfigurationRequest(Boto3Model):
     """
     Describes a license configuration.
@@ -16798,7 +16824,6 @@ class LicenseConfigurationRequest(Boto3Model):
     """
     The Amazon Resource Name (ARN) of the license configuration.
     """
-
 class RunInstancesMonitoringEnabled(Boto3Model):
     """
     Describes the monitoring of an instance.
@@ -16879,6 +16904,7 @@ class CapacityReservationSpecification(Boto3Model):
     ``CapacityReservationTarget`` if the ``CapacityReservationPreference`` is
     ``capacity-reservations-only``.
     """
+
     CapacityReservationPreference: "Literal['capacity-reservations-only', 'open', 'none'] | None" = None
     """
     Indicates the instance's Capacity Reservation preferences.
@@ -16916,7 +16942,6 @@ class InstanceMetadataOptionsRequest(Boto3Model):
     """
     Indicates whether IMDSv2 is required.
     """
-
     HttpPutResponseHopLimit: "int | None" = None
     """
     The maximum number of hops that the metadata token can travel.
@@ -16940,6 +16965,7 @@ class InstanceMetadataOptionsRequest(Boto3Model):
     For more information, see
     `View tags for your EC2 instances using instance metadata <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/work-with-tags-in-IMDS.html>`_.
     """
+
 class EnclaveOptionsRequest(Boto3Model):
     """
     Indicates whether the instance is enabled for Amazon Web Services Nitro Enclaves.
@@ -16996,19 +17022,16 @@ class InstanceMaintenanceOptionsRequest(Boto3Model):
     `Simplified automatic recovery <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-instance-recover.html#instance-
     configuration-recovery>`_.
     """
-
 class InstanceNetworkPerformanceOptionsRequest(Boto3Model):
     """
     Configure network performance options for your instance that are geared towards
     performance improvements based on the workload that it runs.
     """
-
     BandwidthWeighting: "Literal['default', 'vpc-1', 'ebs-1'] | None" = None
     """
     Specify the bandwidth weighting option to boost the associated type of baseline
     bandwidth, as follows:
     """
-
 class OperatorRequest(Boto3Model):
     """
     The service provider that manages the resource.
@@ -17018,7 +17041,6 @@ class OperatorRequest(Boto3Model):
     """
     The service provider that manages the resource.
     """
-
 class InstanceSecondaryInterfacePrivateIpAddressRequest(Boto3Model):
     """
     Describes a private IPv4 address for a secondary interface request.
@@ -17034,6 +17056,7 @@ class InstanceSecondaryInterfaceSpecificationRequest(Boto3Model):
     """
     Describes a secondary interface specification for launching an instance.
     """
+
     DeleteOnTermination: "bool | None" = None
     """
     Indicates whether the secondary interface is deleted when the instance is
@@ -17051,14 +17074,17 @@ class InstanceSecondaryInterfaceSpecificationRequest(Boto3Model):
     """
     The private IPv4 addresses to assign to the secondary interface.
     """
+
     PrivateIpAddressCount: "int | None" = None
     """
     The number of private IPv4 addresses to assign to the secondary interface.
     """
+
     SecondarySubnetId: "str | None" = None
     """
     The ID of the secondary subnet.
     """
+
     InterfaceType: "Literal['secondary'] | None" = None
     """
     The type of secondary interface.
@@ -17075,6 +17101,7 @@ class Ipv4PrefixSpecificationRequest(Boto3Model):
     """
     Describes the IPv4 prefix option for a network interface.
     """
+
     Ipv4Prefix: "str | None" = None
     """
     The IPv4 prefix.
@@ -17083,7 +17110,6 @@ class Ipv4PrefixSpecificationRequest(Boto3Model):
     `Assigning prefixes to network interfaces <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-prefix-eni.html>`_
     in the *Amazon EC2 User Guide*.
     """
-
 class Ipv6PrefixSpecificationRequest(Boto3Model):
     """
     Describes the IPv6 prefix option for a network interface.
@@ -17098,7 +17124,6 @@ class EnaSrdUdpSpecificationRequest(Boto3Model):
     """
     Configures ENA Express for UDP network traffic from your launch template.
     """
-
     EnaSrdUdpEnabled: "bool | None" = None
     """
     Indicates whether UDP traffic uses ENA Express for your instance.
@@ -17111,6 +17136,7 @@ class EnaSrdSpecificationRequest(Boto3Model):
     """
     Launch instances with ENA Express settings configured from your launch template.
     """
+
     EnaSrdEnabled: "bool | None" = None
     """
     Specifies whether ENA Express is enabled for the network interface when you launch
@@ -17132,6 +17158,7 @@ class ConnectionTrackingSpecificationRequest(Boto3Model):
     `Connection tracking timeouts <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/security-group-connection-tracking.html#connection-
     tracking-timeouts>`_ in the *Amazon EC2 User Guide*.
     """
+
     TcpEstablishedTimeout: "int | None" = None
     """
     Timeout (in seconds) for idle TCP connections in an established state.
@@ -17141,6 +17168,7 @@ class ConnectionTrackingSpecificationRequest(Boto3Model):
         types
     (including P6e-GB200). Recommended: Less than 432000 seconds.
     """
+
     UdpStreamTimeout: "int | None" = None
     """
     Timeout (in seconds) for idle UDP flows classified as streams which have seen more
@@ -17148,7 +17176,6 @@ class ConnectionTrackingSpecificationRequest(Boto3Model):
 
     Min: 60 seconds. Max: 180 seconds (3 minutes). Default: 180 seconds.
     """
-
     UdpTimeout: "int | None" = None
     """
     Timeout (in seconds) for idle UDP flows that have seen traffic only in a single
@@ -17161,6 +17188,7 @@ class InstanceNetworkInterfaceSpecification(Boto3Model):
     """
     Describes a network interface.
     """
+
     AssociatePublicIpAddress: "bool | None" = None
     """
     Indicates whether to assign a public IPv4 address to an instance you launch in a
@@ -17221,11 +17249,11 @@ class InstanceNetworkInterfaceSpecification(Boto3Model):
     in the same request. You cannot specify this option if you've specified a minimum
     number of instances to launch.
     """
+
     NetworkInterfaceId: "str | None" = None
     """
     The ID of the network interface.
     """
-
     PrivateIpAddress: "str | None" = None
     """
     The private IPv4 address of the network interface.
@@ -17267,10 +17295,12 @@ class InstanceNetworkInterfaceSpecification(Boto3Model):
     """
     Indicates whether to assign a carrier IP address to the network interface.
     """
+
     InterfaceType: "str | None" = None
     """
     The type of network interface.
     """
+
     NetworkCardIndex: "int | None" = None
     """
     The index of the network card.
@@ -17278,7 +17308,6 @@ class InstanceNetworkInterfaceSpecification(Boto3Model):
     Some instance types support multiple network cards. The primary network interface
     must be assigned to network card index 0. The default is network card index 0.
     """
-
     Ipv4Prefixes: "builtins.list[Ipv4PrefixSpecificationRequest] | None" = Field(
         default_factory=list
     )
@@ -17288,7 +17317,6 @@ class InstanceNetworkInterfaceSpecification(Boto3Model):
     You cannot use this option if you use the
     ``Ipv4PrefixCount`` option.
     """
-
     Ipv4PrefixCount: "int | None" = None
     """
     The number of IPv4 delegated prefixes to be automatically assigned to the network
@@ -17342,6 +17370,7 @@ class InstanceNetworkInterfaceSpecification(Boto3Model):
     `Connection tracking timeouts <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/security-group-connection-tracking.html#connection-
     tracking-timeouts>`_ in the *Amazon EC2 User Guide*.
     """
+
     EnaQueueCount: "int | None" = None
     """
     The number of ENA queues to be created with the instance.
@@ -17351,6 +17380,7 @@ class IamInstanceProfileSpecification(Boto3Model):
     """
     Describes an IAM instance profile.
     """
+
     Arn: "str | None" = None
     """
     The Amazon Resource Name (ARN) of the instance profile.
@@ -17366,25 +17396,26 @@ class Reservation(Boto3Model):
     Describes a launch request for one or more instances, and includes owner, requester,
     and security group information that applies to all instances in the launch request.
     """
+
     ReservationId: "str | None" = None
     """
     The ID of the reservation.
     """
+
     OwnerId: "str | None" = None
     """
     The ID of the Amazon Web Services account that owns the reservation.
     """
-
     RequesterId: "str | None" = None
     """
     The ID of the requester that launched the instances on your behalf (for example,
     Amazon Web Services Management Console or Auto Scaling).
     """
-
     Groups: "builtins.list[GroupIdentifier] | None" = Field(default_factory=list)
     """
     Not supported.
     """
+
     Instances: "builtins.list[Instance] | None" = Field(default_factory=list)
     """
     The instances.
@@ -17422,6 +17453,7 @@ class InstanceStateChange(Boto3Model):
     """
     The previous state of the instance.
     """
+
 class StartInstancesResult(Boto3Model):
     StartingInstances: "builtins.list[InstanceStateChange] | None" = Field(
         default_factory=list
@@ -17445,25 +17477,26 @@ class TerminateInstancesResult(Boto3Model):
     """
     Information about the terminated instances.
     """
-
 class EbsInstanceBlockDeviceSpecification(Boto3Model):
     """
     Describes information used to set up an EBS volume specified in a block device
     mapping.
     """
+
     VolumeId: "str | None" = None
     """
     The ID of the EBS volume.
     """
+
     DeleteOnTermination: "bool | None" = None
     """
     Indicates whether the volume is deleted on instance termination.
     """
-
 class InstanceBlockDeviceMappingSpecification(Boto3Model):
     """
     Describes a block device mapping entry.
     """
+
     DeviceName: "str | None" = None
     """
     The device name.
@@ -17471,16 +17504,15 @@ class InstanceBlockDeviceMappingSpecification(Boto3Model):
     For available device names, see
     `Device names for volumes <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/device_naming.html>`_.
     """
+
     Ebs: "EbsInstanceBlockDeviceSpecification | None" = None
     """
     Parameters used to automatically set up EBS volumes when the instance is launched.
     """
-
     VirtualName: "str | None" = None
     """
     The virtual device name.
     """
-
     NoDevice: "str | None" = None
     """
     Suppresses the specified device included in the block device mapping.
@@ -17491,12 +17523,10 @@ class SecureBlobAttributeValue(Boto3Model):
     Describes a value for a resource attribute that is a Base64-encoded binary data
     object.
     """
-
     Value: "bytes | None" = None
     """
     The attribute value.
     """
-
 class LaunchTemplateIamInstanceProfileSpecificationRequest(Boto3Model):
     """
     An IAM instance profile.
@@ -17506,17 +17536,14 @@ class LaunchTemplateIamInstanceProfileSpecificationRequest(Boto3Model):
     """
     The Amazon Resource Name (ARN) of the instance profile.
     """
-
     Name: "str | None" = None
     """
     The name of the instance profile.
     """
-
 class LaunchTemplateEbsBlockDeviceRequest(Boto3Model):
     """
     The parameters for a block device for an EBS volume.
     """
-
     Encrypted: "bool | None" = None
     """
     Indicates whether the EBS volume is encrypted.
@@ -17525,7 +17552,6 @@ class LaunchTemplateEbsBlockDeviceRequest(Boto3Model):
     encryption. If you are creating a volume from a snapshot, you can't specify an
     encryption value.
     """
-
     DeleteOnTermination: "bool | None" = None
     """
     Indicates whether the EBS volume is deleted on instance termination.
@@ -17551,6 +17577,7 @@ class LaunchTemplateEbsBlockDeviceRequest(Boto3Model):
     """
     The ID of the snapshot.
     """
+
     VolumeSize: "int | None" = None
     """
     The size of the volume, in GiBs.
@@ -17559,6 +17586,7 @@ class LaunchTemplateEbsBlockDeviceRequest(Boto3Model):
     supported
     volumes sizes for each volume type:
     """
+
     VolumeType: "Literal['standard', 'io1', 'io2', 'gp2', 'sc1', 'st1', 'gp3'] | None" = None
     """
     The volume type.
@@ -17567,7 +17595,6 @@ class LaunchTemplateEbsBlockDeviceRequest(Boto3Model):
     `Amazon EBS volume types <https://docs.aws.amazon.com/ebs/latest/userguide/ebs-volume-types.html>`_
     in the *Amazon EBS User Guide*.
     """
-
     Throughput: "int | None" = None
     """
     The throughput to provision for a ``gp3`` volume, with a maximum of 2,000 MiB/s.
@@ -17600,6 +17627,7 @@ class LaunchTemplateBlockDeviceMappingRequest(Boto3Model):
     """
     The device name (for example, /dev/sdh or xvdh).
     """
+
     VirtualName: "str | None" = None
     """
     The virtual device name (ephemeralN).
@@ -17634,7 +17662,6 @@ class LaunchTemplateInstanceNetworkInterfaceSpecificationRequest(Boto3Model):
     """
     The parameters for a network interface.
     """
-
     AssociateCarrierIpAddress: "bool | None" = None
     """
     Associates a Carrier IP address with eth0 for a new network interface.
@@ -17670,6 +17697,7 @@ class LaunchTemplateInstanceNetworkInterfaceSpecificationRequest(Boto3Model):
     """
     The IDs of one or more security groups.
     """
+
     InterfaceType: "str | None" = None
     """
     The type of network interface.
@@ -17700,10 +17728,12 @@ class LaunchTemplateInstanceNetworkInterfaceSpecificationRequest(Boto3Model):
     """
     The ID of the network interface.
     """
+
     PrivateIpAddress: "str | None" = None
     """
     The primary private IPv4 address of the network interface.
     """
+
     PrivateIpAddresses: "builtins.list[PrivateIpAddressSpecification] | None" = Field(
         default_factory=list
     )
@@ -17738,12 +17768,14 @@ class LaunchTemplateInstanceNetworkInterfaceSpecificationRequest(Boto3Model):
     You cannot use this option if you use the
     ``Ipv4PrefixCount`` option.
     """
+
     Ipv4PrefixCount: "int | None" = None
     """
     The number of IPv4 prefixes to be automatically assigned to the network interface.
 
     You cannot use this option if you use the ``Ipv4Prefix`` option.
     """
+
     Ipv6Prefixes: "builtins.list[Ipv6PrefixSpecificationRequest] | None" = Field(
         default_factory=list
     )
@@ -17770,6 +17802,7 @@ class LaunchTemplateInstanceNetworkInterfaceSpecificationRequest(Boto3Model):
     interface is detached. For more information about primary IPv6 addresses, see
     `RunInstances <https://docs.aws.amazon.com/AWSEC2/latest/APIReference/API_RunInstances.html>`_.
     """
+
     EnaSrdSpecification: "EnaSrdSpecificationRequest | None" = None
     """
     Configure ENA Express settings for your launch template.
@@ -17791,7 +17824,6 @@ class LaunchTemplateInstanceNetworkInterfaceSpecificationRequest(Boto3Model):
     """
     The number of ENA queues to be created with the instance.
     """
-
 class LaunchTemplatesMonitoringRequest(Boto3Model):
     """
     Describes the monitoring for the instance.
@@ -17803,10 +17835,12 @@ class LaunchTemplatesMonitoringRequest(Boto3Model):
 
     Otherwise, basic monitoring is enabled.
     """
+
 class LaunchTemplatePlacementRequest(Boto3Model):
     """
     Describes the placement of an instance.
     """
+
     AvailabilityZone: "str | None" = None
     """
     The Availability Zone for the instance.
@@ -17816,7 +17850,6 @@ class LaunchTemplatePlacementRequest(Boto3Model):
     """
     The ID of the Availability Zone for the instance.
     """
-
     Affinity: "str | None" = None
     """
     The affinity setting for an instance on a Dedicated Host.
@@ -17826,6 +17859,7 @@ class LaunchTemplatePlacementRequest(Boto3Model):
     """
     The name of the placement group for the instance.
     """
+
     HostId: "str | None" = None
     """
     The ID of the Dedicated Host for the instance.
@@ -17837,7 +17871,6 @@ class LaunchTemplatePlacementRequest(Boto3Model):
 
     An instance with a tenancy of dedicated runs on single-tenant hardware.
     """
-
     SpreadDomain: "str | None" = None
     """
     Reserved for future use.
@@ -17877,11 +17910,11 @@ class LaunchTemplateTagSpecificationRequest(TagsDictMixin, Boto3Model):
     """
     The type of resource to tag.
     """
-
     Tags: "builtins.list[Tag] | None" = Field(default_factory=list)
     """
     The tags to apply to the resource.
     """
+
 class LaunchTemplateElasticInferenceAccelerator(Boto3Model):
     """
     Amazon Elastic Inference is no longer available.
@@ -17905,7 +17938,6 @@ class LaunchTemplateSpotMarketOptionsRequest(Boto3Model):
     """
     The options for Spot Instances.
     """
-
     MaxPrice: "str | None" = None
     """
     The maximum hourly price you're willing to pay for a Spot Instance.
@@ -17942,6 +17974,7 @@ class LaunchTemplateSpotMarketOptionsRequest(Boto3Model):
 
     The default is ``terminate``.
     """
+
 class LaunchTemplateInstanceMarketOptionsRequest(Boto3Model):
     """
     The market (purchasing) option for the instances.
@@ -17956,6 +17989,7 @@ class LaunchTemplateInstanceMarketOptionsRequest(Boto3Model):
     """
     The options for Spot Instances.
     """
+
 class LaunchTemplateCpuOptionsRequest(Boto3Model):
     """
     The CPU options for the instance.
@@ -17984,7 +18018,6 @@ class LaunchTemplateCpuOptionsRequest(Boto3Model):
     information, see `AMD SEV-SNP for Amazon EC2 instances
     <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/sev-snp.html>`_.
     """
-
     NestedVirtualization: "Literal['enabled', 'disabled'] | None" = None
     """
     Indicates whether to enable the instance for nested virtualization.
@@ -17993,7 +18026,6 @@ class LaunchTemplateCpuOptionsRequest(Boto3Model):
     (c8i, m8i, r8i, and their flex variants). When nested virtualization is enabled,
     Virtual Secure Mode (VSM) is automatically disabled for the instance.
     """
-
 class LaunchTemplateCapacityReservationSpecificationRequest(Boto3Model):
     """
     Describes an instance's Capacity Reservation targeting option.
@@ -18004,12 +18036,14 @@ class LaunchTemplateCapacityReservationSpecificationRequest(Boto3Model):
     Availability Zone). Use the ``CapacityReservationTarget`` parameter to explicitly
     target a specific Capacity Reservation or a Capacity Reservation group.
     """
+
     CapacityReservationPreference: "Literal['capacity-reservations-only', 'open', 'none'] | None" = None
     """
     Indicates the instance's Capacity Reservation preferences.
 
     Possible preferences include:
     """
+
     CapacityReservationTarget: "EC2CapacityReservationTarget | None" = None
     """
     Information about the target Capacity Reservation or Capacity Reservation group.
@@ -18019,6 +18053,7 @@ class LaunchTemplateLicenseConfigurationRequest(Boto3Model):
     """
     Describes a license configuration.
     """
+
     LicenseConfigurationArn: "str | None" = None
     """
     The Amazon Resource Name (ARN) of the license configuration.
@@ -18036,6 +18071,7 @@ class LaunchTemplateHibernationOptionsRequest(Boto3Model):
     """
     If you set this parameter to ``true``, the instance is enabled for hibernation.
     """
+
 class LaunchTemplateInstanceMetadataOptionsRequest(Boto3Model):
     """
     The metadata options for the instance.
@@ -18064,10 +18100,12 @@ class LaunchTemplateInstanceMetadataOptionsRequest(Boto3Model):
 
     If the parameter is not specified, the default state is ``enabled``.
     """
+
     HttpProtocolIpv6: "Literal['disabled', 'enabled'] | None" = None
     """
     Enables or disables the IPv6 endpoint for the instance metadata service.
     """
+
     InstanceMetadataTags: "Literal['disabled', 'enabled'] | None" = None
     """
     Set to ``enabled`` to allow access to instance tags from the instance metadata.
@@ -18086,11 +18124,13 @@ class LaunchTemplateEnclaveOptionsRequest(Boto3Model):
     in the *Amazon Web Services Nitro
     Enclaves User Guide*.
     """
+
     Enabled: "bool | None" = None
     """
     To enable the instance for Amazon Web Services Nitro Enclaves, set this parameter to
     ``true``.
     """
+
 class VCpuCountRangeRequest(Boto3Model):
     """
     The minimum and maximum number of vCPUs.
@@ -18114,21 +18154,18 @@ class MemoryMiBRequest(Boto3Model):
     """
     The minimum and maximum amount of memory, in MiB.
     """
-
     Min: int
     """
     The minimum amount of memory, in MiB.
 
     To specify no minimum limit, specify ``0``.
     """
-
     Max: "int | None" = None
     """
     The maximum amount of memory, in MiB.
 
     To specify no maximum limit, omit this parameter.
     """
-
 class EC2MemoryGiBPerVCpuRequest(Boto3Model):
     """
     The minimum and maximum amount of memory per vCPU, in GiB.
@@ -18140,12 +18177,14 @@ class EC2MemoryGiBPerVCpuRequest(Boto3Model):
 
     To specify no minimum limit, omit this parameter.
     """
+
     Max: "float | None" = None
     """
     The maximum amount of memory per vCPU, in GiB.
 
     To specify no maximum limit, omit this parameter.
     """
+
 class NetworkInterfaceCountRequest(Boto3Model):
     """
     The minimum and maximum number of network interfaces.
@@ -18169,7 +18208,6 @@ class TotalLocalStorageGBRequest(Boto3Model):
     """
     The minimum and maximum amount of total local storage, in GB.
     """
-
     Min: "float | None" = None
     """
     The minimum amount of total local storage, in GB.
@@ -18191,7 +18229,6 @@ class BaselineEbsBandwidthMbpsRequest(Boto3Model):
     For more information, see `Amazon EBS-optimized
     instances <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ebs-optimized.html>`_ in the *Amazon EC2 User Guide*.
     """
-
     Min: "int | None" = None
     """
     The minimum baseline bandwidth, in Mbps.
@@ -18228,6 +18265,7 @@ class AcceleratorCountRequest(Boto3Model):
     To specify no maximum limit, omit this parameter. To exclude accelerator-enabled
     instance types, set ``Max`` to ``0``.
     """
+
 class AcceleratorTotalMemoryMiBRequest(Boto3Model):
     """
     The minimum and maximum amount of total accelerator memory, in MiB.
@@ -18258,7 +18296,6 @@ class EC2NetworkBandwidthGbpsRequest(Boto3Model):
     `Available instance bandwidth <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-instance-network-bandwidth.html#available-instance-
     bandwidth>`_ in the *Amazon EC2 User Guide*.
     """
-
     Min: "float | None" = None
     """
     The minimum amount of network bandwidth, in Gbps.
@@ -18283,11 +18320,11 @@ class PerformanceFactorReferenceRequest(Boto3Model):
 
     Currently, only one instance family can be specified in the list.
     """
+
     InstanceFamily: "str | None" = None
     """
     The instance family to use as a baseline reference.
     """
-
 class CpuPerformanceFactorRequest(Boto3Model):
     """
     The CPU performance to consider, using an instance family as the baseline reference.
@@ -18367,7 +18404,6 @@ class InstanceRequirementsRequest(Boto3Model):
     `Spot placement score <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/spot-placement-score.html>`_ in the *Amazon EC2
     User Guide*.
     """
-
     VCpuCount: VCpuCountRangeRequest
     """
     The minimum and maximum number of vCPUs.
@@ -18377,7 +18413,6 @@ class InstanceRequirementsRequest(Boto3Model):
     """
     The minimum and maximum amount of memory, in MiB.
     """
-
     CpuManufacturers: "builtins.list[Literal['intel', 'amd', 'amazon-web-services', 'apple']] | None" = Field(
         default_factory=list
     )
@@ -18394,6 +18429,7 @@ class InstanceRequirementsRequest(Boto3Model):
     """
     The instance types to exclude.
     """
+
     InstanceGenerations: "builtins.list[Literal['current', 'previous']] | None" = Field(
         default_factory=list
     )
@@ -18456,6 +18492,7 @@ class InstanceRequirementsRequest(Boto3Model):
     """
     The minimum and maximum number of network interfaces.
     """
+
     LocalStorage: "Literal['included', 'required', 'excluded'] | None" = None
     """
     Indicates whether instance types with instance store volumes are included, excluded,
@@ -18499,6 +18536,7 @@ class InstanceRequirementsRequest(Boto3Model):
     The minimum and maximum number of accelerators (GPUs, FPGAs, or Amazon Web Services
     Inferentia chips) on an instance.
     """
+
     AcceleratorManufacturers: "builtins.list[Literal['amazon-web-services', 'amd', 'nvidia', 'xilinx', 'habana']] | None" = Field(
         default_factory=list
     )
@@ -18512,12 +18550,10 @@ class InstanceRequirementsRequest(Boto3Model):
     """
     The accelerators that must be on the instance type.
     """
-
     AcceleratorTotalMemoryMiB: "AcceleratorTotalMemoryMiBRequest | None" = None
     """
     The minimum and maximum amount of total accelerator memory, in MiB.
     """
-
     NetworkBandwidthGbps: "EC2NetworkBandwidthGbpsRequest | None" = None
     """
     The minimum and maximum amount of baseline network bandwidth, in gigabits per second
@@ -18590,7 +18626,6 @@ class LaunchTemplatePrivateDnsNameOptionsRequest(Boto3Model):
     ID. For dual-stack subnets, you can specify whether DNS names use the instance IPv4
     address or the instance ID.
     """
-
     EnableResourceNameDnsARecord: "bool | None" = None
     """
     Indicates whether to respond to DNS queries for instance hostnames with DNS A
@@ -18616,6 +18651,7 @@ class LaunchTemplateInstanceMaintenanceOptionsRequest(Boto3Model):
     `Simplified automatic recovery <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-instance-recover.html#instance-
     configuration-recovery>`_.
     """
+
 class LaunchTemplateNetworkPerformanceOptionsRequest(Boto3Model):
     """
     When you configure network performance options in your launch template, your
@@ -18654,6 +18690,7 @@ class LaunchTemplateInstanceSecondaryInterfaceSpecificationRequest(Boto3Model):
     """
     The device index for the secondary interface attachment.
     """
+
     PrivateIpAddresses: "builtins.list[SecondaryInterfacePrivateIpAddressSpecificationRequest] | None" = Field(
         default_factory=list
     )
@@ -18680,6 +18717,7 @@ class LaunchTemplateInstanceSecondaryInterfaceSpecificationRequest(Boto3Model):
     """
     The index of the network card.
     """
+
 class RequestLaunchTemplateData(Boto3Model):
     """
     The information to include in the launch template.
@@ -18701,27 +18739,30 @@ class RequestLaunchTemplateData(Boto3Model):
     isn't available with all instance types. Additional usage charges apply when using
     an EBS-optimized instance.
     """
+
     IamInstanceProfile: "LaunchTemplateIamInstanceProfileSpecificationRequest | None" = None
     """
     The name or Amazon Resource Name (ARN) of an IAM instance profile.
     """
+
     BlockDeviceMappings: "builtins.list[LaunchTemplateBlockDeviceMappingRequest] | None" = Field(
         default_factory=list
     )
     """
     The block device mapping.
     """
+
     NetworkInterfaces: "builtins.list[LaunchTemplateInstanceNetworkInterfaceSpecificationRequest] | None" = Field(
         default_factory=list
     )
     """
     The network interfaces for the instance.
     """
+
     ImageId: "str | None" = None
     """
     The ID of the AMI in the format ``ami-0ac394d6a3example``.
     """
-
     InstanceType: "Literal['a1.medium', 'a1.large', 'a1.xlarge', 'a1.2xlarge', 'a1.4xlarge', 'a1.metal', 'c1.medium', 'c1.xlarge', 'c3.large', 'c3.xlarge', 'c3.2xlarge', 'c3.4xlarge', 'c3.8xlarge', 'c4.large', 'c4.xlarge', 'c4.2xlarge', 'c4.4xlarge', 'c4.8xlarge', 'c5.large', 'c5.xlarge', 'c5.2xlarge', 'c5.4xlarge', 'c5.9xlarge', 'c5.12xlarge', 'c5.18xlarge', 'c5.24xlarge', 'c5.metal', 'c5a.large', 'c5a.xlarge', 'c5a.2xlarge', 'c5a.4xlarge', 'c5a.8xlarge', 'c5a.12xlarge', 'c5a.16xlarge', 'c5a.24xlarge', 'c5ad.large', 'c5ad.xlarge', 'c5ad.2xlarge', 'c5ad.4xlarge', 'c5ad.8xlarge', 'c5ad.12xlarge', 'c5ad.16xlarge', 'c5ad.24xlarge', 'c5d.large', 'c5d.xlarge', 'c5d.2xlarge', 'c5d.4xlarge', 'c5d.9xlarge', 'c5d.12xlarge', 'c5d.18xlarge', 'c5d.24xlarge', 'c5d.metal', 'c5n.large', 'c5n.xlarge', 'c5n.2xlarge', 'c5n.4xlarge', 'c5n.9xlarge', 'c5n.18xlarge', 'c5n.metal', 'c6g.medium', 'c6g.large', 'c6g.xlarge', 'c6g.2xlarge', 'c6g.4xlarge', 'c6g.8xlarge', 'c6g.12xlarge', 'c6g.16xlarge', 'c6g.metal', 'c6gd.medium', 'c6gd.large', 'c6gd.xlarge', 'c6gd.2xlarge', 'c6gd.4xlarge', 'c6gd.8xlarge', 'c6gd.12xlarge', 'c6gd.16xlarge', 'c6gd.metal', 'c6gn.medium', 'c6gn.large', 'c6gn.xlarge', 'c6gn.2xlarge', 'c6gn.4xlarge', 'c6gn.8xlarge', 'c6gn.12xlarge', 'c6gn.16xlarge', 'c6i.large', 'c6i.xlarge', 'c6i.2xlarge', 'c6i.4xlarge', 'c6i.8xlarge', 'c6i.12xlarge', 'c6i.16xlarge', 'c6i.24xlarge', 'c6i.32xlarge', 'c6i.metal', 'cc1.4xlarge', 'cc2.8xlarge', 'cg1.4xlarge', 'cr1.8xlarge', 'd2.xlarge', 'd2.2xlarge', 'd2.4xlarge', 'd2.8xlarge', 'd3.xlarge', 'd3.2xlarge', 'd3.4xlarge', 'd3.8xlarge', 'd3en.xlarge', 'd3en.2xlarge', 'd3en.4xlarge', 'd3en.6xlarge', 'd3en.8xlarge', 'd3en.12xlarge', 'dl1.24xlarge', 'f1.2xlarge', 'f1.4xlarge', 'f1.16xlarge', 'g2.2xlarge', 'g2.8xlarge', 'g3.4xlarge', 'g3.8xlarge', 'g3.16xlarge', 'g3s.xlarge', 'g4ad.xlarge', 'g4ad.2xlarge', 'g4ad.4xlarge', 'g4ad.8xlarge', 'g4ad.16xlarge', 'g4dn.xlarge', 'g4dn.2xlarge', 'g4dn.4xlarge', 'g4dn.8xlarge', 'g4dn.12xlarge', 'g4dn.16xlarge', 'g4dn.metal', 'g5.xlarge', 'g5.2xlarge', 'g5.4xlarge', 'g5.8xlarge', 'g5.12xlarge', 'g5.16xlarge', 'g5.24xlarge', 'g5.48xlarge', 'g5g.xlarge', 'g5g.2xlarge', 'g5g.4xlarge', 'g5g.8xlarge', 'g5g.16xlarge', 'g5g.metal', 'hi1.4xlarge', 'hpc6a.48xlarge', 'hs1.8xlarge', 'h1.2xlarge', 'h1.4xlarge', 'h1.8xlarge', 'h1.16xlarge', 'i2.xlarge', 'i2.2xlarge', 'i2.4xlarge', 'i2.8xlarge', 'i3.large', 'i3.xlarge', 'i3.2xlarge', 'i3.4xlarge', 'i3.8xlarge', 'i3.16xlarge', 'i3.metal', 'i3en.large', 'i3en.xlarge', 'i3en.2xlarge', 'i3en.3xlarge', 'i3en.6xlarge', 'i3en.12xlarge', 'i3en.24xlarge', 'i3en.metal', 'im4gn.large', 'im4gn.xlarge', 'im4gn.2xlarge', 'im4gn.4xlarge', 'im4gn.8xlarge', 'im4gn.16xlarge', 'inf1.xlarge', 'inf1.2xlarge', 'inf1.6xlarge', 'inf1.24xlarge', 'is4gen.medium', 'is4gen.large', 'is4gen.xlarge', 'is4gen.2xlarge', 'is4gen.4xlarge', 'is4gen.8xlarge', 'm1.small', 'm1.medium', 'm1.large', 'm1.xlarge', 'm2.xlarge', 'm2.2xlarge', 'm2.4xlarge', 'm3.medium', 'm3.large', 'm3.xlarge', 'm3.2xlarge', 'm4.large', 'm4.xlarge', 'm4.2xlarge', 'm4.4xlarge', 'm4.10xlarge', 'm4.16xlarge', 'm5.large', 'm5.xlarge', 'm5.2xlarge', 'm5.4xlarge', 'm5.8xlarge', 'm5.12xlarge', 'm5.16xlarge', 'm5.24xlarge', 'm5.metal', 'm5a.large', 'm5a.xlarge', 'm5a.2xlarge', 'm5a.4xlarge', 'm5a.8xlarge', 'm5a.12xlarge', 'm5a.16xlarge', 'm5a.24xlarge', 'm5ad.large', 'm5ad.xlarge', 'm5ad.2xlarge', 'm5ad.4xlarge', 'm5ad.8xlarge', 'm5ad.12xlarge', 'm5ad.16xlarge', 'm5ad.24xlarge', 'm5d.large', 'm5d.xlarge', 'm5d.2xlarge', 'm5d.4xlarge', 'm5d.8xlarge', 'm5d.12xlarge', 'm5d.16xlarge', 'm5d.24xlarge', 'm5d.metal', 'm5dn.large', 'm5dn.xlarge', 'm5dn.2xlarge', 'm5dn.4xlarge', 'm5dn.8xlarge', 'm5dn.12xlarge', 'm5dn.16xlarge', 'm5dn.24xlarge', 'm5dn.metal', 'm5n.large', 'm5n.xlarge', 'm5n.2xlarge', 'm5n.4xlarge', 'm5n.8xlarge', 'm5n.12xlarge', 'm5n.16xlarge', 'm5n.24xlarge', 'm5n.metal', 'm5zn.large', 'm5zn.xlarge', 'm5zn.2xlarge', 'm5zn.3xlarge', 'm5zn.6xlarge', 'm5zn.12xlarge', 'm5zn.metal', 'm6a.large', 'm6a.xlarge', 'm6a.2xlarge', 'm6a.4xlarge', 'm6a.8xlarge', 'm6a.12xlarge', 'm6a.16xlarge', 'm6a.24xlarge', 'm6a.32xlarge', 'm6a.48xlarge', 'm6g.metal', 'm6g.medium', 'm6g.large', 'm6g.xlarge', 'm6g.2xlarge', 'm6g.4xlarge', 'm6g.8xlarge', 'm6g.12xlarge', 'm6g.16xlarge', 'm6gd.metal', 'm6gd.medium', 'm6gd.large', 'm6gd.xlarge', 'm6gd.2xlarge', 'm6gd.4xlarge', 'm6gd.8xlarge', 'm6gd.12xlarge', 'm6gd.16xlarge', 'm6i.large', 'm6i.xlarge', 'm6i.2xlarge', 'm6i.4xlarge', 'm6i.8xlarge', 'm6i.12xlarge', 'm6i.16xlarge', 'm6i.24xlarge', 'm6i.32xlarge', 'm6i.metal', 'mac1.metal', 'p2.xlarge', 'p2.8xlarge', 'p2.16xlarge', 'p3.2xlarge', 'p3.8xlarge', 'p3.16xlarge', 'p3dn.24xlarge', 'p4d.24xlarge', 'r3.large', 'r3.xlarge', 'r3.2xlarge', 'r3.4xlarge', 'r3.8xlarge', 'r4.large', 'r4.xlarge', 'r4.2xlarge', 'r4.4xlarge', 'r4.8xlarge', 'r4.16xlarge', 'r5.large', 'r5.xlarge', 'r5.2xlarge', 'r5.4xlarge', 'r5.8xlarge', 'r5.12xlarge', 'r5.16xlarge', 'r5.24xlarge', 'r5.metal', 'r5a.large', 'r5a.xlarge', 'r5a.2xlarge', 'r5a.4xlarge', 'r5a.8xlarge', 'r5a.12xlarge', 'r5a.16xlarge', 'r5a.24xlarge', 'r5ad.large', 'r5ad.xlarge', 'r5ad.2xlarge', 'r5ad.4xlarge', 'r5ad.8xlarge', 'r5ad.12xlarge', 'r5ad.16xlarge', 'r5ad.24xlarge', 'r5b.large', 'r5b.xlarge', 'r5b.2xlarge', 'r5b.4xlarge', 'r5b.8xlarge', 'r5b.12xlarge', 'r5b.16xlarge', 'r5b.24xlarge', 'r5b.metal', 'r5d.large', 'r5d.xlarge', 'r5d.2xlarge', 'r5d.4xlarge', 'r5d.8xlarge', 'r5d.12xlarge', 'r5d.16xlarge', 'r5d.24xlarge', 'r5d.metal', 'r5dn.large', 'r5dn.xlarge', 'r5dn.2xlarge', 'r5dn.4xlarge', 'r5dn.8xlarge', 'r5dn.12xlarge', 'r5dn.16xlarge', 'r5dn.24xlarge', 'r5dn.metal', 'r5n.large', 'r5n.xlarge', 'r5n.2xlarge', 'r5n.4xlarge', 'r5n.8xlarge', 'r5n.12xlarge', 'r5n.16xlarge', 'r5n.24xlarge', 'r5n.metal', 'r6g.medium', 'r6g.large', 'r6g.xlarge', 'r6g.2xlarge', 'r6g.4xlarge', 'r6g.8xlarge', 'r6g.12xlarge', 'r6g.16xlarge', 'r6g.metal', 'r6gd.medium', 'r6gd.large', 'r6gd.xlarge', 'r6gd.2xlarge', 'r6gd.4xlarge', 'r6gd.8xlarge', 'r6gd.12xlarge', 'r6gd.16xlarge', 'r6gd.metal', 'r6i.large', 'r6i.xlarge', 'r6i.2xlarge', 'r6i.4xlarge', 'r6i.8xlarge', 'r6i.12xlarge', 'r6i.16xlarge', 'r6i.24xlarge', 'r6i.32xlarge', 'r6i.metal', 't1.micro', 't2.nano', 't2.micro', 't2.small', 't2.medium', 't2.large', 't2.xlarge', 't2.2xlarge', 't3.nano', 't3.micro', 't3.small', 't3.medium', 't3.large', 't3.xlarge', 't3.2xlarge', 't3a.nano', 't3a.micro', 't3a.small', 't3a.medium', 't3a.large', 't3a.xlarge', 't3a.2xlarge', 't4g.nano', 't4g.micro', 't4g.small', 't4g.medium', 't4g.large', 't4g.xlarge', 't4g.2xlarge', 'u-6tb1.56xlarge', 'u-6tb1.112xlarge', 'u-9tb1.112xlarge', 'u-12tb1.112xlarge', 'u-6tb1.metal', 'u-9tb1.metal', 'u-12tb1.metal', 'u-18tb1.metal', 'u-24tb1.metal', 'vt1.3xlarge', 'vt1.6xlarge', 'vt1.24xlarge', 'x1.16xlarge', 'x1.32xlarge', 'x1e.xlarge', 'x1e.2xlarge', 'x1e.4xlarge', 'x1e.8xlarge', 'x1e.16xlarge', 'x1e.32xlarge', 'x2iezn.2xlarge', 'x2iezn.4xlarge', 'x2iezn.6xlarge', 'x2iezn.8xlarge', 'x2iezn.12xlarge', 'x2iezn.metal', 'x2gd.medium', 'x2gd.large', 'x2gd.xlarge', 'x2gd.2xlarge', 'x2gd.4xlarge', 'x2gd.8xlarge', 'x2gd.12xlarge', 'x2gd.16xlarge', 'x2gd.metal', 'z1d.large', 'z1d.xlarge', 'z1d.2xlarge', 'z1d.3xlarge', 'z1d.6xlarge', 'z1d.12xlarge', 'z1d.metal', 'x2idn.16xlarge', 'x2idn.24xlarge', 'x2idn.32xlarge', 'x2iedn.xlarge', 'x2iedn.2xlarge', 'x2iedn.4xlarge', 'x2iedn.8xlarge', 'x2iedn.16xlarge', 'x2iedn.24xlarge', 'x2iedn.32xlarge', 'c6a.large', 'c6a.xlarge', 'c6a.2xlarge', 'c6a.4xlarge', 'c6a.8xlarge', 'c6a.12xlarge', 'c6a.16xlarge', 'c6a.24xlarge', 'c6a.32xlarge', 'c6a.48xlarge', 'c6a.metal', 'm6a.metal', 'i4i.large', 'i4i.xlarge', 'i4i.2xlarge', 'i4i.4xlarge', 'i4i.8xlarge', 'i4i.16xlarge', 'i4i.32xlarge', 'i4i.metal', 'x2idn.metal', 'x2iedn.metal', 'c7g.medium', 'c7g.large', 'c7g.xlarge', 'c7g.2xlarge', 'c7g.4xlarge', 'c7g.8xlarge', 'c7g.12xlarge', 'c7g.16xlarge', 'mac2.metal', 'c6id.large', 'c6id.xlarge', 'c6id.2xlarge', 'c6id.4xlarge', 'c6id.8xlarge', 'c6id.12xlarge', 'c6id.16xlarge', 'c6id.24xlarge', 'c6id.32xlarge', 'c6id.metal', 'm6id.large', 'm6id.xlarge', 'm6id.2xlarge', 'm6id.4xlarge', 'm6id.8xlarge', 'm6id.12xlarge', 'm6id.16xlarge', 'm6id.24xlarge', 'm6id.32xlarge', 'm6id.metal', 'r6id.large', 'r6id.xlarge', 'r6id.2xlarge', 'r6id.4xlarge', 'r6id.8xlarge', 'r6id.12xlarge', 'r6id.16xlarge', 'r6id.24xlarge', 'r6id.32xlarge', 'r6id.metal', 'r6a.large', 'r6a.xlarge', 'r6a.2xlarge', 'r6a.4xlarge', 'r6a.8xlarge', 'r6a.12xlarge', 'r6a.16xlarge', 'r6a.24xlarge', 'r6a.32xlarge', 'r6a.48xlarge', 'r6a.metal', 'p4de.24xlarge', 'u-3tb1.56xlarge', 'u-18tb1.112xlarge', 'u-24tb1.112xlarge', 'trn1.2xlarge', 'trn1.32xlarge', 'hpc6id.32xlarge', 'c6in.large', 'c6in.xlarge', 'c6in.2xlarge', 'c6in.4xlarge', 'c6in.8xlarge', 'c6in.12xlarge', 'c6in.16xlarge', 'c6in.24xlarge', 'c6in.32xlarge', 'm6in.large', 'm6in.xlarge', 'm6in.2xlarge', 'm6in.4xlarge', 'm6in.8xlarge', 'm6in.12xlarge', 'm6in.16xlarge', 'm6in.24xlarge', 'm6in.32xlarge', 'm6idn.large', 'm6idn.xlarge', 'm6idn.2xlarge', 'm6idn.4xlarge', 'm6idn.8xlarge', 'm6idn.12xlarge', 'm6idn.16xlarge', 'm6idn.24xlarge', 'm6idn.32xlarge', 'r6in.large', 'r6in.xlarge', 'r6in.2xlarge', 'r6in.4xlarge', 'r6in.8xlarge', 'r6in.12xlarge', 'r6in.16xlarge', 'r6in.24xlarge', 'r6in.32xlarge', 'r6idn.large', 'r6idn.xlarge', 'r6idn.2xlarge', 'r6idn.4xlarge', 'r6idn.8xlarge', 'r6idn.12xlarge', 'r6idn.16xlarge', 'r6idn.24xlarge', 'r6idn.32xlarge', 'c7g.metal', 'm7g.medium', 'm7g.large', 'm7g.xlarge', 'm7g.2xlarge', 'm7g.4xlarge', 'm7g.8xlarge', 'm7g.12xlarge', 'm7g.16xlarge', 'm7g.metal', 'r7g.medium', 'r7g.large', 'r7g.xlarge', 'r7g.2xlarge', 'r7g.4xlarge', 'r7g.8xlarge', 'r7g.12xlarge', 'r7g.16xlarge', 'r7g.metal', 'c6in.metal', 'm6in.metal', 'm6idn.metal', 'r6in.metal', 'r6idn.metal', 'inf2.xlarge', 'inf2.8xlarge', 'inf2.24xlarge', 'inf2.48xlarge', 'trn1n.32xlarge', 'i4g.large', 'i4g.xlarge', 'i4g.2xlarge', 'i4g.4xlarge', 'i4g.8xlarge', 'i4g.16xlarge', 'hpc7g.4xlarge', 'hpc7g.8xlarge', 'hpc7g.16xlarge', 'c7gn.medium', 'c7gn.large', 'c7gn.xlarge', 'c7gn.2xlarge', 'c7gn.4xlarge', 'c7gn.8xlarge', 'c7gn.12xlarge', 'c7gn.16xlarge', 'p5.48xlarge', 'm7i.large', 'm7i.xlarge', 'm7i.2xlarge', 'm7i.4xlarge', 'm7i.8xlarge', 'm7i.12xlarge', 'm7i.16xlarge', 'm7i.24xlarge', 'm7i.48xlarge', 'm7i-flex.large', 'm7i-flex.xlarge', 'm7i-flex.2xlarge', 'm7i-flex.4xlarge', 'm7i-flex.8xlarge', 'm7a.medium', 'm7a.large', 'm7a.xlarge', 'm7a.2xlarge', 'm7a.4xlarge', 'm7a.8xlarge', 'm7a.12xlarge', 'm7a.16xlarge', 'm7a.24xlarge', 'm7a.32xlarge', 'm7a.48xlarge', 'm7a.metal-48xl', 'hpc7a.12xlarge', 'hpc7a.24xlarge', 'hpc7a.48xlarge', 'hpc7a.96xlarge', 'c7gd.medium', 'c7gd.large', 'c7gd.xlarge', 'c7gd.2xlarge', 'c7gd.4xlarge', 'c7gd.8xlarge', 'c7gd.12xlarge', 'c7gd.16xlarge', 'm7gd.medium', 'm7gd.large', 'm7gd.xlarge', 'm7gd.2xlarge', 'm7gd.4xlarge', 'm7gd.8xlarge', 'm7gd.12xlarge', 'm7gd.16xlarge', 'r7gd.medium', 'r7gd.large', 'r7gd.xlarge', 'r7gd.2xlarge', 'r7gd.4xlarge', 'r7gd.8xlarge', 'r7gd.12xlarge', 'r7gd.16xlarge', 'r7a.medium', 'r7a.large', 'r7a.xlarge', 'r7a.2xlarge', 'r7a.4xlarge', 'r7a.8xlarge', 'r7a.12xlarge', 'r7a.16xlarge', 'r7a.24xlarge', 'r7a.32xlarge', 'r7a.48xlarge', 'c7i.large', 'c7i.xlarge', 'c7i.2xlarge', 'c7i.4xlarge', 'c7i.8xlarge', 'c7i.12xlarge', 'c7i.16xlarge', 'c7i.24xlarge', 'c7i.48xlarge', 'mac2-m2pro.metal', 'r7iz.large', 'r7iz.xlarge', 'r7iz.2xlarge', 'r7iz.4xlarge', 'r7iz.8xlarge', 'r7iz.12xlarge', 'r7iz.16xlarge', 'r7iz.32xlarge', 'c7a.medium', 'c7a.large', 'c7a.xlarge', 'c7a.2xlarge', 'c7a.4xlarge', 'c7a.8xlarge', 'c7a.12xlarge', 'c7a.16xlarge', 'c7a.24xlarge', 'c7a.32xlarge', 'c7a.48xlarge', 'c7a.metal-48xl', 'r7a.metal-48xl', 'r7i.large', 'r7i.xlarge', 'r7i.2xlarge', 'r7i.4xlarge', 'r7i.8xlarge', 'r7i.12xlarge', 'r7i.16xlarge', 'r7i.24xlarge', 'r7i.48xlarge', 'dl2q.24xlarge', 'mac2-m2.metal', 'i4i.12xlarge', 'i4i.24xlarge', 'c7i.metal-24xl', 'c7i.metal-48xl', 'm7i.metal-24xl', 'm7i.metal-48xl', 'r7i.metal-24xl', 'r7i.metal-48xl', 'r7iz.metal-16xl', 'r7iz.metal-32xl', 'c7gd.metal', 'm7gd.metal', 'r7gd.metal', 'g6.xlarge', 'g6.2xlarge', 'g6.4xlarge', 'g6.8xlarge', 'g6.12xlarge', 'g6.16xlarge', 'g6.24xlarge', 'g6.48xlarge', 'gr6.4xlarge', 'gr6.8xlarge', 'c7i-flex.large', 'c7i-flex.xlarge', 'c7i-flex.2xlarge', 'c7i-flex.4xlarge', 'c7i-flex.8xlarge', 'u7i-12tb.224xlarge', 'u7in-16tb.224xlarge', 'u7in-24tb.224xlarge', 'u7in-32tb.224xlarge', 'u7ib-12tb.224xlarge', 'c7gn.metal', 'r8g.medium', 'r8g.large', 'r8g.xlarge', 'r8g.2xlarge', 'r8g.4xlarge', 'r8g.8xlarge', 'r8g.12xlarge', 'r8g.16xlarge', 'r8g.24xlarge', 'r8g.48xlarge', 'r8g.metal-24xl', 'r8g.metal-48xl', 'mac2-m1ultra.metal', 'g6e.xlarge', 'g6e.2xlarge', 'g6e.4xlarge', 'g6e.8xlarge', 'g6e.12xlarge', 'g6e.16xlarge', 'g6e.24xlarge', 'g6e.48xlarge', 'c8g.medium', 'c8g.large', 'c8g.xlarge', 'c8g.2xlarge', 'c8g.4xlarge', 'c8g.8xlarge', 'c8g.12xlarge', 'c8g.16xlarge', 'c8g.24xlarge', 'c8g.48xlarge', 'c8g.metal-24xl', 'c8g.metal-48xl', 'm8g.medium', 'm8g.large', 'm8g.xlarge', 'm8g.2xlarge', 'm8g.4xlarge', 'm8g.8xlarge', 'm8g.12xlarge', 'm8g.16xlarge', 'm8g.24xlarge', 'm8g.48xlarge', 'm8g.metal-24xl', 'm8g.metal-48xl', 'x8g.medium', 'x8g.large', 'x8g.xlarge', 'x8g.2xlarge', 'x8g.4xlarge', 'x8g.8xlarge', 'x8g.12xlarge', 'x8g.16xlarge', 'x8g.24xlarge', 'x8g.48xlarge', 'x8g.metal-24xl', 'x8g.metal-48xl', 'i7ie.large', 'i7ie.xlarge', 'i7ie.2xlarge', 'i7ie.3xlarge', 'i7ie.6xlarge', 'i7ie.12xlarge', 'i7ie.18xlarge', 'i7ie.24xlarge', 'i7ie.48xlarge', 'i8g.large', 'i8g.xlarge', 'i8g.2xlarge', 'i8g.4xlarge', 'i8g.8xlarge', 'i8g.12xlarge', 'i8g.16xlarge', 'i8g.24xlarge', 'i8g.metal-24xl', 'u7i-6tb.112xlarge', 'u7i-8tb.112xlarge', 'u7inh-32tb.480xlarge', 'p5e.48xlarge', 'p5en.48xlarge', 'f2.12xlarge', 'f2.48xlarge', 'trn2.48xlarge', 'c7i-flex.12xlarge', 'c7i-flex.16xlarge', 'm7i-flex.12xlarge', 'm7i-flex.16xlarge', 'i7ie.metal-24xl', 'i7ie.metal-48xl', 'i8g.48xlarge', 'c8gd.medium', 'c8gd.large', 'c8gd.xlarge', 'c8gd.2xlarge', 'c8gd.4xlarge', 'c8gd.8xlarge', 'c8gd.12xlarge', 'c8gd.16xlarge', 'c8gd.24xlarge', 'c8gd.48xlarge', 'c8gd.metal-24xl', 'c8gd.metal-48xl', 'i7i.large', 'i7i.xlarge', 'i7i.2xlarge', 'i7i.4xlarge', 'i7i.8xlarge', 'i7i.12xlarge', 'i7i.16xlarge', 'i7i.24xlarge', 'i7i.48xlarge', 'i7i.metal-24xl', 'i7i.metal-48xl', 'p6-b200.48xlarge', 'm8gd.medium', 'm8gd.large', 'm8gd.xlarge', 'm8gd.2xlarge', 'm8gd.4xlarge', 'm8gd.8xlarge', 'm8gd.12xlarge', 'm8gd.16xlarge', 'm8gd.24xlarge', 'm8gd.48xlarge', 'm8gd.metal-24xl', 'm8gd.metal-48xl', 'r8gd.medium', 'r8gd.large', 'r8gd.xlarge', 'r8gd.2xlarge', 'r8gd.4xlarge', 'r8gd.8xlarge', 'r8gd.12xlarge', 'r8gd.16xlarge', 'r8gd.24xlarge', 'r8gd.48xlarge', 'r8gd.metal-24xl', 'r8gd.metal-48xl', 'c8gn.medium', 'c8gn.large', 'c8gn.xlarge', 'c8gn.2xlarge', 'c8gn.4xlarge', 'c8gn.8xlarge', 'c8gn.12xlarge', 'c8gn.16xlarge', 'c8gn.24xlarge', 'c8gn.48xlarge', 'c8gn.metal-24xl', 'c8gn.metal-48xl', 'f2.6xlarge', 'p6e-gb200.36xlarge', 'g6f.large', 'g6f.xlarge', 'g6f.2xlarge', 'g6f.4xlarge', 'gr6f.4xlarge', 'p5.4xlarge', 'r8i.large', 'r8i.xlarge', 'r8i.2xlarge', 'r8i.4xlarge', 'r8i.8xlarge', 'r8i.12xlarge', 'r8i.16xlarge', 'r8i.24xlarge', 'r8i.32xlarge', 'r8i.48xlarge', 'r8i.96xlarge', 'r8i.metal-48xl', 'r8i.metal-96xl', 'r8i-flex.large', 'r8i-flex.xlarge', 'r8i-flex.2xlarge', 'r8i-flex.4xlarge', 'r8i-flex.8xlarge', 'r8i-flex.12xlarge', 'r8i-flex.16xlarge', 'm8i.large', 'm8i.xlarge', 'm8i.2xlarge', 'm8i.4xlarge', 'm8i.8xlarge', 'm8i.12xlarge', 'm8i.16xlarge', 'm8i.24xlarge', 'm8i.32xlarge', 'm8i.48xlarge', 'm8i.96xlarge', 'm8i.metal-48xl', 'm8i.metal-96xl', 'm8i-flex.large', 'm8i-flex.xlarge', 'm8i-flex.2xlarge', 'm8i-flex.4xlarge', 'm8i-flex.8xlarge', 'm8i-flex.12xlarge', 'm8i-flex.16xlarge', 'i8ge.large', 'i8ge.xlarge', 'i8ge.2xlarge', 'i8ge.3xlarge', 'i8ge.6xlarge', 'i8ge.12xlarge', 'i8ge.18xlarge', 'i8ge.24xlarge', 'i8ge.48xlarge', 'i8ge.metal-24xl', 'i8ge.metal-48xl', 'mac-m4.metal', 'mac-m4pro.metal', 'r8gn.medium', 'r8gn.large', 'r8gn.xlarge', 'r8gn.2xlarge', 'r8gn.4xlarge', 'r8gn.8xlarge', 'r8gn.12xlarge', 'r8gn.16xlarge', 'r8gn.24xlarge', 'r8gn.48xlarge', 'r8gn.metal-24xl', 'r8gn.metal-48xl', 'c8i.large', 'c8i.xlarge', 'c8i.2xlarge', 'c8i.4xlarge', 'c8i.8xlarge', 'c8i.12xlarge', 'c8i.16xlarge', 'c8i.24xlarge', 'c8i.32xlarge', 'c8i.48xlarge', 'c8i.96xlarge', 'c8i.metal-48xl', 'c8i.metal-96xl', 'c8i-flex.large', 'c8i-flex.xlarge', 'c8i-flex.2xlarge', 'c8i-flex.4xlarge', 'c8i-flex.8xlarge', 'c8i-flex.12xlarge', 'c8i-flex.16xlarge', 'r8gb.medium', 'r8gb.large', 'r8gb.xlarge', 'r8gb.2xlarge', 'r8gb.4xlarge', 'r8gb.8xlarge', 'r8gb.12xlarge', 'r8gb.16xlarge', 'r8gb.24xlarge', 'r8gb.metal-24xl', 'm8a.medium', 'm8a.large', 'm8a.xlarge', 'm8a.2xlarge', 'm8a.4xlarge', 'm8a.8xlarge', 'm8a.12xlarge', 'm8a.16xlarge', 'm8a.24xlarge', 'm8a.48xlarge', 'm8a.metal-24xl', 'm8a.metal-48xl', 'trn2.3xlarge', 'r8a.medium', 'r8a.large', 'r8a.xlarge', 'r8a.2xlarge', 'r8a.4xlarge', 'r8a.8xlarge', 'r8a.12xlarge', 'r8a.16xlarge', 'r8a.24xlarge', 'r8a.48xlarge', 'r8a.metal-24xl', 'r8a.metal-48xl', 'p6-b300.48xlarge', 'c8a.medium', 'c8a.large', 'c8a.xlarge', 'c8a.2xlarge', 'c8a.4xlarge', 'c8a.8xlarge', 'c8a.12xlarge', 'c8a.16xlarge', 'c8a.24xlarge', 'c8a.48xlarge', 'c8a.metal-24xl', 'c8a.metal-48xl', 'c8gb.12xlarge', 'c8gb.16xlarge', 'c8gb.24xlarge', 'c8gb.2xlarge', 'c8gb.4xlarge', 'c8gb.8xlarge', 'c8gb.large', 'c8gb.medium', 'c8gb.metal-24xl', 'c8gb.xlarge', 'c8gb.48xlarge', 'c8gb.metal-48xl', 'm8gb.12xlarge', 'm8gb.16xlarge', 'm8gb.24xlarge', 'm8gb.2xlarge', 'm8gb.4xlarge', 'm8gb.8xlarge', 'm8gb.large', 'm8gb.medium', 'm8gb.xlarge', 'm8gb.48xlarge', 'm8gb.metal-24xl', 'm8gb.metal-48xl', 'm8gn.12xlarge', 'm8gn.16xlarge', 'm8gn.24xlarge', 'm8gn.2xlarge', 'm8gn.48xlarge', 'm8gn.4xlarge', 'm8gn.8xlarge', 'm8gn.large', 'm8gn.medium', 'm8gn.xlarge', 'm8gn.metal-24xl', 'm8gn.metal-48xl', 'x8aedz.12xlarge', 'x8aedz.24xlarge', 'x8aedz.3xlarge', 'x8aedz.6xlarge', 'x8aedz.large', 'x8aedz.metal-12xl', 'x8aedz.metal-24xl', 'x8aedz.xlarge', 'm8azn.medium', 'm8azn.large', 'm8azn.xlarge', 'm8azn.3xlarge', 'm8azn.6xlarge', 'm8azn.12xlarge', 'm8azn.24xlarge', 'm8azn.metal-12xl', 'm8azn.metal-24xl', 'x8i.large', 'x8i.xlarge', 'x8i.2xlarge', 'x8i.4xlarge', 'x8i.8xlarge', 'x8i.12xlarge', 'x8i.16xlarge', 'x8i.24xlarge', 'x8i.32xlarge', 'x8i.48xlarge', 'x8i.64xlarge', 'x8i.96xlarge', 'x8i.metal-48xl', 'x8i.metal-96xl', 'mac-m4max.metal', 'g7e.2xlarge', 'g7e.4xlarge', 'g7e.8xlarge', 'g7e.12xlarge', 'g7e.24xlarge', 'g7e.48xlarge', 'r8id.large', 'r8id.xlarge', 'r8id.2xlarge', 'r8id.4xlarge', 'r8id.8xlarge', 'r8id.12xlarge', 'r8id.16xlarge', 'r8id.24xlarge', 'r8id.32xlarge', 'r8id.48xlarge', 'r8id.96xlarge', 'r8id.metal-48xl', 'r8id.metal-96xl', 'c8id.large', 'c8id.xlarge', 'c8id.2xlarge', 'c8id.4xlarge', 'c8id.8xlarge', 'c8id.12xlarge', 'c8id.16xlarge', 'c8id.24xlarge', 'c8id.32xlarge', 'c8id.48xlarge', 'c8id.96xlarge', 'c8id.metal-48xl', 'c8id.metal-96xl', 'm8id.large', 'm8id.xlarge', 'm8id.2xlarge', 'm8id.4xlarge', 'm8id.8xlarge', 'm8id.12xlarge', 'm8id.16xlarge', 'm8id.24xlarge', 'm8id.32xlarge', 'm8id.48xlarge', 'm8id.96xlarge', 'm8id.metal-48xl', 'm8id.metal-96xl', 'hpc8a.96xlarge', 'c8in.large', 'c8in.xlarge', 'c8in.2xlarge', 'c8in.4xlarge', 'c8in.8xlarge', 'c8in.12xlarge', 'c8in.16xlarge', 'c8in.24xlarge', 'c8in.32xlarge', 'c8in.48xlarge', 'c8in.96xlarge', 'c8in.metal-48xl', 'c8in.metal-96xl', 'c8ib.large', 'c8ib.xlarge', 'c8ib.2xlarge', 'c8ib.4xlarge', 'c8ib.8xlarge', 'c8ib.12xlarge', 'c8ib.16xlarge', 'c8ib.24xlarge', 'c8ib.32xlarge', 'c8ib.48xlarge', 'c8ib.96xlarge', 'c8ib.metal-48xl', 'c8ib.metal-96xl', 'r8in.large', 'r8in.xlarge', 'r8in.2xlarge', 'r8in.4xlarge', 'r8in.8xlarge', 'r8in.12xlarge', 'r8in.16xlarge', 'r8in.24xlarge', 'r8in.32xlarge', 'r8in.48xlarge', 'r8in.96xlarge', 'r8ib.large', 'r8ib.xlarge', 'r8ib.2xlarge', 'r8ib.4xlarge', 'r8ib.8xlarge', 'r8ib.12xlarge', 'r8ib.16xlarge', 'r8ib.24xlarge', 'r8ib.32xlarge', 'r8ib.48xlarge', 'r8ib.96xlarge', 'm8in.large', 'm8in.xlarge', 'm8in.2xlarge', 'm8in.4xlarge', 'm8in.8xlarge', 'm8in.12xlarge', 'm8in.16xlarge', 'm8in.24xlarge', 'm8in.32xlarge', 'm8in.48xlarge', 'm8in.96xlarge', 'm8ib.large', 'm8ib.xlarge', 'm8ib.2xlarge', 'm8ib.4xlarge', 'm8ib.8xlarge', 'm8ib.12xlarge', 'm8ib.16xlarge', 'm8ib.24xlarge', 'm8ib.32xlarge', 'm8ib.48xlarge', 'm8ib.96xlarge', 'm8ine.large', 'm8ine.xlarge', 'm8ine.2xlarge', 'm8ine.4xlarge', 'm8ine.8xlarge', 'm8ine.12xlarge', 'c8ine.large', 'c8ine.xlarge', 'c8ine.2xlarge', 'c8ine.4xlarge', 'c8ine.8xlarge', 'c8ine.12xlarge', 'm8idn.large', 'm8idn.xlarge', 'm8idn.2xlarge', 'm8idn.4xlarge', 'm8idn.8xlarge', 'm8idn.12xlarge', 'm8idn.16xlarge', 'm8idn.24xlarge', 'm8idn.32xlarge', 'm8idn.48xlarge', 'm8idn.96xlarge', 'r8idn.large', 'r8idn.xlarge', 'r8idn.2xlarge', 'r8idn.4xlarge', 'r8idn.8xlarge', 'r8idn.12xlarge', 'r8idn.16xlarge', 'r8idn.24xlarge', 'r8idn.32xlarge', 'r8idn.48xlarge', 'r8idn.96xlarge', 'm8idb.large', 'm8idb.xlarge', 'm8idb.2xlarge', 'm8idb.4xlarge', 'm8idb.8xlarge', 'm8idb.12xlarge', 'm8idb.16xlarge', 'm8idb.24xlarge', 'm8idb.32xlarge', 'm8idb.48xlarge', 'm8idb.96xlarge', 'r8idb.large', 'r8idb.xlarge', 'r8idb.2xlarge', 'r8idb.4xlarge', 'r8idb.8xlarge', 'r8idb.12xlarge', 'r8idb.16xlarge', 'r8idb.24xlarge', 'r8idb.32xlarge', 'r8idb.48xlarge', 'r8idb.96xlarge', 'mac-m3ultra.metal', 'm9g.large', 'm9g.xlarge', 'm9g.2xlarge', 'm9g.4xlarge', 'm9g.8xlarge', 'm9g.12xlarge', 'm9g.16xlarge', 'm9g.24xlarge', 'm9g.48xlarge', 'm9g.metal-24xl', 'm9g.metal-48xl', 'm9gd.large', 'm9gd.xlarge', 'm9gd.2xlarge', 'm9gd.4xlarge', 'm9gd.8xlarge', 'm9gd.12xlarge', 'm9gd.16xlarge', 'm9gd.24xlarge', 'm9gd.48xlarge', 'm9gd.metal-24xl', 'm9gd.metal-48xl', 'r8in.metal-48xl', 'r8in.metal-96xl', 'r8ib.metal-48xl', 'r8ib.metal-96xl', 'r8idn.metal-48xl', 'r8idn.metal-96xl', 'r8idb.metal-48xl', 'r8idb.metal-96xl', 'm8in.metal-48xl', 'm8in.metal-96xl', 'm8ib.metal-48xl', 'm8ib.metal-96xl', 'm8idn.metal-48xl', 'm8idn.metal-96xl', 'm8idb.metal-48xl', 'm8idb.metal-96xl', 'g7.2xlarge', 'g7.4xlarge', 'g7.8xlarge', 'g7.12xlarge', 'g7.24xlarge', 'g7.48xlarge', 'c9g.medium', 'c9g.large', 'c9g.xlarge', 'c9g.2xlarge', 'c9g.4xlarge', 'c9g.8xlarge', 'c9g.12xlarge', 'c9g.16xlarge', 'c9g.24xlarge', 'c9g.48xlarge', 'c9g.metal-48xl', 'c9gd.medium', 'c9gd.large', 'c9gd.xlarge', 'c9gd.2xlarge', 'c9gd.4xlarge', 'c9gd.8xlarge', 'c9gd.12xlarge', 'c9gd.16xlarge', 'c9gd.24xlarge', 'c9gd.48xlarge', 'c9gd.metal-48xl', 'r9g.medium', 'r9g.large', 'r9g.xlarge', 'r9g.2xlarge', 'r9g.4xlarge', 'r9g.8xlarge', 'r9g.12xlarge', 'r9g.16xlarge', 'r9g.24xlarge', 'r9g.48xlarge', 'r9g.metal-48xl', 'r9gd.medium', 'r9gd.large', 'r9gd.xlarge', 'r9gd.2xlarge', 'r9gd.4xlarge', 'r9gd.8xlarge', 'r9gd.12xlarge', 'r9gd.16xlarge', 'r9gd.24xlarge', 'r9gd.48xlarge', 'r9gd.metal-48xl', 'm9g.medium', 't8i.nano', 't8i.micro', 't8i.small', 't8i.medium', 'i8g.metal-48xl', 'r8gb.48xlarge', 'r8gb.metal-48xl', 'm9gd.medium', 'trn2u.48xlarge'] | None" = None
     """
     The instance type.
@@ -18816,12 +18857,10 @@ class RequestLaunchTemplateData(Boto3Model):
 
     For a nondefault VPC, you must use security group IDs instead.
     """
-
     InstanceMarketOptions: "LaunchTemplateInstanceMarketOptionsRequest | None" = None
     """
     The market (purchasing) option for the instances.
     """
-
     CreditSpecification: "CreditSpecificationRequest | None" = None
     """
     The credit option for CPU usage of the instance.
@@ -18875,6 +18914,7 @@ class RequestLaunchTemplateData(Boto3Model):
     in the *Amazon
     EC2 User Guide*.
     """
+
     EnclaveOptions: "LaunchTemplateEnclaveOptionsRequest | None" = None
     """
     Indicates whether the instance is enabled for Amazon Web Services Nitro Enclaves.
@@ -18932,7 +18972,6 @@ class RequestLaunchTemplateData(Boto3Model):
     """
     The secondary interfaces to associate with instances launched from the template.
     """
-
 class ValidationError(Boto3Model):
     """
     The error code and error message that is returned for a parameter or parameter
@@ -18964,6 +19003,7 @@ class ValidationWarning(Boto3Model):
     combinations that are not valid when a new launch template or new version of a
     launch template is created.
     """
+
     Errors: "builtins.list[ValidationError] | None" = Field(default_factory=list)
     """
     The error codes and error messages.
@@ -18986,6 +19026,7 @@ class DeleteLaunchTemplateResult(Boto3Model):
     """
     Information about the launch template.
     """
+
 class DescribeLaunchTemplatesResult(Boto3Model):
     LaunchTemplates: "builtins.list[LaunchTemplate] | None" = Field(
         default_factory=list
@@ -18993,13 +19034,13 @@ class DescribeLaunchTemplatesResult(Boto3Model):
     """
     Information about the launch templates.
     """
+
     NextToken: "str | None" = None
     """
     The token to use to retrieve the next page of results.
 
     This value is ``null`` when there are no more results to return.
     """
-
 class CreateLaunchTemplateVersionResult(Boto3Model):
     LaunchTemplateVersionInstance: LaunchTemplateVersion = Field(
         default=None, alias="LaunchTemplateVersion"
@@ -19014,6 +19055,7 @@ class CreateLaunchTemplateVersionResult(Boto3Model):
     combinations that are not valid, an error code and an error message are returned for
     each issue that's found.
     """
+
 class DeleteLaunchTemplateVersionsResponseSuccessItem(Boto3Model):
     """
     Describes a launch template version that was successfully deleted.
@@ -19023,7 +19065,6 @@ class DeleteLaunchTemplateVersionsResponseSuccessItem(Boto3Model):
     """
     The ID of the launch template.
     """
-
     LaunchTemplateName: "str | None" = None
     """
     The name of the launch template.
@@ -19044,7 +19085,6 @@ class EC2ResponseError(Boto3Model):
     """
     The error code.
     """
-
     Message: "str | None" = None
     """
     The error message, if applicable.
@@ -19054,6 +19094,7 @@ class DeleteLaunchTemplateVersionsResponseErrorItem(Boto3Model):
     """
     Describes a launch template version that could not be deleted.
     """
+
     LaunchTemplateId: "str | None" = None
     """
     The ID of the launch template.
@@ -19126,6 +19167,7 @@ class DescribeNetworkInterfacesResult(Boto3Model):
     """
     Information about the network interfaces.
     """
+
     NextToken: "str | None" = None
     """
     The token to include in another request to get the next page of items.
@@ -19162,17 +19204,14 @@ class NetworkInterfacePermissionState(Boto3Model):
     """
     A status message, if applicable.
     """
-
 class NetworkInterfacePermission(Boto3Model):
     """
     Describes a permission for a network interface.
     """
-
     NetworkInterfacePermissionId: "str | None" = None
     """
     The ID of the network interface permission.
     """
-
     NetworkInterfaceId: "str | None" = None
     """
     The ID of the network interface.
@@ -19239,13 +19278,13 @@ class AssignPrivateIpAddressesResult(Boto3Model):
     """
     The private IP addresses assigned to the network interface.
     """
+
     AssignedIpv4Prefixes: "builtins.list[Ipv4PrefixSpecification] | None" = Field(
         default_factory=list
     )
     """
     The IPv4 prefixes that are assigned to the network interface.
     """
-
 class NetworkInterfaceAttachmentChanges(Boto3Model):
     """
     Describes an attachment change.
@@ -19260,7 +19299,6 @@ class NetworkInterfaceAttachmentChanges(Boto3Model):
     """
     The number of ENA queues to be created with the instance.
     """
-
     AttachmentId: "str | None" = None
     """
     The ID of the network interface attachment.
@@ -19345,21 +19383,21 @@ class LockSnapshotResult(Boto3Model):
 
     Valid states include:
     """
+
     LockDuration: "int | None" = None
     """
     The period of time for which the snapshot is locked, in days.
     """
+
     CoolOffPeriod: "int | None" = None
     """
     The compliance mode cooling-off period, in hours.
     """
-
     CoolOffPeriodExpiresOn: "datetime | None" = None
     """
     The date and time at which the compliance mode cooling-off period expires, in the
     UTC time zone (``YYYY-MM- DDThh:mm:ss.sssZ``).
     """
-
     LockCreatedOn: "datetime | None" = None
     """
     The date and time at which the snapshot was locked, in the UTC time zone (``YYYY-MM-
@@ -19382,12 +19420,10 @@ class LockedSnapshotsInfo(Boto3Model):
     """
     Information about a locked snapshot.
     """
-
     OwnerId: "str | None" = None
     """
     The account ID of the Amazon Web Services account that owns the snapshot.
     """
-
     SnapshotId: "str | None" = None
     """
     The ID of the snapshot.
@@ -19446,6 +19482,7 @@ class DescribeLockedSnapshotsResult(Boto3Model):
 
     This value is ``null`` when there are no more items to return.
     """
+
 class UnlockSnapshotResult(Boto3Model):
     SnapshotId: "str | None" = None
     """
@@ -19458,7 +19495,6 @@ class CopySnapshotResult(TagsDictMixin, Boto3Model):
     """
     Any tags applied to the new snapshot.
     """
-
     SnapshotId: "str | None" = None
     """
     The ID of the new snapshot.
@@ -19468,13 +19504,11 @@ class KeyPairInfo(TagsDictMixin, Boto3Model):
     """
     Describes a key pair.
     """
-
     tag_class: ClassVar[ModelType[Boto3Model]] = Tag
     KeyPairId: "str | None" = None
     """
     The ID of the key pair.
     """
-
     KeyType: "Literal['rsa', 'ed25519'] | None" = None
     """
     The type of key pair.
@@ -19506,7 +19540,6 @@ time format <https://www.iso.org/iso-8601-date-and-time-format.html>`_, in the U
     """
 If you used CreateKeyPair to create the key pair:
     """
-
 class DescribeKeyPairsResult(Boto3Model):
     KeyPairs: "builtins.list[KeyPairInfo] | None" = Field(default_factory=list)
     """
@@ -19570,6 +19603,7 @@ class NewDhcpConfiguration(Boto3Model):
     """
     The name of a DHCP option.
     """
+
     Values: "builtins.list[str] | None" = Field(default_factory=list)
     """
     The values for the DHCP option.
@@ -19580,7 +19614,6 @@ class CreateDhcpOptionsResult(Boto3Model):
     """
     A set of DHCP options.
     """
-
 DescribeDhcpOptionsResultDhcpOptions = DhcpOptions
 
 
@@ -19622,6 +19655,7 @@ class DescribeCustomerGatewaysResult(Boto3Model):
     """
     Information about one or more customer gateways.
     """
+
 class CreateVpnGatewayResult(Boto3Model):
     """
     Contains the output of CreateVpnGateway.
@@ -19631,6 +19665,7 @@ class CreateVpnGatewayResult(Boto3Model):
     """
     Information about the virtual private gateway.
     """
+
 class DescribeVpnGatewaysResult(Boto3Model):
     """
     Contains the output of DescribeVpnGateways.
@@ -19645,10 +19680,12 @@ class AttachVpnGatewayResult(Boto3Model):
     """
     Contains the output of AttachVpnGateway.
     """
+
     VpcAttachment: "EC2VpcAttachment | None" = None
     """
     Information about the attachment.
     """
+
 class CreateInternetGatewayResult(Boto3Model):
     InternetGatewayInstance: InternetGateway = Field(
         default=None, alias="InternetGateway"
@@ -19684,11 +19721,11 @@ class DescribeVolumesResult(Boto3Model):
     """
     Information about the volumes.
     """
+
 class EC2VolumeModification(Boto3Model):
     """
     Describes the modification status of an EBS volume.
     """
-
     VolumeId: "str | None" = None
     """
     The ID of the volume.
@@ -19698,14 +19735,17 @@ class EC2VolumeModification(Boto3Model):
     """
     The current modification state.
     """
+
     StatusMessage: "str | None" = None
     """
     A status message about the modification progress or failure.
     """
+
     TargetSize: "int | None" = None
     """
     The target size of the volume, in GiB.
     """
+
     TargetIops: "int | None" = None
     """
     The target IOPS rate of the volume.
@@ -19730,7 +19770,6 @@ class EC2VolumeModification(Boto3Model):
     """
     The original size of the volume, in GiB.
     """
-
     OriginalIops: "int | None" = None
     """
     The original IOPS rate of the volume.
@@ -19760,10 +19799,12 @@ class EC2VolumeModification(Boto3Model):
     """
     The modification start time.
     """
+
     EndTime: "datetime | None" = None
     """
     The modification completion or failure time.
     """
+
     Operator: "OperatorResponse | None" = None
     """
     The service provider that manages the resource.
@@ -19797,6 +19838,7 @@ class DescribeRouteTablesResult(Boto3Model):
     """
     Information about the route tables.
     """
+
     NextToken: "str | None" = None
     """
     The token to include in another request to get the next page of items.
@@ -19817,10 +19859,12 @@ class AssociateRouteTableResult(Boto3Model):
 
     This ID is required for disassociating the route table.
     """
+
     AssociationState: "RouteTableAssociationState | None" = None
     """
     The state of the association.
     """
+
 class AvailabilityZoneAddress(Boto3Model):
     """
     For regional NAT gateways only: The configuration specifying which Elastic IP
@@ -19843,6 +19887,7 @@ class AvailabilityZoneAddress(Boto3Model):
     Each AZ in a regional NAT gateway has its own configuration to handle outbound NAT
     traffic from that AZ.
     """
+
     AvailabilityZoneId: "str | None" = None
     """
     For regional NAT gateways only: The ID of the Availability Zone where this specific
@@ -19852,12 +19897,12 @@ class AvailabilityZoneAddress(Boto3Model):
     traffic from that AZ. Use this instead of AvailabilityZone for consistent
     identification of AZs across Amazon Web Services Regions.
     """
+
     AllocationIds: "builtins.list[str] | None" = Field(default_factory=list)
     """
     The allocation IDs of the Elastic IP addresses (EIPs) to be used for handling
     outbound NAT traffic in this specific Availability Zone.
     """
-
 class CreateNatGatewayResult(Boto3Model):
     NatGatewayInstance: NatGateway = Field(default=None, alias="NatGateway")
     """
@@ -19915,6 +19960,7 @@ class DisassociateNatGatewayAddressResult(Boto3Model):
     """
     Information about the NAT gateway IP addresses.
     """
+
 class CreateVpcPeeringConnectionResult(Boto3Model):
     VpcPeeringConnectionInstance: VpcPeeringConnection = Field(
         default=None, alias="VpcPeeringConnection"
@@ -19930,6 +19976,7 @@ class DescribeVpcPeeringConnectionsResult(Boto3Model):
     """
     Information about the VPC peering connections.
     """
+
     NextToken: "str | None" = None
     """
     The token to include in another request to get the next page of items.
@@ -19950,7 +19997,6 @@ class RejectVpcPeeringConnectionResult(Boto3Model):
     """
     Returns ``true`` if the request succeeds; otherwise, it returns an error.
     """
-
 class DeleteVpcPeeringConnectionResult(Boto3Model):
     Return: "bool | None" = None
     """
@@ -19961,17 +20007,16 @@ class PeeringConnectionOptionsRequest(Boto3Model):
     """
     The VPC peering connection options.
     """
+
     AllowDnsResolutionFromRemoteVpc: "bool | None" = None
     """
     If true, enables a local VPC to resolve public DNS hostnames to private IP addresses
     when queried from instances in the peer VPC.
     """
-
     AllowEgressFromLocalClassicLinkToRemoteVpc: "bool | None" = None
     """
     Deprecated.
     """
-
     AllowEgressFromLocalVpcToRemoteClassicLink: "bool | None" = None
     """
     Deprecated.
@@ -19981,7 +20026,6 @@ class PeeringConnectionOptions(Boto3Model):
     """
     Describes the VPC peering connection options.
     """
-
     AllowDnsResolutionFromRemoteVpc: "bool | None" = None
     """
     If true, the public DNS hostnames of instances in the specified VPC resolve to
@@ -19992,7 +20036,6 @@ class PeeringConnectionOptions(Boto3Model):
     """
     Deprecated.
     """
-
     AllowEgressFromLocalVpcToRemoteClassicLink: "bool | None" = None
     """
     Deprecated.
@@ -20003,7 +20046,6 @@ class ModifyVpcPeeringConnectionOptionsResult(Boto3Model):
     """
     Information about the VPC peering connection options for the accepter VPC.
     """
-
     RequesterPeeringConnectionOptions: "PeeringConnectionOptions | None" = None
     """
     Information about the VPC peering connection options for the requester VPC.
@@ -20037,7 +20079,6 @@ class DnsOptionsSpecification(Boto3Model):
     """
     Describes the DNS options for an endpoint.
     """
-
     DnsRecordIpType: "Literal['ipv4', 'dualstack', 'ipv6', 'service-defined'] | None" = None
     """
     The DNS records created for the endpoint.
@@ -20071,7 +20112,6 @@ class DnsOptionsSpecification(Boto3Model):
     Only supported when private DNS is enabled and the private DNS preference is
     verified-domains-and-specified-domains or specified-domains-only.
     """
-
 class CreateVpcEndpointResult(Boto3Model):
     VpcEndpointInstance: EC2VpcEndpoint = Field(default=None, alias="VpcEndpoint")
     """

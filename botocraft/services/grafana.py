@@ -858,7 +858,7 @@ class ManagedGrafanaWorkspace(PrimaryBoto3Model):
     The name of the IAM role that is used to access resources through Organizations.
     """
 
-    notificationDestinations: "builtins.list[Literal['SNS']]" = Field(
+    notificationDestinations: "builtins.list[Literal['SNS']] | None" = Field(
         default_factory=list, frozen=True
     )
     """
@@ -914,7 +914,7 @@ class ManagedGrafanaWorkspace(PrimaryBoto3Model):
     This role must already exist.
     """
 
-    licenseType: Literal["ENTERPRISE", "ENTERPRISE_FREE_TRIAL"] = Field(
+    licenseType: "Literal['ENTERPRISE', 'ENTERPRISE_FREE_TRIAL'] | None" = Field(
         default=None, frozen=True
     )
     """

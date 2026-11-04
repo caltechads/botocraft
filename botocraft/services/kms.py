@@ -400,16 +400,9 @@ cryptography.html#cryptographic-operations>`_ for which you can use the KMS key.
     The description of the KMS key.
     """
 
-    KeyState: Literal[
-        "Creating",
-        "Enabled",
-        "Disabled",
-        "PendingDeletion",
-        "PendingImport",
-        "PendingReplicaDeletion",
-        "Unavailable",
-        "Updating",
-    ] = Field(default=None, frozen=True)
+    KeyState: "Literal['Creating', 'Enabled', 'Disabled', 'PendingDeletion', 'PendingImport', 'PendingReplicaDeletion', 'Unavailable', 'Updating'] | None" = Field(
+        default=None, frozen=True
+    )
     """
     The current status of the KMS key.
     """
@@ -463,8 +456,8 @@ is created in a custom key store.
     created in an CloudHSM key store.
     """
 
-    ExpirationModel: Literal["KEY_MATERIAL_EXPIRES", "KEY_MATERIAL_DOES_NOT_EXPIRE"] = (
-        Field(default=None, frozen=True)
+    ExpirationModel: "Literal['KEY_MATERIAL_EXPIRES', 'KEY_MATERIAL_DOES_NOT_EXPIRE'] | None" = Field(
+        default=None, frozen=True
     )
     """
     Specifies whether the KMS key's key material expires.
@@ -472,8 +465,7 @@ is created in a custom key store.
     This value is present only when ``Origin`` is ``EXTERNAL``, otherwise this value is
     omitted.
     """
-
-    KeyManager: Literal["AWS", "CUSTOMER"] = Field(default=None, frozen=True)
+    KeyManager: "Literal['AWS', 'CUSTOMER'] | None" = Field(default=None, frozen=True)
     """
     The manager of the KMS key.
 
@@ -488,7 +480,7 @@ is created in a custom key store.
     """
     Instead, use the ``KeySpec`` field.
     """
-    EncryptionAlgorithms: "builtins.list[Literal['SYMMETRIC_DEFAULT', 'RSAES_OAEP_SHA_1', 'RSAES_OAEP_SHA_256', 'SM2PKE']]" = Field(
+    EncryptionAlgorithms: "builtins.list[Literal['SYMMETRIC_DEFAULT', 'RSAES_OAEP_SHA_1', 'RSAES_OAEP_SHA_256', 'SM2PKE']] | None" = Field(
         default_factory=list, frozen=True
     )
     """
@@ -497,7 +489,7 @@ is created in a custom key store.
     You cannot use the KMS key with other encryption algorithms within KMS.
     """
 
-    SigningAlgorithms: "builtins.list[Literal['RSASSA_PSS_SHA_256', 'RSASSA_PSS_SHA_384', 'RSASSA_PSS_SHA_512', 'RSASSA_PKCS1_V1_5_SHA_256', 'RSASSA_PKCS1_V1_5_SHA_384', 'RSASSA_PKCS1_V1_5_SHA_512', 'ECDSA_SHA_256', 'ECDSA_SHA_384', 'ECDSA_SHA_512', 'SM2DSA', 'ML_DSA_SHAKE_256', 'ED25519_SHA_512', 'ED25519_PH_SHA_512']]" = Field(
+    SigningAlgorithms: "builtins.list[Literal['RSASSA_PSS_SHA_256', 'RSASSA_PSS_SHA_384', 'RSASSA_PSS_SHA_512', 'RSASSA_PKCS1_V1_5_SHA_256', 'RSASSA_PKCS1_V1_5_SHA_384', 'RSASSA_PKCS1_V1_5_SHA_512', 'ECDSA_SHA_256', 'ECDSA_SHA_384', 'ECDSA_SHA_512', 'SM2DSA', 'ML_DSA_SHAKE_256', 'ED25519_SHA_512', 'ED25519_PH_SHA_512']] | None" = Field(
         default_factory=list, frozen=True
     )
     """
@@ -506,14 +498,14 @@ is created in a custom key store.
     You cannot use the KMS key with other signing algorithms within KMS.
     """
 
-    KeyAgreementAlgorithms: "builtins.list[Literal['ECDH']]" = Field(
+    KeyAgreementAlgorithms: "builtins.list[Literal['ECDH']] | None" = Field(
         default_factory=list, frozen=True
     )
     """
     The key agreement algorithm used to derive a shared secret.
     """
 
-    EncapsulationAlgorithms: "builtins.list[Literal['ML_KEM']]" = Field(
+    EncapsulationAlgorithms: "builtins.list[Literal['ML_KEM']] | None" = Field(
         default_factory=list, frozen=True
     )
     """
@@ -552,7 +544,7 @@ is created in a custom key store.
     scheduled for deletion, and it still has existing replica keys.
     """
 
-    MacAlgorithms: "builtins.list[Literal['HMAC_SHA_224', 'HMAC_SHA_256', 'HMAC_SHA_384', 'HMAC_SHA_512']]" = Field(
+    MacAlgorithms: "builtins.list[Literal['HMAC_SHA_224', 'HMAC_SHA_256', 'HMAC_SHA_384', 'HMAC_SHA_512']] | None" = Field(
         default_factory=list, frozen=True
     )
     """

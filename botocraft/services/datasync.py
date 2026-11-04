@@ -1882,7 +1882,7 @@ class DataSyncAgent(TagsDictMixin, PrimaryBoto3Model):
     The name of the agent.
     """
 
-    Status: Literal["ONLINE", "OFFLINE"] = Field(default=None, frozen=True)
+    Status: "Literal['ONLINE', 'OFFLINE'] | None" = Field(default=None, frozen=True)
     """
     The status of the agent.
     """
@@ -1897,8 +1897,8 @@ class DataSyncAgent(TagsDictMixin, PrimaryBoto3Model):
 The time that the agent was `activated <https://docs.aws.amazon.com/datasync/latest/userguide/activate-agent.html>`_.
     """
 
-    EndpointType: Literal["PUBLIC", "PRIVATE_LINK", "FIPS", "FIPS_PRIVATE_LINK"] = (
-        Field(default=None, frozen=True)
+    EndpointType: "Literal['PUBLIC', 'PRIVATE_LINK', 'FIPS', 'FIPS_PRIVATE_LINK'] | None" = Field(
+        default=None, frozen=True
     )
     """
 The type of `service endpoint <https://docs.aws.amazon.com/datasync/latest/userguide/choose-service-endpoint.html>`_ that
@@ -2372,8 +2372,8 @@ class DataSyncTask(TagsDictMixin, PrimaryBoto3Model):
     The ARN of your task.
     """
 
-    Status: Literal["AVAILABLE", "CREATING", "QUEUED", "RUNNING", "UNAVAILABLE"] = (
-        Field(default=None, frozen=True)
+    Status: "Literal['AVAILABLE', 'CREATING', 'QUEUED', 'RUNNING', 'UNAVAILABLE'] | None" = Field(
+        default=None, frozen=True
     )
     """
     The status of your task.
@@ -2774,7 +2774,6 @@ class DataSyncTaskExecution(PrimaryBoto3Model):
     """
     DescribeTaskExecutionResponse.
     """
-
     manager_class: ClassVar[ModelType[Boto3ModelManager]] = DataSyncTaskExecutionManager
 
     TaskExecutionArn: "str | None" = None
@@ -2785,16 +2784,9 @@ class DataSyncTaskExecution(PrimaryBoto3Model):
     executed.
     """
 
-    Status: Literal[
-        "QUEUED",
-        "CANCELLING",
-        "LAUNCHING",
-        "PREPARING",
-        "TRANSFERRING",
-        "VERIFYING",
-        "SUCCESS",
-        "ERROR",
-    ] = Field(default=None, frozen=True)
+    Status: "Literal['QUEUED', 'CANCELLING', 'LAUNCHING', 'PREPARING', 'TRANSFERRING', 'VERIFYING', 'SUCCESS', 'ERROR'] | None" = Field(
+        default=None, frozen=True
+    )
     """
     The status of the task execution.
     """
@@ -2932,13 +2924,11 @@ class DataSyncTaskExecution(PrimaryBoto3Model):
     The number of files, objects, and directories that DataSync verifies during your
     transfer.
     """
-
     ReportResult: DataSyncReportResult = Field(default=None, frozen=True)
     """
 Indicates whether DataSync generated a complete `task
 report <https://docs.aws.amazon.com/datasync/latest/userguide/task-reports.html>`_ for your transfer.
     """
-
     EstimatedFilesToDelete: int = Field(default=None, frozen=True)
     """
     The number of files, objects, and directories that DataSync expects to delete in
@@ -2949,7 +2939,7 @@ report <https://docs.aws.amazon.com/datasync/latest/userguide/task-reports.html>
     source <https://docs.aws.amazon.com/datasync/latest/userguide/configure-metadata.html>`_, the value is always ``0``.
     """
 
-    TaskMode: Literal["BASIC", "ENHANCED"] = Field(default=None, frozen=True)
+    TaskMode: "Literal['BASIC', 'ENHANCED'] | None" = Field(default=None, frozen=True)
     """
     The task mode that you're using.
 

@@ -483,6 +483,7 @@ validation that occurs as a result of the RequestCertificate request. This field
 only when the certificate type
 is ``AMAZON_ISSUED``.
     """
+
     RenewalStatusReason: "Literal['NO_AVAILABLE_CONTACTS', 'ADDITIONAL_VERIFICATION_REQUIRED', 'DOMAIN_NOT_ALLOWED', 'INVALID_PUBLIC_DOMAIN', 'DOMAIN_VALIDATION_DENIED', 'CAA_ERROR', 'PCA_LIMIT_EXCEEDED', 'PCA_INVALID_ARN', 'PCA_INVALID_STATE', 'PCA_REQUEST_FAILED', 'PCA_NAME_CONSTRAINTS_VALIDATION', 'PCA_RESOURCE_NOT_FOUND', 'PCA_INVALID_ARGS', 'PCA_INVALID_DURATION', 'PCA_ACCESS_DENIED', 'SLR_NOT_FOUND', 'OTHER'] | None" = None
     """
     The reason that a renewal request was unsuccessful.
@@ -503,7 +504,6 @@ class KeyUsage(Boto3Model):
     """
     A string value that contains a Key Usage extension name.
     """
-
 class ExtendedKeyUsage(Boto3Model):
     """
     The Extended Key Usage X.509 v3 extension defines one or more purposes for which the
@@ -525,7 +525,6 @@ class ExtendedKeyUsage(Boto3Model):
     OIDs are strings of numbers separated by periods. The following OIDs are defined in
     RFC 3280 and RFC 5280.
     """
-
 class CertificateOptions(Boto3Model):
     """
     Structure that contains options for your certificate.
@@ -603,6 +602,7 @@ class ACMUpdateSummary(Boto3Model):
 
     The following are valid values:
     """
+
     DomainValidationMethodUpdateSummary: "ACMDomainValidationMethodUpdateSummary | None" = None
     """
     Contains information about a domain validation method migration, including the
@@ -639,7 +639,6 @@ class ACMCertificate(TagsDictMixin, PrimaryBoto3Model):
     For more information about ARNs, see `Amazon Resource Names (ARNs) <https://docs.aws.amazon.com/general/latest/gr/aws-arns-and-namespaces.html>`_ in the *Amazon Web Services General
     Reference*.
     """
-
     DomainName: str = Field(default=None, frozen=True)
     """
     The fully qualified domain name for the certificate, such as www.example.com or
@@ -656,7 +655,8 @@ class ACMCertificate(TagsDictMixin, PrimaryBoto3Model):
     domain name (CN) of the certificate and additional domain names that can be used to
     connect to the website.
     """
-    ManagedBy: Literal["CLOUDFRONT"] = Field(default=None, frozen=True)
+
+    ManagedBy: "Literal['CLOUDFRONT'] | None" = Field(default=None, frozen=True)
     """
     Identifies the Amazon Web Services service that manages the certificate issued by
     ACM.
@@ -707,15 +707,9 @@ class ACMCertificate(TagsDictMixin, PrimaryBoto3Model):
     This value exists only when the certificate type is ``IMPORTED``.
     """
 
-    Status: Literal[
-        "PENDING_VALIDATION",
-        "ISSUED",
-        "INACTIVE",
-        "EXPIRED",
-        "VALIDATION_TIMED_OUT",
-        "REVOKED",
-        "FAILED",
-    ] = Field(default=None, frozen=True)
+    Status: "Literal['PENDING_VALIDATION', 'ISSUED', 'INACTIVE', 'EXPIRED', 'VALIDATION_TIMED_OUT', 'REVOKED', 'FAILED'] | None" = Field(
+        default=None, frozen=True
+    )
     """
     The status of the certificate.
     """
@@ -727,19 +721,9 @@ class ACMCertificate(TagsDictMixin, PrimaryBoto3Model):
     This value exists only when the certificate status is ``REVOKED``.
     """
 
-    RevocationReason: Literal[
-        "UNSPECIFIED",
-        "KEY_COMPROMISE",
-        "CA_COMPROMISE",
-        "AFFILIATION_CHANGED",
-        "SUPERCEDED",
-        "SUPERSEDED",
-        "CESSATION_OF_OPERATION",
-        "CERTIFICATE_HOLD",
-        "REMOVE_FROM_CRL",
-        "PRIVILEGE_WITHDRAWN",
-        "A_A_COMPROMISE",
-    ] = Field(default=None, frozen=True)
+    RevocationReason: "Literal['UNSPECIFIED', 'KEY_COMPROMISE', 'CA_COMPROMISE', 'AFFILIATION_CHANGED', 'SUPERCEDED', 'SUPERSEDED', 'CESSATION_OF_OPERATION', 'CERTIFICATE_HOLD', 'REMOVE_FROM_CRL', 'PRIVILEGE_WITHDRAWN', 'A_A_COMPROMISE'] | None" = Field(
+        default=None, frozen=True
+    )
     """
     The reason the certificate was revoked.
 
@@ -755,6 +739,7 @@ class ACMCertificate(TagsDictMixin, PrimaryBoto3Model):
     """
     The time after which the certificate is not valid.
     """
+
     SignatureAlgorithm: str = Field(default=None, frozen=True)
     """
     The algorithm that was used to sign the certificate.
@@ -767,25 +752,9 @@ class ACMCertificate(TagsDictMixin, PrimaryBoto3Model):
     A certificate can be used by multiple Amazon Web Services resources.
     """
 
-    FailureReason: Literal[
-        "NO_AVAILABLE_CONTACTS",
-        "ADDITIONAL_VERIFICATION_REQUIRED",
-        "DOMAIN_NOT_ALLOWED",
-        "INVALID_PUBLIC_DOMAIN",
-        "DOMAIN_VALIDATION_DENIED",
-        "CAA_ERROR",
-        "PCA_LIMIT_EXCEEDED",
-        "PCA_INVALID_ARN",
-        "PCA_INVALID_STATE",
-        "PCA_REQUEST_FAILED",
-        "PCA_NAME_CONSTRAINTS_VALIDATION",
-        "PCA_RESOURCE_NOT_FOUND",
-        "PCA_INVALID_ARGS",
-        "PCA_INVALID_DURATION",
-        "PCA_ACCESS_DENIED",
-        "SLR_NOT_FOUND",
-        "OTHER",
-    ] = Field(default=None, frozen=True)
+    FailureReason: "Literal['NO_AVAILABLE_CONTACTS', 'ADDITIONAL_VERIFICATION_REQUIRED', 'DOMAIN_NOT_ALLOWED', 'INVALID_PUBLIC_DOMAIN', 'DOMAIN_VALIDATION_DENIED', 'CAA_ERROR', 'PCA_LIMIT_EXCEEDED', 'PCA_INVALID_ARN', 'PCA_INVALID_STATE', 'PCA_REQUEST_FAILED', 'PCA_NAME_CONSTRAINTS_VALIDATION', 'PCA_RESOURCE_NOT_FOUND', 'PCA_INVALID_ARGS', 'PCA_INVALID_DURATION', 'PCA_ACCESS_DENIED', 'SLR_NOT_FOUND', 'OTHER'] | None" = Field(
+        default=None, frozen=True
+    )
     """
     The reason the certificate request failed.
 
@@ -795,8 +764,7 @@ class ACMCertificate(TagsDictMixin, PrimaryBoto3Model):
     in the
     *Certificate Manager User Guide*.
     """
-
-    Type: Literal["IMPORTED", "AMAZON_ISSUED", "PRIVATE"] = Field(
+    Type: "Literal['IMPORTED', 'AMAZON_ISSUED', 'PRIVATE'] | None" = Field(
         default=None, frozen=True
     )
     """
@@ -838,6 +806,7 @@ renewal.html>`_ for the certificate. This field exists only when the certificate
     Each object specifies a purpose for which the certificate public key can be used and
     consists of a name and an object identifier (OID).
     """
+
     CertificateAuthorityArn: str = Field(default=None, frozen=True)
     """
     The Amazon Resource Name (ARN) of the private certificate authority (CA) that issued
@@ -846,7 +815,8 @@ renewal.html>`_ for the certificate. This field exists only when the certificate
     This has the
     following format:
     """
-    RenewalEligibility: Literal["ELIGIBLE", "INELIGIBLE"] = Field(
+
+    RenewalEligibility: "Literal['ELIGIBLE', 'INELIGIBLE'] | None" = Field(
         default=None, frozen=True
     )
     """
@@ -871,8 +841,9 @@ renewal.html>`_ for the certificate. This field exists only when the certificate
     This field exists only when the certificate type is ``AMAZON_ISSUED`` and a
     certificate update has been requested.
     """
-    CertificateKeyPairOrigin: Literal["AWS_MANAGED", "ACME", "CUSTOMER_PROVIDED"] = (
-        Field(default=None, frozen=True)
+
+    CertificateKeyPairOrigin: "Literal['AWS_MANAGED', 'ACME', 'CUSTOMER_PROVIDED'] | None" = Field(
+        default=None, frozen=True
     )
     """
     The origin of the certificate's key pair.
@@ -938,7 +909,6 @@ renewal.html>`_ for the certificate. This field exists only when the certificate
         """
         return hash(self.CertificateArn)
 
-
 # =======================
 # Request/Response Models
 # =======================
@@ -996,7 +966,6 @@ class CertificateSummary(Boto3Model):
     """
     This structure is returned in the response object of ListCertificates action.
     """
-
     KeyAlgorithm: "str | None" = None
     """
     The algorithm that was used to generate the public-private key pair.
@@ -1038,6 +1007,7 @@ response only includes the first
 subject alternative names, use
 `DescribeCertificate <https://docs.aws.amazon.com/acm/latest/APIReference/API_DescribeCertificate.html>`_.
     """
+
     Status: "Literal['PENDING_VALIDATION', 'ISSUED', 'INACTIVE', 'EXPIRED', 'VALIDATION_TIMED_OUT', 'REVOKED', 'FAILED'] | None" = None
     """
     The status of the certificate.
@@ -1056,7 +1026,6 @@ subject alternative names, use
     in the *Certificate Manager User
     Guide*.
     """
-
     KeyUsages: "builtins.list[Literal['DIGITAL_SIGNATURE', 'NON_REPUDIATION', 'KEY_ENCIPHERMENT', 'DATA_ENCIPHERMENT', 'KEY_AGREEMENT', 'CERTIFICATE_SIGNING', 'CRL_SIGNING', 'ENCIPHER_ONLY', 'DECIPHER_ONLY', 'ANY', 'CUSTOM']] | None" = Field(
         default_factory=list
     )
@@ -1067,7 +1036,6 @@ subject alternative names, use
     contained in the certificate. Possible extension values include DIGITAL_SIGNATURE,
     KEY_ENCHIPHERMENT, NON_REPUDIATION, and more.
     """
-
     ExtendedKeyUsages: "builtins.list[Literal['TLS_WEB_SERVER_AUTHENTICATION', 'TLS_WEB_CLIENT_AUTHENTICATION', 'CODE_SIGNING', 'EMAIL_PROTECTION', 'TIME_STAMPING', 'OCSP_SIGNING', 'IPSEC_END_SYSTEM', 'IPSEC_TUNNEL', 'IPSEC_USER', 'ANY', 'NONE', 'CUSTOM']] | None" = Field(
         default_factory=list
     )
@@ -1077,7 +1045,6 @@ subject alternative names, use
     Each object specifies a purpose for which the certificate public key can be used and
     consists of a name and an object identifier (OID).
     """
-
     ExportOption: "Literal['ENABLED', 'DISABLED'] | None" = None
     """
     Indicates if export is enabled for the certificate.
@@ -1123,6 +1090,7 @@ subject alternative names, use
 
     This value exists only when the certificate type is ``AMAZON_ISSUED``.
     """
+
     ImportedAt: "datetime | None" = None
     """
     The date and time when the certificate was imported.

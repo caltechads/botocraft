@@ -532,8 +532,8 @@ class LogGroup(TagsDictMixin, PrimaryBoto3Model):
     The Amazon Resource Name (ARN) of the KMS key to use when encrypting log data.
     """
 
-    dataProtectionStatus: Literal["ACTIVATED", "DELETED", "ARCHIVED", "DISABLED"] = (
-        Field(default=None, frozen=True)
+    dataProtectionStatus: "Literal['ACTIVATED', 'DELETED', 'ARCHIVED', 'DISABLED'] | None" = Field(
+        default=None, frozen=True
     )
     """
     Displays whether this log group has a protection policy, or whether it had one in
@@ -544,8 +544,8 @@ class LogGroup(TagsDictMixin, PrimaryBoto3Model):
     .html>`_.
     """
 
-    inheritedProperties: "builtins.list[Literal['ACCOUNT_DATA_PROTECTION']]" = Field(
-        default_factory=list, frozen=True
+    inheritedProperties: "builtins.list[Literal['ACCOUNT_DATA_PROTECTION']] | None" = (
+        Field(default_factory=list, frozen=True)
     )
     """
     Displays all the properties that this log group has inherited from account-level
