@@ -77,10 +77,6 @@ class ListMethodGenerator(ManagerMethodGenerator):
             response = {self.response_class}(**_response)
             if response.{self.response_attr}:
                 results.extend(response.{self.response_attr})
-            else:
-                if getattr(response, "NextToken", None):
-                    continue
-                break
         self.sessionize(results)
         if results and isinstance(results[0], Boto3Model):
             return PrimaryBoto3ModelQuerySet(results)
