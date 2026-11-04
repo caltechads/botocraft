@@ -6,7 +6,7 @@
 
 - Add `AgentCoreAgentRuntimeManager.list_versions(agentRuntimeId)` to list every version of an AgentCore Runtime across all result pages. It returns a queryset of `AgentCoreAgentRuntime` items with `agentRuntimeVersion`, `status` and `lastUpdatedAt`.
 
-- Add DocumentDB cluster parameter groups: `DocDBClusterParameterGroup` with `create`, `update`, `delete`, `get`, `list`, `copy` and `reset` on `DocDBClusterParameterGroupManager`. The model and manager were always in the service config but were never generated, because the config was indented under another model. Tags are filled in on `get`, `list`, `create` and `copy`.
+- Add DocumentDB cluster parameter groups: `DocDBClusterParameterGroup` with `create`, `update`, `delete`, `get`, `list`, `copy` and `reset` on `DocDBClusterParameterGroupManager`. The model and manager were always in the service config but were never generated, because the config was indented under another model. Tags are filled in on `get`, `list`, `create` and `copy`. `update` takes the `Parameters` to modify and returns the refreshed model (via `DocDBClusterParameterGroupManagerMixin`), since `ModifyDBClusterParameterGroup` only returns the name. `update` and `reset` take the new `DocDBParameter` model; DocDB's `Parameter` shape was resolving to the SSM `Parameter` model.
 
 ### Changed
 

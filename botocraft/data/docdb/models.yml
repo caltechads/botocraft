@@ -212,6 +212,8 @@ secondary:
     alternate_name: DocDBClusterParameterGroupNameMessage
   DBClusterParameterGroupsMessage:
     alternate_name: DocDBClusterParameterGroupsMessage
+  Parameter:
+    alternate_name: DocDBParameter
   DBInstanceMessage:
     alternate_name: DocDBInstanceMessage
   DBClusterMessage:

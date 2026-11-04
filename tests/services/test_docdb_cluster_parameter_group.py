@@ -63,3 +63,35 @@ def test_list_returns_typed_groups_with_tags_populated() -> None:
     manager.client.list_tags_for_resource.assert_called_once_with(ResourceName=ARN)
     assert groups[0].Tags is not None
     assert groups[0].Tags[0].Key == "team"
+
+
+def test_update_modifies_then_returns_the_refreshed_group() -> None:
+    from botocraft.services.docdb import DocDBParameter
+
+    describe = {
+        "DBClusterParameterGroups": [
+            {
+                "DBClusterParameterGroupName": "example",
+                "DBParameterGroupFamily": "docdb5.0",
+                "Description": "refreshed",
+                "DBClusterParameterGroupArn": ARN,
+            }
+        ]
+    }
+    manager = _manager([describe])
+    manager.client.describe_db_cluster_parameter_groups.return_value = describe
+    params = [
+        DocDBParameter(
+            ParameterName="tls", ParameterValue="disabled", ApplyMethod="pending-reboot"
+        )
+    ]
+
+    result = manager.update(_group(), params)
+
+    manager.client.modify_db_cluster_parameter_group.assert_called_once()
+    kwargs = manager.client.modify_db_cluster_parameter_group.call_args.kwargs
+    assert kwargs["DBClusterParameterGroupName"] == "example"
+    assert kwargs["Parameters"][0]["ParameterName"] == "tls"
+    assert isinstance(result, DocDBClusterParameterGroup)
+    assert result.Description == "refreshed"
+    assert result.Tags

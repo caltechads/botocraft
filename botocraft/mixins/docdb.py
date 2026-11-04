@@ -19,6 +19,7 @@ if TYPE_CHECKING:
         DocDBCluster,
         DocDBClusterParameterGroup,
         DocDBInstance,
+        DocDBParameter,
         DocDBSubnetGroup,
     )
 
@@ -285,6 +286,45 @@ def multiple_docdb_cluster_parameter_group_include_tags(
 # ----------
 # Mixins
 # ----------
+
+
+class DocDBClusterParameterGroupManagerMixin:
+    """
+    A mixin for
+    :py:class:`botocraft.services.docdb.DocDBClusterParameterGroupManager` that
+    adds ``update``.
+
+    ``ModifyDBClusterParameterGroup`` only returns the group name, so ``update``
+    is written by hand to fetch and return the refreshed model instead.
+    """
+
+    def update(
+        self,
+        model: "DocDBClusterParameterGroup",
+        Parameters: "list[DocDBParameter]",  # noqa: N803
+    ) -> "DocDBClusterParameterGroup":
+        """
+        Modify the parameters of a cluster parameter group and return the group
+        as it exists afterwards.
+
+        A maximum of 20 parameters can be modified in a single request.
+
+        Args:
+            model: The :py:class:`DocDBClusterParameterGroup` to update.
+            Parameters: The parameters to modify. Each needs ``ParameterName``,
+                ``ParameterValue`` and ``ApplyMethod``.
+
+        Returns:
+            The refreshed :py:class:`DocDBClusterParameterGroup`, with tags.
+
+        """
+        self.client.modify_db_cluster_parameter_group(  # type: ignore[attr-defined]
+            DBClusterParameterGroupName=model.DBClusterParameterGroupName,
+            Parameters=self.serialize(Parameters),  # type: ignore[attr-defined]
+        )
+        return self.get(  # type: ignore[attr-defined]
+            DBClusterParameterGroupName=model.DBClusterParameterGroupName
+        )
 
 
 class DocDBClusterModelMixin:

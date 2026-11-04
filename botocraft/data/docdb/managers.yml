@@ -143,6 +143,9 @@ DBSubnetGroup:
           import_path: botocraft.mixins.docdb
       boto3_name: describe_db_subnet_groups
 DBClusterParameterGroup:
+  mixins:
+    - name: DocDBClusterParameterGroupManagerMixin
+      import_path: botocraft.mixins.docdb
   methods:
     create:
       decorators:
@@ -150,9 +153,6 @@ DBClusterParameterGroup:
           import_path: botocraft.mixins.docdb
       boto3_name: create_db_cluster_parameter_group
       response_attr: DBClusterParameterGroup
-    update:
-      boto3_name: modify_db_cluster_parameter_group
-      response_attr: DBClusterParameterGroupName
     delete:
       boto3_name: delete_db_cluster_parameter_group
       return_type: None
