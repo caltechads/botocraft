@@ -12,6 +12,7 @@
 
 - `PrimaryBoto3ModelQuerySet` is now generic over its model class. Generated `list()` and `get_many()` methods return `PrimaryBoto3ModelQuerySet[Model]`, so type checkers know what iterating, indexing, `first()` and `all()` give back. A bare `PrimaryBoto3ModelQuerySet` annotation still works. This removes several hundred mypy errors from the generated services.
 - Generated service code now sorts its imports, so regenerating no longer reorders them.
+- Generated service files also disable the mypy codes `arg-type`, `attr-defined`, `return-value` and `valid-type`: decorated methods are annotated with the decorator's return type while the generated body returns the raw type. `mypy botocraft` is now clean.
 
 ### Fixed
 
