@@ -130,6 +130,8 @@ class AbstractGenerator:
         raise NotImplementedError
 
 
+#: Matches a stringified ``builtins.list[Name]`` type (optionally ``| None`` and
+#: optionally quoted) and captures the inner model name.
 _LIST_FORWARD_REF_RE = re.compile(
     r'^"?builtins\.list\[(\w+)\](?: \| None)?"?$',
 )
@@ -177,6 +179,11 @@ class BotocoreFieldsFormatter:
     model classes.  This class extracts and formats field definitions from
     botocore shapes, applying appropriate types, docstrings, and pydantic field
     configurations.
+
+    Args:
+        model_generator: The ModelGenerator instance that's using this
+            formatter.
+
     """
 
     def __init__(self, model_generator: "ModelGenerator") -> None:
@@ -383,6 +390,12 @@ class BotocoreFieldsFormatter:
                 if not python_type.endswith(" | None"):
                     python_type = python_type.strip('"')
                     python_type = f'"{python_type} | None"'
+            elif "Literal[" in python_type and not python_type.strip('"').endswith(
+                " | None"
+            ):
+                # Readonly and renamed optional fields keep their bare type, but
+                # a ``Literal`` with a ``None`` default must say it can be None.
+                python_type = f'"{python_type.strip(chr(34))} | None"'
             default = "None" if field_def.default is None else field_def.default
 
         # Determine displayed field name (could be renamed)
@@ -462,6 +475,11 @@ class ExtraFieldsFormatter:
     This class is responsible for generating field definitions for extra fields
     that are exclusively defined in the botocraft model definition and not
     present in the botocore service definition.
+
+    Args:
+        model_generator: The ModelGenerator instance that's using this
+            formatter.
+
     """
 
     def __init__(self, model_generator: "ModelGenerator") -> None:
@@ -596,8 +614,10 @@ class ExtraFieldsFormatter:
 
         """
         return (
-            field_def.python_type.startswith(("builtins.list[", '"builtins.list['))
-            or field_def.python_type.startswith(("dict[", '"dict['))
+            cast("str", field_def.python_type).startswith(
+                ("builtins.list[", '"builtins.list[')
+            )
+            or cast("str", field_def.python_type).startswith(("dict[", '"dict['))
         ) and field_def.default == "None"
 
     def _get_container_factory(self, field_def: ModelAttributeDefinition) -> str:
@@ -611,9 +631,10 @@ class ExtraFieldsFormatter:
             String with the default_factory configuration
 
         """
-        if field_def.python_type.startswith(("builtins.list[", '"builtins.list[')):
+        python_type = cast("str", field_def.python_type)
+        if python_type.startswith(("builtins.list[", '"builtins.list[')):
             return "default_factory=list"
-        if field_def.python_type.startswith(("dict[", '"dict[')):
+        if python_type.startswith(("dict[", '"dict[')):
             return "default_factory=dict"
         return f"default={field_def.default}"
 
@@ -621,9 +642,22 @@ class ExtraFieldsFormatter:
 class ModelGenerator(AbstractGenerator):
     """
     Generate pydantic model definitions from botocore shapes.
+
+    Args:
+        service_generator: The :py:class:`ServiceGenerator` we are generating
+            models for.
+
     """
 
     def __init__(self, service_generator: "ServiceGenerator") -> None:
+        """
+        Initialize the model generator and its field formatters.
+
+        Args:
+            service_generator: The :py:class:`ServiceGenerator` we are generating
+                models for.
+
+        """
         super().__init__(service_generator)
         #: The shape converter we will use to convert botocore shapes to python types
         self.shape_converter = PythonTypeShapeConverter(service_generator, self)
@@ -754,6 +788,9 @@ class ModelGenerator(AbstractGenerator):
         :py:class:`ModelAttributeDefinitions` from the  ``fields`` attribute of
         the associated model definition, if it exists.
 
+        Args:
+            model_name: The name of the model whose fields we want.
+
         Note:
             This really only makes sense on
             :py:class:`botocore.model.StructureShape` objects or bespoke
@@ -881,9 +918,8 @@ class ModelGenerator(AbstractGenerator):
         """
         return self.{model_def.primary_key}
 '''
-            should_emit_arn_property = (
-                bool(model_def.arn_key)
-                and not (model_def.arn_key == "arn" and "arn" in model_field_names)
+            should_emit_arn_property = bool(model_def.arn_key) and not (
+                model_def.arn_key == "arn" and "arn" in model_field_names
             )
             if should_emit_arn_property:
                 properties += f'''
@@ -900,9 +936,8 @@ class ModelGenerator(AbstractGenerator):
         return self.{model_def.arn_key}
 '''
 
-            should_emit_name_property = (
-                bool(model_def.name_key)
-                and not (model_def.name_key == "name" and "name" in model_field_names)
+            should_emit_name_property = bool(model_def.name_key) and not (
+                model_def.name_key == "name" and "name" in model_field_names
             )
             if should_emit_name_property:
                 properties += f'''
@@ -1343,9 +1378,21 @@ class ManagerGenerator(AbstractGenerator):
     }
 
     def __init__(self, service_generator: "ServiceGenerator") -> None:
+        """
+        Initialize the manager generator and create a boto3 client for the
+        service.
+
+        Args:
+            service_generator: The :py:class:`ServiceGenerator` we are generating
+                managers for.
+
+        """
         super().__init__(service_generator)
+        #: The model generator of the owning service generator
         self.model_generator = self.service_generator.model_generator
+        #: The shape converter shared with the model generator
         self.shape_converter = self.model_generator.shape_converter
+        #: The boto3 client for the service we are generating managers for
         self.client = boto3.client(self.service_name)  # type: ignore[call-overload]
 
     def _mixin_method_names(self, manager_def: ManagerDefinition) -> set[str]:
@@ -1454,6 +1501,13 @@ class {manager_name}({base_class}):
         return generator
 
     def generate_all_manager_models(self) -> None:
+        """
+        Generate a manager for every manager defined in the service definition.
+
+        Side Effects:
+            Populates the generated manager and response classes, and merges the
+            model generator's imports into this generator's imports.
+        """
         for model_name, manager_def in self.service_def.managers.items():
             self.generate_manager(model_name, manager_def)
         self.imports.update(self.model_generator.imports)
@@ -1475,9 +1529,19 @@ class ServiceGenerator:
 
     """
 
+    #: The directory where the generated service modules are written
     service_path: Path = Path(__file__).parent.parent / "services"
 
     def __init__(self, service_def: ServiceDefinition) -> None:
+        """
+        Initialize the service generator and its model, manager and Sphinx
+        documentation generators.
+
+        Args:
+            service_def: The :py:class:`ServiceDefinition` for the service we are
+                generating code for.
+
+        """
         #: The service definition
         self.service_def = service_def
         #: The botocraft interface object, where we will collect all our global data
@@ -1512,6 +1576,10 @@ class ServiceGenerator:
     def aws_service_name(self) -> str:
         """
         Return the boto3 service name for this service.
+
+        Returns:
+            The boto3 service name.
+
         """
         return self.service_def.name
 
@@ -1520,6 +1588,10 @@ class ServiceGenerator:
         """
         Return the safe service name for this service.  This is the name we
         use to generate the file name for the service.
+
+        Returns:
+            The service name made safe for use in a file or module name.
+
         """
         return self.service_def.safe_service_name
 
@@ -1538,6 +1610,11 @@ class ServiceGenerator:
     def classes(self) -> dict[str, str]:
         """
         Return a dictionary of all the classes we have generated.
+
+        Returns:
+            A mapping of class names to code for the model, response and manager
+            classes, in that order.
+
         """
         return {
             **self.model_classes,
@@ -1549,6 +1626,10 @@ class ServiceGenerator:
     def code(self) -> str:
         """
         The code for this service.
+
+        Returns:
+            The complete source code of the generated service module.
+
         """
         imports = "\n".join(sorted(self.imports))
         model_classes = "\n\n".join(self.model_classes.values())

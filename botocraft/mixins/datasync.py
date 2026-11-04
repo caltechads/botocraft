@@ -113,7 +113,9 @@ def _sync_tags(manager: Any, resource_arn: str, tags: list[Tag]) -> None:
     current = {tag.Key: tag.Value for tag in current_tags}
     desired = {tag.Key: tag.Value for tag in tags}
 
-    keys_to_remove = sorted(set(current) - set(desired))
+    keys_to_remove = sorted(
+        key for key in set(current) - set(desired) if key is not None
+    )
     tags_to_upsert = [tag for tag in tags if current.get(tag.Key) != tag.Value]
 
     if keys_to_remove:
@@ -326,6 +328,7 @@ def _location_list_decorator(
         return wrapper
 
     return decorator
+
 
 #: Decorator that lists Azure Blob locations by scanning all DataSync locations.
 datasync_list_azure_blob_locations = _location_list_decorator(

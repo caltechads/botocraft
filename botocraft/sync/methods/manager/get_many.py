@@ -50,6 +50,18 @@ class GetManyMethodGenerator(ManagerMethodGenerator):
 
     @property
     def body(self) -> str:
+        """
+        Return the body of the ``get_many`` method.
+
+        Side Effects:
+            Adds the ``PrimaryBoto3ModelQuerySet`` import to the generator's
+            imports.
+
+        Returns:
+            The source code of the method body, which makes the boto3 call and
+            returns the results as a ``PrimaryBoto3ModelQuerySet``.
+
+        """
         self.imports.add("from .abstract import PrimaryBoto3ModelQuerySet")
         code = f"""
         {self.operation_args}

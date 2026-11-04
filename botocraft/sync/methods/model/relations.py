@@ -180,6 +180,11 @@ class ModelRelationGenerator:
     def _mapping_body(self) -> str:
         """
         Return the method body for a mapping transformer.
+
+        Returns:
+            The source code of the method body that builds the lookup key from
+            the configured mapping and fetches the related model.
+
         """
         assert self.property_def.transformer.mapping is not None, (
             f"Mapping: no mapping defined for property {self.property_name} "

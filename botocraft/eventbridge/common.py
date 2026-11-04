@@ -78,6 +78,7 @@ def second_resource(resources: list[str]) -> str | None:
 def event_summary(
     event_name: str,
     event: EventSummaryProtocol,
+    /,
     **details: object,
 ) -> str:
     """

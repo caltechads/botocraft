@@ -61,8 +61,8 @@ def log_groups_only(
 
 
 def create_log_group_extended(
-    func: Callable[..., LogGroup],
-) -> Callable[..., LogGroup]:
+    func: Callable[..., None],
+) -> Callable[..., None]:
     """
     Wraps :py:meth:`botocraft.services.logs.LogGroupManager.create` to create a
     log group with extended functionality.
@@ -76,9 +76,9 @@ def create_log_group_extended(
     """
 
     @wraps(func)
-    def wrapper(self, model: LogGroup) -> LogGroup:
+    def wrapper(self, model: LogGroup, tags: dict[str, str] | None = None) -> None:
         # create_log_group returns nothing
-        func(self, model)
+        func(self, model, tags)
 
         # Now add our retention
         self.client.put_retention_policy(
@@ -88,7 +88,7 @@ def create_log_group_extended(
         # Put our tags
         self.client.tag_log_group(
             logGroupName=model.logGroupName,
-            tags=[{"Key": tag.Key, "Value": tag.Value} for tag in model.Tags],
+            tags=[{"Key": tag.Key, "Value": tag.Value} for tag in model.Tags or []],
         )
 
     return wrapper
@@ -292,7 +292,7 @@ class LogGroupManagerMixin:
                 tagKeys=[tag["Key"]],
             )
         # reformat our tags to the format expected by the API
-        tags = [{"Key": tag.Key, "Value": tag.Value} for tag in model.Tags]
+        tags = [{"Key": tag.Key, "Value": tag.Value} for tag in model.Tags or []]
         self.client.tag_log_group(
             logGroupName=model.LogGroupName,
             tags=tags,
@@ -347,7 +347,9 @@ class LogGroupManagerMixin:
         raise WaiterError(
             name="logs_query_complete",
             reason=reason,
-            last_response=response.model_dump() if response is not None else {},
+            last_response=cast(
+                "Any", response.model_dump() if response is not None else {}
+            ),
         )
 
     def _collect_query_result_pages(

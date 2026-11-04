@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from functools import cached_property
-from typing import TYPE_CHECKING, Protocol
+from typing import TYPE_CHECKING, Any, Protocol
 
 from botocraft.eventbridge.base import EventBridgeEvent
 from botocraft.eventbridge.common import (
@@ -68,6 +68,14 @@ class ElastiCacheNotificationEvent:
     #: Native ElastiCache notification detail payload.
     detail: ElastiCacheNotificationDetailProtocol
 
+    #: AWS account that emitted the event.
+    account: str
+    #: Event source identifier.
+    source: str
+    #: Timestamp when EventBridge recorded the event.
+    time: Any
+    #: AWS region where the event was emitted.
+    region: str
     #: EventBridge resource ARNs attached by raw event models.
     resources: list[str]
     #: Boto3 session attached by :class:`~botocraft.eventbridge.factory.EventFactory`.
@@ -403,7 +411,7 @@ class ElastiCacheAWSAPICallViaCloudTrailEvent(
 
 
 #: Declarative mapping from EventBridge source/detail-type pairs to wrappers.
-EVENT_CLASS_MAP = {
+EVENT_CLASS_MAP: dict[tuple[str, str], type[EventBridgeEvent]] = {
     ("aws.elasticache", "Cache Created"): ElastiCacheCacheCreatedEvent,
     (
         "aws.elasticache",

@@ -397,6 +397,10 @@ class ManagerMethodGenerator:
         Example:
             ``name=name, description=description``
 
+        Returns:
+            The ``args: dict[str, Any] = dict(...)`` statement that builds the
+            arguments for the boto3 call.
+
         """
         args = self.args(location="operation")
         kwargs = self.kwargs(location="operation")
@@ -737,6 +741,11 @@ class ManagerMethodGenerator:
     def docstring(self) -> str | None:
         """
         Return the docstring for the method.
+
+        Returns:
+            The rendered method docstring with the backslash escapes removed, or
+            ``None`` if the docstring definition is empty.
+
         """
         docs = self.docstrings_def.render(self.docformatter)
         if not docs:

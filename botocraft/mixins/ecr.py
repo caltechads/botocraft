@@ -185,7 +185,7 @@ def image_list_images_ecr_images_only(
             )
             if _images:
                 images.extend(_images.images)
-        return PrimaryBoto3ModelQuerySet(images)  # type: ignore[arg-type]
+        return PrimaryBoto3ModelQuerySet(images)  # type: ignore[arg-type,return-value]
 
     return wrapper
 
@@ -402,7 +402,7 @@ class ECRImageManagerMixin:
             # names or match the repository prefix.
             if repositoryNames and image.repositoryName not in repositoryNames:
                 del _used_images[image.image]
-            if repositoryPrefix and not image.repositoryName.startswith(
+            if repositoryPrefix and not (image.repositoryName or "").startswith(
                 repositoryPrefix
             ):
                 del _used_images[image.image]
@@ -410,7 +410,7 @@ class ECRImageManagerMixin:
             # the repository tags to see if it matches the supplied tags.
             repo = image.repository
             for tag in tags:
-                if tag not in repo.tags or tags[tag] != repo.tags[tag]:
+                if tag not in repo.tags or tags[tag] != repo.tags[tag]:  # type: ignore[union-attr]
                     del _used_images[image.image]
 
         # Now we should have a list of images that are in use by task definitions,

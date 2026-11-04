@@ -14,7 +14,7 @@ if TYPE_CHECKING:
     from botocraft.connectivity import ResolvedConnectionTarget
     from botocraft.services.abstract import PrimaryBoto3ModelQuerySet
     from botocraft.services.common import Credentials
-    from botocraft.services.docdb import (
+    from botocraft.services.docdb import (  # type: ignore[attr-defined]
         ClusterMasterUserSecret,
         DocDBCluster,
         DocDBInstance,
@@ -33,6 +33,14 @@ def single_docdb_cluster_include_tags(
     """
     Decorator to convert a :py:class:`botocraft.services.docdb.DocDBCluster` object
     to a :py:class:`botocraft.services.docdb.DocDBCluster` object with tags included.
+
+    Args:
+        func: The manager method returning a single cluster.
+
+    Returns:
+        A wrapper that calls ``func`` and sets ``Tags`` on the returned
+        cluster.
+
     """
 
     @wraps(func)
@@ -55,6 +63,14 @@ def multiple_docdb_cluster_include_tags(
     :py:class:`botocraft.services.abstract.PrimaryBoto3ModelQuerySet` of
     :py:class:`botocraft.services.docdb.DocDBCluster` objects with tags
     included.
+
+    Args:
+        func: The manager method returning a queryset of clusters.
+
+    Returns:
+        A wrapper that calls ``func`` and returns a new queryset whose
+        clusters have ``Tags`` populated.
+
     """
 
     @wraps(func)
@@ -78,6 +94,14 @@ def single_docdb_instance_include_tags(
     """
     Decorator to convert a :py:class:`botocraft.services.docdb.DocDBInstance` object
     to a :py:class:`botocraft.services.docdb.DocDBInstance` object with tags included.
+
+    Args:
+        func: The manager method returning a single instance.
+
+    Returns:
+        A wrapper that calls ``func`` and sets ``Tags`` on the returned
+        instance.
+
     """
 
     @wraps(func)
@@ -100,6 +124,14 @@ def multiple_docdb_instance_include_tags(
     :py:class:`botocraft.services.abstract.PrimaryBoto3ModelQuerySet` of
     :py:class:`botocraft.services.docdb.DocDBInstance` objects with tags
     included.
+
+    Args:
+        func: The manager method returning a queryset of instances.
+
+    Returns:
+        A wrapper that calls ``func`` and returns a new queryset whose
+        instances have ``Tags`` populated.
+
     """
 
     @wraps(func)
@@ -126,6 +158,14 @@ def single_docdb_subnet_group_include_tags(
     Decorator to convert a :py:class:`botocraft.services.docdb.DocDBSubnetGroup`
     object to a :py:class:`botocraft.services.docdb.DocDBSubnetGroup` object
     with tags included.
+
+    Args:
+        func: The manager method returning a single subnet group.
+
+    Returns:
+        A wrapper that calls ``func`` and sets ``Tags`` on the returned
+        subnet group.
+
     """
 
     @wraps(func)
@@ -134,7 +174,7 @@ def single_docdb_subnet_group_include_tags(
         tags = self.client.list_tags_for_resource(
             ResourceName=response.DBSubnetGroupArn
         )
-        response.Tags = tags["TagList"]
+        response.Tags = tags["TagList"]  # type: ignore[attr-defined]
         return response
 
     return wrapper
@@ -150,6 +190,14 @@ def multiple_docdb_subnet_group_include_tags(
     :py:class:`botocraft.services.abstract.PrimaryBoto3ModelQuerySet` of
     :py:class:`botocraft.services.docdb.DocDBSubnetGroup` objects with tags
     included.
+
+    Args:
+        func: The manager method returning a queryset of subnet groups.
+
+    Returns:
+        A wrapper that calls ``func`` and returns a new queryset whose
+        subnet groups have ``Tags`` populated.
+
     """
 
     @wraps(func)
@@ -176,6 +224,14 @@ def single_docdb_parameter_group_include_tags(
     Decorator to convert a :py:class:`botocraft.services.docdb.DocDBParameterGroup`
     object to a :py:class:`botocraft.services.docdb.DocDBParameterGroup` object
     with tags included.
+
+    Args:
+        func: The manager method returning a single parameter group.
+
+    Returns:
+        A wrapper that calls ``func`` and sets ``Tags`` on the returned
+        parameter group.
+
     """
 
     @wraps(func)
@@ -200,6 +256,14 @@ def multiple_docdb_parameter_group_include_tags(
     :py:class:`botocraft.services.abstract.PrimaryBoto3ModelQuerySet` of
     :py:class:`botocraft.services.docdb.DocDBParameterGroup` objects with tags
     included.
+
+    Args:
+        func: The manager method returning a queryset of parameter groups.
+
+    Returns:
+        A wrapper that calls ``func`` and returns a new queryset whose
+        parameter groups have ``Tags`` populated.
+
     """
 
     @wraps(func)

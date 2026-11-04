@@ -234,6 +234,11 @@ class ModelManagerMethodGenerator:
     def docstring(self) -> str | None:
         """
         Return the docstring for the method.
+
+        Returns:
+            The rendered method docstring, or ``None`` if the docstring
+            definition is empty.
+
         """
         return self.docstrings_def.render(self.docformatter)
 

@@ -282,7 +282,7 @@ class ACMAWSAPICallViaCloudTrailEvent(
 
 
 #: Declarative mapping from EventBridge source/detail-type pairs to wrappers.
-EVENT_CLASS_MAP = {
+EVENT_CLASS_MAP: dict[tuple[str, str], type[EventBridgeEvent]] = {
     (
         "aws.acm",
         "ACM Certificate Approaching Expiration",

@@ -13,6 +13,9 @@
 
 ### Fixed
 
+- `str()` on OpenSearch and Elasticsearch EventBridge events no longer raises `TypeError`. The summary helper took a detail called `event` and a positional parameter with the same name.
+- `LogGroupManager.create()` now accepts `tags`, as its signature always said it should, and passes them on.
+- Optional read-only fields that hold an enum value are now typed `... | None` in the generated models, since their default is `None`.
 - Generated `list()` methods no longer stop at an empty page that still has a token for the next page. Before this fix, an API that names its token `nextToken`, `Marker` or similar could silently return only the pages before the empty one.
 
 ## [0.36.0] - 2026-10-23

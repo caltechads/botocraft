@@ -306,13 +306,16 @@ class KinesisShardManagerMixin:
             ValueError: Required iterator inputs are missing.
 
         """
-        if ShardIteratorType in {
-            "AT_SEQUENCE_NUMBER",
-            "AFTER_SEQUENCE_NUMBER",
-        } and not StartingSequenceNumber:
+        if (
+            ShardIteratorType
+            in {
+                "AT_SEQUENCE_NUMBER",
+                "AFTER_SEQUENCE_NUMBER",
+            }
+            and not StartingSequenceNumber
+        ):
             msg = (
-                "starting_sequence_number is required for "
-                f"{ShardIteratorType.lower()}."
+                f"starting_sequence_number is required for {ShardIteratorType.lower()}."
             )
             raise ValueError(msg)
         if ShardIteratorType == "AT_TIMESTAMP" and Timestamp is None:
@@ -692,13 +695,16 @@ class KinesisStreamPoller:
         if self.poll_interval_seconds < 0:
             msg = "poll_interval_seconds must be non-negative."
             raise ValueError(msg)
-        if self.shard_iterator_type in {
-            "AT_SEQUENCE_NUMBER",
-            "AFTER_SEQUENCE_NUMBER",
-        } and not self.starting_sequence_number:
+        if (
+            self.shard_iterator_type
+            in {
+                "AT_SEQUENCE_NUMBER",
+                "AFTER_SEQUENCE_NUMBER",
+            }
+            and not self.starting_sequence_number
+        ):
             msg = (
-                "starting_sequence_number is required for "
-                f"{self.shard_iterator_type}."
+                f"starting_sequence_number is required for {self.shard_iterator_type}."
             )
             raise ValueError(msg)
         if self.shard_iterator_type == "AT_TIMESTAMP" and self.timestamp is None:
@@ -744,7 +750,8 @@ class KinesisStreamPoller:
             StreamARN=self.stream.StreamARN,
             ShardId=shard_id,
         )
-        record.set_session(self.stream.session)
+        if self.stream.session is not None:
+            record.set_session(self.stream.session)
         return record
 
     def poll(self) -> Generator[KinesisRecord, None, None]:

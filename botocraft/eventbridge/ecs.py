@@ -50,6 +50,10 @@ class ECSTaskStateChangeEvent(EventBridgeEvent, RawECSTaskStateChangeEvent):
     def __str__(self) -> str:
         """
         Return a string representation of the event.
+
+        Returns:
+            A human-readable summary of the event.
+
         """
         cluster_name = self.detail.clusterArn.split("/")[-1]
         family_and_revision = self.detail.taskDefinitionArn.split("/")[-1]
@@ -70,6 +74,8 @@ class ECSTaskStateChangeEvent(EventBridgeEvent, RawECSTaskStateChangeEvent):
         Get the :py:class:`~botocraft.services.ecs.TaskDefinition` object
         from the event.
 
+        Returns:
+            The task definition that the task is running.
 
         """
         from botocraft.services.ecs import TaskDefinition
@@ -82,6 +88,10 @@ class ECSTaskStateChangeEvent(EventBridgeEvent, RawECSTaskStateChangeEvent):
     def cluster(self) -> "Cluster":
         """
         Get the cluster name from the event.
+
+        Returns:
+            The cluster the event refers to.
+
         """
         from botocraft.services.ecs import Cluster
 
@@ -91,6 +101,11 @@ class ECSTaskStateChangeEvent(EventBridgeEvent, RawECSTaskStateChangeEvent):
     def container_instance(self) -> "ContainerInstance | None":
         """
         Get the container instance ARN from the event.
+
+        Returns:
+            The container instance the event refers to, or ``None`` if the
+            event has no container instance ARN.
+
         """
         from botocraft.services.ecs import ContainerInstance
 
@@ -104,6 +119,10 @@ class ECSTaskStateChangeEvent(EventBridgeEvent, RawECSTaskStateChangeEvent):
     def task(self) -> str:
         """
         Get the task ARN from the event.
+
+        Returns:
+            The task the event refers to.
+
         """
         from botocraft.services.ecs import Task
 
@@ -115,6 +134,11 @@ class ECSTaskStateChangeEvent(EventBridgeEvent, RawECSTaskStateChangeEvent):
     def architecture(self) -> str:
         """
         Get the architecture of the task from the event.
+
+        Returns:
+            The CPU architecture of the task, defaulting to ``x86_64`` when the
+            event carries no ``ecs.architecture`` attribute.
+
         """
         for attribute in self.detail.attributes:
             if attribute.name == "ecs.architecture":
@@ -125,6 +149,10 @@ class ECSTaskStateChangeEvent(EventBridgeEvent, RawECSTaskStateChangeEvent):
     def is_fargate(self) -> bool:
         """
         Check if the task is a Fargate task.
+
+        Returns:
+            ``True`` if the task launch type is ``FARGATE``, ``False`` otherwise.
+
         """
         return self.detail.launchType == "FARGATE"
 
@@ -137,6 +165,10 @@ class ECSServiceActionEvent(EventBridgeEvent, RawECSServiceActionEvent):
     def __str__(self) -> str:
         """
         Return a string representation of the event.
+
+        Returns:
+            A human-readable summary of the event.
+
         """
         cluster_name = self.detail.clusterArn.split("/")[-1]
         service_names = [resource.split("/")[-1] for resource in self.resources or []]
@@ -155,6 +187,10 @@ class ECSServiceActionEvent(EventBridgeEvent, RawECSServiceActionEvent):
     def cluster(self) -> "Cluster":
         """
         Get the cluster name from the event.
+
+        Returns:
+            The cluster the event refers to.
+
         """
         from botocraft.services.ecs import Cluster
 
@@ -164,6 +200,11 @@ class ECSServiceActionEvent(EventBridgeEvent, RawECSServiceActionEvent):
     def tasks(self) -> list["Task"] | None:
         """
         Get the task ARNs from the event.
+
+        Returns:
+            The tasks named in the event, or ``None`` if the event names no
+            tasks.
+
         """
         from botocraft.services.ecs import Task
 
@@ -180,6 +221,11 @@ class ECSServiceActionEvent(EventBridgeEvent, RawECSServiceActionEvent):
     def container_instances(self) -> list["ContainerInstance"] | None:
         """
         Get the container instance ARN from the event.
+
+        Returns:
+            The container instances named in the event, or ``None`` if the
+            event names no container instances.
+
         """
         from botocraft.services.ecs import ContainerInstance
 
@@ -198,6 +244,10 @@ class ECSServiceActionEvent(EventBridgeEvent, RawECSServiceActionEvent):
     def services(self) -> list["Service"]:
         """
         Get the service ARN from the event.
+
+        Returns:
+            The services named in the event resources.
+
         """
         from botocraft.services.ecs import Service
 
@@ -212,6 +262,10 @@ class ECSServiceActionEvent(EventBridgeEvent, RawECSServiceActionEvent):
     def event_type(self) -> str:
         """
         Get the event type from the event.
+
+        Returns:
+            The event type reported in the event detail.
+
         """
         return self.detail.eventType
 
@@ -226,6 +280,10 @@ class ECSContainerInstanceStateChangeEvent(
     def __str__(self) -> str:
         """
         Return a string representation of the event.
+
+        Returns:
+            A human-readable summary of the event.
+
         """
         cluster_name = self.detail.clusterArn.split("/")[-1]
         return (
@@ -243,6 +301,10 @@ class ECSContainerInstanceStateChangeEvent(
     def cluster(self) -> "Cluster":
         """
         Get the cluster name from the event.
+
+        Returns:
+            The cluster the event refers to.
+
         """
         from botocraft.services.ecs import Cluster
 
@@ -252,6 +314,10 @@ class ECSContainerInstanceStateChangeEvent(
     def container_instance(self) -> "ContainerInstance":
         """
         Get the container instance ARN from the event.
+
+        Returns:
+            The container instance the event refers to.
+
         """
         from botocraft.services.ecs import ContainerInstance
 
@@ -266,6 +332,9 @@ class ECSContainerInstanceStateChangeEvent(
         Return the remaining resources (CPU and memory) on the container
         instance.
 
+        Returns:
+            The CPU and memory still available on the container instance.
+
         """
         for resource in self.detail.remainingResources:
             if resource.name == "CPU":
@@ -279,6 +348,9 @@ class ECSContainerInstanceStateChangeEvent(
         """
         Return the full system resources (CPU and memory) of the container
         instance.
+
+        Returns:
+            The total CPU and memory registered for the container instance.
 
         """
         for resource in self.detail.registeredResources:
@@ -299,6 +371,10 @@ class ECSServiceDeploymentStateChangeEvent(
     def __str__(self) -> str:
         """
         Return a string representation of the event.
+
+        Returns:
+            A human-readable summary of the event.
+
         """
         return (
             f"<Event: ECS Service Deployment Change: account={self.account}, "
@@ -315,6 +391,10 @@ class ECSServiceDeploymentStateChangeEvent(
     def cluster(self) -> "Cluster":
         """
         Get the cluster name from the event.
+
+        Returns:
+            The cluster the event refers to.
+
         """
         from botocraft.services.ecs import Cluster
 
@@ -324,6 +404,10 @@ class ECSServiceDeploymentStateChangeEvent(
     def service(self) -> "Service":
         """
         Get the service ARN from the event.
+
+        Returns:
+            The service the event refers to.
+
         """
         from botocraft.services.ecs import Service
 
@@ -347,6 +431,10 @@ class ECSAWSAPICallViaCloudTrailEvent(
     def __str__(self) -> str:
         """
         Return a string representation of the event.
+
+        Returns:
+            A human-readable summary of the event.
+
         """
         return (
             f"<Event: ECS API Call via CloudTrail: account={self.account}, "
@@ -378,6 +466,10 @@ class ECSAWSAPICallViaCloudTrailEvent(
     def clusters(self) -> list["Cluster"]:
         """
         Get the cluster name from the event.
+
+        Returns:
+            The clusters for the tasks in the CloudTrail response elements.
+
         """
         from botocraft.services.ecs import Cluster
 
@@ -395,6 +487,11 @@ class ECSAWSAPICallViaCloudTrailEvent(
     def task_definitions(self) -> list["TaskDefinition"]:
         """
         Get the task definition name from the event.
+
+        Returns:
+            The task definitions for the tasks in the CloudTrail response
+            elements.
+
         """
         from botocraft.services.ecs import TaskDefinition
 
@@ -414,6 +511,10 @@ class ECSAWSAPICallViaCloudTrailEvent(
     def tasks(self) -> list["Task"]:
         """
         Get the task ARN from the event.
+
+        Returns:
+            The tasks in the CloudTrail response elements.
+
         """
         from botocraft.services.ecs import Task
 
@@ -434,6 +535,11 @@ class ECSAWSAPICallViaCloudTrailEvent(
     def container_instances(self) -> list["ContainerInstance"]:
         """
         Get the container instance ARN from the event.
+
+        Returns:
+            The container instances for the tasks in the CloudTrail response
+            elements.
+
         """
         from botocraft.services.ecs import ContainerInstance
 
