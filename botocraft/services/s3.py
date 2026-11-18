@@ -12,11 +12,13 @@ from .abstract import PrimaryBoto3ModelQuerySet
 from botocore.response import StreamingBody
 from botocraft.mixins.s3 import BucketManagerMixin
 from botocraft.mixins.s3 import GetObjectOutputMixin
+from botocraft.mixins.s3 import S3ObjectMixin
 from botocraft.mixins.s3 import bucket_list_names_to_buckets
 from botocraft.mixins.s3 import bucket_update_safe_get_lifecycle
+from botocraft.mixins.s3 import object_create_return_model
+from botocraft.mixins.s3 import object_get_add_bucket_name_and_key
 from botocraft.mixins.s3 import object_list_add_bucket_name_and_tags
 from botocraft.mixins.tags import TagsDictMixin
-from botocraft.services.bedrock_runtime import S3Location
 from botocraft.services.common import Tag
 from collections import OrderedDict
 from datetime import datetime
@@ -631,6 +633,7 @@ class BucketManager(BucketManagerMixin, Boto3ModelManager):
 class S3ObjectManager(Boto3ModelManager):
     service_name: str = "s3"
 
+    @object_create_return_model
     def create(
         self,
         model: "S3Object",
@@ -679,7 +682,7 @@ class S3ObjectManager(Boto3ModelManager):
         ObjectLockEventHoldDurationDays: "int | None" = None,
         ObjectLockEventHoldDurationYears: "int | None" = None,
         ExpectedBucketOwner: "str | None" = None,
-    ) -> "PutObjectOutput":
+    ) -> "S3Object":
         """
         End of support notice: As of October 1, 2025, Amazon S3 has discontinued support
         for Email Grantee Access Control Lists (ACLs). If you attempt to use an Email
@@ -934,7 +937,7 @@ class S3ObjectManager(Boto3ModelManager):
         response = PutObjectOutput(**_response)
 
         self.sessionize(response)
-        return cast("PutObjectOutput", response)
+        return cast("S3Object", response)
 
     def update(
         self,
@@ -1246,6 +1249,7 @@ class S3ObjectManager(Boto3ModelManager):
         self.sessionize(response)
         return cast("PutObjectOutput", response)
 
+    @object_get_add_bucket_name_and_key
     def get(
         self,
         Bucket: str,
@@ -3961,6 +3965,7 @@ class S3RestoreStatus(Boto3Model):
     If the object restoration is in progress, the header returns the value ``TRUE``. For
     example:
     """
+
     RestoreExpiryDate: "datetime | None" = None
     """
     Indicates when the restored copy will expire.
@@ -3969,7 +3974,7 @@ class S3RestoreStatus(Boto3Model):
     example:
     """
 
-class S3Object(TagsDictMixin, PrimaryBoto3Model):
+class S3Object(TagsDictMixin, S3ObjectMixin, PrimaryBoto3Model):
     """
     An object consists of data and its descriptive metadata.
     """
@@ -4078,18 +4083,6 @@ class S3Object(TagsDictMixin, PrimaryBoto3Model):
             }
         )
 
-    def contents(self) -> "GetObjectOutput":
-        """
-        Retrieves an object from Amazon S3.
-        """
-        return (
-            cast("S3ObjectManager", self.objects)  # type: ignore[attr-defined]
-            .using(self.session)
-            .get(
-                cast("str", self.BucketName),
-                cast("str", self.Key),
-            )
-        )
 
 class S3Grantee(Boto3Model):
     """
@@ -4181,6 +4174,7 @@ class S3TargetObjectKeyFormat(Boto3Model):
     """
     Partitioned S3 key for log objects.
     """
+
 class BucketLoggingConfiguration(Boto3Model):
     """
     Describes where logs are stored and the prefix that Amazon S3 assigns to all log
@@ -4191,7 +4185,6 @@ class BucketLoggingConfiguration(Boto3Model):
     in the
     *Amazon S3 API Reference*.
     """
-
     TargetBucket: str
     """
     Specifies the bucket where you want Amazon S3 to store server access logs.
@@ -4220,10 +4213,12 @@ class BucketLoggingConfiguration(Boto3Model):
     """
     Amazon S3 key format for log objects.
     """
+
 class S3CORSRule(Boto3Model):
     """
     Specifies a cross-origin access rule for an Amazon S3 bucket.
     """
+
     ID: "str | None" = None
     """
     Unique identifier for the rule.
@@ -4256,7 +4251,6 @@ class S3CORSRule(Boto3Model):
     One or more headers in the response that you want customers to be able to access
     from their applications (for example, from a JavaScript ``XMLHttpRequest`` object).
     """
-
     MaxAgeSeconds: "int | None" = None
     """
     The time in seconds that your browser is to cache the preflight response for the
@@ -4313,7 +4307,6 @@ class GetBucketWebsiteOutput(Boto3Model):
     """
     The object key name of the website error document to use for 4XX class errors.
     """
-
     RoutingRules: "builtins.list[S3RoutingRule] | None" = Field(default_factory=list)
     """
     Rules that define when a redirect is applied and the redirect behavior.
@@ -4324,8 +4317,6 @@ class GetBucketTaggingOutput(Boto3Model):
     """
     Contains the tag set.
     """
-
-
 class S3Tagging(Boto3Model):
     """
     Container for ``TagSet`` elements.
@@ -4377,6 +4368,7 @@ expiration. The value of the ``rule-id`` is URL-encoded.
     """
     Entity tag for the uploaded object.
     """
+
     ChecksumCRC32: "str | None" = None
     """
     The Base64 encoded, 32-bit ``CRC32 checksum`` of the object.
@@ -4448,7 +4440,6 @@ expiration. The value of the ``rule-id`` is URL-encoded.
     algorithm. For more information, see
     `Checking object integrity in the Amazon S3 User Guide <https://docs.aws.amazon.com/AmazonS3/latest/userguide/checking-object-integrity.html>`_.
     """
-
     ChecksumMD5: "str | None" = None
     """
     The Base64 encoded, 128-bit ``MD5`` digest of the object.
@@ -4465,6 +4456,7 @@ expiration. The value of the ``rule-id`` is URL-encoded.
     algorithm. For more information, see
     `Checking object integrity in the Amazon S3 User Guide <https://docs.aws.amazon.com/AmazonS3/latest/userguide/checking-object-integrity.html>`_.
     """
+
     ChecksumXXHASH3: "str | None" = None
     """
     The Base64 encoded, 64-bit ``XXHASH3`` checksum of the object.
@@ -4550,7 +4542,6 @@ expiration. The value of the ``rule-id`` is URL-encoded.
 
     This value is only be present if you append to an object.
     """
-
     RequestCharged: "Literal['requester'] | None" = None
     """
     If present, indicates that the requester was successfully charged for the request.
@@ -4588,7 +4579,6 @@ date`` and ``rule-id`` key-value pairs providing object expiration information. 
 value of the ``rule-id`` is URL-
 encoded.
     """
-
     Restore: "str | None" = None
     """
     Provides information about object restoration action and expiration time of the
@@ -4598,6 +4588,7 @@ encoded.
     """
     Date and time when the object was last modified.
     """
+
     ContentLength: "int | None" = None
     """
     Size of the body in bytes.
@@ -4649,7 +4640,6 @@ encoded.
     in the *Amazon S3 User
     Guide*.
     """
-
     ChecksumSHA256: "str | None" = None
     """
     The Base64 encoded, 256-bit ``SHA256`` digest of the object.
@@ -4667,6 +4657,7 @@ encoded.
     For more information, see
     `Checking object integrity in the Amazon S3 User Guide <https://docs.aws.amazon.com/AmazonS3/latest/userguide/checking-object-integrity.html>`_.
     """
+
     ChecksumMD5: "str | None" = None
     """
     The Base64 encoded, 128-bit ``MD5`` digest of the object.
@@ -4721,7 +4712,6 @@ encoded.
     flexible metadata than the REST API. For example, using SOAP, you can create
     metadata whose values are not legal HTTP headers.
     """
-
     VersionId: "str | None" = None
     """
     Version ID of the object.
@@ -4748,7 +4738,6 @@ encoded.
     """
     The language the content is in.
     """
-
     ContentRange: "str | None" = None
     """
     The portion of the object returned in the response.
@@ -4757,6 +4746,7 @@ encoded.
     """
     A standard MIME type describing the format of the object data.
     """
+
     Expires: "datetime | None" = None
     """
     The date and time at which the object is no longer cacheable.
@@ -4836,6 +4826,7 @@ encoded.
     This value is only returned if you specify ``partNumber`` in your request and the
     object was uploaded as a multipart upload.
     """
+
     TagCount: "int | None" = None
     """
     The number of tags, if any, on the object, when you have the relevant permission to
@@ -4851,7 +4842,6 @@ encoded.
     """
     The date and time when this object's Object Lock will expire.
     """
-
     ObjectLockLegalHoldStatus: "Literal['ON', 'OFF'] | None" = None
     """
     Indicates whether this object has an active legal hold.
@@ -4866,6 +4856,7 @@ encoded.
     This header is only returned if the requester has the ``s3:GetObjectRetention``
     permission.
     """
+
     ObjectLockEventHoldDurationDays: "int | None" = None
     """
     The event hold duration in days for this object.
@@ -4918,7 +4909,6 @@ class ListObjectsV2Output(Boto3Model):
     """
     Keys that begin with the indicated prefix.
     """
-
     Delimiter: "str | None" = None
     """
     Causes keys that contain the same string between the ``prefix`` and the first
@@ -4935,6 +4925,7 @@ class ListObjectsV2Output(Boto3Model):
     By default, the action returns up to 1,000 key names. The response might contain
     fewer keys but will never contain more.
     """
+
     CommonPrefixes: "builtins.list[CommonPrefix] | None" = Field(default_factory=list)
     """
     All of the keys (up to 1,000) that share the same prefix are grouped together.
@@ -4942,7 +4933,6 @@ class ListObjectsV2Output(Boto3Model):
     When counting the total numbers of returns by this API operation, this group of keys
     is considered as one item.
     """
-
     EncodingType: "Literal['url'] | None" = None
     """
     Encoding type used by Amazon S3 to encode object key names in the XML response.
@@ -4954,6 +4944,7 @@ class ListObjectsV2Output(Boto3Model):
     ``KeyCount`` will always be less than or equal to the ``MaxKeys`` field. For
     example, if you ask for 50 keys, your result will include 50 keys or fewer.
     """
+
     ContinuationToken: "str | None" = None
     """
     If ``ContinuationToken`` was sent with the request, it is included in the response.
@@ -4998,7 +4989,6 @@ class S3CopyObjectResult(Boto3Model):
 
     The ETag reflects only changes to the contents of an object, not its metadata.
     """
-
     LastModified: "datetime | None" = None
     """
     Creation date of the object.
@@ -5012,6 +5002,7 @@ class S3CopyObjectResult(Boto3Model):
     in the *Amazon S3 User
     Guide*.
     """
+
     ChecksumCRC32: "str | None" = None
     """
     The Base64 encoded, 32-bit ``CRC32`` checksum of the object.
@@ -5079,7 +5070,6 @@ class S3CopyObjectResult(Boto3Model):
     in the *Amazon S3 User
     Guide*.
     """
-
     ChecksumMD5: "str | None" = None
     """
     The Base64 encoded, 128-bit ``MD5`` digest of the object.
@@ -5122,6 +5112,7 @@ class S3CopyObjectResult(Boto3Model):
     in the *Amazon S3 User
     Guide*.
     """
+
 class CopyObjectOutput(Boto3Model):
     CopyObjectResult: "S3CopyObjectResult | None" = None
     """
@@ -5132,10 +5123,12 @@ class CopyObjectOutput(Boto3Model):
     """
     If the object expiration is configured, the response includes this header.
     """
+
     CopySourceVersionId: "str | None" = None
     """
     Version ID of the source object that was copied.
     """
+
     VersionId: "str | None" = None
     """
     Version ID of the newly created copy.
@@ -5198,12 +5191,11 @@ class S3GlacierJobParameters(Boto3Model):
     """
     Container for S3 Glacier job parameters.
     """
+
     Tier: Literal["Standard", "Bulk", "Expedited"]
     """
     Retrieval tier at which the restore will be processed.
     """
-
-
 class S3CSVInput(Boto3Model):
     """
     Describes how an uncompressed comma-separated values (CSV)-formatted input object is
@@ -5236,6 +5228,7 @@ class S3CSVInput(Boto3Model):
 
     Instead of the default value, you can specify an arbitrary delimiter.
     """
+
     FieldDelimiter: "str | None" = None
     """
     A single character used to separate individual fields in a record.
@@ -5303,7 +5296,6 @@ class InputSerialization(Boto3Model):
     """
     Specifies Parquet as object's input serialization format.
     """
-
 class CSVOutput(Boto3Model):
     """
     Describes how uncompressed comma-separated values (CSV)-formatted results are
@@ -5314,25 +5306,25 @@ class CSVOutput(Boto3Model):
     """
     Indicates whether to use quotation marks around output fields.
     """
+
     QuoteEscapeCharacter: "str | None" = None
     """
     The single character used for escaping the quote character inside an already escaped
     value.
     """
+
     RecordDelimiter: "str | None" = None
     """
     A single character used to separate individual records in the output.
 
     Instead of the default value, you can specify an arbitrary delimiter.
     """
-
     FieldDelimiter: "str | None" = None
     """
     The value used to separate individual fields in a record.
 
     You can specify an arbitrary delimiter.
     """
-
     QuoteCharacter: "str | None" = None
     """
     A single character used for escaping when the field delimiter is part of the value.
@@ -5345,14 +5337,12 @@ class JSONOutput(Boto3Model):
     """
     Specifies JSON as request's output serialization format.
     """
-
     RecordDelimiter: "str | None" = None
     """
     The value used to separate individual records in the output.
 
     If no value is specified, Amazon S3 uses a newline character ('n').
     """
-
 class OutputSerialization(Boto3Model):
     """
     Describes how results of the Select job are serialized.
@@ -5366,7 +5356,6 @@ class OutputSerialization(Boto3Model):
     """
     Specifies JSON as request's output serialization format.
     """
-
 class S3SelectParameters(Boto3Model):
     """
     Amazon S3 Select is no longer available to new customers.
@@ -5388,6 +5377,7 @@ class S3SelectParameters(Boto3Model):
     """
     Describes the serialization format of the object.
     """
+
     ExpressionType: Literal["SQL"]
     """
     The type of the provided expression (for example, SQL).
@@ -5406,6 +5396,111 @@ class S3SelectParameters(Boto3Model):
     Describes how the results of the Select job are serialized.
     """
 
+
+class S3Encryption(Boto3Model):
+    """
+    Contains the type of server-side encryption used.
+    """
+
+    EncryptionType: Literal[
+        "AES256", "aws:fsx", "aws:backup", "aws:kms", "aws:kms:dsse"
+    ]
+    """
+    The server-side encryption algorithm used when storing job results in Amazon S3 (for
+    example, AES256, ``aws:kms``).
+    """
+
+    KMSKeyId: "str | None" = None
+    """
+    If the encryption type is ``aws:kms``, this optional value specifies the ID of the
+    symmetric encryption customer managed key to use for encryption of job results.
+
+    Amazon S3 only supports symmetric encryption KMS keys. For more information, see
+    `Asymmetric keys in KMS <https://docs.aws.amazon.com/kms/latest/developerguide/symmetric-asymmetric.html>`_
+    in the
+    *Amazon Web Services Key Management Service Developer Guide*.
+    """
+
+    KMSContext: "str | None" = None
+    """
+    If the encryption type is ``aws:kms``, this optional value can be used to specify
+    the encryption context for the restore results.
+    """
+
+class Grant(Boto3Model):
+    """
+    Container for grant information.
+    """
+
+    Grantee: "S3Grantee | None" = None
+    """
+    The person being granted permissions.
+    """
+
+    Permission: "Literal['FULL_CONTROL', 'WRITE', 'WRITE_ACP', 'READ', 'READ_ACP'] | None" = None
+    """
+    Specifies the permission given to the grantee.
+    """
+
+class MetadataEntry(Boto3Model):
+    """
+    A metadata key-value pair to store with an object.
+    """
+    Name: "str | None" = None
+    """
+    Name of the object.
+    """
+
+    Value: "str | None" = None
+    """
+    Value of the object.
+    """
+
+class S3Location(Boto3Model):
+    """
+    Describes an Amazon S3 location that will receive the results of the restore
+    request.
+    """
+
+    BucketName: str
+    """
+    The name of the bucket where the restore results will be placed.
+    """
+
+    Prefix: str
+    """
+    The prefix that is prepended to the restore results for this request.
+    """
+
+    Encryption: "S3Encryption | None" = None
+    """
+    Contains the type of server-side encryption used.
+    """
+
+    CannedACL: "Literal['private', 'public-read', 'public-read-write', 'authenticated-read', 'aws-exec-read', 'bucket-owner-read', 'bucket-owner-full-control'] | None" = None
+    """
+    The canned ACL to apply to the restore results.
+    """
+
+    AccessControlList: "builtins.list[Grant] | None" = Field(default_factory=list)
+    """
+    A list of grants that control access to the staged results.
+    """
+
+    Tagging: "S3Tagging | None" = None
+    """
+    The tag-set that is applied to the restore results.
+    """
+
+    UserMetadata: "builtins.list[MetadataEntry] | None" = Field(default_factory=list)
+    """
+    A list of metadata to store with the restore results in S3.
+    """
+
+    StorageClass: "Literal['STANDARD', 'REDUCED_REDUNDANCY', 'STANDARD_IA', 'ONEZONE_IA', 'INTELLIGENT_TIERING', 'GLACIER', 'DEEP_ARCHIVE', 'OUTPOSTS', 'GLACIER_IR', 'SNOW', 'EXPRESS_ONEZONE', 'FSX_OPENZFS', 'FSX_ONTAP', 'AWS_BACKUP_WARM', 'AWS_BACKUP_LOW_COST_WARM'] | None" = None
+    """
+    The class of storage used to store the restore results.
+    """
 
 class S3OutputLocation(Boto3Model):
     """
@@ -5460,6 +5555,7 @@ class RestoreRequest(Boto3Model):
     Existing customers of Amazon S3 Select can continue to use the feature as usual.
     `Learn more <http://aws.amazon.com/blogs/storage/how-to-optimize-querying-your-data-in-amazon-s3/>`_
     """
+
     OutputLocation: "S3OutputLocation | None" = None
     """
     Describes the location where the restore job's output is stored.
@@ -5475,13 +5571,11 @@ class RestoreObjectOutput(Boto3Model):
     in the *Amazon Simple Storage
     Service user guide*.
     """
-
     RestoreOutputPath: "str | None" = None
     """
     Indicates the path in the provided S3 output location where Select results will be
     restored to.
     """
-
 class RequestProgress(Boto3Model):
     """
     Container for specifying if periodic ``QueryProgress`` messages should be sent.
@@ -5527,7 +5621,6 @@ class RecordsEvent(Boto3Model):
     """
     The container for the records event.
     """
-
     Payload: "bytes | None" = None
     """
     The byte array of partial, one or more result records.
@@ -5540,6 +5633,7 @@ class RecordsEvent(Boto3Model):
     behavior by default. In those cases, you must aggregate the results on the client
     side and parse the response.
     """
+
 class Stats(Boto3Model):
     """
     Container for the stats details.
@@ -5613,7 +5707,6 @@ class SelectObjectContentEventStream(Boto3Model):
     """
     The container for selecting objects from a content event stream.
     """
-
     Records: "RecordsEvent | None" = None
     """
     The Records Event.
@@ -5698,6 +5791,7 @@ class DeletedObject(Boto3Model):
     """
     Information about the deleted object.
     """
+
     Key: "str | None" = None
     """
     The name of the deleted object.
@@ -5707,6 +5801,7 @@ class DeletedObject(Boto3Model):
     """
     The version ID of the deleted object.
     """
+
     DeleteMarker: "bool | None" = None
     """
     Indicates whether the specified object version that was permanently deleted was
@@ -5731,7 +5826,6 @@ class Error(Boto3Model):
 
     Container for all error elements.
     """
-
     Key: "str | None" = None
     """
     The error key.
@@ -5768,6 +5862,7 @@ class DeleteObjectsOutput(Boto3Model):
 
     It identifies the object that was successfully deleted.
     """
+
     RequestCharged: "Literal['requester'] | None" = None
     """
     If present, indicates that the requester was successfully charged for the request.
@@ -5807,19 +5902,6 @@ class DeleteObjectTaggingOutput(Boto3Model):
     The versionId of the object the tag-set was removed from.
     """
 
-class Grant(Boto3Model):
-    """
-    Container for grant information.
-    """
-    Grantee: "S3Grantee | None" = None
-    """
-    The person being granted permissions.
-    """
-
-    Permission: "Literal['FULL_CONTROL', 'WRITE', 'WRITE_ACP', 'READ', 'READ_ACP'] | None" = None
-    """
-    Specifies the permission given to the grantee.
-    """
 class GetObjectAclOutput(Boto3Model):
     Owner: "S3Owner | None" = None
     """
@@ -5854,6 +5936,7 @@ class AccessControlPolicy(Boto3Model):
     """
     Container for the bucket owner's display name and ID.
     """
+
 class PutObjectAclOutput(Boto3Model):
     RequestCharged: "Literal['requester'] | None" = None
     """
@@ -5903,14 +5986,12 @@ class S3EventHoldDuration(Boto3Model):
 
     The minimum value is 1 and the maximum value is 36,500.
     """
-
     Years: "int | None" = None
     """
     The number of years for the event hold duration.
 
     The minimum value is 1 and the maximum value is 100.
     """
-
 class S3DefaultRetention(Boto3Model):
     """
     The container element for optionally specifying the default Object Lock retention
@@ -5964,6 +6045,7 @@ class S3ObjectLockRule(Boto3Model):
 
     You can specify:
     """
+
 class S3ObjectLockConfiguration(Boto3Model):
     """
     The container element for Object Lock configuration parameters.
@@ -6133,6 +6215,7 @@ class S3Checksum(Boto3Model):
     in the *Amazon S3 User
     Guide*.
     """
+
     ChecksumXXHASH64: "str | None" = None
     """
     The Base64 encoded, 64-bit ``XXHASH64`` checksum of the object.
@@ -6190,7 +6273,6 @@ class ObjectPart(Boto3Model):
     """
     The size of the uploaded part in bytes.
     """
-
     ChecksumCRC32: "str | None" = None
     """
     The Base64 encoded, 32-bit ``CRC32`` checksum of the part.
@@ -6279,6 +6361,7 @@ class ObjectPart(Boto3Model):
     in the *Amazon S3 User
     Guide*.
     """
+
     ChecksumXXHASH3: "str | None" = None
     """
     The Base64 encoded, 64-bit ``XXHASH3`` checksum of the part.
@@ -6434,7 +6517,6 @@ class ObjectVersion(Boto3Model):
     """
     Size in bytes of the object.
     """
-
     StorageClass: "Literal['STANDARD'] | None" = None
     """
     The class of storage used to store the object.
@@ -6460,7 +6542,6 @@ class ObjectVersion(Boto3Model):
     """
     Date and time when the object was last modified.
     """
-
     Owner: "S3Owner | None" = None
     """
     Specifies the owner of the object.

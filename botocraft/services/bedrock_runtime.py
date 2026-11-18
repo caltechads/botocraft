@@ -564,7 +564,7 @@ class GuardrailApplicationManager(ReadonlyBoto3ModelManager):
 # ==============
 
 
-class S3Location(Boto3Model):
+class BedrockS3Location(Boto3Model):
     """
     A storage location in an Amazon S3 bucket.
     """
@@ -592,7 +592,7 @@ class ImageSource(Boto3Model):
     If you use an AWS SDK, you don't need to encode the image bytes in base64.
     """
 
-    s3Location: "S3Location | None" = None
+    s3Location: "BedrockS3Location | None" = None
     """
     The location of an image object in an Amazon S3 bucket.
 
@@ -657,7 +657,7 @@ class DocumentSource(Boto3Model):
 
     If you use an Amazon Web Services SDK, you don't need to encode the bytes in base64.
     """
-    s3Location: "S3Location | None" = None
+    s3Location: "BedrockS3Location | None" = None
     """
     The location of a document object in an Amazon S3 bucket.
 
@@ -745,7 +745,7 @@ class VideoSource(Boto3Model):
     Video content encoded in base64.
     """
 
-    s3Location: "S3Location | None" = None
+    s3Location: "BedrockS3Location | None" = None
     """
     The location of a video object in an Amazon S3 bucket.
 
@@ -784,7 +784,7 @@ class AudioSource(Boto3Model):
     Audio data encoded in base64.
     """
 
-    s3Location: "S3Location | None" = None
+    s3Location: "BedrockS3Location | None" = None
     """
     A reference to audio data stored in an Amazon S3 bucket.
 
