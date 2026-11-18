@@ -1,4 +1,5 @@
 import gzip
+import inspect
 from functools import wraps
 from typing import TYPE_CHECKING, Any, Callable
 
@@ -11,7 +12,9 @@ if TYPE_CHECKING:
         Bucket,
         BucketLoggingConfiguration,
         GetBucketLifecycleConfigurationOutput,
+        GetObjectOutput,
         S3CORSRule,
+        S3Object,
     )
 
 # ----------
@@ -43,21 +46,93 @@ def object_list_add_bucket_name_and_tags(
 ) -> Callable[..., "PrimaryBoto3ModelQuerySet"]:
     """
     Wraps a boto3 method that returns a list of objects to add the bucket name
-    and tags to the objects.
+    and tags to the objects.  ``Bucket`` may be passed positionally or by
+    keyword.
+
+    Args:
+        func: The manager ``list`` method to wrap.
+
+    Returns:
+        The wrapped method.
+
     """
 
     @wraps(func)
     def wrapper(self, *args, **kwargs) -> "PrimaryBoto3ModelQuerySet":
         from botocraft.services import S3Object
 
-        bucket_name = kwargs.get("Bucket")
-        extras = kwargs.get("Include", [])
+        arguments = inspect.signature(func).bind(self, *args, **kwargs).arguments
+        bucket_name = arguments["Bucket"]
+        extras = arguments.get("Include") or []
         qs = func(self, *args, **kwargs)
         for obj in qs.results:
             obj.BucketName = bucket_name  # type: ignore[attr-defined]
             if "TAGS" in extras:
                 obj.Tags = S3Object.objects.get_tags(Bucket=obj.BucketName, Key=obj.Key)  # type: ignore[attr-defined]
         return qs
+
+    return wrapper
+
+
+def object_get_add_bucket_name_and_key(
+    func: Callable[..., "S3Object | None"],
+) -> Callable[..., "S3Object | None"]:
+    """
+    Wraps ``get_object`` to set ``BucketName`` and ``Key`` on the returned
+    object, because the AWS response does not echo them.  ``Bucket`` and ``Key``
+    may be passed positionally or by keyword.  The response ``Body`` is not
+    kept; use :py:meth:`S3ObjectMixin.contents` to read it.
+
+    Args:
+        func: The manager ``get`` method to wrap.
+
+    Returns:
+        The wrapped method.
+
+    """
+
+    @wraps(func)
+    def wrapper(self, *args, **kwargs) -> "S3Object | None":
+        arguments = inspect.signature(func).bind(self, *args, **kwargs).arguments
+        obj = func(self, *args, **kwargs)
+        if obj is not None:
+            obj.BucketName = arguments["Bucket"]
+            obj.Key = arguments["Key"]
+        return obj
+
+    return wrapper
+
+
+def object_create_return_model(
+    func: Callable[..., Any],
+) -> Callable[..., "S3Object"]:
+    """
+    Wraps ``put_object`` so that ``create`` returns the :py:class:`S3Object`
+    that was passed in, with ``BucketName`` set from the ``Bucket`` argument.
+
+    Args:
+        func: The manager ``create`` method to wrap.
+
+    Returns:
+        The wrapped method.
+
+    """
+
+    @wraps(func)
+    def wrapper(self, *args, **kwargs) -> "S3Object":
+        bound = inspect.signature(func).bind(self, *args, **kwargs)
+        model = bound.arguments["model"]
+        if not model.ChecksumAlgorithm:
+            # ``S3Object.ChecksumAlgorithm`` is the list-valued ListObjectsV2
+            # field and defaults to ``[]``, but ``put_object`` wants a string,
+            # so an empty value must not reach it.
+            bound.arguments["model"] = model.model_copy(
+                update={"ChecksumAlgorithm": None}
+            )
+        func(*bound.args, **bound.kwargs)
+        model.BucketName = bound.arguments["Bucket"]
+        self.sessionize(model)
+        return model
 
     return wrapper
 
@@ -436,6 +511,38 @@ class BucketManagerMixin:
         s3.delete_website(BucketName=model.BucketName)  # type: ignore[attr-defined]
         s3.delete_bucket_lifecycle(BucketName=model.BucketName)  # type: ignore[attr-defined]
         s3.delete_bucket(Bucket=model.BucketName)
+
+
+class S3ObjectMixin:
+    """
+    Adds :py:meth:`contents` to :py:class:`~botocraft.services.s3.S3Object`.
+    """
+
+    def contents(self) -> "GetObjectOutput":
+        """
+        Retrieve this object from Amazon S3, with its ``Body`` as an unread
+        :py:class:`botocore.response.StreamingBody`.  Each call issues a new
+        ``get_object`` request.
+
+        Raises:
+            ValueError: If ``BucketName`` or ``Key`` is not set.
+
+        Returns:
+            The :py:class:`~botocraft.services.s3.GetObjectOutput`.
+
+        """
+        from botocraft.services import GetObjectOutput
+
+        for field in ("BucketName", "Key"):
+            if not getattr(self, field):
+                msg = f"Cannot read contents: S3Object.{field} is not set"
+                raise ValueError(msg)
+        manager = self.objects.using(self.session)  # type: ignore[attr-defined]
+        response = GetObjectOutput(
+            **manager.client.get_object(Bucket=self.BucketName, Key=self.Key)  # type: ignore[attr-defined]
+        )
+        manager.sessionize(response)
+        return response
 
 
 class GetObjectOutputMixin:

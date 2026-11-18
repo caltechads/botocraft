@@ -181,6 +181,9 @@ primary:
   Object:
     name_key: Key
     alternate_name: S3Object
+    mixins:
+      - name: S3ObjectMixin
+        import_path: botocraft.mixins.s3
     input_shapes:
       - GetObjectRequest
       - PutObjectRequest
@@ -199,20 +202,6 @@ primary:
           mapping:
             Bucket: BucketName
             Key: Key
-    manager_methods:
-      contents:
-        manager_method: get
-        args:
-          0:
-            name: Bucket
-            attr_type: str
-            value: >-
-              cast(str, self.BucketName)
-          1:
-            name: Key
-            attr_type: str
-            value: >-
-              cast(str, self.Key)
 secondary:
   GetObjectOutput:
     mixins:
