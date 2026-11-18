@@ -1,17 +1,17 @@
-# Graph Report - botocraft  (2026-11-03)
+# Graph Report - botocraft  (2026-11-18)
 
 ## Corpus Check
-- 308 files · ~1,068,665 words
+- 399 files · ~1,077,414 words
 - Verdict: corpus is large enough that graph structure adds value.
 - Unclassified: 14 file(s) not represented in the graph (top: (none) 6, .css 2, .leave 1)
 
 ## Summary
-- 15556 nodes · 29817 edges · 912 communities (325 shown, 587 thin omitted)
-- Extraction: 92% EXTRACTED · 8% INFERRED · 0% AMBIGUOUS · INFERRED: 2324 edges (avg confidence: 0.93)
+- 16567 nodes · 30463 edges · 1017 communities (373 shown, 644 thin omitted)
+- Extraction: 94% EXTRACTED · 6% INFERRED · 0% AMBIGUOUS · INFERRED: 1723 edges (avg confidence: 0.92)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `26eec763`
+- Built from commit: `d9de86f0`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -22,35 +22,35 @@
 - AMI
 - services/bedrock_runtime.py
 - DataSyncWorkspace
-- test_ec2_primary_model_expansion.py
+- VpnGatewayManager
 - services/amplify.py
-- services/ecs.py
-- first_resource
+- LoadBalancerConfiguration
+- SSMCalendarStateChangeEvent
 - services/inspector2.py
-- OpenSearchDomainManager
+- _attach_domain_tags
 - services/codebuild.py
 - IAMRole
-- Service
+- Cluster
 - services/test_codepipeline.py
-- DataSyncTask
+- secondary
 - Daemon
 - TestRelationshipValuesAndValuesList
 - mixins/codepipeline.py
 - DocDBClusterManager
 - EC2VpcEndpointManager
 - services/cloudwatch.py
-- TestBedrockRelations
-- test_bedrock.py
-- services/sqs.py
+- IAMRoleManager
+- AutomatedReasoningPolicyManager
+- QueueManager
 - PrimaryBoto3ModelQuerySet
-- RouteTableManager
+- EC2 examples (verified)
 - mixins/ecr.py
 - services/bedrock_agentcore_control.py
 - SESTemplate
 - ServiceSphinxDocBuilder
 - eventbridge/elasticache.py
-- CustomModel
-- mixins/ecs.py
+- CustomModelManager
+- Task
 - _SESManagerProtocol
 - ModelCustomizationJob
 - ManagerMethodGenerator
@@ -60,15 +60,15 @@
 - IAMAccessKeyManager
 - test_cloudtrail.py
 - ProvisionedModelThroughput
-- datasync_add_tags
+- DataSyncLocationFsxWindows
 - ConversationManager
 - coerce_queryset_results
 - Build
-- CapacityProvider
+- event_summary
 - MultiRegionEndpoint
 - test_sesv2.py
 - ProjectManager
-- Bucket
+- Rule
 - ecr/__init__.py
 - WrongConverterError
 - EventBridgeServiceExporter
@@ -76,31 +76,31 @@
 - ACMCertificateManager
 - .sessionize
 - test_ecs.py
-- VpcPeeringConnectionManager
+- EC2TagsManagerMixin
 - task_state_change.py
 - Boto3ModelManagerFilter
-- Alarm
+- Service
 - DataSyncLocationCatalog
 - scan_resource_change.py
-- VolumeManager
+- DocDBClusterParameterGroup
 - FakeShardClient
-- service.py
+- ModelGenerator
 - mixins/grafana.py
 - services/codeconnections.py
 - AMIManager
-- EFSPosixUser
-- DaemonRevision
-- services/iam.py
+- secondary
+- DaemonDeployment
+- IAMGroup
 - elasticache/__init__.py
 - check_napoleon_gate.py
 - event_summary
-- _model_arn
+- TestValuesAndValuesList
 - test_datasync_workflow.py
 - SchemaManager
 - ACMCertificateEvent
-- ElasticsearchNotificationDetail
+- methods
 - patch
-- ImageIdentifier
+- eventbridge/ecr.py
 - CisScanConfiguration
 - mixins/bedrock_runtime.py
 - ECRImageMixin
@@ -108,9 +108,9 @@
 - .serialize
 - EventFactory
 - AutomatedReasoningPolicyBuildWorkflow
-- elasticache_user_group_add_tags
+- Boto3ModelManagerFilter
 - SESCustomVerificationEmailTemplate
-- LogGroup
+- secondary
 - acm/__init__.py
 - BedrockEventStream
 - FileSystem
@@ -119,36 +119,35 @@
 - .list
 - SnapshotManager
 - codepipeline/__init__.py
-- InstanceManager
+- FlowLogManager
 - LoadBalancer
 - ManagedGrafanaWorkspaceManager
-- test_amplify.py
-- wrapper
-- services/schemas.py
+- methods
+- extra_fields
+- registry_response_to_registry
 - IAMUser
-- services/logs.py
+- LogGroupField
 - CodeDocstringFormatter
 - TestPrimaryBoto3ModelQuerySet
-- ecs_task_definition_delete_all
+- 0
 - BucketManager
-- QueryDefinition
-- .list
-- DaemonTaskDefinitionManagerMixin
+- _notification_summary
+- MountTarget
+- DaemonManagerMixin
 - Instance
 - ModelInvocationJob
 - IAMGroupManager
 - single_docdb_instance_include_tags
 - Inspector2FilterManager
-- ModelT
-- CompositeAlarmManager
+- test_efs.py
 - CacheParameterGroupManager
 - ClassicELBManager
-- IAMUserManager
+- CreateUserResponse
 - RepositorySyncDefinition
 - arg_value
-- ServiceManager
+- ReplicationConfiguration
 - EvaluationJobManager
-- services/grafana.py
+- AssertionAttributes
 - EventRule
 - ManagedGrafanaWorkspace
 - AlarmMuteRuleManager
@@ -157,24 +156,24 @@
 - ManagedGrafanaServiceAccountTokenManager
 - botocore.py
 - CloudWatchDashboardManager
-- .get_data
+- mapping
 - ReportGroup
-- mixins/bedrock.py
-- ResourcePolicy
+- test_bedrock.py
+- KeyPairManager
 - DedicatedIpPool
-- FoundationModel
-- DataSyncLocationNfsManager
-- DataSyncLocationObjectStorageManager
+- KinesisResponseHelper
+- KinesisStream
+- DataSyncLocationObjectStorage
 - NetworkAclManager
 - TestRelationshipTraversal
 - PipelineManager
 - ListLocationsResponse
-- BucketManagerMixin
-- NatGatewayManager
+- RepositoryManager
+- FileSystemManager
 - EventBus
 - .render
 - mixins/ses.py
-- EC2 examples (verified)
+- 0
 - MarketplaceModelEndpointManager
 - ModelRelationGenerator
 - LogGroupManager
@@ -182,12 +181,12 @@
 - add_attributes_for_list
 - SESConfigurationSet
 - .start_execution
-- .get
+- AutomatedReasoningPolicy
 - ModelManagerMethodGenerator
 - test_abstract_filter.py
 - InstanceModelMixin
 - .start
-- MarketplaceModelEndpoint
+- ModelCopyJob
 - EmailTemplate
 - ManagedGrafanaServiceAccountToken
 - EventBusManager
@@ -196,34 +195,35 @@
 - ImportedModel
 - MetricAlarmManager
 - BuildBatchManager
-- amplify_stamp_app_id
+- CodeBuildTestCase
+- Object
 - test_cloudwatch.py
 - CacheSecurityGroupManager
-- ModelInvocationLoggingConfiguration
+- AccessPoint
 - ECSTaskStateChangeEvent
-- NetworkInterfaceManager
-- IAMPolicyVersionManager
+- InstanceManager
+- IAMPolicyManager
 - ModelPropertyGenerator
 - FoundationModelManager
-- AgentCoreGatewayRuleManager
-- ManagedGrafanaServiceAccount
-- mixins/codeconnections.py
-- convert_log_group_tags
-- DataSyncLocationSmbManager
+- AgentCoreGatewayRule
+- service_accounts_add_workspace_context
+- services/codeconnections.py
+- services/logs.py
+- DataSyncLocationSmb
 - Parameter
 - test_abstract_queryset.py
 - EventBridgeEvent
 - mixins/datasync.py
-- ScalingPolicyManager
-- VpnConnectionManager
+- Any
+- ServiceDeployment
 - Fleet
 - Listener
-- FindingManager
+- primary
 - ClassicELBManagerMixin
 - FindingsReportManager
 - LaunchTemplate
 - test_bedrock_runtime.py
-- ecs_service_deployments_only
+- import_path
 - BotocraftError
 - CacheParameterGroup
 - DeregisterEndPointsOutput
@@ -237,7 +237,7 @@
 - Route53CidrCollection
 - test_manager_session.py
 - DiscovererManager
-- single_docdb_subnet_group_include_tags
+- DocDBSubnetGroupManager
 - CacheSecurityGroup
 - GuardrailManager
 - ScheduledActionManager
@@ -248,30 +248,32 @@
 - LaunchTemplateManager
 - TargetGroup
 - CloudWatchMetricStreamManager
-- ManagerGenerator
+- .test_crud_and_tag_hydration
 - RelatedModel
-- _job_payload
+- DBSubnetGroup
 - .set_session
 - CognitoUserManager
 - DhcpOptionsManager
 - ReportManager
 - PlacementGroupManager
+- NetworkAcl
 - Report
 - CidrBlockSummary
 - HostedZone
 - Route53QueryLoggingConfig
 - Route53ResourceRecordSet
 - Task 2: `save()` and `delete()` use the model's session
-- Generator YAML Pitfalls
+- Global model-name collisions
 - ssm/__init__.py
 - ResponseStream
 - LaunchTemplateVersionManager
 - EventRuleManager
-- TenantManager
+- Tenant
 - AssumeRole
 - Snapshot
 - Prompt: Audit botocraft/mixins for shared patterns
 - ECSServiceDeploymentStateChangeEvent
+- PlacementGroup
 - EnforcedGuardrailsConfigurationManager
 - _check_file
 - ec2_command_status_change_notification.py
@@ -279,36 +281,37 @@
 - SESReceiptRuleSet
 - AutoScalingGroupManager
 - `list` buckets
-- DataSyncTaskExecution
+- KinesisShard
 - .send
 - _check_function_doc
 - SourceCredentials
 - ECSAWSAPICallViaCloudTrailEvent
 - ec2_automation_step_status_change_notification.py
 - AgentCoreHarnessEndpointManager
-- amplify_sync_tags
+- Memory
 - NetworkInterface
 - ExpressGatewayService
 - ScalableTargetManager
-- CacheClusterManager
-- _CrudFacade
+- services/elasticache.py
+- _model_arn
 - ec2_command_invocation_status_change_notification.py
 - ec2_state_manager_instance_association_state_change.py
 - maintenance_window_task_execution_state_change_notification.py
 - AgentCorePaymentCredentialProviderManager
 - IAMLoginProfileManager
-- EventTargetManager
-- TestConnectionTargets
+- name
+- unittest_mock
+- .clean
 - ConverseStreamOutput
-- File map
-- AgentCoreOauth2CredentialProviderManager
+- bytes
+- Secret
 - TestBedrockRuntimeMixins
-- Repository
+- Bucket
 - maintenance_window_task_target_invocation_state_change_notification.py
-- DataSyncLocationEfsManager
+- DataSyncLocationEfs
 - IAMAccessKey
 - CallerIdentity
-- resolve_list_forward_ref_shadowing
+- Project
 - AgentCoreAgentRuntimeEndpoint
 - SSMChangeRequestStatusUpdateEvent
 - SSMConfigurationComplianceStateChangeEvent
@@ -320,23 +323,23 @@
 - SSMMaintenanceWindowExecutionStateChangeNotificationEvent
 - SSMMaintenanceWindowStateChangeNotificationEvent
 - SSMMaintenanceWindowTargetRegistrationNotificationEvent
-- InferenceProfile
-- QueryDefinitionManagerMixin
+- InferenceProfileManager
+- DataSyncLocationAzureBlobManager
 - CognitoUserPool
 - parameter_store_change.py
-- InstanceProfile
+- DataSyncLocationFsxOntap
 - AgentCoreAgentRuntime
-- AgentCoreApiKeyCredentialProviderManager
+- AgentCoreApiKeyCredentialProvider
 - AgentCoreCodeInterpreter
-- CisScanConfigurationManager
+- DataSyncLocationHdfs
 - .list
 - SyncBlockerSummary
-- DelegatedAdminAccountManager
+- methods
 - .list
 - DescribeLoadBalancerPoliciesOutput
 - FilterCriteria
 - PolicyManager
-- AgentCoreGatewayManager
+- AgentCoreGateway
 - ProbeManager
 - AgentCoreGatewayTarget
 - AgentCoreMemoryManager
@@ -344,7 +347,7 @@
 - PolicyEngine
 - Policy
 - PromptRouterManager
-- ACMManagerMixin
+- test_acm_update.py
 - CognitoResourceServerManager
 - EventTarget
 - AddAvailabilityZonesOutput
@@ -363,22 +366,29 @@
 - Botocraft Service Authoring
 - botocraft/datasync.py
 - CognitoUserPoolClient
-- SchemaManagerProtocol
+- 1
+- InternetGateway
 - Botocraft Manager Authoring
+- NatGateway
+- AgentCoreEvent
+- DaemonRevision
 - release.sh
-- Rule
+- AgentCoreMemoryRecord
+- ServiceRevision
 - IAMLoginProfile
 - AgentCoreHarness
 - AgentCoreMemory
 - CompositeAlarm
 - AgentCorePolicyGeneration
-- CloudWatchMetricModelMixin
+- PaymentCredentialProviderItem
 - IAMPolicyVersion
 - OTelEnrichmentStatusManager
+- AgentCorePaymentSession
+- VpnConnection
 - CodeBuildEnvironmentPlatform
-- EnforcedGuardrailsConfiguration
+- pytest
 - AGENTS.md
-- ModelCopyJob
+- secondary
 - CognitoUserPoolManager
 - SecretVersion
 - Botocraft Model Advanced
@@ -387,45 +397,49 @@
 - DedicatedIp
 - SuppressedDestination
 - botocraft
-- ReplicationGroupManager
-- .list
+- get
+- EFSTagsManagerMixin
 - S3ObjectManager
 - CodeCoverage
 - AgentCoreHarnessEndpoint
-- mixins/inspector2.py
+- CustomerGateway
+- DBClusterParameterGroup
+- DhcpOptions
+- VpnGateway
 - CognitoIdentity
 - Model Collisions And Tags
 - AutoScalingGroup
 - IAMSSHPublicKey
-- _app_manager
+- create
 - Finding
 - Botocraft Service Verification
 - StreamShortcutManager
 - CognitoGroup
+- RouteTable
 - PolicyGenerationAsset
-- AMIManagerMixin
+- ModelCustomizationJobManager
 - Route53VPC
 - Schema
-- FindingsReport
+- Relations, Properties, And Bespoke Models
 - Botocraft Service Discovery
 - CognitoUserPoolDomain
 - ContactList
 - .test_open_tunnel_passes_literal_ip_to_ssm
-- _when
+- DBCluster
 - ScheduledAction
-- bucket_list_names_to_buckets
+- ApplyGuardrailResponse
 - Elbv2AWSAPICallViaCloudTrailEvent
-- .create
+- reboot
 - SessionLabelManager
 - .create
 - CognitoUser
 - Content
-- AgentCoreGateway
+- create
 - CognitoUserPoolClientManager
-- AgentCoreGatewayRule
+- DBInstance
 - ECSServiceActionEvent
 - ConversationManagerMixin
-- DescribeSecurityGroupsResult
+- SecurityGroupManager
 - DescribeLoadBalancerPolicyTypesOutput
 - RegisterEndPointsOutput
 - Changelog
@@ -433,122 +447,126 @@
 - ECRAttribute
 - CacheParameter
 - CognitoIdentityPool
-- Inspector2Filter
+- .update_attributes
 - ClassicELB
+- .check_transformer
 - .deploy_zip
-- AutomatedReasoningPolicyTestResultManager
+- OpenSearchPackage
 - IAMSSHPublicKeyManager
-- FoundationModelAgreement
+- discoverer_response_to_discoverer
 - ApplySecurityGroupsToLoadBalancerOutput
-- .get
-- _iter_query_definitions
-- CodeBuildTestCase
+- AgentCoreOauth2CredentialProvider
+- EC2InstanceType
+- test_s3_bucket_logging.py
 - OpenSearchVpcEndpointManager
-- DescribeRouteTablesResult
-- SyncBlocker
-- CacheClusterMessage
-- VulnerabilityManagerMixin
+- AgentCoreExtractionJob
+- InvokeModelWithResponseStreamResponse
+- SyncBlockerManager
 - .list
-- create_log_group_extended
+- AgentRuntimeEndpoint
+- inputSchema
+- CacheSubnetGroupManager
+- json
+- get
 - HostedZoneManager
-- ReplicationGroupMessage
-- .list_for_user
-- .list_instance_profiles
-- .update
+- methods
+- list
+- Tags
+- EventRule_purge_CreatedBy_attribute
 - .list
-- ECSContainerInstanceModelMixin
+- .delete
 - Delete Previous AMG Service Account Token During Rotation
 - botocraft
 - .list
 - FakePaginator
-- test_security_group_create_uses_model_session
-- .list
-- .engine_version
+- File map
+- [0.12.5] - 2025-05-01
 - classproperty
-- .list
-- .list
-- .delete
-- AutoScalingRetentionTriggers
+- DaemonRevisionManager
+- AgentRuntime
+- ApiKeyCredentialProviderItem
 - AgentCoreMemoryRecordManager
-- .get
-- .list
+- fields
+- GatewaySummary
 - VCpuCountRequest
 - .get
 - .list
 - .list
-- DescribePackagesResponse
+- OpenSearchPackageManager
 - CognitoGroupManager
-- .change
-- .list
+- Oauth2CredentialProviderItem
+- TargetSummary
 - CognitoIdentityProviderManager
 - .list
+- DocDBInstance
 - CopyImageResult
 - AutoScalingActivity
 - test_datasync.py
-- AttachNetworkInterfaceResult
 - AutoScalingInstanceRequirements
-- DescribeNetworkInterfacePermissionsResult
-- Reservation
+- schema
+- Harness
 - ECSAttachment
 - NetworkConfiguration
-- CreateRoleResponse
-- .get_policy
+- Policy
+- Bucket
+- put_lifecycle
 - ListReceiptRuleSetsResponse
+- .check_valid_regexp
 - EnabledMetric
 - [0.12.0] - 2024-11-12
 - [0.16.0] - 2025-05-23
 - LoadBalancerManager
 - TargetGroupManager
-- NetworkBandwidthGbpsRequest
+- put_bucket_policy
 - [0.17.3] - 2025-06-03
 - [0.17.9] - 2025-08-06
 - [0.2.2] - 2024-07-31
 - [0.31.0] - 2026-08-07
 - [0.5.3] - 2024-10-04
-- services/kinesis.py
+- KinesisStreamManager
 - [0.5.4] - 2024-10-15
 - [0.6.0] - 2024-10-15
-- DomainValidation
+- put_public_access_block
 - KeyUsage
 - [0.8.0] - 2024-10-28
-- .list
+- mapping
 - [0.9.0] - 2024-10-29
-- ApplicationAutoscalingPredictiveScalingPolicyConfiguration
-- ApplicationAutoscalingStepScalingPolicyConfiguration
+- connection_response_to_connection
+- MountTargetModelMixin
 - Botocraft
-- ApplicationAutoscalingSuspendedState
-- PredictiveScalingMetric
+- parameter_update_writes_tags
+- LaunchConfigurationManager
 - MessageMetadata
-- .create
-- StepAdjustment
+- AgentCorePaymentInstrument
+- ConverseStreamResponse
 - .delete
 - AutoScalingInstanceMonitoring
-- .disable_deregistration_protection
+- subnets
 - .enable_deregistration_protection
-- .start
-- LaunchTemplateOverrides
-- .stop
-- .terminate
-- ExtractionJob
+- CSVInput
+- ECRDockerClient
+- GetObjectOutputMixin
+- .list
+- .get_many
 - [0.10.0] - 2024-10-31
 - FilterInput
-- LinkedAccountEmail
-- [0.12.3] - 2025-05-01
+- schema
+- list
 - AccountRecoverySettingType
-- AutoScalingCapacityReservationTarget
+- start
 - MemoryMetadataFilterExpression
-- SmsConfigurationType
+- delete_public_access_block
 - [0.13.0] - 2025-05-02
-- AutoScalingLaunchTemplate
-- DocDBPendingCloudwatchLogsExports
+- Tag
+- .get
 - [0.15.0] - 2025-05-16
 - MemoryRecordUpdateInput
 - [0.17.10] - 2025-08-06
-- [0.17.11] - 2025-09-03
-- LinkedAccountDeveloperJwt
+- .create
+- .get
 - [0.17.4] - 2025-06-10
 - [0.17.6] - 2025-08-06
-- [0.17.7] - 2025-08-06
+- .batch_delete
 - [0.20.0] - 2025-09-18
 - [0.20.1] - 2025-10-02
 - [0.20.3] - 2025-10-03
@@ -560,469 +578,597 @@
 - [0.26.0] - 2026-05-14
 - [0.27.0] - 2026-05-18
 - [0.30.1] - 2026-06-09
-- [0.30.2] - 2026-06-11
+- .create
 - [0.30.4] - 2026-07-28
 - [0.35.2] - 2026-10-20
 - [0.7.0] - 2024-10-18
+- .get
+- .create
+- .get
 - ACMDomainValidationMethodUpdateSummary
-- ACMResourceRecord
+- .create
 - ACMUpdateSummary
-- CertificateOptions
+- .last_used
 - CustomRule
 - services/codepipeline.py
 - JobSummary
-- PredictiveScalingPredefinedScalingMetricSpecification
-- TargetTrackingMetricDimension
-- AdminGetUserResponse
-- AutoScalingInstanceLifecyclePolicy
-- AdvancedSecurityAdditionalFlowsType
+- .get
+- .get
+- DeleteDomainResponse
+- .assume_with_saml
+- .assume_with_web_identity
 - AutoScalingInstanceReusePolicy
-- AutoScalingTagDescription
+- TestManagedGrafanaWorkspaceManagerList
 - KeyConfigurationType
 - LinkedAccount
-- LifecycleHookSpecification
-- SignInPolicyType
-- TrafficSourceIdentifier
-- DeletePaymentInstrumentResponse
-- ExtractionJobMessages
-- LinkedAccountOAuth2
+- LaunchConfiguration
+- ShardRelationManager
+- put_acl
+- put_retention
+- select_content
+- update
 - MemoryContent
-- AutomatedReasoningCheckNoTranslationsFinding
-- AutomatedReasoningCheckValidFinding
-- AutomatedReasoningPolicyBuildStepContext
-- AutomatedReasoningPolicyBuildWorkflowSource
-- AutomatedReasoningPolicyDefinitionTypeValuePair
-- AutomatedReasoningPolicyReportSourceDocument
-- AutomatedReasoningPolicyRuleReport
-- CustomModelUnits
-- FoundationModelDetails
-- GuardrailPiiEntity
-- GuardrailRegexConfig
-- GuardrailTopicPolicyConfig
-- ModelInvocationJobInputDataConfig
-- ValidationDetails
-- ValidatorMetric
-- RFTHyperParameters
-- AudioBlock
+- CORSRule
+- LoggingEnabled
+- Owner
+- DescribeWorkspaceResponse
+- .list
+- [0.17.6] - 2025-08-06
+- [0.22.0] - 2026-02-06
+- [0.30.1] - 2026-06-09
+- test_logs_create.py
+- VideoSource
+- ACMRenewalSummary
+- Filters
+- AmplifyWafConfiguration
+- AutoBranchCreationConfig
+- Backend
+- CacheConfig
 - DBClusterRole
-- AudioSource
-- ContentBlockDelta
-- ConverseStreamMetrics
+- CertificateSettings
+- ProductionBranch
+- SubDomain
 - ServerlessV2ScalingConfiguration
 - ConverseStreamTrace
-- ConverseTokensRequest
-- ConverseTrace
-- GuardrailAutomatedReasoningLogicWarning
+- ApplicationAutoscalingCustomizedMetricSpecification
+- PredictiveScalingPredefinedLoadMetricSpecification
+- AutoScalingAcceleratorTotalMemoryMiBRequest
 - GuardrailAutomatedReasoningScenario
-- GuardrailAutomatedReasoningValidFinding
+- AutoScalingAvailabilityZoneDistribution
 - GuardrailConverseImageSource
-- GuardrailCustomWord
-- GuardrailInvocationMetrics
+- AutoScalingBlockDeviceMapping
+- AutoScalingCapacityReservationSpecification
 - GuardrailOutputContent
-- GuardrailRegexFilter
-- GuardrailTextCharactersCoverage
-- ImageBlockStart
+- AutoScalingInstanceReference
+- AutoScalingLaunchTemplateSpecification
+- AutoScalingPerformanceFactorReferenceRequest
 - InvokeModelTokensRequest
-- ReasoningTextBlock
-- ToolRemovalBlock
+- AutoScalingTotalLocalStorageGBRequest
+- DistributionSegment
 - ToolChoice
-- ToolUseBlock
+- EbsMapping
 - AcrLevelConfigType
+- LifecycleHookSpecification
 - IssuerConfigurationType
-- LambdaConfigType
+- Amount
 - EncryptionConfiguration
-- VerificationMessageTemplateType
-- PasswordPolicyType
+- EventMetadataFilterExpression
+- ExtractionJobFilterInput
 - TokenValidityUnitsType
-- RoutingType
+- LeftExpression
+- MemoryJsonData
+- MemoryRecordLeftExpression
+- MemoryRecordSummary
+- MetadataValue
 - ImageScanFinding
 - ElastiCacheUser
-- ImageScanningConfiguration
+- OAuth2Authentication
+- PayloadType
+- PaymentInstrumentDetails
 - ListImagesFilter
 - MFAOptionType
-- DocDBEndpoint
-- CacheNodeTypeSpecificValue
+- PaymentInstrumentSummary
+- RightExpression
+- CitationSourceContent
+- ConverseMetrics
+- DocumentChunkLocation
+- DocumentContentBlock
 - FixedResponseActionConfig
-- CacheSecurityGroupMembership
-- NodeGroupConfiguration
-- PendingLogDeliveryConfiguration
+- GuardrailAutomatedReasoningTranslation
+- GuardrailConverseImageBlock
+- GuardrailImageSource
+- GuardrailSensitiveInformationPolicyAssessment
+- GuardrailTraceAssessment
+- PayloadPart
+- ToolAdditionBlock
+- SystemTool
+- IdentityPoolShortDescription
+- test_ec2_primary_model_expansion.py
+- AdminCreateUserConfigType
 - ClassicELBSourceSecurityGroup
-- EventsSqsParameters
-- RunCommandTarget
+- AdminDisableUserResponse
+- AdminEnableUserResponse
+- AttributeType
+- CustomEmailLambdaVersionConfigType
 - KinesisEnhancedMetrics
-- DeleteLoadBalancerPolicyOutput
+- DeviceConfigurationType
+- EmailConfigurationType
+- FailoverType
+- InboundFederationLambdaType
 - PolicyDescription
-- AdvancedSecurityOptionsInput
-- ClusterConfigStatus
-- AnomalyDetectionInfo
+- NumberAttributeConstraintsType
+- ProviderDescription
+- UserPoolPolicyType
+- SchemaAttributeType
+- UserPoolAddOnsType
+- ResourceServerScopeType
+- UserPoolDescriptionType
 - AuthenticateCognitoActionConfig
-- DeploymentStrategyOptionsStatus
-- FileSystemSize
-- LoadBalancerState
-- IAMFederationOptionsOutput
-- ResponseCodeMatcher
-- NodeGroupMember
-- EventsNetworkConfiguration
-- ParameterNameValue
-- EventsPlacementConstraint
+- DocDBPendingModifiedValues
+- AssignedPrivateIpAddress
+- AttachmentEnaSrdUdpSpecification
+- CapacityReservationTargetResponse
+- DeleteLaunchTemplateVersionsResponseErrorItem
+- DeleteSnapshotReturnCode
+- DnsEntry
+- EC2CidrBlockAssociation
+- EC2EbsInfo
+- services/opensearch.py
+- EC2EfaInfo
+- EC2FpgaInfo
+- EC2HibernationOptions
+- EC2IamInstanceProfile
+- EC2InstanceTypeSpecification
+- EC2MemoryGiBPerVCpuRequest
+- EC2NetworkInfo
+- EC2NeuronInfo
+- EC2PrivateDnsNameOptionsOnLaunch
+- EC2PublicIpDnsNameOptions
+- EC2ResponseError
+- EC2StateReason
+- EnaSrdUdpSpecificationRequest
+- EnclaveOptionsRequest
+- IamInstanceProfileSpecification
 - ClassicELBPolicies
 - EventsRedshiftDataParameters
-- EventsRetryPolicy
+- IKEVersionsRequestListValue
 - PutEventsResultEntry
-- RemoveTargetsResultEntry
-- ConfigureHealthCheckOutput
-- RemoveTagsOutput
-- OpenSearchPackageConfiguration
-- JwtValidationActionConfig
-- QueryStringConditionConfig
+- ImageWatermark
+- InstanceIpv4Prefix
+- InstanceIpv6Address
+- InstanceMarketOptionsRequest
+- InstanceMemoryGiBPerVCpu
+- InstanceMetadataOptionsResponse
 - RuleTransform
-- SubnetMapping
+- InstanceNetworkBandwidthGbps
 - TargetHealthDescription
-- StreamDescriptionSummary
-- EventsDeadLetterConfig
+- InstanceNetworkInterfaceAttachment
+- InstanceNetworkInterfaceSpecification
 - EventsKinesisParameters
-- SageMakerPipelineParameter
-- AccountAggregationResponse
-- AggregationResponse
-- AmiAggregation
-- OpenSearchZoneAwarenessConfig
-- AwsEcrContainerAggregation
-- AwsEcrContainerAggregationResponse
-- OffPeakWindowOptionsStatus
-- OpenSearchCognitoOptions
-- AwsEcrContainerImageDetails
-- AwsLambdaFunctionDetails
-- CodeFilePath
-- OpenSearchVPCOptions
-- CodeRepositoryAggregation
-- OptionStatus
-- CodeVulnerabilityDetails
-- ContainerImageAggregation
-- SAMLOptionsOutput
-- Cvss2
-- Cvss3
-- Cvss4
-- GetObjectAttributesParts
-- DBInstanceRole
-- DBParameterGroupStatus
-- CvssScore
-- CvssScoreAdjustment
-- CvssScoreDetails
+- InstanceNetworkPerformanceOptions
+- InstancePrivateIpAddress
+- InstanceRequirementsRequest
+- InstanceSecondaryInterfaceAttachment
+- InstanceSecondaryInterfacePrivateIpAddressRequest
+- InstanceTotalLocalStorageGB
+- IpRange
+- Ipv4PrefixSpecification
+- Ipv4PrefixSpecificationResponse
+- Ipv6PrefixSpecification
+- LaunchTemplateBlockDeviceMapping
+- LaunchTemplateCpuOptions
+- LaunchTemplateEnaSrdUdpSpecification
+- LaunchTemplateInstanceMetadataOptionsRequest
+- LaunchTemplateInstanceNetworkInterfaceSpecification
+- LaunchTemplateInstanceRequirements
+- LaunchTemplateInstanceSecondaryInterfaceSpecification
+- LaunchTemplateLicenseConfiguration
+- LaunchTemplateNetworkPerformanceOptionsRequest
+- LaunchTemplatePlacementRequest
+- LicenseConfiguration
+- MediaDeviceMemoryInfo
+- NetworkInterfaceAttachment
+- NetworkInterfaceCountRequest
+- NetworkInterfacePermission
+- NetworkInterfacePrivateIpAddress
+- NeuronDeviceInfo
 - ChangeBatch
-- Ec2InstanceAggregation
-- Ec2InstanceAggregationResponse
+- NeuronDeviceMemoryInfo
+- OperatorRequest
 - HostedZoneLimit
-- ExploitabilityDetails
+- PayerResponsibilityEntry
 - Route53AliasTarget
 - Route53DelegationSet
 - ForwardActionConfig
-- FindingDetailsError
-- FindingTypeAggregation
-- FindingTypeAggregationResponse
+- Phase1DHGroupNumbersListValue
+- Phase1IntegrityAlgorithmsListValue
+- Phase2EncryptionAlgorithmsRequestListValue
 - 0003-amplify-manual-deploy-uploads-the-zip.md
-- ImageLayerAggregationResponse
-- InspectorScoreDetails
+- Phase2IntegrityAlgorithmsListValue
+- PrivateDnsNameOptionsRequest
 - ObjectVersion
-- LambdaLayerAggregationResponse
-- MachineImageDetails
-- NetworkPath
-- S3RestoreStatus
-- NetworkReachabilityDetails
-- PackageAggregation
-- StatsEvent
-- PackageAggregationResponse
-- PackageFilter
-- PortRange
+- ProductCode
+- RouteTableAssociationState
+- VpcPeeringConnectionOptionsDescription
+- SubnetIpPrefixes
+- VpnAdditionalKeyExchange
+- TunnelOption
+- VpnStaticRoute
+- VgwTelemetry
+- RevokedSecurityGroupRule
+- SecurityGroupRule
 - services/ses.py
-- PortRangeFilter
-- Vm
-- ServerlessFunction
-- SortCriteria
-- RepositoryAggregation
-- TitleAggregation
-- VmInstanceAggregation
-- ServerlessFunctionAggregation
-- SeverityCounts
-- RepositoryAggregationResponse
-- BatchResultErrorEntry
-- ServerlessFunctionAggregationResponse
-- DeleteMessageBatchResultEntry
+- RunInstancesMonitoringEnabled
+- RequestLaunchTemplateData
+- SubnetConfiguration
+- VpnTunnelOptionsSpecification
+- VpcCidrBlockAssociation
+- VpcEncryptionControlExclusion
+- VpcEncryptionControlExclusions
+- ImageReplicationStatus
+- ImageScanStatus
+- ImageTagMutabilityExclusionFilter
+- ScoreDetails
+- Attribute
+- AutoScalingGroupProvider
+- CanaryConfiguration
+- ClusterServiceConnectDefaultsRequest
 - MultiRegionKey
-- AutoTuneOptionsInput
-- DescribePackagesFilter
-- JWTOptionsOutput
-- LogPublishingOption
-- LogPublishingOptionsStatus
-- OpenSearchClusterConfig
-- OpenSearchDeploymentStrategyOptions
-- OpenSearchDomainEndpointOptions
-- OpenSearchEBSOptions
-- OpenSearchModifyingProperties
-- OpenSearchOffPeakWindow
-- OpenSearchPackageVendingOptions
-- OpenSearchSnapshotOptions
-- SAMLOptionsInput
-- SoftwareUpdateOptionsStatus
+- ContainerRestartPolicy
+- CreateManagedInstancesProviderConfiguration
+- DaemonCapacityProvider
+- DaemonContainerDefinition
+- DaemonContainerImage
+- DaemonLinuxParameters
+- DaemonRevisionDetail
+- DeploymentController
+- DeploymentLifecycleHookTimeoutConfiguration
+- ECSMemoryGiBPerVCpuRequest
+- ECSMemoryMiBRequest
+- ECSTotalLocalStorageGBRequest
+- ECSVCpuCountRangeRequest
+- EphemeralStorage
+- ExecuteCommandLogConfiguration
+- ExpressGatewayServiceConfiguration
+- ExpressGatewayServiceNetworkConfiguration
+- Failure
+- GatewayConnectionResources
+- GatewayConnectorDeregistrationDelay
+- GatewayConnectorFilters
+- HealthCheck
+- IngressPathSummary
+- InstanceHealthCheckResult
+- InstanceLaunchTemplate
+- InstanceLaunchTemplateUpdate
+- KernelCapabilities
+- LogConfiguration
 - DBSecurityGroupMembership
 - ModifyAdditionalStorageVolume
-- OptionGroupMembership
-- RDSCertificateDetails
-- RDSPendingModifiedValues
-- CollectionSummary
+- ManagedAgent
+- ManagedCertificate
+- RDSDBSubnetGroup
+- ManagedIngressPath
+- ManagedInstancesProvider
 - HostedZoneSummary
 - Route53LinkedService
-- CSVOutput
+- ManagedInstancesStorageConfiguration
 - EndEvent
 - ObjectIdentifier
 - ObjectLockRetention
 - ObjectPart
 - OutputSerialization
-- S3ErrorDocument
-- S3SimplePrefix
+- ManagedLoadBalancer
+- MountPoint
+- NvidiaMpsAllocation
 - RestoreRequest
 - Stats
 - MessageSystemAttributeValue
-- STSCredentials
-- [0.12.1] - 2025-04-03
-- [0.12.2] - 2025-05-01
-- [0.23.0] - 2026-02-06
+- PlacementConstraint
+- PortMapping
+- Rollback
+- ServiceDeploymentAlarms
 - [0.23.1] - 2026-03-23
-- [0.24.2] - 2026-04-07
-- [0.28.1] - 2026-05-26
-- [0.2.3] - 2024-08-02
-- [0.2.4] - 2024-08-07
+- TaskManagedEBSVolumeTerminationPolicy
+- ServiceConnectTestTrafficRules
+- ServiceConnectClientAlias
+- ServiceConnectTlsConfiguration
 - [0.30.3] - 2026-07-24
 - [0.32.0] - 2026-08-28
-- [0.3.0] - 2024-08-22
-- OpenSearchWindowStartTime
-- AuthenticationMode
-- EC2SecurityGroup
+- ServiceConnectService
+- ServiceConnectAccessLogConfiguration
+- VpcLatticeAdvancedConfiguration
+- ServiceEvent
+- RepositoryCredentials
+- Tmpfs
+- SharingStrategy
+- ResourceRequirement
+- TaskDefinitionPlacementConstraint
+- ResolvedConfiguration
+- ServiceRevisionOverrides
+- EFSDestination
+- AddTagsOutput
+- AppCookieStickinessPolicy
+- ClassicELBAccessLog
+- ClassicELBConnectionSettings
+- LBCookieStickinessPolicy
+- PolicyAttributeDescription
+- PolicyTypeDescription
+- ElbV2AdministrativeOverride
+- ElbV2IpamPools
+- HttpRequestMethodConditionConfig
+- LoadBalancerAddress
+- LoadBalancerAttribute
+- PathPatternConditionConfig
+- BatchArrayProperties
+- EventsBatchParameters
+- EventsHttpParameters
+- EventsInputTransformer
+- EventsLogConfig
+- PutTargetsResultEntry
+- AuthenticationDescription
+- PermissionEntry
+- RoleValues
+- SamlConfiguration
+- UpdateInstruction
+- UpdateError
+- AccessKeyMetadata
+- ConsumerDescription
+- HashKeyRange
+- XksKeyConfigurationType
+- QueryParameter
+- DBInstanceAutomatedBackupsReplication
+- DomainMembership
+- ProcessorFeature
+- RDSAvailabilityZone
+- Change
+- ChangeInfo
+- CidrCollectionChange
+- Route53GeoLocation
+- ResourceRecord
+- Route53Coordinates
+- Route53GeoProximityLocation
+- AccessControlPolicy
+- Delete
+- DeleteMarkerEntry
+- Error
+- InputSerialization
+- JSONOutput
+- MetadataEntry
+- NoncurrentVersionTransition
+- S3AbortIncompleteMultipartUpload
+- S3CopyObjectResult
 - services/sesv2.py
-- IPAddressTypeStatus
-- OpenSearchAutoTuneOptions
-- OpenSearchServiceSoftwareOptions
+- S3Encryption
+- S3Location
+- RequestProgress
+- ScanRange
+- RecordsEvent
+- SelectObjectContentEventStream
+- S3EventHoldDuration
+- ReplicaRegionType
+- DeleteMessageBatchRequestEntry
+- MessageAttributeValue
+- SendMessageBatchResultEntry
+- SendMessageBatchRequestEntry
+- ParametersFilter
+- ParameterStringFilter
+- STSAssumedRoleUser
+- STSProvidedContext
+- [0.17.8] - 2025-08-06
+- [0.18.1] - 2025-09-03
+- [0.19.0] - 2025-09-04
+- [0.19.1] - 2025-09-05
+- [0.21.1] - 2025-10-09
+- [0.21.2] - 2025-10-21
+- [0.21.7] - 2026-01-20
+- [0.23.2] - 2026-04-01
+- [0.33.1] - 2026-08-31
+- [0.5.2] - 2024-10-04
 - ClassicELBConnectionDraining
 - S3NoncurrentVersionExpiration
 - SetLoadBalancerListenerSSLCertificateOutput
-- ElbV2HostHeaderRewriteConfig
-- HostHeaderConditionConfig
 - EventsSageMakerPipelineParameters
-- PutEventsRequestEntry
 - monolith-snapshot.md
-- AdvancedSecurityOptionsStatus
-- VpcEndpointError
 - AdditionalStorageVolumeOutput
 - Transition
 
 ## God Nodes (most connected - your core abstractions)
-1. `Boto3Model` - 3038 edges
-2. `PrimaryBoto3ModelQuerySet` - 822 edges
-3. `Boto3ModelManager` - 516 edges
-4. `PrimaryBoto3Model` - 255 edges
+1. `Boto3Model` - 2978 edges
+2. `PrimaryBoto3ModelQuerySet` - 600 edges
+3. `Boto3ModelManager` - 277 edges
+4. `PrimaryBoto3Model` - 256 edges
 5. `TagsDictMixin` - 153 edges
-6. `Tag` - 146 edges
-7. `Changelog` - 89 edges
-8. `EventBridgeEvent` - 82 edges
-9. `ReadonlyPrimaryBoto3Model` - 82 edges
-10. `ReadonlyBoto3ModelManager` - 68 edges
+6. `Changelog` - 89 edges
+7. `EventBridgeEvent` - 82 edges
+8. `ReadonlyPrimaryBoto3Model` - 82 edges
+9. `ReadonlyBoto3ModelManager` - 68 edges
+10. `TestBedrockRelations` - 65 edges
 
 ## Surprising Connections (you probably didn't know these)
-- `Consequences` --references--> `_bind_manager_session()`  [INFERRED]
-  docs/adr/0002-using-returns-a-session-bound-manager.md → botocraft/datasync.py
-- `Factory rules` --references--> `EventFactory`  [INFERRED]
-  .skills/botocraft-eventbridge-authoring/SKILL.md → botocraft/eventbridge/factory.py
 - `Tags` --references--> `EC2TagsManagerMixin`  [INFERRED]
   .skills/botocraft-service-authoring/references/ec2-case-study.md → botocraft/mixins/ec2.py
 - `Added` --references--> `InstanceManager`  [INFERRED]
   CHANGELOG.md → botocraft/services/ec2.py
-- `Secondary `alternate_name` (Pydantic collision)` --references--> `Volume`  [INFERRED]
-  .skills/botocraft-service-authoring/references/generator-yaml-pitfalls.md → botocraft/services/ec2.py
+- `Generator pitfalls (`return_type` / `response_attr`)` --references--> `VolumeAttachment`  [INFERRED]
+  .skills/botocraft-manager-authoring/SKILL.md → botocraft/services/ec2.py
+- `Added` --references--> `TaskDefinitionManager`  [INFERRED]
+  CHANGELOG.md → botocraft/services/ecs.py
+- `Added` --references--> `QueryDefinition`  [INFERRED]
+  CHANGELOG.md → botocraft/services/logs.py
 
 ## Import Cycles
 - 3-file cycle: `botocraft/eventbridge/__init__.py -> botocraft/eventbridge/factory.py -> botocraft/eventbridge/codepipeline.py -> botocraft/eventbridge/__init__.py`
 - 3-file cycle: `botocraft/eventbridge/__init__.py -> botocraft/eventbridge/factory.py -> botocraft/eventbridge/ssm.py -> botocraft/eventbridge/__init__.py`
 
-## Communities (912 total, 587 thin omitted)
+## Communities (1017 total, 644 thin omitted)
 
 ### Community 0 - "services/ec2.py"
-Cohesion: 0.00
-Nodes (284): AcceleratorCountRequest, AcceleratorTotalMemoryMiBRequest, AssignedPrivateIpAddress, AttachmentEnaSrdSpecification, AttachmentEnaSrdUdpSpecification, AuthorizeSecurityGroupIngressResult, AvailabilityZoneAddress, BaselineEbsBandwidthMbpsRequest (+276 more)
+Cohesion: 0.01
+Nodes (200): AcceleratorCountRequest, AcceleratorTotalMemoryMiBRequest, AdditionalKeyExchangeMethodsListValue, AdditionalKeyExchangeMethodsRequestListValue, AssociatedKmsKey, AttachmentEnaSrdSpecification, AvailabilityZoneAddress, BaselineEbsBandwidthMbpsRequest (+192 more)
 
 ### Community 1 - "services/bedrock.py"
 Cohesion: 0.01
-Nodes (174): AccountEnforcedGuardrailInferenceInputConfiguration, AgreementAvailability, AutomatedReasoningCheckFinding, AutomatedReasoningCheckImpossibleFinding, AutomatedReasoningCheckInputTextReference, AutomatedReasoningCheckInvalidFinding, AutomatedReasoningCheckLogicWarning, AutomatedReasoningCheckRule (+166 more)
+Nodes (198): AccountEnforcedGuardrailInferenceInputConfiguration, AgreementAvailability, AutomatedReasoningCheckFinding, AutomatedReasoningCheckImpossibleFinding, AutomatedReasoningCheckInputTextReference, AutomatedReasoningCheckInvalidFinding, AutomatedReasoningCheckLogicWarning, AutomatedReasoningCheckNoTranslationsFinding (+190 more)
 
 ### Community 2 - "Boto3Model"
 Cohesion: 0.00
-Nodes (351): Boto3Model, ACMHttpRedirect, ACMRenewalSummary, CertificateSummary, DomainValidationOption, ExtendedKeyUsage, Filters, AmplifyCertificate (+343 more)
-
-### Community 3 - "AMI"
-Cohesion: 0.05
-Nodes (4): AMIModelMixin, LaunchConfiguration, AMI, EC2InstanceType
+Nodes (368): Boto3Model, ACMHttpRedirect, ACMResourceRecord, CertificateOptions, CertificateSummary, DomainValidation, DomainValidationOption, ExtendedKeyUsage (+360 more)
 
 ### Community 4 - "services/bedrock_runtime.py"
 Cohesion: 0.01
-Nodes (98): AnyToolChoice, AppliedGuardrailDetails, AutoToolChoice, CacheDetail, CachePointBlock, Citation, CitationGeneratedContent, CitationLocation (+90 more)
+Nodes (98): AnyToolChoice, AppliedGuardrailDetails, AudioBlock, AudioSource, AutoToolChoice, CacheDetail, CachePointBlock, Citation (+90 more)
 
 ### Community 5 - "DataSyncWorkspace"
-Cohesion: 0.06
-Nodes (3): _bind_manager_session(), DataSyncAgentFacade, DataSyncWorkspace
+Cohesion: 0.04
+Nodes (7): _bind_manager_session(), DataSyncAgentFacade, DataSyncExecutionFacade, DataSyncTaskFacade, DataSyncWorkspace, DataSyncTask, DataSyncTaskManager
 
-### Community 6 - "test_ec2_primary_model_expansion.py"
-Cohesion: 0.03
-Nodes (23): EC2TagsManagerMixin, AttachVpnGatewayResult, CreateCustomerGatewayResult, CreateInternetGatewayResult, CreateVpnGatewayResult, CustomerGatewayManager, DeleteKeyPairResult, DescribeCustomerGatewaysResult (+15 more)
+### Community 6 - "VpnGatewayManager"
+Cohesion: 0.06
+Nodes (10): AttachVpnGatewayResult, CreateInternetGatewayResult, CreateVpnGatewayResult, DescribeInternetGatewaysResult, DescribeVpnGatewaysResult, EC2VpcAttachment, InternetGatewayManager, VpnGatewayManager (+2 more)
 
 ### Community 7 - "services/amplify.py"
-Cohesion: 0.02
-Nodes (43): wrapper(), amplify_stamp_job_scope(), wrapper(), AmplifyAppManagerMixin, AmplifyArtifactManagerMixin, AmplifyBackendEnvironmentManagerMixin, AmplifyBranchManagerMixin, AmplifyDomainAssociationManagerMixin (+35 more)
-
-### Community 8 - "services/ecs.py"
 Cohesion: 0.01
-Nodes (163): AdvancedConfiguration, Attribute, AutoRepairConfiguration, AutoScalingGroupProvider, AutoScalingGroupProviderUpdate, AwsVpcConfiguration, CanaryConfiguration, CapacityProviderStrategyItem (+155 more)
+Nodes (85): amplify_stamp_app_id(), wrapper(), amplify_stamp_job_scope(), wrapper(), amplify_sync_tags(), AmplifyAppManagerMixin, AmplifyArtifactManagerMixin, AmplifyBackendEnvironmentManagerMixin (+77 more)
 
 ### Community 10 - "services/inspector2.py"
-Cohesion: 0.03
-Nodes (42): AccountAggregation, AggregationRequest, AmiAggregationResponse, AtigData, AwsEc2InstanceDetails, CisaData, CisTargets, CodeRepositoryAggregationResponse (+34 more)
+Cohesion: 0.01
+Nodes (106): CisScanConfigurationManagerMixin, convert_delegated_admin(), wrapper(), list_augment_delegated_admin_accounts(), wrapper(), AccountAggregation, AccountAggregationResponse, AggregationRequest (+98 more)
 
-### Community 11 - "OpenSearchDomainManager"
-Cohesion: 0.04
-Nodes (21): _attach_domain_tags(), multiple_opensearch_domains_include_tags(), wrapper(), OpenSearchDomainManagerMixin, OpenSearchPackageManagerMixin, single_opensearch_domain_include_tags(), wrapper(), single_opensearch_domain_update_include_tags() (+13 more)
+### Community 11 - "_attach_domain_tags"
+Cohesion: 0.09
+Nodes (10): _attach_domain_tags(), multiple_opensearch_domains_include_tags(), wrapper(), single_opensearch_domain_include_tags(), wrapper(), single_opensearch_domain_update_include_tags(), wrapper(), CreateDomainResponse (+2 more)
 
 ### Community 12 - "services/codebuild.py"
-Cohesion: 0.01
-Nodes (74): AutoRetryConfig, BatchRestrictions, BuildArtifacts, BuildBatchFilter, BuildBatchPhase, BuildGroup, BuildNotDeleted, BuildPhase (+66 more)
+Cohesion: 0.02
+Nodes (72): AutoRetryConfig, BatchRestrictions, BuildArtifacts, BuildBatchFilter, BuildBatchPhase, BuildGroup, BuildNotDeleted, BuildPhase (+64 more)
 
-### Community 14 - "Service"
-Cohesion: 0.03
-Nodes (7): Cluster, ContainerInstance, Service, ServiceDeployment, ServiceRevision, _manager_proxy(), TestECSRelations
+### Community 14 - "Cluster"
+Cohesion: 0.04
+Nodes (6): CapacityProvider, Cluster, ContainerInstance, TaskSet, _manager_proxy(), TestECSRelations
 
 ### Community 15 - "services/test_codepipeline.py"
-Cohesion: 0.07
-Nodes (10): ActionTypeManager, GetActionTypeOutput, GetPipelineExecutionOutput, ListActionTypesOutput, ListPipelineExecutionsOutput, PipelineExecutionManager, StopPipelineExecutionOutput, FakePaginator (+2 more)
+Cohesion: 0.09
+Nodes (9): ActionTypeManager, GetActionTypeOutput, ListActionTypesOutput, ListPipelineExecutionsOutput, PipelineExecutionManager, StopPipelineExecutionOutput, FakePaginator, TestActionTypeManager (+1 more)
 
-### Community 16 - "DataSyncTask"
-Cohesion: 0.05
-Nodes (7): DataSyncTaskFacade, CreateTaskResponse, DataSyncListTasksResponse, DataSyncTask, DataSyncTaskManager, StartTaskExecutionResponse, UpdateTaskResponse
+### Community 16 - "secondary"
+Cohesion: 0.03
+Nodes (59): alternate_name, force_create, alternate_name, alternate_name, alternate_name, alternate_name, alternate_name, alternate_name (+51 more)
 
 ### Community 17 - "Daemon"
-Cohesion: 0.08
-Nodes (5): DaemonManagerMixin, Daemon, DaemonManager, DescribeDaemonResponse, TestDaemonManager
+Cohesion: 0.13
+Nodes (4): Daemon, DaemonManager, DescribeDaemonResponse, TestDaemonManager
 
 ### Community 19 - "mixins/codepipeline.py"
-Cohesion: 0.11
+Cohesion: 0.12
 Nodes (17): action_type_declaration_response_to_action_type(), wrapper(), action_type_response_to_action_type(), wrapper(), _flatten_pipeline_payload(), pipeline_execution_list_add_pipeline_name(), wrapper(), pipeline_execution_response_to_pipeline_execution() (+9 more)
 
 ### Community 20 - "DocDBClusterManager"
-Cohesion: 0.08
-Nodes (10): single_docdb_cluster_include_tags(), CreateDBClusterResult, DeleteDBClusterResult, DocDBClusterManager, DocDBClusterMessage, FailoverDBClusterResult, ModifyDBClusterResult, RestoreDBClusterToPointInTimeResult (+2 more)
+Cohesion: 0.09
+Nodes (9): single_docdb_cluster_include_tags(), CreateDBClusterResult, DocDBClusterManager, DocDBClusterMessage, FailoverDBClusterResult, ModifyDBClusterResult, RestoreDBClusterToPointInTimeResult, StartDBClusterResult (+1 more)
 
 ### Community 21 - "EC2VpcEndpointManager"
 Cohesion: 0.12
-Nodes (9): CreateVpcEndpointResult, DeleteVpcEndpointsResult, DescribeVpcEndpointsResult, EC2VpcEndpointManager, ModifyVpcEndpointResult, TestEC2VpcEndpointManagerModifyKwargs, TestEC2VpcEndpointManagerModify, TestEC2VpcEndpointManagerDelete (+1 more)
+Nodes (8): CreateVpcEndpointResult, DeleteVpcEndpointsResult, DescribeVpcEndpointsResult, EC2VpcEndpointManager, ModifyVpcEndpointResult, TestEC2VpcEndpointManagerModifyKwargs, TestEC2VpcEndpointManagerModify, TestEC2VpcEndpointManagerDelete
 
 ### Community 22 - "services/cloudwatch.py"
 Cohesion: 0.02
-Nodes (53): CloudWatchAnomalyDetectorManagerMixin, CloudWatchMetricManagerMixin, AlarmHistoryItem, CloudWatchActionConfiguration, CloudWatchAlarmMuteRule, CloudWatchAlarmMuteSchedule, CloudWatchAlarmMuteTargets, CloudWatchAlarmPromQLCriteria (+45 more)
+Nodes (63): CloudWatchAnomalyDetectorManagerMixin, CloudWatchInsightRuleManagerMixin, CloudWatchMetricManagerMixin, CloudWatchMetricModelMixin, _metric_identity(), _metrics_match(), _normalize_payload(), AlarmHistoryItem (+55 more)
 
-### Community 23 - "TestBedrockRelations"
+### Community 23 - "IAMRoleManager"
 Cohesion: 0.04
-Nodes (9): AutomatedReasoningPolicyAnnotationsManager, AutomatedReasoningPolicyTestCase, AutomatedReasoningPolicyTestResult, BedrockVpcConfig, InferenceProfileModel, PromptRouterTargetModel, UpdateAutomatedReasoningPolicyAnnotationsResponse, IAMRoleManager (+1 more)
+Nodes (10): CreateRoleResponse, CreateServiceLinkedRoleResponse, DeleteServiceLinkedRoleResponse, GetRolePolicyResponse, GetRoleResponse, IAMRoleManager, ListAttachedRolePoliciesResponse, ListRolePoliciesResponse (+2 more)
 
-### Community 24 - "test_bedrock.py"
-Cohesion: 0.04
-Nodes (17): AutomatedReasoningPolicy, AutomatedReasoningPolicyDefinition, AutomatedReasoningPolicyManager, CreateAutomatedReasoningPolicyResponse, CreateAutomatedReasoningPolicyVersionResponse, CreateFoundationModelAgreementResponse, ExportAutomatedReasoningPolicyVersionResponse, FoundationModelAgreementManager (+9 more)
+### Community 24 - "AutomatedReasoningPolicyManager"
+Cohesion: 0.09
+Nodes (8): AutomatedReasoningPolicyManager, CreateAutomatedReasoningPolicyResponse, CreateAutomatedReasoningPolicyVersionResponse, ExportAutomatedReasoningPolicyVersionResponse, ListAutomatedReasoningPoliciesResponse, StartAutomatedReasoningPolicyBuildWorkflowResponse, UpdateAutomatedReasoningPolicyResponse, TestAutomatedReasoningPolicyVersionMethods
 
-### Community 25 - "services/sqs.py"
-Cohesion: 0.03
-Nodes (17): MessageModelMixin, queue_list_urls_to_queues(), wrapper(), queue_recieve_messages_add_event_factory(), queue_recieve_messages_add_queue_url(), QueueManagerMixin, QueueModelMixin, ChangeMessageVisibilityBatchResult (+9 more)
+### Community 25 - "QueueManager"
+Cohesion: 0.06
+Nodes (6): ChangeMessageVisibilityBatchResult, CreateQueueResult, DeleteMessageBatchResult, ListQueuesResult, QueueManager, SendMessageBatchResult
 
 ### Community 26 - "PrimaryBoto3ModelQuerySet"
-Cohesion: 0.02
-Nodes (28): multiple_docdb_cluster_include_tags(), wrapper(), wrapper(), multiple_docdb_parameter_group_include_tags(), wrapper(), multiple_docdb_subnet_group_include_tags(), wrapper(), wrapper() (+20 more)
+Cohesion: 0.01
+Nodes (104): add_certificate_tags(), certificates_only(), wrapper(), certifictate_only(), multiple_docdb_cluster_include_tags(), wrapper(), multiple_docdb_cluster_parameter_group_include_tags(), wrapper() (+96 more)
 
-### Community 27 - "RouteTableManager"
-Cohesion: 0.10
-Nodes (10): AuthorizeSecurityGroupEgressResult, CreateRouteResult, CreateRouteTableResult, EC2VolumeModification, RevokeSecurityGroupEgressResult, RouteTableManager, Non-CRUD helpers (attach, routes, associate, egress), Generic lifecycle helpers (+2 more)
+### Community 27 - "EC2 examples (verified)"
+Cohesion: 0.03
+Nodes (42): LambdaTransformConfiguration, AssociateRouteTableResult, AuthorizeSecurityGroupEgressResult, CreateRouteResult, CreateRouteTableResult, DescribeRouteTablesResult, DescribeVolumesResult, EC2VolumeModification (+34 more)
 
 ### Community 28 - "mixins/ecr.py"
-Cohesion: 0.03
-Nodes (19): ECRImageManagerMixin, image_list_images_ecr_images_only(), wrapper(), repo_get_add_tags(), repo_list_add_tags(), repo_list_images_ecr_images_only(), wrapper(), RepositoryMixin (+11 more)
+Cohesion: 0.06
+Nodes (13): ECRImageManagerMixin, image_list_images_ecr_images_only(), wrapper(), repo_get_add_tags(), repo_list_add_tags(), repo_list_images_ecr_images_only(), wrapper(), RepositoryMixin (+5 more)
 
 ### Community 29 - "services/bedrock_agentcore_control.py"
 Cohesion: 0.00
-Nodes (314): secrets_only(), wrapper(), AgentCoreApiKeyCredentialProvider, AgentCoreCodeInterpreterCertificate, AgentCoreDeletePolicyResponse, AgentCoreGatewayRuleAction, AgentCoreGetPolicyResponse, AgentCoreNetworkConfiguration (+306 more)
+Nodes (313): AgentCoreCodeInterpreterCertificate, AgentCoreDeletePolicyResponse, AgentCoreGatewayRuleAction, AgentCoreGetPolicyResponse, AgentCoreNetworkConfiguration, AgentCorePortRange, AgentRuntimeArtifact, AllowedPort (+305 more)
 
 ### Community 30 - "SESTemplate"
 Cohesion: 0.08
 Nodes (8): GetTemplateResponse, ListTemplatesResponse, SESBulkEmailDestination, SESDestination, SESMessageTag, SESTemplate, SESTemplateManager, TestTemplateManager
 
+### Community 31 - "ServiceSphinxDocBuilder"
+Cohesion: 0.09
+Nodes (4): ModelTagsDAO, resolve_list_forward_ref_shadowing(), ServiceSphinxDocBuilder, TestResolveListForwardRefShadowing
+
 ### Community 32 - "eventbridge/elasticache.py"
+Cohesion: 0.07
+Nodes (19): ElastiCacheAWSAPICallViaCloudTrailEvent, ElastiCacheCacheCreatedEvent, ElastiCacheCacheCreationFailedEvent, ElastiCacheCacheDeletedEvent, ElastiCacheCacheLimitApproachingEvent, ElastiCacheCacheUpdatedEvent, ElastiCacheCacheUpdateFailedEvent, ElastiCacheNotificationDetailProtocol (+11 more)
+
+### Community 33 - "CustomModelManager"
+Cohesion: 0.18
+Nodes (4): CreateCustomModelResponse, CustomModelManager, ListCustomModelsResponse, TestCustomModelManager
+
+### Community 34 - "Task"
 Cohesion: 0.04
-Nodes (20): ElastiCacheAWSAPICallViaCloudTrailEvent, ElastiCacheCacheCreatedEvent, ElastiCacheCacheCreationFailedEvent, ElastiCacheCacheDeletedEvent, ElastiCacheCacheLimitApproachingEvent, ElastiCacheCacheUpdatedEvent, ElastiCacheCacheUpdateFailedEvent, ElastiCacheNotificationDetailProtocol (+12 more)
-
-### Community 33 - "CustomModel"
-Cohesion: 0.10
-Nodes (5): CreateCustomModelResponse, CustomModel, CustomModelManager, ListCustomModelsResponse, TestCustomModelManager
-
-### Community 34 - "mixins/ecs.py"
-Cohesion: 0.03
-Nodes (16): shell_command(), build_sigint_handler(), _cluster_name_from_arn(), ecs_container_instances_tasks_only(), wrapper(), ECSExecMixin, NoRunningTasks, ECSServiceModelMixin (+8 more)
+Nodes (11): build_sigint_handler(), _cluster_name_from_arn(), ECSExecMixin, NoRunningTasks, ECSTaskModelMixin, Container, Task, _ExecStub (+3 more)
 
 ### Community 35 - "_SESManagerProtocol"
 Cohesion: 0.08
 Nodes (4): SESIdentityManagerMixin, _SESManagerProtocol, SESTemplateManagerMixin, SESBulkEmailDestinationStatus
 
-### Community 36 - "ModelCustomizationJob"
-Cohesion: 0.06
-Nodes (5): CreateModelCustomizationJobResponse, ListModelCustomizationJobsResponse, ModelCustomizationJob, ModelCustomizationJobManager, StopModelCustomizationJobResponse
-
 ### Community 37 - "ManagerMethodGenerator"
-Cohesion: 0.04
-Nodes (10): ManagerMethodGenerator, CreateMethodGenerator, DeleteMethodGenerator, GeneralMethodGenerator, GetManyMethodGenerator, ListMethodGenerator, PartialUpdateMethodGenerator, UpdateMethodGenerator (+2 more)
+Cohesion: 0.03
+Nodes (20): ManagerMethodGenerator, CreateMethodGenerator, DeleteMethodGenerator, GeneralMethodGenerator, GetMethodGenerator, GetManyMethodGenerator, ListMethodGenerator, PartialUpdateMethodGenerator (+12 more)
 
 ### Community 38 - "mixins/codebuild.py"
-Cohesion: 0.05
-Nodes (32): build_batch_ids_to_build_batches(), build_batch_ids_to_build_batches_with_project(), wrapper(), wrapper(), build_batch_response_to_build_batch(), wrapper(), build_ids_to_builds(), wrapper() (+24 more)
+Cohesion: 0.06
+Nodes (35): build_batch_ids_to_build_batches(), wrapper(), build_ids_to_builds(), build_ids_to_builds_with_project(), wrapper(), wrapper(), _chunked(), command_execution_response_to_command_execution() (+27 more)
 
 ### Community 39 - "ServiceGenerator"
 Cohesion: 0.05
-Nodes (17): models_sync(), GetMethodGenerator, BotocraftInterface, ServiceGenerator, build_get_method_generator(), test_get_response_class_keeps_primary_model_when_explicit_type_matches(), test_get_response_class_uses_explicit_wrapper_model(), build_list_method_generator() (+9 more)
+Nodes (13): models_sync(), BotocraftInterface, ServiceDefinition, ServiceGenerator, Task 5: Document the contract, build_get_method_generator(), test_get_response_class_keeps_primary_model_when_explicit_type_matches(), test_get_response_class_uses_explicit_wrapper_model() (+5 more)
 
 ### Community 40 - "SecretManager"
-Cohesion: 0.04
+Cohesion: 0.05
 Nodes (15): CancelRotateSecretResponse, CreateSecretResponse, DeleteResourcePolicyResponse, DeleteSecretResponse, GetRandomPasswordResponse, GetResourcePolicyResponse, GetSecretValueResponse, ListSecretsResponse (+7 more)
 
-### Community 41 - "IAMAccessKeyManager"
-Cohesion: 0.13
-Nodes (4): CreateAccessKeyResponse, GetAccessKeyLastUsedResponse, IAMAccessKeyManager, ListAccessKeysResponse
-
 ### Community 42 - "test_cloudtrail.py"
-Cohesion: 0.04
-Nodes (35): ACMAWSAPICallViaCloudTrailEvent, _botocore_session(), _cloudtrail_field_alias(), CloudTrailApiCallDetailProtocol, CloudTrailApiCallMixin, _CloudTrailShapeModelBuilder, request_model_for_operation(), service_name_from_event_source() (+27 more)
+Cohesion: 0.05
+Nodes (26): _botocore_session(), _cloudtrail_field_alias(), CloudTrailApiCallDetailProtocol, CloudTrailApiCallMixin, _CloudTrailShapeModelBuilder, request_model_for_operation(), service_name_from_event_source(), AWS API Call via CloudTrail — raw model rules (+18 more)
 
 ### Community 43 - "ProvisionedModelThroughput"
 Cohesion: 0.09
 Nodes (4): CreateProvisionedModelThroughputResponse, ListProvisionedModelThroughputsResponse, ProvisionedModelThroughput, ProvisionedModelThroughputManager
 
-### Community 44 - "datasync_add_tags"
-Cohesion: 0.06
-Nodes (10): datasync_add_tags(), CreateLocationFsxLustreResponse, CreateLocationFsxWindowsResponse, CreateLocationHdfsResponse, DataSyncLocationFsxLustreManager, DataSyncLocationFsxWindowsManager, DataSyncLocationHdfsManager, UpdateLocationFsxLustreResponse (+2 more)
+### Community 44 - "DataSyncLocationFsxWindows"
+Cohesion: 0.12
+Nodes (4): CreateLocationFsxWindowsResponse, DataSyncLocationFsxWindows, DataSyncLocationFsxWindowsManager, UpdateLocationFsxWindowsResponse
 
 ### Community 45 - "ConversationManager"
-Cohesion: 0.07
-Nodes (8): ConversationManager, ConverseStreamResponse, GetAsyncInvokeResponse, InvokeModelWithResponseStreamResponse, ListAsyncInvokesResponse, StartAsyncInvokeResponse, FakeEventStream, TestConversationManager
+Cohesion: 0.09
+Nodes (6): ConversationManager, InvokeModelResponse, InvokeModelWithResponseStreamResponse, ListAsyncInvokesResponse, FakeEventStream, TestConversationManager
 
 ### Community 46 - "coerce_queryset_results"
-Cohesion: 0.04
-Nodes (35): coerce_queryset_results(), _as_payload(), configuration_set_names_to_models(), wrapper(), dedicated_ip_pool_names_to_models(), wrapper(), deliverability_test_report_response_to_model(), wrapper() (+27 more)
+Cohesion: 0.05
+Nodes (27): _as_payload(), configuration_set_names_to_models(), wrapper(), deliverability_test_report_response_to_model(), wrapper(), email_identity_response_to_model(), wrapper(), email_identity_summaries_to_models() (+19 more)
 
 ### Community 47 - "Build"
-Cohesion: 0.05
-Nodes (16): build_ids_to_builds_with_project(), wrapper(), build_response_to_build(), wrapper(), _hydrate_build_ids(), BatchDeleteBuildsOutput, BatchGetBuildsOutput, Build (+8 more)
+Cohesion: 0.06
+Nodes (13): build_response_to_build(), wrapper(), BatchDeleteBuildsOutput, BatchGetBuildsOutput, Build, BuildManager, ListBuildsForProjectOutput, ListBuildsOutput (+5 more)
 
-### Community 48 - "CapacityProvider"
-Cohesion: 0.07
-Nodes (8): CapacityProviderManagerMixin, CapacityProvider, CapacityProviderManager, CreateCapacityProviderResponse, DeleteCapacityProviderResponse, DescribeCapacityProvidersResponse, UpdateCapacityProviderResponse, TestCapacityProviderManager
+### Community 48 - "event_summary"
+Cohesion: 0.04
+Nodes (3): event_summary(), EventSummaryProtocol, test_event_summary_accepts_event_and_event_name_details()
 
 ### Community 49 - "MultiRegionEndpoint"
 Cohesion: 0.11
@@ -1034,11 +1180,11 @@ Nodes (15): BulkEmailEntryResult, DeliverabilityTestReportManager, EmailIdentity
 
 ### Community 51 - "ProjectManager"
 Cohesion: 0.05
-Nodes (17): webhook_response_with_project_name(), wrapper(), BatchGetProjectsOutput, CreateProjectOutput, CreateWebhookOutput, GetResourcePolicyOutput, ListProjectsOutput, ListSharedProjectsOutput (+9 more)
+Nodes (15): webhook_response_with_project_name(), wrapper(), BatchGetProjectsOutput, CreateWebhookOutput, GetResourcePolicyOutput, ListProjectsOutput, ListSharedProjectsOutput, ProjectManager (+7 more)
 
-### Community 52 - "Bucket"
-Cohesion: 0.05
-Nodes (11): Bucket, WebsiteConfiguration, Advanced `get` and `list`, Botocraft Manager Advanced, Decorator vs mixin, EC2/ECS reference, Generator pitfalls for irregular methods, Generic method discovery (+3 more)
+### Community 52 - "Rule"
+Cohesion: 0.11
+Nodes (11): Rule, Advanced `get` and `list`, Botocraft Manager Advanced, Decorator vs mixin, EC2/ECS reference, Generator pitfalls for irregular methods, Generic method discovery, Mixin gap detection (+3 more)
 
 ### Community 53 - "ecr/__init__.py"
 Cohesion: 0.07
@@ -1046,75 +1192,75 @@ Nodes (13): ECRAWSAPICallViaCloudTrail, ECRAWSAPICallViaCloudTrailEvent, ECRImag
 
 ### Community 54 - "WrongConverterError"
 Cohesion: 0.05
-Nodes (15): ModelHasNoMembersError, NoConverterError, NoPythonTypeError, WrongConverterError, AbstractShapeConverter, BinaryShapeConverter, BooleanShapeConverter, DoubleShapeConverter (+7 more)
+Nodes (17): ModelHasNoMembersError, NoConverterError, NoPythonTypeError, WrongConverterError, AbstractShapeConverter, BinaryShapeConverter, BooleanShapeConverter, DoubleShapeConverter (+9 more)
 
 ### Community 55 - "EventBridgeServiceExporter"
 Cohesion: 0.05
-Nodes (14): EventBridgeAuthoringError, EventBridgeExportReport, EventBridgeServiceExporter, ExportedEventModule, fake_command_runner_factory(), run(), FakeExportResponse, FakeSchema (+6 more)
+Nodes (15): EventBridgeAuthoringError, EventBridgeExportReport, EventBridgeServiceExporter, ExportedEventModule, SchemaManagerProtocol, fake_command_runner_factory(), run(), FakeExportResponse (+7 more)
 
 ### Community 56 - "test_ses.py"
 Cohesion: 0.09
 Nodes (11): SESBody, SESContent, SESIdentity, SESIdentityManager, SESMessage, SESRawMessage, SESReceiptRuleSetManager, _identity_verification_attributes_payload() (+3 more)
 
 ### Community 57 - "ACMCertificateManager"
-Cohesion: 0.07
-Nodes (9): add_certificate_tags(), wrapper(), certifictate_only(), ACMCertificateManager, DescribeCertificateResponse, ImportCertificateResponse, ListCertificatesResponse, RequestCertificateResponse (+1 more)
+Cohesion: 0.10
+Nodes (6): ACMCertificateManager, DescribeCertificateResponse, ImportCertificateResponse, ListCertificatesResponse, RequestCertificateResponse, RevokeCertificateResponse
 
 ### Community 58 - ".sessionize"
 Cohesion: 0.01
-Nodes (42): DescribeScalingPoliciesResponse, LaunchConfigurationsType, AgentCorePolicyGenerationManager, ListPolicyGenerationSummariesResponse, StartPolicyGenerationResponse, CreateEventOutput, GetAgentCardResponse, GetPaymentSessionResponse (+34 more)
+Nodes (48): CreateEventOutput, CreatePaymentInstrumentResponse, GetAgentCardResponse, StartMemoryExtractionJobOutput, CreateModelCopyJobResponse, CreateModelInvocationJobResponse, GetAutomatedReasoningPolicyTestResultResponse, ListAutomatedReasoningPolicyTestResultsResponse (+40 more)
 
 ### Community 59 - "test_ecs.py"
-Cohesion: 0.04
-Nodes (25): ServiceRevisionManagerMixin, TaskDefinitionManagerMixin, ClusterManager, CreateClusterResponse, DaemonDeploymentManager, DaemonRevisionManager, DaemonTaskDefinition, DaemonTaskDefinitionManager (+17 more)
+Cohesion: 0.05
+Nodes (18): CapacityProviderManager, ClusterManager, CreateCapacityProviderResponse, CreateClusterResponse, DaemonTaskDefinition, DaemonTaskDefinitionManager, DeleteCapacityProviderResponse, DeleteClusterResponse (+10 more)
 
-### Community 60 - "VpcPeeringConnectionManager"
-Cohesion: 0.10
-Nodes (10): AcceptVpcPeeringConnectionResult, CreateVpcPeeringConnectionResult, DeleteVpcPeeringConnectionResult, DescribeVpcPeeringConnectionsResult, ModifyVpcPeeringConnectionOptionsResult, PeeringConnectionOptionsRequest, RejectVpcPeeringConnectionResult, VpcPeeringConnectionManager (+2 more)
+### Community 60 - "EC2TagsManagerMixin"
+Cohesion: 0.04
+Nodes (22): EC2TagsManagerMixin, AcceptVpcPeeringConnectionResult, AssociateNatGatewayAddressResult, CreateNatGatewayResult, CreateVpcPeeringConnectionResult, CreateVpnConnectionResult, DeleteNatGatewayResult, DeleteVpcPeeringConnectionResult (+14 more)
 
 ### Community 61 - "task_state_change.py"
 Cohesion: 0.05
 Nodes (24): ECSAWSAPICallViaCloudTrail, ECSAWSAPICallViaCloudTrailEvent, AttachmentDetails, AttributesDetails, Detail, ECSContainerInstanceStateChange, ECSContainerInstanceStateChangeEvent, ResourceDetails (+16 more)
 
-### Community 62 - "Boto3ModelManagerFilter"
-Cohesion: 0.03
-Nodes (3): Boto3ModelManagerFilter, get_field_value(), TestBoto3ModelManagerFilter
+### Community 63 - "Service"
+Cohesion: 0.04
+Nodes (3): ECSServiceModelMixin, Service, TestECSServiceModelMixin
 
 ### Community 64 - "DataSyncLocationCatalog"
-Cohesion: 0.03
-Nodes (10): DataSyncLocationCatalog, _LocationFacade, DataSyncLocationAzureBlob, DataSyncLocationEfs, DataSyncLocationFsxLustre, DataSyncLocationFsxOntap, DataSyncLocationFsxOpenZfs, DataSyncLocationFsxWindows (+2 more)
+Cohesion: 0.06
+Nodes (4): DataSyncLocationCatalog, _LocationFacade, DataSyncLocationFsxOpenZfs, DataSyncLocationNfs
 
 ### Community 65 - "scan_resource_change.py"
 Cohesion: 0.21
 Nodes (5): ECRScanResourceChangeEvent, Repository, ScanFrequency, ScanResourceChange, ScanType
 
-### Community 66 - "VolumeManager"
-Cohesion: 0.10
-Nodes (8): DescribeVolumesResult, Volume, VolumeAttachment, VolumeManager, Generator pitfalls (`return_type` / `response_attr`), TestVolumeManagerAttachDetach, TestVolumeManagerCreateFromSnapshot, TestVolumeManagerCreateFromSnapshot
+### Community 66 - "DocDBClusterParameterGroup"
+Cohesion: 0.06
+Nodes (15): DocDBClusterParameterGroupManagerMixin, single_docdb_cluster_parameter_group_include_tags(), DocDBClusterParameterGroup, DocDBClusterParameterGroupManager, DocDBClusterParameterGroupNameMessage, DocDBClusterParameterGroupsMessage, DocDBCopyDBClusterParameterGroupResult, DocDBCreateDBClusterParameterGroupResult (+7 more)
 
 ### Community 67 - "FakeShardClient"
-Cohesion: 0.24
-Nodes (5): FakePaginator, FakeShardClient, make_manager(), shard_payload(), TestKinesisShardManager
+Cohesion: 0.20
+Nodes (6): FakePaginator, FakeShardClient, make_manager(), PollerStreamManager, shard_payload(), TestKinesisShardManager
 
-### Community 68 - "service.py"
-Cohesion: 0.03
-Nodes (21): DocumentationFormatter, AttributeTransformerDefinition, CodeTransformerDefinition, Importable, ManagerDefinition, ModelAttributeDefinition, ModelDefinition, ModelManagerMethodArgDefinition (+13 more)
+### Community 68 - "ModelGenerator"
+Cohesion: 0.04
+Nodes (11): ModelAttributeDefinition, ModelDefinition, AbstractGenerator, BotocoreFieldsFormatter, ExtraFieldsFormatter, ModelGenerator, build_model_generator(), test_primary_model_keeps_computed_arn_property_for_other_arn_keys() (+3 more)
 
 ### Community 69 - "mixins/grafana.py"
-Cohesion: 0.09
-Nodes (15): ManagedGrafanaServiceAccountTokenManagerMixin, service_account_token_create_to_token_with_key(), wrapper(), ManagedGrafanaServiceAccountTokenWithKey, Add AWS Managed Grafana Support, Goal, Implementation Steps, Manager Surface (+7 more)
+Cohesion: 0.12
+Nodes (12): ManagedGrafanaServiceAccountTokenWithKey, Add AWS Managed Grafana Support, Goal, Implementation Steps, Manager Surface, Open Risks, Public Model, Scope (+4 more)
 
 ### Community 70 - "services/codeconnections.py"
-Cohesion: 0.09
-Nodes (15): sync_configuration_response_to_sync_configuration(), wrapper(), CodeConnectionsVpcConfiguration, CreateSyncConfigurationOutput, DeleteConnectionOutput, DeleteHostOutput, DeleteSyncConfigurationOutput, GetSyncConfigurationOutput (+7 more)
+Cohesion: 0.12
+Nodes (9): sync_configuration_response_to_sync_configuration(), wrapper(), CreateSyncConfigurationOutput, GetSyncConfigurationOutput, SyncConfiguration, SyncConfigurationManager, UpdateSyncConfigurationOutput, _sync_configuration_payload() (+1 more)
 
 ### Community 71 - "AMIManager"
-Cohesion: 0.29
-Nodes (5): AMIManager, LaunchTemplateVersion, ResponseLaunchTemplateData, make_ami(), TestAMIManagerInUse
+Cohesion: 0.12
+Nodes (7): AMIManager, CreateImageResult, DisableImageDeregistrationProtectionResult, LaunchTemplateVersion, ResponseLaunchTemplateData, make_ami(), TestAMIManagerInUse
 
-### Community 74 - "services/iam.py"
-Cohesion: 0.02
-Nodes (29): group_attached_policies_only(), group_inline_policies_only(), iam_attached_policies_only(), IAMPolicyManagerMixin, IAMPolicyMixin, role_attached_policies_only(), role_inline_policies_only(), wrapper() (+21 more)
+### Community 72 - "secondary"
+Cohesion: 0.05
+Nodes (41): alternate_name, alternate_name, alternate_name, alternate_name, alternate_name, alternate_name, alternate_name, alternate_name (+33 more)
 
 ### Community 75 - "elasticache/__init__.py"
 Cohesion: 0.06
@@ -1125,144 +1271,124 @@ Cohesion: 0.16
 Nodes (8): _is_botocraft_services_path(), _is_test_path(), _iter_python_files(), _load_baseline_keys(), main(), _print_violations(), Violation, _write_baseline()
 
 ### Community 77 - "event_summary"
-Cohesion: 0.02
-Nodes (13): event_summary(), EventSummaryProtocol, ElasticsearchAutoTuneNotificationEvent, ElasticsearchSoftwareUpdateNotificationEvent, OpenSearchAutoTuneNotificationEvent, OpenSearchClusterStatusNotificationEvent, OpenSearchDomainErrorNotificationEvent, OpenSearchDomainUpdateNotificationEvent (+5 more)
+Cohesion: 0.03
+Nodes (12): ElasticsearchAutoTuneNotificationEvent, ElasticsearchSoftwareUpdateNotificationEvent, OpenSearchAutoTuneNotificationEvent, OpenSearchAWSAPICallViaCloudTrailEvent, OpenSearchClusterStatusNotificationEvent, OpenSearchDomainErrorNotificationEvent, OpenSearchDomainUpdateNotificationEvent, OpenSearchMaintenanceUpdateEvent (+4 more)
 
 ### Community 79 - "test_datasync_workflow.py"
-Cohesion: 0.06
-Nodes (38): DataSyncAccountContext, DataSyncCrossAccountSpec, DataSyncJobDefinition, DataSyncJobProgress, DataSyncJobRun, DataSyncLocationS3, DataSyncManifestConfig, DataSyncOptions (+30 more)
+Cohesion: 0.05
+Nodes (37): DataSyncAccountContext, DataSyncCrossAccountSpec, DataSyncJobDefinition, DataSyncJobRun, DataSyncLocationS3, DataSyncManifestConfig, DataSyncOptions, DataSyncS3Config (+29 more)
 
 ### Community 80 - "SchemaManager"
-Cohesion: 0.14
-Nodes (4): ExportSchemaResponse, ListSchemaVersionsResponse, SchemaManager, UpdateSchemaResponse
+Cohesion: 0.10
+Nodes (8): schema_list_add_registry_name(), wrapper(), CreateSchemaResponse, ExportSchemaResponse, ListSchemasResponse, ListSchemaVersionsResponse, SchemaManager, UpdateSchemaResponse
 
 ### Community 81 - "ACMCertificateEvent"
 Cohesion: 0.05
-Nodes (8): ACMCertificateApproachingExpirationEvent, ACMCertificateAvailableEvent, ACMCertificateEvent, ACMCertificateExpiredEvent, ACMCertificateRenewalActionRequiredEvent, ACMCertificateRevokedByCAEvent, ACMCertificateRevokedEvent, ACMCertificateRotatedEvent
+Nodes (12): ACMAWSAPICallViaCloudTrailEvent, ACMCertificateApproachingExpirationEvent, ACMCertificateAvailableEvent, ACMCertificateEvent, ACMCertificateExpiredEvent, ACMCertificateRenewalActionRequiredEvent, ACMCertificateRevokedByCAEvent, ACMCertificateRevokedEvent (+4 more)
 
-### Community 82 - "ElasticsearchNotificationDetail"
-Cohesion: 0.09
-Nodes (11): ElasticsearchAutoTuneNotificationEvent, ElasticsearchAWSAPICallViaCloudTrailEvent, ElasticsearchClusterStatusNotificationEvent, ElasticsearchCloudTrailDetail, ElasticsearchNotificationDetail, ElasticsearchDomainErrorNotificationEvent, ElasticsearchDomainUpdateNotificationEvent, ElasticsearchMaintenanceUpdateEvent (+3 more)
+### Community 82 - "methods"
+Cohesion: 0.06
+Nodes (39): BucketName, methods, required, args, boto3_name, response_attr, args, boto3_name (+31 more)
 
 ### Community 83 - "patch"
-Cohesion: 0.10
-Nodes (6): CloudWatchMetric, CloudWatchMetricManager, _metric_payload(), TestCloudWatchMetricInstanceMethods, TestCloudWatchMetricManager, TestCloudWatchMetricModelHelpers
+Cohesion: 0.26
+Nodes (4): CloudWatchMetricManager, _metric_payload(), TestCloudWatchMetricInstanceMethods, TestCloudWatchMetricManager
 
-### Community 84 - "ImageIdentifier"
-Cohesion: 0.04
-Nodes (8): ECRAWSAPICallViaCloudTrailEvent, ECRImageActionEvent, ECRImageScanEvent, ECRReferrerActionEvent, ECRReplicationActionEvent, ECRImage, ImageIdentifier, ContainerDefinition
+### Community 84 - "eventbridge/ecr.py"
+Cohesion: 0.03
+Nodes (11): ECRAWSAPICallViaCloudTrailEvent, ECRImageActionEvent, ECRImageScanEvent, ECRPullThroughCacheActionEvent, ECRReferrerActionEvent, ECRReplicationActionEvent, ECRScanResourceChangeEvent, ECRImage (+3 more)
 
 ### Community 86 - "mixins/bedrock_runtime.py"
-Cohesion: 0.08
-Nodes (18): FoundationModelRuntimeMixin, AsyncInvokeOutputDataConfig, BedrockMessage, Conversation, CountTokensInput, Document, GuardrailConfiguration, GuardrailStreamConfiguration (+10 more)
-
-### Community 87 - "ECRImageMixin"
 Cohesion: 0.07
-Nodes (10): ECRDockerClient, ECRImageMixin, ImageInfo, Image, Alternate naming, EC2 Case Study, Relations, Tags (+2 more)
+Nodes (20): ConverseStreamResponseMixin, FoundationModelRuntimeMixin, AsyncInvokeOutputDataConfig, BedrockMessage, ConverseStreamResponse, CountTokensInput, Document, GetAsyncInvokeResponse (+12 more)
 
 ### Community 88 - "Host"
-Cohesion: 0.09
-Nodes (8): host_response_to_host(), wrapper(), GetHostOutput, Host, HostManager, ListHostsOutput, _host_payload(), TestHostManager
+Cohesion: 0.11
+Nodes (7): host_update_to_host(), wrapper(), CreateHostOutput, Host, HostManager, _host_payload(), TestHostManager
+
+### Community 89 - ".serialize"
+Cohesion: 0.01
+Nodes (11): DeleteDBClusterResult, StopTaskResponse, RemoveTargetsResponse, GetUserPolicyResponse, GetUserResponse, IAMUserManager, ListAttachedUserPoliciesResponse, ListUserPoliciesResponse (+3 more)
 
 ### Community 90 - "EventFactory"
-Cohesion: 0.05
-Nodes (32): CodePipelineActionExecutionStateChangeEvent, CodePipelineAWSAPICallViaCloudTrailEvent, CodePipelinePipelineExecutionStateChangeEvent, CodePipelineStageExecutionStateChangeEvent, Elbv2AWSAPICallViaCloudTrailEvent, EventFactory, Pipeline, _event_payload() (+24 more)
+Cohesion: 0.04
+Nodes (38): CodePipelineActionExecutionStateChangeEvent, CodePipelineAWSAPICallViaCloudTrailEvent, CodePipelinePipelineExecutionStateChangeEvent, CodePipelineStageExecutionStateChangeEvent, Elbv2AWSAPICallViaCloudTrailEvent, EventFactory, Pipeline, test_event_factory_builds_acm_events() (+30 more)
 
 ### Community 91 - "AutomatedReasoningPolicyBuildWorkflow"
 Cohesion: 0.05
 Nodes (10): AutomatedReasoningPolicyBuildWorkflow, AutomatedReasoningPolicyBuildWorkflowManager, AutomatedReasoningPolicyTestCaseManager, CancelAutomatedReasoningPolicyBuildWorkflowResponse, CreateAutomatedReasoningPolicyTestCaseResponse, GetAutomatedReasoningPolicyTestCaseResponse, ListAutomatedReasoningPolicyBuildWorkflowsResponse, ListAutomatedReasoningPolicyTestCasesResponse (+2 more)
 
-### Community 92 - "elasticache_user_group_add_tags"
-Cohesion: 0.17
-Nodes (5): elasticache_user_add_tags(), wrapper(), elasticache_user_group_add_tags(), DescribeUserGroupsResult, DescribeUsersResult
-
 ### Community 93 - "SESCustomVerificationEmailTemplate"
 Cohesion: 0.07
 Nodes (6): SESCustomVerificationEmailTemplateManagerMixin, ListCustomVerificationEmailTemplatesResponse, SESCustomVerificationEmailTemplate, SESCustomVerificationEmailTemplateManager, _custom_verification_payload(), TestCustomVerificationEmailTemplateManager
 
-### Community 94 - "LogGroup"
-Cohesion: 0.12
-Nodes (3): LogGroup, StartQueryResponse, TestLogGroupInstanceMethods
+### Community 94 - "secondary"
+Cohesion: 0.06
+Nodes (35): alternate_name, alternate_name, alternate_name, fields, alternate_name, alternate_name, lambda, alternate_name (+27 more)
 
 ### Community 95 - "acm/__init__.py"
 Cohesion: 0.08
 Nodes (16): ACMACMCertificateApproachingExpirationEvent, ACMCertificateApproachingExpiration, ACMACMCertificateAvailableEvent, ACMCertificateAvailable, ACMACMCertificateExpiredEvent, ACMCertificateExpired, ACMACMCertificateRenewalActionRequiredEvent, ACMCertificateRenewalActionRequired (+8 more)
 
-### Community 97 - "FileSystem"
-Cohesion: 0.02
-Nodes (43): AccessPointManagerMixin, _deserialize_tags(), efs_access_point_add_tags(), wrapper(), efs_access_points_add_tags(), wrapper(), efs_file_system_add_tags(), wrapper() (+35 more)
-
 ### Community 98 - "Boto3ModelManager"
-Cohesion: 0.01
-Nodes (102): certificates_only(), multiple_docdb_instance_include_tags(), ElastiCacheManagerTagsMixin, TagsDictMixin, Boto3ModelManager, ModelIdentityMixin, PrimaryBoto3Model, ReadonlyBoto3Model (+94 more)
+Cohesion: 0.02
+Nodes (85): ElasticsearchAutoTuneNotificationEvent, ElasticsearchAWSAPICallViaCloudTrailEvent, ElasticsearchClusterStatusNotificationEvent, ElasticsearchCloudTrailDetail, ElasticsearchNotificationDetail, ElasticsearchDomainErrorNotificationEvent, ElasticsearchDomainUpdateNotificationEvent, ElasticsearchMaintenanceUpdateEvent (+77 more)
 
 ### Community 99 - "CloudWatchInsightRule"
-Cohesion: 0.09
-Nodes (5): CloudWatchInsightRuleManagerMixin, CloudWatchInsightRule, CloudWatchInsightRuleManager, _insight_rule_payload(), TestCloudWatchInsightRuleManager
+Cohesion: 0.17
+Nodes (3): CloudWatchInsightRuleManager, _insight_rule_payload(), TestCloudWatchInsightRuleManager
 
 ### Community 101 - "SnapshotManager"
 Cohesion: 0.07
-Nodes (9): DescribeLockedSnapshotsResult, DescribeSnapshotsResult, DisableSnapshotBlockPublicAccessResult, EnableSnapshotBlockPublicAccessResult, GetSnapshotBlockPublicAccessStateResult, LockSnapshotResult, SnapshotManager, UnlockSnapshotResult (+1 more)
+Nodes (10): CopySnapshotResult, DescribeLockedSnapshotsResult, DescribeSnapshotsResult, DisableSnapshotBlockPublicAccessResult, EnableSnapshotBlockPublicAccessResult, GetSnapshotBlockPublicAccessStateResult, LockSnapshotResult, SnapshotManager (+2 more)
 
 ### Community 102 - "codepipeline/__init__.py"
 Cohesion: 0.08
 Nodes (13): CodePipelineAWSAPICallViaCloudTrail, CodepipelineAWSAPICallViaCloudTrailEvent, ArtifactReference, CodePipelineActionExecutionStateChange, CodepipelineCodePipelineActionExecutionStateChangeEvent, ExecutionResult, S3Location, Type (+5 more)
 
-### Community 103 - "InstanceManager"
-Cohesion: 0.15
-Nodes (4): AttributeBooleanValue, InstanceManager, SecureBlobAttributeValue, TestInstanceManagerModifyAttributes
+### Community 103 - "FlowLogManager"
+Cohesion: 0.10
+Nodes (8): CreateFlowLogsResult, DeleteFlowLogsResult, DescribeFlowLogsResult, FlowLog, FlowLogManager, TestFlowLogManagerUnsuccessful, TestFlowLogManagerLifecycle, FakePaginator
 
 ### Community 105 - "ManagedGrafanaWorkspaceManager"
 Cohesion: 0.06
-Nodes (13): AssociateLicenseResponse, CreateWorkspaceResponse, DeleteWorkspaceResponse, DescribeWorkspaceAuthenticationResponse, DescribeWorkspaceConfigurationResponse, DescribeWorkspaceResponse, DisassociateLicenseResponse, ListPermissionsResponse (+5 more)
+Nodes (13): AssociateLicenseResponse, CreateWorkspaceResponse, DeleteWorkspaceResponse, DescribeWorkspaceAuthenticationResponse, DescribeWorkspaceConfigurationResponse, DisassociateLicenseResponse, ListPermissionsResponse, ListVersionsResponse (+5 more)
 
-### Community 106 - "test_amplify.py"
-Cohesion: 0.11
-Nodes (9): _branch_manager(), _branch_payload(), test_create_branch_stamps_app_id(), test_deploy_zip_does_not_start_when_upload_fails(), test_deploy_zip_rejects_missing_upload_url(), test_deploy_zip_uploads_then_starts(), test_deploy_zip_wait_returns_terminal_job(), test_page_stops_on_repeated_token() (+1 more)
+### Community 106 - "methods"
+Cohesion: 0.06
+Nodes (34): boto3_name, response_attr, boto3_name, response_attr, boto3_name, response_attr, boto3_name, response_attr (+26 more)
 
-### Community 107 - "wrapper"
-Cohesion: 0.04
-Nodes (27): ecs_clusters_only(), wrapper(), ecs_container_instances_only(), wrapper(), ecs_services_only(), wrapper(), ecs_task_definition_include_tags(), ecs_task_definitions_only() (+19 more)
+### Community 107 - "extra_fields"
+Cohesion: 0.06
+Nodes (34): default, docstring, python_type, extra_fields, docstring, python_type, readonly, default (+26 more)
 
-### Community 108 - "services/schemas.py"
-Cohesion: 0.05
-Nodes (20): discoverer_response_to_discoverer(), wrapper(), _registry_name_from_call(), registry_response_to_registry(), wrapper(), schema_list_add_registry_name(), wrapper(), schema_response_to_schema() (+12 more)
-
-### Community 110 - "services/logs.py"
-Cohesion: 0.17
-Nodes (8): LogGroupManagerMixin, DeleteQueryDefinitionResponse, DescribeQueryDefinitionsResponse, GetQueryResultsResponse, LogGroupField, QueryParameter, QueryStatistics, ResultField
+### Community 108 - "registry_response_to_registry"
+Cohesion: 0.08
+Nodes (8): registry_response_to_registry(), wrapper(), CreateRegistryResponse, DescribeRegistryResponse, ListRegistriesResponse, Registry, RegistryManager, UpdateRegistryResponse
 
 ### Community 111 - "CodeDocstringFormatter"
 Cohesion: 0.15
 Nodes (12): CodeDocstringFormatter, FormatterArgs, test_code_docstring_formatter_dedents_napoleon_sections_after_summary(), test_code_docstring_formatter_falls_back_to_old_private_api(), test_code_docstring_formatter_formats_short_docstring(), test_code_docstring_formatter_formats_wrapped_docstring(), test_code_docstring_formatter_indents_existing_args_continuation_lines(), test_code_docstring_formatter_prefers_new_private_api() (+4 more)
 
-### Community 113 - "ecs_task_definition_delete_all"
-Cohesion: 0.40
-Nodes (3): ecs_task_definition_delete_all(), wrapper(), DeleteTaskDefinitionsResponse
+### Community 113 - "0"
+Cohesion: 0.08
+Nodes (33): attr_type, name, value, 0, manager_methods, args, manager_method, args (+25 more)
 
 ### Community 114 - "BucketManager"
-Cohesion: 0.06
-Nodes (6): BucketManager, GetBucketPolicyOutput, GetBucketTaggingOutput, GetBucketWebsiteOutput, GetPublicAccessBlockOutput, PutBucketLifecycleConfigurationOutput
+Cohesion: 0.03
+Nodes (24): bucket_list_names_to_buckets(), wrapper(), bucket_update_safe_get_lifecycle(), BucketManagerMixin, DoesNotExist, object_create_return_model(), object_get_add_bucket_name_and_key(), object_list_add_bucket_name_and_tags() (+16 more)
 
-### Community 115 - "QueryDefinition"
-Cohesion: 0.13
-Nodes (3): QueryDefinition, QueryDefinitionManager, TestQueryDefinitionManager
-
-### Community 117 - "DaemonTaskDefinitionManagerMixin"
-Cohesion: 0.10
-Nodes (3): DaemonDeploymentManagerMixin, DaemonTaskDefinitionManagerMixin, ExpressGatewayServiceManagerMixin
+### Community 116 - "MountTarget"
+Cohesion: 0.09
+Nodes (5): DescribeMountTargetsResponse, MountTarget, MountTargetManager, _mount_target_payload(), TestMountTargetManager
 
 ### Community 118 - "Instance"
 Cohesion: 0.02
-Nodes (25): BotocraftSettings, TunnelSettings, ConnectionResolutionError, is_inside_aws(), ResolvedConnectionTarget, TunnelAwareConnectionResolver, TunnelCapabilityValidator, TunnelConfigurationError (+17 more)
-
-### Community 119 - "ModelInvocationJob"
-Cohesion: 0.07
-Nodes (5): CreateModelInvocationJobResponse, ListModelInvocationJobsResponse, ModelInvocationJob, ModelInvocationJobManager, StopModelInvocationJobResponse
+Nodes (17): BotocraftSettings, TunnelSettings, ConnectionResolutionError, is_inside_aws(), ResolvedConnectionTarget, TunnelAwareConnectionResolver, TunnelCapabilityValidator, TunnelConfigurationError (+9 more)
 
 ### Community 120 - "IAMGroupManager"
-Cohesion: 0.08
-Nodes (7): CreateGroupResponse, GetGroupPolicyResponse, GetGroupResponse, IAMGroupManager, ListAttachedGroupPoliciesResponse, ListGroupPoliciesResponse, ListGroupsResponse
+Cohesion: 0.04
+Nodes (8): CreateGroupResponse, GetGroupPolicyResponse, GetGroupResponse, IAMGroupManager, ListAttachedGroupPoliciesResponse, ListGroupPoliciesResponse, ListGroupsForUserResponse, ListGroupsResponse
 
 ### Community 121 - "single_docdb_instance_include_tags"
 Cohesion: 0.11
@@ -1272,36 +1398,24 @@ Nodes (7): single_docdb_instance_include_tags(), DocDBCreateDBInstanceResult, Do
 Cohesion: 0.14
 Nodes (5): CreateFilterResponse, DeleteFilterResponse, Inspector2FilterManager, ListFiltersResponse, UpdateFilterResponse
 
-### Community 124 - "CompositeAlarmManager"
-Cohesion: 0.11
-Nodes (3): CompositeAlarmManager, _composite_alarm_payload(), TestCompositeAlarmManager
+### Community 124 - "test_efs.py"
+Cohesion: 0.12
+Nodes (9): AccessPointManager, DescribeAccessPointsResponse, EFSBackupPolicy, FileSystemProtectionDescription, LifecyclePolicy, _access_point_payload(), _return_self(), TestAccessPointManager (+1 more)
 
 ### Community 125 - "CacheParameterGroupManager"
 Cohesion: 0.07
-Nodes (10): CacheParameterGroupDetails, CacheParameterGroupManager, CacheParameterGroupNameMessage, CacheParameterGroupsMessage, CreateCacheParameterGroupResult, Authoring stance, Bespoke pressure, Context-required surfaces (+2 more)
+Nodes (11): CacheParameterGroupDetails, CacheParameterGroupManager, CacheParameterGroupNameMessage, CacheParameterGroupsMessage, CacheParameterManager, CreateCacheParameterGroupResult, Authoring stance, Bespoke pressure (+3 more)
 
-### Community 127 - "IAMUserManager"
-Cohesion: 0.08
-Nodes (7): CreateUserResponse, GetUserPolicyResponse, GetUserResponse, IAMUserManager, ListAttachedUserPoliciesResponse, ListUserPoliciesResponse, ListUsersResponse
-
-### Community 130 - "ServiceManager"
+### Community 130 - "ReplicationConfiguration"
 Cohesion: 0.10
-Nodes (7): ECSServiceManagerMixin, CreateServiceResponse, DeleteServiceResponse, DescribeServicesResponse, ListServicesResponse, ServiceManager, UpdateServiceResponse
+Nodes (5): DescribeReplicationConfigurationsResponse, ReplicationConfiguration, ReplicationConfigurationManager, _replication_payload(), TestReplicationConfigurationManager
 
 ### Community 131 - "EvaluationJobManager"
 Cohesion: 0.13
 Nodes (5): BatchDeleteEvaluationJobResponse, CreateEvaluationJobResponse, EvaluationJobManager, ListEvaluationJobsResponse, StopEvaluationJobResponse
 
-### Community 132 - "services/grafana.py"
-Cohesion: 0.05
-Nodes (19): AssertionAttributes, AuthenticationDescription, AuthenticationSummary, AwsSsoAuthentication, DeleteWorkspaceServiceAccountResponse, DeleteWorkspaceServiceAccountTokenResponse, IdpMetadata, ListVersionsResponse (+11 more)
-
-### Community 134 - "ManagedGrafanaWorkspace"
-Cohesion: 0.10
-Nodes (4): ManagedGrafanaWorkspaceManagerMixin, ManagedGrafanaWorkspace, TestGrafanaShadowedFieldAliases, TestModelPayloadParsing
-
 ### Community 135 - "AlarmMuteRuleManager"
-Cohesion: 0.10
+Cohesion: 0.11
 Nodes (5): AlarmMuteRule, AlarmMuteRuleManager, _alarm_mute_rule_payload(), _alarm_mute_rule_summary(), TestAlarmMuteRuleManager
 
 ### Community 136 - "test_grafana.py"
@@ -1309,88 +1423,92 @@ Cohesion: 0.12
 Nodes (6): CreateWorkspaceServiceAccountResponse, ListWorkspaceServiceAccountsResponse, ManagedGrafanaServiceAccountManager, TestNoLegacyWorkspaceApiKeySupport, TestServiceAccountCreateIsDisabledDefault, TestServiceAccountListContextReattachment
 
 ### Community 137 - "InstanceProfileManager"
-Cohesion: 0.15
-Nodes (4): CreateInstanceProfileResponse, GetInstanceProfileResponse, InstanceProfileManager, ListInstanceProfilesResponse
+Cohesion: 0.08
+Nodes (5): CreateInstanceProfileResponse, GetInstanceProfileResponse, InstanceProfileManager, ListInstanceProfilesForRoleResponse, ListInstanceProfilesResponse
 
 ### Community 138 - "ManagedGrafanaServiceAccountTokenManager"
-Cohesion: 0.13
+Cohesion: 0.12
 Nodes (7): CreateWorkspaceServiceAccountTokenResponse, ListWorkspaceServiceAccountTokensResponse, ManagedGrafanaServiceAccountTokenManager, TestManagedGrafanaServiceAccountTokenManagerRotate, _create(), TestServiceAccountTokenListContextReattachment, _token_create_response()
 
 ### Community 139 - "botocore.py"
-Cohesion: 0.06
-Nodes (18): botocore_bootstrap(), botocore_group(), botocore_list_operations(), botocore_list_primary_models(), botocore_list_services(), botocore_list_shape(), botocore_list_shapes(), camel_to_snake() (+10 more)
+Cohesion: 0.05
+Nodes (19): botocore_bootstrap(), botocore_group(), botocore_list_operations(), botocore_list_primary_models(), botocore_list_services(), botocore_list_shape(), botocore_list_shapes(), camel_to_snake() (+11 more)
 
 ### Community 140 - "CloudWatchDashboardManager"
 Cohesion: 0.10
 Nodes (3): CloudWatchDashboard, CloudWatchDashboardManager, TestCloudWatchDashboardManager
 
-### Community 141 - ".get_data"
-Cohesion: 0.11
-Nodes (3): _metric_identity(), _metrics_match(), _normalize_payload()
+### Community 141 - "mapping"
+Cohesion: 0.10
+Nodes (25): relations, relations, docstring, primary_model_name, transformer, DBSubnetGroupName, GroupIds, KeyId (+17 more)
 
 ### Community 142 - "ReportGroup"
 Cohesion: 0.06
-Nodes (11): report_group_response_to_report_group(), wrapper(), BatchGetReportGroupsOutput, CreateReportGroupOutput, GetReportGroupTrendOutput, ListReportGroupsOutput, ListSharedReportGroupsOutput, ReportGroup (+3 more)
+Nodes (12): report_group_arns_to_report_groups(), report_group_response_to_report_group(), wrapper(), BatchGetReportGroupsOutput, CreateReportGroupOutput, GetReportGroupTrendOutput, ListReportGroupsOutput, ListSharedReportGroupsOutput (+4 more)
 
-### Community 143 - "mixins/bedrock.py"
-Cohesion: 0.04
-Nodes (9): AutomatedReasoningPolicyModelMixin, _get_nested_value(), ModelInvocationLoggingConfigurationModelMixin, _resolve_model_arn(), AutomatedReasoningPolicyAnnotations, AutomatedReasoningPolicyBuildWorkflowResultAssets, AutomatedReasoningPolicyBuildWorkflowResultAssetsManager, AutomatedReasoningPolicyNextScenario (+1 more)
+### Community 143 - "test_bedrock.py"
+Cohesion: 0.01
+Nodes (29): AutomatedReasoningPolicyModelMixin, _get_nested_value(), InferenceProfileModelMixin, ModelInvocationLoggingConfigurationModelMixin, PromptRouterModelMixin, _resolve_model_arn(), ResourcePolicyManagerMixin, AutomatedReasoningPolicyAnnotations (+21 more)
 
-### Community 144 - "ResourcePolicy"
+### Community 144 - "KeyPairManager"
 Cohesion: 0.11
-Nodes (5): ResourcePolicyManagerMixin, BedrockPutResourcePolicyResponse, ResourcePolicy, ResourcePolicyManager, TestResourcePolicyManager
+Nodes (6): DeleteKeyPairResult, DescribeKeyPairsResult, ImportKeyPairResult, KeyPair, KeyPairManager, TestKeyPairManager
 
 ### Community 145 - "DedicatedIpPool"
-Cohesion: 0.09
-Nodes (8): refresh_dedicated_ip_pool_after_mutation(), wrapper(), DedicatedIpPool, DedicatedIpPoolManager, GetDedicatedIpPoolResponse, ListDedicatedIpPoolsResponse, _dedicated_ip_pool_payload(), TestDedicatedIpPoolManager
-
-### Community 146 - "FoundationModel"
 Cohesion: 0.08
-Nodes (3): PromptRouterModelMixin, FoundationModel, PromptRouter
+Nodes (10): dedicated_ip_pool_names_to_models(), wrapper(), refresh_dedicated_ip_pool_after_mutation(), wrapper(), DedicatedIpPool, DedicatedIpPoolManager, GetDedicatedIpPoolResponse, ListDedicatedIpPoolsResponse (+2 more)
 
-### Community 147 - "DataSyncLocationNfsManager"
-Cohesion: 0.20
-Nodes (3): CreateLocationNfsResponse, DataSyncLocationNfsManager, UpdateLocationNfsResponse
+### Community 146 - "KinesisResponseHelper"
+Cohesion: 0.12
+Nodes (4): wrapper(), wrapper(), KinesisResponseHelper, wrapper()
 
-### Community 148 - "DataSyncLocationObjectStorageManager"
-Cohesion: 0.20
-Nodes (3): CreateLocationObjectStorageResponse, DataSyncLocationObjectStorageManager, UpdateLocationObjectStorageResponse
+### Community 147 - "KinesisStream"
+Cohesion: 0.11
+Nodes (3): KinesisStream, KinesisStreamModeDetails, TestKinesisStreamErgonomics
+
+### Community 148 - "DataSyncLocationObjectStorage"
+Cohesion: 0.11
+Nodes (4): CreateLocationObjectStorageResponse, DataSyncLocationObjectStorage, DataSyncLocationObjectStorageManager, UpdateLocationObjectStorageResponse
 
 ### Community 149 - "NetworkAclManager"
 Cohesion: 0.13
 Nodes (4): CreateNetworkAclResult, DescribeNetworkAclsResult, NetworkAclManager, TestNetworkAclManagerEntries
 
-### Community 153 - "BucketManagerMixin"
+### Community 153 - "RepositoryManager"
 Cohesion: 0.09
-Nodes (8): BucketManagerMixin, BucketLoggingConfiguration, S3CORSRule, S3Grantee, S3PartitionedPrefix, S3Tagging, S3TargetObjectKeyFormat, TargetGrant
+Nodes (5): BatchGetImageResponse, CreateRepositoryResponse, DeleteRepositoryResponse, DescribeRepositoriesResponse, RepositoryManager
 
-### Community 154 - "NatGatewayManager"
-Cohesion: 0.12
-Nodes (7): AssociateNatGatewayAddressResult, CreateNatGatewayResult, DeleteNatGatewayResult, DescribeNatGatewaysResult, DisassociateNatGatewayAddressResult, NatGatewayManager, TestNatGatewayManagerAddressOps
+### Community 154 - "FileSystemManager"
+Cohesion: 0.13
+Nodes (4): BackupPolicyDescription, FileSystemManager, FileSystemPolicyDescription, LifecycleConfigurationDescription
 
 ### Community 155 - "EventBus"
 Cohesion: 0.12
 Nodes (3): DescribeEventBusResponse_to_EventBus(), wrapper(), EventBus
 
+### Community 156 - ".render"
+Cohesion: 0.09
+Nodes (8): ShapePrinter, GetEventOutput, MemoryDocument, 1. Global model-name collision (fixed with `alternate_name`), 2. Genuine cycle deep in a nested field (fixed by cutting one field to opaque `dict`), 3. Real self-wrap recursion (fixed by removing `output_shape`), 4. Genuinely opaque/empty `document`-typed shapes, RecursionError workarounds
+
 ### Community 157 - "mixins/ses.py"
 Cohesion: 0.11
 Nodes (10): custom_verification_template_response_to_model(), wrapper(), identity_names_to_models(), wrapper(), _infer_identity_type(), refresh_custom_verification_template_after_mutation(), wrapper(), SESResponseHelper (+2 more)
 
-### Community 158 - "EC2 examples (verified)"
-Cohesion: 0.14
-Nodes (9): AssociateRouteTableResult, IpPermission, ModifyVolumeResult, ModifyVpnConnectionResult, EC2 examples (verified), `modify_instance_attribute` (scoped helpers), Nested result field rename (`ModifyVpnConnectionResult`), TestRouteTableManagerAssociation (+1 more)
+### Community 158 - "0"
+Cohesion: 0.11
+Nodes (22): docstring, name, value, 0, manager_methods, manager_methods, args, manager_method (+14 more)
 
 ### Community 159 - "MarketplaceModelEndpointManager"
 Cohesion: 0.10
 Nodes (7): CreateMarketplaceModelEndpointResponse, DeregisterMarketplaceModelEndpointResponse, GetMarketplaceModelEndpointResponse, ListMarketplaceModelEndpointsResponse, MarketplaceModelEndpointManager, RegisterMarketplaceModelEndpointResponse, UpdateMarketplaceModelEndpointResponse
 
 ### Community 161 - "LogGroupManager"
-Cohesion: 0.18
-Nodes (3): GetLogGroupFieldsResponse, LogGroupManager, TestLogGroupInsightsManager
+Cohesion: 0.06
+Nodes (12): LogGroupManagerMixin, GetLogGroupFieldsResponse, GetQueryResultsResponse, LogGroupManager, PutQueryDefinitionResponse, QueryDefinitionManager, QueryStatistics, ResultField (+4 more)
 
 ### Community 162 - "TaskSetManager"
-Cohesion: 0.12
-Nodes (7): TaskSetManagerMixin, CreateTaskSetResponse, DeleteTaskSetResponse, DescribeTaskSetsResponse, TaskSetManager, UpdateTaskSetResponse, TestTaskSetManager
+Cohesion: 0.13
+Nodes (6): CreateTaskSetResponse, DeleteTaskSetResponse, DescribeTaskSetsResponse, TaskSetManager, UpdateTaskSetResponse, TestTaskSetManager
 
 ### Community 163 - "add_attributes_for_list"
 Cohesion: 0.13
@@ -1412,29 +1530,37 @@ Nodes (5): InstanceModelMixin, _TunnelRecord, [0.14.0] - 2025-05-14, Added, Fixe
 Cohesion: 0.20
 Nodes (4): BatchGetCommandExecutionsOutput, CommandExecutionManager, ListCommandExecutionsForSandboxOutput, StartCommandExecutionOutput
 
+### Community 171 - "ModelCopyJob"
+Cohesion: 0.07
+Nodes (3): FoundationModelAgreement, MarketplaceModelEndpoint, ModelCopyJob
+
 ### Community 172 - "EmailTemplate"
-Cohesion: 0.11
-Nodes (5): EmailTemplate, EmailTemplateManager, ListEmailTemplatesResponse, _email_template_payload(), TestEmailTemplateManager
+Cohesion: 0.10
+Nodes (7): refresh_email_template_after_mutation(), wrapper(), EmailTemplate, EmailTemplateManager, ListEmailTemplatesResponse, _email_template_payload(), TestEmailTemplateManager
+
+### Community 173 - "ManagedGrafanaServiceAccountToken"
+Cohesion: 0.08
+Nodes (5): ManagedGrafanaServiceAccount, ManagedGrafanaServiceAccountToken, TestCompositePkAndDelete, TestGrafanaShadowedFieldAliases, TestModelPayloadParsing
 
 ### Community 174 - "EventBusManager"
-Cohesion: 0.10
-Nodes (6): CreateEventBusResponse, EventBusManager, ListEventBusesResponse, ListRulesResponse, PutEventsResponse, UpdateEventBusResponse
+Cohesion: 0.12
+Nodes (5): CreateEventBusResponse, EventBusManager, ListEventBusesResponse, PutEventsResponse, UpdateEventBusResponse
 
 ### Community 175 - "ec2_instance_only"
-Cohesion: 0.12
-Nodes (11): ec2_instance_only(), ec2_instances_only(), wrapper(), DescribeInstancesResult, 1. Plain `describe_*` with plural ID arg, 2. Plain `get_*` with `response_attr`, 3. Plain `describe_*` with `response_attr`, 4. Decorated `describe_*` (+3 more)
+Cohesion: 0.08
+Nodes (18): ec2_instance_only(), ec2_instances_only(), wrapper(), DescribeInstancesResult, Image, 1. Plain `describe_*` with plural ID arg, 2. Plain `get_*` with `response_attr`, 3. Plain `describe_*` with `response_attr` (+10 more)
 
 ### Community 179 - "MetricAlarmManager"
-Cohesion: 0.11
-Nodes (4): DescribeAlarmsOutput, MetricAlarmManager, _metric_alarm_payload(), TestMetricAlarmManager
+Cohesion: 0.05
+Nodes (7): CompositeAlarmManager, DescribeAlarmsOutput, MetricAlarmManager, _composite_alarm_payload(), _metric_alarm_payload(), TestCompositeAlarmManager, TestMetricAlarmManager
 
 ### Community 180 - "BuildBatchManager"
-Cohesion: 0.10
-Nodes (7): BatchGetBuildBatchesOutput, BuildBatchManager, ListBuildBatchesForProjectOutput, ListBuildBatchesOutput, RetryBuildBatchOutput, StartBuildBatchOutput, StopBuildBatchOutput
+Cohesion: 0.06
+Nodes (13): build_batch_ids_to_build_batches_with_project(), wrapper(), build_batch_response_to_build_batch(), wrapper(), _hydrate_build_batch_ids(), BatchGetBuildBatchesOutput, BuildBatch, BuildBatchManager (+5 more)
 
-### Community 183 - "amplify_stamp_app_id"
+### Community 183 - "Object"
 Cohesion: 0.11
-Nodes (6): amplify_stamp_app_id(), DeleteBranchResult, DeleteDomainAssociationResult, GetBackendEnvironmentResult, GetBranchResult, test_stamp_app_id_from_positional_arg()
+Nodes (19): docstring, imports, python_type, bespoke, name_key, primary_key, Body, fields (+11 more)
 
 ### Community 184 - "test_cloudwatch.py"
 Cohesion: 0.20
@@ -1444,77 +1570,65 @@ Nodes (4): CloudWatchAnomalyDetector, CloudWatchAnomalyDetectorManager, _anomaly
 Cohesion: 0.12
 Nodes (5): AuthorizeCacheSecurityGroupIngressResult, CacheSecurityGroupManager, CacheSecurityGroupMessage, CreateCacheSecurityGroupResult, RevokeCacheSecurityGroupIngressResult
 
-### Community 186 - "ModelInvocationLoggingConfiguration"
-Cohesion: 0.12
-Nodes (5): GetModelInvocationLoggingConfigurationResponse, ModelInvocationLoggingConfiguration, ModelInvocationLoggingConfigurationManager, PutModelInvocationLoggingConfigurationResponse, TestModelInvocationLoggingConfigurationManager
+### Community 186 - "AccessPoint"
+Cohesion: 0.11
+Nodes (3): efs_access_point_add_tags(), wrapper(), AccessPoint
 
-### Community 188 - "NetworkInterfaceManager"
-Cohesion: 0.10
-Nodes (6): AssignPrivateIpAddressesResult, AttributeValue, CreateNetworkInterfaceResult, DescribeNetworkInterfacesResult, NetworkInterfaceManager, TestNetworkInterfaceManagerPrivateIpsAndModify
+### Community 188 - "InstanceManager"
+Cohesion: 0.04
+Nodes (16): AssignPrivateIpAddressesResult, AttachNetworkInterfaceResult, AttributeBooleanValue, AttributeValue, CreateNetworkInterfaceResult, DescribeNetworkInterfacePermissionsResult, DescribeNetworkInterfacesResult, InstanceManager (+8 more)
 
-### Community 189 - "IAMPolicyVersionManager"
-Cohesion: 0.13
-Nodes (4): CreatePolicyVersionResponse, GetPolicyVersionResponse, IAMPolicyVersionManager, ListPolicyVersionsResponse
+### Community 189 - "IAMPolicyManager"
+Cohesion: 0.08
+Nodes (6): GetPolicyResponse, IAMPolicyManager, IAMPolicyVersionManager, ListEntitiesForPolicyResponse, ListPoliciesResponse, ListPolicyVersionsResponse
 
 ### Community 191 - "FoundationModelManager"
-Cohesion: 0.21
-Nodes (5): FoundationModelManager, GetFoundationModelAvailabilityResponse, GetFoundationModelResponse, ListFoundationModelsResponse, TestFoundationModelManager
+Cohesion: 0.07
+Nodes (14): CreateFoundationModelAgreementResponse, FoundationModelAgreementManager, FoundationModelManager, GetFoundationModelAvailabilityResponse, GetFoundationModelResponse, GetModelInvocationLoggingConfigurationResponse, ListFoundationModelAgreementOffersResponse, ListFoundationModelsResponse (+6 more)
 
-### Community 192 - "AgentCoreGatewayRuleManager"
-Cohesion: 0.13
-Nodes (4): AgentCoreGatewayRuleManager, CreateGatewayRuleResponse, ListGatewayRulesResponse, UpdateGatewayRuleResponse
+### Community 192 - "AgentCoreGatewayRule"
+Cohesion: 0.09
+Nodes (5): AgentCoreGatewayRule, AgentCoreGatewayRuleManager, CreateGatewayRuleResponse, ListGatewayRulesResponse, UpdateGatewayRuleResponse
 
-### Community 193 - "ManagedGrafanaServiceAccount"
-Cohesion: 0.17
-Nodes (7): service_account_create_to_service_account(), wrapper(), service_account_tokens_add_context(), wrapper(), service_accounts_add_workspace_context(), wrapper(), ManagedGrafanaServiceAccount
+### Community 193 - "service_accounts_add_workspace_context"
+Cohesion: 0.24
+Nodes (6): service_account_create_to_service_account(), wrapper(), service_account_token_create_to_token_with_key(), wrapper(), service_accounts_add_workspace_context(), wrapper()
 
-### Community 194 - "mixins/codeconnections.py"
+### Community 194 - "services/codeconnections.py"
+Cohesion: 0.07
+Nodes (23): connection_create_to_connection(), wrapper(), connections_include_tags(), wrapper(), host_create_to_host(), wrapper(), host_response_to_host(), wrapper() (+15 more)
+
+### Community 195 - "services/logs.py"
+Cohesion: 0.06
+Nodes (17): convert_log_group_tags(), wrapper(), convert_log_groups_tags(), wrapper(), create_log_group_extended(), _iter_query_definitions(), log_groups_only(), wrapper() (+9 more)
+
+### Community 196 - "DataSyncLocationSmb"
 Cohesion: 0.11
-Nodes (14): connection_create_to_connection(), wrapper(), connection_response_to_connection(), wrapper(), connections_include_tags(), wrapper(), host_create_to_host(), wrapper() (+6 more)
-
-### Community 195 - "convert_log_group_tags"
-Cohesion: 0.14
-Nodes (7): convert_log_group_tags(), wrapper(), convert_log_groups_tags(), wrapper(), log_groups_only(), wrapper(), DescribeLogGroupsResponse
-
-### Community 196 - "DataSyncLocationSmbManager"
-Cohesion: 0.20
-Nodes (3): CreateLocationSmbResponse, DataSyncLocationSmbManager, UpdateLocationSmbResponse
+Nodes (4): CreateLocationSmbResponse, DataSyncLocationSmb, DataSyncLocationSmbManager, UpdateLocationSmbResponse
 
 ### Community 197 - "Parameter"
-Cohesion: 0.08
-Nodes (10): parameter_update_writes_tags(), single_parameter_include_tags(), wrapper(), DescribeParametersResult, GetParametersResult, Parameter, ParameterManager, PutParameterResult (+2 more)
+Cohesion: 0.21
+Nodes (5): Parameter, ParameterManager, PutParameterResult, _parameter_payload(), TestParameterTags
 
 ### Community 198 - "test_abstract_queryset.py"
-Cohesion: 0.14
-Nodes (6): empty_queryset(), models_with_relationships(), relationship_queryset(), SimpleTestModel, test_models(), test_queryset()
+Cohesion: 0.17
+Nodes (7): empty_queryset(), models_with_relationships(), ModelWithRelationships, relationship_queryset(), SimpleTestModel, test_models(), test_queryset()
 
 ### Community 199 - "EventBridgeEvent"
-Cohesion: 0.05
-Nodes (23): EventBridgeEvent, second_resource(), ECRPullThroughCacheActionEvent, AbstractEventFactory, SSMCalendarStateChangeEvent, SSMChangeRequestStatusUpdateEvent, SSMConfigurationComplianceStateChangeEvent, SSMEC2AutomationExecutionStatusChangeNotificationEvent (+15 more)
+Cohesion: 0.04
+Nodes (20): EventBridgeEvent, first_resource(), second_resource(), AbstractEventFactory, SSMChangeRequestStatusUpdateEvent, SSMConfigurationComplianceStateChangeEvent, SSMEC2AutomationExecutionStatusChangeNotificationEvent, SSMEC2AutomationStepStatusChangeNotificationEvent (+12 more)
 
 ### Community 200 - "mixins/datasync.py"
-Cohesion: 0.08
-Nodes (21): datasync_add_tags_to_queryset(), wrapper(), wrapper(), datasync_refresh_after_create(), wrapper(), datasync_refresh_after_update(), wrapper(), datasync_task_execution_from_start() (+13 more)
-
-### Community 201 - "ScalingPolicyManager"
-Cohesion: 0.32
-Nodes (3): scaling_policy_only(), PutScalingPolicyResponse, ScalingPolicyManager
-
-### Community 202 - "VpnConnectionManager"
-Cohesion: 0.14
-Nodes (4): CreateVpnConnectionResult, DescribeVpnConnectionsResult, VpnConnectionManager, TestVpnConnectionManagerModify
+Cohesion: 0.04
+Nodes (31): datasync_add_tags(), datasync_add_tags_to_queryset(), wrapper(), wrapper(), datasync_refresh_after_create(), wrapper(), datasync_refresh_after_update(), wrapper() (+23 more)
 
 ### Community 204 - "Fleet"
 Cohesion: 0.08
-Nodes (10): fleet_names_to_fleets(), wrapper(), fleet_response_to_fleet(), wrapper(), BatchGetFleetsOutput, CreateFleetOutput, Fleet, FleetManager (+2 more)
+Nodes (8): fleet_response_to_fleet(), wrapper(), BatchGetFleetsOutput, CreateFleetOutput, Fleet, FleetManager, ListFleetsOutput, UpdateFleetOutput
 
-### Community 206 - "FindingManager"
-Cohesion: 0.18
-Nodes (4): BatchGetFindingDetailsResponse, FindingManager, ListFindingAggregationsResponse, ListFindingsResponse
-
-### Community 207 - "ClassicELBManagerMixin"
+### Community 206 - "primary"
 Cohesion: 0.11
-Nodes (4): ClassicELBManagerMixin, AdditionalAttribute, ClassicELBCrossZoneLoadBalancing, ClassicELBLoadBalancerAttributes
+Nodes (17): alternate_name, arn_key, input_shapes, name_key, output_shape, primary_key, alternate_name, arn_key (+9 more)
 
 ### Community 208 - "FindingsReportManager"
 Cohesion: 0.18
@@ -1524,29 +1638,17 @@ Nodes (4): CancelFindingsReportResponse, CreateFindingsReportResponse, FindingsR
 Cohesion: 0.06
 Nodes (11): _guardrail_identifier_and_version(), GuardrailRuntimeMixin, Guardrail, GuardrailApplication, GuardrailApplicationManager, GuardrailContentBlock, JsonSchemaDefinition, ToolInputSchema (+3 more)
 
-### Community 211 - "ecs_service_deployments_only"
-Cohesion: 0.14
-Nodes (6): ecs_service_deployments_only(), wrapper(), DescribeServiceDeploymentsResponse, ListServiceDeploymentsResponse, ServiceDeploymentManager, StopServiceDeploymentResponse
+### Community 211 - "import_path"
+Cohesion: 0.13
+Nodes (18): boto3_name, decorators, response_attr, import_path, name, boto3_name, decorators, response_attr (+10 more)
 
 ### Community 212 - "BotocraftError"
 Cohesion: 0.21
 Nodes (4): BotocraftError, CannotCreateError, CannotDeleteError, NotUpdatableError
 
-### Community 215 - "ListenerManager"
-Cohesion: 0.15
-Nodes (4): CreateListenerOutput, DescribeListenersOutput, ListenerManager, ModifyListenerOutput
-
-### Community 217 - "RuleManager"
-Cohesion: 0.15
-Nodes (4): CreateRuleOutput, DescribeRulesOutput, ModifyRuleOutput, RuleManager
-
 ### Community 219 - "AgentCoreHarnessManager"
 Cohesion: 0.12
 Nodes (6): AgentCoreHarnessManager, CreateHarnessResponse, DeleteHarnessResponse, GetHarnessResponse, ListHarnessesResponse, UpdateHarnessResponse
-
-### Community 220 - "TaskDefinition"
-Cohesion: 0.06
-Nodes (3): TaskDefinitionModelMixin, TaskDefinition, TaskSet
 
 ### Community 221 - "SESReceiptFilter"
 Cohesion: 0.11
@@ -1554,31 +1656,31 @@ Nodes (5): SESReceiptFilterManagerMixin, ListReceiptFiltersResponse, SESReceiptF
 
 ### Community 223 - "test_manager_session.py"
 Cohesion: 0.19
-Nodes (13): _as_session(), FakeSession, Probe, test_bind_manager_session_returns_the_bound_manager(), test_delete_uses_model_session(), test_later_using_does_not_change_an_earlier_bound_manager(), test_save_create_uses_model_session(), test_save_update_uses_model_session() (+5 more)
+Nodes (12): _as_session(), FakeSession, Probe, test_bind_manager_session_returns_the_bound_manager(), test_delete_uses_model_session(), test_later_using_does_not_change_an_earlier_bound_manager(), test_save_create_uses_model_session(), test_save_update_uses_model_session() (+4 more)
 
 ### Community 224 - "DiscovererManager"
-Cohesion: 0.11
-Nodes (6): CreateDiscovererResponse, DiscovererManager, ListDiscoverersResponse, StartDiscovererResponse, StopDiscovererResponse, UpdateDiscovererResponse
+Cohesion: 0.10
+Nodes (7): CreateDiscovererResponse, DescribeDiscovererResponse, DiscovererManager, ListDiscoverersResponse, StartDiscovererResponse, StopDiscovererResponse, UpdateDiscovererResponse
 
-### Community 225 - "single_docdb_subnet_group_include_tags"
+### Community 225 - "DocDBSubnetGroupManager"
 Cohesion: 0.15
-Nodes (4): single_docdb_subnet_group_include_tags(), DocDBCreateDBSubnetGroupResult, DocDBModifyDBSubnetGroupResult, DocDBSubnetGroupMessage
+Nodes (5): single_docdb_subnet_group_include_tags(), DocDBCreateDBSubnetGroupResult, DocDBModifyDBSubnetGroupResult, DocDBSubnetGroupManager, DocDBSubnetGroupMessage
 
 ### Community 227 - "GuardrailManager"
-Cohesion: 0.12
+Cohesion: 0.11
 Nodes (6): CreateGuardrailResponse, CreateGuardrailVersionResponse, GuardrailManager, ListGuardrailsResponse, UpdateGuardrailResponse, TestGuardrailVersionMethods
 
 ### Community 229 - "Connection"
-Cohesion: 0.10
-Nodes (6): Connection, ConnectionManager, GetConnectionOutput, ListConnectionsOutput, _connection_payload(), TestConnectionManager
+Cohesion: 0.11
+Nodes (6): Connection, ConnectionManager, CreateConnectionOutput, ListConnectionsOutput, _connection_payload(), TestConnectionManager
 
 ### Community 230 - "services/datasync.py"
 Cohesion: 0.02
-Nodes (42): AgentListEntry, AzureBlobSasConfiguration, CancelTaskExecutionResponse, CreateLocationFsxOpenZfsResponse, DataSyncCmkSecretConfig, DataSyncCustomSecretConfig, DataSyncEc2Config, DataSyncFsxProtocol (+34 more)
+Nodes (48): AgentListEntry, AzureBlobSasConfiguration, AzureFederatedIdentityConfig, AzureOidcConfig, CancelTaskExecutionResponse, CreateLocationNfsResponse, DataSyncCmkSecretConfig, DataSyncCustomSecretConfig (+40 more)
 
 ### Community 232 - "Sandbox"
-Cohesion: 0.07
-Nodes (10): sandbox_response_to_sandbox(), wrapper(), BatchGetSandboxesOutput, ListSandboxesForProjectOutput, ListSandboxesOutput, Sandbox, SandboxManager, StartSandboxConnectionOutput (+2 more)
+Cohesion: 0.11
+Nodes (7): BatchGetSandboxesOutput, ListSandboxesForProjectOutput, ListSandboxesOutput, SandboxManager, StartSandboxConnectionOutput, StartSandboxOutput, StopSandboxOutput
 
 ### Community 233 - "LaunchTemplateManager"
 Cohesion: 0.18
@@ -1588,17 +1690,21 @@ Nodes (4): CreateLaunchTemplateResult, DeleteLaunchTemplateResult, DescribeLaunc
 Cohesion: 0.09
 Nodes (3): CloudWatchMetricStream, CloudWatchMetricStreamManager, TestCloudWatchMetricStreamManager
 
-### Community 237 - "RelatedModel"
-Cohesion: 0.14
-Nodes (5): multi_related(), related(), ModelWithRelationships, NestedRelatedModel, RelatedModel
-
-### Community 238 - "_job_payload"
+### Community 236 - ".test_crud_and_tag_hydration"
 Cohesion: 0.12
-Nodes (7): _job_payload(), test_job_log_text_requires_a_url(), test_step_log_text_requires_url(), test_wait_polls_until_terminal(), test_wait_raises_when_job_disappears(), test_wait_requires_scope(), test_wait_times_out_while_running()
+Nodes (3): DescribeFileSystemsResponse, FakePaginator, _file_system_payload()
+
+### Community 237 - "RelatedModel"
+Cohesion: 0.15
+Nodes (4): multi_related(), related(), NestedRelatedModel, RelatedModel
+
+### Community 238 - "DBSubnetGroup"
+Cohesion: 0.12
+Nodes (17): alternate_name, arn_key, fields, input_shapes, name_key, primary_key, required, required (+9 more)
 
 ### Community 239 - ".set_session"
-Cohesion: 0.15
-Nodes (8): [0.11.0] - 2024-11-04, Added, Changed, Fixed, Consequences, Considered Options, Return a Session-Bound Manager from using(), Task 1: `using()` returns a new manager
+Cohesion: 0.12
+Nodes (10): [0.11.0] - 2024-11-04, Added, Changed, Fixed, Consequences, Considered Options, Return a Session-Bound Manager from using(), Out of scope (+2 more)
 
 ### Community 240 - "CognitoUserManager"
 Cohesion: 0.08
@@ -1616,13 +1722,9 @@ Nodes (4): BatchGetReportsOutput, ListReportsForReportGroupOutput, ListReportsOu
 Cohesion: 0.20
 Nodes (3): CreatePlacementGroupResult, DescribePlacementGroupsResult, PlacementGroupManager
 
-### Community 250 - "Task 2: `save()` and `delete()` use the model's session"
-Cohesion: 0.13
-Nodes (5): [0.17.2] - 2025-06-02, Added, Changed, Fixed, Task 2: `save()` and `delete()` use the model's session
-
-### Community 251 - "Generator YAML Pitfalls"
-Cohesion: 0.09
-Nodes (18): AgentCorePolicyGenerationResource, MemoryDocument, Device, Action, 1. Global model-name collision (fixed with `alternate_name`), 4. Genuinely opaque/empty `document`-typed shapes, Create-result nested rename, Diagnosing which kind you have (+10 more)
+### Community 251 - "Global model-name collisions"
+Cohesion: 0.18
+Nodes (5): AgentCorePolicyGenerationResource, Resource, Action, CreatePolicyResponse, Global model-name collisions
 
 ### Community 253 - "ResponseStream"
 Cohesion: 0.20
@@ -1633,12 +1735,12 @@ Cohesion: 0.20
 Nodes (3): CreateLaunchTemplateVersionResult, DescribeLaunchTemplateVersionsResult, LaunchTemplateVersionManager
 
 ### Community 255 - "EventRuleManager"
-Cohesion: 0.08
-Nodes (9): DescribeRuleResponse_to_EventRule(), wrapper(), event_rules_only(), wrapper(), EventRule_purge_CreatedBy_attribute(), DescribeRuleResponse, EventRuleManager, ListRuleNamesByTargetResponse (+1 more)
+Cohesion: 0.10
+Nodes (9): DescribeRuleResponse_to_EventRule(), event_rules_only(), wrapper(), DescribeRuleResponse, EventRuleManager, EventTargetManager, ListRuleNamesByTargetResponse, ListRulesResponse (+1 more)
 
-### Community 256 - "TenantManager"
-Cohesion: 0.13
-Nodes (4): CreateTenantResponse, GetTenantResponse, ListTenantsResponse, TenantManager
+### Community 256 - "Tenant"
+Cohesion: 0.07
+Nodes (7): tenant_response_to_model(), wrapper(), CreateTenantResponse, GetTenantResponse, ListTenantsResponse, Tenant, TenantManager
 
 ### Community 259 - "Prompt: Audit botocraft/mixins for shared patterns"
 Cohesion: 0.12
@@ -1657,16 +1759,16 @@ Cohesion: 0.32
 Nodes (3): Detail, Parameters, SSMEC2CommandStatusChangeNotificationEvent
 
 ### Community 267 - "AutoScalingGroupManager"
-Cohesion: 0.13
-Nodes (3): ActivityType, AutoScalingGroupManager, AutoScalingInstancesType
+Cohesion: 0.10
+Nodes (4): ActivityType, AutoScalingGroupManager, AutoScalingGroupsType, AutoScalingInstancesType
 
 ### Community 268 - "`list` buckets"
-Cohesion: 0.22
-Nodes (8): 1. Plain paginated `describe_*` full response, 2. Plain `list_*` with `response_attr`, 4. Decorated enrichment list, 5. Context-required list, 6. Enumerate then describe via manager mixin, Common Manager Patterns, `list` buckets, Rule of thumb
+Cohesion: 0.25
+Nodes (6): 1. Plain paginated `describe_*` full response, 2. Plain `list_*` with `response_attr`, 3. Decorated identifier list, 4. Decorated enrichment list, 6. Enumerate then describe via manager mixin, `list` buckets
 
-### Community 269 - "DataSyncTaskExecution"
-Cohesion: 0.12
-Nodes (3): DataSyncTaskExecution, task_execution_payload(), TestDataSyncTaskManager
+### Community 269 - "KinesisShard"
+Cohesion: 0.14
+Nodes (3): KinesisShard, PollerShardManager, test_kinesis_shard_pk_is_stream_scoped_ordered_dict()
 
 ### Community 271 - "_check_function_doc"
 Cohesion: 0.26
@@ -1676,49 +1778,57 @@ Nodes (5): _check_function_doc(), _function_has_args(), _function_has_keyword_ar
 Cohesion: 0.12
 Nodes (6): AgentCoreHarnessEndpointManager, CreateHarnessEndpointResponse, DeleteHarnessEndpointResponse, GetHarnessEndpointResponse, ListHarnessEndpointsResponse, UpdateHarnessEndpointResponse
 
-### Community 276 - "amplify_sync_tags"
-Cohesion: 0.14
-Nodes (4): amplify_sync_tags(), UpdateAppResult, UpdateBranchResult, test_sync_tags_skips_unset_tags()
+### Community 276 - "Memory"
+Cohesion: 0.12
+Nodes (16): rename, arn, fields, alternate_name, arn_key, fields, input_shapes, primary_key (+8 more)
 
 ### Community 278 - "ExpressGatewayService"
 Cohesion: 0.09
 Nodes (6): CreateExpressGatewayServiceResponse, DeleteExpressGatewayServiceResponse, DescribeExpressGatewayServiceResponse, ExpressGatewayService, ExpressGatewayServiceManager, TestExpressGatewayServiceManager
 
 ### Community 279 - "ScalableTargetManager"
-Cohesion: 0.12
-Nodes (6): scalable_target_only(), wrapper(), scheduled_action_only(), DescribeScalableTargetsResponse, RegisterScalableTargetResponse, ScalableTargetManager
+Cohesion: 0.08
+Nodes (10): scalable_target_only(), scaling_policy_only(), wrapper(), scheduled_action_only(), DescribeScalableTargetsResponse, DescribeScalingPoliciesResponse, PutScalingPolicyResponse, RegisterScalableTargetResponse (+2 more)
 
-### Community 280 - "CacheClusterManager"
-Cohesion: 0.20
-Nodes (4): CacheClusterManager, CreateCacheClusterResult, DeleteCacheClusterResult, ModifyCacheClusterResult
+### Community 280 - "services/elasticache.py"
+Cohesion: 0.02
+Nodes (51): CacheClusterModelMixin, elasticache_user_add_tags(), wrapper(), elasticache_user_group_add_tags(), elasticache_user_groups_get_add_tags(), wrapper(), elasticache_users_get_add_tags(), wrapper() (+43 more)
 
 ### Community 285 - "AgentCorePaymentCredentialProviderManager"
 Cohesion: 0.14
 Nodes (4): AgentCorePaymentCredentialProviderManager, CreatePaymentCredentialProviderResponse, ListPaymentCredentialProvidersResponse, UpdatePaymentCredentialProviderResponse
 
-### Community 286 - "IAMLoginProfileManager"
-Cohesion: 0.15
-Nodes (3): CreateLoginProfileResponse, GetLoginProfileResponse, IAMLoginProfileManager
+### Community 287 - "name"
+Cohesion: 0.12
+Nodes (16): fields, name, rename, arn_key, fields, input_shapes, name_key, primary_key (+8 more)
 
-### Community 287 - "EventTargetManager"
-Cohesion: 0.15
-Nodes (4): EventTargetManager, ListTargetsByRuleResponse, PutTargetsResponse, RemoveTargetsResponse
+### Community 288 - "unittest_mock"
+Cohesion: 0.01
+Nodes (22): OpenSearchDomainManagerMixin, DocDBCluster, SecurityGroup, Subnet, SubnetManager, Vpc, VpcManager, CacheCluster (+14 more)
 
-### Community 290 - "ConverseStreamOutput"
-Cohesion: 0.20
-Nodes (3): ConverseStream, ConverseStreamResponseMixin, ConverseStreamOutput
+### Community 291 - "bytes"
+Cohesion: 0.12
+Nodes (16): fields, fields, fields, rename, fields, bytes, fields, fields (+8 more)
 
-### Community 291 - "File map"
-Cohesion: 0.22
-Nodes (7): File map, Out of scope, Session-Bound Manager Implementation Plan, Task 3: Security-group create uses the model session, Task 4: DataSync helper keeps the bound manager, Task 6: Quality gate, test_bind_manager_session_none_returns_the_same_manager()
+### Community 292 - "Secret"
+Cohesion: 0.05
+Nodes (13): secrets_only(), wrapper(), AgentCoreApiKeyCredentialProviderManager, AgentCoreOauth2CredentialProviderManager, CoinbaseCdpConfigurationOutput, CreateApiKeyCredentialProviderResponse, CreateOauth2CredentialProviderResponse, ListApiKeyCredentialProvidersResponse (+5 more)
 
 ### Community 293 - "TestBedrockRuntimeMixins"
-Cohesion: 0.12
-Nodes (3): AsyncInvokeS3OutputDataConfig, AsyncInvokeSummary, TestBedrockRuntimeMixins
+Cohesion: 0.09
+Nodes (4): AsyncInvokeS3OutputDataConfig, AsyncInvokeSummary, Conversation, TestBedrockRuntimeMixins
 
-### Community 296 - "DataSyncLocationEfsManager"
-Cohesion: 0.22
-Nodes (3): CreateLocationEfsResponse, DataSyncLocationEfsManager, UpdateLocationEfsResponse
+### Community 294 - "Bucket"
+Cohesion: 0.14
+Nodes (16): Bucket, CopySource, Key, required, args, boto3_name, response_attr, required (+8 more)
+
+### Community 296 - "DataSyncLocationEfs"
+Cohesion: 0.12
+Nodes (4): CreateLocationEfsResponse, DataSyncLocationEfs, DataSyncLocationEfsManager, UpdateLocationEfsResponse
+
+### Community 299 - "Project"
+Cohesion: 0.12
+Nodes (4): project_response_to_project(), CreateProjectOutput, Project, UpdateProjectOutput
 
 ### Community 300 - "AgentCoreAgentRuntimeEndpoint"
 Cohesion: 0.08
@@ -1728,25 +1838,29 @@ Nodes (5): AgentCoreAgentRuntimeEndpoint, AgentCoreAgentRuntimeEndpointManager, 
 Cohesion: 0.18
 Nodes (3): GetSuppressedDestinationResponse, ListSuppressedDestinationsResponse, SuppressedDestinationManager
 
-### Community 311 - "InferenceProfile"
-Cohesion: 0.10
-Nodes (5): InferenceProfileModelMixin, CreateInferenceProfileResponse, InferenceProfile, InferenceProfileManager, ListInferenceProfilesResponse
+### Community 311 - "InferenceProfileManager"
+Cohesion: 0.18
+Nodes (3): CreateInferenceProfileResponse, InferenceProfileManager, ListInferenceProfilesResponse
 
-### Community 312 - "QueryDefinitionManagerMixin"
-Cohesion: 0.20
-Nodes (4): query_definition_from_put(), wrapper(), QueryDefinitionManagerMixin, PutQueryDefinitionResponse
+### Community 312 - "DataSyncLocationAzureBlobManager"
+Cohesion: 0.12
+Nodes (4): CreateLocationAzureBlobResponse, DataSyncLocationAzureBlob, DataSyncLocationAzureBlobManager, UpdateLocationAzureBlobResponse
+
+### Community 315 - "DataSyncLocationFsxOntap"
+Cohesion: 0.12
+Nodes (4): CreateLocationFsxOntapResponse, DataSyncLocationFsxOntap, DataSyncLocationFsxOntapManager, UpdateLocationFsxOntapResponse
 
 ### Community 316 - "AgentCoreAgentRuntime"
 Cohesion: 0.05
-Nodes (23): AgentCoreAgentRuntimeManagerMixin, AgentCoreAgentRuntime, AgentCoreAgentRuntimeManager, CreateAgentRuntimeResponse, ListAgentRuntimesResponse, UpdateAgentRuntimeResponse, [0.36.2] - 2026-11-03, Added (+15 more)
+Nodes (20): AgentCoreAgentRuntimeManagerMixin, AgentCoreAgentRuntime, AgentCoreAgentRuntimeManager, CreateAgentRuntimeResponse, ListAgentRuntimesResponse, UpdateAgentRuntimeResponse, AgentCore `list_versions` Implementation Plan, Global Constraints (+12 more)
 
 ### Community 318 - "AgentCoreCodeInterpreter"
 Cohesion: 0.10
 Nodes (4): AgentCoreCodeInterpreter, AgentCoreCodeInterpreterManager, CreateCodeInterpreterResponse, ListCodeInterpretersResponse
 
-### Community 319 - "CisScanConfigurationManager"
-Cohesion: 0.15
-Nodes (5): CisScanConfigurationManager, CreateCisScanConfigurationResponse, DeleteCisScanConfigurationResponse, ListCisScanConfigurationsResponse, UpdateCisScanConfigurationResponse
+### Community 319 - "DataSyncLocationHdfs"
+Cohesion: 0.12
+Nodes (4): CreateLocationHdfsResponse, DataSyncLocationHdfs, DataSyncLocationHdfsManager, UpdateLocationHdfsResponse
 
 ### Community 320 - ".list"
 Cohesion: 0.47
@@ -1756,21 +1870,29 @@ Nodes (3): ListRepositorySyncDefinitionsOutput, RepositorySyncDefinitionManager,
 Cohesion: 0.24
 Nodes (6): sync_blocker_summary_response_to_sync_blocker_summary(), wrapper(), GetSyncBlockerSummaryOutput, SyncBlockerSummary, SyncBlockerSummaryManager, TestSyncBlockerSummaryManager
 
-### Community 322 - "DelegatedAdminAccountManager"
-Cohesion: 0.15
-Nodes (5): DelegatedAdminAccountManager, DisableDelegatedAdminAccountResponse, EnableDelegatedAdminAccountResponse, GetDelegatedAdminAccountResponse, ListDelegatedAdminAccountsResponse
+### Community 322 - "methods"
+Cohesion: 0.17
+Nodes (14): DBCluster, methods, DBInstance, methods, DBSubnetGroup, methods, boto3_name, response_attr (+6 more)
 
 ### Community 323 - ".list"
 Cohesion: 0.22
 Nodes (3): DedicatedIpManager, GetDedicatedIpResponse, GetDedicatedIpsResponse
 
+### Community 325 - "FilterCriteria"
+Cohesion: 0.15
+Nodes (4): SubnetModelMixin, VpcModelMixin, FilterCriteria, StringFilter
+
 ### Community 326 - "PolicyManager"
 Cohesion: 0.17
 Nodes (4): AgentCoreCreatePolicyResponse, AgentCoreUpdatePolicyResponse, ListPolicySummariesResponse, PolicyManager
 
-### Community 327 - "AgentCoreGatewayManager"
-Cohesion: 0.14
-Nodes (4): AgentCoreGatewayManager, CreateGatewayResponse, ListGatewaysResponse, UpdateGatewayResponse
+### Community 327 - "AgentCoreGateway"
+Cohesion: 0.09
+Nodes (5): AgentCoreGateway, AgentCoreGatewayManager, CreateGatewayResponse, ListGatewaysResponse, UpdateGatewayResponse
+
+### Community 328 - "ProbeManager"
+Cohesion: 0.22
+Nodes (4): Task 4: DataSync helper keeps the bound manager, ProbeManager, test_bind_manager_session_none_returns_the_same_manager(), test_using_none_returns_the_same_manager()
 
 ### Community 329 - "AgentCoreGatewayTarget"
 Cohesion: 0.09
@@ -1788,6 +1910,10 @@ Nodes (5): CreatePolicyEngineResponse, ListPolicyEnginesResponse, PolicyEngine, 
 Cohesion: 0.18
 Nodes (3): CreatePromptRouterResponse, ListPromptRoutersResponse, PromptRouterManager
 
+### Community 335 - "test_acm_update.py"
+Cohesion: 0.24
+Nodes (5): ACMManagerMixin, _manager(), _model(), test_update_replaces_tags_with_plain_dicts(), test_update_skips_empty_tag_calls()
+
 ### Community 336 - "CognitoResourceServerManager"
 Cohesion: 0.13
 Nodes (5): CognitoResourceServerManager, CreateResourceServerResponse, DescribeResourceServerResponse, ListResourceServersResponse, UpdateResourceServerResponse
@@ -1800,37 +1926,45 @@ Nodes (4): ConfigurationSetManager, ListConfigurationSetsResponse, _configuratio
 Cohesion: 0.22
 Nodes (3): ImportSourceCredentialsOutput, ListSourceCredentialsOutput, SourceCredentialsManager
 
+### Community 350 - "ElastiCacheUserGroup"
+Cohesion: 0.11
+Nodes (3): DescribeUserGroupsResult, ElastiCacheUserGroup, ElastiCacheUserGroupManager
+
 ### Community 351 - "Botocraft Service Authoring"
 Cohesion: 0.17
 Nodes (11): AWS docs preference, Botocraft Service Authoring, Decision pauses, Dirty-tree safeguard, First moves, Global rules, Leaf selection heuristics, Output expectations (+3 more)
 
 ### Community 352 - "botocraft/datasync.py"
-Cohesion: 0.08
-Nodes (9): _account_id_from_arn(), assume_role_account_context(), _bytes_progress_text(), CreateLocationFsxOntapResponse, DataSyncFilterRule, DataSyncLocationFsxOntapManager, TagListEntry, UpdateLocationFsxOntapResponse (+1 more)
+Cohesion: 0.06
+Nodes (11): _account_id_from_arn(), assume_role_account_context(), _bytes_progress_text(), DataSyncJobProgress, CreateLocationFsxLustreResponse, DataSyncFilterRule, DataSyncLocationFsxLustre, DataSyncLocationFsxLustreManager (+3 more)
+
+### Community 354 - "1"
+Cohesion: 0.13
+Nodes (15): attr_type, name, put_policy, put_public_access_block, put_website, args, manager_method, user_args (+7 more)
 
 ### Community 356 - "Botocraft Manager Authoring"
-Cohesion: 0.20
-Nodes (9): Botocraft Manager Authoring, Contract classification, Create/update/delete heuristics, Generic methods, `get` patterns, `list` patterns, Manager naming, Output (+1 more)
-
-### Community 362 - "Rule"
 Cohesion: 0.18
-Nodes (3): Resource, Rule, Collision categories
+Nodes (10): Botocraft Manager Authoring, Contract classification, Create/update/delete heuristics, Generator pitfalls (`return_type` / `response_attr`), Generic methods, `get` patterns, `list` patterns, Manager naming (+2 more)
 
-### Community 368 - "CloudWatchMetricModelMixin"
-Cohesion: 0.24
-Nodes (3): CloudWatchMetricModelMixin, CloudWatchMetricStreamFilter, MetricStreamStatisticsMetric
+### Community 368 - "PaymentCredentialProviderItem"
+Cohesion: 0.14
+Nodes (14): tags, fields, fields, alternate_name, arn_key, fields, input_shapes, output_shape (+6 more)
 
 ### Community 370 - "OTelEnrichmentStatusManager"
 Cohesion: 0.22
 Nodes (3): OTelEnrichmentStatus, OTelEnrichmentStatusManager, TestOTelEnrichmentStatusManager
 
+### Community 374 - "pytest"
+Cohesion: 0.24
+Nodes (7): _listed(), _manager(), get_tags(), test_get_missing_bucket_raises_does_not_exist(), test_get_reraises_other_tag_errors(), test_get_returns_bucket_with_tags(), test_get_untagged_bucket_has_empty_tags()
+
 ### Community 375 - "AGENTS.md"
 Cohesion: 0.22
 Nodes (7): Documentation Contract (Required), Generated Service Boundaries (Required), graphify, Human-Comprehensible Architecture Preference (Required), Implementation Priority (Required), Post-Implementation Quality Gate (Required), Tooling Preflight (Required)
 
-### Community 378 - "CognitoUserPoolManager"
-Cohesion: 0.12
-Nodes (4): CognitoUserPoolManager, CreateUserPoolResponse, DescribeUserPoolResponse, ListUserPoolsResponse
+### Community 376 - "secondary"
+Cohesion: 0.15
+Nodes (13): force_create, alternate_name, fields, alternate_name, force_create, alternate_name, secondary, ConverseStreamOutput (+5 more)
 
 ### Community 380 - "Botocraft Model Advanced"
 Cohesion: 0.22
@@ -1844,37 +1978,53 @@ Nodes (8): Base recipe, Botocraft Model Authoring, Escalate when needed, Output,
 Cohesion: 0.22
 Nodes (8): AWS-doc-assisted fuzzy pass, Candidate review output, Confidence rubric, Implementation guardrails, Many-vs-one hints, Relation Discovery Workflow, Stage 1 heuristics, Two-stage rule
 
-### Community 397 - "ReplicationGroupManager"
-Cohesion: 0.20
-Nodes (4): CreateReplicationGroupResult, DeleteReplicationGroupResult, ModifyReplicationGroupResult, ReplicationGroupManager
+### Community 397 - "get"
+Cohesion: 0.19
+Nodes (13): decorators, import_path, name, boto3_name, decorators, args, boto3_name, decorators (+5 more)
+
+### Community 399 - "EFSTagsManagerMixin"
+Cohesion: 0.21
+Nodes (4): _deserialize_tags(), wrapper(), wrapper(), EFSTagsManagerMixin
 
 ### Community 400 - "S3ObjectManager"
-Cohesion: 0.03
-Nodes (22): GetObjectOutputMixin, CopyObjectOutput, DeleteObjectsOutput, DeleteObjectTaggingOutput, GetObjectAclOutput, GetObjectAttributesOutput, GetObjectLegalHoldOutput, GetObjectLockConfigurationOutput (+14 more)
+Cohesion: 0.02
+Nodes (47): S3ObjectMixin, AgentCoreDocument, AgentCoreS3Location, AgentCoreVpcConfig, BedrockS3Location, VpcConfig, CopyObjectOutput, DeleteObjectsOutput (+39 more)
 
-### Community 404 - "mixins/inspector2.py"
-Cohesion: 0.10
-Nodes (9): CisScanConfigurationManagerMixin, convert_delegated_admin(), wrapper(), list_augment_delegated_admin_accounts(), wrapper(), CisStringFilter, DelegatedAdmin, DelegatedAdminAccount (+1 more)
+### Community 403 - "CustomerGateway"
+Cohesion: 0.11
+Nodes (5): CreateCustomerGatewayResult, CustomerGateway, CustomerGatewayManager, DescribeCustomerGatewaysResult, TestCustomerGatewayManager
+
+### Community 404 - "DBClusterParameterGroup"
+Cohesion: 0.17
+Nodes (12): extra_fields, alternate_name, arn_key, extra_fields, input_shapes, name_key, primary_key, extra_fields (+4 more)
+
+### Community 407 - "CognitoIdentity"
+Cohesion: 0.15
+Nodes (3): CognitoIdentity, CognitoIdentityManager, CognitoListIdentitiesResponse
 
 ### Community 408 - "Model Collisions And Tags"
-Cohesion: 0.29
-Nodes (6): `alternate_name`, Create-result nested renames, Field/type-name collisions, Model Collisions And Tags, Tag normalization, Tag shape guidance
+Cohesion: 0.17
+Nodes (9): Condition, User, `alternate_name`, Collision categories, Create-result nested renames, Field/type-name collisions, Model Collisions And Tags, Tag normalization (+1 more)
 
-### Community 411 - "_app_manager"
-Cohesion: 0.20
-Nodes (5): _app_manager(), _app_payload(), _input_shape(), test_create_app_rejects_unknown_or_missing_fields(), test_create_app_sends_request_fields_only()
+### Community 411 - "create"
+Cohesion: 0.17
+Nodes (12): Tagging, args, boto3_name, response_attr, return_type, create, put_tags, args (+4 more)
 
 ### Community 413 - "Botocraft Service Verification"
 Cohesion: 0.29
 Nodes (6): Botocraft Service Verification, Output, Quality-gate interpretation, Required loop, Useful references, What to look for
 
-### Community 420 - "Schema"
-Cohesion: 0.10
-Nodes (9): DescribeSchemaResponse, Schema, DummyManager, FakePaginator, FakeSchemasClient, test_schema_list_add_registry_name_marks_each_result(), test_schema_manager_list_returns_empty_queryset_for_empty_results(), test_schema_response_to_schema_preserves_registry_name() (+1 more)
+### Community 418 - "ModelCustomizationJobManager"
+Cohesion: 0.17
+Nodes (4): CreateModelCustomizationJobResponse, ListModelCustomizationJobsResponse, ModelCustomizationJobManager, StopModelCustomizationJobResponse
 
-### Community 421 - "FindingsReport"
-Cohesion: 0.14
-Nodes (7): FindingsReport, Bespoke model rule, Composite `pk`, Mixins, Property vs relation, Relations, Properties, And Bespoke Models, Transformer preference
+### Community 420 - "Schema"
+Cohesion: 0.07
+Nodes (12): _registry_name_from_call(), schema_response_to_schema(), wrapper(), DescribeSchemaResponse, Schema, DummyManager, FakePaginator, FakeSchemasClient (+4 more)
+
+### Community 421 - "Relations, Properties, And Bespoke Models"
+Cohesion: 0.33
+Nodes (5): Composite `pk`, Mixins, Property vs relation, Relations, Properties, And Bespoke Models, Transformer preference
 
 ### Community 422 - "Botocraft Service Discovery"
 Cohesion: 0.22
@@ -1884,61 +2034,121 @@ Nodes (8): Botocraft Service Discovery, Contract classification, Escalate when n
 Cohesion: 0.11
 Nodes (7): refresh_contact_list_after_mutation(), wrapper(), ContactList, ContactListManager, ListContactListsResponse, _contact_list_payload(), TestContactListManager
 
-### Community 426 - "_when"
-Cohesion: 0.22
-Nodes (4): test_access_log_text_downloads_generated_url(), test_job_log_text_reads_failed_step_only(), test_job_log_text_uses_latest_step_when_none_failed(), _when()
+### Community 426 - "DBCluster"
+Cohesion: 0.18
+Nodes (10): alternate_name, arn_key, input_shapes, mixins, name_key, primary_key, import_path, name (+2 more)
 
-### Community 428 - "bucket_list_names_to_buckets"
-Cohesion: 0.11
-Nodes (7): bucket_list_names_to_buckets(), wrapper(), bucket_update_safe_get_lifecycle(), object_list_add_bucket_name_and_tags(), GetBucketLifecycleConfigurationOutput, ListBucketsOutput, ListObjectsV2Output
+### Community 428 - "ApplyGuardrailResponse"
+Cohesion: 0.20
+Nodes (9): alternate_name, primary_key, readonly, alternate_name, primary_key, readonly, primary, ApplyGuardrailResponse (+1 more)
+
+### Community 430 - "reboot"
+Cohesion: 0.20
+Nodes (10): DBClusterParameterGroupName, DBInstanceIdentifier, required, required, args, reboot, args, boto3_name (+2 more)
+
+### Community 435 - "create"
+Cohesion: 0.20
+Nodes (10): EnableCloudwatchLogsExports, EnablePerformanceInsights, args, boto3_name, decorators, response_attr, attribute, attribute (+2 more)
 
 ### Community 436 - "CognitoUserPoolClientManager"
-Cohesion: 0.11
-Nodes (5): CognitoUserPoolClientManager, CreateUserPoolClientResponse, DescribeUserPoolClientResponse, ListUserPoolClientsResponse, UpdateUserPoolClientResponse
+Cohesion: 0.22
+Nodes (3): CognitoUserPoolClientManager, ListUserPoolClientsResponse, UpdateUserPoolClientResponse
+
+### Community 437 - "DBInstance"
+Cohesion: 0.20
+Nodes (10): fields, alternate_name, arn_key, fields, input_shapes, name_key, primary_key, readonly (+2 more)
+
+### Community 440 - "SecurityGroupManager"
+Cohesion: 0.12
+Nodes (6): AuthorizeSecurityGroupIngressResult, CreateSecurityGroupResult, DeleteSecurityGroupResult, DescribeSecurityGroupsResult, RevokeSecurityGroupIngressResult, SecurityGroupManager
 
 ### Community 443 - "Changelog"
 Cohesion: 0.03
-Nodes (65): [0.12.4] - 2025-05-01, [0.17.0] - 2025-05-28, [0.17.1] - 2025-05-28, [0.17.5] - 2025-06-10, [0.17.8] - 2025-08-06, [0.18.0] - 2025-09-03, [0.18.1] - 2025-09-03, [0.19.0] - 2025-09-04 (+57 more)
+Nodes (64): [0.12.1] - 2025-04-03, [0.12.2] - 2025-05-01, [0.12.3] - 2025-05-01, [0.12.4] - 2025-05-01, [0.17.0] - 2025-05-28, [0.17.10] - 2025-08-06, [0.17.1] - 2025-05-28, [0.17.5] - 2025-06-10 (+56 more)
 
 ### Community 445 - "ECRAttribute"
 Cohesion: 0.25
 Nodes (5): ECRAttribute, [0.4.0] - 2024-08-26, Added, Changed, Fixed
 
+### Community 448 - ".update_attributes"
+Cohesion: 0.20
+Nodes (3): AdditionalAttribute, ClassicELBCrossZoneLoadBalancing, ClassicELBLoadBalancerAttributes
+
 ### Community 449 - "ClassicELB"
 Cohesion: 0.05
-Nodes (5): ClassicELBModelMixin, ClassicELB, ClassicELBInstance, ClassicELBListener, PolicyAttribute
+Nodes (4): ClassicELB, ClassicELBInstance, ClassicELBListener, PolicyAttribute
 
 ### Community 451 - ".deploy_zip"
 Cohesion: 0.33
 Nodes (3): _put_zip(), [0.36.0] - 2026-10-23, Added
 
-### Community 452 - "AutomatedReasoningPolicyTestResultManager"
-Cohesion: 0.29
-Nodes (3): AutomatedReasoningPolicyTestResultManager, GetAutomatedReasoningPolicyTestResultResponse, ListAutomatedReasoningPolicyTestResultsResponse
-
 ### Community 453 - "IAMSSHPublicKeyManager"
-Cohesion: 0.13
-Nodes (4): GetSSHPublicKeyResponse, IAMSSHPublicKeyManager, ListSSHPublicKeysResponse, UploadSSHPublicKeyResponse
+Cohesion: 0.18
+Nodes (3): IAMSSHPublicKeyManager, ListSSHPublicKeysResponse, UploadSSHPublicKeyResponse
 
-### Community 457 - "_iter_query_definitions"
-Cohesion: 0.33
-Nodes (3): _iter_query_definitions(), paginate_query_definitions(), wrapper()
+### Community 454 - "discoverer_response_to_discoverer"
+Cohesion: 0.22
+Nodes (3): discoverer_response_to_discoverer(), wrapper(), Discoverer
+
+### Community 458 - "test_s3_bucket_logging.py"
+Cohesion: 0.29
+Nodes (5): _logging(), test_grantee_without_email_or_id(), test_logging_disabled(), test_partitioned_prefix_only(), test_simple_prefix_only()
 
 ### Community 459 - "OpenSearchVpcEndpointManager"
 Cohesion: 0.14
 Nodes (5): CreateVpcEndpointResponse, DeleteVpcEndpointResponse, DescribeVpcEndpointsResponse, OpenSearchVpcEndpointManager, UpdateVpcEndpointResponse
 
-### Community 464 - "SyncBlocker"
-Cohesion: 0.19
-Nodes (6): update_sync_blocker_response_to_sync_blocker(), wrapper(), SyncBlocker, SyncBlockerManager, UpdateSyncBlockerOutput, TestSyncBlockerManager
+### Community 463 - "InvokeModelWithResponseStreamResponse"
+Cohesion: 0.25
+Nodes (9): python_type, mixins, body, fields, imports, mixins, import_path, name (+1 more)
 
-### Community 467 - "VulnerabilityManagerMixin"
-Cohesion: 0.13
-Nodes (5): VulnerabilityManagerMixin, SearchVulnerabilitiesFilterCriteria, SearchVulnerabilitiesResponse, Vulnerability, VulnerabilityManager
+### Community 464 - "SyncBlockerManager"
+Cohesion: 0.47
+Nodes (3): SyncBlockerManager, UpdateSyncBlockerOutput, TestSyncBlockerManager
+
+### Community 465 - ".list"
+Cohesion: 0.22
+Nodes (3): AgentCorePolicyGenerationManager, ListPolicyGenerationSummariesResponse, StartPolicyGenerationResponse
+
+### Community 466 - "AgentRuntimeEndpoint"
+Cohesion: 0.25
+Nodes (8): alternate_name, arn_key, fields, input_shapes, name_key, output_shape, primary_key, AgentRuntimeEndpoint
+
+### Community 467 - "inputSchema"
+Cohesion: 0.25
+Nodes (8): inputSchema, outputSchema, imports, python_type, imports, python_type, ToolDefinition, fields
+
+### Community 468 - "CacheSubnetGroupManager"
+Cohesion: 0.17
+Nodes (4): CacheSubnetGroupManager, CacheSubnetGroupMessage, CreateCacheSubnetGroupResult, ModifyCacheSubnetGroupResult
+
+### Community 469 - "json"
+Cohesion: 0.25
+Nodes (8): json, rename, ToolInputSchema, ToolResultBlockDelta, ToolResultContentBlock, fields, fields, fields
+
+### Community 470 - "get"
+Cohesion: 0.25
+Nodes (8): DBSubnetGroupName, Filters, required, hidden, args, boto3_name, decorators, get
 
 ### Community 471 - "HostedZoneManager"
 Cohesion: 0.03
-Nodes (17): AssociateVPCWithHostedZoneResponse, CreateHostedZoneResponse, CreateVPCAssociationAuthorizationResponse, DeleteHostedZoneResponse, DeleteVPCAssociationAuthorizationResponse, DisassociateVPCFromHostedZoneResponse, GetHostedZoneCountResponse, GetHostedZoneLimitResponse (+9 more)
+Nodes (16): AssociateVPCWithHostedZoneResponse, CreateHostedZoneResponse, CreateVPCAssociationAuthorizationResponse, DeleteHostedZoneResponse, DeleteVPCAssociationAuthorizationResponse, DisassociateVPCFromHostedZoneResponse, GetHostedZoneCountResponse, GetHostedZoneLimitResponse (+8 more)
+
+### Community 472 - "methods"
+Cohesion: 0.25
+Nodes (8): DBClusterParameterGroup, methods, mixins, reset, import_path, name, boto3_name, response_attr
+
+### Community 473 - "list"
+Cohesion: 0.25
+Nodes (8): Include, default, docstring, python_type, boto3_name, extra_args, response_attr, list
+
+### Community 474 - "Tags"
+Cohesion: 0.25
+Nodes (8): docstring, python_type, BucketName, Tags, extra_fields, default, docstring, python_type
+
+### Community 477 - ".delete"
+Cohesion: 0.25
+Nodes (4): [0.17.2] - 2025-06-02, Added, Changed, Fixed
 
 ### Community 478 - "Delete Previous AMG Service Account Token During Rotation"
 Cohesion: 0.50
@@ -1948,13 +2158,49 @@ Nodes (3): Consequences, Considered Options, Delete Previous AMG Service Account
 Cohesion: 0.50
 Nodes (3): botocraft, Installation, Supported services
 
+### Community 482 - "File map"
+Cohesion: 0.20
+Nodes (5): SecurityGroupModelMixin, File map, Task 3: Security-group create uses the model session, Task 6: Quality gate, test_security_group_create_uses_model_session()
+
+### Community 487 - "DaemonRevisionManager"
+Cohesion: 0.36
+Nodes (3): DaemonRevisionManager, DescribeDaemonRevisionsResponse, TestDaemonRevisionManager
+
+### Community 488 - "AgentRuntime"
+Cohesion: 0.29
+Nodes (7): alternate_name, arn_key, input_shapes, name_key, output_shape, primary_key, AgentRuntime
+
+### Community 489 - "ApiKeyCredentialProviderItem"
+Cohesion: 0.29
+Nodes (7): alternate_name, arn_key, fields, input_shapes, output_shape, primary_key, ApiKeyCredentialProviderItem
+
 ### Community 490 - "AgentCoreMemoryRecordManager"
+Cohesion: 0.13
+Nodes (5): AgentCoreMemoryRecordManager, BatchCreateMemoryRecordsOutput, BatchUpdateMemoryRecordsOutput, GetMemoryRecordOutput, ListMemoryRecordsOutput
+
+### Community 491 - "fields"
+Cohesion: 0.29
+Nodes (7): from, to, rename, alternate_name, fields, PortRange, rename
+
+### Community 492 - "GatewaySummary"
+Cohesion: 0.29
+Nodes (7): alternate_name, fields, input_shapes, name_key, output_shape, primary_key, GatewaySummary
+
+### Community 497 - "OpenSearchPackageManager"
 Cohesion: 0.12
-Nodes (7): AgentCoreMemoryRecordManager, BatchCreateMemoryRecordsOutput, BatchUpdateMemoryRecordsOutput, LambdaTransformConfiguration, GetMemoryRecordOutput, ListMemoryRecordsOutput, Quick reference
+Nodes (5): CreatePackageResponse, DeletePackageResponse, DescribePackagesResponse, OpenSearchPackageManager, UpdatePackageResponse
 
 ### Community 498 - "CognitoGroupManager"
 Cohesion: 0.13
 Nodes (5): CognitoCreateGroupResponse, CognitoGetGroupResponse, CognitoGroupManager, CognitoListGroupsResponse, UpdateGroupResponse
+
+### Community 499 - "Oauth2CredentialProviderItem"
+Cohesion: 0.29
+Nodes (7): alternate_name, arn_key, fields, input_shapes, output_shape, primary_key, Oauth2CredentialProviderItem
+
+### Community 500 - "TargetSummary"
+Cohesion: 0.29
+Nodes (7): TargetSummary, alternate_name, fields, input_shapes, name_key, output_shape, primary_key
 
 ### Community 501 - "CognitoIdentityProviderManager"
 Cohesion: 0.13
@@ -1965,8 +2211,16 @@ Cohesion: 0.25
 Nodes (6): AutoScalingActivity, ContainerInstanceResource, [0.5.0] - 2024-09-06, Added, Changed, Fixed
 
 ### Community 506 - "test_datasync.py"
-Cohesion: 0.05
-Nodes (17): CreateAgentResponse, CreateLocationAzureBlobResponse, CreateLocationS3Response, DataSyncAgent, DataSyncAgentManager, DataSyncLocationAzureBlobManager, DataSyncLocationS3Manager, ListAgentsResponse (+9 more)
+Cohesion: 0.06
+Nodes (13): CreateAgentResponse, DataSyncAgent, DataSyncAgentManager, DataSyncTaskExecution, ListAgentsResponse, agent_payload(), azure_location_payload(), make_manager() (+5 more)
+
+### Community 509 - "schema"
+Cohesion: 0.33
+Nodes (6): schema, fields, fields, rename, PassthroughTargetConfiguration, RuntimeTargetConfiguration
+
+### Community 510 - "Harness"
+Cohesion: 0.33
+Nodes (6): alternate_name, arn_key, input_shapes, name_key, primary_key, Harness
 
 ### Community 511 - "ECSAttachment"
 Cohesion: 0.50
@@ -1975,6 +2229,18 @@ Nodes (3): ECSAttachment, [0.35.1] - 2026-10-19, Fixed
 ### Community 512 - "NetworkConfiguration"
 Cohesion: 0.50
 Nodes (3): NetworkConfiguration, [0.33.3] - 2026-09-03, Fixed
+
+### Community 513 - "Policy"
+Cohesion: 0.33
+Nodes (6): arn_key, fields, input_shapes, name_key, primary_key, Policy
+
+### Community 514 - "Bucket"
+Cohesion: 0.33
+Nodes (5): Bucket, mixins, import_path, name, Object
+
+### Community 515 - "put_lifecycle"
+Cohesion: 0.33
+Nodes (6): LifecycleConfiguration, required, put_lifecycle, args, boto3_name, response_attr
 
 ### Community 520 - "[0.12.0] - 2024-11-12"
 Cohesion: 0.50
@@ -1988,9 +2254,9 @@ Nodes (4): [0.16.0] - 2025-05-23, Added, Changed, Fixed
 Cohesion: 0.11
 Nodes (6): load_balancer_attributes_to_dict(), LoadBalancerManagerMixin, CreateLoadBalancerOutput, DescribeLoadBalancerAttributesOutput, DescribeLoadBalancersOutput, LoadBalancerManager
 
-### Community 523 - "TargetGroupManager"
-Cohesion: 0.12
-Nodes (5): CreateTargetGroupOutput, DescribeTargetGroupsOutput, DescribeTargetHealthOutput, ModifyTargetGroupOutput, TargetGroupManager
+### Community 524 - "put_bucket_policy"
+Cohesion: 0.33
+Nodes (6): Policy, put_bucket_policy, required, args, boto3_name, response_attr
 
 ### Community 525 - "[0.17.3] - 2025-06-03"
 Cohesion: 0.50
@@ -2012,9 +2278,9 @@ Nodes (4): [0.31.0] - 2026-08-07, Added, Changed, Fixed
 Cohesion: 0.50
 Nodes (4): [0.5.3] - 2024-10-04, Added, Changed, Fixed
 
-### Community 530 - "services/kinesis.py"
-Cohesion: 0.02
-Nodes (34): consumer_include_tags(), wrapper(), consumers_include_tags(), wrapper(), KinesisConsumerManagerMixin, KinesisResponseHelper, KinesisShardManagerMixin, KinesisStreamManagerMixin (+26 more)
+### Community 530 - "KinesisStreamManager"
+Cohesion: 0.05
+Nodes (14): consumers_include_tags(), KinesisStreamManagerMixin, KinesisTagsManagerMixin, stream_include_tags(), wrapper(), streams_include_tags(), DescribeStreamConsumerOutput, DescribeStreamSummaryOutput (+6 more)
 
 ### Community 531 - "[0.5.4] - 2024-10-15"
 Cohesion: 0.50
@@ -2024,39 +2290,79 @@ Nodes (4): [0.5.4] - 2024-10-15, Added, Changed, Fixed
 Cohesion: 0.50
 Nodes (4): [0.6.0] - 2024-10-15, Added, Changed, Fixed
 
+### Community 533 - "put_public_access_block"
+Cohesion: 0.33
+Nodes (6): PublicAccessBlockConfiguration, put_public_access_block, required, args, boto3_name, response_attr
+
 ### Community 535 - "[0.8.0] - 2024-10-28"
 Cohesion: 0.50
 Nodes (4): [0.8.0] - 2024-10-28, Added, Changed, Fixed
+
+### Community 536 - "mapping"
+Cohesion: 0.33
+Nodes (6): Bucket, Key, properties, transformer, pk, mapping
 
 ### Community 537 - "[0.9.0] - 2024-10-29"
 Cohesion: 0.50
 Nodes (4): [0.9.0] - 2024-10-29, Added, Changed, Fixed
 
+### Community 538 - "connection_response_to_connection"
+Cohesion: 0.33
+Nodes (3): connection_response_to_connection(), wrapper(), GetConnectionOutput
+
 ### Community 541 - "Botocraft"
 Cohesion: 0.50
 Nodes (3): Amplify Hosting, AWS Managed Grafana, Botocraft
+
+### Community 543 - "parameter_update_writes_tags"
+Cohesion: 0.33
+Nodes (3): parameter_update_writes_tags(), single_parameter_include_tags(), wrapper()
+
+### Community 547 - "ConverseStreamResponse"
+Cohesion: 0.40
+Nodes (5): fields, imports, stream, ConverseStreamResponse, python_type
+
+### Community 550 - "subnets"
+Cohesion: 0.40
+Nodes (5): subnets, docstring, many, primary_model_name, transformer
+
+### Community 552 - "CSVInput"
+Cohesion: 0.40
+Nodes (5): alternate_name, fields, QuoteEscapeCharacter, docstring, CSVInput
 
 ### Community 559 - "[0.10.0] - 2024-10-31"
 Cohesion: 0.67
 Nodes (3): [0.10.0] - 2024-10-31, Added, Fixed
 
-### Community 562 - "[0.12.3] - 2025-05-01"
-Cohesion: 0.67
-Nodes (3): [0.12.3] - 2025-05-01, Changed, Fixed
+### Community 561 - "schema"
+Cohesion: 0.50
+Nodes (4): schema, fields, rename, JsonSchemaDefinition
+
+### Community 562 - "list"
+Cohesion: 0.50
+Nodes (4): boto3_name, decorators, response_attr, list
+
+### Community 564 - "start"
+Cohesion: 0.50
+Nodes (4): start, boto3_name, decorators, response_attr
+
+### Community 566 - "delete_public_access_block"
+Cohesion: 0.50
+Nodes (4): args, boto3_name, response_attr, delete_public_access_block
 
 ### Community 567 - "[0.13.0] - 2025-05-02"
 Cohesion: 0.67
 Nodes (3): [0.13.0] - 2025-05-02, Changed, Fixed
+
+### Community 568 - "Tag"
+Cohesion: 0.50
+Nodes (4): Tag, fields, LifecycleRuleFilter, rename
 
 ### Community 570 - "[0.15.0] - 2025-05-16"
 Cohesion: 0.67
 Nodes (3): [0.15.0] - 2025-05-16, Added, Fixed
 
 ### Community 572 - "[0.17.10] - 2025-08-06"
-Cohesion: 0.67
-Nodes (3): [0.17.10] - 2025-08-06, Changed, Fixed
-
-### Community 573 - "[0.17.11] - 2025-09-03"
 Cohesion: 0.67
 Nodes (3): [0.17.11] - 2025-09-03, Changed, Fixed
 
@@ -2065,10 +2371,6 @@ Cohesion: 0.67
 Nodes (3): [0.17.4] - 2025-06-10, Changed, Fixed
 
 ### Community 576 - "[0.17.6] - 2025-08-06"
-Cohesion: 0.67
-Nodes (3): [0.17.6] - 2025-08-06, Changed, Fixed
-
-### Community 577 - "[0.17.7] - 2025-08-06"
 Cohesion: 0.67
 Nodes (3): [0.17.7] - 2025-08-06, Changed, Fixed
 
@@ -2114,10 +2416,6 @@ Nodes (3): [0.27.0] - 2026-05-18, Added, Fixed
 
 ### Community 588 - "[0.30.1] - 2026-06-09"
 Cohesion: 0.67
-Nodes (3): [0.30.1] - 2026-06-09, Added, Changed
-
-### Community 589 - "[0.30.2] - 2026-06-11"
-Cohesion: 0.67
 Nodes (3): [0.30.2] - 2026-06-11, Added, Changed
 
 ### Community 590 - "[0.30.4] - 2026-07-28"
@@ -2134,7 +2432,59 @@ Nodes (3): [0.7.0] - 2024-10-18, Added, Changed
 
 ### Community 601 - "services/codepipeline.py"
 Cohesion: 0.02
-Nodes (49): Condition, ActionConfigurationProperty, ActionDeclaration, ActionTypeArtifactDetails, ActionTypeDeclaration, ActionTypeExecutor, ActionTypeId, ActionTypeIdentifier (+41 more)
+Nodes (48): EnvironmentVariable, ActionConfigurationProperty, ActionDeclaration, ActionTypeArtifactDetails, ActionTypeDeclaration, ActionTypeExecutor, ActionTypeId, ActionTypeIdentifier (+40 more)
+
+### Community 614 - "put_acl"
+Cohesion: 0.67
+Nodes (3): put_acl, boto3_name, response_attr
+
+### Community 615 - "put_retention"
+Cohesion: 0.67
+Nodes (3): put_retention, boto3_name, response_attr
+
+### Community 616 - "select_content"
+Cohesion: 0.67
+Nodes (3): select_content, boto3_name, response_attr
+
+### Community 617 - "update"
+Cohesion: 0.67
+Nodes (3): update, boto3_name, response_attr
+
+### Community 619 - "CORSRule"
+Cohesion: 0.67
+Nodes (3): alternate_name, force_create, CORSRule
+
+### Community 620 - "LoggingEnabled"
+Cohesion: 0.67
+Nodes (3): alternate_name, force_create, LoggingEnabled
+
+### Community 621 - "Owner"
+Cohesion: 0.67
+Nodes (3): alternate_name, force_create, Owner
+
+### Community 625 - "[0.17.6] - 2025-08-06"
+Cohesion: 0.67
+Nodes (3): [0.17.6] - 2025-08-06, Changed, Fixed
+
+### Community 626 - "[0.22.0] - 2026-02-06"
+Cohesion: 0.67
+Nodes (3): [0.22.0] - 2026-02-06, Added, Changed
+
+### Community 627 - "[0.30.1] - 2026-06-09"
+Cohesion: 0.67
+Nodes (3): [0.30.1] - 2026-06-09, Added, Changed
+
+### Community 673 - "ElastiCacheUser"
+Cohesion: 0.11
+Nodes (3): DescribeUsersResult, ElastiCacheUser, ElastiCacheUserManager
+
+### Community 695 - "test_ec2_primary_model_expansion.py"
+Cohesion: 0.11
+Nodes (5): EC2VpcEndpoint, VpcPeeringConnection, TestEC2VpcEndpointManager, TestFlowLogManager, TestVpcPeeringConnectionManager
+
+### Community 725 - "services/opensearch.py"
+Cohesion: 0.01
+Nodes (85): AccessPoliciesStatus, AdvancedOptionsStatus, AdvancedSecurityOptionsInput, AdvancedSecurityOptionsStatus, AIMLOptionsInput, AIMLOptionsOutput, AIMLOptionsStatus, AutomatedSnapshotPauseOptionsStatus (+77 more)
 
 ### Community 809 - "services/ses.py"
 Cohesion: 0.04
@@ -2146,23 +2496,23 @@ Nodes (52): Attachment, ConfigurationOverrides, DefaultSigningScheme, DeleteConf
 
 ## Knowledge Gaps
 - **1 isolated node(s):** `botocraft`
-  These have ≤1 connection - possible missing edges or undocumented components. (Counts symbols only; 6918 node(s) total have ≤1 connection when file, concept and rationale nodes are included.)
-- **587 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+  These have ≤1 connection - possible missing edges or undocumented components. (Counts symbols only; 7407 node(s) total have ≤1 connection when file, concept and rationale nodes are included.)
+- **644 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `Boto3Model` connect `Boto3Model` to `services/ec2.py`, `services/bedrock.py`, `AMI`, `services/bedrock_runtime.py`, `test_ec2_primary_model_expansion.py`, `services/amplify.py`, `services/ecs.py`, `services/inspector2.py`, `OpenSearchDomainManager`, `services/codebuild.py`, `IAMRole`, `Service`, `services/test_codepipeline.py`, `DataSyncTask`, `Daemon`, `TestRelationshipValuesAndValuesList`, `mixins/codepipeline.py`, `DocDBClusterManager`, `EC2VpcEndpointManager`, `services/cloudwatch.py`, `TestBedrockRelations`, `test_bedrock.py`, `services/sqs.py`, `PrimaryBoto3ModelQuerySet`, `RouteTableManager`, `mixins/ecr.py`, `services/bedrock_agentcore_control.py`, `SESTemplate`, `CustomModel`, `mixins/ecs.py`, `_SESManagerProtocol`, `ModelCustomizationJob`, `mixins/codebuild.py`, `SecretManager`, `IAMAccessKeyManager`, `ProvisionedModelThroughput`, `datasync_add_tags`, `ConversationManager`, `coerce_queryset_results`, `Build`, `CapacityProvider`, `MultiRegionEndpoint`, `test_sesv2.py`, `ProjectManager`, `Bucket`, `EventBridgeServiceExporter`, `test_ses.py`, `ACMCertificateManager`, `.sessionize`, `test_ecs.py`, `VpcPeeringConnectionManager`, `Boto3ModelManagerFilter`, `Alarm`, `DataSyncLocationCatalog`, `VolumeManager`, `mixins/grafana.py`, `services/codeconnections.py`, `AMIManager`, `EFSPosixUser`, `services/iam.py`, `test_datasync_workflow.py`, `SchemaManager`, `ImageIdentifier`, `mixins/bedrock_runtime.py`, `ECRImageMixin`, `Host`, `.serialize`, `AutomatedReasoningPolicyBuildWorkflow`, `elasticache_user_group_add_tags`, `SESCustomVerificationEmailTemplate`, `LogGroup`, `BedrockEventStream`, `FileSystem`, `Boto3ModelManager`, `.list`, `SnapshotManager`, `InstanceManager`, `ManagedGrafanaWorkspaceManager`, `wrapper`, `services/schemas.py`, `IAMUser`, `services/logs.py`, `ecs_task_definition_delete_all`, `BucketManager`, `.list`, `Instance`, `ModelInvocationJob`, `IAMGroupManager`, `single_docdb_instance_include_tags`, `Inspector2FilterManager`, `CacheParameterGroupManager`, `IAMUserManager`, `ServiceManager`, `EvaluationJobManager`, `services/grafana.py`, `test_grafana.py`, `InstanceProfileManager`, `ManagedGrafanaServiceAccountTokenManager`, `ReportGroup`, `ResourcePolicy`, `DedicatedIpPool`, `DataSyncLocationNfsManager`, `DataSyncLocationObjectStorageManager`, `NetworkAclManager`, `ListLocationsResponse`, `BucketManagerMixin`, `NatGatewayManager`, `mixins/ses.py`, `EC2 examples (verified)`, `MarketplaceModelEndpointManager`, `LogGroupManager`, `TaskSetManager`, `add_attributes_for_list`, `SESConfigurationSet`, `.start_execution`, `.get`, `test_abstract_filter.py`, `.start`, `EmailTemplate`, `EventBusManager`, `ec2_instance_only`, `MetricAlarmManager`, `BuildBatchManager`, `amplify_stamp_app_id`, `CacheSecurityGroupManager`, `ModelInvocationLoggingConfiguration`, `NetworkInterfaceManager`, `IAMPolicyVersionManager`, `FoundationModelManager`, `AgentCoreGatewayRuleManager`, `mixins/codeconnections.py`, `convert_log_group_tags`, `DataSyncLocationSmbManager`, `Parameter`, `test_abstract_queryset.py`, `mixins/datasync.py`, `ScalingPolicyManager`, `VpnConnectionManager`, `Fleet`, `FindingManager`, `ClassicELBManagerMixin`, `FindingsReportManager`, `LaunchTemplate`, `test_bedrock_runtime.py`, `ecs_service_deployments_only`, `DeregisterEndPointsOutput`, `ListenerManager`, `RuleManager`, `AgentCoreHarnessManager`, `TaskDefinition`, `SESReceiptFilter`, `DiscovererManager`, `single_docdb_subnet_group_include_tags`, `GuardrailManager`, `ScheduledActionManager`, `Connection`, `services/datasync.py`, `Sandbox`, `LaunchTemplateManager`, `RelatedModel`, `.set_session`, `CognitoUserManager`, `DhcpOptionsManager`, `ReportManager`, `PlacementGroupManager`, `Generator YAML Pitfalls`, `ResponseStream`, `LaunchTemplateVersionManager`, `EventRuleManager`, `TenantManager`, `Snapshot`, `EnforcedGuardrailsConfigurationManager`, `AutoScalingGroupManager`, `.send`, `AgentCoreHarnessEndpointManager`, `amplify_sync_tags`, `ExpressGatewayService`, `ScalableTargetManager`, `CacheClusterManager`, `AgentCorePaymentCredentialProviderManager`, `IAMLoginProfileManager`, `EventTargetManager`, `ConverseStreamOutput`, `AgentCoreOauth2CredentialProviderManager`, `TestBedrockRuntimeMixins`, `Repository`, `DataSyncLocationEfsManager`, `AgentCoreAgentRuntimeEndpoint`, `SuppressedDestinationManager`, `InferenceProfile`, `QueryDefinitionManagerMixin`, `InstanceProfile`, `AgentCoreAgentRuntime`, `AgentCoreApiKeyCredentialProviderManager`, `AgentCoreCodeInterpreter`, `CisScanConfigurationManager`, `.list`, `SyncBlockerSummary`, `DelegatedAdminAccountManager`, `.list`, `DescribeLoadBalancerPoliciesOutput`, `FilterCriteria`, `PolicyManager`, `AgentCoreGatewayManager`, `AgentCoreGatewayTarget`, `AgentCoreMemoryManager`, `AgentCorePaymentCredentialProvider`, `PolicyEngine`, `PromptRouterManager`, `CognitoResourceServerManager`, `AddAvailabilityZonesOutput`, `ConfigurationSetManager`, `AttachLoadBalancerToSubnetsOutput`, `DescribeClassicELBAttributesResponse`, `DescribeTagsOutput`, `DetachLoadBalancerFromSubnetsOutput`, `RemoveAvailabilityZonesOutput`, `DescribeEndPointStateOutput`, `ModifyLoadBalancerAttributesOutput`, `SourceCredentialsManager`, `ElastiCacheUserGroup`, `botocraft/datasync.py`, `Rule`, `CloudWatchMetricModelMixin`, `CognitoUserPoolManager`, `ReplicationGroupManager`, `.list`, `S3ObjectManager`, `mixins/inspector2.py`, `AutoScalingGroup`, `Schema`, `ContactList`, `bucket_list_names_to_buckets`, `.create`, `.create`, `Content`, `CognitoUserPoolClientManager`, `DescribeSecurityGroupsResult`, `DescribeLoadBalancerPolicyTypesOutput`, `RegisterEndPointsOutput`, `ImportedModelManager`, `ECRAttribute`, `ClassicELB`, `AutomatedReasoningPolicyTestResultManager`, `IAMSSHPublicKeyManager`, `ApplySecurityGroupsToLoadBalancerOutput`, `.get`, `OpenSearchVpcEndpointManager`, `DescribeRouteTablesResult`, `SyncBlocker`, `CacheClusterMessage`, `VulnerabilityManagerMixin`, `.list`, `HostedZoneManager`, `ReplicationGroupMessage`, `.list_for_user`, `.list_instance_profiles`, `.update`, `.list`, `.list`, `.list`, `.list`, `.delete`, `AutoScalingRetentionTriggers`, `AgentCoreMemoryRecordManager`, `.get`, `.list`, `VCpuCountRequest`, `.get`, `.list`, `.list`, `DescribePackagesResponse`, `CognitoGroupManager`, `.change`, `.list`, `CognitoIdentityProviderManager`, `.list`, `CopyImageResult`, `AutoScalingActivity`, `test_datasync.py`, `AttachNetworkInterfaceResult`, `AutoScalingInstanceRequirements`, `DescribeNetworkInterfacePermissionsResult`, `Reservation`, `ECSAttachment`, `NetworkConfiguration`, `CreateRoleResponse`, `.get_policy`, `ListReceiptRuleSetsResponse`, `EnabledMetric`, `LoadBalancerManager`, `TargetGroupManager`, `NetworkBandwidthGbpsRequest`, `services/kinesis.py`, `DomainValidation`, `KeyUsage`, `.list`, `ApplicationAutoscalingPredictiveScalingPolicyConfiguration`, `ApplicationAutoscalingStepScalingPolicyConfiguration`, `ApplicationAutoscalingSuspendedState`, `PredictiveScalingMetric`, `MessageMetadata`, `.create`, `StepAdjustment`, `.delete`, `AutoScalingInstanceMonitoring`, `.disable_deregistration_protection`, `.enable_deregistration_protection`, `.start`, `LaunchTemplateOverrides`, `.stop`, `.terminate`, `ExtractionJob`, `FilterInput`, `LinkedAccountEmail`, `AccountRecoverySettingType`, `AutoScalingCapacityReservationTarget`, `MemoryMetadataFilterExpression`, `SmsConfigurationType`, `AutoScalingLaunchTemplate`, `DocDBPendingCloudwatchLogsExports`, `MemoryRecordUpdateInput`, `LinkedAccountDeveloperJwt`, `ACMDomainValidationMethodUpdateSummary`, `ACMResourceRecord`, `ACMUpdateSummary`, `CertificateOptions`, `CustomRule`, `services/codepipeline.py`, `JobSummary`, `PredictiveScalingPredefinedScalingMetricSpecification`, `TargetTrackingMetricDimension`, `AdminGetUserResponse`, `AutoScalingInstanceLifecyclePolicy`, `AdvancedSecurityAdditionalFlowsType`, `AutoScalingInstanceReusePolicy`, `AutoScalingTagDescription`, `KeyConfigurationType`, `LinkedAccount`, `LifecycleHookSpecification`, `SignInPolicyType`, `TrafficSourceIdentifier`, `DeletePaymentInstrumentResponse`, `ExtractionJobMessages`, `LinkedAccountOAuth2`, `MemoryContent`, `AutomatedReasoningCheckNoTranslationsFinding`, `AutomatedReasoningCheckValidFinding`, `AutomatedReasoningPolicyBuildStepContext`, `AutomatedReasoningPolicyBuildWorkflowSource`, `AutomatedReasoningPolicyDefinitionTypeValuePair`, `AutomatedReasoningPolicyReportSourceDocument`, `AutomatedReasoningPolicyRuleReport`, `CustomModelUnits`, `FoundationModelDetails`, `GuardrailPiiEntity`, `GuardrailRegexConfig`, `GuardrailTopicPolicyConfig`, `ModelInvocationJobInputDataConfig`, `ValidationDetails`, `ValidatorMetric`, `RFTHyperParameters`, `AudioBlock`, `DBClusterRole`, `AudioSource`, `ContentBlockDelta`, `ConverseStreamMetrics`, `ServerlessV2ScalingConfiguration`, `ConverseStreamTrace`, `ConverseTokensRequest`, `ConverseTrace`, `GuardrailAutomatedReasoningLogicWarning`, `GuardrailAutomatedReasoningScenario`, `GuardrailAutomatedReasoningValidFinding`, `GuardrailConverseImageSource`, `GuardrailCustomWord`, `GuardrailInvocationMetrics`, `GuardrailOutputContent`, `GuardrailRegexFilter`, `GuardrailTextCharactersCoverage`, `ImageBlockStart`, `InvokeModelTokensRequest`, `ReasoningTextBlock`, `ToolRemovalBlock`, `ToolChoice`, `ToolUseBlock`, `AcrLevelConfigType`, `IssuerConfigurationType`, `LambdaConfigType`, `EncryptionConfiguration`, `VerificationMessageTemplateType`, `PasswordPolicyType`, `TokenValidityUnitsType`, `RoutingType`, `ImageScanFinding`, `ElastiCacheUser`, `ImageScanningConfiguration`, `ListImagesFilter`, `MFAOptionType`, `DocDBEndpoint`, `CacheNodeTypeSpecificValue`, `FixedResponseActionConfig`, `CacheSecurityGroupMembership`, `NodeGroupConfiguration`, `PendingLogDeliveryConfiguration`, `ClassicELBSourceSecurityGroup`, `EventsSqsParameters`, `RunCommandTarget`, `KinesisEnhancedMetrics`, `DeleteLoadBalancerPolicyOutput`, `PolicyDescription`, `AdvancedSecurityOptionsInput`, `ClusterConfigStatus`, `AnomalyDetectionInfo`, `AuthenticateCognitoActionConfig`, `DeploymentStrategyOptionsStatus`, `FileSystemSize`, `LoadBalancerState`, `IAMFederationOptionsOutput`, `ResponseCodeMatcher`, `NodeGroupMember`, `EventsNetworkConfiguration`, `ParameterNameValue`, `EventsPlacementConstraint`, `ClassicELBPolicies`, `EventsRedshiftDataParameters`, `EventsRetryPolicy`, `PutEventsResultEntry`, `RemoveTargetsResultEntry`, `ConfigureHealthCheckOutput`, `RemoveTagsOutput`, `OpenSearchPackageConfiguration`, `JwtValidationActionConfig`, `QueryStringConditionConfig`, `RuleTransform`, `SubnetMapping`, `TargetHealthDescription`, `StreamDescriptionSummary`, `EventsDeadLetterConfig`, `EventsKinesisParameters`, `SageMakerPipelineParameter`, `AccountAggregationResponse`, `AggregationResponse`, `AmiAggregation`, `OpenSearchZoneAwarenessConfig`, `AwsEcrContainerAggregation`, `AwsEcrContainerAggregationResponse`, `OffPeakWindowOptionsStatus`, `OpenSearchCognitoOptions`, `AwsEcrContainerImageDetails`, `AwsLambdaFunctionDetails`, `CodeFilePath`, `OpenSearchVPCOptions`, `CodeRepositoryAggregation`, `OptionStatus`, `CodeVulnerabilityDetails`, `ContainerImageAggregation`, `SAMLOptionsOutput`, `Cvss2`, `Cvss3`, `Cvss4`, `GetObjectAttributesParts`, `DBInstanceRole`, `DBParameterGroupStatus`, `CvssScore`, `CvssScoreAdjustment`, `CvssScoreDetails`, `ChangeBatch`, `Ec2InstanceAggregation`, `Ec2InstanceAggregationResponse`, `HostedZoneLimit`, `ExploitabilityDetails`, `Route53AliasTarget`, `Route53DelegationSet`, `ForwardActionConfig`, `FindingDetailsError`, `FindingTypeAggregation`, `FindingTypeAggregationResponse`, `ImageLayerAggregationResponse`, `InspectorScoreDetails`, `ObjectVersion`, `LambdaLayerAggregationResponse`, `MachineImageDetails`, `NetworkPath`, `S3RestoreStatus`, `NetworkReachabilityDetails`, `PackageAggregation`, `StatsEvent`, `PackageAggregationResponse`, `PackageFilter`, `PortRange`, `services/ses.py`, `PortRangeFilter`, `Vm`, `ServerlessFunction`, `SortCriteria`, `RepositoryAggregation`, `TitleAggregation`, `VmInstanceAggregation`, `ServerlessFunctionAggregation`, `SeverityCounts`, `RepositoryAggregationResponse`, `BatchResultErrorEntry`, `ServerlessFunctionAggregationResponse`, `DeleteMessageBatchResultEntry`, `MultiRegionKey`, `AutoTuneOptionsInput`, `DescribePackagesFilter`, `JWTOptionsOutput`, `LogPublishingOption`, `LogPublishingOptionsStatus`, `OpenSearchClusterConfig`, `OpenSearchDeploymentStrategyOptions`, `OpenSearchDomainEndpointOptions`, `OpenSearchEBSOptions`, `OpenSearchModifyingProperties`, `OpenSearchOffPeakWindow`, `OpenSearchPackageVendingOptions`, `OpenSearchSnapshotOptions`, `SAMLOptionsInput`, `SoftwareUpdateOptionsStatus`, `DBSecurityGroupMembership`, `ModifyAdditionalStorageVolume`, `OptionGroupMembership`, `RDSCertificateDetails`, `RDSPendingModifiedValues`, `CollectionSummary`, `HostedZoneSummary`, `Route53LinkedService`, `CSVOutput`, `EndEvent`, `ObjectIdentifier`, `ObjectLockRetention`, `ObjectPart`, `OutputSerialization`, `S3ErrorDocument`, `S3SimplePrefix`, `RestoreRequest`, `Stats`, `MessageSystemAttributeValue`, `STSCredentials`, `OpenSearchWindowStartTime`, `AuthenticationMode`, `EC2SecurityGroup`, `services/sesv2.py`, `IPAddressTypeStatus`, `OpenSearchAutoTuneOptions`, `OpenSearchServiceSoftwareOptions`, `ClassicELBConnectionDraining`, `S3NoncurrentVersionExpiration`, `SetLoadBalancerListenerSSLCertificateOutput`, `ElbV2HostHeaderRewriteConfig`, `HostHeaderConditionConfig`, `EventsSageMakerPipelineParameters`, `PutEventsRequestEntry`, `AdvancedSecurityOptionsStatus`, `VpcEndpointError`, `AdditionalStorageVolumeOutput`, `Transition`?**
-  _High betweenness centrality (0.382) - this node is a cross-community bridge._
-- **Are the 103 inferred relationships involving `Boto3Model` (e.g. with `AmplifyJobManagerMixin` and `BedrockEventStream`) actually correct?**
-  _`Boto3Model` has 103 INFERRED edges - model-reasoned connections that need verification._
+- **Why does `Boto3Model` connect `Boto3Model` to `services/ec2.py`, `services/bedrock.py`, `services/bedrock_runtime.py`, `VpnGatewayManager`, `services/amplify.py`, `LoadBalancerConfiguration`, `services/inspector2.py`, `_attach_domain_tags`, `services/codebuild.py`, `services/test_codepipeline.py`, `Daemon`, `TestRelationshipValuesAndValuesList`, `mixins/codepipeline.py`, `DocDBClusterManager`, `EC2VpcEndpointManager`, `services/cloudwatch.py`, `IAMRoleManager`, `AutomatedReasoningPolicyManager`, `QueueManager`, `PrimaryBoto3ModelQuerySet`, `EC2 examples (verified)`, `mixins/ecr.py`, `services/bedrock_agentcore_control.py`, `SESTemplate`, `CustomModelManager`, `Task`, `_SESManagerProtocol`, `mixins/codebuild.py`, `SecretManager`, `IAMAccessKeyManager`, `ProvisionedModelThroughput`, `DataSyncLocationFsxWindows`, `ConversationManager`, `coerce_queryset_results`, `Build`, `MultiRegionEndpoint`, `test_sesv2.py`, `ProjectManager`, `EventBridgeServiceExporter`, `test_ses.py`, `ACMCertificateManager`, `.sessionize`, `test_ecs.py`, `EC2TagsManagerMixin`, `DocDBClusterParameterGroup`, `mixins/grafana.py`, `services/codeconnections.py`, `AMIManager`, `TestValuesAndValuesList`, `test_datasync_workflow.py`, `SchemaManager`, `eventbridge/ecr.py`, `mixins/bedrock_runtime.py`, `Host`, `.serialize`, `AutomatedReasoningPolicyBuildWorkflow`, `Boto3ModelManagerFilter`, `SESCustomVerificationEmailTemplate`, `BedrockEventStream`, `Boto3ModelManager`, `.list`, `SnapshotManager`, `FlowLogManager`, `ManagedGrafanaWorkspaceManager`, `registry_response_to_registry`, `LogGroupField`, `BucketManager`, `MountTarget`, `IAMGroupManager`, `single_docdb_instance_include_tags`, `Inspector2FilterManager`, `test_efs.py`, `CacheParameterGroupManager`, `CreateUserResponse`, `ReplicationConfiguration`, `EvaluationJobManager`, `AssertionAttributes`, `test_grafana.py`, `InstanceProfileManager`, `ManagedGrafanaServiceAccountTokenManager`, `ReportGroup`, `test_bedrock.py`, `KeyPairManager`, `DedicatedIpPool`, `KinesisStream`, `DataSyncLocationObjectStorage`, `NetworkAclManager`, `ListLocationsResponse`, `RepositoryManager`, `FileSystemManager`, `.render`, `mixins/ses.py`, `MarketplaceModelEndpointManager`, `LogGroupManager`, `TaskSetManager`, `add_attributes_for_list`, `SESConfigurationSet`, `.start_execution`, `test_abstract_filter.py`, `.start`, `EmailTemplate`, `EventBusManager`, `ec2_instance_only`, `MetricAlarmManager`, `BuildBatchManager`, `CacheSecurityGroupManager`, `InstanceManager`, `IAMPolicyManager`, `FoundationModelManager`, `AgentCoreGatewayRule`, `services/codeconnections.py`, `services/logs.py`, `DataSyncLocationSmb`, `Parameter`, `test_abstract_queryset.py`, `mixins/datasync.py`, `Fleet`, `FindingsReportManager`, `test_bedrock_runtime.py`, `DeregisterEndPointsOutput`, `ListenerManager`, `RuleManager`, `AgentCoreHarnessManager`, `SESReceiptFilter`, `DiscovererManager`, `DocDBSubnetGroupManager`, `GuardrailManager`, `ScheduledActionManager`, `Connection`, `services/datasync.py`, `Sandbox`, `LaunchTemplateManager`, `.test_crud_and_tag_hydration`, `RelatedModel`, `.set_session`, `CognitoUserManager`, `DhcpOptionsManager`, `ReportManager`, `PlacementGroupManager`, `Global model-name collisions`, `ResponseStream`, `LaunchTemplateVersionManager`, `EventRuleManager`, `Tenant`, `EnforcedGuardrailsConfigurationManager`, `AutoScalingGroupManager`, `.send`, `AgentCoreHarnessEndpointManager`, `ExpressGatewayService`, `ScalableTargetManager`, `services/elasticache.py`, `AgentCorePaymentCredentialProviderManager`, `IAMLoginProfileManager`, `unittest_mock`, `ConverseStreamOutput`, `Secret`, `TestBedrockRuntimeMixins`, `DataSyncLocationEfs`, `Project`, `AgentCoreAgentRuntimeEndpoint`, `SuppressedDestinationManager`, `InferenceProfileManager`, `DataSyncLocationAzureBlobManager`, `DataSyncLocationFsxOntap`, `AgentCoreAgentRuntime`, `AgentCoreCodeInterpreter`, `DataSyncLocationHdfs`, `.list`, `SyncBlockerSummary`, `.list`, `DescribeLoadBalancerPoliciesOutput`, `FilterCriteria`, `PolicyManager`, `AgentCoreGateway`, `AgentCoreGatewayTarget`, `AgentCoreMemoryManager`, `PolicyEngine`, `PromptRouterManager`, `CognitoResourceServerManager`, `AddAvailabilityZonesOutput`, `ConfigurationSetManager`, `AttachLoadBalancerToSubnetsOutput`, `DescribeClassicELBAttributesResponse`, `DescribeTagsOutput`, `DetachLoadBalancerFromSubnetsOutput`, `RemoveAvailabilityZonesOutput`, `DescribeEndPointStateOutput`, `ModifyLoadBalancerAttributesOutput`, `SourceCredentialsManager`, `ElastiCacheUserGroup`, `botocraft/datasync.py`, `CognitoUserPoolManager`, `S3ObjectManager`, `CustomerGateway`, `CognitoIdentity`, `Model Collisions And Tags`, `ModelCustomizationJobManager`, `Schema`, `ContactList`, `.create`, `Content`, `CognitoUserPoolClientManager`, `SecurityGroupManager`, `DescribeLoadBalancerPolicyTypesOutput`, `RegisterEndPointsOutput`, `ImportedModelManager`, `ECRAttribute`, `.update_attributes`, `ClassicELB`, `IAMSSHPublicKeyManager`, `ApplySecurityGroupsToLoadBalancerOutput`, `OpenSearchVpcEndpointManager`, `SyncBlockerManager`, `.list`, `CacheSubnetGroupManager`, `HostedZoneManager`, `EventRule_purge_CreatedBy_attribute`, `.list`, `.list`, `DaemonRevisionManager`, `AgentCoreMemoryRecordManager`, `VCpuCountRequest`, `.get`, `.list`, `.list`, `OpenSearchPackageManager`, `CognitoGroupManager`, `CognitoIdentityProviderManager`, `.list`, `CopyImageResult`, `AutoScalingActivity`, `test_datasync.py`, `AutoScalingInstanceRequirements`, `ECSAttachment`, `NetworkConfiguration`, `ListReceiptRuleSetsResponse`, `EnabledMetric`, `LoadBalancerManager`, `TargetGroupManager`, `KinesisStreamManager`, `KeyUsage`, `connection_response_to_connection`, `LaunchConfigurationManager`, `MessageMetadata`, `.delete`, `AutoScalingInstanceMonitoring`, `.enable_deregistration_protection`, `.list`, `.get_many`, `FilterInput`, `AccountRecoverySettingType`, `MemoryMetadataFilterExpression`, `.get`, `MemoryRecordUpdateInput`, `.create`, `.get`, `.batch_delete`, `.create`, `.get`, `.create`, `.get`, `ACMDomainValidationMethodUpdateSummary`, `.create`, `ACMUpdateSummary`, `.last_used`, `CustomRule`, `services/codepipeline.py`, `JobSummary`, `.get`, `.get`, `DeleteDomainResponse`, `.assume_with_saml`, `.assume_with_web_identity`, `AutoScalingInstanceReusePolicy`, `KeyConfigurationType`, `LinkedAccount`, `MemoryContent`, `DescribeWorkspaceResponse`, `.list`, `ACMRenewalSummary`, `Filters`, `AmplifyWafConfiguration`, `AutoBranchCreationConfig`, `Backend`, `CacheConfig`, `DBClusterRole`, `CertificateSettings`, `ProductionBranch`, `SubDomain`, `ServerlessV2ScalingConfiguration`, `ConverseStreamTrace`, `ApplicationAutoscalingCustomizedMetricSpecification`, `PredictiveScalingPredefinedLoadMetricSpecification`, `AutoScalingAcceleratorTotalMemoryMiBRequest`, `GuardrailAutomatedReasoningScenario`, `AutoScalingAvailabilityZoneDistribution`, `GuardrailConverseImageSource`, `AutoScalingBlockDeviceMapping`, `AutoScalingCapacityReservationSpecification`, `GuardrailOutputContent`, `AutoScalingInstanceReference`, `AutoScalingLaunchTemplateSpecification`, `AutoScalingPerformanceFactorReferenceRequest`, `InvokeModelTokensRequest`, `AutoScalingTotalLocalStorageGBRequest`, `DistributionSegment`, `ToolChoice`, `EbsMapping`, `AcrLevelConfigType`, `LifecycleHookSpecification`, `IssuerConfigurationType`, `Amount`, `EncryptionConfiguration`, `EventMetadataFilterExpression`, `ExtractionJobFilterInput`, `TokenValidityUnitsType`, `LeftExpression`, `MemoryJsonData`, `MemoryRecordLeftExpression`, `MemoryRecordSummary`, `MetadataValue`, `ImageScanFinding`, `ElastiCacheUser`, `OAuth2Authentication`, `PayloadType`, `PaymentInstrumentDetails`, `ListImagesFilter`, `MFAOptionType`, `PaymentInstrumentSummary`, `RightExpression`, `CitationSourceContent`, `ConverseMetrics`, `DocumentChunkLocation`, `DocumentContentBlock`, `FixedResponseActionConfig`, `GuardrailAutomatedReasoningTranslation`, `GuardrailConverseImageBlock`, `GuardrailImageSource`, `GuardrailSensitiveInformationPolicyAssessment`, `GuardrailTraceAssessment`, `PayloadPart`, `ToolAdditionBlock`, `SystemTool`, `IdentityPoolShortDescription`, `AdminCreateUserConfigType`, `ClassicELBSourceSecurityGroup`, `AdminDisableUserResponse`, `AdminEnableUserResponse`, `AttributeType`, `CustomEmailLambdaVersionConfigType`, `KinesisEnhancedMetrics`, `DeviceConfigurationType`, `EmailConfigurationType`, `FailoverType`, `InboundFederationLambdaType`, `PolicyDescription`, `NumberAttributeConstraintsType`, `ProviderDescription`, `UserPoolPolicyType`, `SchemaAttributeType`, `UserPoolAddOnsType`, `ResourceServerScopeType`, `UserPoolDescriptionType`, `AuthenticateCognitoActionConfig`, `DocDBPendingModifiedValues`, `AssignedPrivateIpAddress`, `AttachmentEnaSrdUdpSpecification`, `CapacityReservationTargetResponse`, `DeleteLaunchTemplateVersionsResponseErrorItem`, `DeleteSnapshotReturnCode`, `DnsEntry`, `EC2CidrBlockAssociation`, `EC2EbsInfo`, `services/opensearch.py`, `EC2EfaInfo`, `EC2FpgaInfo`, `EC2HibernationOptions`, `EC2IamInstanceProfile`, `EC2InstanceTypeSpecification`, `EC2MemoryGiBPerVCpuRequest`, `EC2NetworkInfo`, `EC2NeuronInfo`, `EC2PrivateDnsNameOptionsOnLaunch`, `EC2PublicIpDnsNameOptions`, `EC2ResponseError`, `EC2StateReason`, `EnaSrdUdpSpecificationRequest`, `EnclaveOptionsRequest`, `IamInstanceProfileSpecification`, `ClassicELBPolicies`, `EventsRedshiftDataParameters`, `IKEVersionsRequestListValue`, `PutEventsResultEntry`, `ImageWatermark`, `InstanceIpv4Prefix`, `InstanceIpv6Address`, `InstanceMarketOptionsRequest`, `InstanceMemoryGiBPerVCpu`, `InstanceMetadataOptionsResponse`, `RuleTransform`, `InstanceNetworkBandwidthGbps`, `TargetHealthDescription`, `InstanceNetworkInterfaceAttachment`, `InstanceNetworkInterfaceSpecification`, `EventsKinesisParameters`, `InstanceNetworkPerformanceOptions`, `InstancePrivateIpAddress`, `InstanceRequirementsRequest`, `InstanceSecondaryInterfaceAttachment`, `InstanceSecondaryInterfacePrivateIpAddressRequest`, `InstanceTotalLocalStorageGB`, `IpRange`, `Ipv4PrefixSpecification`, `Ipv4PrefixSpecificationResponse`, `Ipv6PrefixSpecification`, `LaunchTemplateBlockDeviceMapping`, `LaunchTemplateCpuOptions`, `LaunchTemplateEnaSrdUdpSpecification`, `LaunchTemplateInstanceMetadataOptionsRequest`, `LaunchTemplateInstanceNetworkInterfaceSpecification`, `LaunchTemplateInstanceRequirements`, `LaunchTemplateInstanceSecondaryInterfaceSpecification`, `LaunchTemplateLicenseConfiguration`, `LaunchTemplateNetworkPerformanceOptionsRequest`, `LaunchTemplatePlacementRequest`, `LicenseConfiguration`, `MediaDeviceMemoryInfo`, `NetworkInterfaceAttachment`, `NetworkInterfaceCountRequest`, `NetworkInterfacePermission`, `NetworkInterfacePrivateIpAddress`, `NeuronDeviceInfo`, `ChangeBatch`, `NeuronDeviceMemoryInfo`, `OperatorRequest`, `HostedZoneLimit`, `PayerResponsibilityEntry`, `Route53AliasTarget`, `Route53DelegationSet`, `ForwardActionConfig`, `Phase1DHGroupNumbersListValue`, `Phase1IntegrityAlgorithmsListValue`, `Phase2EncryptionAlgorithmsRequestListValue`, `Phase2IntegrityAlgorithmsListValue`, `PrivateDnsNameOptionsRequest`, `ObjectVersion`, `ProductCode`, `RouteTableAssociationState`, `VpcPeeringConnectionOptionsDescription`, `SubnetIpPrefixes`, `VpnAdditionalKeyExchange`, `TunnelOption`, `VpnStaticRoute`, `VgwTelemetry`, `RevokedSecurityGroupRule`, `SecurityGroupRule`, `services/ses.py`, `RunInstancesMonitoringEnabled`, `RequestLaunchTemplateData`, `SubnetConfiguration`, `VpnTunnelOptionsSpecification`, `VpcCidrBlockAssociation`, `VpcEncryptionControlExclusion`, `VpcEncryptionControlExclusions`, `ImageReplicationStatus`, `ImageScanStatus`, `ImageTagMutabilityExclusionFilter`, `ScoreDetails`, `Attribute`, `AutoScalingGroupProvider`, `CanaryConfiguration`, `ClusterServiceConnectDefaultsRequest`, `MultiRegionKey`, `ContainerRestartPolicy`, `CreateManagedInstancesProviderConfiguration`, `DaemonCapacityProvider`, `DaemonContainerDefinition`, `DaemonContainerImage`, `DaemonLinuxParameters`, `DaemonRevisionDetail`, `DeploymentController`, `DeploymentLifecycleHookTimeoutConfiguration`, `ECSMemoryGiBPerVCpuRequest`, `ECSMemoryMiBRequest`, `ECSTotalLocalStorageGBRequest`, `ECSVCpuCountRangeRequest`, `EphemeralStorage`, `ExecuteCommandLogConfiguration`, `ExpressGatewayServiceConfiguration`, `ExpressGatewayServiceNetworkConfiguration`, `Failure`, `GatewayConnectionResources`, `GatewayConnectorDeregistrationDelay`, `GatewayConnectorFilters`, `HealthCheck`, `IngressPathSummary`, `InstanceHealthCheckResult`, `InstanceLaunchTemplate`, `InstanceLaunchTemplateUpdate`, `KernelCapabilities`, `LogConfiguration`, `DBSecurityGroupMembership`, `ModifyAdditionalStorageVolume`, `ManagedAgent`, `ManagedCertificate`, `ManagedIngressPath`, `ManagedInstancesProvider`, `HostedZoneSummary`, `Route53LinkedService`, `ManagedInstancesStorageConfiguration`, `EndEvent`, `ObjectIdentifier`, `ObjectLockRetention`, `ObjectPart`, `OutputSerialization`, `ManagedLoadBalancer`, `MountPoint`, `NvidiaMpsAllocation`, `RestoreRequest`, `Stats`, `MessageSystemAttributeValue`, `PlacementConstraint`, `PortMapping`, `Rollback`, `ServiceDeploymentAlarms`, `TaskManagedEBSVolumeTerminationPolicy`, `ServiceConnectTestTrafficRules`, `ServiceConnectClientAlias`, `ServiceConnectTlsConfiguration`, `ServiceConnectService`, `ServiceConnectAccessLogConfiguration`, `VpcLatticeAdvancedConfiguration`, `ServiceEvent`, `RepositoryCredentials`, `Tmpfs`, `SharingStrategy`, `ResourceRequirement`, `TaskDefinitionPlacementConstraint`, `ResolvedConfiguration`, `ServiceRevisionOverrides`, `EFSDestination`, `AddTagsOutput`, `AppCookieStickinessPolicy`, `ClassicELBAccessLog`, `ClassicELBConnectionSettings`, `LBCookieStickinessPolicy`, `PolicyAttributeDescription`, `PolicyTypeDescription`, `ElbV2AdministrativeOverride`, `ElbV2IpamPools`, `HttpRequestMethodConditionConfig`, `LoadBalancerAddress`, `LoadBalancerAttribute`, `PathPatternConditionConfig`, `BatchArrayProperties`, `EventsBatchParameters`, `EventsHttpParameters`, `EventsInputTransformer`, `EventsLogConfig`, `PutTargetsResultEntry`, `AuthenticationDescription`, `PermissionEntry`, `RoleValues`, `SamlConfiguration`, `UpdateInstruction`, `UpdateError`, `AccessKeyMetadata`, `ConsumerDescription`, `HashKeyRange`, `XksKeyConfigurationType`, `QueryParameter`, `DBInstanceAutomatedBackupsReplication`, `DomainMembership`, `ProcessorFeature`, `RDSAvailabilityZone`, `Change`, `ChangeInfo`, `CidrCollectionChange`, `Route53GeoLocation`, `ResourceRecord`, `Route53Coordinates`, `Route53GeoProximityLocation`, `AccessControlPolicy`, `Delete`, `DeleteMarkerEntry`, `Error`, `InputSerialization`, `JSONOutput`, `MetadataEntry`, `NoncurrentVersionTransition`, `S3AbortIncompleteMultipartUpload`, `S3CopyObjectResult`, `services/sesv2.py`, `S3Encryption`, `S3Location`, `RequestProgress`, `ScanRange`, `RecordsEvent`, `SelectObjectContentEventStream`, `S3EventHoldDuration`, `ReplicaRegionType`, `DeleteMessageBatchRequestEntry`, `MessageAttributeValue`, `SendMessageBatchResultEntry`, `SendMessageBatchRequestEntry`, `ParametersFilter`, `ParameterStringFilter`, `STSAssumedRoleUser`, `STSProvidedContext`, `ClassicELBConnectionDraining`, `S3NoncurrentVersionExpiration`, `SetLoadBalancerListenerSSLCertificateOutput`, `EventsSageMakerPipelineParameters`, `AdditionalStorageVolumeOutput`, `Transition`?**
+  _High betweenness centrality (0.356) - this node is a cross-community bridge._
+- **Are the 6 inferred relationships involving `Boto3Model` (e.g. with `AmplifyJobManagerMixin` and `BedrockEventStream`) actually correct?**
+  _`Boto3Model` has 6 INFERRED edges - model-reasoned connections that need verification._
 - **What connects `botocraft` to the rest of the system?**
   _1 weakly-connected nodes found - possible documentation gaps or missing edges._
 - **Should `services/ec2.py` be split into smaller, more focused modules?**
-  _Cohesion score 0.003619781038735206 - nodes in this community are weakly interconnected._
-- **Why does `Boto3ModelManager` connect `Boto3ModelManager` to `services/ec2.py`, `services/bedrock.py`, `AMI`, `services/bedrock_runtime.py`, `test_ec2_primary_model_expansion.py`, `services/amplify.py`, `services/ecs.py`, `LoadBalancerManager`, `TargetGroupManager`, `services/codebuild.py`, `IAMRole`, `Service`, `services/test_codepipeline.py`, `DataSyncTask`, `Daemon`, `services/inspector2.py`, `mixins/codepipeline.py`, `DocDBClusterManager`, `EC2VpcEndpointManager`, `services/cloudwatch.py`, `TestBedrockRelations`, `test_bedrock.py`, `services/kinesis.py`, `services/sqs.py`, `RouteTableManager`, `mixins/ecr.py`, `services/bedrock_agentcore_control.py`, `SESTemplate`, `CustomModel`, `mixins/ecs.py`, `ModelCustomizationJob`, `mixins/codebuild.py`, `SecretManager`, `IAMAccessKeyManager`, `ProvisionedModelThroughput`, `datasync_add_tags`, `coerce_queryset_results`, `Build`, `CapacityProvider`, `MultiRegionEndpoint`, `test_sesv2.py`, `ProjectManager`, `Bucket`, `OpenSearchDomainManager`, `ACMCertificateManager`, `.sessionize`, `test_ecs.py`, `VpcPeeringConnectionManager`, `test_ses.py`, `Boto3ModelManagerFilter`, `DataSyncLocationCatalog`, `VolumeManager`, `services/codeconnections.py`, `AMIManager`, `DaemonRevision`, `services/iam.py`, `test_datasync_workflow.py`, `SchemaManager`, `patch`, `ImageIdentifier`, `CisScanConfiguration`, `mixins/bedrock_runtime.py`, `Host`, `.serialize`, `services/codepipeline.py`, `AutomatedReasoningPolicyBuildWorkflow`, `EventFactory`, `SESCustomVerificationEmailTemplate`, `LogGroup`, `FileSystem`, `CloudWatchInsightRule`, `SnapshotManager`, `InstanceManager`, `LoadBalancer`, `ManagedGrafanaWorkspaceManager`, `wrapper`, `services/schemas.py`, `IAMUser`, `services/logs.py`, `BucketManager`, `QueryDefinition`, `Instance`, `ModelInvocationJob`, `IAMGroupManager`, `single_docdb_instance_include_tags`, `Inspector2FilterManager`, `CompositeAlarmManager`, `CacheParameterGroupManager`, `ClassicELBManager`, `IAMUserManager`, `RepositorySyncDefinition`, `ServiceManager`, `EvaluationJobManager`, `services/grafana.py`, `EventRule`, `ManagedGrafanaWorkspace`, `AlarmMuteRuleManager`, `test_grafana.py`, `InstanceProfileManager`, `ManagedGrafanaServiceAccountTokenManager`, `CloudWatchDashboardManager`, `ReportGroup`, `mixins/bedrock.py`, `ResourcePolicy`, `DedicatedIpPool`, `FoundationModel`, `DataSyncLocationNfsManager`, `DataSyncLocationObjectStorageManager`, `NetworkAclManager`, `PipelineManager`, `NatGatewayManager`, `EventBus`, `MarketplaceModelEndpointManager`, `ElastiCacheUser`, `TaskSetManager`, `LogGroupManager`, `SESConfigurationSet`, `.start`, `MarketplaceModelEndpoint`, `EmailTemplate`, `ManagedGrafanaServiceAccountToken`, `EventBusManager`, `ImportedModel`, `MetricAlarmManager`, `BuildBatchManager`, `test_cloudwatch.py`, `CacheSecurityGroupManager`, `ModelInvocationLoggingConfiguration`, `NetworkInterfaceManager`, `IAMPolicyVersionManager`, `AgentCoreGatewayRuleManager`, `ManagedGrafanaServiceAccount`, `DataSyncLocationSmbManager`, `Parameter`, `mixins/datasync.py`, `ScalingPolicyManager`, `VpnConnectionManager`, `Fleet`, `Listener`, `FindingsReportManager`, `LaunchTemplate`, `test_bedrock_runtime.py`, `CacheParameterGroup`, `ListenerManager`, `CognitoUserPoolDomainManager`, `RuleManager`, `AgentCoreHarnessManager`, `TaskDefinition`, `SESReceiptFilter`, `Route53CidrCollection`, `test_manager_session.py`, `DiscovererManager`, `CacheSecurityGroup`, `GuardrailManager`, `ScheduledActionManager`, `Connection`, `services/datasync.py`, `MetricAlarm`, `Sandbox`, `LaunchTemplateManager`, `TargetGroup`, `CloudWatchMetricStreamManager`, `.set_session`, `CognitoUserManager`, `DhcpOptionsManager`, `ReportManager`, `PlacementGroupManager`, `Report`, `CidrBlockSummary`, `HostedZone`, `Route53QueryLoggingConfig`, `Route53ResourceRecordSet`, `LaunchTemplateVersionManager`, `EventRuleManager`, `TenantManager`, `AssumeRole`, `Snapshot`, `EnforcedGuardrailsConfigurationManager`, `ScalableTarget`, `SESReceiptRuleSet`, `AutoScalingGroupManager`, `DataSyncTaskExecution`, `SourceCredentials`, `AgentCoreHarnessEndpointManager`, `NetworkInterface`, `ExpressGatewayService`, `ScalableTargetManager`, `CacheClusterManager`, `AgentCorePaymentCredentialProviderManager`, `IAMLoginProfileManager`, `EventTargetManager`, `AgentCoreOauth2CredentialProviderManager`, `Repository`, `DataSyncLocationEfsManager`, `IAMAccessKey`, `services/ses.py`, `CallerIdentity`, `AgentCoreAgentRuntimeEndpoint`, `SuppressedDestinationManager`, `InferenceProfile`, `CognitoUserPool`, `InstanceProfile`, `AgentCoreAgentRuntime`, `AgentCoreApiKeyCredentialProviderManager`, `AgentCoreCodeInterpreter`, `CisScanConfigurationManager`, `SyncBlockerSummary`, `DelegatedAdminAccountManager`, `.list`, `PolicyManager`, `AgentCoreGatewayManager`, `ProbeManager`, `AgentCoreGatewayTarget`, `AgentCoreMemoryManager`, `AgentCorePaymentCredentialProvider`, `PolicyEngine`, `Policy`, `PromptRouterManager`, `CognitoResourceServerManager`, `EventTarget`, `ConfigurationSetManager`, `CognitoResourceServer`, `ScalingPolicy`, `SourceCredentialsManager`, `ElastiCacheUserGroup`, `botocraft/datasync.py`, `CognitoUserPoolClient`, `Rule`, `IAMLoginProfile`, `AgentCoreHarness`, `AgentCoreMemory`, `CompositeAlarm`, `AgentCorePolicyGeneration`, `IAMPolicyVersion`, `OTelEnrichmentStatusManager`, `CodeBuildEnvironmentPlatform`, `EnforcedGuardrailsConfiguration`, `ModelCopyJob`, `CognitoUserPoolManager`, `SecretVersion`, `DedicatedIp`, `SuppressedDestination`, `ReplicationGroupManager`, `S3ObjectManager`, `CodeCoverage`, `AgentCoreHarnessEndpoint`, `mixins/inspector2.py`, `CognitoIdentity`, `AutoScalingGroup`, `IAMSSHPublicKey`, `Finding`, `CognitoGroup`, `PolicyGenerationAsset`, `Route53VPC`, `Schema`, `FindingsReport`, `CognitoUserPoolDomain`, `ContactList`, `ScheduledAction`, `CognitoUser`, `AgentCoreGateway`, `CognitoUserPoolClientManager`, `AgentCoreGatewayRule`, `services/sesv2.py`, `ImportedModelManager`, `CacheParameter`, `CognitoIdentityPool`, `Inspector2Filter`, `ClassicELB`, `IAMSSHPublicKeyManager`, `FoundationModelAgreement`, `CodeBuildTestCase`, `OpenSearchVpcEndpointManager`, `SyncBlocker`, `VulnerabilityManagerMixin`, `HostedZoneManager`, `AgentCoreMemoryRecordManager`, `CognitoGroupManager`, `.list`, `CognitoIdentityProviderManager`, `test_datasync.py`?**
-  _High betweenness centrality (0.177) - this node is a cross-community bridge._
-- **Are the 320 inferred relationships involving `PrimaryBoto3ModelQuerySet` (e.g. with `_CrudFacade` and `DataSyncExecutionFacade`) actually correct?**
-  _`PrimaryBoto3ModelQuerySet` has 320 INFERRED edges - model-reasoned connections that need verification._
+  _Cohesion score 0.005012531328320802 - nodes in this community are weakly interconnected._
+- **Why does `PrimaryBoto3Model` connect `Boto3ModelManager` to `services/ec2.py`, `services/bedrock.py`, `Boto3Model`, `AMI`, `services/bedrock_runtime.py`, `DataSyncWorkspace`, `services/amplify.py`, `services/inspector2.py`, `services/codebuild.py`, `IAMRole`, `Cluster`, `Daemon`, `mixins/codepipeline.py`, `services/cloudwatch.py`, `PrimaryBoto3ModelQuerySet`, `EC2 examples (verified)`, `services/bedrock_agentcore_control.py`, `SESTemplate`, `AgentCorePaymentInstrument`, `Task`, `ModelCustomizationJob`, `mixins/codebuild.py`, `ProvisionedModelThroughput`, `DataSyncLocationFsxWindows`, `coerce_queryset_results`, `MultiRegionEndpoint`, `ProjectManager`, `Rule`, `test_ses.py`, `test_ecs.py`, `Service`, `DataSyncLocationCatalog`, `DocDBClusterParameterGroup`, `services/codeconnections.py`, `AMIManager`, `IAMGroup`, `test_datasync_workflow.py`, `eventbridge/ecr.py`, `CisScanConfiguration`, `Host`, `services/codepipeline.py`, `EventFactory`, `AutomatedReasoningPolicyBuildWorkflow`, `SESCustomVerificationEmailTemplate`, `FileSystem`, `LaunchConfiguration`, `FlowLogManager`, `LoadBalancer`, `registry_response_to_registry`, `IAMUser`, `MountTarget`, `Instance`, `ModelInvocationJob`, `ReplicationConfiguration`, `EventRule`, `ManagedGrafanaWorkspace`, `AlarmMuteRuleManager`, `CloudWatchDashboardManager`, `ReportGroup`, `test_bedrock.py`, `KeyPairManager`, `DedicatedIpPool`, `KinesisStream`, `DataSyncLocationObjectStorage`, `EventBus`, `ElastiCacheUser`, `SESConfigurationSet`, `AutomatedReasoningPolicy`, `ModelCopyJob`, `EmailTemplate`, `ManagedGrafanaServiceAccountToken`, `ImportedModel`, `BuildBatchManager`, `test_ec2_primary_model_expansion.py`, `test_cloudwatch.py`, `AccessPoint`, `AgentCoreGatewayRule`, `services/codeconnections.py`, `services/logs.py`, `DataSyncLocationSmb`, `Parameter`, `Fleet`, `Listener`, `LaunchTemplate`, `test_bedrock_runtime.py`, `BotocraftError`, `CacheParameterGroup`, `services/opensearch.py`, `TaskDefinition`, `SESReceiptFilter`, `Route53CidrCollection`, `test_manager_session.py`, `CacheSecurityGroup`, `Connection`, `services/datasync.py`, `MetricAlarm`, `TargetGroup`, `CloudWatchMetricStreamManager`, `NetworkAcl`, `CidrBlockSummary`, `HostedZone`, `Route53QueryLoggingConfig`, `Route53ResourceRecordSet`, `Task 2: `save()` and `delete()` use the model's session`, `Tenant`, `Snapshot`, `PlacementGroup`, `ScalableTarget`, `SESReceiptRuleSet`, `SourceCredentials`, `NetworkInterface`, `ExpressGatewayService`, `services/elasticache.py`, `unittest_mock`, `Secret`, `DataSyncLocationEfs`, `IAMAccessKey`, `services/ses.py`, `Project`, `AgentCoreAgentRuntimeEndpoint`, `DataSyncLocationAzureBlobManager`, `CognitoUserPool`, `DataSyncLocationFsxOntap`, `AgentCoreAgentRuntime`, `AgentCoreApiKeyCredentialProvider`, `AgentCoreCodeInterpreter`, `DataSyncLocationHdfs`, `AgentCoreGateway`, `AgentCoreGatewayTarget`, `AgentCorePaymentCredentialProvider`, `PolicyEngine`, `Policy`, `EventTarget`, `RDSDBSubnetGroup`, `CognitoResourceServer`, `ScalingPolicy`, `ElastiCacheUserGroup`, `botocraft/datasync.py`, `CognitoUserPoolClient`, `InternetGateway`, `NatGateway`, `AgentCoreEvent`, `AgentCoreMemoryRecord`, `IAMLoginProfile`, `AgentCoreHarness`, `AgentCoreMemory`, `CompositeAlarm`, `AgentCorePolicyGeneration`, `IAMPolicyVersion`, `AgentCorePaymentSession`, `VpnConnection`, `SecretVersion`, `SuppressedDestination`, `S3ObjectManager`, `AgentCoreHarnessEndpoint`, `CustomerGateway`, `DhcpOptions`, `VpnGateway`, `CognitoIdentity`, `AutoScalingGroup`, `IAMSSHPublicKey`, `Finding`, `CognitoGroup`, `RouteTable`, `Route53VPC`, `Schema`, `CognitoUserPoolDomain`, `ContactList`, `ScheduledAction`, `CognitoUser`, `services/sesv2.py`, `CognitoIdentityPool`, `ClassicELB`, `OpenSearchPackage`, `discoverer_response_to_discoverer`, `AgentCoreOauth2CredentialProvider`, `.delete`, `DocDBInstance`, `test_datasync.py`?**
+  _High betweenness centrality (0.143) - this node is a cross-community bridge._
+- **Are the 90 inferred relationships involving `PrimaryBoto3ModelQuerySet` (e.g. with `_CrudFacade` and `DataSyncExecutionFacade`) actually correct?**
+  _`PrimaryBoto3ModelQuerySet` has 90 INFERRED edges - model-reasoned connections that need verification._
 - **Should `services/bedrock.py` be split into smaller, more focused modules?**
-  _Cohesion score 0.0061162079510703364 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.005319148936170213 - nodes in this community are weakly interconnected._
