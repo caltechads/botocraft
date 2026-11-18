@@ -173,6 +173,9 @@ class BucketManagerMixin:
     :py:class:`~botocraft.service.s3.Bucket` object.
     """
 
+    class DoesNotExist(Exception):
+        """Raised when the requested bucket does not exist."""
+
     def _get_bucket_logging_configuration(
         self, bucket_name: str
     ) -> "BucketLoggingConfiguration | None":
@@ -183,6 +186,7 @@ class BucketManagerMixin:
             BucketLoggingConfiguration,
             S3Grantee,
             S3PartitionedPrefix,
+            S3SimplePrefix,
             S3TargetObjectKeyFormat,
             TargetGrant,
         )
@@ -197,27 +201,33 @@ class BucketManagerMixin:
                 target_grants = [
                     TargetGrant(
                         Grantee=S3Grantee(
-                            DisplayName=grantee.get("DisplayName"),
-                            EmailAddress=grantee["EmailAddress"],
-                            Type=grantee["Type"],
-                            ID=grantee["ID"],
-                            URI=grantee.get("URI"),
+                            DisplayName=grant["Grantee"].get("DisplayName"),
+                            EmailAddress=grant["Grantee"].get("EmailAddress"),
+                            Type=grant["Grantee"]["Type"],
+                            ID=grant["Grantee"].get("ID"),
+                            URI=grant["Grantee"].get("URI"),
                         ),
-                        Permission=grantee["Permission"],
+                        Permission=grant["Permission"],
                     )
-                    for grantee in logging_configuration["LoggingEnabled"][
+                    for grant in logging_configuration["LoggingEnabled"][
                         "TargetGrants"
                     ]
                 ]
             if "TargetObjectKeyFormat" in logging_configuration["LoggingEnabled"]:
+                fmt = logging_configuration["LoggingEnabled"]["TargetObjectKeyFormat"]
+                # Only one of SimplePrefix / PartitionedPrefix is ever present.
                 object_key_format = S3TargetObjectKeyFormat(
-                    SimplePrefix=logging_configuration["LoggingEnabled"][
-                        "TargetObjectKeyFormat"
-                    ]["SimplePrefix"],
-                    PartitionedPrefix=S3PartitionedPrefix(
-                        PartitionDateSource=logging_configuration["LoggingEnabled"][
-                            "TargetObjectKeyFormat"
-                        ]["PartitionedPrefix"]["PartitionDateSource"],
+                    SimplePrefix=(
+                        S3SimplePrefix() if "SimplePrefix" in fmt else None
+                    ),
+                    PartitionedPrefix=(
+                        S3PartitionedPrefix(
+                            PartitionDateSource=fmt["PartitionedPrefix"].get(
+                                "PartitionDateSource"
+                            ),
+                        )
+                        if "PartitionedPrefix" in fmt
+                        else None
                     ),
                 )
             _logging = BucketLoggingConfiguration(
@@ -275,8 +285,8 @@ class BucketManagerMixin:
             BucketName: The name of the bucket to retrieve.
 
         Raises:
-            botocore.exceptions.ClientError: If the bucket does not exist or if
-              there is an error retrieving it.
+            DoesNotExist: If the bucket does not exist.
+            botocore.exceptions.ClientError: If there is an error retrieving it.
 
         Returns:
             An object representing the bucket, including its ARN,
@@ -292,8 +302,14 @@ class BucketManagerMixin:
                 break
         else:
             msg = f"Bucket {BucketName} not found"
-            raise self.DoesNotExist(msg)  # type: ignore[attr-defined]
-        tags = self.objects.get_for_bucket(BucketName=BucketName)  # type: ignore[attr-defined]
+            raise self.DoesNotExist(msg)
+        try:
+            tags = self.get_tags(Bucket=BucketName)  # type: ignore[attr-defined]
+        except s3.exceptions.ClientError as e:
+            # A bucket with no tags raises NoSuchTagSet
+            if "NoSuchTagSet" not in str(e):
+                raise
+            tags = []
         _logging = self._get_bucket_logging_configuration(BucketName)
         # Get the bucket versioning
         versioning = s3.get_bucket_versioning(Bucket=BucketName)
