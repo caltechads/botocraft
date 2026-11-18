@@ -2106,7 +2106,7 @@ class RDSDBSubnetGroup(PrimaryBoto3Model):
 class RDSTagSpecification(TagsDictMixin, Boto3Model):
     """
     The tags to apply to resources when creating or modifying a DB instance or DB
-    cluster.
+    cluster, or when copying a DB instance snapshot.
 
     When you specify a tag, you must specify the resource type to tag, otherwise the
     request will fail.

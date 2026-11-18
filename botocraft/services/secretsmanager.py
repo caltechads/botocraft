@@ -32,6 +32,7 @@ class SecretManager(Boto3ModelManager):
         SecretBinary: "bytes | None" = None,
         SecretString: "str | None" = None,
         AddReplicaRegions: "builtins.list[ReplicaRegionType] | None" = None,
+        CrossAccountPrimaryARN: "str | None" = None,
     ) -> "CreateSecretResponse":
         """
         Creates a new secret.
@@ -39,10 +40,11 @@ class SecretManager(Boto3ModelManager):
         A *secret* can be a password, a set of credentials such as a user name and
         password, an OAuth token, or other secret information that you store in an
         encrypted form in Secrets Manager. The secret also includes the
-        connection information to access a database or other service, which Secrets
-        Manager doesn't encrypt. A secret in Secrets
-        Manager consists of both the protected secret data and the important information
-        needed to manage the secret.
+        connection information to access a database or other service. Secrets Manager
+        does not encrypt this connection
+        information. A secret in Secrets Manager consists of both the encrypted secret
+        versions and the metadata that Secrets
+        Manager uses to manage the secret.
 
         Args:
             model: The :py:class:`SecretListEntry` to create.
@@ -60,6 +62,15 @@ class SecretManager(Boto3ModelManager):
                 secret. We recommend you use a JSON
                 structure of key/value pairs for your secret value.
             AddReplicaRegions: A list of Regions and KMS keys to replicate secrets.
+            CrossAccountPrimaryARN: The ARN of a primary secret in another Amazon Web
+                Services account. Include this field to
+                create a cross-account replica secret that receives replicated data from
+                that primary secret. The primary secret
+                must be in the same Amazon Web Services Region and partition as the
+                replica, and you must specify a customer managed
+                KMS key in ``KmsKeyId``. You can't include ``SecretString``,
+                ``SecretBinary``, ``Description``,
+                ``AddReplicaRegions``, or ``Type``.
         """
         data = model.model_dump(exclude_none=True, by_alias=True)
         args = dict(
@@ -73,6 +84,7 @@ class SecretManager(Boto3ModelManager):
             AddReplicaRegions=self.serialize(AddReplicaRegions),
             ForceOverwriteReplicaSecret=data.get("ForceOverwriteReplicaSecret"),
             Type=data.get("Type"),
+            CrossAccountPrimaryARN=self.serialize(CrossAccountPrimaryARN),
         )
         _response = self.client.create_secret(
             **{k: v for k, v in args.items() if v is not None}
@@ -350,6 +362,7 @@ class SecretManager(Boto3ModelManager):
         SecretId: str,
         ResourcePolicy: str,
         *,
+        PolicyName: "str | None" = None,
         BlockPublicPolicy: "bool | None" = None,
     ) -> "PutResourcePolicyResponse":
         """
@@ -367,6 +380,11 @@ class SecretManager(Boto3ModelManager):
                 access_examples.html>`_.
 
         Keyword Args:
+            PolicyName: The name of the resource policy to attach. If you don't specify
+                this field, Secrets Manager uses
+                ``default``. You can only attach the ``default`` policy; if you specify
+                any other name, the operation returns an
+                ``InvalidParameterException``.
             BlockPublicPolicy: Specifies whether to block resource-based policies that
                 allow broad access to the secret, for
                 example those that use a wildcard for the principal. By default, public
@@ -375,6 +393,7 @@ class SecretManager(Boto3ModelManager):
         args: dict[str, Any] = dict(
             SecretId=self.serialize(SecretId),
             ResourcePolicy=self.serialize(ResourcePolicy),
+            PolicyName=self.serialize(PolicyName),
             BlockPublicPolicy=self.serialize(BlockPublicPolicy),
         )
         _response = self.client.put_resource_policy(
@@ -389,7 +408,9 @@ class SecretManager(Boto3ModelManager):
         self.sessionize(results)
         return cast("PutResourcePolicyResponse", results)
 
-    def get_resource_policy(self, SecretId: str) -> "GetResourcePolicyResponse":
+    def get_resource_policy(
+        self, SecretId: str, *, PolicyName: "str | None" = None
+    ) -> "GetResourcePolicyResponse":
         """
         Retrieves the JSON text of the resource-based policy document attached to the
         secret.
@@ -401,8 +422,17 @@ class SecretManager(Boto3ModelManager):
         Args:
             SecretId: The ARN or name of the secret to retrieve the attached
                 resource-based policy for.
+
+        Keyword Args:
+            PolicyName: The name of the resource policy to retrieve. If you don't
+                specify this field, Secrets Manager uses
+                ``default``. If you specify a name other than ``default`` and no policy
+                with that name exists, the operation returns
+                a ``ResourceNotFoundException``.
         """
-        args: dict[str, Any] = dict(SecretId=self.serialize(SecretId))
+        args: dict[str, Any] = dict(
+            SecretId=self.serialize(SecretId), PolicyName=self.serialize(PolicyName)
+        )
         _response = self.client.get_resource_policy(
             **{k: v for k, v in args.items() if v is not None}
         )
@@ -415,7 +445,9 @@ class SecretManager(Boto3ModelManager):
         self.sessionize(results)
         return cast("GetResourcePolicyResponse", results)
 
-    def delete_resource_policy(self, SecretId: str) -> "DeleteResourcePolicyResponse":
+    def delete_resource_policy(
+        self, SecretId: str, *, PolicyName: "str | None" = None
+    ) -> "DeleteResourcePolicyResponse":
         """
         Deletes the resource-based permission policy attached to the secret.
 
@@ -424,8 +456,17 @@ class SecretManager(Boto3ModelManager):
         Args:
             SecretId: The ARN or name of the secret to delete the attached
                 resource-based policy for.
+
+        Keyword Args:
+            PolicyName: The name of the resource policy to delete. If you don't specify
+                this field, Secrets Manager uses
+                ``default``. You can only delete the ``default`` policy; if you specify
+                any other name, the operation returns an
+                ``InvalidParameterException``.
         """
-        args: dict[str, Any] = dict(SecretId=self.serialize(SecretId))
+        args: dict[str, Any] = dict(
+            SecretId=self.serialize(SecretId), PolicyName=self.serialize(PolicyName)
+        )
         _response = self.client.delete_resource_policy(
             **{k: v for k, v in args.items() if v is not None}
         )
@@ -1168,7 +1209,7 @@ class ReplicationStatusType(Boto3Model):
     Can be an ``ARN``, ``Key ID``, or ``Alias``.
     """
 
-    Status: "Literal['InSync', 'Failed', 'InProgress'] | None" = None
+    Status: "Literal['InSync', 'Failed', 'InProgress', 'Pending', 'Detached'] | None" = None
     """
     The status can be ``InProgress``, ``Failed``, or ``InSync``.
     """
@@ -1229,16 +1270,75 @@ class UpdateSecretResponse(Boto3Model):
     If Secrets Manager created a new version of the secret during this operation, then
     ``VersionId`` contains the unique identifier of the new version.
     """
+
+class CrossAccountPrimaryType(Boto3Model):
+    """
+    Contains information about the primary secret that a cross-account replica secret
+    replicates from, including its ARN and replication status.
+
+    This information is only available for cross-account replica secrets.
+    """
+
+    PrimarySecretARN: "str | None" = None
+    """
+    The ARN of the primary secret replicating into this replica secret.
+    """
+
+    ReplicationStatus: "Literal['InSync', 'Failed', 'InProgress', 'Pending', 'Detached'] | None" = None
+    """
+    The status of replication from the primary secret to this replica.
+
+    The status can be:
+    """
+
+    StatusMessage: "str | None" = None
+    """
+    A message that describes the replication status, if Secrets Manager has more
+    information to provide.
+    """
+
+class CrossAccountReplicaEntry(Boto3Model):
+    """
+    Information about a cross-account replica secret.
+
+    This information is only available for cross-account primary secrets.
+    """
+    ReplicaSecretARN: "str | None" = None
+    """
+    The ARN of the replica secret.
+    """
+
+    ReplicationRoleARN: "str | None" = None
+    """
+    The ARN of the IAM role that Secrets Manager assumes to replicate to this replica,
+    if one was specified when the replica was associated.
+    """
+
+    ReplicationStatus: "Literal['InSync', 'Failed', 'InProgress', 'Pending', 'Detached'] | None" = None
+    """
+    The status of replication from this primary secret.
+
+    The status can be:
+    """
+
+    StatusMessage: "str | None" = None
+    """
+    A message that describes the replication status, if Secrets Manager has more
+    information to provide.
+    """
+
 class DescribeSecretResponse(TagsDictMixin, Boto3Model):
     tag_class: ClassVar[ModelType[Boto3Model]] = Tag
     ARN: "str | None" = None
     """
     The ARN of the secret.
     """
+
     Name: "str | None" = None
     """
     The name of the secret.
     """
+
     Type: "str | None" = None
     """
     The exact string that identifies the partner that holds the external secret.
@@ -1262,14 +1362,12 @@ class DescribeSecretResponse(TagsDictMixin, Boto3Model):
     ``aws/secretsmanager``, this field is omitted. Secrets created using the console use
     an KMS key ID.
     """
-
     RotationEnabled: "bool | None" = None
     """
     Specifies whether automatic rotation is turned on for this secret.
 
     If the secret has never been configured for rotation, Secrets Manager returns null.
     """
-
     RotationLambdaARN: "str | None" = None
     """
     The ARN of the Lambda function that Secrets Manager invokes to rotate the secret.
@@ -1283,6 +1381,7 @@ class DescribeSecretResponse(TagsDictMixin, Boto3Model):
     field shows the previous rotation schedule and rotation function. If the secret
     never had rotation turned on, this field is omitted.
     """
+
     ExternalSecretRotationMetadata: "builtins.list[ExternalSecretRotationMetadataItem] | None" = Field(
         default_factory=list
     )
@@ -1293,6 +1392,7 @@ class DescribeSecretResponse(TagsDictMixin, Boto3Model):
     information about the required information, see
     `Managed external secrets partners <https://docs.aws.amazon.com/secretsmanager/latest/userguide/mes-partners.html>`_.
     """
+
     ExternalSecretRotationRoleArn: "str | None" = None
     """
     The Amazon Resource Name (ARN) of the role that allows Secrets Manager to rotate a
@@ -1302,6 +1402,7 @@ class DescribeSecretResponse(TagsDictMixin, Boto3Model):
     `Security and permissions <https://docs.aws.amazon.com/secretsmanager/latest/userguide/mes-
     security.html>`_.
     """
+
     LastRotatedDate: "datetime | None" = None
     """
     The last date and time that Secrets Manager rotated the secret.
@@ -1309,7 +1410,6 @@ class DescribeSecretResponse(TagsDictMixin, Boto3Model):
     If the secret isn't configured for rotation or rotation has been disabled, Secrets
     Manager returns null.
     """
-
     LastChangedDate: "datetime | None" = None
     """
     The last date and time that this secret was modified in any way.
@@ -1321,6 +1421,7 @@ class DescribeSecretResponse(TagsDictMixin, Boto3Model):
 
     This field is omitted if the secret has never been retrieved in the Region.
     """
+
     DeletedDate: "datetime | None" = None
     """
     The date the secret is scheduled for deletion.
@@ -1330,6 +1431,7 @@ class DescribeSecretResponse(TagsDictMixin, Boto3Model):
     deleting the secret. Some time after the deleted date, Secrets Manager deletes the
     secret, including all of its versions.
     """
+
     NextRotationDate: "datetime | None" = None
     """
     The next rotation is scheduled to occur on or before this date.
@@ -1384,6 +1486,25 @@ class DescribeSecretResponse(TagsDictMixin, Boto3Model):
 A list of the replicas of this secret and their status:
     """
 
+    CrossAccountPrimary: "CrossAccountPrimaryType | None" = None
+    """
+    Information about the primary secret in the other Amazon Web Services account that
+    this cross-account replica secret replicates from, including the primary secret ARN
+    and the replication status.
+
+    This field is omitted if the secret is not a cross-account replica.
+    """
+
+    CrossAccountReplicas: "builtins.list[CrossAccountReplicaEntry] | None" = Field(
+        default_factory=list
+    )
+    """
+    A list of this secret's cross-account replica secrets and their replication status,
+    if this secret is the primary for cross-account replication.
+
+    This field is omitted if the secret has no cross-account replicas.
+    """
+
 class SecretsFilter(Boto3Model):
     """
     Allows you to add filters when you use the search function in Secrets Manager.
@@ -1410,6 +1531,7 @@ The following are keys you can use:
     The keyword to filter for.
     """
 
+
 class ListSecretsResponse(Boto3Model):
     SecretList: "builtins.list[Secret] | None" = Field(default_factory=list)
     """
@@ -1431,6 +1553,7 @@ class DeleteSecretResponse(Boto3Model):
     """
     The ARN of the secret.
     """
+
     Name: "str | None" = None
     """
     The name of the secret.
@@ -1485,6 +1608,7 @@ class GetSecretValueResponse(Boto3Model):
     """
     The unique identifier of this version of the secret.
     """
+
     SecretBinary: "bytes | None" = None
     """
     The decrypted secret value, if the secret value was originally provided as binary
@@ -1525,6 +1649,13 @@ class PutResourcePolicyResponse(Boto3Model):
     The name of the secret.
     """
 
+    PolicyName: "str | None" = None
+    """
+    The name of the resource policy.
+
+    If you didn't specify ``PolicyName`` in the request, this is ``default``.
+    """
+
 class GetResourcePolicyResponse(Boto3Model):
     ARN: "str | None" = None
     """
@@ -1543,6 +1674,14 @@ class GetResourcePolicyResponse(Boto3Model):
     For more information about permissions policies, see
     `Authentication and access control for Secrets Manager <https://docs.aws.amazon.com/secretsmanager/latest/userguide/auth-and-access.html>`_.
     """
+
+    PolicyName: "str | None" = None
+    """
+    The name of the resource policy.
+
+    If you didn't specify ``PolicyName`` in the request, this is ``default``.
+    """
+
 class DeleteResourcePolicyResponse(Boto3Model):
     ARN: "str | None" = None
     """
@@ -1552,6 +1691,13 @@ class DeleteResourcePolicyResponse(Boto3Model):
     Name: "str | None" = None
     """
     The name of the secret that the resource-based policy was deleted for.
+    """
+
+    PolicyName: "str | None" = None
+    """
+    The name of the deleted resource policy.
+
+    If you didn't specify ``PolicyName`` in the request, this is ``default``.
     """
 class RotateSecretResponse(Boto3Model):
     ARN: "str | None" = None
@@ -1567,11 +1713,13 @@ class RotateSecretResponse(Boto3Model):
     """
     The ID of the new version of the secret.
     """
+
 class CancelRotateSecretResponse(Boto3Model):
     ARN: "str | None" = None
     """
     The ARN of the secret.
     """
+
     Name: "str | None" = None
     """
     The name of the secret.

@@ -114,7 +114,10 @@ class KMSKeyManager(Boto3ModelManager):
 
     @kms_keys_only
     def list(
-        self, *, Limit: "int | None" = None
+        self,
+        *,
+        Limit: "int | None" = None,
+        ResourceOwners: "builtins.list[Literal['SELF', 'OTHER_ACCOUNTS_VIA_RAM']] | None" = None,
     ) -> PrimaryBoto3ModelQuerySet["KeyListEntry"]:
         """
         Gets a list of all KMS keys in the caller's Amazon Web Services account and
@@ -125,9 +128,15 @@ class KMSKeyManager(Boto3ModelManager):
                 When this value is present, KMS does not
                 return more than the specified number of items, but it might return
                 fewer.
+            ResourceOwners: Specifies whose KMS keys to list. Use this parameter to list
+                KMS keys that other Amazon Web Services
+                accounts shared with your Amazon Web Services account through Resource
+                Access Manager (RAM).
         """
         paginator = self.client.get_paginator("list_keys")
-        args: dict[str, Any] = dict(Limit=self.serialize(Limit))
+        args: dict[str, Any] = dict(
+            Limit=self.serialize(Limit), ResourceOwners=self.serialize(ResourceOwners)
+        )
         response_iterator = paginator.paginate(
             **{k: v for k, v in args.items() if v is not None}
         )
@@ -638,6 +647,10 @@ class ListKeysResponse(Boto3Model):
     Keys: "builtins.list[KeyListEntry] | None" = Field(default_factory=list)
     """
     A list of KMS keys.
+
+    For a KMS key that another Amazon Web Services account shared with you through RAM,
+    the key ARN contains the account ID of the Amazon Web Services account that owns the
+    KMS key.
     """
 
     NextMarker: "str | None" = None

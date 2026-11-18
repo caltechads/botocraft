@@ -280,9 +280,10 @@ class Parameter(TagsDictMixin, PrimaryBoto3Model):
 
     DataType: "str | None" = "text"
     """
-    The data type of the parameter, such as ``text`` or ``aws:ec2:image``.
+    The data type of the parameter, such as ``text``, ``aws:ec2:image``, or ``json``.
 
-    The default is ``text``.
+    The default is ``text``. For the list of data types, see the ``DataType`` parameter
+    of ``PutParameter``.
     """
 
     Version: int = Field(default=None, frozen=True)
@@ -547,9 +548,10 @@ class ParameterMetadata(Boto3Model):
 
     DataType: "str | None" = None
     """
-    The data type of the parameter, such as ``text`` or ``aws:ec2:image``.
+    The data type of the parameter, such as ``text``, ``aws:ec2:image``, or ``json``.
 
-    The default is ``text``.
+    The default is ``text``. For the list of data types, see the ``DataType`` parameter
+    of ``PutParameter``.
     """
 
 class DescribeParametersResult(Boto3Model):

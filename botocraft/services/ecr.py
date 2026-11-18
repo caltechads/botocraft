@@ -988,7 +988,7 @@ class ImageScanStatus(Boto3Model):
     The current status of an image scan.
     """
 
-    status: "Literal['IN_PROGRESS', 'COMPLETE', 'FAILED', 'UNSUPPORTED_IMAGE', 'ACTIVE', 'PENDING', 'SCAN_ELIGIBILITY_EXPIRED', 'FINDINGS_UNAVAILABLE', 'LIMIT_EXCEEDED', 'IMAGE_ARCHIVED'] | None" = None
+    status: "Literal['IN_PROGRESS', 'COMPLETE', 'FAILED', 'UNSUPPORTED_IMAGE', 'ACTIVE', 'PENDING', 'SCAN_ELIGIBILITY_EXPIRED', 'FINDINGS_UNAVAILABLE', 'LIMIT_EXCEEDED', 'IMAGE_ARCHIVED', 'IMAGE_SIZE_EXCEEDED'] | None" = None
     """
     The current state of an image scan.
     """

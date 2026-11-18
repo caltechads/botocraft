@@ -208,7 +208,11 @@ class AutoScalingGroupManager(Boto3ModelManager):
         )
 
     def get(
-        self, AutoScalingGroupName: str, *, IncludeInstances: "bool | None" = None
+        self,
+        AutoScalingGroupName: str,
+        *,
+        IncludeInstances: "bool | None" = None,
+        IncludeManagedResources: "bool | None" = None,
     ) -> "AutoScalingGroup | None":
         """
         Gets information about the Auto Scaling groups in the account and Region.
@@ -221,10 +225,14 @@ class AutoScalingGroupManager(Boto3ModelManager):
             IncludeInstances: Specifies whether to include information about Amazon EC2
                 instances in the response. When set to
                 ``true`` (default), the response includes instance details.
+            IncludeManagedResources: Specifies whether to include managed Auto Scaling
+                groups in the response. When set to
+                ``true`` (default), the response includes managed Auto Scaling groups.
         """
         args: dict[str, Any] = dict(
             AutoScalingGroupNames=self.serialize([AutoScalingGroupName]),
             IncludeInstances=self.serialize(IncludeInstances),
+            IncludeManagedResources=self.serialize(IncludeManagedResources),
         )
         _response = self.client.describe_auto_scaling_groups(
             **{k: v for k, v in args.items() if v is not None}
@@ -241,6 +249,7 @@ class AutoScalingGroupManager(Boto3ModelManager):
         *,
         AutoScalingGroupNames: "builtins.list[str] | None" = None,
         IncludeInstances: "bool | None" = None,
+        IncludeManagedResources: "bool | None" = None,
         Filters: "builtins.list[Filter] | None" = None,
     ) -> PrimaryBoto3ModelQuerySet["AutoScalingGroup"]:
         """
@@ -253,12 +262,16 @@ class AutoScalingGroupManager(Boto3ModelManager):
             IncludeInstances: Specifies whether to include information about Amazon EC2
                 instances in the response. When set to
                 ``true`` (default), the response includes instance details.
+            IncludeManagedResources: Specifies whether to include managed Auto Scaling
+                groups in the response. When set to
+                ``true`` (default), the response includes managed Auto Scaling groups.
             Filters: One or more filters to limit the results based on specific tags.
         """
         paginator = self.client.get_paginator("describe_auto_scaling_groups")
         args: dict[str, Any] = dict(
             AutoScalingGroupNames=self.serialize(AutoScalingGroupNames),
             IncludeInstances=self.serialize(IncludeInstances),
+            IncludeManagedResources=self.serialize(IncludeManagedResources),
             Filters=self.serialize(Filters),
         )
         response_iterator = paginator.paginate(
@@ -296,7 +309,10 @@ class AutoScalingGroupManager(Boto3ModelManager):
         )
 
     def instance_status(
-        self, *, InstanceIds: "builtins.list[str] | None" = None
+        self,
+        *,
+        InstanceIds: "builtins.list[str] | None" = None,
+        IncludeManagedResources: "bool | None" = None,
     ) -> "builtins.list[AutoScalingInstanceDetails]":
         """
         Gets information about the Auto Scaling instances in the account and Region.
@@ -305,9 +321,16 @@ class AutoScalingGroupManager(Boto3ModelManager):
             InstanceIds: The IDs of the instances. If you omit this property, all Auto
                 Scaling instances are described. If you
                 specify an ID that does not exist, it is ignored with no error.
+            IncludeManagedResources: Specifies whether to include managed Auto Scaling
+                instances in the response. When set to
+                ``true`` (default), the response includes managed Auto Scaling
+                instances.
         """
         paginator = self.client.get_paginator("describe_auto_scaling_instances")
-        args: dict[str, Any] = dict(InstanceIds=self.serialize(InstanceIds))
+        args: dict[str, Any] = dict(
+            InstanceIds=self.serialize(InstanceIds),
+            IncludeManagedResources=self.serialize(IncludeManagedResources),
+        )
         response_iterator = paginator.paginate(
             **{k: v for k, v in args.items() if v is not None}
         )
@@ -737,7 +760,6 @@ class AutoScalingBaselinePerformanceFactorsRequest(Boto3Model):
     The CPU performance to consider, using an instance family as the baseline reference.
     """
 
-
 class AutoScalingInstanceRequirements(Boto3Model):
     """
     The attributes for the instance types for a mixed instances policy.
@@ -776,7 +798,6 @@ class AutoScalingInstanceRequirements(Boto3Model):
     selection.html#ec2fleet-get-instance-types-from-instance-requirements>`_ in the
     *Amazon EC2 User Guide*.
     """
-
     VCpuCount: VCpuCountRequest
     """
     The minimum and maximum number of vCPUs for an instance type.
@@ -860,6 +881,7 @@ class AutoScalingInstanceRequirements(Boto3Model):
     """
     Indicates whether bare metal instance types are included, excluded, or required.
     """
+
     BurstablePerformance: "Literal['included', 'excluded', 'required'] | None" = None
     """
     Indicates whether burstable performance instance types are included, excluded, or
@@ -938,7 +960,6 @@ class AutoScalingInstanceRequirements(Boto3Model):
     """
     Lists the accelerators that must be on an instance type.
     """
-
     AcceleratorTotalMemoryMiB: "AutoScalingAcceleratorTotalMemoryMiBRequest | None" = (
         None
     )
@@ -958,6 +979,7 @@ class AutoScalingInstanceRequirements(Boto3Model):
 
     All other instance types are ignored, even if they match your specified attributes.
     """
+
     BaselinePerformanceFactors: "AutoScalingBaselinePerformanceFactorsRequest | None" = None
     """
     The baseline performance factors for the instance requirements.
@@ -1012,7 +1034,6 @@ class LaunchTemplateOverrides(Boto3Model):
     weighting.html>`_ in the *Amazon EC2 Auto Scaling User Guide*. Value must be in the
     range of 1-999.
     """
-
     LaunchTemplateSpecification: "AutoScalingLaunchTemplateSpecification | None" = None
     """
     Provides a launch template for the specified instance type or set of instance
@@ -1025,7 +1046,6 @@ class LaunchTemplateOverrides(Boto3Model):
     groups-launch-template-overrides.html>`_ in the *Amazon EC2 Auto Scaling User
     Guide*.
     """
-
     InstanceRequirements: "AutoScalingInstanceRequirements | None" = None
     """
     The instance requirements.
@@ -1061,6 +1081,7 @@ class AutoScalingLaunchTemplate(Boto3Model):
     """
     Any properties that you specify override the same properties in the launch template.
     """
+
 class DistributionSegment(Boto3Model):
     """
     Use this structure to specify the capacity types that Amazon EC2 Auto Scaling
@@ -1092,6 +1113,7 @@ class AutoScalingInstancesDistribution(Boto3Model):
     Possible instance types are determined by the launch template overrides that you
     specify.
     """
+
     OnDemandBaseCapacity: "int | None" = None
     """
     The minimum amount of the Auto Scaling group's capacity that must be fulfilled by
@@ -1136,6 +1158,7 @@ class AutoScalingInstancesDistribution(Boto3Model):
     launch, you pay the current Spot price. To remove a maximum price that you
     previously set, include the property but specify an empty string ("") for the value.
     """
+
     DistributionSegments: "builtins.list[DistributionSegment] | None" = Field(
         default_factory=list
     )
@@ -1160,6 +1183,7 @@ class AutoScalingMixedInstancesPolicy(Boto3Model):
     `Use Distribution Segments to target multiple capacity types <https://docs.aws.amazon.com/autoscaling/ec2/userguide/use-
     distribution-segments.html>`_ in the *Amazon EC2 Auto Scaling User Guide*.
     """
+
     LaunchTemplate: "AutoScalingLaunchTemplate | None" = None
     """
     One or more launch templates and the instance types (overrides) that are used to
@@ -1254,6 +1278,7 @@ class AutoScalingInstanceReference(Boto3Model):
     """
     The launch template for the instance.
     """
+
     ImageId: "str | None" = None
     """
     The ID of the Amazon Machine Image (AMI) used for the instance's current root
@@ -1302,6 +1327,7 @@ class EnabledMetric(Boto3Model):
     """
 One of the following metrics:
     """
+
     Granularity: "str | None" = None
     """
     The granularity of the metric.
@@ -1312,10 +1338,12 @@ class AutoScalingTagDescription(Boto3Model):
     """
     Describes a tag for an Auto Scaling group.
     """
+
     ResourceId: "str | None" = None
     """
     The name of the group.
     """
+
     ResourceType: "str | None" = None
     """
     The type of resource.
@@ -1348,7 +1376,6 @@ class AutoScalingInstanceReusePolicy(Boto3Model):
     in the *Amazon EC2 Auto
     Scaling User Guide*.
     """
-
     ReuseOnScaleIn: "bool | None" = None
     """
     Specifies whether instances in the Auto Scaling group can be returned to the warm
@@ -1359,7 +1386,6 @@ class AutoScalingWarmPoolConfiguration(Boto3Model):
     """
     Describes a warm pool configuration.
     """
-
     MaxGroupPreparedCapacity: "int | None" = None
     """
     The maximum number of instances that are allowed to be in the warm pool or in any
@@ -1383,7 +1409,6 @@ class AutoScalingWarmPoolConfiguration(Boto3Model):
     """
     The instance reuse policy.
     """
-
 class TrafficSourceIdentifier(Boto3Model):
     """
     Identifying information for a traffic source.
@@ -1439,7 +1464,6 @@ class AutoScalingAvailabilityZoneDistribution(Boto3Model):
 
     The default is ``balanced-best- effort``.
     """
-
 class AutoScalingAvailabilityZoneImpairmentPolicy(Boto3Model):
     """
     Describes an Availability Zone impairment policy.
@@ -1474,6 +1498,7 @@ class AutoScalingCapacityReservationTarget(Boto3Model):
     """
     The Capacity Reservation IDs to launch instances into.
     """
+
     CapacityReservationResourceGroupArns: "builtins.list[str] | None" = Field(
         default_factory=list
     )
@@ -1500,7 +1525,6 @@ class AutoScalingCapacityReservationSpecification(Boto3Model):
     """
     Describes a target Capacity Reservation or Capacity Reservation resource group.
     """
-
 class AutoScalingRetentionTriggers(Boto3Model):
     """
     Defines the specific triggers that cause instances to be retained in a Retained
@@ -1552,6 +1576,8 @@ class AutoScalingOperator(Boto3Model):
     When an operator is specified, only the designated operator service principal can
     make mutating changes to the Auto Scaling group.
     """
+
+
 class AutoScalingGroup(TagsDictMixin, AutoScalingGroupModelMixin, PrimaryBoto3Model):
     """
     Describes an Auto Scaling group.
@@ -1559,6 +1585,7 @@ class AutoScalingGroup(TagsDictMixin, AutoScalingGroupModelMixin, PrimaryBoto3Mo
 
     tag_class: ClassVar[ModelType[Boto3Model]] = AutoScalingTagDescription
     manager_class: ClassVar[ModelType[Boto3ModelManager]] = AutoScalingGroupManager
+
     DefaultCooldown: "int | None" = 300
     """
     The duration of the default cooldown period, in seconds, for the Auto Scaling group.
@@ -1578,7 +1605,6 @@ class AutoScalingGroup(TagsDictMixin, AutoScalingGroupModelMixin, PrimaryBoto3Mo
     """
     The name of the associated launch configuration for the Auto Scaling group.
     """
-
     LaunchTemplate: "AutoScalingLaunchTemplateSpecification | None" = None
     """
     The launch template for the Auto Scaling group.
@@ -1602,7 +1628,6 @@ class AutoScalingGroup(TagsDictMixin, AutoScalingGroupModelMixin, PrimaryBoto3Mo
     """
     The desired size of the Auto Scaling group.
     """
-
     PredictedCapacity: int = Field(default=None, frozen=True)
     """
     The predicted capacity of the group when it has a predictive scaling policy.
@@ -1650,7 +1675,6 @@ class AutoScalingGroup(TagsDictMixin, AutoScalingGroupModelMixin, PrimaryBoto3Mo
     """
     The date and time the Auto Scaling group was created.
     """
-
     SuspendedProcesses: "builtins.list[SuspendedProcess]" = Field(
         default_factory=list, frozen=True
     )
@@ -1675,6 +1699,7 @@ class AutoScalingGroup(TagsDictMixin, AutoScalingGroupModelMixin, PrimaryBoto3Mo
     """
     The metrics enabled for the Auto Scaling group.
     """
+
     Status: str = Field(default=None, frozen=True)
     """
 The current state of the Auto Scaling group when the
@@ -1711,6 +1736,7 @@ operation is in progress.
     The maximum amount of time, in seconds, that an EC2 instance can be in service for
     the Auto Scaling group.
     """
+
     CapacityRebalance: "bool | None" = None
     """
     Indicates whether Capacity Rebalancing is enabled.
@@ -1858,7 +1884,6 @@ operation is in progress.
         except AttributeError:
             return None
         return LaunchConfiguration.objects.using(self.session).get(**pk)  # type: ignore[arg-type]
-
     @cached_property
     def launch_template(self) -> "LaunchTemplateVersion | None":
         """
@@ -1882,13 +1907,11 @@ operation is in progress.
             return None
         return LaunchTemplateVersion.objects.using(self.session).get(**pk)  # type: ignore[arg-type]
 
-
 class EbsMapping(Boto3Model):
     """
     Describes information used to set up an Amazon EBS volume specified in a block
     device mapping.
     """
-
     SnapshotId: "str | None" = None
     """
     The snapshot ID of the volume to use.
@@ -1990,6 +2013,7 @@ class AutoScalingInstanceMonitoring(Boto3Model):
 
     Otherwise, basic monitoring is enabled.
     """
+
 class InstanceMetadataOptions(Boto3Model):
     """
     The metadata options for the instances.
@@ -2006,6 +2030,7 @@ class InstanceMetadataOptions(Boto3Model):
 
     If the parameter is not specified in the request, the default state is ``optional``.
     """
+
     HttpPutResponseHopLimit: "int | None" = None
     """
     The desired HTTP PUT response hop limit for instance metadata requests.
@@ -2035,6 +2060,7 @@ class LaunchConfiguration(PrimaryBoto3Model):
     """
     The Amazon Resource Name (ARN) of the launch configuration.
     """
+
     ImageId: str
     """
     The ID of the Amazon Machine Image (AMI) to use to launch your EC2 instances.
@@ -2048,6 +2074,7 @@ class LaunchConfiguration(PrimaryBoto3Model):
     """
     The name of the key pair.
     """
+
     SecurityGroups: "builtins.list[str] | None" = Field(default_factory=list)
     """
     A list that contains the security groups to assign to the instances in the Auto
@@ -2062,14 +2089,12 @@ class LaunchConfiguration(PrimaryBoto3Model):
     """
     Available for backward compatibility.
     """
-
     ClassicLinkVPCSecurityGroups: "builtins.list[str] | None" = Field(
         default_factory=list
     )
     """
     Available for backward compatibility.
     """
-
     UserData: "str | None" = None
     """
     The user data to make available to the launched EC2 instances.
@@ -2114,7 +2139,6 @@ class LaunchConfiguration(PrimaryBoto3Model):
     in the *Amazon EC2
     User Guide*.
     """
-
     InstanceMonitoring: "AutoScalingInstanceMonitoring | None" = None
     """
     Controls whether instances in this group are launched with detailed (``true``) or
@@ -2147,6 +2171,7 @@ class LaunchConfiguration(PrimaryBoto3Model):
     """
     The creation date and time for the launch configuration.
     """
+
     EbsOptimized: "bool | None" = None
     """
     Specifies whether the launch configuration is optimized for EBS I/O (``true``) or
@@ -2176,7 +2201,6 @@ class LaunchConfiguration(PrimaryBoto3Model):
     An instance with ``dedicated`` tenancy runs on isolated, single-tenant hardware and
     can only be launched into a VPC.
     """
-
     MetadataOptions: "InstanceMetadataOptions | None" = None
     """
     The metadata options for the instances.
@@ -2297,8 +2321,10 @@ class LaunchConfiguration(PrimaryBoto3Model):
         except AttributeError:
             return None
         return EC2InstanceType.objects.using(self.session).get(**pk)  # type: ignore[arg-type]
+# =======================
 # Request/Response Models
 # =======================
+
 
 class LifecycleHookSpecification(Boto3Model):
     """
@@ -2309,6 +2335,7 @@ class LifecycleHookSpecification(Boto3Model):
     in the *Amazon EC2 Auto Scaling User
     Guide*.
     """
+
     LifecycleHookName: str
     """
     The name of the lifecycle hook.
@@ -2320,6 +2347,7 @@ class LifecycleHookSpecification(Boto3Model):
 
     For Auto Scaling groups, there are two major lifecycle transitions.
     """
+
     NotificationMetadata: "str | None" = None
     """
     Additional information that you want to include any time Amazon EC2 Auto Scaling
@@ -2350,6 +2378,7 @@ class LifecycleHookSpecification(Boto3Model):
 
     You can specify an Amazon SNS topic or an Amazon SQS queue.
     """
+
     RoleARN: "str | None" = None
     """
     The ARN of the IAM role that allows the Auto Scaling group to publish to the
@@ -2375,6 +2404,7 @@ class AutoScalingGroupsType(Boto3Model):
     requesting the next set of items. This value is null when there are no more items to
     return.
     """
+
 class AutoScalingInstanceDetails(Boto3Model):
     """
     Describes an EC2 instance associated with an Auto Scaling group.
@@ -2389,6 +2419,7 @@ class AutoScalingInstanceDetails(Boto3Model):
     """
     The instance type of the EC2 instance.
     """
+
     AutoScalingGroupName: str
     """
     The name of the Auto Scaling group for the instance.
@@ -2397,6 +2428,7 @@ class AutoScalingInstanceDetails(Boto3Model):
     """
     The Availability Zone for the instance.
     """
+
     AvailabilityZoneId: "str | None" = None
     """
     The Availability Zone ID where the instance is located.
@@ -2480,7 +2512,6 @@ class AutoScalingActivity(Boto3Model):
     """
     The ID of the activity.
     """
-
     AutoScalingGroupName: str
     """
     The name of the Auto Scaling group.

@@ -969,6 +969,7 @@ class TaskDefinitionManager(TaskDefinitionManagerMixin, Boto3ModelManager):
             ephemeralStorage=data.get("ephemeralStorage"),
             runtimePlatform=data.get("runtimePlatform"),
             enableFaultInjection=data.get("enableFaultInjection"),
+            trustedExecutionConfiguration=data.get("trustedExecutionConfiguration"),
         )
         _response = self.client.register_task_definition(
             **{k: v for k, v in args.items() if v is not None}
@@ -1134,6 +1135,7 @@ class TaskDefinitionManager(TaskDefinitionManagerMixin, Boto3ModelManager):
             ephemeralStorage=data.get("ephemeralStorage"),
             runtimePlatform=data.get("runtimePlatform"),
             enableFaultInjection=data.get("enableFaultInjection"),
+            trustedExecutionConfiguration=data.get("trustedExecutionConfiguration"),
         )
         _response = self.client.register_task_definition(
             **{k: v for k, v in args.items() if v is not None}
@@ -2957,7 +2959,7 @@ class ECSInstanceRequirementsRequest(Boto3Model):
     depending on your accelerator requirements.
     """
 
-    acceleratorNames: "builtins.list[Literal['a100', 'inferentia', 'k520', 'k80', 'm60', 'radeon-pro-v520', 't4', 'vu9p', 'v100', 'a10g', 'h100', 't4g']] | None" = Field(
+    acceleratorNames: "builtins.list[Literal['a100', 'inferentia', 'k520', 'k80', 'm60', 'radeon-pro-v520', 't4', 'vu9p', 'v100', 'a10g', 'h100', 't4g', 'l40s', 'l4']] | None" = Field(
         default_factory=list
     )
     """
@@ -3104,7 +3106,13 @@ class InstanceLaunchTemplate(Boto3Model):
     You can specify:
     """
 
-
+    nitroEnclavesEnabled: "bool | None" = None
+    """
+Specifies whether instances that this capacity provider launches have `Nitro
+Sandbox <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/amazon-ec2-nitro-sandboxes.html>`_ enabled. Enable this
+setting to run tasks that use the ``ISOLATED_SANDBOX`` or ``CONFIDENTIAL_SANDBOX``
+isolation mode.
+    """
 class InfrastructureOptimization(Boto3Model):
     """
     The configuration that controls how Amazon ECS optimizes your infrastructure.
@@ -3139,6 +3147,7 @@ class AutoRepairConfiguration(Boto3Model):
     container instance health but does not automatically replace impaired instances.
     """
 
+
 class ManagedInstancesProvider(Boto3Model):
     """
     The configuration for a Amazon ECS Managed Instances provider.
@@ -3148,7 +3157,6 @@ class ManagedInstancesProvider(Boto3Model):
     range of Amazon EC2 instance types and features while offloading infrastructure
     management to Amazon Web Services.
     """
-
     infrastructureRoleArn: "str | None" = None
     """
     The Amazon Resource Name (ARN) of the infrastructure role that Amazon ECS assumes to
@@ -3196,14 +3204,13 @@ class ManagedInstancesProvider(Boto3Model):
     detected as unhealthy.
     """
 
+
 class CapacityProvider(TagsDictMixin, PrimaryBoto3Model):
     """
     The details for a capacity provider.
     """
-
     tag_class: ClassVar[ModelType[Boto3Model]] = ECSTag
     manager_class: ClassVar[ModelType[Boto3ModelManager]] = CapacityProviderManager
-
     Name: str = Field(default=None, alias="name")
     """
     The name of the capacity provider.
@@ -3244,6 +3251,7 @@ class CapacityProvider(TagsDictMixin, PrimaryBoto3Model):
     """
     The Auto Scaling group settings for the capacity provider.
     """
+
     managedInstancesProvider: "ManagedInstancesProvider | None" = None
     """
     The configuration for the Amazon ECS Managed Instances provider.
@@ -3312,7 +3320,6 @@ class CapacityProvider(TagsDictMixin, PrimaryBoto3Model):
             The name of the model instance.
         """
         return self.Name
-
     def __hash__(self) -> int:
         """
         Return the hash of the model.
@@ -3344,7 +3351,6 @@ class AdvancedConfiguration(Boto3Model):
     the case of an Application Load Balancer) or listener (in the case for an Network
     Load Balancer) for routing production traffic.
     """
-
     testListenerRule: "str | None" = None
     """
     The Amazon Resource Name (ARN) that identifies ) that identifies the test listener
@@ -3381,6 +3387,7 @@ class LoadBalancerConfiguration(Boto3Model):
     The full Amazon Resource Name (ARN) of the Elastic Load Balancing target group or
     groups associated with a service or task set.
     """
+
     loadBalancerName: "str | None" = None
     """
     The name of the load balancer to associate with the Amazon ECS service or task set.
@@ -3408,6 +3415,7 @@ class LoadBalancerConfiguration(Boto3Model):
     Specify the alternate target group, listener rules, and IAM role required for
     traffic shifting during blue/green deployments.
     """
+
 
 class ServiceRegistry(Boto3Model):
     """
@@ -3578,6 +3586,7 @@ class DeploymentCircuitBreaker(Boto3Model):
     """
     Determines whether to use the deployment circuit breaker logic for the service.
     """
+
     rollback: bool
     """
     Determines whether to configure Amazon ECS to roll back the service if a service
@@ -3586,7 +3595,6 @@ class DeploymentCircuitBreaker(Boto3Model):
     If rollback is on, when a service deployment fails, the service is rolled back to
     the last deployment that completed successfully.
     """
-
     resetOnHealthyTask: "bool | None" = None
     """
     Specifies whether the deployment circuit breaker resets its failure count when a
@@ -3629,7 +3637,6 @@ class DeploymentAlarms(Boto3Model):
 
     Use a "," to separate the alarms.
     """
-
     rollback: bool
     """
     Determines whether to configure Amazon ECS to roll back the service if a service
@@ -3683,6 +3690,7 @@ class DeploymentLifecycleHook(Boto3Model):
     in the
     *Amazon Elastic Container Service Developer Guide*.
     """
+
     targetType: "Literal['AWS_LAMBDA', 'PAUSE'] | None" = None
     """
     The type of action the lifecycle hook performs.
@@ -3712,6 +3720,7 @@ class DeploymentLifecycleHook(Boto3Model):
 
     Choose from these valid values:
     """
+
     hookDetails: "HookDetails | None" = None
     """
     Use this field to specify custom parameters that Amazon ECS passes to your Lambda
@@ -3804,6 +3813,7 @@ class DeploymentEarlySuccessCriteria(Boto3Model):
     considers the deployment successful when the target service revision fully
     stabilizes and the previous tasks are removed. The default value is ``false``.
     """
+
     healthyPercent: "int | None" = None
     """
     The percentage of healthy tasks that the target service revision must reach before
@@ -3875,13 +3885,11 @@ class DeploymentConfiguration(Boto3Model):
 
     Choose from these valid values:
     """
-
     bakeTimeInMinutes: "int | None" = None
     """
     The time period when both blue and green service revisions are running
     simultaneously after the production traffic has shifted.
     """
-
     lifecycleHooks: "builtins.list[DeploymentLifecycleHook] | None" = Field(
         default_factory=list
     )
@@ -4335,7 +4343,6 @@ class ServiceConnectTestTrafficRules(Boto3Model):
     deployments <https://docs.aws.amazon.com/AmazonECS/latest/developerguide/service-connect-blue-green.html>`_ in the
     *Amazon Elastic Container Service Developer Guide*.
     """
-
     header: ServiceConnectTestTrafficHeaderRules
     """
     The HTTP header-based routing rules that determine which requests should be routed
@@ -4361,7 +4368,6 @@ class ServiceConnectClientAlias(Boto3Model):
     `Service Connect <https://docs.aws.amazon.com/AmazonECS/latest/developerguide/service-
     connect.html>`_ in the *Amazon Elastic Container Service Developer Guide*.
     """
-
     port: int
     """
     The listening port number for the Service Connect proxy.
@@ -4388,6 +4394,7 @@ class ServiceConnectClientAlias(Boto3Model):
     service for testing before shifting all production traffic.
     """
 
+
 class TimeoutConfiguration(Boto3Model):
     """
     An object that represents the timeout configurations for Service Connect.
@@ -4403,7 +4410,6 @@ class TimeoutConfiguration(Boto3Model):
 
     A value of ``0`` can be set to disable ``idleTimeout``.
     """
-
     perRequestTimeoutSeconds: "int | None" = None
     """
     The amount of time waiting for the upstream to respond with a complete response per
@@ -4419,6 +4425,7 @@ class ServiceConnectTlsCertificateAuthority(Boto3Model):
     """
     The certificate root authority that secures your service.
     """
+
     awsPcaAuthorityArn: "str | None" = None
     """
     The ARN of the Amazon Web Services Private Certificate Authority certificate.
@@ -4482,7 +4489,6 @@ class ServiceConnectService(Boto3Model):
     You use these to assign names that can be used by client applications. The maximum
     number of client aliases that you can have in this list is 1.
     """
-
     ingressPortOverride: "int | None" = None
     """
     The port number for the Service Connect proxy to listen on.
@@ -4531,8 +4537,6 @@ class ECSContainerDefinitionSecret(Boto3Model):
     The supported values are either the full ARN of the Secrets Manager secret or the
     full ARN of the parameter in the SSM Parameter Store.
     """
-
-
 class LogConfiguration(Boto3Model):
     """
     The log configuration for the container.
@@ -4557,6 +4561,10 @@ class LogConfiguration(Boto3Model):
     For tasks hosted on Amazon EC2 instances, the supported log drivers are ``awslogs``,
     ``fluentd``, ``gelf``, ``json-
     file``, ``journald``,``syslog``, ``splunk``, and ``awsfirelens``.
+
+    For tasks on Amazon ECS Managed Instances, the supported log drivers are
+    ``awslogs``, ``splunk``, ``awsfirelens``, and
+    ``json-file``.
 
     * This parameter requires version 1.18 of the Docker Remote API or greater on your
     container instance.
@@ -4588,7 +4596,6 @@ class LogConfiguration(Boto3Model):
     """
     The log driver to use for the container.
     """
-
     options: "dict[str, str] | None" = Field(default_factory=dict)
     """
     The configuration options to send to the log driver.
@@ -4605,6 +4612,7 @@ class LogConfiguration(Boto3Model):
     in the *Amazon Elastic
     Container Service Developer Guide*.
     """
+
 
 class ServiceConnectAccessLogConfiguration(Boto3Model):
     """
@@ -4666,7 +4674,6 @@ class ServiceConnectConfiguration(Boto3Model):
     `Service Connect <https://docs.aws.amazon.com/AmazonECS/latest/developerguide/service-
     connect.html>`_ in the *Amazon Elastic Container Service Developer Guide*.
     """
-
     enabled: bool
     """
     Specifies whether to use Service Connect with this service.
@@ -4694,6 +4701,7 @@ class ServiceConnectConfiguration(Boto3Model):
     These are names and aliases (also known as endpoints) that are used by other Amazon
     ECS services to connect to this service.
     """
+
     logConfiguration: "LogConfiguration | None" = None
     """
     The log configuration for the container.
@@ -4741,6 +4749,7 @@ class ServiceConnectServiceResource(Boto3Model):
     """
     The discovery name of this Service Connect resource.
     """
+
     discoveryArn: "str | None" = None
     """
     The Amazon Resource Name (ARN) for the service in Cloud Map that matches the
@@ -4806,6 +4815,7 @@ class ServiceManagedEBSVolumeConfiguration(Boto3Model):
     `CreateVolume API <https://docs.aws.amazon.com/AWSEC2/latest/APIReference/API_CreateVolume.html>`_
     in the *Amazon EC2 API Reference*.
     """
+
     kmsKeyId: "str | None" = None
     """
     The Amazon Resource Name (ARN) identifier of the Amazon Web Services Key Management
@@ -4831,7 +4841,6 @@ class ServiceManagedEBSVolumeConfiguration(Boto3Model):
     `Amazon EBS volume types <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ebs-volume-
     types.html>`_ in the *Amazon EC2 User Guide*.
     """
-
     sizeInGiB: "int | None" = None
     """
     The size of the volume in GiB.
@@ -4910,6 +4919,7 @@ class ServiceManagedEBSVolumeConfiguration(Boto3Model):
     in
     the *Amazon ECS Developer Guide*.
     """
+
     filesystemType: "Literal['ext3', 'ext4', 'xfs', 'ntfs'] | None" = None
     """
     The filesystem type for the volume.
@@ -4927,7 +4937,6 @@ class ServiceVolumeConfiguration(Boto3Model):
 
     Currently, the only supported volume type is an Amazon EBS volume.
     """
-
     name: str
     """
     The name of the volume.
@@ -4966,6 +4975,7 @@ class VpcLatticeAdvancedConfiguration(Boto3Model):
     The Amazon Resource Name (ARN) that identifies the production listener rule or
     listener for routing production traffic.
     """
+
     testListenerRule: "str | None" = None
     """
     The Amazon Resource Name (ARN) that identifies the test listener rule or listener
@@ -4978,7 +4988,6 @@ class VpcLatticeConfiguration(Boto3Model):
     The VPC Lattice configuration for your service that holds the information for the
     target group(s) Amazon ECS tasks will be registered to.
     """
-
     roleArn: str
     """
     The ARN of the IAM role to associate with this VPC Lattice configuration.
@@ -5017,6 +5026,7 @@ class Deployment(ReadonlyBoto3Model):
 
     This is used only when a service uses the ``ECS`` deployment controller type.
     """
+
     id: "str | None" = None
     """
     The ID of the deployment.
@@ -5040,7 +5050,6 @@ class Deployment(ReadonlyBoto3Model):
     The most recent desired count of tasks that was specified for the service to deploy
     or maintain.
     """
-
     pendingCount: "int | None" = None
     """
     The number of tasks in the deployment that are in the ``PENDING`` status.
@@ -5088,7 +5097,6 @@ class Deployment(ReadonlyBoto3Model):
     in the *Amazon Elastic Container
     Service Developer Guide*.
     """
-
     platformVersion: "str | None" = None
     """
     The platform version that your tasks in the service run on.
@@ -5157,12 +5165,14 @@ network interface by using the
     """
     The Fargate ephemeral storage settings for the deployment.
     """
+
     vpcLatticeConfigurations: "builtins.list[VpcLatticeConfiguration] | None" = Field(
         default_factory=list
     )
     """
     The VPC Lattice configuration for the service deployment.
     """
+
 class ServiceEvent(Boto3Model):
     """
     The details for an event that's associated with a service.
@@ -5177,7 +5187,6 @@ class ServiceEvent(Boto3Model):
     """
     The Unix timestamp for the time when the event was triggered.
     """
-
     message: "str | None" = None
     """
     The event message.
@@ -5231,6 +5240,7 @@ class PlacementConstraint(Boto3Model):
     on a different container instance. Use ``memberOf`` to restrict the selection to a
     group of valid candidates.
     """
+
     expression: "str | None" = None
     """
     A cluster query language expression to apply to the constraint.
@@ -5316,6 +5326,7 @@ class Service(TagsDictMixin, ECSServiceModelMixin, PrimaryBoto3Model):
     and it can be    modified with
     `UpdateService <https://docs.aws.amazon.com/AmazonECS/latest/APIReference/API_UpdateService.html>`_.
     """
+
     clusterArn: str
     """
     The Amazon Resource Name (ARN) of the cluster that hosts the service.
@@ -5345,6 +5356,7 @@ class Service(TagsDictMixin, ECSServiceModelMixin, PrimaryBoto3Model):
     For more information, see
     `Services <https://docs.aws.amazon.com/AmazonECS/latest/developerguide/ecs_services.html>`_.
     """
+
     Tags: "builtins.list[ECSTag]" = Field(default_factory=list, alias="tags")
     """
     The metadata that you apply to the service to help you categorize and organize them.
@@ -5380,6 +5392,7 @@ class Service(TagsDictMixin, ECSServiceModelMixin, PrimaryBoto3Model):
     For more information, see
     `Service Discovery <https://docs.aws.amazon.com/AmazonECS/latest/developerguide/service-discovery.html>`_.
     """
+
     status: str = Field(default=None, frozen=True)
     """
     The status of the service.
@@ -5481,7 +5494,6 @@ class Service(TagsDictMixin, ECSServiceModelMixin, PrimaryBoto3Model):
     """
     The placement constraints for the tasks in the service.
     """
-
     placementStrategy: "builtins.list[PlacementStrategy] | None" = Field(
         default_factory=list
     )
@@ -5543,7 +5555,6 @@ network interface by using the
     """
     Indicates whether to use Availability Zone rebalancing for the service.
     """
-
     resourceManagementType: "Literal['CUSTOMER', 'ECS'] | None" = Field(
         default=None, frozen=True
     )
@@ -5782,7 +5793,6 @@ network interface by using the
         except AttributeError:
             return []
         return ServiceRevision.objects.using(self.session).list(**pk)  # type: ignore[arg-type]
-
     @cached_property
     def task_sets(self) -> "list[TaskSet] | None":
         """
@@ -5835,7 +5845,6 @@ class ExecuteCommandLogConfiguration(Boto3Model):
 
     If not specified, encryption will be off.
     """
-
     s3BucketName: "str | None" = None
     """
     The name of the S3 bucket to send logs to.
@@ -5906,6 +5915,7 @@ class ClusterConfiguration(Boto3Model):
     """
     The details of the managed storage configuration.
     """
+
 class KeyValuePair(Boto3Model):
     """
     A key-value pair object.
@@ -5953,6 +5963,7 @@ class ClusterSetting(Boto3Model):
 
     The value is ``containerInsights``.
     """
+
     value: "str | None" = None
     """
     The value to set for the cluster setting.
@@ -5988,7 +5999,6 @@ class ECSAttachment(Boto3Model):
     """
     Details of the attachment.
     """
-
 class ClusterServiceConnectDefaults(Boto3Model):
     """
     Use this parameter to set a default Service Connect namespace.
@@ -6078,6 +6088,7 @@ class Cluster(TagsDictMixin, PrimaryBoto3Model):
     """
     The number of tasks in the cluster that are in the ``PENDING`` state.
     """
+
     activeServicesCount: int = Field(default=None, frozen=True)
     """
     The number of services that are running on the cluster in an ``ACTIVE`` state.
@@ -6264,6 +6275,7 @@ class Cluster(TagsDictMixin, PrimaryBoto3Model):
         except AttributeError:
             return []
         return CapacityProvider.objects.using(self.session).list(**pk)  # type: ignore[arg-type]
+
 class RepositoryCredentials(Boto3Model):
     """
     The repository credentials for private registry authentication.
@@ -6372,7 +6384,6 @@ class ContainerRestartPolicy(Boto3Model):
     You can specify a maximum of 50 container exit codes. By default, Amazon ECS does
     not ignore any exit codes.
     """
-
     restartAttemptPeriod: "int | None" = None
     """
     A period of time (in seconds) that the container must run for before a restart can
@@ -6384,7 +6395,6 @@ class ContainerRestartPolicy(Boto3Model):
     maximum ``restartAttemptPeriod`` of 1800 seconds. By default, a container must run
     for 300 seconds before it can be restarted.
     """
-
 class EnvironmentFile(Boto3Model):
     """
     A list of files containing the environment variables to pass to a container.
@@ -6410,7 +6420,6 @@ class EnvironmentFile(Boto3Model):
     You must use the following platforms for the Fargate launch type:
 
     * Linux platform version ``1.4.0`` or later.
-    * Windows platform version ``1.0.0`` or later.
 
     Consider the following when using the Fargate launch type:
 
@@ -6435,7 +6444,6 @@ class MountPoint(Boto3Model):
     """
     The details for a volume mount point that's used in a container definition.
     """
-
     sourceVolume: "str | None" = None
     """
     The name of the volume to mount.
@@ -6447,6 +6455,7 @@ class MountPoint(Boto3Model):
     """
     The path on the container to mount the host volume at.
     """
+
     readOnly: "bool | None" = None
     """
     If this value is ``true``, the container has read-only access to the volume.
@@ -6550,6 +6559,7 @@ class Tmpfs(Boto3Model):
     """
     The container path, mount options, and size of the tmpfs mount.
     """
+
     containerPath: str
     """
     The absolute file path where the tmpfs volume is to be mounted.
@@ -6569,7 +6579,6 @@ class LinuxParameters(Boto3Model):
     """The Linux-specific options that are applied to the container, such as Linux
     `KernelCapabilities <https://docs.aws.amazon.com/AmazonECS/latest/APIReference/API_KernelCapabilities.html>`_.
     """
-
     capabilities: "KernelCapabilities | None" = None
     """
     The Linux capabilities for the container that are added to or dropped from the
@@ -6675,8 +6684,6 @@ class ContainerDependency(Boto3Model):
 
     The following are the available conditions and their behavior:
     """
-
-
 class HostEntry(Boto3Model):
     """Hostnames and IP address entries that are added to the ``/etc/hosts`` file of a container via the ``extraHosts``
     parameter of its
@@ -6727,7 +6734,6 @@ class Ulimit(Boto3Model):
     """
     The ``type`` of the ``ulimit``.
     """
-
     softLimit: int
     """
     The soft limit for the ``ulimit`` type.
@@ -6985,7 +6991,6 @@ class SystemControl(Boto3Model):
     """
     The namespaced kernel parameter to set a ``value`` for.
     """
-
 class NvidiaMpsAllocation(Boto3Model):
     """
     The GPU memory and compute limits for a container that shares a GPU by using NVIDIA
@@ -7014,6 +7019,7 @@ class NvidiaMpsAllocation(Boto3Model):
     Amazon ECS sets the ``CUDA_MPS_ACTIVE_THREAD_PERCENTAGE`` environment variable in
     the container to this value. This value is a limit, not a reservation.
     """
+
 class SharingStrategy(Boto3Model):
     """
     The strategy that a container uses to share a GPU with other containers.
@@ -7203,6 +7209,7 @@ class ContainerDefinition(Boto3Model):
     hyphens are allowed.. This parameter maps to ``Links`` in the docker container
     create command and the ``--link`` option to docker run.
     """
+
     portMappings: "builtins.list[PortMapping] | None" = Field(default_factory=list)
     """
     The list of port mappings for the container.
@@ -7269,6 +7276,7 @@ class ContainerDefinition(Boto3Model):
     This parameter maps to ``VolumesFrom`` in the docker container create command and
     the ``--volumes-from`` option to docker run.
     """
+
     linuxParameters: "LinuxParameters | None" = None
     """
     Linux-specific modifications that are applied to the default Docker container
@@ -7347,7 +7355,6 @@ class ContainerDefinition(Boto3Model):
 
     This parameter maps to ``NetworkDisabled`` in the docker container create command.
     """
-
     privileged: "bool | None" = None
     """
     When this parameter is true, the container is given elevated privileges on the host
@@ -7464,7 +7471,6 @@ class ContainerDefinition(Boto3Model):
     ``--sysctl`` option to docker run. For example, you can configure
     ``net.ipv4.tcp_keepalive_time`` setting to maintain longer lived connections.
     """
-
     resourceRequirements: "builtins.list[ResourceRequirement] | None" = Field(
         default_factory=list
     )
@@ -7493,6 +7499,7 @@ class ContainerDefinition(Boto3Model):
     We recommend that you use this parameter instead of the ``dockerSecurityOptions``.
     The maximum number of ARNs is 1.
     """
+
     @property
     def full_repository_uri(self) -> str | None:
         """
@@ -7501,6 +7508,7 @@ class ContainerDefinition(Boto3Model):
         For example: ``123456789012.dkr.ecr.us-east-1.amazonaws.com/my-group/my-image``.
         """
         return self.transform("image", r"^(.+):.+$")
+
     @property
     def repository_name(self) -> str | None:
         """
@@ -7572,7 +7580,6 @@ class Attribute(Boto3Model):
     signs (@), forward slashes (/), back slashes (), colons (:), or spaces. The value
     can't start or end with a space.
     """
-
     targetType: "Literal['container-instance'] | None" = None
     """
     The type of the target to attach the attribute with.
@@ -7588,7 +7595,6 @@ class Attribute(Boto3Model):
     You can specify the short form ID for a resource or the full Amazon Resource Name
     (ARN).
     """
-
 class TaskDefinitionPlacementConstraint(Boto3Model):
     """
     The constraint on task placement in the task definition.
@@ -7600,7 +7606,6 @@ class TaskDefinitionPlacementConstraint(Boto3Model):
 
     Task placement constraints aren't supported for tasks run on Fargate.
     """
-
     type: "Literal['memberOf'] | None" = None
     """
     The type of constraint.
@@ -7632,11 +7637,11 @@ class RuntimePlatform(Boto3Model):
     """
     The CPU architecture.
     """
-
     operatingSystemFamily: "Literal['WINDOWS_SERVER_2019_FULL', 'WINDOWS_SERVER_2019_CORE', 'WINDOWS_SERVER_2016_FULL', 'WINDOWS_SERVER_2004_CORE', 'WINDOWS_SERVER_2022_CORE', 'WINDOWS_SERVER_2022_FULL', 'WINDOWS_SERVER_2025_CORE', 'WINDOWS_SERVER_2025_FULL', 'WINDOWS_SERVER_20H2_CORE', 'LINUX'] | None" = None
     """
     The operating system.
     """
+
 class InferenceAccelerator(Boto3Model):
     """
     Details on an Elastic Inference accelerator.
@@ -7659,8 +7664,6 @@ class InferenceAccelerator(Boto3Model):
     """
     The Elastic Inference accelerator type to use.
     """
-
-
 class ECSProxyConfiguration(Boto3Model):
     """
     The configuration details for the App Mesh proxy.
@@ -7685,6 +7688,7 @@ class ECSProxyConfiguration(Boto3Model):
     """
     The name of the container that will serve as the App Mesh proxy.
     """
+
     properties: "builtins.list[KeyValuePair] | None" = Field(default_factory=list)
     """
     The set of network configuration parameters to provide the Container Network
@@ -7704,15 +7708,39 @@ class EphemeralStorage(Boto3Model):
     For tasks using the Fargate launch type, the task requires the following platforms:
 
     * Linux platform version ``1.4.0`` or later.
-    * Windows platform version ``1.0.0`` or later.
     """
-
     sizeInGiB: int
     """
     The total amount, in GiB, of ephemeral storage to set for the task.
 
     The minimum supported value is ``21`` GiB and the maximum supported value is ``200``
     GiB.
+    """
+class TrustedExecutionConfiguration(Boto3Model):
+    """
+    The trusted execution configuration for a task.
+
+    This configuration controls the isolation mode and attestation policy. You set this
+    configuration when you register a task definition.
+
+    Trusted execution is supported only for Amazon ECS Managed Instances.
+    """
+
+    isolationMode: Literal["SHARED", "ISOLATED_SANDBOX", "CONFIDENTIAL_SANDBOX"]
+    """
+    The isolation mode for tasks that use this task definition.
+
+    The isolation mode determines how a task is isolated from other tasks on the same
+    Amazon EC2 instance.
+    """
+
+    attestationPolicy: "str | None" = None
+    """
+    The base64-encoded attestation policy envelope for the task.
+
+    The policy specifies which containers are allowed to run and the runtime
+    configuration that is cryptographically attested. This parameter is required when
+    ``isolationMode`` is ``CONFIDENTIAL_SANDBOX``.
     """
 
 class TaskDefinition(TagsDictMixin, TaskDefinitionModelMixin, PrimaryBoto3Model):
@@ -7724,6 +7752,7 @@ class TaskDefinition(TagsDictMixin, TaskDefinitionModelMixin, PrimaryBoto3Model)
     configurations related to launching the task definition through an Amazon ECS
     service or task.
     """
+
     tag_class: ClassVar[ModelType[Boto3Model]] = ECSTag
     manager_class: ClassVar[ModelType[Boto3ModelManager]] = TaskDefinitionManager
 
@@ -7734,7 +7763,6 @@ class TaskDefinition(TagsDictMixin, TaskDefinitionModelMixin, PrimaryBoto3Model)
     Up to 255 characters are allowed. Letters (both uppercase and lowercase letters),
     numbers, hyphens (-), and underscores (_) are allowed.
     """
-
     containerDefinitions: "builtins.list[ContainerDefinition]"
     """
     A list of container definitions in JSON format that describe the different
@@ -7753,7 +7781,6 @@ class TaskDefinition(TagsDictMixin, TaskDefinitionModelMixin, PrimaryBoto3Model)
     The valid values are ``none``, ``bridge``, ``awsvpc``, and ``host``. If no network
     mode is specified, the default is ``bridge``.
     """
-
     taskDefinitionArn: str = Field(default=None, frozen=True)
     """
     The full Amazon Resource Name (ARN) of the task definition.
@@ -7846,12 +7873,14 @@ class TaskDefinition(TagsDictMixin, TaskDefinitionModelMixin, PrimaryBoto3Model)
     in the *Amazon
     Elastic Container Service Developer Guide*.
     """
+
     runtimePlatform: "RuntimePlatform | None" = None
     """
     The operating system that your task definitions are running on.
 
     A platform family is specified only for tasks using the Fargate launch type.
     """
+
     requiresCompatibilities: "builtins.list[Literal['EC2', 'FARGATE', 'EXTERNAL', 'MANAGED_INSTANCES']] | None" = Field(
         default_factory=list
     )
@@ -7873,6 +7902,7 @@ class TaskDefinition(TagsDictMixin, TaskDefinitionModelMixin, PrimaryBoto3Model)
     following values. The value that you choose determines your range of valid values
     for the ``memory`` parameter.
     """
+
     memory: "str | None" = None
     """
     The amount (in MiB) of memory used by the task.
@@ -7912,7 +7942,6 @@ class TaskDefinition(TagsDictMixin, TaskDefinitionModelMixin, PrimaryBoto3Model)
     """
     The configuration details for the App Mesh proxy.
     """
-
     registeredAt: datetime = Field(default=None, frozen=True)
     """
     The Unix timestamp for the time when the task definition was registered.
@@ -7927,11 +7956,11 @@ class TaskDefinition(TagsDictMixin, TaskDefinitionModelMixin, PrimaryBoto3Model)
     """
     The Unix timestamp for the time when the task definition delete was requested.
     """
-
     registeredBy: str = Field(default=None, frozen=True)
     """
     The principal that registered the task definition.
     """
+
     ephemeralStorage: "EphemeralStorage | None" = None
     """
     The ephemeral storage settings to use for tasks run with the task definition.
@@ -7943,6 +7972,12 @@ class TaskDefinition(TagsDictMixin, TaskDefinitionModelMixin, PrimaryBoto3Model)
     the task's containers.
 
     The default value is ``false``.
+    """
+
+    trustedExecutionConfiguration: "TrustedExecutionConfiguration | None" = None
+    """
+    The trusted execution configuration for tasks that use this task definition,
+    including the isolation mode and, if configured, an attestation policy.
     """
 
     Tags: "builtins.list[ECSTag] | None" = Field(default_factory=list)
@@ -8023,6 +8058,7 @@ class NetworkBinding(Boto3Model):
     """
     The port number on the container that's used with the network binding.
     """
+
     hostPort: "int | None" = None
     """
     The port number on the host that's used with the network binding.
@@ -8045,7 +8081,6 @@ class NetworkBinding(Boto3Model):
 
     This is assigned is assigned by Docker and delivered by the Amazon ECS agent.
     """
-
 class ManagedAgent(Boto3Model):
     """
     Details about the managed agent status for the container.
@@ -8063,18 +8098,22 @@ class ManagedAgent(Boto3Model):
     When the execute command feature is turned on, the managed agent name is
     ``ExecuteCommandAgent``.
     """
+
     reason: "str | None" = None
     """
     The reason for why the managed agent is in the state it is in.
     """
+
     lastStatus: "str | None" = None
     """
     The last known status of the managed agent.
     """
+
 class Container(Boto3Model):
     """
     A Docker container that's part of a task.
     """
+
     containerArn: "str | None" = None
     """
     The Amazon Resource Name (ARN) of the container.
@@ -8099,20 +8138,20 @@ class Container(Boto3Model):
     """
     The container image manifest digest.
     """
-
     runtimeId: "str | None" = None
     """
     The ID of the Docker container.
     """
-
     lastStatus: "str | None" = None
     """
     The last known status of the container.
     """
+
     exitCode: "int | None" = None
     """
     The exit code returned from the container.
     """
+
     reason: "str | None" = None
     """
     A short (1024 max characters) human-readable string to provide additional details
@@ -8132,7 +8171,6 @@ class Container(Boto3Model):
     """
     The network interfaces associated with the container.
     """
-
     healthStatus: "Literal['HEALTHY', 'UNHEALTHY', 'UNKNOWN'] | None" = None
     """
     The health status of the container.
@@ -8181,7 +8219,6 @@ class Container(Boto3Model):
     This field is present only for containers whose resource requirements include
     ``sharingStrategy``.
     """
-
 class ContainerOverride(Boto3Model):
     """
     The overrides that are sent to a container.
@@ -8203,7 +8240,6 @@ class ContainerOverride(Boto3Model):
 
     This parameter is required if any override is specified.
     """
-
     command: "builtins.list[str] | None" = Field(default_factory=list)
     """
     The command to send to the container that overrides the default command from the
@@ -8236,7 +8272,6 @@ class ContainerOverride(Boto3Model):
 
     You must also specify a container name.
     """
-
     memory: "int | None" = None
     """
     The hard limit (in MiB) of memory to present to the container, instead of the
@@ -8361,6 +8396,34 @@ class TaskEphemeralStorage(Boto3Model):
     task.
     """
 
+class TrustedExecutionSummary(Boto3Model):
+    """
+    A summary of the trusted execution configuration for a task.
+
+    This is a read-only view of the isolation configuration that was set on the task
+    definition. Use it to see a task's isolation configuration in the response to
+    ``DescribeTasks``, ``RunTask``, or ``StopTask`` without calling
+    ``DescribeTaskDefinition``. This summary never includes the attestation policy
+    itself.
+
+    Trusted execution is supported only for Amazon ECS Managed Instances.
+    """
+
+    isolationMode: Literal["SHARED", "ISOLATED_SANDBOX", "CONFIDENTIAL_SANDBOX"]
+    """
+    The isolation mode that the task runs in.
+
+    This value mirrors the ``isolationMode`` that was set in the task definition's
+    ``TrustedExecutionConfiguration``.
+    """
+    attestationPolicyStatus: "Literal['CONFIGURED'] | None" = None
+    """
+    The status of the attestation policy for the task.
+
+    This value is present only for tasks that use the
+    ``CONFIDENTIAL_SANDBOX`` isolation mode.
+    """
+
 class Task(TagsDictMixin, ECSTaskModelMixin, PrimaryBoto3Model):
     """
     Details on a task in a cluster.
@@ -8381,7 +8444,6 @@ class Task(TagsDictMixin, ECSTaskModelMixin, PrimaryBoto3Model):
     """
     The ARN of the cluster that hosts the task.
     """
-
     platformVersion: "str | None" = "LATEST"
     """
     The platform version where your task runs on.
@@ -8413,7 +8475,6 @@ class Task(TagsDictMixin, ECSTaskModelMixin, PrimaryBoto3Model):
     The Elastic Network Adapter that's associated with the task if the task uses the
     ``awsvpc`` network mode.
     """
-
     attributes: "builtins.list[Attribute]" = Field(default_factory=list, frozen=True)
     """
     The attributes of the task.
@@ -8423,12 +8484,10 @@ class Task(TagsDictMixin, ECSTaskModelMixin, PrimaryBoto3Model):
     """
     The Availability Zone for the task.
     """
-
     capacityProviderName: str = Field(default=None, frozen=True)
     """
     The capacity provider that's associated with the task.
     """
-
     connectivity: "Literal['CONNECTED', 'DISCONNECTED'] | None" = Field(
         default=None, frozen=True
     )
@@ -8630,6 +8689,14 @@ class Task(TagsDictMixin, ECSTaskModelMixin, PrimaryBoto3Model):
     The Fargate ephemeral storage settings for the task.
     """
 
+    trustedExecutionSummary: TrustedExecutionSummary = Field(default=None, frozen=True)
+    """
+    A summary of the trusted execution configuration for the task, including the
+    isolation mode.
+
+    This is a read-only view of the configuration that was set on the task definition.
+    """
+
     taskDefinition: "str | None" = None
     """
     The ``family`` and ``revision`` (``family:revision``) or full ARN of the task
@@ -8677,7 +8744,6 @@ class Task(TagsDictMixin, ECSTaskModelMixin, PrimaryBoto3Model):
         The name of the service that ran this task, if any.
         """
         return self.transform("group", r"^service:(.+)$")
-
     @cached_property
     def cluster(self) -> "Cluster | None":
         """
@@ -8699,6 +8765,7 @@ class Task(TagsDictMixin, ECSTaskModelMixin, PrimaryBoto3Model):
         except AttributeError:
             return None
         return Cluster.objects.using(self.session).get(**pk)  # type: ignore[arg-type]
+
     @cached_property
     def task_definition(self) -> "TaskDefinition | None":
         """
@@ -8764,7 +8831,6 @@ class Task(TagsDictMixin, ECSTaskModelMixin, PrimaryBoto3Model):
         except AttributeError:
             return None
         return Service.objects.using(self.session).get(**pk)  # type: ignore[arg-type]
-
     @cached_property
     def capacity_provider(self) -> "CapacityProvider | None":
         """
@@ -8787,17 +8853,17 @@ class Task(TagsDictMixin, ECSTaskModelMixin, PrimaryBoto3Model):
         except AttributeError:
             return None
         return CapacityProvider.objects.using(self.session).get(**pk)  # type: ignore[arg-type]
+
+
 class VersionInfo(Boto3Model):
     """
     The Docker and Amazon ECS container agent version information about a container
     instance.
     """
-
     agentVersion: "str | None" = None
     """
     The version number of the Amazon ECS container agent.
     """
-
     agentHash: "str | None" = None
     """
 The Git commit hash for the Amazon ECS container agent build on the `amazon-ecs-agent <https://github.com/aws/amazon-
@@ -8808,6 +8874,7 @@ ecs-agent>`_  GitHub repository.
     """
     The Docker version that's running on the container instance.
     """
+
 class ContainerInstanceResource(Boto3Model):
     """
     Describes the resources available for a container instance.
@@ -8818,24 +8885,24 @@ class ContainerInstanceResource(Boto3Model):
     The name of the resource, such as ``CPU``, ``MEMORY``, ``PORTS``, ``PORTS_UDP``, or
     a user-defined resource.
     """
+
     type: "str | None" = None
     """
     The type of the resource.
 
     Valid values: ``INTEGER``, ``DOUBLE``, ``LONG``, or ``STRINGSET``.
     """
+
     doubleValue: "float | None" = None
     """
     When the ``doubleValue`` type is set, the value of the resource must be a double
     precision floating-point type.
     """
-
     longValue: "int | None" = None
     """
     When the ``longValue`` type is set, the value of the resource must be an extended
     precision floating-point type.
     """
-
     integerValue: "int | None" = None
     """
     When the ``integerValue`` type is set, the value of the resource must be an integer.
@@ -8863,6 +8930,7 @@ class InstanceHealthCheckResult(Boto3Model):
     """
     The container instance health status.
     """
+
     statusReason: "str | None" = None
     """
     The reason for the container instance health status.
@@ -8903,7 +8971,6 @@ class GpuDevice(Boto3Model):
     The state of a GPU on a container instance, including its sharing mode and the
     memory that's available for new containers.
     """
-
     gpuId: "str | None" = None
     """
     The ID of the GPU.
@@ -9031,6 +9098,7 @@ class ContainerInstance(
     the ports that were reserved by the Amazon ECS container agent when it registered
     the container instance with Amazon ECS.
     """
+
     status: "str | None" = None
     """
     The status of the container instance.
@@ -9113,7 +9181,6 @@ operation.
             The primary key of the model instance.
         """
         return self.containerInstanceArn
-
     @property
     def arn(self) -> str | None:
         """
@@ -9134,7 +9201,6 @@ operation.
         :py:attr:`containerInstanceArn` attribute.
         """
         return hash(self.containerInstanceArn)
-
     @property
     def clusterName(self) -> str | None:
         """
@@ -9143,7 +9209,6 @@ operation.
         return self.transform(
             "containerInstanceArn", r":container-instance/(.+)/[0-9a-f]+$"
         )
-
     @property
     def name(self) -> str | None:
         """
@@ -9175,7 +9240,6 @@ operation.
         except AttributeError:
             return None
         return Instance.objects.using(self.session).get(**pk)  # type: ignore[arg-type]
-
     @property
     def tasks(self) -> "list[Task] | None":
         """
@@ -9193,6 +9257,7 @@ operation.
         except AttributeError:
             return []
         return Task.objects.using(self.session).list(**pk)  # type: ignore[arg-type]
+
     @cached_property
     def cluster(self) -> "Cluster | None":
         """
@@ -9261,10 +9326,12 @@ class ContainerImage(Boto3Model):
     """
     The name of the container.
     """
+
     imageDigest: "str | None" = None
     """
     The container image digest.
     """
+
     image: "str | None" = None
     """
     The container image.
@@ -9335,7 +9402,6 @@ class ResolvedConfiguration(Boto3Model):
     This includes information about which target groups serve traffic and which listener
     rules direct traffic to them.
     """
-
 class ManagedLoadBalancer(Boto3Model):
     """
     The Application Load Balancer associated with the Express service.
@@ -9350,7 +9416,6 @@ class ManagedLoadBalancer(Boto3Model):
     """
     The status of the load balancer.
     """
-
     statusReason: "str | None" = None
     """
     Information about why the load balancer is in the current status.
@@ -9372,7 +9437,6 @@ class ManagedLoadBalancer(Boto3Model):
     """
     The IDs of the subnets associated with the load balancer.
     """
-
     securityGroupIds: "builtins.list[str] | None" = Field(default_factory=list)
     """
     The IDs of the security groups associated with the load balancer.
@@ -9408,21 +9472,19 @@ class ManagedCertificate(Boto3Model):
     The ACM certificate associated with the HTTPS domain created for the Express
     service.
     """
-
     arn: "str | None" = None
     """
     The Amazon Resource Name (ARN) of the ACM certificate.
     """
-
     status: Literal["PROVISIONING", "ACTIVE", "DEPROVISIONING", "DELETED", "FAILED"]
     """
     The status of the ACM; certificate.
     """
-
     statusReason: "str | None" = None
     """
     Information about why the ACM certificate is in the current status.
     """
+
     updatedAt: datetime
     """
     The Unix timestamp for when the ACM certificate was last updated.
@@ -9462,16 +9524,15 @@ class ManagedListenerRule(Boto3Model):
     """
     The listener rule associated with the Express service's Application Load Balancer.
     """
-
     arn: "str | None" = None
     """
     The Amazon Resource Name (ARN) of the load balancer listener rule.
     """
+
     status: Literal["PROVISIONING", "ACTIVE", "DEPROVISIONING", "DELETED", "FAILED"]
     """
     The status of the load balancer listener rule.
     """
-
     statusReason: "str | None" = None
     """
     Information about why the load balancer listener rule is in the current status.
@@ -9491,11 +9552,11 @@ class ManagedTargetGroup(Boto3Model):
     in
     the *Elastic Load Balancing API Reference*
     """
+
     arn: "str | None" = None
     """
     The Amazon Resource Name (ARN) of the target group.
     """
-
     status: Literal["PROVISIONING", "ACTIVE", "DEPROVISIONING", "DELETED", "FAILED"]
     """
     The status of the target group.
@@ -9510,6 +9571,7 @@ class ManagedTargetGroup(Boto3Model):
     """
     The Unix timestamp for when the target group was last updated.
     """
+
     healthCheckPath: str
     """
     The destination for health checks on the targets.
@@ -9519,6 +9581,7 @@ class ManagedTargetGroup(Boto3Model):
     """
     The port the load balancer uses when performing health checks on targets.
     """
+
     port: int
     """
     The port on which the targets receive traffic.
@@ -9538,7 +9601,6 @@ class ManagedIngressPath(Boto3Model):
     """
     The endpoint for access to the Express service.
     """
-
     loadBalancer: "ManagedLoadBalancer | None" = None
     """
     The Application Load Balancer associated with the Express service.
@@ -9602,6 +9664,7 @@ class ManagedScalableTarget(Boto3Model):
     """
     The minimum value to scale to in response to a scale-in activity.
     """
+
     maxCapacity: int
     """
     The maximum value to scale to in response to a scale-out activity.
@@ -9646,7 +9709,6 @@ class ManagedApplicationAutoScalingPolicy(Boto3Model):
     """
     The target value for the auto scaling metric.
     """
-
     metric: str
     """
     The metric used for auto scaling decisions.
@@ -9671,34 +9733,33 @@ class ManagedAutoScaling(Boto3Model):
     """
     The policy used for auto scaling.
     """
-
 class ManagedMetricAlarm(Boto3Model):
     """
     The CloudWatch metric alarm associated with the Express service's scaling policy.
     """
+
     arn: "str | None" = None
     """
     The Amazon Resource Name (ARN) of the CloudWatch metric alarm.
     """
+
     status: Literal["PROVISIONING", "ACTIVE", "DEPROVISIONING", "DELETED", "FAILED"]
     """
     The status of the CloudWatch metric alarm.
     """
-
     statusReason: "str | None" = None
     """
     Information about why the CloudWatch metric alarm is in the current status.
     """
-
     updatedAt: datetime
     """
     The Unix timestamp for when the CloudWatch metric alarm was last updated.
     """
-
 class ManagedLogGroup(Boto3Model):
     """
     The Cloudwatch Log Group created by Amazon ECS for an Express service.
     """
+
     arn: "str | None" = None
     """
     The Amazon Resource Name (ARN) of the Cloudwatch Log Group associated with the
@@ -9736,7 +9797,6 @@ class GatewayConnectionAlbResources(Boto3Model):
     The Amazon Resource Name (ARN) of the Amazon Web Services Certificate Manager
     certificate that is attached to the load balancer listener.
     """
-
     loadBalancerArn: "str | None" = None
     """
     The Amazon Resource Name (ARN) of the load balancer.
@@ -9748,6 +9808,7 @@ class GatewayConnectionAlbResources(Boto3Model):
     The Amazon Resource Names (ARNs) of the security groups that the gateway attaches to
     the load balancer.
     """
+
     listenerArn: "str | None" = None
     """
     The Amazon Resource Name (ARN) of the listener on the load balancer.
@@ -9837,6 +9898,7 @@ class ECSManagedResources(Boto3Model):
     service, including ingress paths, auto-scaling policies, metric alarms, and security
     groups.
     """
+
     ingressPaths: "builtins.list[ManagedIngressPath] | None" = Field(
         default_factory=list
     )
@@ -9855,14 +9917,12 @@ class ECSManagedResources(Boto3Model):
     """
     The CloudWatch metric alarms associated with the Express service.
     """
-
     serviceSecurityGroups: "builtins.list[ManagedSecurityGroup] | None" = Field(
         default_factory=list
     )
     """
     The security groups managed by the Express service.
     """
-
     logGroups: "builtins.list[ManagedLogGroup] | None" = Field(default_factory=list)
     """
     The log groups managed by the Express service.
@@ -9875,7 +9935,6 @@ class ECSManagedResources(Boto3Model):
     The gateway-managed connections for the service revision, including the gateway
     routes and infrastructure that a gateway created for the service's connector.
     """
-
 class RuntimePlatformOverride(Boto3Model):
     """
     The runtime platform that Amazon ECS applies to a service revision.
@@ -9883,6 +9942,7 @@ class RuntimePlatformOverride(Boto3Model):
     This value overrides the runtime platform specified in the task definition. You
     can't set this value.
     """
+
     cpuArchitecture: "str | None" = None
     """
     The CPU architecture that tasks in this service revision run on.
@@ -9913,12 +9973,10 @@ class GatewayConnectorHealthCheckMatcher(Boto3Model):
     """
     The codes that indicate a successful health check response from a target.
     """
-
     httpCode: "str | None" = None
     """
     The HTTP codes that indicate a successful response from a target.
     """
-
     grpcCode: "str | None" = None
     """
     The gRPC codes that indicate a successful response from a target.
@@ -9938,7 +9996,6 @@ class GatewayConnectorHealthCheck(Boto3Model):
     """
     The port that the gateway uses to perform health checks on the targets.
     """
-
     healthCheckPath: "str | None" = None
     """
     The destination path for health check requests.
@@ -9949,7 +10006,6 @@ class GatewayConnectorHealthCheck(Boto3Model):
     The amount of time, in seconds, during which no response from a target means a
     failed health check.
     """
-
     healthCheckIntervalSeconds: "int | None" = None
     """
     The approximate amount of time, in seconds, between health checks of an individual
@@ -9986,6 +10042,20 @@ class GatewayConnectorFilters(Boto3Model):
     The access types of the gateway ingress paths that the connector applies to.
     """
 
+class GatewayConnectorDeregistrationDelay(Boto3Model):
+    """
+    The amount of time to allow in-flight requests to complete before a deregistering
+    target is removed.
+    """
+
+    timeoutSeconds: "int | None" = None
+    """
+    The amount of time, in seconds, to wait before a deregistering target is removed.
+
+    A value of ``0`` removes the target immediately. The valid range is 0-3600 seconds.
+    The default value is 300 seconds.
+    """
+
 class GatewayConnector(Boto3Model):
     """
     A gateway connector that attaches an Amazon ECS service to a gateway ingress path.
@@ -10011,11 +10081,15 @@ class GatewayConnector(Boto3Model):
     The filters that control which gateway ingress paths the connector applies to.
     """
 
+    deregistrationDelay: "GatewayConnectorDeregistrationDelay | None" = None
+    """
+    The deregistration delay settings for the targets of this connector.
+    """
+
 class MetricConfiguration(Boto3Model):
     """
     The configuration for a specific set of metrics to collect for a service.
     """
-
     metricNames: "builtins.list[str]"
     """
     The list of metric names to configure.
@@ -10095,31 +10169,26 @@ class ServiceRevision(ReadonlyPrimaryBoto3Model):
     """
     The launch type the service revision uses.
     """
-
     platformVersion: "str | None" = None
     """
     For the Fargate launch type, the platform version the service revision uses.
     """
-
     platformFamily: "str | None" = None
     """
     The platform family the service revision uses.
     """
-
     loadBalancers: "builtins.list[LoadBalancerConfiguration] | None" = Field(
         default_factory=list
     )
     """
     The load balancers the service revision uses.
     """
-
     serviceRegistries: "builtins.list[ServiceRegistry] | None" = Field(
         default_factory=list
     )
     """
     The service registries (for Service Discovery) the service revision uses.
     """
-
     networkConfiguration: "NetworkConfiguration | None" = None
     """
     The network configuration for a task or service.
@@ -10131,6 +10200,7 @@ class ServiceRevision(ReadonlyPrimaryBoto3Model):
     """
     The container images the service revision uses.
     """
+
     guardDutyEnabled: "bool | None" = None
     """
     Indicates whether Runtime Monitoring is turned on.
@@ -10162,6 +10232,7 @@ class ServiceRevision(ReadonlyPrimaryBoto3Model):
 
     The format is yyyy-mm-dd HH:mm:ss.SSSSS.
     """
+
     vpcLatticeConfigurations: "builtins.list[VpcLatticeConfiguration] | None" = Field(
         default_factory=list
     )
@@ -10174,6 +10245,7 @@ class ServiceRevision(ReadonlyPrimaryBoto3Model):
     The resolved configuration for the service revision which contains the actual
     resources your service revision uses, such as which target groups serve traffic.
     """
+
     ecsManagedResources: "ECSManagedResources | None" = None
     """
     The resources created and managed by Amazon ECS when you create an Express service
@@ -10259,7 +10331,6 @@ class ServiceRevision(ReadonlyPrimaryBoto3Model):
         except AttributeError:
             return None
         return Service.objects.using(self.session).get(**pk)  # type: ignore[arg-type]
-
     @cached_property
     def cluster(self) -> "Cluster | None":
         """
@@ -10281,6 +10352,7 @@ class ServiceRevision(ReadonlyPrimaryBoto3Model):
         except AttributeError:
             return None
         return Cluster.objects.using(self.session).get(**pk)  # type: ignore[arg-type]
+
     @cached_property
     def task_definition(self) -> "TaskDefinition | None":
         """
@@ -10319,7 +10391,6 @@ class ServiceRevisionSummary(Boto3Model):
     """
     The number of requested tasks for the service revision.
     """
-
     runningTaskCount: "int | None" = None
     """
     The number of running tasks for the service revision.
@@ -10375,7 +10446,6 @@ class DeploymentLifecycleHookDetail(Boto3Model):
     For ``AWS_LAMBDA`` hooks, this is the Lambda function ARN. For ``PAUSE`` hooks, this
     field is not set.
     """
-
     status: "Literal['AWAITING_ACTION', 'IN_PROGRESS', 'SUCCEEDED', 'FAILED', 'TIMED_OUT'] | None" = None
     """
     The status of the lifecycle hook.
@@ -10480,7 +10550,6 @@ class ServiceDeploymentAlarms(Boto3Model):
 
     A "," separates the alarms.
     """
-
     triggeredAlarmNames: "builtins.list[str] | None" = Field(default_factory=list)
     """
     One or more CloudWatch alarm names that have been triggered during the service
@@ -10575,21 +10644,18 @@ class ServiceDeployment(ReadonlyPrimaryBoto3Model):
 
     For example, the circuit breaker detected a failure.
     """
-
     lifecycleStage: "Literal['RECONCILE_SERVICE', 'PRE_SCALE_UP', 'SCALE_UP', 'POST_SCALE_UP', 'TEST_TRAFFIC_SHIFT', 'POST_TEST_TRAFFIC_SHIFT', 'PRODUCTION_TRAFFIC_SHIFT', 'POST_PRODUCTION_TRAFFIC_SHIFT', 'BAKE_TIME', 'CLEAN_UP'] | None" = None
     """
     The current lifecycle stage of the deployment.
 
     Possible values include:
     """
-
     lifecycleHookDetails: "builtins.list[DeploymentLifecycleHookDetail] | None" = Field(
         default_factory=list
     )
     """
     The details of the lifecycle hooks for the current service deployment.
     """
-
     deploymentConfiguration: "DeploymentConfiguration | None" = None
     """
     Optional deployment parameters that control how many tasks run during a deployment
@@ -10610,7 +10676,6 @@ class ServiceDeployment(ReadonlyPrimaryBoto3Model):
     """
     The CloudWatch alarms that determine when a service deployment fails.
     """
-
     @property
     def pk(self) -> str | None:
         """
@@ -10709,6 +10774,7 @@ class ServiceDeployment(ReadonlyPrimaryBoto3Model):
         except AttributeError:
             return None
         return ServiceRevision.objects.using(self.session).get(**pk)  # type: ignore[arg-type]
+
     @cached_property
     def source_service_revisions(self) -> "list[ServiceRevision] | None":
         """
@@ -10783,6 +10849,7 @@ class DaemonCapacityProvider(Boto3Model):
     for your other tasks even if the daemon task can't start or stops. These instances
     aren't included in ``runningCount``.
     """
+
 class DaemonRevisionDetail(Boto3Model):
     """
     Details about a daemon revision, including the running task counts per capacity
@@ -10818,9 +10885,9 @@ class Daemon(TagsDictMixin, PrimaryBoto3Model):
     """
     The detailed information about a daemon.
     """
-
     tag_class: ClassVar[ModelType[Boto3Model]] = ECSTag | None
     manager_class: ClassVar[ModelType[Boto3ModelManager]] = DaemonManager
+
     daemonArn: "str | None" = None
     """
     The Amazon Resource Name (ARN) of the daemon.
@@ -10858,7 +10925,6 @@ class Daemon(TagsDictMixin, PrimaryBoto3Model):
     """
     The Unix timestamp for the time when the daemon was last updated.
     """
-
     daemonName: str | None = None
     """
     The name to assign to the daemon when creating it.
@@ -10880,6 +10946,7 @@ class Daemon(TagsDictMixin, PrimaryBoto3Model):
     """
     The deployment configuration to apply when creating or updating this daemon.
     """
+
     propagateTags: str | None = None
     """
     Controls how tags are propagated to daemon tasks.
@@ -10894,12 +10961,10 @@ class Daemon(TagsDictMixin, PrimaryBoto3Model):
     """
     Whether ECS Exec is enabled for daemon tasks.
     """
-
     Tags: builtins.list[ECSTag] | None = Field(default_factory=list)
     """
     The tags associated with this daemon.
     """
-
     @property
     def pk(self) -> str | None:
         """
@@ -10911,6 +10976,7 @@ class Daemon(TagsDictMixin, PrimaryBoto3Model):
             The primary key of the model instance.
         """
         return self.daemonArn
+
     @property
     def arn(self) -> str | None:
         """
@@ -10931,6 +10997,7 @@ class Daemon(TagsDictMixin, PrimaryBoto3Model):
         :py:attr:`daemonArn` attribute.
         """
         return hash(self.daemonArn)
+
     @cached_property
     def cluster(self) -> "Cluster | None":
         """
@@ -10952,7 +11019,6 @@ class Daemon(TagsDictMixin, PrimaryBoto3Model):
         except AttributeError:
             return None
         return Cluster.objects.using(self.session).get(**pk)  # type: ignore[arg-type]
-
     @cached_property
     def current_revisions(self) -> "list[DaemonRevision] | None":
         """
@@ -11001,7 +11067,6 @@ class DaemonLinuxParameters(Boto3Model):
     Run an ``init`` process inside the container that forwards signals and reaps
     processes.
     """
-
     tmpfs: "builtins.list[Tmpfs] | None" = Field(default_factory=list)
     """
     The container path, mount options, and size (in MiB) of the tmpfs mount.
@@ -11181,7 +11246,6 @@ class DaemonContainerDefinition(Boto3Model):
     """
     When this parameter is ``true``, a TTY is allocated.
     """
-
     restartPolicy: "ContainerRestartPolicy | None" = None
     """
     The restart policy for the container.
@@ -11189,7 +11253,6 @@ class DaemonContainerDefinition(Boto3Model):
     When you set up a restart policy, Amazon ECS can restart the container without
     needing to replace the task.
     """
-
 class HostVolumeProperties(Boto3Model):
     """
     Details on a container instance bind mount host volume.
@@ -11208,10 +11271,43 @@ class HostVolumeProperties(Boto3Model):
     the source path folder are exported.
     """
 
+class LogDriverVolumeConfiguration(Boto3Model):
+    """
+    The configuration for a log driver volume in a daemon task definition.
+
+    The volume contains the log files for each container on the container instance that
+    uses the specified log driver in its ``logConfiguration``. Containers that use a
+    different log driver don't write log files to the volume.
+
+    For the ``json-file`` log driver, the volume has one directory for each container,
+    named with the container ID. Each directory contains the container's log file,
+    ``<container-id>-json.log``, and any rotated log files. After a container stops and
+    Amazon ECS removes it, Amazon ECS deletes the container's directory. Read the log
+    files before the container is removed.
+    """
+
+    driver: Literal[
+        "json-file",
+        "syslog",
+        "journald",
+        "gelf",
+        "fluentd",
+        "awslogs",
+        "splunk",
+        "awsfirelens",
+    ]
+    """
+    The log driver whose log files the volume contains.
+
+    The only supported value is ``json-file``.
+    """
+
+
 class DaemonVolume(Boto3Model):
     """
     A data volume definition for a daemon task.
     """
+
     name: "str | None" = None
     """
     The name of the volume.
@@ -11224,6 +11320,16 @@ class DaemonVolume(Boto3Model):
     """
     The contents of the ``host`` parameter determine whether your bind mount host volume
     persists on the host container instance and where it's stored.
+    """
+
+    logDriverVolumeConfiguration: "LogDriverVolumeConfiguration | None" = None
+    """
+    The log driver volume configuration.
+
+    With a log driver volume, the containers in a daemon task can read the log files
+    that a log driver writes for the other tasks on the container instance. To read the
+    log files, mount the volume into a container in the daemon task with
+    ``mountPoints``.
     """
 
 class DaemonTaskDefinition(TagsDictMixin, PrimaryBoto3Model):
@@ -11332,11 +11438,11 @@ class DaemonTaskDefinition(TagsDictMixin, PrimaryBoto3Model):
 
     The valid values are ``none`` and ``shared``. The default is ``none``.
     """
-
     Tags: builtins.list[ECSTag] | None = Field(default_factory=list)
     """
     The tags associated with this daemon task definition.
     """
+
     @property
     def pk(self) -> str | None:
         """
@@ -11348,6 +11454,7 @@ class DaemonTaskDefinition(TagsDictMixin, PrimaryBoto3Model):
             The primary key of the model instance.
         """
         return self.daemonTaskDefinitionArn
+
     @property
     def arn(self) -> str | None:
         """
@@ -11384,6 +11491,7 @@ class DaemonContainerImage(Boto3Model):
     """
     The container image digest.
     """
+
     image: "str | None" = None
     """
     The container image.
@@ -11396,7 +11504,6 @@ class DaemonRevision(ReadonlyPrimaryBoto3Model):
     A daemon revision is a snapshot of the daemon's configuration at the time a
     deployment was initiated.
     """
-
     manager_class: ClassVar[ModelType[Boto3ModelManager]] = DaemonRevisionManager
 
     daemonRevisionArn: "str | None" = None
@@ -11513,7 +11620,6 @@ class DaemonRevision(ReadonlyPrimaryBoto3Model):
         except AttributeError:
             return None
         return Daemon.objects.using(self.session).get(**pk)  # type: ignore[arg-type]
-
     @cached_property
     def cluster(self) -> "Cluster | None":
         """
@@ -11559,19 +11665,24 @@ class DaemonRevision(ReadonlyPrimaryBoto3Model):
             return None
         return DaemonTaskDefinition.objects.using(self.session).get(**pk)  # type: ignore[arg-type]
 
+
 class DaemonDeployment(ReadonlyPrimaryBoto3Model):
     """
     A summary of a daemon deployment.
     """
+
     manager_class: ClassVar[ModelType[Boto3ModelManager]] = DaemonDeploymentManager
+
     daemonDeploymentArn: "str | None" = None
     """
     The Amazon Resource Name (ARN) of the daemon deployment.
     """
+
     daemonArn: "str | None" = None
     """
     The Amazon Resource Name (ARN) of the daemon.
     """
+
     clusterArn: "str | None" = None
     """
     The Amazon Resource Name (ARN) of the cluster that hosts the daemon.
@@ -11591,7 +11702,6 @@ class DaemonDeployment(ReadonlyPrimaryBoto3Model):
     """
     The ARN of the daemon revision being deployed.
     """
-
     createdAt: "datetime | None" = None
     """
     The time the daemon deployment was created.
@@ -11611,7 +11721,6 @@ class DaemonDeployment(ReadonlyPrimaryBoto3Model):
     """
     The time the daemon deployment finished.
     """
-
     @property
     def pk(self) -> str | None:
         """
@@ -11623,7 +11732,6 @@ class DaemonDeployment(ReadonlyPrimaryBoto3Model):
             The primary key of the model instance.
         """
         return self.daemonDeploymentArn
-
     @property
     def arn(self) -> str | None:
         """
@@ -11722,10 +11830,12 @@ class ExpressGatewayServiceStatus(Boto3Model):
     """
     The status of the Express service.
     """
+
     statusReason: "str | None" = None
     """
     Information about why the Express service is in the current status.
     """
+
 class ExpressGatewayServiceNetworkConfiguration(Boto3Model):
     """
     The network configuration for an Express service.
@@ -11738,11 +11848,11 @@ class ExpressGatewayServiceNetworkConfiguration(Boto3Model):
     """
     The IDs of the security groups associated with the Express service.
     """
-
     subnets: "builtins.list[str] | None" = Field(default_factory=list)
     """
     The IDs of the subnets associated with the Express service.
     """
+
 class ExpressGatewayServiceAwsLogsConfiguration(Boto3Model):
     """
     Specifies the Amazon CloudWatch Logs configuration for the Express service
@@ -11767,6 +11877,7 @@ class ExpressGatewayRepositoryCredentials(Boto3Model):
     The repository credentials for private registry authentication to pass to the
     container.
     """
+
     credentialsParameter: "str | None" = None
     """
     The Amazon Resource Name (ARN) of the secret containing the private repository
@@ -11915,6 +12026,7 @@ class ExpressGatewayServiceConfiguration(Boto3Model):
     """
     The CPU allocation for tasks in this service revision.
     """
+
     memory: "str | None" = None
     """
     The memory allocation for tasks in this service revision.
@@ -11998,7 +12110,6 @@ class ExpressGatewayService(TagsDictMixin, PrimaryBoto3Model):
     The ARN of the infrastructure role that manages Amazon Web Services resources for
     the Express service.
     """
-
     status: ExpressGatewayServiceStatus = Field(default=None, frozen=True)
     """
     The current status of the Express service.
@@ -12020,6 +12131,7 @@ class ExpressGatewayService(TagsDictMixin, PrimaryBoto3Model):
     """
     The Unix timestamp for when the Express service was created.
     """
+
     updatedAt: datetime = Field(default=None, frozen=True)
     """
     The Unix timestamp for when the Express service was last updated.
@@ -12029,6 +12141,7 @@ class ExpressGatewayService(TagsDictMixin, PrimaryBoto3Model):
     """
     The execution role ARN to use for this Express gateway service.
     """
+
     taskRoleArn: str | None = None
     """
     The task role ARN to use for this Express gateway service.
@@ -12043,11 +12156,11 @@ class ExpressGatewayService(TagsDictMixin, PrimaryBoto3Model):
     """
     The primary container configuration for this Express gateway service.
     """
+
     networkConfiguration: ExpressGatewayServiceNetworkConfiguration | None = None
     """
     The network configuration for this Express gateway service.
     """
-
     cpu: str | None = None
     """
     The CPU units for this Express gateway service.
@@ -12062,6 +12175,7 @@ class ExpressGatewayService(TagsDictMixin, PrimaryBoto3Model):
     """
     The autoscaling target configuration for this Express gateway service.
     """
+
     @property
     def pk(self) -> str | None:
         """
@@ -12073,7 +12187,6 @@ class ExpressGatewayService(TagsDictMixin, PrimaryBoto3Model):
             The primary key of the model instance.
         """
         return self.serviceArn
-
     @property
     def arn(self) -> str | None:
         """
@@ -12097,7 +12210,6 @@ class ExpressGatewayService(TagsDictMixin, PrimaryBoto3Model):
             The name of the model instance.
         """
         return self.serviceName
-
     def __hash__(self) -> int:
         """
         Return the hash of the model.
@@ -12106,6 +12218,7 @@ class ExpressGatewayService(TagsDictMixin, PrimaryBoto3Model):
         :py:attr:`serviceArn` attribute.
         """
         return hash(self.serviceArn)
+
     @cached_property
     def cluster(self) -> "Cluster | None":
         """
@@ -12152,7 +12265,6 @@ class ExpressGatewayService(TagsDictMixin, PrimaryBoto3Model):
         except AttributeError:
             return None
         return Service.objects.using(self.session).get(**pk)  # type: ignore[arg-type]
-
     @cached_property
     def active_service_revisions(self) -> "list[ServiceRevision] | None":
         """
@@ -12179,7 +12291,7 @@ class ExpressGatewayService(TagsDictMixin, PrimaryBoto3Model):
         except AttributeError:
             return []
         return ServiceRevision.objects.using(self.session).list(**pk)  # type: ignore[arg-type]
-                         
+# =======================
 # Request/Response Models
 # =======================
 
@@ -12192,7 +12304,6 @@ class CreateManagedInstancesProviderConfiguration(Boto3Model):
     infrastructure role, instance launch template, and whether to propagate tags from
     the capacity provider to the instances.
     """
-
     infrastructureRoleArn: str
     """
     The Amazon Resource Name (ARN) of the infrastructure role that Amazon ECS uses to
@@ -12259,11 +12370,11 @@ class Failure(Boto3Model):
     """
     The Amazon Resource Name (ARN) of the failed resource.
     """
+
     reason: "str | None" = None
     """
     The reason for the failure.
     """
-
     detail: "str | None" = None
     """
     The details of the failure.
@@ -12301,6 +12412,7 @@ class AutoScalingGroupProviderUpdate(Boto3Model):
     """
     The managed scaling settings for the Auto Scaling group capacity provider.
     """
+
     managedTerminationProtection: "Literal['ENABLED', 'DISABLED'] | None" = None
     """
     The managed termination protection setting to use for the Auto Scaling group
@@ -12308,6 +12420,7 @@ class AutoScalingGroupProviderUpdate(Boto3Model):
 
     This determines whether the Auto Scaling group has managed termination protection.
     """
+
     managedDraining: "Literal['ENABLED', 'DISABLED'] | None" = None
     """
     The managed draining option for the Auto Scaling group capacity provider.
@@ -12343,7 +12456,6 @@ class InstanceLaunchTemplateUpdate(Boto3Model):
     Changes to subnets and security groups affect new instances launched after the
     update.
     """
-
     storageConfiguration: "ManagedInstancesStorageConfiguration | None" = None
     """
     The updated storage configuration for Amazon ECS Managed Instances.
@@ -12440,6 +12552,7 @@ class UpdateManagedInstancesProviderConfiguration(Boto3Model):
     The updated auto repair configuration for the Amazon ECS Managed Instances capacity
     provider.
     """
+
 class UpdateCapacityProviderResponse(Boto3Model):
     capacityProvider: "CapacityProvider | None" = None
     """
@@ -12457,7 +12570,6 @@ class CreateServiceResponse(Boto3Model):
     """
     The full description of your service following the create call.
     """
-
 class DeleteServiceResponse(Boto3Model):
     service: "Service | None" = None
     """
@@ -12469,6 +12581,7 @@ class DescribeServicesResponse(Boto3Model):
     """
     The list of services described.
     """
+
     failures: "builtins.list[Failure] | None" = Field(default_factory=list)
     """
     Any failures associated with the call.
@@ -12495,7 +12608,6 @@ class UpdateServiceResponse(Boto3Model):
     """
     The full description of your service following the update call.
     """
-
 class ClusterServiceConnectDefaultsRequest(Boto3Model):
     """
     Use this parameter to set a default Service Connect namespace.
@@ -12515,6 +12627,7 @@ class ClusterServiceConnectDefaultsRequest(Boto3Model):
     `Service Connect <https://docs.aws.amazon.com/AmazonECS/latest/developerguide/service-
     connect.html>`_ in the *Amazon Elastic Container Service Developer Guide*.
     """
+
     namespace: str
     """
     The namespace name or full Amazon Resource Name (ARN) of the Cloud Map namespace
@@ -12525,6 +12638,8 @@ class ClusterServiceConnectDefaultsRequest(Boto3Model):
     The name can't include greater than (>), less than (<), double quotation marks ("),
     or slash (/).
     """
+
+
 class CreateClusterResponse(Boto3Model):
     cluster: "Cluster | None" = None
     """
@@ -12569,7 +12684,6 @@ class UpdateClusterResponse(Boto3Model):
     """
     Details about the cluster.
     """
-
 class RegisterTaskDefinitionResponse(TagsDictMixin, Boto3Model):
     tag_class: ClassVar[ModelType[Boto3Model]] = ECSTag
     Tags: "builtins.list[ECSTag]" = Field(default_factory=list, alias="tags")
@@ -12616,6 +12730,7 @@ class ListTaskDefinitionsResponse(Boto3Model):
     The list of task definition Amazon Resource Name (ARN) entries for the
     ``ListTaskDefinitions`` request.
     """
+
     nextToken: "str | None" = None
     """
     The ``nextToken`` value to include in a future ``ListTaskDefinitions`` request.
@@ -12624,6 +12739,7 @@ class ListTaskDefinitionsResponse(Boto3Model):
     value can be used to retrieve the next page of results. This value is ``null`` when
     there are no more results to return.
     """
+
 class DeregisterTaskDefinitionResponse(Boto3Model):
     taskDefinition: "TaskDefinition | None" = None
     """
@@ -12659,7 +12775,6 @@ class DescribeContainerInstancesResponse(Boto3Model):
     """
     Any failures associated with the call.
     """
-
 class ListContainerInstancesResponse(Boto3Model):
     containerInstanceArns: "builtins.list[str] | None" = Field(default_factory=list)
     """
@@ -12719,6 +12834,7 @@ class TaskManagedEBSVolumeTerminationPolicy(Boto3Model):
     the default value is ``true`` is used. When set to ``false``, Amazon ECS leaves the
     volume in your account.
     """
+
 
 class TaskManagedEBSVolumeConfiguration(Boto3Model):
     """

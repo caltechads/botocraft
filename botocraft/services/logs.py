@@ -133,7 +133,7 @@ class LogGroupManager(LogGroupManagerMixin, Boto3ModelManager):
         logGroupNamePattern: "str | None" = None,
         limit: "int | None" = None,
         includeLinkedAccounts: "bool | None" = None,
-        logGroupClass: "Literal['STANDARD', 'INFREQUENT_ACCESS', 'DELIVERY'] | None" = None,
+        logGroupClass: "Literal['STANDARD', 'INFREQUENT_ACCESS', 'DELIVERY', 'ESSENTIALS'] | None" = None,
         logGroupIdentifiers: "builtins.list[str] | None" = None,
     ) -> PrimaryBoto3ModelQuerySet["LogGroup"]:
         """
@@ -552,11 +552,11 @@ class LogGroup(TagsDictMixin, PrimaryBoto3Model):
     settings.
     """
 
-    logGroupClass: "Literal['STANDARD', 'INFREQUENT_ACCESS', 'DELIVERY'] | None" = None
+    logGroupClass: "Literal['STANDARD', 'INFREQUENT_ACCESS', 'DELIVERY', 'ESSENTIALS'] | None" = None
     """
     This specifies the log group class for this log group.
 
-    There are three classes:
+    There are four classes:
     """
 
     logGroupArn: str = Field(default=None, frozen=True)

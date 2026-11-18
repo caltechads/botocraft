@@ -1020,6 +1020,10 @@ class FilterCriteria(Boto3Model):
     resourceType: "builtins.list[StringFilter] | None" = Field(default_factory=list)
     """
     Details on the resource types used to filter findings.
+
+    For Google Cloud Platform (GCP) resources, the resource type is
+    ``compute.googleapis.com/Instance``, ``cloudfunctions.googleapis.com/Function``, or
+    ``artifactregistry.googleapis.com/DockerImage``.
     """
 
     resourceId: "builtins.list[StringFilter] | None" = Field(default_factory=list)
@@ -2029,11 +2033,11 @@ class ResourceDetails(Boto3Model):
     A summary of the information about an Amazon Web Services Lambda function affected
     by a finding.
     """
+
     codeRepository: "CodeRepositoryDetails | None" = None
     """
     Contains details about a code repository resource associated with a finding.
     """
-
     machineImage: "MachineImageDetails | None" = None
     """
     Details about a machine image resource scanned directly by Inspector.
@@ -2074,6 +2078,9 @@ class Inspector2Resource(Boto3Model):
         "Microsoft.ContainerRegistry/registry/containerImage",
         "Microsoft.Web/sites",
         "MACHINE_IMAGE",
+        "cloudfunctions.googleapis.com/Function",
+        "compute.googleapis.com/Instance",
+        "artifactregistry.googleapis.com/DockerImage",
     ]
     """
     The type of resource.
@@ -2098,18 +2105,24 @@ class Inspector2Resource(Boto3Model):
     An object that contains details about the resource involved in a finding.
     """
 
-    provider: "Literal['AWS', 'AZURE'] | None" = None
+    provider: "Literal['AWS', 'AZURE', 'GCP'] | None" = None
     """
     The cloud provider of the resource.
+
+    Valid values:
     """
 
     providerAccountId: "str | None" = None
     """
     The cloud provider account ID of the resource.
+
+    The value format depends on the cloud provider:
     """
     providerOrgId: "str | None" = None
     """
     The cloud provider organization ID of the resource.
+
+    The value format depends on the cloud provider:
     """
 
 class CvssScoreAdjustment(Boto3Model):
@@ -3283,9 +3296,13 @@ class AccountAggregation(Boto3Model):
     The type of finding.
     """
 
-    resourceType: "Literal['AWS_EC2_INSTANCE', 'AWS_ECR_CONTAINER_IMAGE', 'AWS_LAMBDA_FUNCTION', 'CODE_REPOSITORY', 'Microsoft.Compute/virtualMachines', 'Microsoft.ContainerRegistry/registry/containerImage', 'Microsoft.Web/sites'] | None" = None
+    resourceType: "Literal['AWS_EC2_INSTANCE', 'AWS_ECR_CONTAINER_IMAGE', 'AWS_LAMBDA_FUNCTION', 'CODE_REPOSITORY', 'Microsoft.Compute/virtualMachines', 'Microsoft.ContainerRegistry/registry/containerImage', 'Microsoft.Web/sites', 'cloudfunctions.googleapis.com/Function', 'compute.googleapis.com/Instance', 'artifactregistry.googleapis.com/DockerImage'] | None" = None
     """
     The type of resource.
+
+    For Google Cloud Platform (GCP) resources, the resource type is
+    ``compute.googleapis.com/Instance``, ``cloudfunctions.googleapis.com/Function``, or
+    ``artifactregistry.googleapis.com/DockerImage``.
     """
 
     sortOrder: "Literal['ASC', 'DESC'] | None" = None
@@ -3418,9 +3435,13 @@ class FindingTypeAggregation(Boto3Model):
     The finding type to aggregate.
     """
 
-    resourceType: "Literal['AWS_EC2_INSTANCE', 'AWS_ECR_CONTAINER_IMAGE', 'AWS_LAMBDA_FUNCTION', 'CODE_REPOSITORY', 'Microsoft.Compute/virtualMachines', 'Microsoft.ContainerRegistry/registry/containerImage', 'Microsoft.Web/sites'] | None" = None
+    resourceType: "Literal['AWS_EC2_INSTANCE', 'AWS_ECR_CONTAINER_IMAGE', 'AWS_LAMBDA_FUNCTION', 'CODE_REPOSITORY', 'Microsoft.Compute/virtualMachines', 'Microsoft.ContainerRegistry/registry/containerImage', 'Microsoft.Web/sites', 'cloudfunctions.googleapis.com/Function', 'compute.googleapis.com/Instance', 'artifactregistry.googleapis.com/DockerImage'] | None" = None
     """
     The resource type to aggregate.
+
+    For Google Cloud Platform (GCP) resources, the resource type is
+    ``compute.googleapis.com/Instance``, ``cloudfunctions.googleapis.com/Function``, or
+    ``artifactregistry.googleapis.com/DockerImage``.
     """
 
     sortOrder: "Literal['ASC', 'DESC'] | None" = None
@@ -3547,9 +3568,13 @@ class TitleAggregation(Boto3Model):
     The vulnerability IDs of the findings.
     """
 
-    resourceType: "Literal['AWS_EC2_INSTANCE', 'AWS_ECR_CONTAINER_IMAGE', 'AWS_LAMBDA_FUNCTION', 'CODE_REPOSITORY', 'Microsoft.Compute/virtualMachines', 'Microsoft.ContainerRegistry/registry/containerImage', 'Microsoft.Web/sites'] | None" = None
+    resourceType: "Literal['AWS_EC2_INSTANCE', 'AWS_ECR_CONTAINER_IMAGE', 'AWS_LAMBDA_FUNCTION', 'CODE_REPOSITORY', 'Microsoft.Compute/virtualMachines', 'Microsoft.ContainerRegistry/registry/containerImage', 'Microsoft.Web/sites', 'cloudfunctions.googleapis.com/Function', 'compute.googleapis.com/Instance', 'artifactregistry.googleapis.com/DockerImage'] | None" = None
     """
     The resource type to aggregate on.
+
+    For Google Cloud Platform (GCP) resources, the resource type is
+    ``compute.googleapis.com/Instance``, ``cloudfunctions.googleapis.com/Function``, or
+    ``artifactregistry.googleapis.com/DockerImage``.
     """
 
     findingType: "Literal['NETWORK_REACHABILITY', 'PACKAGE_VULNERABILITY', 'CODE_VULNERABILITY'] | None" = None
@@ -4055,7 +4080,7 @@ class AmiAggregationResponse(Boto3Model):
     The Amazon Web Services account ID for the AMI.
     """
 
-    cloudProvider: "Literal['AWS', 'AZURE'] | None" = None
+    cloudProvider: "Literal['AWS', 'AZURE', 'GCP'] | None" = None
     """
     The cloud service provider associated with this Amazon Machine Image (AMI)
     aggregation.
@@ -4342,7 +4367,7 @@ class RepositoryAggregationResponse(Boto3Model):
     """
     The ID of the Amazon Web Services account associated with the findings.
     """
-    cloudProvider: "Literal['AWS', 'AZURE'] | None" = None
+    cloudProvider: "Literal['AWS', 'AZURE', 'GCP'] | None" = None
     """
     The cloud service provider associated with this repository aggregation.
 
@@ -4528,7 +4553,7 @@ class VmInstanceAggregationResponse(Boto3Model):
     The resource ID for the VM instance.
     """
 
-    cloudProvider: "Literal['AWS', 'AZURE'] | None" = None
+    cloudProvider: "Literal['AWS', 'AZURE', 'GCP'] | None" = None
     """
     The cloud service provider associated with this VM instance aggregation.
 
@@ -4602,7 +4627,7 @@ class ContainerImageAggregationResponse(Boto3Model):
     The resource ID for the container image.
     """
 
-    cloudProvider: "Literal['AWS', 'AZURE'] | None" = None
+    cloudProvider: "Literal['AWS', 'AZURE', 'GCP'] | None" = None
     """
     The cloud service provider associated with this container image aggregation.
 
@@ -4701,7 +4726,7 @@ class ServerlessFunctionAggregationResponse(Boto3Model):
     The resource ID for the serverless function.
     """
 
-    cloudProvider: "Literal['AWS', 'AZURE'] | None" = None
+    cloudProvider: "Literal['AWS', 'AZURE', 'GCP'] | None" = None
     """
     The cloud service provider associated with this serverless function aggregation.
 

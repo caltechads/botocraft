@@ -126,8 +126,8 @@ class KinesisStreamManager(KinesisStreamManagerMixin, Boto3ModelManager):
         Keyword Args:
             EnforceConsumerDeletion: If this parameter is unset (``null``) or if you set
                 it to ``false``, and the stream has
-                registered consumers, the call to ``DeleteStream`` fails with a
-                ``ResourceInUseException``.
+                registered enhanced fan-out consumers, the call to ``DeleteStream``
+                fails with a ``ResourceInUseException``.
             StreamARN: The ARN of the stream.
             StreamId: Not Implemented. Reserved for future use.
         """
@@ -612,6 +612,10 @@ class KinesisStream(TagsDictMixin, KinesisStreamModelMixin, PrimaryBoto3Model):
     ConsumerCount: int = Field(default=None, frozen=True)
     """
     The number of enhanced fan-out consumers registered with the stream.
+
+    Queues are not included in this count, even though they share the stream's
+    registered consumer limit with enhanced fan-out consumers. ``QueueCount`` reports
+    the number of queues.
     """
     WarmThroughput: KinesisWarmThroughput = Field(default=None, frozen=True)
     """
@@ -640,6 +644,11 @@ class KinesisStream(TagsDictMixin, KinesisStreamModelMixin, PrimaryBoto3Model):
     across shards using service-managed algorithms. A value of ``USER_PARTITION_KEY``
     indicates that shard placement is determined by the partition key that producers
     supply. This field is only present for streams that use the on-demand capacity mode.
+    """
+
+    QueueCount: int = Field(default=None, frozen=True)
+    """
+    The number of queues created on the data stream.
     """
 
     @property
@@ -773,7 +782,6 @@ class KinesisStream(TagsDictMixin, KinesisStreamModelMixin, PrimaryBoto3Model):
                 WarmThroughputMiBps, StreamARN=cast("str", self.StreamARN)
             )
         )
-
     def update_max_record_size(self, MaxRecordSizeInKiB: int) -> "None":
         """
         Update the maximum record size for this stream.
@@ -792,6 +800,7 @@ class KinesisStream(TagsDictMixin, KinesisStreamModelMixin, PrimaryBoto3Model):
                 MaxRecordSizeInKiB, StreamARN=cast("str", self.StreamARN)
             )
         )
+
 class KinesisConsumer(TagsDictMixin, PrimaryBoto3Model):
     """
     An object that represents the details of the consumer you registered.
@@ -878,6 +887,7 @@ class KinesisConsumer(TagsDictMixin, PrimaryBoto3Model):
         :py:attr:`ConsumerARN` attribute.
         """
         return hash(self.ConsumerARN)
+
 class HashKeyRange(Boto3Model):
     """
     The range of possible hash key values for the shard, which is a set of ordered
@@ -904,6 +914,7 @@ class SequenceNumberRange(Boto3Model):
     """
     The starting sequence number for the range.
     """
+
     EndingSequenceNumber: "str | None" = None
     """
     The ending sequence number for the range.
@@ -917,7 +928,6 @@ class KinesisShard(ReadonlyPrimaryBoto3Model):
     """
 
     manager_class: ClassVar[ModelType[Boto3ModelManager]] = KinesisShardManager
-
     ShardId: str
     """
     The unique identifier of the shard within the stream.
@@ -937,7 +947,6 @@ class KinesisShard(ReadonlyPrimaryBoto3Model):
     The range of possible hash key values for the shard, which is a set of ordered
     contiguous positive integers.
     """
-
     SequenceNumberRange: "SequenceNumberRange"
     """
     The range of possible sequence numbers for the shard.
@@ -1004,8 +1013,6 @@ class KinesisShard(ReadonlyPrimaryBoto3Model):
                 Timestamp=Timestamp,
             )
         )
-
-
 class KinesisRecord(Boto3Model):
     """
     The unit of data of the Kinesis data stream, which is composed of a sequence number,
@@ -1036,6 +1043,7 @@ class KinesisRecord(Boto3Model):
     """
     Identifies which shard in the stream the data record is assigned to.
     """
+
     EncryptionType: "Literal['NONE', 'KMS'] | None" = None
     """
     The encryption type used on the record.
@@ -1070,6 +1078,7 @@ class StreamDescriptionSummary(Boto3Model):
     """
     The Amazon Resource Name (ARN) for the stream being described.
     """
+
     StreamId: "str | None" = None
     """
     Not Implemented.
@@ -1087,9 +1096,10 @@ class StreamDescriptionSummary(Boto3Model):
     """
     Specifies the capacity mode to which you want to set your data stream.
 
-    Currently, in Kinesis Data Streams, you can choose between an **on-demand**
-    ycapacity mode and a **provisioned** capacity mode for your data streams.
+    Currently, in Kinesis Data Streams, you can choose between an **on-demand** capacity
+    mode and a **provisioned** capacity mode for your data streams.
     """
+
     RetentionPeriodHours: int
     """
     The current retention period, in hours.
@@ -1099,6 +1109,7 @@ class StreamDescriptionSummary(Boto3Model):
     """
     The approximate time that the stream was created.
     """
+
     EnhancedMonitoring: "builtins.list[KinesisEnhancedMetrics]"
     """
     Represents the current enhanced monitoring settings of the stream.
@@ -1109,6 +1120,7 @@ class StreamDescriptionSummary(Boto3Model):
 
     This value is one of the following:
     """
+
     KeyId: "str | None" = None
     """
     The GUID for the customer-managed Amazon Web Services KMS key to use for encryption.
@@ -1122,9 +1134,14 @@ class StreamDescriptionSummary(Boto3Model):
     """
     The number of open shards in the stream.
     """
+
     ConsumerCount: "int | None" = None
     """
     The number of enhanced fan-out consumers registered with the stream.
+
+    Queues are not included in this count, even though they share the stream's
+    registered consumer limit with enhanced fan-out consumers. ``QueueCount`` reports
+    the number of queues.
     """
 
     WarmThroughput: "KinesisWarmThroughput | None" = None
@@ -1155,13 +1172,16 @@ class StreamDescriptionSummary(Boto3Model):
     supply. This field is only present for streams that use the on-demand capacity mode.
     """
 
+    QueueCount: "int | None" = None
+    """
+    The number of queues created on the data stream.
+    """
+
 class DescribeStreamSummaryOutput(Boto3Model):
     StreamDescriptionSummary: "StreamDescriptionSummary"
     """
     A StreamDescriptionSummary containing information about the stream.
     """
-
-
 class ListStreamsOutput(Boto3Model):
     """
     Represents the output for ``ListStreams``.
@@ -1172,17 +1192,14 @@ class ListStreamsOutput(Boto3Model):
     The names of the streams that are associated with the Amazon Web Services account
     making the ``ListStreams`` request.
     """
-
     HasMoreStreams: bool
     """
     If set to ``true``, there are more streams available to list.
     """
-
     NextToken: "str | None" = None
     """
     
     """
-
     StreamSummaries: "builtins.list[KinesisStream] | None" = Field(default_factory=list)
     """
     
@@ -1224,6 +1241,7 @@ class UpdateStreamWarmThroughputOutput(Boto3Model):
     """
     Specifies the updated warm throughput configuration for your data stream.
     """
+
 class ConsumerDescription(Boto3Model):
     """
     An object that represents the details of a registered consumer.
@@ -1247,12 +1265,10 @@ class ConsumerDescription(Boto3Model):
     """
     A consumer can't read data while in the ``CREATING`` or ``DELETING`` states.
     """
-
     ConsumerCreationTimestamp: datetime
     """
     
     """
-
     StreamARN: str
     """
     The ARN of the stream with which you registered the consumer.

@@ -456,6 +456,7 @@ class DataSyncLocationAzureBlobManager(Boto3ModelManager):
             ContainerUrl=data.get("ContainerUrl"),
             AuthenticationType=data.get("AuthenticationType"),
             SasConfiguration=data.get("SasConfiguration"),
+            FederatedIdentity=data.get("FederatedIdentity"),
             BlobType=data.get("BlobType"),
             AccessTier=data.get("AccessTier"),
             Subdirectory=data.get("Subdirectory"),
@@ -541,6 +542,7 @@ class DataSyncLocationAzureBlobManager(Boto3ModelManager):
             Subdirectory=data.get("Subdirectory"),
             AuthenticationType=data.get("AuthenticationType"),
             SasConfiguration=data.get("SasConfiguration"),
+            FederatedIdentity=data.get("FederatedIdentity"),
             BlobType=data.get("BlobType"),
             AccessTier=data.get("AccessTier"),
             AgentArns=data.get("AgentArns"),
@@ -1447,6 +1449,7 @@ class DataSyncLocationObjectStorageManager(Boto3ModelManager):
             Subdirectory=data.get("Subdirectory"),
             AccessKey=data.get("AccessKey"),
             SecretKey=data.get("SecretKey"),
+            FederatedIdentity=data.get("FederatedIdentity"),
             AgentArns=data.get("AgentArns"),
             Tags=data.get("Tags"),
             ServerCertificate=data.get("ServerCertificate"),
@@ -1533,6 +1536,7 @@ class DataSyncLocationObjectStorageManager(Boto3ModelManager):
             ServerHostname=data.get("ServerHostname"),
             AccessKey=data.get("AccessKey"),
             SecretKey=data.get("SecretKey"),
+            FederatedIdentity=data.get("FederatedIdentity"),
             AgentArns=data.get("AgentArns"),
             ServerCertificate=data.get("ServerCertificate"),
             CmkSecretConfig=data.get("CmkSecretConfig"),
@@ -3052,7 +3056,6 @@ report <https://docs.aws.amazon.com/datasync/latest/userguide/task-reports.html>
             The primary key of the model instance.
         """
         return self.TaskExecutionArn
-
     @property
     def arn(self) -> str | None:
         """
@@ -3064,7 +3067,6 @@ report <https://docs.aws.amazon.com/datasync/latest/userguide/task-reports.html>
             The ARN of the model instance.
         """
         return self.TaskExecutionArn
-
     def __hash__(self) -> int:
         """
         Return the hash of the model.
@@ -3074,6 +3076,43 @@ report <https://docs.aws.amazon.com/datasync/latest/userguide/task-reports.html>
         """
         return hash(self.TaskExecutionArn)
 
+class AzureOidcConfig(Boto3Model):
+    """
+    External identity parameters for Azure Blob Storage.
+    """
+
+    TenantId: str
+    """
+    Azure tenant ID string.
+    """
+    ClientId: str
+    """
+    Azure client ID string.
+    """
+class AzureFederatedIdentityConfig(Boto3Model):
+    """
+    Specifies federated identity parameters that allow DataSync to obtain an OpenID
+    Connect token for access to customer Azure Blob Storage. The token allows for
+    temporary, short-term access to the storage. DataSync automatically refreshes the
+    token to assure uninterrupted access to the storage.
+
+    Federated identity parameters are an alternative to the ``SasConfiguration``
+    credentials that are expected to be valid long-term (e.g. at least for the duration
+    of DataSync task execution). Do not specify federated identity and the SAS
+    configuration for the same Azure Blob location.
+    """
+
+    AwsIamRole: "str | None" = None
+    """
+    Specifies the ARN for an Amazon Web Services role that allows DataSync to invoke STS
+    GetWebIdentityToken API on behalf of the customer account and to obtain Amazon Web
+    Services STS JWT (web token).
+    """
+
+    AzureOidc: "AzureOidcConfig | None" = None
+    """
+    External identity parameters for Azure Blob Storage.
+    """
 
 class DataSyncManagedSecretConfig(Boto3Model):
     """
@@ -3130,7 +3169,6 @@ class DataSyncCustomSecretConfig(Boto3Model):
     credentials for a ``CreateLocation`` request. Do not provide both parameters for the
     same request.
     """
-
     SecretArn: "str | None" = None
     """
     Specifies the ARN for an Secrets Manager secret.
@@ -3158,11 +3196,18 @@ class DataSyncLocationAzureBlob(TagsDictMixin, PrimaryBoto3Model):
     The URL of the Azure Blob Storage container involved in your transfer.
     """
 
-    AuthenticationType: "Literal['SAS', 'NONE'] | None" = None
+    AuthenticationType: "Literal['SAS', 'NONE', 'OIDC'] | None" = None
     """
     The authentication method DataSync uses to access your Azure Blob Storage.
 
-    DataSync can access blob storage using a shared access signature (SAS).
+    DataSync can access blob storage using a shared access signature (SAS) or an OpenID
+    Connect (OIDC) token.
+    """
+
+    FederatedIdentity: "AzureFederatedIdentityConfig | None" = None
+    """
+    The federated identity configuration that DataSync uses to access your Azure Blob
+    Storage using an OpenID Connect (OIDC) token.
     """
 
     BlobType: "Literal['BLOCK'] | None" = None
@@ -3204,7 +3249,6 @@ class DataSyncLocationAzureBlob(TagsDictMixin, PrimaryBoto3Model):
     DataSync uses the default Amazon Web Services-managed KMS key to encrypt this secret
     in Secrets Manager.
     """
-
     CmkSecretConfig: "DataSyncCmkSecretConfig | None" = None
     """
     Describes configuration information for a DataSync-managed secret, such as an
@@ -3224,6 +3268,7 @@ class DataSyncLocationAzureBlob(TagsDictMixin, PrimaryBoto3Model):
     SasConfiguration: dict[str, Any] | None = Field(default_factory=dict)
     Subdirectory: str | None = None
     Tags: builtins.list[Tag] | None = Field(default_factory=list)
+
     @property
     def pk(self) -> str | None:
         """
@@ -3327,7 +3372,6 @@ targets <https://docs.aws.amazon.com/efs/latest/ug/accessing-fs.html>`_.
     EfsFilesystemArn: str | None = None
     Subdirectory: str | None = None
     Tags: builtins.list[Tag] | None = Field(default_factory=list)
-
     @property
     def pk(self) -> str | None:
         """
@@ -3392,7 +3436,6 @@ class DataSyncLocationFsxLustre(TagsDictMixin, PrimaryBoto3Model):
     FsxFilesystemArn: str | None = None
     Subdirectory: str | None = None
     Tags: builtins.list[Tag] | None = Field(default_factory=list)
-
     @property
     def pk(self) -> str | None:
         """
@@ -3424,8 +3467,6 @@ class DataSyncLocationFsxLustre(TagsDictMixin, PrimaryBoto3Model):
         :py:attr:`LocationArn` attribute.
         """
         return hash(self.LocationArn)
-
-
 class DataSyncNfsMountOptions(Boto3Model):
     """
     Specifies how DataSync can access a location using the NFS protocol.
@@ -3438,13 +3479,13 @@ class DataSyncNfsMountOptions(Boto3Model):
 
     If the server refuses to use the version specified, the task fails.
     """
-
 class FsxProtocolNfs(Boto3Model):
     """
     Specifies the Network File System (NFS) protocol configuration that DataSync uses to
     access your FSx for OpenZFS file system or FSx for ONTAP file system's storage
     virtual machine (SVM).
     """
+
     MountOptions: "DataSyncNfsMountOptions | None" = None
     """
     Specifies how DataSync can access a location using the NFS protocol.
@@ -3493,11 +3534,13 @@ class FsxProtocolSmb(Boto3Model):
     """
     Specifies the password of a user who has permission to access your SVM.
     """
+
     User: str
     """
     Specifies a user that can mount and access the files, folders, and metadata in your
     SVM.
     """
+
     ManagedSecretConfig: "DataSyncManagedSecretConfig | None" = None
     """
     Describes configuration information for a DataSync-managed secret, such as a
@@ -3513,6 +3556,7 @@ class FsxProtocolSmb(Boto3Model):
     the password that DataSync uses to access a specific FSx for ONTAP storage location
     (using SMB), with a customer-managed KMS key.
     """
+
     CustomSecretConfig: "DataSyncCustomSecretConfig | None" = None
     """
     Specifies configuration information for a customer-managed Secrets Manager secret
@@ -3529,6 +3573,7 @@ class DataSyncFsxProtocol(Boto3Model):
     Specifies the data transfer protocol that DataSync uses to access your Amazon FSx
     file system.
     """
+
     NFS: "FsxProtocolNfs | None" = None
     """
     Specifies the Network File System (NFS) protocol configuration that DataSync uses to
@@ -3599,7 +3644,6 @@ class DataSyncLocationFsxOntap(TagsDictMixin, PrimaryBoto3Model):
             The primary key of the model instance.
         """
         return self.LocationArn
-
     @property
     def arn(self) -> str | None:
         """
@@ -3632,11 +3676,13 @@ class DataSyncLocationFsxOpenZfs(TagsDictMixin, PrimaryBoto3Model):
     """
     The ARN of the FSx for OpenZFS location that was described.
     """
+
     LocationUri: str = Field(default=None, frozen=True)
     """
     The uniform resource identifier (URI) of the FSx for OpenZFS location that was
     described.
     """
+
     SecurityGroupArns: "builtins.list[str] | None" = Field(default_factory=list)
     """
     The ARNs of the security groups that are configured for the FSx for OpenZFS file
@@ -3679,7 +3725,6 @@ class DataSyncLocationFsxOpenZfs(TagsDictMixin, PrimaryBoto3Model):
             The ARN of the model instance.
         """
         return self.LocationArn
-
     def __hash__(self) -> int:
         """
         Return the hash of the model.
@@ -3688,8 +3733,6 @@ class DataSyncLocationFsxOpenZfs(TagsDictMixin, PrimaryBoto3Model):
         :py:attr:`LocationArn` attribute.
         """
         return hash(self.LocationArn)
-
-
 class DataSyncLocationFsxWindows(TagsDictMixin, PrimaryBoto3Model):
     tag_class: ClassVar[ModelType[Boto3Model]] = Tag | None
     manager_class: ClassVar[ModelType[Boto3ModelManager]] = (
@@ -3705,7 +3748,6 @@ class DataSyncLocationFsxWindows(TagsDictMixin, PrimaryBoto3Model):
     """
     The uniform resource identifier (URI) of the FSx for Windows File Server location.
     """
-
     SecurityGroupArns: "builtins.list[str] | None" = Field(default_factory=list)
     """
     The ARNs of the Amazon EC2 security groups that provide access to your file system's
@@ -3744,7 +3786,6 @@ class DataSyncLocationFsxWindows(TagsDictMixin, PrimaryBoto3Model):
     ``Password`` that DataSync uses to access a specific storage location, with a
     customer-managed KMS key.
     """
-
     CustomSecretConfig: "DataSyncCustomSecretConfig | None" = None
     """
     Describes configuration information for a customer-managed secret, such as a
@@ -3769,7 +3810,6 @@ class DataSyncLocationFsxWindows(TagsDictMixin, PrimaryBoto3Model):
             The primary key of the model instance.
         """
         return self.LocationArn
-
     @property
     def arn(self) -> str | None:
         """
@@ -3800,6 +3840,7 @@ class HdfsNameNode(Boto3Model):
     such as opening, closing, and renaming files and directories. The NameNode contains
     the information to map blocks of data to the DataNodes.
     """
+
     Hostname: str
     """
     The hostname of the NameNode in the HDFS cluster.
@@ -3808,10 +3849,12 @@ class HdfsNameNode(Boto3Model):
     agent that's installed on-premises uses this hostname to communicate with the
     NameNode in the network.
     """
+
     Port: int
     """
     The port that the NameNode uses to listen to client requests.
     """
+
 class DataSyncQopConfiguration(Boto3Model):
     """
     The Quality of Protection (QOP) configuration specifies the Remote Procedure Call
@@ -3835,6 +3878,7 @@ class DataSyncQopConfiguration(Boto3Model):
     ``dfs.data.transfer.protection`` setting in the ``hdfs-site.xml`` file on your
     Hadoop cluster.
     """
+
 class DataSyncLocationHdfs(TagsDictMixin, PrimaryBoto3Model):
     tag_class: ClassVar[ModelType[Boto3Model]] = Tag | None
     manager_class: ClassVar[ModelType[Boto3ModelManager]] = DataSyncLocationHdfsManager
@@ -3843,7 +3887,6 @@ class DataSyncLocationHdfs(TagsDictMixin, PrimaryBoto3Model):
     """
     The ARN of the HDFS location.
     """
-
     LocationUri: str = Field(default=None, frozen=True)
     """
     The URI of the HDFS location.
@@ -3886,6 +3929,7 @@ class DataSyncLocationHdfs(TagsDictMixin, PrimaryBoto3Model):
 
     This parameter is used if the ``AuthenticationType`` is defined as ``SIMPLE``.
     """
+
     KerberosPrincipal: "str | None" = None
     """
     The Kerberos principal with access to the files and folders on the HDFS cluster.
@@ -3903,6 +3947,7 @@ class DataSyncLocationHdfs(TagsDictMixin, PrimaryBoto3Model):
     """
     The time that the HDFS location was created.
     """
+
     ManagedSecretConfig: DataSyncManagedSecretConfig = Field(default=None, frozen=True)
     """
     Describes configuration information for a DataSync-managed secret, such as a
@@ -3931,7 +3976,6 @@ class DataSyncLocationHdfs(TagsDictMixin, PrimaryBoto3Model):
     KerberosKrb5Conf: bytes | None = None
     Subdirectory: str | None = None
     Tags: builtins.list[Tag] | None = Field(default_factory=list)
-
     @property
     def pk(self) -> str | None:
         """
@@ -3982,6 +4026,7 @@ class DataSyncLocationNfs(TagsDictMixin, PrimaryBoto3Model):
     """
     DescribeLocationNfsResponse.
     """
+
     tag_class: ClassVar[ModelType[Boto3Model]] = Tag | None
     manager_class: ClassVar[ModelType[Boto3ModelManager]] = DataSyncLocationNfsManager
 
@@ -4013,6 +4058,7 @@ class DataSyncLocationNfs(TagsDictMixin, PrimaryBoto3Model):
     ServerHostname: str | None = None
     Subdirectory: str | None = None
     Tags: builtins.list[Tag] | None = Field(default_factory=list)
+
     @property
     def pk(self) -> str | None:
         """
@@ -4036,7 +4082,6 @@ class DataSyncLocationNfs(TagsDictMixin, PrimaryBoto3Model):
             The ARN of the model instance.
         """
         return self.LocationArn
-
     def __hash__(self) -> int:
         """
         Return the hash of the model.
@@ -4045,6 +4090,70 @@ class DataSyncLocationNfs(TagsDictMixin, PrimaryBoto3Model):
         :py:attr:`LocationArn` attribute.
         """
         return hash(self.LocationArn)
+class GoogleOidcConfig(Boto3Model):
+    """
+    External identity parameters for Google Cloud Storage.
+    """
+
+    ProjectName: str
+    """
+    Human-readable project name (e.g. "my-project").
+    """
+
+    ProjectNumber: str
+    """
+    Numeric project ID as a string (e.g. "123456789").
+    """
+
+    IdentityPoolName: str
+    """
+    Human-readable pool name (e.g. "my-pool").
+    """
+
+    IdentityProviderName: str
+    """
+    Human-readable provider name (e.g. "my-oidc-provider").
+    """
+
+
+class ObjectStorageExternalIdentityConfig(Boto3Model):
+    """
+    Specifies cloud-provider-specific external identity parameters used when exchanging
+    the Amazon Web Services web token for an OpenID Connect token at the object storage
+    provider.
+    """
+
+    GoogleOidc: "GoogleOidcConfig | None" = None
+    """
+    External identity parameters for Google Cloud Storage.
+    """
+class ObjectStorageFederatedIdentityConfig(Boto3Model):
+    """
+    Specifies federated identity parameters that allow DataSync to obtain OpenID Connect
+    token for access to customer object storage. The token allows for temporary, short-
+    term access to the storage. DataSync automatically refreshes the token to assure
+    uninterrupted access to the storage.
+
+    Federated identity parameters are an alternative to the ``AccessKey``/``SecretKey``
+    credentials that are expected to be valid long-term (e.g. at least for the duration
+    of DataSync task execution). Do not specify federated identity and the key
+    parameters for the same object storage location.
+    """
+
+    AwsIamRole: "str | None" = None
+    """
+    Specifies the ARN for an Amazon Web Services role that allows DataSync to invoke STS
+    GetWebIdentityToken API on behalf of the customer account and to obtain Amazon Web
+    Services STS JWT (web token).
+    """
+
+    ExternalIdentity: "ObjectStorageExternalIdentityConfig | None" = None
+    """
+    Specifies cloud-provider-specific external identity parameters used when exchanging
+    the Amazon Web Services web token for an OpenID Connect token at the object storage
+    provider.
+    """
+
 class DataSyncLocationObjectStorage(TagsDictMixin, PrimaryBoto3Model):
     """
     DescribeLocationObjectStorageResponse.
@@ -4064,11 +4173,16 @@ class DataSyncLocationObjectStorage(TagsDictMixin, PrimaryBoto3Model):
     """
     The URI of the object storage system location.
     """
-
     AccessKey: "str | None" = None
     """
     The access key (for example, a user name) required to authenticate with the object
     storage system.
+    """
+
+    FederatedIdentity: "ObjectStorageFederatedIdentityConfig | None" = None
+    """
+    The federated identity configuration that DataSync uses to access your object
+    storage using an OpenID Connect (OIDC) token.
     """
 
     ServerPort: "int | None" = None
@@ -4097,6 +4211,7 @@ class DataSyncLocationObjectStorage(TagsDictMixin, PrimaryBoto3Model):
     The certificate chain for DataSync to authenticate with your object storage system
     if the system uses a private or self- signed certificate authority (CA).
     """
+
     ManagedSecretConfig: DataSyncManagedSecretConfig = Field(default=None, frozen=True)
     """
     Describes configuration information for a DataSync-managed secret, such as an
@@ -4139,6 +4254,7 @@ class DataSyncLocationObjectStorage(TagsDictMixin, PrimaryBoto3Model):
             The primary key of the model instance.
         """
         return self.LocationArn
+
     @property
     def arn(self) -> str | None:
         """
@@ -4188,7 +4304,6 @@ class DataSyncLocationS3(TagsDictMixin, PrimaryBoto3Model):
     """
     The ARN of the Amazon S3 location.
     """
-
     LocationUri: str = Field(default=None, frozen=True)
     """
     The URL of the Amazon S3 location that was described.
@@ -4205,7 +4320,6 @@ class DataSyncLocationS3(TagsDictMixin, PrimaryBoto3Model):
     Specifies the Amazon Resource Name (ARN) of the Identity and Access Management (IAM)
     role that DataSync uses to access your S3 bucket.
     """
-
     AgentArns: "builtins.list[str] | None" = Field(default_factory=list)
     """
     The ARNs of the DataSync agents deployed on your Outpost when using working with
@@ -4232,7 +4346,6 @@ class DataSyncLocationS3(TagsDictMixin, PrimaryBoto3Model):
             The primary key of the model instance.
         """
         return self.LocationArn
-
     @property
     def arn(self) -> str | None:
         """
@@ -4253,6 +4366,8 @@ class DataSyncLocationS3(TagsDictMixin, PrimaryBoto3Model):
         :py:attr:`LocationArn` attribute.
         """
         return hash(self.LocationArn)
+
+
 class DataSyncLocationSmb(TagsDictMixin, PrimaryBoto3Model):
     """
     DescribeLocationSmbResponse.
@@ -4290,6 +4405,7 @@ class DataSyncLocationSmb(TagsDictMixin, PrimaryBoto3Model):
 
     This element applies only if ``AuthenticationType`` is set to ``NTLM``.
     """
+
     MountOptions: "DataSyncSmbMountOptions | None" = None
     """
     The SMB protocol version that DataSync uses to access your SMB file server.
@@ -4313,12 +4429,10 @@ class DataSyncLocationSmb(TagsDictMixin, PrimaryBoto3Model):
     The Kerberos principal that has permission to access the files, folders, and file
     metadata in your SMB file server.
     """
-
     AuthenticationType: "Literal['NTLM', 'KERBEROS'] | None" = None
     """
     The authentication protocol that DataSync uses to connect to your SMB file server.
     """
-
     ManagedSecretConfig: DataSyncManagedSecretConfig = Field(default=None, frozen=True)
     """
     Describes configuration information for a DataSync-managed secret, such as a
@@ -4328,12 +4442,14 @@ class DataSyncLocationSmb(TagsDictMixin, PrimaryBoto3Model):
     DataSync uses the default Amazon Web Services-managed KMS key to encrypt this secret
     in Secrets Manager.
     """
+
     CmkSecretConfig: "DataSyncCmkSecretConfig | None" = None
     """
     Describes configuration information for a DataSync-managed secret, such as a
     ``Password`` or ``KerberosKeytab`` that DataSync uses to access a specific storage
     location, with a customer-managed KMS key.
     """
+
     CustomSecretConfig: "DataSyncCustomSecretConfig | None" = None
     """
     Describes configuration information for a customer-managed secret, such as a
@@ -4348,7 +4464,6 @@ class DataSyncLocationSmb(TagsDictMixin, PrimaryBoto3Model):
     ServerHostname: str | None = None
     Subdirectory: str | None = None
     Tags: builtins.list[Tag] | None = Field(default_factory=list)
-
     @property
     def pk(self) -> str | None:
         """
@@ -4372,7 +4487,6 @@ class DataSyncLocationSmb(TagsDictMixin, PrimaryBoto3Model):
             The ARN of the model instance.
         """
         return self.LocationArn
-
     def __hash__(self) -> int:
         """
         Return the hash of the model.
@@ -4381,6 +4495,7 @@ class DataSyncLocationSmb(TagsDictMixin, PrimaryBoto3Model):
         :py:attr:`LocationArn` attribute.
         """
         return hash(self.LocationArn)
+
 # =======================
 # Request/Response Models
 # =======================
@@ -4391,6 +4506,7 @@ class TagListEntry(Boto3Model):
     A key-value pair representing a single tag that's been applied to an Amazon Web
     Services resource.
     """
+
     Key: str
     """
     The key for an Amazon Web Services resource tag.
@@ -4440,6 +4556,7 @@ class AgentListEntry(Boto3Model):
     """
     The platform-related details about the agent, such as the version number.
     """
+
 class ListAgentsResponse(Boto3Model):
     """
     ListAgentsResponse.
@@ -4458,6 +4575,7 @@ class ListAgentsResponse(Boto3Model):
     The opaque string that indicates the position to begin the next list of results in
     the response.
     """
+
 class UpdateAgentResponse(Boto3Model):
     pass
 
@@ -4497,6 +4615,7 @@ class TaskFilter(Boto3Model):
     Each API call supports a list of filters that are available for it. For example,
     ``LocationId`` for ``ListTasks``.
     """
+
     Values: "builtins.list[str]"
     """
     The values that you want to filter for.
@@ -4504,6 +4623,7 @@ class TaskFilter(Boto3Model):
     For example, you might want to display only tasks for a specific destination
     location.
     """
+
     Operator: Literal[
         "Equals",
         "NotEquals",
@@ -4520,8 +4640,6 @@ class TaskFilter(Boto3Model):
     The operator that is used to compare filter values (for example, ``Equals`` or
     ``Contains``).
     """
-
-
 class TaskListEntry(Boto3Model):
     """
     Represents a single entry in a list of tasks.
@@ -4547,7 +4665,6 @@ class TaskListEntry(Boto3Model):
     """
     The name of the task.
     """
-
     TaskMode: "Literal['BASIC', 'ENHANCED'] | None" = None
     """
     The task mode that you're using.
@@ -4571,8 +4688,11 @@ class DataSyncListTasksResponse(Boto3Model):
     An opaque string that indicates the position at which to begin returning the next
     list of tasks.
     """
+
 class UpdateTaskResponse(Boto3Model):
     pass
+
+
 class DeleteTaskResponse(Boto3Model):
     pass
 
@@ -4591,6 +4711,7 @@ class TaskExecutionListEntry(Boto3Model):
     """Represents a single entry in a list of DataSync task executions that's returned with the
     `ListTaskExecutions <https://docs.aws.amazon.com/datasync/latest/userguide/API_ListTaskExecutions.html>`_ operation.
     """
+
     TaskExecutionArn: "str | None" = None
     """
     The Amazon Resource Name (ARN) of a task execution.
@@ -4629,6 +4750,7 @@ class ListTaskExecutionsResponse(Boto3Model):
     The opaque string that indicates the position to begin the next list of results in
     the response.
     """
+
 class UpdateTaskExecutionResponse(Boto3Model):
     pass
 
@@ -4670,7 +4792,6 @@ class LocationFilter(Boto3Model):
     `filtering resources <https://docs.aws.amazon.com/datasync/latest/userguide/query-
     resources.html>`_.
     """
-
     Name: Literal["LocationUri", "LocationType", "CreationTime"]
     """
     The name of the filter being used.
@@ -4702,8 +4823,6 @@ class LocationFilter(Boto3Model):
     The operator that is used to compare filter values (for example, ``Equals`` or
     ``Contains``).
     """
-
-
 class LocationListEntry(Boto3Model):
     """
     Represents a single entry in a list of locations.
@@ -4712,6 +4831,7 @@ class LocationListEntry(Boto3Model):
     `ListLocations <https://docs.aws.amazon.com/datasync/latest/userguide/API_ListLocations.html>`_
     operation is called.
     """
+
     LocationArn: "str | None" = None
     """
     The Amazon Resource Name (ARN) of the location.
@@ -4720,6 +4840,7 @@ class LocationListEntry(Boto3Model):
     Amazon S3, the location is the prefix path that you want to mount and use as the
     root of the location.
     """
+
     LocationUri: "str | None" = None
     """
     Represents a list of URIs of a location.
@@ -4766,8 +4887,6 @@ class CreateLocationEfsResponse(Boto3Model):
 
 class UpdateLocationEfsResponse(Boto3Model):
     pass
-
-
 class CreateLocationFsxLustreResponse(Boto3Model):
     LocationArn: "str | None" = None
     """

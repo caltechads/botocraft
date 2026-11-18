@@ -69,6 +69,7 @@ class CognitoUserPoolManager(Boto3ModelManager):
             AdminCreateUserConfig=data.get("AdminCreateUserConfig"),
             Schema=self.serialize(Schema),
             UserPoolAddOns=data.get("UserPoolAddOns"),
+            DcrConfiguration=data.get("DcrConfiguration"),
             UsernameConfiguration=data.get("UsernameConfiguration"),
             AccountRecoverySetting=data.get("AccountRecoverySetting"),
             UserPoolTier=data.get("UserPoolTier"),
@@ -169,6 +170,7 @@ class CognitoUserPoolManager(Boto3ModelManager):
             UserPoolTags=data.get("UserPoolTags"),
             AdminCreateUserConfig=data.get("AdminCreateUserConfig"),
             UserPoolAddOns=data.get("UserPoolAddOns"),
+            DcrConfiguration=data.get("DcrConfiguration"),
             AccountRecoverySetting=data.get("AccountRecoverySetting"),
             PoolName=self.serialize(PoolName),
             UserPoolTier=data.get("UserPoolTier"),
@@ -281,7 +283,7 @@ class CognitoUserPoolClientManager(Boto3ModelManager):
         return None
 
     def list(
-        self, UserPoolId: str
+        self, UserPoolId: str, *, ClientType: "Literal['REGULAR', 'DCR'] | None" = None
     ) -> PrimaryBoto3ModelQuerySet["UserPoolClientDescription"]:
         """
         Given a user pool ID, lists app clients.
@@ -293,9 +295,16 @@ class CognitoUserPoolClientManager(Boto3ModelManager):
         Args:
             UserPoolId: The ID of the user pool where you want to list user pool
                 clients.
+
+        Keyword Args:
+            ClientType: Returns only app clients of this type. For dynamic client
+                registration (``DCR``) and other app clients,
+                the following values are valid.
         """
         paginator = self.client.get_paginator("list_user_pool_clients")
-        args: dict[str, Any] = dict(UserPoolId=self.serialize(UserPoolId))
+        args: dict[str, Any] = dict(
+            UserPoolId=self.serialize(UserPoolId), ClientType=self.serialize(ClientType)
+        )
         response_iterator = paginator.paginate(
             **{k: v for k, v in args.items() if v is not None}
         )
@@ -2000,7 +2009,6 @@ class UserPoolAddOnsType(Boto3Model):
     To    activate this setting, your user pool must be on the
     `Plus tier <https://docs.aws.amazon.com/cognito/latest/developerguide/feature-plans-features-plus.html>`_.
     """
-
     AdvancedSecurityMode: Literal["OFF", "AUDIT", "ENFORCED"]
     """
     The operating mode of threat protection for standard authentication types in your
@@ -2012,6 +2020,84 @@ class UserPoolAddOnsType(Boto3Model):
     """
     Threat protection configuration options for additional authentication types in your
     user pool, including custom authentication.
+    """
+class DcrConfigurationType(Boto3Model):
+    """
+    The dynamic client registration configuration for a user pool.
+
+    Dynamic client registration lets applications register their own app clients at
+    runtime through the registration endpoint of your user pool domain. To activate this
+    setting, your user pool must be in the
+    `Essentials tier <https://docs.aws.amazon.com/cognito/latest/developerguide/feature-
+    plans-features-essentials.html>`_ or higher.
+
+    Applications register app clients at the ``/oauth2/register`` endpoint of your user
+    pool domain. In authenticated
+    registration, the application sends an access token from your user pool that has the
+    ``aws.cognito/dcr/register`` scope.
+    In open registration, the application doesn't send a token.
+
+    When you include this configuration in an ``UpdateUserPool`` request, Amazon Cognito
+    replaces the existing configuration
+    with the one that you provide.
+    """
+
+    EnableStatus: "Literal['Enabled', 'Disabled'] | None" = None
+    """
+    Specifies whether dynamic client registration is turned on for the user pool.
+
+    If you provide a dynamic client registration configuration without this value,
+    Amazon Cognito turns dynamic client registration on.
+    """
+
+    OpenDcrEnabled: "bool | None" = None
+    """
+    Specifies whether open registration is turned on.
+
+    When open registration is on, applications can register app clients without an
+    initial access token. The default value is ``false``.
+    """
+
+    AuthenticatedGrantTypes: "builtins.list[Literal['code', 'implicit', 'client_credentials']] | None" = Field(
+        default_factory=list
+    )
+    """
+    The OAuth grant types that an app client created through authenticated registration
+    can request.
+
+    If you don't set this value, authenticated registration permits the ``code`` and
+    ``client_credentials`` grant types. If you set an empty list, Amazon Cognito rejects
+    authenticated registration requests. Dynamic client registration supports the
+    following values. Amazon Cognito accepts ``implicit`` in this list but ignores it.
+    """
+
+    OpenDcrGrantTypes: "builtins.list[Literal['code', 'implicit', 'client_credentials']] | None" = Field(
+        default_factory=list
+    )
+    """
+    The OAuth grant types that an app client created through open registration can
+    request.
+
+    If you don't set this value, open registration permits only the ``code`` grant type.
+    If you set an empty list, Amazon Cognito rejects open registration requests. If you
+    add ``client_credentials``, anyone can register an app client that requests machine-
+    to- machine (M2M) access tokens, and you pay for the M2M token requests that those
+    app clients make. Dynamic client registration supports the following values. Amazon
+    Cognito accepts ``implicit`` in this list but ignores it.
+    """
+    AllowedScopes: "builtins.list[str] | None" = Field(default_factory=list)
+    """
+    The scopes that an app client created through dynamic client registration can
+    request, in addition to the standard OpenID Connect (OIDC) scopes.
+
+    You can include custom scopes from your resource servers and
+    ``aws.cognito.signin.user.admin``. Registered app clients can request the OIDC
+    scopes ``openid``, ``email``, ``phone``,
+    and ``profile`` without listing them here. If you don't set this value, registered
+    app clients can request only the OIDC
+    scopes. A registered app client can't request the ``aws.cognito/dcr/register``
+    scope, even if you include it in this
+    list.
     """
 
 class UsernameConfigurationType(Boto3Model):
@@ -2028,7 +2114,6 @@ class UsernameConfigurationType(Boto3Model):
     practice. When usernames and email addresses are case insensitive, users can sign in
     as the same user when they enter a different capitalization of their user name.
     """
-
 
 class RecoveryOptionType(Boto3Model):
     """
@@ -2089,6 +2174,7 @@ class KeyConfigurationType(Boto3Model):
     """
     The type of encryption key used for the user pool.
     """
+
     KmsKeyArn: "str | None" = None
     """
     The Amazon Resource Name (ARN) of the KMS key used for encryption.
@@ -2136,6 +2222,7 @@ class CognitoUserPool(PrimaryBoto3Model):
     """
 
     manager_class: ClassVar[ModelType[Boto3ModelManager]] = CognitoUserPoolManager
+
     Tags: dict[str, str] | None = Field(default_factory=dict, alias="UserPoolTags")
     """
     The tags that are assigned to the user pool.
@@ -2143,6 +2230,7 @@ class CognitoUserPool(PrimaryBoto3Model):
     A tag is a label that you can apply to user pools to categorize and manage them in
     different ways, such as by purpose, owner, environment, or other criteria.
     """
+
     Id: str = Field(default=None, frozen=True)
     """
     The ID of the user pool.
@@ -2175,7 +2263,6 @@ class CognitoUserPool(PrimaryBoto3Model):
     Amazon Cognito invokes triggers at several possible stages of user pool operations.
     Triggers can modify the outcome of the operations that invoked them.
     """
-
     Status: "Literal['Enabled', 'Disabled'] | None" = Field(default=None, frozen=True)
     """
     This parameter is no longer used.
@@ -2189,7 +2276,6 @@ class CognitoUserPool(PrimaryBoto3Model):
     render the output in a human-readable format like ISO 8601 or a Java ``Date``
     object.
     """
-
     CreationDate: datetime = Field(default=None, frozen=True)
     """
     The date and time when the item was created.
@@ -2198,6 +2284,7 @@ class CognitoUserPool(PrimaryBoto3Model):
     render the output in a human-readable format like ISO 8601 or a Java ``Date``
     object.
     """
+
     SchemaAttributes: "builtins.list[SchemaAttributeType]" = Field(
         default_factory=list, frozen=True
     )
@@ -2216,7 +2303,6 @@ class CognitoUserPool(PrimaryBoto3Model):
     """
     The attributes that are auto-verified in a user pool.
     """
-
     AliasAttributes: "builtins.list[Literal['phone_number', 'email', 'preferred_username']] | None" = Field(
         default_factory=list
     )
@@ -2226,7 +2312,6 @@ class CognitoUserPool(PrimaryBoto3Model):
     An alias is an attribute that users can enter as an alternative username. Possible
     values: **phone_number**, **email**, or **preferred_username**.
     """
-
     UsernameAttributes: "builtins.list[Literal['phone_number', 'email']] | None" = (
         Field(default_factory=list)
     )
@@ -2239,6 +2324,7 @@ class CognitoUserPool(PrimaryBoto3Model):
     """
     This parameter is no longer used.
     """
+
     EmailVerificationMessage: "str | None" = None
     """
     This parameter is no longer used.
@@ -2248,6 +2334,7 @@ class CognitoUserPool(PrimaryBoto3Model):
     """
     This parameter is no longer used.
     """
+
     VerificationMessageTemplate: "VerificationMessageTemplateType | None" = None
     """
     The template for the verification message that your user pool delivers to users who
@@ -2288,7 +2375,6 @@ Can be one of the following values:
     """
     A number estimating the size of the user pool.
     """
-
     EmailConfiguration: "EmailConfigurationType | None" = None
     """
     The email configuration of your user pool.
@@ -2306,11 +2392,11 @@ Can be one of the following values:
     want, the Amazon Cognito user pool uses an Identity and Access Management (IAM) role
     in your Amazon Web Services account.
     """
-
     SmsConfigurationFailure: str = Field(default=None, frozen=True)
     """
     The reason why the SMS configuration can't send the messages to your users.
     """
+
     EmailConfigurationFailure: str = Field(default=None, frozen=True)
     """
     Deprecated.
@@ -2332,12 +2418,10 @@ Can be one of the following values:
     in pages for your application. An example of a custom domain name might be
     ``auth.example.com``.
     """
-
     AdminCreateUserConfig: "AdminCreateUserConfigType | None" = None
     """
     The configuration for ``AdminCreateUser`` requests.
     """
-
     UserPoolAddOns: "UserPoolAddOnsType | None" = None
     """
     Contains settings for activation of threat protection, including the operating mode
@@ -2347,6 +2431,18 @@ Can be one of the following values:
     automatic security responses to potentially unwanted traffic to your user pool, set
     to ``ENFORCED``.
     """
+
+    DcrConfiguration: "DcrConfigurationType | None" = None
+    """
+    The dynamic client registration configuration for the user pool.
+
+    With dynamic client registration, applications can register their own app clients at
+    runtime through the registration endpoint of your user pool domain. To activate this
+    setting, your user pool must be in the
+    `Essentials tier <https://docs.aws.amazon.com/cognito/latest/developerguide/feature-plans-features-essentials.html>`_
+    or higher.
+    """
+
     UsernameConfiguration: "UsernameConfigurationType | None" = None
     """
     Case sensitivity of the username input for the selected sign-in option.
@@ -2395,7 +2491,6 @@ access-token customization, and threat protection. Defaults to ``ESSENTIALS``.
     """
     The issuer configuration for the user pool, including token issuing settings.
     """
-
     AcrConfiguration: "dict[str, AcrLevelConfigType] | None" = Field(
         default_factory=dict
     )
@@ -2406,7 +2501,6 @@ access-token customization, and threat protection. Defaults to ``ESSENTIALS``.
     Amazon Cognito always returns the effective configuration, with default names merged
     in for any level that you haven't customized.
     """
-
     @property
     def pk(self) -> str | None:
         """
@@ -2418,7 +2512,6 @@ access-token customization, and threat protection. Defaults to ``ESSENTIALS``.
             The primary key of the model instance.
         """
         return self.Id
-
     @property
     def arn(self) -> str | None:
         """
@@ -2430,7 +2523,6 @@ access-token customization, and threat protection. Defaults to ``ESSENTIALS``.
             The ARN of the model instance.
         """
         return self.Arn
-
     @property
     def name(self) -> str | None:
         """
@@ -2442,7 +2534,6 @@ access-token customization, and threat protection. Defaults to ``ESSENTIALS``.
             The name of the model instance.
         """
         return self.Name
-
     def __hash__(self) -> int:
         """
         Return the hash of the model.
@@ -2451,8 +2542,6 @@ access-token customization, and threat protection. Defaults to ``ESSENTIALS``.
         :py:attr:`Id` attribute.
         """
         return hash(self.Id)
-
-
 class TokenValidityUnitsType(Boto3Model):
     """
     The time units that, with ``IdTokenValidity``, ``AccessTokenValidity``, and
@@ -2461,6 +2550,7 @@ class TokenValidityUnitsType(Boto3Model):
 
     You can assign a separate token validity unit to each type of token.
     """
+
     AccessToken: "Literal['seconds', 'minutes', 'hours', 'days'] | None" = None
     """
     A time unit for the value that you set in the ``AccessTokenValidity`` parameter.
@@ -2468,7 +2558,6 @@ class TokenValidityUnitsType(Boto3Model):
     The default ``AccessTokenValidity`` time unit is ``hours``. ``AccessTokenValidity``
     duration can range from five minutes to one day.
     """
-
     IdToken: "Literal['seconds', 'minutes', 'hours', 'days'] | None" = None
     """
     A time unit for the value that you set in the ``IdTokenValidity`` parameter.
@@ -2531,6 +2620,7 @@ that Amazon Cognito assumes to send analytics data to Amazon Pinpoint.
     If ``UserDataShared`` is ``true``, Amazon Cognito includes user data in the events
     that it publishes to Amazon Pinpoint analytics.
     """
+
 class RefreshTokenRotationType(Boto3Model):
     """
     The configuration of your app client for refresh token rotation.
@@ -2562,10 +2652,12 @@ class CognitoUserPoolClient(PrimaryBoto3Model):
     """
 
     manager_class: ClassVar[ModelType[Boto3ModelManager]] = CognitoUserPoolClientManager
+
     UserPoolId: "str | None" = None
     """
     The ID of the user pool associated with the app client.
     """
+
     ClientName: "str | None" = None
     """
     The name of the app client.
@@ -2589,7 +2681,6 @@ class CognitoUserPoolClient(PrimaryBoto3Model):
     render the output in a human-readable format like ISO 8601 or a Java ``Date``
     object.
     """
-
     CreationDate: datetime = Field(default=None, frozen=True)
     """
     The date and time when the item was created.
@@ -2598,6 +2689,7 @@ class CognitoUserPoolClient(PrimaryBoto3Model):
     render the output in a human-readable format like ISO 8601 or a Java ``Date``
     object.
     """
+
     RefreshTokenValidity: "int | None" = None
     """
     The refresh token time limit.
@@ -2606,7 +2698,6 @@ class CognitoUserPoolClient(PrimaryBoto3Model):
     time unit for ``RefreshTokenValidity`` as ``seconds``, ``minutes``, ``hours``, or
     ``days``, set a ``TokenValidityUnits`` value in your API request.
     """
-
     AccessTokenValidity: "int | None" = None
     """
     The access token time limit.
@@ -2624,6 +2715,7 @@ class CognitoUserPoolClient(PrimaryBoto3Model):
     unit for ``IdTokenValidity`` as ``seconds``, ``minutes``, ``hours``, or ``days``,
     set a ``TokenValidityUnits`` value in your API request.
     """
+
     TokenValidityUnits: "TokenValidityUnitsType | None" = None
     """
     The time units that, with ``IdTokenValidity``, ``AccessTokenValidity``, and
@@ -2640,6 +2732,7 @@ class CognitoUserPoolClient(PrimaryBoto3Model):
     After your user authenticates in your app, their access token authorizes them to
     read their own attribute value for any attribute in this list.
     """
+
     WriteAttributes: "builtins.list[str] | None" = Field(default_factory=list)
     """
     The list of user attributes that you want your app client to have write access to.
@@ -2648,7 +2741,7 @@ class CognitoUserPoolClient(PrimaryBoto3Model):
     or modify their own attribute value for any attribute in this list.
     """
 
-    ExplicitAuthFlows: "builtins.list[Literal['ADMIN_NO_SRP_AUTH', 'CUSTOM_AUTH_FLOW_ONLY', 'USER_PASSWORD_AUTH', 'ALLOW_ADMIN_USER_PASSWORD_AUTH', 'ALLOW_CUSTOM_AUTH', 'ALLOW_USER_PASSWORD_AUTH', 'ALLOW_USER_SRP_AUTH', 'ALLOW_REFRESH_TOKEN_AUTH', 'ALLOW_USER_AUTH']] | None" = Field(
+    ExplicitAuthFlows: "builtins.list[Literal['ADMIN_NO_SRP_AUTH', 'CUSTOM_AUTH_FLOW_ONLY', 'USER_PASSWORD_AUTH', 'ALLOW_ADMIN_USER_PASSWORD_AUTH', 'ALLOW_CUSTOM_AUTH', 'ALLOW_USER_PASSWORD_AUTH', 'ALLOW_USER_SRP_AUTH', 'ALLOW_REFRESH_TOKEN_AUTH', 'ALLOW_USER_AUTH', 'ALLOW_TOKEN_EXCHANGE_DELEGATION', 'ALLOW_TOKEN_EXCHANGE_IMPERSONATION']] | None" = Field(
         default_factory=list
     )
     """
@@ -2678,6 +2771,7 @@ define with Lambda functions.
     """
     A list of allowed redirect (callback) URLs for the IdPs.
     """
+
     LogoutURLs: "builtins.list[str] | None" = Field(default_factory=list)
     """
     A list of allowed logout URLs for the IdPs.
@@ -2699,7 +2793,6 @@ define with Lambda functions.
     To create an app client that generates client credentials grants, you must add
     ``client_credentials`` as the only allowed OAuth flow.
     """
-
     AllowedOAuthScopes: "builtins.list[str] | None" = Field(default_factory=list)
     """
     The OAuth 2.0 scopes that you want your app client to support.
@@ -2773,6 +2866,10 @@ define with Lambda functions.
     ID and access tokens.
     """
 
+    ClientType: "Literal['REGULAR', 'DCR'] | None" = Field(default=None, frozen=True)
+    """
+    How the app client was created.
+    """
     @property
     def pk(self) -> str | None:
         """
@@ -2784,7 +2881,6 @@ define with Lambda functions.
             The primary key of the model instance.
         """
         return self.ClientId
-
     @property
     def name(self) -> str | None:
         """
@@ -2796,6 +2892,7 @@ define with Lambda functions.
             The name of the model instance.
         """
         return self.ClientName
+
     def __hash__(self) -> int:
         """
         Return the hash of the model.
@@ -2817,7 +2914,6 @@ class CognitoGroup(PrimaryBoto3Model):
     """
 
     manager_class: ClassVar[ModelType[Boto3ModelManager]] = CognitoGroupManager
-
     GroupName: "str | None" = None
     """
     The name of the group.
@@ -2832,6 +2928,7 @@ class CognitoGroup(PrimaryBoto3Model):
     """
     A friendly description of the group.
     """
+
     RoleArn: "str | None" = None
     """
     The ARN of the IAM role associated with the group.
@@ -2861,7 +2958,6 @@ class CognitoGroup(PrimaryBoto3Model):
     render the output in a human-readable format like ISO 8601 or a Java ``Date``
     object.
     """
-
     CreationDate: datetime = Field(default=None, frozen=True)
     """
     The date and time when the item was created.
@@ -2870,6 +2966,7 @@ class CognitoGroup(PrimaryBoto3Model):
     render the output in a human-readable format like ISO 8601 or a Java ``Date``
     object.
     """
+
     @property
     def pk(self) -> str | None:
         """
@@ -2947,6 +3044,7 @@ class CognitoIdentityProvider(PrimaryBoto3Model):
     `Authorize endpoint <https://docs.aws.amazon.com/cognito/latest/developerguide/authorization-endpoint.html#get-
     authorize-request-parameters>`_.
     """
+
     AcrMapping: "dict[str, str] | None" = Field(default_factory=dict)
     """
     A mapping between the authentication context class reference (ACR) levels of your
@@ -2956,6 +3054,7 @@ class CognitoIdentityProvider(PrimaryBoto3Model):
 
     The map is keyed by level, from ``Level1`` through ``Level4``.
     """
+
     LastModifiedDate: datetime = Field(default=None, frozen=True)
     """
     The date and time when the item was modified.
@@ -2973,6 +3072,7 @@ class CognitoIdentityProvider(PrimaryBoto3Model):
     render the output in a human-readable format like ISO 8601 or a Java ``Date``
     object.
     """
+
     @property
     def pk(self) -> str | None:
         """
@@ -2993,8 +3093,6 @@ class CognitoIdentityProvider(PrimaryBoto3Model):
         :py:attr:`ProviderName` attribute.
         """
         return hash(self.ProviderName)
-
-
 class ResourceServerScopeType(Boto3Model):
     """
     One custom scope associated with a user pool resource server.
@@ -3003,6 +3101,7 @@ class ResourceServerScopeType(Boto3Model):
     `Scopes, M2M, and API authorization with resource servers
     <https://docs.aws.amazon.com/cognito/latest/developerguide/cognito-user-pools-define-resource-servers.html>`_.
     """
+
     ScopeName: str
     """
     The name of the scope.
@@ -3027,6 +3126,7 @@ class CognitoResourceServer(PrimaryBoto3Model):
     """
 
     manager_class: ClassVar[ModelType[Boto3ModelManager]] = CognitoResourceServerManager
+
     UserPoolId: "str | None" = None
     """
     The ID of the user pool that contains the resource server configuration.
@@ -3046,13 +3146,20 @@ class CognitoResourceServer(PrimaryBoto3Model):
     """
     The name of the resource server.
     """
-
     Scopes: "builtins.list[ResourceServerScopeType] | None" = Field(
         default_factory=list
     )
     """
     A list of scopes that are defined for the resource server.
     """
+
+    ManagedBy: "Literal['COGNITO'] | None" = Field(default=None, frozen=True)
+    """
+    This value is reserved for resource servers that Amazon Cognito manages.
+
+    Resource servers that you create don't have this value.
+    """
+
     @property
     def pk(self) -> str | None:
         """
@@ -3096,6 +3203,7 @@ class AttributeType(Boto3Model):
     """
     The name of the attribute, for example ``email`` or ``custom:department``.
     """
+
     Value: "str | None" = None
     """
     The value of the attribute.
@@ -3116,7 +3224,6 @@ class MFAOptionType(Boto3Model):
 
     You can use this parameter to set only the ``SMS`` delivery medium value.
     """
-
     AttributeName: "str | None" = None
     """
     The attribute name of the MFA option type.
@@ -3174,6 +3281,7 @@ class CognitoUser(PrimaryBoto3Model):
 
     This can be one of the following:
     """
+
     MFAOptions: "builtins.list[MFAOptionType]" = Field(
         default_factory=list, frozen=True
     )
@@ -3195,7 +3303,6 @@ class CognitoUser(PrimaryBoto3Model):
 
     Users can prefer SMS message, email message, or TOTP MFA.
     """
-
     UserMFASettingList: "builtins.list[str]" = Field(default_factory=list, frozen=True)
     """
     The MFA options that are activated for the user.
@@ -3203,6 +3310,7 @@ class CognitoUser(PrimaryBoto3Model):
     The possible values in this list are ``SMS_MFA``, ``EMAIL_OTP``, and
     ``SOFTWARE_TOKEN_MFA``.
     """
+
     @property
     def pk(self) -> str | None:
         """
@@ -3214,6 +3322,7 @@ class CognitoUser(PrimaryBoto3Model):
             The primary key of the model instance.
         """
         return self.Username
+
     def __hash__(self) -> int:
         """
         Return the hash of the model.
@@ -3222,12 +3331,13 @@ class CognitoUser(PrimaryBoto3Model):
         :py:attr:`Username` attribute.
         """
         return hash(self.Username)
+
+
 class CustomDomainConfigType(Boto3Model):
     """
     The configuration for a custom domain, including the SSL certificate and TLS
     security policy.
     """
-
     CertificateArn: str
     """
     The Amazon Resource Name (ARN) of an Certificate Manager SSL certificate.
@@ -3244,7 +3354,6 @@ class CustomDomainConfigType(Boto3Model):
     `Supported protocols and ciphers between viewers and CloudFront <https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/secure-connections-supported-viewer-
     protocols-ciphers.html>`_. Valid values are as follows:
     """
-
 class FailoverType(Boto3Model):
     """
     Specifies failover configuration for multi-region user pool domains.
@@ -3273,7 +3382,6 @@ class RoutingType(Boto3Model):
 
     Contains failover settings for multi-region deployments.
     """
-
     Failover: "FailoverType | None" = None
     """
     The failover configuration that specifies the secondary region and health check
@@ -3285,6 +3393,7 @@ class CognitoUserPoolDomain(PrimaryBoto3Model):
     A container for information about the user pool domain associated with the hosted UI
     and OAuth endpoints.
     """
+
     manager_class: ClassVar[ModelType[Boto3ModelManager]] = CognitoUserPoolDomainManager
 
     UserPoolId: "str | None" = None
@@ -3296,7 +3405,6 @@ class CognitoUserPoolDomain(PrimaryBoto3Model):
     """
     The Amazon Web Services account that you created the user pool in.
     """
-
     Domain: "str | None" = None
     """
     The domain string.
@@ -3315,6 +3423,7 @@ class CognitoUserPoolDomain(PrimaryBoto3Model):
     """
     The Amazon CloudFront endpoint that hosts your custom domain.
     """
+
     Version: str = Field(default=None, frozen=True)
     """
     The app version.
@@ -3360,7 +3469,6 @@ class CognitoUserPoolDomain(PrimaryBoto3Model):
             The primary key of the model instance.
         """
         return self.Domain
-
     def __hash__(self) -> int:
         """
         Return the hash of the model.
@@ -3369,8 +3477,6 @@ class CognitoUserPoolDomain(PrimaryBoto3Model):
         :py:attr:`Domain` attribute.
         """
         return hash(self.Domain)
-
-
 # =======================
 # Request/Response Models
 # =======================
@@ -3380,6 +3486,7 @@ class CreateUserPoolResponse(Boto3Model):
     """
     Represents the response from the server for the request to create a user pool.
     """
+
     UserPool: "CognitoUserPool | None" = None
     """
     The details of the created user pool.
@@ -3389,6 +3496,7 @@ class DescribeUserPoolResponse(Boto3Model):
     """
     Represents the response to describe the user pool.
     """
+
     UserPool: "CognitoUserPool | None" = None
     """
     The details of the requested user pool.
@@ -3403,12 +3511,10 @@ class UserPoolDescriptionType(Boto3Model):
     """
     The user pool ID.
     """
-
     Name: "str | None" = None
     """
     The user pool name.
     """
-
     LambdaConfig: "LambdaConfigType | None" = None
     """
     A collection of user pool Lambda triggers.
@@ -3444,6 +3550,7 @@ class UserPoolDescriptionType(Boto3Model):
     """
     A list of Amazon Web Services Regions where replicas of this user pool exist.
     """
+
 class ListUserPoolsResponse(Boto3Model):
     """
     Represents the response to list user pools.
@@ -3470,6 +3577,7 @@ class CreateUserPoolClientResponse(Boto3Model):
     """
     Represents the response from the server to create a user pool client.
     """
+
     UserPoolClient: "CognitoUserPoolClient | None" = None
     """
     The details of the new app client.
@@ -3495,6 +3603,7 @@ class UserPoolClientDescription(Boto3Model):
     """
     The app client ID.
     """
+
     UserPoolId: "str | None" = None
     """
     The ID of the user pool that's associated with the app client.
@@ -3509,7 +3618,6 @@ class ListUserPoolClientsResponse(Boto3Model):
     """
     Represents the response from the server that lists user pool clients.
     """
-
     UserPoolClients: "builtins.list[UserPoolClientDescription] | None" = Field(
         default_factory=list
     )
@@ -3534,16 +3642,17 @@ class UpdateUserPoolClientResponse(Boto3Model):
     Represents the response from the server to the request to update the user pool
     client.
     """
+
     UserPoolClient: "CognitoUserPoolClient | None" = None
     """
     The updated details of your app client.
     """
+
 class CognitoCreateGroupResponse(Boto3Model):
     Group: "CognitoGroup | None" = None
     """
     The response object for a created group.
     """
-
 class CognitoGetGroupResponse(Boto3Model):
     Group: "CognitoGroup | None" = None
     """
@@ -3559,7 +3668,6 @@ class CognitoListGroupsResponse(Boto3Model):
 
     Each entry that's returned includes description, precedence, and IAM role values.
     """
-
     NextToken: "str | None" = None
     """
     The identifier that Amazon Cognito returned with the previous request to this
@@ -3590,7 +3698,6 @@ class DescribeIdentityProviderResponse(Boto3Model):
     The details of the requested IdP.
     """
 
-
 class ProviderDescription(Boto3Model):
     """
     The details of a user pool identity provider (IdP), including name and type.
@@ -3600,6 +3707,7 @@ class ProviderDescription(Boto3Model):
     """
     The name of the IdP, for example ``MySAMLProvider``.
     """
+
     ProviderType: "Literal['SAML', 'Facebook', 'Google', 'LoginWithAmazon', 'SignInWithApple', 'OIDC'] | None" = None
     """
     The type of the provider, for example ``SAML``.
@@ -3635,6 +3743,7 @@ class ListIdentityProvidersResponse(Boto3Model):
     For each, the response includes identifiers, the IdP name and type, and trust-
     relationship details like the issuer URL.
     """
+
     NextToken: "str | None" = None
     """
     The identifier that Amazon Cognito returned with the previous request to this
@@ -3664,8 +3773,6 @@ class DescribeResourceServerResponse(Boto3Model):
     """
     The details of the requested resource server.
     """
-
-
 class ListResourceServersResponse(Boto3Model):
     ResourceServers: "builtins.list[CognitoResourceServer]"
     """
@@ -3683,7 +3790,6 @@ class ListResourceServersResponse(Boto3Model):
     set of items in the list. By use of this token, you can paginate through the full
     list of items.
     """
-
 class UpdateResourceServerResponse(Boto3Model):
     ResourceServer: CognitoResourceServer
     """
@@ -3695,6 +3801,7 @@ class AdminCreateUserResponse(Boto3Model):
     """
     Represents the response from the server to the request to create the user.
     """
+
     User: "CognitoUser | None" = None
     """
     The new user's profile details.
@@ -3705,7 +3812,6 @@ class AdminGetUserResponse(Boto3Model):
     Represents the response from the server from the request to get the specified user
     as an administrator.
     """
-
     Username: str
     """
     The username of the user that you requested.
