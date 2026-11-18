@@ -10,12 +10,16 @@
 
 ### Changed
 
+- `S3Object` objects returned by `S3ObjectManager.get()`, `list()` and `create()` now always have `BucketName` and `Key` set. `list()` used to leave `BucketName` unset when `Bucket` was passed positionally. `create()` now returns the `S3Object` it was given (it used to return `PutObjectOutput`).
+- `S3Object.contents()` now issues `get_object` itself and returns a `GetObjectOutput` whose `Body` is an unread `StreamingBody`. It raises `ValueError` naming `BucketName` or `Key` if either is missing. `get()` still returns an `S3Object` and does not keep the body.
+- The Bedrock Runtime `S3Location` model is now `BedrockS3Location`, and the Bedrock AgentCore Control `S3Location`, `VpcConfig` and `Document` models are now `AgentCoreS3Location`, `AgentCoreVpcConfig` and `AgentCoreDocument`. Regenerating the services gave each its own copy of these shapes, which clashed with the S3, CodeBuild and Bedrock Runtime models of the same name.
 - `PrimaryBoto3ModelQuerySet` is now generic over its model class. Generated `list()` and `get_many()` methods return `PrimaryBoto3ModelQuerySet[Model]`, so type checkers know what iterating, indexing, `first()` and `all()` give back. A bare `PrimaryBoto3ModelQuerySet` annotation still works. This removes several hundred mypy errors from the generated services.
 - Generated service code now sorts its imports, so regenerating no longer reorders them.
 - Generated service files also disable the mypy codes `arg-type`, `attr-defined`, `return-value` and `valid-type`: decorated methods are annotated with the decorator's return type while the generated body returns the raw type. `mypy botocraft` is now clean.
 
 ### Fixed
 
+- `S3ObjectManager.create()` no longer fails parameter validation: the default empty `ChecksumAlgorithm` list on `S3Object` was being sent to `put_object`.
 - `str()` on OpenSearch and Elasticsearch EventBridge events no longer raises `TypeError`. The summary helper took a detail called `event` and a positional parameter with the same name.
 - `LogGroupManager.create()` now accepts `tags`, as its signature always said it should, and passes them on.
 - Optional read-only fields that hold an enum value are now typed `... | None` in the generated models, since their default is `None`.

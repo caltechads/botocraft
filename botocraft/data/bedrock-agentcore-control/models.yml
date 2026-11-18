@@ -175,6 +175,12 @@ primary:
     primary_key: policyGenerationAssetId
 
 secondary:
+  S3Location:
+    alternate_name: AgentCoreS3Location
+  VpcConfig:
+    alternate_name: AgentCoreVpcConfig
+  Document:
+    alternate_name: AgentCoreDocument
   ManagedVpcResource:
     fields:
       tags:

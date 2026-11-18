@@ -115,6 +115,10 @@ Object:
     create:
       boto3_name: put_object
       response_attr: None
+      return_type: '"S3Object"'
+      decorators:
+        - name: object_create_return_model
+          import_path: botocraft.mixins.s3
       args:
         Tagging:
           hidden: true
@@ -124,6 +128,9 @@ Object:
     get:
       boto3_name: get_object
       response_attr: None
+      decorators:
+        - name: object_get_add_bucket_name_and_key
+          import_path: botocraft.mixins.s3
       args:
         Bucket:
           required: true

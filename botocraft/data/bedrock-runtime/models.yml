@@ -35,6 +35,8 @@ secondary:
         python_type: '"InvokeModelResponseStream"'
   Message:
     alternate_name: BedrockMessage
+  S3Location:
+    alternate_name: BedrockS3Location
   ResponseStream:
     force_create: true
   ToolResultBlockDelta:
