@@ -5,6 +5,7 @@
 ### Fixed
 
 - `AgentCoreAgentRuntimeManager.get()` no longer fails with a validation error for runtimes that have no description, such as those created by the commons modules. `AgentCoreAgentRuntime.description` is now `str | None` (default `None`). It was required because the model took its required fields from AWS's list summary shape, which requires `description`, while `GetAgentRuntime` does not. Code that treats `description` as always a `str` needs a `None` check.
+- `AgentCoreAgentRuntimeManager.create()` and `update()` no longer send empty `allowedPorts`, `filesystemConfigurations`, `resourceConfigurations` or `environmentVariables`. `allowedPorts` has a minimum length of 1, so the empty list was rejected by botocore before the request was sent. A populated list or dict is still sent. The in-memory default stays `[]` or `{}`.
 
 ## [0.36.2] - 2026-11-03
 

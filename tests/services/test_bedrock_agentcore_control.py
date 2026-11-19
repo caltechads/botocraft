@@ -149,6 +149,185 @@ def test_get_without_description(stubbed) -> None:
     assert runtime.description is None
 
 
+ROLE = "arn:aws:iam::000000000000:role/example"
+CLIENT_TOKEN = "t" * 36
+ARTIFACT = {"containerConfiguration": {"containerUri": "uri"}}
+NETWORK = {"networkMode": "PUBLIC"}
+
+
+def _runtime(**overrides: Any) -> AgentCoreAgentRuntime:
+    """Return a runtime with the fields create and update require."""
+    fields: dict[str, Any] = {
+        "agentRuntimeArn": ARN,
+        "agentRuntimeId": RUNTIME_ID,
+        "agentRuntimeVersion": "1",
+        "agentRuntimeName": "example_runtime",
+        "lastUpdatedAt": UPDATED,
+        "status": "READY",
+        "createdAt": UPDATED,
+        "roleArn": ROLE,
+        "agentRuntimeArtifact": ARTIFACT,
+        "networkConfiguration": NETWORK,
+    }
+    fields.update(overrides)
+    return AgentCoreAgentRuntime(**fields)
+
+
+def _update_response() -> dict[str, Any]:
+    """Return the fields ``UpdateAgentRuntime`` requires on its response."""
+    return {
+        "agentRuntimeArn": ARN,
+        "agentRuntimeId": RUNTIME_ID,
+        "agentRuntimeVersion": "1",
+        "createdAt": UPDATED,
+        "lastUpdatedAt": UPDATED,
+        "status": "UPDATING",
+    }
+
+
+def _create_response() -> dict[str, Any]:
+    """Return the fields ``CreateAgentRuntime`` requires on its response."""
+    return {
+        "agentRuntimeArn": ARN,
+        "agentRuntimeId": RUNTIME_ID,
+        "agentRuntimeVersion": "1",
+        "createdAt": UPDATED,
+        "status": "CREATING",
+    }
+
+
+def _base_write_params() -> dict[str, Any]:
+    """Return the write fields a runtime holds besides the empty containers."""
+    return {
+        "agentRuntimeArtifact": ARTIFACT,
+        "roleArn": ROLE,
+        "networkConfiguration": NETWORK,
+    }
+
+
+def test_update_omits_empty_containers(stubbed) -> None:
+    manager, stubber = stubbed
+    expected = {
+        **_base_write_params(),
+        "agentRuntimeId": RUNTIME_ID,
+        "clientToken": CLIENT_TOKEN,
+    }
+    stubber.add_response("update_agent_runtime", _update_response(), expected)
+
+    manager.update(_runtime(), clientToken=CLIENT_TOKEN)
+
+
+def test_update_sends_allowed_ports(stubbed) -> None:
+    manager, stubber = stubbed
+    ports = [{"port": 8080}]
+    expected = {
+        **_base_write_params(),
+        "agentRuntimeId": RUNTIME_ID,
+        "allowedPorts": ports,
+        "clientToken": CLIENT_TOKEN,
+    }
+    stubber.add_response("update_agent_runtime", _update_response(), expected)
+
+    manager.update(_runtime(allowedPorts=ports), clientToken=CLIENT_TOKEN)
+
+
+def test_create_omits_empty_containers(stubbed) -> None:
+    manager, stubber = stubbed
+    expected = {
+        **_base_write_params(),
+        "agentRuntimeName": "example_runtime",
+    }
+    stubber.add_response("create_agent_runtime", _create_response(), expected)
+
+    manager.create(_runtime())
+
+
+def test_create_sends_allowed_ports(stubbed) -> None:
+    manager, stubber = stubbed
+    ports = [{"port": 8080}]
+    expected = {
+        **_base_write_params(),
+        "agentRuntimeName": "example_runtime",
+        "allowedPorts": ports,
+    }
+    stubber.add_response("create_agent_runtime", _create_response(), expected)
+
+    manager.create(_runtime(allowedPorts=ports))
+
+
+def test_update_omits_empty_environment_variables(stubbed) -> None:
+    manager, stubber = stubbed
+    expected = {
+        **_base_write_params(),
+        "agentRuntimeId": RUNTIME_ID,
+        "clientToken": CLIENT_TOKEN,
+    }
+    stubber.add_response("update_agent_runtime", _update_response(), expected)
+
+    manager.update(_runtime(environmentVariables={}), clientToken=CLIENT_TOKEN)
+
+
+def test_update_sends_environment_variables(stubbed) -> None:
+    manager, stubber = stubbed
+    variables = {"LOG_LEVEL": "INFO"}
+    expected = {
+        **_base_write_params(),
+        "agentRuntimeId": RUNTIME_ID,
+        "environmentVariables": variables,
+        "clientToken": CLIENT_TOKEN,
+    }
+    stubber.add_response("update_agent_runtime", _update_response(), expected)
+
+    manager.update(_runtime(environmentVariables=variables), clientToken=CLIENT_TOKEN)
+
+
+def test_get_without_ports_then_update_omits_empty_defaults(stubbed) -> None:
+    manager, stubber = stubbed
+    stubber.add_response(
+        "get_agent_runtime",
+        _get_response(agentRuntimeArtifact=ARTIFACT, networkConfiguration=NETWORK),
+        {"agentRuntimeId": RUNTIME_ID},
+    )
+    expected = {
+        **_base_write_params(),
+        "agentRuntimeId": RUNTIME_ID,
+        "lifecycleConfiguration": {},
+        "clientToken": CLIENT_TOKEN,
+    }
+    stubber.add_response("update_agent_runtime", _update_response(), expected)
+
+    runtime = manager.get(RUNTIME_ID)
+
+    assert runtime is not None
+    manager.update(runtime, clientToken=CLIENT_TOKEN)
+
+
+def test_get_then_update_sends_only_held_values(stubbed) -> None:
+    manager, stubber = stubbed
+    stubber.add_response(
+        "get_agent_runtime",
+        _get_response(
+            agentRuntimeArtifact=ARTIFACT,
+            networkConfiguration=NETWORK,
+            allowedPorts=[{"port": 8080}],
+        ),
+        {"agentRuntimeId": RUNTIME_ID},
+    )
+    expected = {
+        **_base_write_params(),
+        "agentRuntimeId": RUNTIME_ID,
+        "allowedPorts": [{"port": 8080}],
+        "lifecycleConfiguration": {},
+        "clientToken": CLIENT_TOKEN,
+    }
+    stubber.add_response("update_agent_runtime", _update_response(), expected)
+
+    runtime = manager.get(RUNTIME_ID)
+
+    assert runtime is not None
+    manager.update(runtime, clientToken=CLIENT_TOKEN)
+
+
 def test_get_with_description(stubbed) -> None:
     manager, stubber = stubbed
     stubber.add_response(

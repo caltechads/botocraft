@@ -5,6 +5,57 @@ from botocraft.services.abstract import PrimaryBoto3ModelQuerySet
 if TYPE_CHECKING:
     from botocraft.services.bedrock_agentcore_control import AgentCoreAgentRuntime
 
+#: Create and update arguments whose empty value botocore rejects or that
+#: would wipe a setting the caller did not provide. ``allowedPorts`` has
+#: minimum length 1. The others default to empty on the model.
+_ABSENT_WHEN_EMPTY: frozenset[str] = frozenset(
+    {
+        "allowedPorts",
+        "environmentVariables",
+        "filesystemConfigurations",
+        "resourceConfigurations",
+    }
+)
+
+
+class AgentCoreAgentRuntimeMixin:
+    """
+    Keep empty AgentCore runtime containers off create and update calls.
+
+    The generated manager dumps the model with ``exclude_none=True`` and
+    forwards every remaining value. These fields default to ``[]`` or ``{}``,
+    which are not ``None``, so an unused runtime was sent with
+    ``allowedPorts=[]`` and botocore rejected it before the request was made.
+    """
+
+    def model_dump(self, *args: Any, **kwargs: Any) -> dict[str, Any]:
+        """
+        Dump the runtime, leaving out containers that are empty.
+
+        Create and update both send this dump. A populated list or dict is
+        unchanged.
+
+        Args:
+            args: Positional arguments forwarded to the pydantic dump.
+
+        Keyword Args:
+            kwargs: Keyword arguments forwarded to the pydantic dump.
+
+        Returns:
+            The dumped runtime, without empty ``allowedPorts``,
+            ``filesystemConfigurations``, ``resourceConfigurations`` or
+            ``environmentVariables``.
+
+        """
+        data = super().model_dump(*args, **kwargs)  # type: ignore[misc]
+        # ponytail: top-level only. Nested min-length lists are sent only
+        # when the caller built the parent object.
+        for name in _ABSENT_WHEN_EMPTY:
+            if data.get(name) in ([], {}):
+                del data[name]
+        return data
+
+
 # -------------
 # Manager mixins
 # -------------

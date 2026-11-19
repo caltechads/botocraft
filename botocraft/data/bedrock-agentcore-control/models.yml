@@ -9,6 +9,9 @@ primary:
       - CreateAgentRuntimeRequest
       - UpdateAgentRuntimeRequest
     output_shape: GetAgentRuntimeResponse
+    mixins:
+      - name: AgentCoreAgentRuntimeMixin
+        import_path: botocraft.mixins.bedrock_agentcore_control
     fields:
       description:
         python_type: "str | None"

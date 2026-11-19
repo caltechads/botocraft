@@ -10,6 +10,7 @@ from .abstract import (
 )
 from .abstract import PrimaryBoto3ModelQuerySet
 from botocraft.mixins.bedrock_agentcore_control import AgentCoreAgentRuntimeManagerMixin
+from botocraft.mixins.bedrock_agentcore_control import AgentCoreAgentRuntimeMixin
 from botocraft.mixins.tags import TagsDictMixin
 from botocraft.services.inspector2 import Finding
 from botocraft.services.secretsmanager import Secret
@@ -3091,14 +3092,13 @@ class ResourceConfiguration(Boto3Model):
     """
     The resource configuration for an AgentCore Runtime.
     """
-
     minimumMemoryInMiB: int
     """
     The minimum amount of memory, in mebibytes, to allocate to the AgentCore Runtime.
     """
 
 
-class AgentCoreAgentRuntime(PrimaryBoto3Model):
+class AgentCoreAgentRuntime(AgentCoreAgentRuntimeMixin, PrimaryBoto3Model):
     """
     Contains information about an agent runtime.
 
