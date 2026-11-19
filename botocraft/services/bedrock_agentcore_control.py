@@ -3091,10 +3091,12 @@ class ResourceConfiguration(Boto3Model):
     """
     The resource configuration for an AgentCore Runtime.
     """
+
     minimumMemoryInMiB: int
     """
     The minimum amount of memory, in mebibytes, to allocate to the AgentCore Runtime.
     """
+
 
 class AgentCoreAgentRuntime(PrimaryBoto3Model):
     """
@@ -3102,7 +3104,13 @@ class AgentCoreAgentRuntime(PrimaryBoto3Model):
 
     An agent runtime is the execution environment for a Amazon Bedrock AgentCore Agent.
     """
+
     manager_class: ClassVar[ModelType[Boto3ModelManager]] = AgentCoreAgentRuntimeManager
+
+    description: str | None = None
+    """
+    The description of the agent runtime.
+    """
 
     agentRuntimeArn: str = Field(frozen=True)
     """
@@ -3122,11 +3130,6 @@ class AgentCoreAgentRuntime(PrimaryBoto3Model):
     agentRuntimeName: str
     """
     The name of the agent runtime.
-    """
-
-    description: str
-    """
-    The description of the agent runtime.
     """
     lastUpdatedAt: datetime = Field(frozen=True)
     """

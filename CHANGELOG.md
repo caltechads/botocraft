@@ -1,5 +1,11 @@
 # Changelog
 
+## [Unreleased]
+
+### Fixed
+
+- `AgentCoreAgentRuntimeManager.get()` no longer fails with a validation error for runtimes that have no description, such as those created by the commons modules. `AgentCoreAgentRuntime.description` is now `str | None` (default `None`). It was required because the model took its required fields from AWS's list summary shape, which requires `description`, while `GetAgentRuntime` does not. Code that treats `description` as always a `str` needs a `None` check.
+
 ## [0.36.2] - 2026-11-03
 
 ### Added

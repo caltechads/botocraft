@@ -9,6 +9,11 @@ primary:
       - CreateAgentRuntimeRequest
       - UpdateAgentRuntimeRequest
     output_shape: GetAgentRuntimeResponse
+    fields:
+      description:
+        python_type: "str | None"
+        required: false
+        default: None
   AgentRuntimeEndpoint:
     alternate_name: AgentCoreAgentRuntimeEndpoint
     primary_key: id

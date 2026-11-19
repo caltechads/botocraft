@@ -24,6 +24,7 @@ botocraft
    :caption: Runbook
    :hidden:
 
+   changelog
    runbook/contributing
    runbook/authoring
    runbook/service_authoring_reference

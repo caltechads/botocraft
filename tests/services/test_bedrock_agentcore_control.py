@@ -112,3 +112,52 @@ def test_list_versions_requires_runtime_id(stubbed) -> None:
 
     with pytest.raises(TypeError):
         manager.list_versions()
+
+
+def _get_response(**overrides: Any) -> dict[str, Any]:
+    """
+    Return a ``GetAgentRuntime`` response, with no ``description`` by default.
+
+    AWS omits ``description`` for runtimes created without one (for example
+    commons-module runtimes), so it is absent unless a caller adds it.
+    """
+    response: dict[str, Any] = {
+        "agentRuntimeArn": ARN,
+        "agentRuntimeId": RUNTIME_ID,
+        "agentRuntimeVersion": "1",
+        "agentRuntimeName": "example_runtime",
+        "createdAt": UPDATED,
+        "lastUpdatedAt": UPDATED,
+        "roleArn": "arn:aws:iam::000000000000:role/example",
+        "status": "READY",
+        "lifecycleConfiguration": {},
+    }
+    response.update(overrides)
+    return response
+
+
+def test_get_without_description(stubbed) -> None:
+    manager, stubber = stubbed
+    stubber.add_response(
+        "get_agent_runtime", _get_response(), {"agentRuntimeId": RUNTIME_ID}
+    )
+
+    runtime = manager.get(RUNTIME_ID)
+
+    assert runtime is not None
+    assert runtime.agentRuntimeId == RUNTIME_ID
+    assert runtime.description is None
+
+
+def test_get_with_description(stubbed) -> None:
+    manager, stubber = stubbed
+    stubber.add_response(
+        "get_agent_runtime",
+        _get_response(description="hello"),
+        {"agentRuntimeId": RUNTIME_ID},
+    )
+
+    runtime = manager.get(RUNTIME_ID)
+
+    assert runtime is not None
+    assert runtime.description == "hello"
