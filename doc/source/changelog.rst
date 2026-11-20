@@ -1,6 +1,28 @@
 CHANGELOG
 =========
 
+0.36.4 (2026-11-19)
+-------------------
+
+Enhancements
+^^^^^^^^^^^^
+
+- Rebuilt the generated services against boto3 1.44.7 and botocore 1.44.7.
+- ``ACMCertificateManager.request()`` and ``list()`` accept Amazon N2 ``RootHierarchyType`` and ``CertificateUsage``.
+- An AgentCore runtime can mount an S3 bucket (``S3BucketMountConfiguration``) and set a Linux privilege mode on a capacity provider.
+- ``CognitoUserPoolClientManager.create()`` and ``update()`` take ``PublishSecretsInAWSSecretsManager``. The client exposes ``ClientSecretArn``.
+- CodeConnections provider types include ``GitHubEnterpriseCloudDataResidency``. A connection exposes ``ProviderEndpoint``.
+- ELBv2 mutual authentication accepts ``ClientCertificateIdentityFilter``.
+- IAM roles and login profiles expose ``MaxSigninSessionDuration``. ``update()`` clears it with ``ResetMaxSigninSessionDuration``.
+- An RDS DB instance exposes ``RDSPrimaryEndpoint`` and ``VPCNetworkingEnabled``.
+- SES delivery options include ``SharedPoolDeliveryMode``.
+- STS assume-role responses include ``STSTrustedIdentityPropagationContext``.
+
+Bugfixes
+^^^^^^^^
+
+- ``AgentCoreAgentRuntimeManager.create()`` and ``update()`` omit empty ``allowedPorts``, ``filesystemConfigurations``, ``resourceConfigurations``, and ``environmentVariables``.
+
 0.36.3 (2026-11-19)
 -------------------
 
