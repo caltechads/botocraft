@@ -1,6 +1,14 @@
 CHANGELOG
 =========
 
+0.36.6 (2026-11-19)
+-------------------
+
+Bugfixes
+^^^^^^^^
+
+- AgentCore create and update calls omit empty nested lists and maps whose minimum length is 1. ``AgentCoreAgentRuntimeManager.create()`` and ``update()`` send a JWT authorizer that holds only ``discoveryUrl`` and ``allowedClients`` without ``allowedAudience``, ``allowedScopes``, ``customClaims``, ``certificateConfigurations``, ``advertisedScopeMapping``, or empty ``privateEndpointOverrides``. A populated list or map is still sent. A get that omits these fields still validates, and ``update()`` of that model sends only the values it holds.
+
 0.36.4 (2026-11-19)
 -------------------
 

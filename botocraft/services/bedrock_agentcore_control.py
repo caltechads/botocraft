@@ -10,7 +10,7 @@ from .abstract import (
 )
 from .abstract import PrimaryBoto3ModelQuerySet
 from botocraft.mixins.bedrock_agentcore_control import AgentCoreAgentRuntimeManagerMixin
-from botocraft.mixins.bedrock_agentcore_control import AgentCoreAgentRuntimeMixin
+from botocraft.mixins.bedrock_agentcore_control import OmitEmptyContainersMixin
 from botocraft.mixins.tags import TagsDictMixin
 from botocraft.services.inspector2 import Finding
 from botocraft.services.secretsmanager import Secret
@@ -3174,7 +3174,7 @@ class ResourceConfiguration(Boto3Model):
     The minimum amount of memory, in mebibytes, to allocate to the AgentCore Runtime.
     """
 
-class AgentCoreAgentRuntime(AgentCoreAgentRuntimeMixin, PrimaryBoto3Model):
+class AgentCoreAgentRuntime(OmitEmptyContainersMixin, PrimaryBoto3Model):
     """
     Contains information about an agent runtime.
 
@@ -4142,6 +4142,7 @@ class ContentConfiguration(Boto3Model):
     """
     Type of content to stream.
     """
+
     level: "Literal['METADATA_ONLY', 'FULL_CONTENT'] | None" = None
     """
     Level of detail for streamed content.
@@ -4152,15 +4153,17 @@ class KinesisResource(Boto3Model):
     """
     Configuration for Kinesis Data Stream delivery.
     """
-
     dataStreamArn: str
     """
     ARN of the Kinesis Data Stream.
     """
+
     contentConfigurations: "builtins.list[ContentConfiguration]"
     """
     Content configurations for stream delivery.
     """
+
+
 class StreamDeliveryResource(Boto3Model):
     """
     Supported stream delivery resource types.
@@ -4176,14 +4179,13 @@ class StreamDeliveryResources(Boto3Model):
     """
     Configuration for streaming memory record data to external resources.
     """
-
     resources: "builtins.list[StreamDeliveryResource]"
     """
     List of stream delivery resource configurations.
     """
 
 
-class AgentCoreMemory(PrimaryBoto3Model):
+class AgentCoreMemory(OmitEmptyContainersMixin, PrimaryBoto3Model):
     """
     Contains information about a memory resource.
     """
@@ -4700,7 +4702,6 @@ class MicrosoftOauth2ProviderConfigOutput(Boto3Model):
     """
     The client ID for the Microsoft OAuth2 provider.
     """
-
 class AtlassianOauth2ProviderConfigOutput(Boto3Model):
     """
     The configuration details returned for an Atlassian OAuth2 provider, including the
@@ -4766,6 +4767,7 @@ class Oauth2ProviderConfigOutput(Boto3Model):
     """
     The output configuration for a Google OAuth2 provider.
     """
+
     githubOauth2ProviderConfig: "GithubOauth2ProviderConfigOutput | None" = None
     """
     The output configuration for a GitHub OAuth2 provider.
@@ -4780,6 +4782,7 @@ class Oauth2ProviderConfigOutput(Boto3Model):
     """
     The output configuration for a Salesforce OAuth2 provider.
     """
+
     microsoftOauth2ProviderConfig: "MicrosoftOauth2ProviderConfigOutput | None" = None
     """
     The output configuration for a Microsoft OAuth2 provider.
@@ -4803,7 +4806,7 @@ class Oauth2ProviderConfigOutput(Boto3Model):
     built-in integration support.
     """
 
-class AgentCoreOauth2CredentialProvider(PrimaryBoto3Model):
+class AgentCoreOauth2CredentialProvider(OmitEmptyContainersMixin, PrimaryBoto3Model):
     """
     Contains information about an OAuth2 credential provider.
     """
@@ -5165,7 +5168,6 @@ class SecretsManagerLocation(Boto3Model):
     certificate.
     """
 
-
 class CertificateLocation(Boto3Model):
     """
     The location from which to retrieve a certificate.
@@ -5185,7 +5187,6 @@ class AgentCoreCodeInterpreterCertificate(Boto3Model):
     """
     The location of the certificate.
     """
-
 
 class S3FilesConfiguration(Boto3Model):
     """
@@ -5213,7 +5214,6 @@ class S3FilesConfiguration(Boto3Model):
     Files file system that owns the access point.
     """
 
-
 class EfsConfiguration(Boto3Model):
     """
     The configuration for mounting an Amazon Elastic File System (Amazon EFS) access
@@ -5239,6 +5239,8 @@ class EfsConfiguration(Boto3Model):
     The Amazon Resource Name (ARN) of the Amazon Elastic File System (Amazon EFS) file
     system that owns the access point.
     """
+
+
 class ToolsFileSystemConfiguration(Boto3Model):
     """Specifies a file system to mount into the session by providing exactly one of the following:
 
@@ -5253,14 +5255,13 @@ class ToolsFileSystemConfiguration(Boto3Model):
     The configuration for mounting your own Amazon Simple Storage Service (Amazon S3)
     Files access point into the session.
     """
-
     efsConfiguration: "EfsConfiguration | None" = None
     """
     The configuration for mounting your own Amazon Elastic File System (Amazon EFS)
     access point into the session.
     """
 
-class AgentCoreCodeInterpreter(PrimaryBoto3Model):
+class AgentCoreCodeInterpreter(OmitEmptyContainersMixin, PrimaryBoto3Model):
     """
     Contains summary information about a code interpreter.
 
@@ -5536,6 +5537,7 @@ class InterceptorConfiguration(Boto3Model):
     """
     The details of the lambda function used for the interceptor.
     """
+
 class InterceptorPayloadExclusionSelector(Boto3Model):
     """
     A selector that identifies a payload field to exclude from the interceptor input.
@@ -5557,6 +5559,8 @@ class InterceptorPayloadFilter(Boto3Model):
     The list of selectors that identify payload fields to exclude from the interceptor
     input.
     """
+
+
 class InterceptorInputConfiguration(Boto3Model):
     """
     The input configuration of the interceptor.
@@ -5614,6 +5618,7 @@ class GatewayPolicyEngineConfiguration(Boto3Model):
     requests and determines whether to allow or deny each action based on the defined
     policies.
     """
+
     arn: str
     """
     The ARN of the policy engine.
@@ -5629,7 +5634,6 @@ class GatewayPolicyEngineConfiguration(Boto3Model):
 
     Valid values include:
     """
-
 
 class WafConfiguration(Boto3Model):
     """
@@ -5656,7 +5660,6 @@ class DomainOverride(Boto3Model):
     of the inbound Host header in the URLs that it returns for OAuth discovery, such as
     the protected resource metadata and the ``WWW-Authenticate`` challenge.
     """
-
     defaultDomain: str
     """
     The default public domain name for the gateway.
@@ -5674,7 +5677,7 @@ class DomainOverride(Boto3Model):
     domain that isn't configured.
     """
 
-class AgentCoreGateway(PrimaryBoto3Model):
+class AgentCoreGateway(OmitEmptyContainersMixin, PrimaryBoto3Model):
     """
     Contains summary information about a gateway.
     """
@@ -6116,6 +6119,7 @@ class FallbackTarget(Boto3Model):
     This setting isn't inherited from the route. If you don't specify a value, no
     timeout is enforced.
     """
+
 class Fallback(Boto3Model):
     """
     The fallback configuration for a route to an inference target.
@@ -6136,6 +6140,7 @@ class Fallback(Boto3Model):
     specify ``triggerOn``, only the status codes and errors that you list trigger a
     fallback.
     """
+
     firstByteTimeoutMilliseconds: "int | None" = None
     """
     The maximum time, in milliseconds, from sending the request to the route's target
@@ -6156,6 +6161,7 @@ class Fallback(Boto3Model):
     tries the last remaining target in the chain. The gateway enables the circuit
     breaker by default.
     """
+
     targetFallback: "builtins.list[FallbackTarget]"
     """
     The ordered list of fallback targets.
@@ -6170,6 +6176,7 @@ class StaticRoute(Boto3Model):
     """
     A static route to a single gateway target.
     """
+
     targetName: str
     """
     The name of the target to route requests to.
@@ -6199,6 +6206,7 @@ class TargetTrafficSplitEntry(Boto3Model):
     """
     The name of the target to route traffic to.
     """
+
     model: "str | None" = None
     """
     The model ID to send to the target for this variant.
@@ -6213,7 +6221,6 @@ class TargetTrafficSplitEntry(Boto3Model):
 
     Supported only for inference targets.
     """
-
     name: str
     """
     The name of this traffic split variant.
@@ -6243,6 +6250,8 @@ class WeightedRoute(Boto3Model):
     """
     The traffic split entries defining how traffic is distributed between targets.
     """
+
+
 class RouteToTargetAction(Boto3Model):
     """
     An action that routes requests to a gateway target, either statically or with
@@ -6253,7 +6262,6 @@ class RouteToTargetAction(Boto3Model):
     """
     A static route that sends all matching requests to a single target.
     """
-
     weightedRoute: "WeightedRoute | None" = None
     """
     A weighted route that splits traffic between multiple targets.
@@ -6263,11 +6271,11 @@ class AgentCoreGatewayRuleAction(Boto3Model):
     """
     An action to take when a gateway rule's conditions are met.
     """
+
     configurationBundle: "ConfigurationBundleAction | None" = None
     """
     An action that applies a configuration bundle override to the request.
     """
-
     routeToTarget: "RouteToTargetAction | None" = None
     """
     An action that routes the request to a specific target.
@@ -6277,13 +6285,11 @@ class SystemManagedBlock(Boto3Model):
     """
     System-managed metadata for rules created by automated processes such as A/B tests.
     """
-
     managedBy: str
     """
     The identifier of the system or process that manages this rule.
     """
-
-class AgentCoreGatewayRule(PrimaryBoto3Model):
+class AgentCoreGatewayRule(OmitEmptyContainersMixin, PrimaryBoto3Model):
     """
     Detailed information about a gateway rule.
     """
@@ -7154,7 +7160,6 @@ class OAuthCredentialProvider(Boto3Model):
     This structure contains the configuration for authenticating with the target
     endpoint using OAuth.
     """
-
     providerArn: str
     """
     The Amazon Resource Name (ARN) of the OAuth credential provider.
@@ -7241,7 +7246,6 @@ class IamCredentialProvider(Boto3Model):
     This value identifies the service that the gateway authenticates with when making
     requests to the target endpoint.
     """
-
     region: "str | None" = None
     """
     The Amazon Web Services Region used for SigV4 signing.
@@ -7263,7 +7267,6 @@ class CredentialProvider(Boto3Model):
 
     This provider uses OAuth authentication to access the target endpoint.
     """
-
     apiKeyCredentialProvider: "ApiKeyCredentialProvider | None" = None
     """
     The API key credential provider.
@@ -7278,7 +7281,6 @@ class CredentialProvider(Boto3Model):
     This provider uses IAM authentication with SigV4 signing to access the target
     endpoint.
     """
-
 class CredentialProviderConfiguration(Boto3Model):
     """
     The configuration for a credential provider.
@@ -7317,12 +7319,12 @@ class MetadataConfiguration(Boto3Model):
     A list of HTTP headers that are allowed to be propagated from incoming client
     requests to the target.
     """
-
     allowedQueryParameters: "builtins.list[str] | None" = Field(default_factory=list)
     """
     A list of URL query parameters that are allowed to be propagated from incoming
     gateway URL to the target.
     """
+
     allowedResponseHeaders: "builtins.list[str] | None" = Field(default_factory=list)
     """
     A list of HTTP headers that are allowed to be propagated from the target response
@@ -7349,7 +7351,8 @@ class ManagedResourceDetails(Boto3Model):
     """
     The ARN of the service network resource association.
     """
-class AgentCoreGatewayTarget(PrimaryBoto3Model):
+
+class AgentCoreGatewayTarget(OmitEmptyContainersMixin, PrimaryBoto3Model):
     """
     Contains summary information about a gateway target.
 
@@ -8216,6 +8219,7 @@ class HarnessMemoryConfiguration(Boto3Model):
     """
     Explicitly opt out of memory.
     """
+
 class HarnessHookLambdaTarget(Boto3Model):
     """
     The configuration for an Amazon Web Services Lambda hook target.
@@ -8225,7 +8229,6 @@ class HarnessHookLambdaTarget(Boto3Model):
     """
     The ARN of the Lambda function to invoke.
     """
-
     timeoutSeconds: "int | None" = None
     """
     The maximum number of seconds to wait for the Lambda function response.
@@ -8241,22 +8244,19 @@ class HarnessHookLambdaTarget(Boto3Model):
     The default is
     ``DENY``.
     """
-
 class HarnessHookSnsTarget(Boto3Model):
     """
     The configuration for an Amazon SNS hook target.
     """
+
     arn: str
     """
     The ARN of the Amazon SNS topic to publish hook events to.
     """
-
-
 class HarnessHookEventBridgeTarget(Boto3Model):
     """
     The configuration for an Amazon EventBridge hook target.
     """
-
     arn: str
     """
     The ARN of the Amazon EventBridge event bus to send hook events to.
@@ -8303,11 +8303,11 @@ class HarnessBeforeInvocationHook(Boto3Model):
     The target that receives the hook event.
     """
 
-
 class HarnessAfterInvocationHook(Boto3Model):
     """
     The configuration for a hook that runs after an invocation completes.
     """
+
     name: str
     """
     The name of the hook.
@@ -8344,7 +8344,6 @@ class HarnessAfterToolCallHook(Boto3Model):
     """
     The name of the hook.
     """
-
     target: HarnessHookTarget
     """
     The target that receives the hook event.
@@ -8378,7 +8377,7 @@ class HarnessHook(Boto3Model):
     A hook that runs after a tool call completes.
     """
 
-class AgentCoreHarness(PrimaryBoto3Model):
+class AgentCoreHarness(OmitEmptyContainersMixin, PrimaryBoto3Model):
     """
     Representation of a harness.
     """

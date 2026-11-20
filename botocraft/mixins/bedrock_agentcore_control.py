@@ -5,35 +5,125 @@ from botocraft.services.abstract import PrimaryBoto3ModelQuerySet
 if TYPE_CHECKING:
     from botocraft.services.bedrock_agentcore_control import AgentCoreAgentRuntime
 
-#: Create and update arguments whose empty value botocore rejects or that
-#: would wipe a setting the caller did not provide. ``allowedPorts`` has
-#: minimum length 1. The others default to empty on the model.
+#: Create and update members whose empty value botocore rejects (``min``
+#: >= 1), plus runtime fields that default to empty and would wipe a setting
+#: the caller did not provide. A populated list or map is kept.
+#: ``customParameters`` is also a map with no minimum on a registry record;
+#: an empty one is omitted too.
+# ponytail: one name set for every depth. Per-shape serializers if an empty
+# registry ``customParameters`` map must be sent.
 _ABSENT_WHEN_EMPTY: frozenset[str] = frozenset(
     {
+        "additionalHeaderClaims",
+        "additionalPayloadClaims",
+        "advertisedScopeMapping",
+        "allowedAudience",
+        "allowedClients",
+        "allowedInstanceTypes",
         "allowedPorts",
+        "allowedQueryParameters",
+        "allowedRequestHeaders",
+        "allowedResponseHeaders",
+        "allowedScopes",
+        "allowedValues",
+        "alternateDomains",
+        "anyOf",
+        "certificateConfigurations",
+        "compositeIdentifier",
+        "connections",
+        "contentConfigurations",
+        "customClaims",
+        "customParameters",
+        "dimensions",
+        "enabled",
+        "entryPoint",
         "environmentVariables",
+        "errors",
+        "examples",
+        "exclude",
         "filesystemConfigurations",
+        "hostingEnvironments",
+        "interceptionPoints",
+        "logGroupNamePrefixes",
+        "matchValueStringList",
+        "metadataSchema",
+        "models",
+        "multiDimensional",
+        "namespaceTemplates",
+        "namespaces",
+        "operations",
+        "requestHeaderAllowlist",
+        "requests",
         "resourceConfigurations",
+        "securityGroups",
+        "serviceNames",
+        "statusCodes",
+        "strategies",
+        "subnets",
+        "targetFallback",
+        "tokenEndpointAuthMethods",
+        "tokens",
+        "trafficSplit",
+        "triggerConditions",
+        "workloadIdentities",
+    }
+)
+
+#: Empty members that are illegal only under one parent. ``scopes`` has
+#: ``min`` 1 on a consent-portal IdP config and is optional on OAuth.
+#: ``privateEndpointOverrides`` defaults to ``[]`` on a JWT authorizer.
+#: Botocore allows that empty list; create and update still must not send it.
+_ABSENT_UNDER_PARENT: frozenset[tuple[str, str]] = frozenset(
+    {
+        ("customJWTAuthorizer", "privateEndpointOverrides"),
+        ("idpConfig", "scopes"),
     }
 )
 
 
-class AgentCoreAgentRuntimeMixin:
+def _omit_empty_containers(data: Any, parent: str | None = None) -> None:
     """
-    Keep empty AgentCore runtime containers off create and update calls.
+    Drop empty lists and maps that create and update must not send.
 
-    The generated manager dumps the model with ``exclude_none=True`` and
-    forwards every remaining value. These fields default to ``[]`` or ``{}``,
-    which are not ``None``, so an unused runtime was sent with
-    ``allowedPorts=[]`` and botocore rejected it before the request was made.
+    Side Effects:
+        Removes those keys from ``data`` and from nested dicts and list items.
+
+    Args:
+        data: A ``model_dump`` result, or a nested value inside one.
+        parent: The key of the dict that contains ``data``, when ``data`` is
+            a dict.
+
+    """
+    if isinstance(data, dict):
+        for key, value in list(data.items()):
+            _omit_empty_containers(value, key)
+            if value in ([], {}) and (
+                key in _ABSENT_WHEN_EMPTY or (parent, key) in _ABSENT_UNDER_PARENT
+            ):
+                del data[key]
+        return
+    if isinstance(data, list):
+        for item in data:
+            _omit_empty_containers(item)
+
+
+class OmitEmptyContainersMixin:
+    """
+    Keep empty AgentCore create and update containers off the wire.
+
+    Generated managers dump the model with ``exclude_none=True`` and forward
+    every remaining value. List and map fields default to ``[]`` or ``{}``,
+    which are not ``None``. Botocore rejects the ones whose minimum length is
+    1 before the request is sent. The in-memory default stays ``[]`` or ``{}``.
     """
 
     def model_dump(self, *args: Any, **kwargs: Any) -> dict[str, Any]:
         """
-        Dump the runtime, leaving out containers that are empty.
+        Dump the model, leaving out empty containers at every depth.
 
         Create and update both send this dump. A populated list or dict is
-        unchanged.
+        unchanged. A read that omitted the field still validates, because the
+        default is applied before this dump.
 
         Args:
             args: Positional arguments forwarded to the pydantic dump.
@@ -42,17 +132,11 @@ class AgentCoreAgentRuntimeMixin:
             kwargs: Keyword arguments forwarded to the pydantic dump.
 
         Returns:
-            The dumped runtime, without empty ``allowedPorts``,
-            ``filesystemConfigurations``, ``resourceConfigurations`` or
-            ``environmentVariables``.
+            The dumped model, without the empty containers named above.
 
         """
         data = super().model_dump(*args, **kwargs)  # type: ignore[misc]
-        # ponytail: top-level only. Nested min-length lists are sent only
-        # when the caller built the parent object.
-        for name in _ABSENT_WHEN_EMPTY:
-            if data.get(name) in ([], {}):
-                del data[name]
+        _omit_empty_containers(data)
         return data
 
 

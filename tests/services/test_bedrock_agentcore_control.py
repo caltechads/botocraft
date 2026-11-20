@@ -328,6 +328,116 @@ def test_get_then_update_sends_only_held_values(stubbed) -> None:
     manager.update(runtime, clientToken=CLIENT_TOKEN)
 
 
+DISCOVERY_URL = "https://example.com/.well-known/openid-configuration"
+JWT = {
+    "customJWTAuthorizer": {
+        "discoveryUrl": DISCOVERY_URL,
+        "allowedClients": ["client"],
+    }
+}
+CLAIMS = [
+    {
+        "inboundTokenClaimName": "role",
+        "inboundTokenClaimValueType": "STRING",
+        "authorizingClaimMatchValue": {
+            "claimMatchOperator": "EQUALS",
+            "claimMatchValue": {"matchValueString": "admin"},
+        },
+    }
+]
+POPULATED_JWT = {
+    "customJWTAuthorizer": {
+        "discoveryUrl": DISCOVERY_URL,
+        "allowedAudience": ["aud"],
+        "allowedScopes": ["scope"],
+        "customClaims": CLAIMS,
+    }
+}
+
+
+def test_update_jwt_authorizer_omits_empty_nested_containers(stubbed) -> None:
+    manager, stubber = stubbed
+    expected = {
+        **_base_write_params(),
+        "agentRuntimeId": RUNTIME_ID,
+        "authorizerConfiguration": JWT,
+        "clientToken": CLIENT_TOKEN,
+    }
+    stubber.add_response("update_agent_runtime", _update_response(), expected)
+
+    manager.update(_runtime(authorizerConfiguration=JWT), clientToken=CLIENT_TOKEN)
+
+
+def test_create_jwt_authorizer_omits_empty_nested_containers(stubbed) -> None:
+    manager, stubber = stubbed
+    expected = {
+        **_base_write_params(),
+        "agentRuntimeName": "example_runtime",
+        "authorizerConfiguration": JWT,
+    }
+    stubber.add_response("create_agent_runtime", _create_response(), expected)
+
+    manager.create(_runtime(authorizerConfiguration=JWT))
+
+
+def test_update_sends_populated_jwt_lists(stubbed) -> None:
+    manager, stubber = stubbed
+    expected = {
+        **_base_write_params(),
+        "agentRuntimeId": RUNTIME_ID,
+        "authorizerConfiguration": POPULATED_JWT,
+        "clientToken": CLIENT_TOKEN,
+    }
+    stubber.add_response("update_agent_runtime", _update_response(), expected)
+
+    manager.update(
+        _runtime(authorizerConfiguration=POPULATED_JWT), clientToken=CLIENT_TOKEN
+    )
+
+
+def test_get_then_update_omits_empty_nested_containers(stubbed) -> None:
+    manager, stubber = stubbed
+    lifecycle = {"idleRuntimeSessionTimeout": 900, "maxLifetime": 28800}
+    response = _get_response(
+        agentRuntimeArtifact=ARTIFACT,
+        networkConfiguration=NETWORK,
+        authorizerConfiguration=JWT,
+        lifecycleConfiguration=lifecycle,
+    )
+    stubber.add_response("get_agent_runtime", response, {"agentRuntimeId": RUNTIME_ID})
+    expected = {
+        **_base_write_params(),
+        "agentRuntimeId": RUNTIME_ID,
+        "authorizerConfiguration": JWT,
+        "lifecycleConfiguration": lifecycle,
+        "clientToken": CLIENT_TOKEN,
+    }
+    stubber.add_response("update_agent_runtime", _update_response(), expected)
+
+    runtime = manager.get(RUNTIME_ID)
+
+    assert runtime is not None
+    manager.update(runtime, clientToken=CLIENT_TOKEN)
+
+
+def test_scopes_omitted_only_when_min_length_requires_it() -> None:
+    from botocraft.mixins.bedrock_agentcore_control import _omit_empty_containers
+
+    data: dict[str, Any] = {
+        "idpConfig": {"scopes": []},
+        "oauthCredentialProvider": {
+            "scopes": [],
+            "customParameters": {},
+        },
+    }
+
+    _omit_empty_containers(data)
+
+    assert data["idpConfig"] == {}
+    assert data["oauthCredentialProvider"]["scopes"] == []
+    assert "customParameters" not in data["oauthCredentialProvider"]
+
+
 def test_get_with_description(stubbed) -> None:
     manager, stubber = stubbed
     stubber.add_response(

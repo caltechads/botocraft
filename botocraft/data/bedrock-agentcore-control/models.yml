@@ -10,7 +10,7 @@ primary:
       - UpdateAgentRuntimeRequest
     output_shape: GetAgentRuntimeResponse
     mixins:
-      - name: AgentCoreAgentRuntimeMixin
+      - name: OmitEmptyContainersMixin
         import_path: botocraft.mixins.bedrock_agentcore_control
     fields:
       description:
@@ -37,6 +37,9 @@ primary:
     input_shapes:
       - CreateMemoryInput
       - UpdateMemoryInput
+    mixins:
+      - name: OmitEmptyContainersMixin
+        import_path: botocraft.mixins.bedrock_agentcore_control
     fields:
       name:
         rename: memoryName
@@ -61,6 +64,9 @@ primary:
       - CreateOauth2CredentialProviderRequest
       - UpdateOauth2CredentialProviderRequest
     output_shape: GetOauth2CredentialProviderResponse
+    mixins:
+      - name: OmitEmptyContainersMixin
+        import_path: botocraft.mixins.bedrock_agentcore_control
     fields:
       name:
         rename: credentialProviderName
@@ -86,6 +92,9 @@ primary:
     input_shapes:
       - CreateCodeInterpreterRequest
     output_shape: GetCodeInterpreterResponse
+    mixins:
+      - name: OmitEmptyContainersMixin
+        import_path: botocraft.mixins.bedrock_agentcore_control
     fields:
       name:
         rename: sandboxName
@@ -97,6 +106,9 @@ primary:
       - CreateGatewayRequest
       - UpdateGatewayRequest
     output_shape: GetGatewayResponse
+    mixins:
+      - name: OmitEmptyContainersMixin
+        import_path: botocraft.mixins.bedrock_agentcore_control
     fields:
       name:
         rename: gatewayName
@@ -108,6 +120,9 @@ primary:
       - CreateGatewayRuleRequest
       - UpdateGatewayRuleRequest
     output_shape: GetGatewayRuleResponse
+    mixins:
+      - name: OmitEmptyContainersMixin
+        import_path: botocraft.mixins.bedrock_agentcore_control
   # NOTE: GatewayTarget's real cycle is
   # SchemaDefinition -> SchemaProperties -> SchemaDefinition (a JSON-Schema-
   # style recursive type describing Lambda tool parameters). Cutting it off at
@@ -124,6 +139,9 @@ primary:
       - CreateGatewayTargetRequest
       - UpdateGatewayTargetRequest
     output_shape: GatewayTarget
+    mixins:
+      - name: OmitEmptyContainersMixin
+        import_path: botocraft.mixins.bedrock_agentcore_control
     fields:
       name:
         rename: targetName
@@ -135,6 +153,9 @@ primary:
     input_shapes:
       - CreateHarnessRequest
       - UpdateHarnessRequest
+    mixins:
+      - name: OmitEmptyContainersMixin
+        import_path: botocraft.mixins.bedrock_agentcore_control
     fields:
       arn:
         rename: Arn

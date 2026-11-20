@@ -4,6 +4,7 @@
 
 ### Fixed
 
+- `AgentCoreAgentRuntimeManager.create()` and `update()` no longer send empty nested lists or maps whose minimum length is 1, including a JWT authorizer's `allowedAudience`, `allowedScopes`, `customClaims`, `certificateConfigurations` and `advertisedScopeMapping`. The same omission applies to the other AgentCore create and update models that contain those nested members. A populated list or map is still sent. A get response that omits them still validates, and passing that model to `update()` does not send the empty defaults. `privateEndpointOverrides` is omitted when empty on a JWT authorizer.
 - `AgentCoreAgentRuntimeManager.get()` no longer fails with a validation error for runtimes that have no description, such as those created by the commons modules. `AgentCoreAgentRuntime.description` is now `str | None` (default `None`). It was required because the model took its required fields from AWS's list summary shape, which requires `description`, while `GetAgentRuntime` does not. Code that treats `description` as always a `str` needs a `None` check.
 - `AgentCoreAgentRuntimeManager.create()` and `update()` no longer send empty `allowedPorts`, `filesystemConfigurations`, `resourceConfigurations` or `environmentVariables`. `allowedPorts` has a minimum length of 1, so the empty list was rejected by botocore before the request was sent. A populated list or dict is still sent. The in-memory default stays `[]` or `{}`.
 
