@@ -1,6 +1,14 @@
 CHANGELOG
 =========
 
+0.36.3 (2026-11-19)
+-------------------
+
+Bugfixes
+^^^^^^^^
+
+- ``AgentCoreAgentRuntime.get()`` reads a runtime that omits ``description``. ``description`` is ``str | None``.
+
 0.36.2 (2026-11-18)
 -------------------
 
