@@ -2994,7 +2994,6 @@ class CapacityProviderVolumeConfiguration(Boto3Model):
     This name must match a volume that is defined in the capacity provider's list of
     volumes.
     """
-
     mountPath: str
     """
     The mount path for the capacity provider volume inside the AgentCore Runtime.
@@ -3002,8 +3001,51 @@ class CapacityProviderVolumeConfiguration(Boto3Model):
     The path must be under ``/mnt`` with exactly one subdirectory level (for example,
     ``/mnt/data``).
     """
+class S3BucketMountConfiguration(Boto3Model):
+    """
+    Mounts an Amazon S3 bucket in the AgentCore Runtime with Mountpoint for Amazon S3.
 
+    Files under the mount path map to objects in the bucket.
+    """
 
+    bucket: str
+    """
+    The name of the S3 bucket to mount.
+
+    You can specify a general purpose bucket or a directory bucket.
+    """
+
+    mountPath: str
+    """
+    The mount path for the S3 bucket inside the AgentCore Runtime.
+
+    The path must be under ``/mnt`` with exactly one subdirectory level (for example,
+    ``/mnt/data``).
+    """
+
+    prefix: "str | None" = None
+    """
+    The key prefix to mount.
+
+    Only objects under this prefix are visible at the mount path. To give each session
+    its own prefix, include ``{runtimeSessionId}`` (for example,
+    ``data/{runtimeSessionId}/``). If you omit the prefix, the whole bucket is mounted.
+    """
+
+    s3BucketOwner: "str | None" = None
+    """
+    The AWS account ID that must own the bucket.
+
+    If you omit it, the bucket must be owned by the account that owns the AgentCore
+    Runtime.
+    """
+
+    s3BucketRegion: "str | None" = None
+    """
+    The AWS Region of the S3 bucket.
+
+    If you omit it, the bucket must be in the same Region as the AgentCore Runtime.
+    """
 class FilesystemConfiguration(Boto3Model):
     """
     Configuration for a filesystem that can be mounted into the AgentCore Runtime.
@@ -3016,13 +3058,11 @@ class FilesystemConfiguration(Boto3Model):
     Session storage provides persistent storage that is preserved across AgentCore
     Runtime session invocations.
     """
-
     s3FilesAccessPoint: "S3FilesAccessPointConfiguration | None" = None
     """
     Configuration for an Amazon S3 Files access point to mount into the AgentCore
     Runtime.
     """
-
     efsAccessPoint: "EfsAccessPointConfiguration | None" = None
     """
     Configuration for an Amazon EFS access point to mount into the AgentCore Runtime.
@@ -3034,6 +3074,37 @@ class FilesystemConfiguration(Boto3Model):
 
     This mounts a persistent volume that is defined on the capacity provider, referenced
     by its logical name.
+    """
+
+    s3BucketMount: "S3BucketMountConfiguration | None" = None
+    """
+    Mounts an Amazon S3 bucket as a file system in the AgentCore Runtime.
+    """
+
+
+class LinuxOperatingSystemConfiguration(Boto3Model):
+    """
+    Contains the operating system configuration of agents that run on Linux instances,
+    such as the privilege mode.
+    """
+
+    privilegeMode: "Literal['STANDARD', 'PRIVILEGED'] | None" = None
+    """
+    The privilege mode of the agents.
+
+    If you omit this field, the agents run in ``STANDARD`` privilege mode. The following
+    values are possible:
+    """
+class OperatingSystemConfiguration(Boto3Model):
+    """
+    Contains the operating system configuration of the agents that AgentCore Runtime
+    runs on a capacity provider.
+
+    Specify the member for the operating system of the capacity provider.
+    """
+    linux: "LinuxOperatingSystemConfiguration | None" = None
+    """
+    The operating system configuration of agents that run on Linux instances.
     """
 
 
@@ -3049,6 +3120,12 @@ class CapacityProviderConfiguration(Boto3Model):
     """
     The Amazon Resource Name (ARN) of the capacity provider to use for the AgentCore
     Runtime.
+    """
+
+    operatingSystemConfiguration: "OperatingSystemConfiguration | None" = None
+    """
+    The operating system configuration of the agents that Amazon Bedrock AgentCore
+    Runtime runs on the capacity provider.
     """
 
 
@@ -3076,7 +3153,6 @@ class AllowedPort(Boto3Model):
 
     Specify exactly one of ``port`` or ``portRange``.
     """
-
     port: "int | None" = None
     """
     A single port that is reachable through the runtime's session URL.
@@ -3092,11 +3168,11 @@ class ResourceConfiguration(Boto3Model):
     """
     The resource configuration for an AgentCore Runtime.
     """
+
     minimumMemoryInMiB: int
     """
     The minimum amount of memory, in mebibytes, to allocate to the AgentCore Runtime.
     """
-
 
 class AgentCoreAgentRuntime(AgentCoreAgentRuntimeMixin, PrimaryBoto3Model):
     """
@@ -3126,11 +3202,11 @@ class AgentCoreAgentRuntime(AgentCoreAgentRuntimeMixin, PrimaryBoto3Model):
     """
     The version of the agent runtime.
     """
-
     agentRuntimeName: str
     """
     The name of the agent runtime.
     """
+
     lastUpdatedAt: datetime = Field(frozen=True)
     """
     The timestamp when the agent runtime was last updated.
@@ -3148,10 +3224,12 @@ class AgentCoreAgentRuntime(AgentCoreAgentRuntimeMixin, PrimaryBoto3Model):
     """
     The current status of the agent runtime.
     """
+
     createdAt: datetime = Field(default=None, frozen=True)
     """
     The timestamp when the AgentCore Runtime was created.
     """
+
     roleArn: str = Field(default=None, frozen=True)
     """
     The IAM role ARN that provides permissions for the AgentCore Runtime.
@@ -3233,7 +3311,6 @@ class AgentCoreAgentRuntime(AgentCoreAgentRuntimeMixin, PrimaryBoto3Model):
     """
     The capacity provider configuration for the AgentCore Runtime.
     """
-
     platformVersion: str = Field(default=None, frozen=True)
     """
     The version of the runtime platform used by the AgentCore Runtime.
@@ -3289,6 +3366,7 @@ class AgentCoreAgentRuntime(AgentCoreAgentRuntimeMixin, PrimaryBoto3Model):
             The name of the model instance.
         """
         return self.agentRuntimeName
+
     def __hash__(self) -> int:
         """
         Return the hash of the model.
@@ -3351,7 +3429,6 @@ class AgentCoreAgentRuntimeEndpoint(PrimaryBoto3Model):
     """
     The current status of the agent runtime endpoint.
     """
-
     id: str = Field(frozen=True)
     """
     The unique identifier of the agent runtime endpoint.
@@ -3388,6 +3465,7 @@ class AgentCoreAgentRuntimeEndpoint(PrimaryBoto3Model):
             The primary key of the model instance.
         """
         return self.id
+
     @property
     def arn(self) -> str | None:
         """
@@ -3399,7 +3477,6 @@ class AgentCoreAgentRuntimeEndpoint(PrimaryBoto3Model):
             The ARN of the model instance.
         """
         return self.agentRuntimeEndpointArn
-
     @property
     def name(self) -> str | None:
         """
@@ -3426,15 +3503,17 @@ class SemanticExtractionOverride(Boto3Model):
     """
     Contains semantic extraction override configuration.
     """
-
     appendToPrompt: str
     """
     The text to append to the prompt for semantic extraction.
     """
+
     modelId: str
     """
     The model ID to use for semantic extraction.
     """
+
+
 class UserPreferenceExtractionOverride(Boto3Model):
     """
     Contains user preference extraction override configuration.
@@ -3488,6 +3567,8 @@ class CustomExtractionConfiguration(Boto3Model):
     The configurations to override the default extraction step for the episodic memory
     strategy.
     """
+
+
 class ExtractionConfiguration(Boto3Model):
     """
     Contains extraction configuration information for a memory strategy.
@@ -3497,7 +3578,6 @@ class ExtractionConfiguration(Boto3Model):
     """
     The custom extraction configuration.
     """
-
 
 class SemanticConsolidationOverride(Boto3Model):
     """
@@ -3518,6 +3598,7 @@ class SummaryConsolidationOverride(Boto3Model):
     """
     Contains summary consolidation override configuration.
     """
+
     appendToPrompt: str
     """
     The text to append to the prompt for summary consolidation.
@@ -3544,19 +3625,16 @@ class UserPreferenceConsolidationOverride(Boto3Model):
     The model ID to use for user preference consolidation.
     """
 
-
 class EpisodicConsolidationOverride(Boto3Model):
     """
     Contains configurations to override the default consolidation step for the episodic
     memory strategy.
     """
-
     appendToPrompt: str
     """
     The text appended to the prompt for the consolidation step of the episodic memory
     strategy.
     """
-
     modelId: str
     """
     The model ID used for the consolidation step of the episodic memory strategy.
@@ -3582,14 +3660,11 @@ class CustomConsolidationConfiguration(Boto3Model):
     """
     The user preference consolidation override configuration.
     """
-
     episodicConsolidationOverride: "EpisodicConsolidationOverride | None" = None
     """
     The configurations to override the default consolidation step for the episodic
     memory strategy.
     """
-
-
 class ConsolidationConfiguration(Boto3Model):
     """
     Contains consolidation configuration information for a memory strategy.
@@ -3599,7 +3674,6 @@ class ConsolidationConfiguration(Boto3Model):
     """
     The custom consolidation configuration.
     """
-
 
 class StringValidation(Boto3Model):
     """
@@ -3621,7 +3695,6 @@ class StringListValidation(Boto3Model):
     """
     Allowed values for items in this STRINGLIST field.
     """
-
     maxItems: "int | None" = None
     """
     Maximum number of items in the string list.
@@ -3642,6 +3715,8 @@ class NumberValidation(Boto3Model):
     """
     Maximum allowed value.
     """
+
+
 class Validation(Boto3Model):
     """
     Validation rules for extracted metadata values.
@@ -3653,22 +3728,20 @@ class Validation(Boto3Model):
     """
     Validation for STRING fields.
     """
+
     stringListValidation: "StringListValidation | None" = None
     """
     Validation for STRINGLIST fields.
     """
-
     numberValidation: "NumberValidation | None" = None
     """
     Validation for NUMBER fields.
     """
 
-
 class LlmExtractionConfig(Boto3Model):
     """
     Model-based metadata extraction configuration.
     """
-
     llmExtractionInstruction: "str | None" = None
     """
     Instructions for extraction.
@@ -3681,7 +3754,6 @@ class LlmExtractionConfig(Boto3Model):
     """
     Description of what this metadata field represents.
     """
-
     validation: "Validation | None" = None
     """
     Validation rules to constrain extracted values.
@@ -3697,22 +3769,23 @@ class ExtractionConfig(Boto3Model):
     """
     Model-based extraction using a definition and instructions.
     """
+
+
 class MetadataSchemaEntry(Boto3Model):
     """
     A metadata field definition within a strategy's schema.
     """
+
     key: str
     """
     The metadata field name.
 
     Must match an indexed key to be queryable via metadata filters.
     """
-
     type: "Literal['STRING', 'STRINGLIST', 'NUMBER'] | None" = None
     """
     The MetadataValueType.
     """
-
     extractionType: "Literal['LLM_INFERRED', 'STRICTLY_CONSISTENT'] | None" = None
     """
     Specifies whether the metadata value is extracted by the LLM or passed through
@@ -3725,6 +3798,8 @@ class MetadataSchemaEntry(Boto3Model):
 
     Applicable only if extractionType is LLM inferred.
     """
+
+
 class MemoryRecordSchema(Boto3Model):
     """
     Schema for metadata on memory records generated by a strategy.
@@ -3736,8 +3811,6 @@ class MemoryRecordSchema(Boto3Model):
     """
     The metadata field definitions for this strategy.
     """
-
-
 class EpisodicReflectionOverride(Boto3Model):
     """
     Contains configurations to override the default reflection step for the episodic
@@ -3749,6 +3822,7 @@ class EpisodicReflectionOverride(Boto3Model):
     The text appended to the prompt for the reflection step of the episodic memory
     strategy.
     """
+
     modelId: str
     """
     The model ID used for the reflection step of the episodic memory strategy.
@@ -3761,6 +3835,7 @@ class EpisodicReflectionOverride(Boto3Model):
     The namespaces over which reflections were created. Can be less nested than the
     episodic namespaces.
     """
+
     namespaceTemplates: "builtins.list[str] | None" = Field(default_factory=list)
     """
     The namespaceTemplates over which reflections were created.
@@ -3772,8 +3847,6 @@ class EpisodicReflectionOverride(Boto3Model):
     """
     Schema for metadata fields on records generated by this reflection override.
     """
-
-
 class CustomReflectionConfiguration(Boto3Model):
     """
     Contains configurations for a custom reflection strategy.
@@ -3783,8 +3856,6 @@ class CustomReflectionConfiguration(Boto3Model):
     """
     The configuration for a reflection strategy to override the default one.
     """
-
-
 class EpisodicReflectionConfiguration(Boto3Model):
     """
     The configuration for the reflections created with the episodic memory strategy.
@@ -3809,11 +3880,12 @@ class EpisodicReflectionConfiguration(Boto3Model):
     """ 
     "Schema for metadata fields on records generated by reflections.
     """
+
+
 class ReflectionConfiguration(Boto3Model):
     """
     Contains reflection configuration information for a memory strategy.
     """
-
     customReflectionConfiguration: "CustomReflectionConfiguration | None" = None
     """
     The configuration for a custom reflection strategy.
@@ -3835,6 +3907,7 @@ class MessageBasedTrigger(Boto3Model):
     The number of messages that trigger memory processing.
     """
 
+
 class TokenBasedTrigger(Boto3Model):
     """
     Trigger configuration based on tokens.
@@ -3854,6 +3927,8 @@ class TimeBasedTrigger(Boto3Model):
     """
     Idle session timeout (seconds) that triggers memory processing.
     """
+
+
 class TriggerCondition(Boto3Model):
     """
     Condition that triggers memory processing.
@@ -3873,6 +3948,8 @@ class TriggerCondition(Boto3Model):
     """
     Time based trigger configuration.
     """
+
+
 class InvocationConfiguration(Boto3Model):
     """
     The configuration to invoke a self-managed memory processing pipeline with.
@@ -3887,6 +3964,8 @@ class InvocationConfiguration(Boto3Model):
     """
     The S3 bucket name for event payload delivery.
     """
+
+
 class SelfManagedConfiguration(Boto3Model):
     """
     A configuration for a self-managed memory strategy.
@@ -3901,7 +3980,6 @@ class SelfManagedConfiguration(Boto3Model):
     """
     The configuration to use when invoking memory processing.
     """
-
     historicalContextWindowSize: int
     """
     The number of historical messages to include in processing context.
@@ -3911,12 +3989,10 @@ class StrategyConfiguration(Boto3Model):
     """
     Contains configuration information for a memory strategy.
     """
-
     type: "Literal['SEMANTIC_OVERRIDE', 'SUMMARY_OVERRIDE', 'USER_PREFERENCE_OVERRIDE', 'SELF_MANAGED', 'EPISODIC_OVERRIDE'] | None" = None
     """
     The type of override for the strategy configuration.
     """
-
     extraction: "ExtractionConfiguration | None" = None
     """
     The extraction configuration for the memory strategy.
@@ -3936,21 +4012,20 @@ class StrategyConfiguration(Boto3Model):
     """
     Self-managed configuration settings.
     """
-
-
 class MemoryStrategy(Boto3Model):
     """
     Contains information about a memory strategy.
     """
+
     strategyId: str
     """
     The unique identifier of the memory strategy.
     """
-
     name: str
     """
     The name of the memory strategy.
     """
+
     description: "str | None" = None
     """
     The description of the memory strategy.
@@ -3997,6 +4072,7 @@ class MemoryStrategy(Boto3Model):
     """
     Schema for metadata fields on records generated by this strategy.
     """
+
     recordExpiryDurationDays: "int | None" = None
     """
     The effective record expiry (long-term memory time-to-live), in days, for memory
@@ -4011,7 +4087,6 @@ class IndexedKey(Boto3Model):
     """
     A metadata key indexed for filtering.
     """
-
     key: str
     """
     The metadata key name to index.
@@ -4030,11 +4105,11 @@ class NamespaceKeyValidation(Boto3Model):
     When you specify multiple rules, the service enforces a logical ``AND`` across all
     provided key-value pairs.
     """
+
     allowedValues: "builtins.list[str] | None" = Field(default_factory=list)
     """
     The allowed values for this namespace variable key.
     """
-
     regexPattern: "str | None" = None
     """
     A regex pattern that the namespace variable key-value must match.
@@ -4067,7 +4142,6 @@ class ContentConfiguration(Boto3Model):
     """
     Type of content to stream.
     """
-
     level: "Literal['METADATA_ONLY', 'FULL_CONTENT'] | None" = None
     """
     Level of detail for streamed content.
@@ -4083,17 +4157,15 @@ class KinesisResource(Boto3Model):
     """
     ARN of the Kinesis Data Stream.
     """
-
     contentConfigurations: "builtins.list[ContentConfiguration]"
     """
     Content configurations for stream delivery.
     """
-
-
 class StreamDeliveryResource(Boto3Model):
     """
     Supported stream delivery resource types.
     """
+
     kinesis: "KinesisResource | None" = None
     """
     Kinesis Data Stream configuration.
@@ -4115,7 +4187,9 @@ class AgentCoreMemory(PrimaryBoto3Model):
     """
     Contains information about a memory resource.
     """
+
     manager_class: ClassVar[ModelType[Boto3ModelManager]] = AgentCoreMemoryManager
+
     memoryName: str = Field(default=None, alias="name")
     """
     The name of the memory.
@@ -4140,6 +4214,7 @@ class AgentCoreMemory(PrimaryBoto3Model):
     """
     The ARN of the KMS key used to encrypt the memory.
     """
+
     memoryExecutionRoleArn: "str | None" = None
     """
     The ARN of the IAM role that provides permissions for the memory.
@@ -4208,7 +4283,6 @@ class AgentCoreMemory(PrimaryBoto3Model):
     When set, strategy modifications and deletion are only allowed through the managing
     resource.
     """
-
     @property
     def pk(self) -> str | None:
         """
@@ -4220,7 +4294,6 @@ class AgentCoreMemory(PrimaryBoto3Model):
             The primary key of the model instance.
         """
         return self.id
-
     @property
     def arn(self) -> str | None:
         """
@@ -4232,6 +4305,7 @@ class AgentCoreMemory(PrimaryBoto3Model):
             The ARN of the model instance.
         """
         return self.Arn
+
     @property
     def name(self) -> str | None:
         """
@@ -4277,7 +4351,6 @@ class AgentCoreApiKeyCredentialProvider(PrimaryBoto3Model):
     """
     The timestamp when the API key credential provider was created.
     """
-
     lastUpdatedTime: datetime = Field(frozen=True)
     """
     The timestamp when the API key credential provider was last updated.
@@ -4294,7 +4367,6 @@ class AgentCoreApiKeyCredentialProvider(PrimaryBoto3Model):
     The JSON key used to extract the API key value from the Amazon Web Services Secrets
     Manager secret.
     """
-
     apiKeySecretSource: "Literal['MANAGED', 'EXTERNAL'] | None" = Field(
         default=None, frozen=True
     )
@@ -4316,7 +4388,6 @@ class AgentCoreApiKeyCredentialProvider(PrimaryBoto3Model):
             The primary key of the model instance.
         """
         return self.credentialProviderName
-
     @property
     def arn(self) -> str | None:
         """
@@ -4388,6 +4459,7 @@ class Oauth2Discovery(Boto3Model):
     The authorization server metadata for the OAuth2 provider.
     """
 
+
 class TokenExchangeGrantTypeConfigType(Boto3Model):
     """
     Configuration for RFC 8693 token exchange.
@@ -4404,6 +4476,8 @@ class TokenExchangeGrantTypeConfigType(Boto3Model):
 
     Only valid when actorTokenContent is M2M.
     """
+
+
 class OnBehalfOfAuthenticationConfig(Boto3Model):
     """
     Specifies the client authentication method to use for the on-behalf-of token
@@ -4417,8 +4491,6 @@ class OnBehalfOfAuthenticationConfig(Boto3Model):
     The ``NO_CLIENT`` option omits the ``clientId`` and ``clientSecret`` during the on-
     behalf-of token exchange with the identity provider.
     """
-
-
 class OnBehalfOfTokenExchangeConfigType(Boto3Model):
     """
     Configuration for on-behalf-of token exchange.
@@ -4428,7 +4500,6 @@ class OnBehalfOfTokenExchangeConfigType(Boto3Model):
     """
     The grant type for the on-behalf-of token exchange.
     """
-
     tokenExchangeGrantTypeConfig: "TokenExchangeGrantTypeConfigType | None" = None
     """
     Configuration specific to the TOKEN_EXCHANGE grant type (RFC 8693).
@@ -4458,12 +4529,10 @@ class KmsKeySourceType(Boto3Model):
     compatible with the configured signing algorithm.
     """
 
-
 class PrivateKeySource(Boto3Model):
     """
     Contains the private key source configuration for a JWT client assertion.
     """
-
     kmsKeySource: "KmsKeySourceType | None" = None
     """
     The KMS key source for the JWT client assertion.
@@ -4486,6 +4555,7 @@ class PrivateKeyJwtConfig(Boto3Model):
 
     Valid values are ``RS256``, ``PS256``, and ``ES256``.
     """
+
     additionalHeaderClaims: "dict[str, str] | None" = Field(default_factory=dict)
     """
     A map of additional claims to include in the JWT client assertion header.
@@ -4500,6 +4570,8 @@ class PrivateKeyJwtConfig(Boto3Model):
     Payload claims generated by the service, such as ``iss``, ``sub``, ``jti``, and
     ``exp``, cannot be added.
     """
+
+
 class CustomOauth2ProviderConfigOutput(Boto3Model):
     """
     Output configuration for a custom OAuth2 provider.
@@ -4514,6 +4586,7 @@ class CustomOauth2ProviderConfigOutput(Boto3Model):
     """
     The client ID for the custom OAuth2 provider.
     """
+
     onBehalfOfTokenExchangeConfig: "OnBehalfOfTokenExchangeConfigType | None" = None
     """
     The configuration for on-behalf-of token exchange.
@@ -4529,13 +4602,13 @@ class CustomOauth2ProviderConfigOutput(Boto3Model):
     The default private endpoint for the custom OAuth2 provider, enabling secure
     connectivity through a VPC Lattice resource configuration.
     """
+
     privateEndpointOverrides: "builtins.list[PrivateEndpointOverride] | None" = Field(
         default_factory=list
     )
     """
     The private endpoint overrides for the custom OAuth2 provider configuration.
     """
-
     certificateConfigurations: "builtins.list[CertificateConfiguration] | None" = Field(
         default_factory=list
     )
@@ -4570,8 +4643,6 @@ class GoogleOauth2ProviderConfigOutput(Boto3Model):
     """
     The client ID for the Google OAuth2 provider.
     """
-
-
 class GithubOauth2ProviderConfigOutput(Boto3Model):
     """
     Output configuration for a GitHub OAuth2 provider.
@@ -4586,8 +4657,6 @@ class GithubOauth2ProviderConfigOutput(Boto3Model):
     """
     The client ID for the GitHub OAuth2 provider.
     """
-
-
 class SlackOauth2ProviderConfigOutput(Boto3Model):
     """
     Output configuration for a Slack OAuth2 provider.
@@ -4608,22 +4677,20 @@ class SalesforceOauth2ProviderConfigOutput(Boto3Model):
     """
     Output configuration for a Salesforce OAuth2 provider.
     """
-
     oauthDiscovery: Oauth2Discovery
     """
     The OAuth2 discovery information for the Salesforce provider.
     """
-
     clientId: "str | None" = None
     """
     The client ID for the Salesforce OAuth2 provider.
     """
 
-
 class MicrosoftOauth2ProviderConfigOutput(Boto3Model):
     """
     Output configuration for a Microsoft OAuth2 provider.
     """
+
     oauthDiscovery: Oauth2Discovery
     """
     The OAuth2 discovery information for the Microsoft provider.
@@ -4633,7 +4700,6 @@ class MicrosoftOauth2ProviderConfigOutput(Boto3Model):
     """
     The client ID for the Microsoft OAuth2 provider.
     """
-
 
 class AtlassianOauth2ProviderConfigOutput(Boto3Model):
     """
@@ -4700,7 +4766,6 @@ class Oauth2ProviderConfigOutput(Boto3Model):
     """
     The output configuration for a Google OAuth2 provider.
     """
-
     githubOauth2ProviderConfig: "GithubOauth2ProviderConfigOutput | None" = None
     """
     The output configuration for a GitHub OAuth2 provider.
@@ -4715,7 +4780,6 @@ class Oauth2ProviderConfigOutput(Boto3Model):
     """
     The output configuration for a Salesforce OAuth2 provider.
     """
-
     microsoftOauth2ProviderConfig: "MicrosoftOauth2ProviderConfigOutput | None" = None
     """
     The output configuration for a Microsoft OAuth2 provider.
@@ -4725,6 +4789,7 @@ class Oauth2ProviderConfigOutput(Boto3Model):
     """
     The configuration details for the Atlassian OAuth2 provider.
     """
+
     linkedinOauth2ProviderConfig: "LinkedinOauth2ProviderConfigOutput | None" = None
     """
     The configuration details for the LinkedIn OAuth2 provider.
@@ -4746,12 +4811,10 @@ class AgentCoreOauth2CredentialProvider(PrimaryBoto3Model):
     manager_class: ClassVar[ModelType[Boto3ModelManager]] = (
         AgentCoreOauth2CredentialProviderManager
     )
-
     credentialProviderName: str = Field(default=None, alias="name")
     """
     The name of the OAuth2 credential provider.
     """
-
     credentialProviderVendor: Literal[
         "GoogleOauth2",
         "GithubOauth2",
@@ -4803,12 +4866,12 @@ class AgentCoreOauth2CredentialProvider(PrimaryBoto3Model):
     The Amazon Resource Name (ARN) of the client secret in Amazon Web Services Secrets
     Manager.
     """
-
     clientSecretJsonKey: str = Field(default=None, frozen=True)
     """
     The JSON key used to extract the client secret value from the Amazon Web Services
     Secrets Manager secret.
     """
+
     clientSecretSource: "Literal['MANAGED', 'EXTERNAL'] | None" = Field(
         default=None, frozen=True
     )
@@ -4827,7 +4890,6 @@ class AgentCoreOauth2CredentialProvider(PrimaryBoto3Model):
     This URL is where the OAuth2 authorization server redirects users after they
     complete the authorization flow.
     """
-
     oauth2ProviderConfigOutput: Oauth2ProviderConfigOutput = Field(
         default=None, frozen=True
     )
@@ -4841,11 +4903,11 @@ class AgentCoreOauth2CredentialProvider(PrimaryBoto3Model):
     """
     The current status of the OAuth2 credential provider.
     """
+
     failureReason: str = Field(default=None, frozen=True)
     """
     The reason for failure if the OAuth2 credential provider is in a failed state.
     """
-
     @property
     def pk(self) -> str | None:
         """
@@ -4857,6 +4919,7 @@ class AgentCoreOauth2CredentialProvider(PrimaryBoto3Model):
             The primary key of the model instance.
         """
         return self.credentialProviderName
+
     @property
     def arn(self) -> str | None:
         """
@@ -4918,7 +4981,6 @@ class CoinbaseCdpConfigurationOutput(Boto3Model):
     The JSON key used to extract the wallet secret value from the Amazon Web Services
     Secrets Manager secret.
     """
-
     walletSecretSource: "Literal['MANAGED', 'EXTERNAL'] | None" = None
     """
     The source type of the wallet secret.
@@ -4947,6 +5009,7 @@ class StripePrivyConfigurationOutput(Boto3Model):
     The JSON key used to extract the app secret value from the Amazon Web Services
     Secrets Manager secret.
     """
+
     appSecretSource: "Literal['MANAGED', 'EXTERNAL'] | None" = None
     """
     The source type of the app secret.
@@ -4990,6 +5053,7 @@ class PaymentProviderConfigurationOutput(Boto3Model):
     """
     The Coinbase CDP configuration.
     """
+
     stripePrivyConfiguration: "StripePrivyConfigurationOutput | None" = None
     """
     The Stripe Privy configuration.
@@ -5009,7 +5073,6 @@ class AgentCorePaymentCredentialProvider(TagsDictMixin, PrimaryBoto3Model):
     """
     The name of the payment credential provider.
     """
-
     Tags: dict[str, str] | None = Field(default_factory=dict, alias="tags")
     credentialProviderVendor: Literal["CoinbaseCDP", "StripePrivy"]
     """
@@ -5020,11 +5083,11 @@ class AgentCorePaymentCredentialProvider(TagsDictMixin, PrimaryBoto3Model):
     """
     The Amazon Resource Name (ARN) of the payment credential provider.
     """
+
     createdTime: datetime = Field(frozen=True)
     """
     The timestamp when the payment credential provider was created.
     """
-
     lastUpdatedTime: datetime = Field(frozen=True)
     """
     The timestamp when the payment credential provider was last updated.
@@ -5048,7 +5111,6 @@ class AgentCorePaymentCredentialProvider(TagsDictMixin, PrimaryBoto3Model):
             The primary key of the model instance.
         """
         return self.credentialProviderName
-
     @property
     def arn(self) -> str | None:
         """
@@ -5091,6 +5153,7 @@ class CodeInterpreterNetworkConfiguration(Boto3Model):
 
     This configuration is required when the network mode is set to ``VPC``.
     """
+
 class SecretsManagerLocation(Boto3Model):
     """
     The Amazon Web Services Secrets Manager location configuration.
@@ -5135,6 +5198,7 @@ class S3FilesConfiguration(Boto3Model):
     The Amazon Resource Name (ARN) of the Amazon Simple Storage Service (Amazon S3)
     Files access point to mount.
     """
+
     mountPath: str
     """
     The absolute path within the session at which the access point is mounted, for
@@ -5175,8 +5239,6 @@ class EfsConfiguration(Boto3Model):
     The Amazon Resource Name (ARN) of the Amazon Elastic File System (Amazon EFS) file
     system that owns the access point.
     """
-
-
 class ToolsFileSystemConfiguration(Boto3Model):
     """Specifies a file system to mount into the session by providing exactly one of the following:
 
@@ -5204,9 +5266,11 @@ class AgentCoreCodeInterpreter(PrimaryBoto3Model):
 
     A code interpreter enables Amazon Bedrock AgentCore Agent to execute code.
     """
+
     manager_class: ClassVar[ModelType[Boto3ModelManager]] = (
         AgentCoreCodeInterpreterManager
     )
+
     sandboxName: str = Field(default=None, alias="name")
     """
     The name of the code interpreter.
@@ -5233,20 +5297,20 @@ class AgentCoreCodeInterpreter(PrimaryBoto3Model):
     """
     The current status of the code interpreter.
     """
-
     createdAt: datetime = Field(frozen=True)
     """
     The timestamp when the code interpreter was created.
     """
+
     lastUpdatedAt: datetime = Field(default=None, frozen=True)
     """
     The timestamp when the code interpreter was last updated.
     """
-
     executionRoleArn: str = Field(default=None, frozen=True)
     """
     The IAM role ARN that provides permissions for the code interpreter.
     """
+
     networkConfiguration: CodeInterpreterNetworkConfiguration = Field(
         default=None, frozen=True
     )
@@ -5262,7 +5326,6 @@ class AgentCoreCodeInterpreter(PrimaryBoto3Model):
     """
     The list of certificates configured for the code interpreter.
     """
-
     filesystemConfigurations: "builtins.list[ToolsFileSystemConfiguration]" = Field(
         default_factory=list, frozen=True
     )
@@ -5300,7 +5363,6 @@ class AgentCoreCodeInterpreter(PrimaryBoto3Model):
             The ARN of the model instance.
         """
         return self.codeInterpreterArn
-
     @property
     def name(self) -> str | None:
         """
@@ -5345,6 +5407,7 @@ class StreamingConfiguration(Boto3Model):
 
     This structure defines settings that control response streaming behavior.
     """
+
     enableResponseStreaming: "bool | None" = None
     """
     Indicates whether response streaming is enabled for the gateway.
@@ -5365,7 +5428,6 @@ class MCPGatewayConfiguration(Boto3Model):
 
     This field specifies which versions of the protocol the gateway can use.
     """
-
     instructions: "str | None" = None
     """
     The instructions for using the Model Context Protocol gateway.
@@ -5386,7 +5448,6 @@ class MCPGatewayConfiguration(Boto3Model):
 
     This configuration controls session behavior, including session timeout settings.
     """
-
     streamingConfiguration: "StreamingConfiguration | None" = None
     """
     The streaming configuration for the MCP gateway.
@@ -5420,6 +5481,7 @@ class GatewayProtocolConfiguration(Boto3Model):
 
     This protocol enables communication between Amazon Bedrock Agent and external tools.
     """
+
 class LambdaTransformConfiguration(Boto3Model):
     """
     The Lambda configuration for custom transformations.
@@ -5427,6 +5489,7 @@ class LambdaTransformConfiguration(Boto3Model):
     This structure defines the Lambda function that the gateway invokes to transform
     data.
     """
+
     arn: "str | None" = None
     """
     The Amazon Resource Name (ARN) of the Lambda function.
@@ -5441,6 +5504,7 @@ class CustomTransformConfiguration(Boto3Model):
 
     This structure defines how the gateway transforms data.
     """
+
     lambdaConfiguration: LambdaTransformConfiguration = Field(
         default=None, alias="lambda"
     )
@@ -5449,6 +5513,7 @@ class CustomTransformConfiguration(Boto3Model):
 
     This configuration defines how the gateway uses a Lambda function to transform data.
     """
+
 class LambdaInterceptorConfiguration(Boto3Model):
     """
     The lambda configuration for the interceptor.
@@ -5471,7 +5536,6 @@ class InterceptorConfiguration(Boto3Model):
     """
     The details of the lambda function used for the interceptor.
     """
-
 class InterceptorPayloadExclusionSelector(Boto3Model):
     """
     A selector that identifies a payload field to exclude from the interceptor input.
@@ -5493,8 +5557,6 @@ class InterceptorPayloadFilter(Boto3Model):
     The list of selectors that identify payload fields to exclude from the interceptor
     input.
     """
-
-
 class InterceptorInputConfiguration(Boto3Model):
     """
     The input configuration of the interceptor.
@@ -5520,6 +5582,7 @@ class GatewayInterceptorConfiguration(Boto3Model):
     This structure defines settings for an interceptor that will be invoked during the
     invocation of the gateway.
     """
+
     interceptor: InterceptorConfiguration
     """
     The infrastructure settings of an interceptor configuration.
@@ -5534,12 +5597,14 @@ class GatewayInterceptorConfiguration(Boto3Model):
     This field specifies which points during the gateway invocation to invoke the
     interceptor
     """
+
     inputConfiguration: "InterceptorInputConfiguration | None" = None
     """
     The configuration for the input of the interceptor.
 
     This field specifies how the input to the interceptor is constructed
     """
+
 class GatewayPolicyEngineConfiguration(Boto3Model):
     """
     The configuration for a policy engine associated with a gateway.
@@ -5549,7 +5614,6 @@ class GatewayPolicyEngineConfiguration(Boto3Model):
     requests and determines whether to allow or deny each action based on the defined
     policies.
     """
-
     arn: str
     """
     The ARN of the policy engine.
@@ -5609,11 +5673,11 @@ class DomainOverride(Boto3Model):
     agentcore-gateway- domain`` header. The gateway rejects a request that selects a
     domain that isn't configured.
     """
+
 class AgentCoreGateway(PrimaryBoto3Model):
     """
     Contains summary information about a gateway.
     """
-
     manager_class: ClassVar[ModelType[Boto3ModelManager]] = AgentCoreGatewayManager
 
     gatewayName: str = Field(default=None, alias="name")
@@ -5632,7 +5696,6 @@ class AgentCoreGateway(PrimaryBoto3Model):
     """
     The current status of the gateway.
     """
-
     description: "str | None" = None
     """
     The description of the gateway.
@@ -5642,6 +5705,7 @@ class AgentCoreGateway(PrimaryBoto3Model):
     """
     The timestamp when the gateway was created.
     """
+
     updatedAt: datetime = Field(frozen=True)
     """
     The timestamp when the gateway was last updated.
@@ -5704,18 +5768,21 @@ class AgentCoreGateway(PrimaryBoto3Model):
 
     This configuration defines how the gateway transforms requests and responses.
     """
+
     interceptorConfigurations: "builtins.list[GatewayInterceptorConfiguration]" = Field(
         default_factory=list, frozen=True
     )
     """
     The interceptors configured on the gateway.
     """
+
     policyEngineConfiguration: GatewayPolicyEngineConfiguration = Field(
         default=None, frozen=True
     )
     """
     The policy engine configuration for the gateway.
     """
+
     workloadIdentityDetails: WorkloadIdentityDetails = Field(default=None, frozen=True)
     """
     The workload identity details for the gateway.
@@ -5725,7 +5792,6 @@ class AgentCoreGateway(PrimaryBoto3Model):
     """
     The level of detail in error messages returned when invoking the gateway.
     """
-
     webAclArn: str = Field(default=None, frozen=True)
     """
     The Amazon Resource Name (ARN) of the Amazon Web Services WAF web ACL associated
@@ -5754,6 +5820,7 @@ class AgentCoreGateway(PrimaryBoto3Model):
             The primary key of the model instance.
         """
         return self.gatewayId
+
     @property
     def name(self) -> str | None:
         """
@@ -5774,12 +5841,10 @@ class AgentCoreGateway(PrimaryBoto3Model):
         :py:attr:`gatewayId` attribute.
         """
         return hash(self.gatewayId)
-
 class IamPrincipal(Boto3Model):
     """
     An IAM principal specification for rule matching.
     """
-
     arn: str
     """
     The Amazon Resource Name (ARN) of the IAM principal.
@@ -5820,19 +5885,17 @@ class MatchPrincipals(Boto3Model):
     The condition is met if any of the entries match the caller's identity.
     """
 
-
 class MatchPaths(Boto3Model):
     """
     A condition that matches requests based on the request path.
     """
+
     anyOf: "builtins.list[str]"
     """
     A list of path patterns.
 
     The condition is met if the request path matches any of the patterns.
     """
-
-
 class MatchModelEntry(Boto3Model):
     """
     A model ID or pattern to match against the requested model, and the operator to use
@@ -5846,11 +5909,11 @@ class MatchModelEntry(Boto3Model):
     With the ``StringLike`` operator, you can use ``*`` and ``?`` as wildcards, for
     example ``anthropic.claude-*``.
     """
+
     operator: "Literal['StringEquals', 'StringLike'] | None" = None
     """
 The operator to use when comparing the requested model to the value:
     """
-
 class MatchModels(Boto3Model):
     """
     A condition that matches inference requests based on the requested model.
@@ -5863,6 +5926,7 @@ class MatchModels(Boto3Model):
     The condition is met if the requested model matches any of the entries.
     """
 
+
 class Condition(Boto3Model):
     """
     A condition that determines when a gateway rule applies.
@@ -5874,20 +5938,20 @@ class Condition(Boto3Model):
     """
     A condition that matches on the identity of the caller making the request.
     """
+
     matchPaths: "MatchPaths | None" = None
     """
     A condition that matches on the request path.
     """
-
     matchModels: "MatchModels | None" = None
     """
     A condition that matches on the model requested in an inference request.
     """
-
 class StaticOverride(Boto3Model):
     """
     A static configuration bundle override.
     """
+
     bundleArn: str
     """
     The Amazon Resource Name (ARN) of the configuration bundle to apply.
@@ -5898,6 +5962,7 @@ class StaticOverride(Boto3Model):
     The version of the configuration bundle to apply.
     """
 
+
 class ConfigurationBundleReference(Boto3Model):
     """
     A reference to a specific version of a configuration bundle.
@@ -5907,7 +5972,6 @@ class ConfigurationBundleReference(Boto3Model):
     """
     The Amazon Resource Name (ARN) of the configuration bundle.
     """
-
     bundleVersion: str
     """
     The version of the configuration bundle.
@@ -5931,12 +5995,10 @@ class TrafficSplitEntry(Boto3Model):
 
     Weights across all entries must sum to 100.
     """
-
     configurationBundle: ConfigurationBundleReference
     """
     The configuration bundle reference for this variant.
     """
-
     description: "str | None" = None
     """
     The description of this traffic split variant.
@@ -5958,7 +6020,6 @@ class WeightedOverride(Boto3Model):
     The traffic split entries defining how traffic is distributed between configuration
     bundle versions.
     """
-
 class ConfigurationBundleAction(Boto3Model):
     """
     An action that applies a configuration bundle override, either as a static override
@@ -6029,6 +6090,7 @@ class FallbackTarget(Boto3Model):
 
     The target must be an inference target.
     """
+
     model: "str | None" = None
     """
     The model ID to send to this fallback target.
@@ -6054,7 +6116,6 @@ class FallbackTarget(Boto3Model):
     This setting isn't inherited from the route. If you don't specify a value, no
     timeout is enforced.
     """
-
 class Fallback(Boto3Model):
     """
     The fallback configuration for a route to an inference target.
@@ -6075,7 +6136,6 @@ class Fallback(Boto3Model):
     specify ``triggerOn``, only the status codes and errors that you list trigger a
     fallback.
     """
-
     firstByteTimeoutMilliseconds: "int | None" = None
     """
     The maximum time, in milliseconds, from sending the request to the route's target
@@ -6139,7 +6199,6 @@ class TargetTrafficSplitEntry(Boto3Model):
     """
     The name of the target to route traffic to.
     """
-
     model: "str | None" = None
     """
     The model ID to send to the target for this variant.
@@ -6184,8 +6243,6 @@ class WeightedRoute(Boto3Model):
     """
     The traffic split entries defining how traffic is distributed between targets.
     """
-
-
 class RouteToTargetAction(Boto3Model):
     """
     An action that routes requests to a gateway target, either statically or with
@@ -6206,7 +6263,6 @@ class AgentCoreGatewayRuleAction(Boto3Model):
     """
     An action to take when a gateway rule's conditions are met.
     """
-
     configurationBundle: "ConfigurationBundleAction | None" = None
     """
     An action that applies a configuration bundle override to the request.
@@ -6227,13 +6283,12 @@ class SystemManagedBlock(Boto3Model):
     The identifier of the system or process that manages this rule.
     """
 
-
 class AgentCoreGatewayRule(PrimaryBoto3Model):
     """
     Detailed information about a gateway rule.
     """
-
     manager_class: ClassVar[ModelType[Boto3ModelManager]] = AgentCoreGatewayRuleManager
+
     ruleId: str
     """
     The unique identifier of the gateway rule.
@@ -6243,6 +6298,7 @@ class AgentCoreGatewayRule(PrimaryBoto3Model):
     """
     The Amazon Resource Name (ARN) of the gateway that the rule belongs to.
     """
+
     priority: int
     """
     The priority of the rule.
@@ -6254,6 +6310,7 @@ class AgentCoreGatewayRule(PrimaryBoto3Model):
     """
     The conditions that must be met for the rule to apply.
     """
+
     actions: "builtins.list[AgentCoreGatewayRuleAction]"
     """
     The actions to take when the rule conditions are met.
@@ -6263,7 +6320,6 @@ class AgentCoreGatewayRule(PrimaryBoto3Model):
     """
     The description of the gateway rule.
     """
-
     createdAt: datetime = Field(frozen=True)
     """
     The timestamp when the rule was created.
@@ -6283,7 +6339,6 @@ class AgentCoreGatewayRule(PrimaryBoto3Model):
     """
     The timestamp when the rule was last updated.
     """
-
     @property
     def pk(self) -> str | None:
         """
@@ -6295,6 +6350,7 @@ class AgentCoreGatewayRule(PrimaryBoto3Model):
             The primary key of the model instance.
         """
         return self.ruleId
+
     @property
     def arn(self) -> str | None:
         """
@@ -6306,6 +6362,7 @@ class AgentCoreGatewayRule(PrimaryBoto3Model):
             The ARN of the model instance.
         """
         return self.gatewayArn
+
     def __hash__(self) -> int:
         """
         Return the hash of the model.
@@ -6353,7 +6410,6 @@ class S3Configuration(Boto3Model):
 
     This structure defines how the gateway accesses files in Amazon S3.
     """
-
     uri: "str | None" = None
     """
     The URI of the Amazon S3 object.
@@ -6382,6 +6438,7 @@ class ToolDefinition(Boto3Model):
 
     This schema defines the structure of the input that the tool accepts.
     """
+
     outputSchema: dict[str, Any] | None = Field(default_factory=dict)
     """
     The output schema for the tool.
@@ -6402,6 +6459,7 @@ class ToolDefinition(Boto3Model):
 
     This description provides information about the purpose and usage of the tool.
     """
+
 class ToolSchema(Boto3Model):
     """
     A tool schema for a gateway target.
@@ -6416,7 +6474,6 @@ class ToolSchema(Boto3Model):
 
     This location contains the schema definition file.
     """
-
     inlinePayload: "builtins.list[ToolDefinition] | None" = Field(default_factory=list)
     """
     The inline payload of the tool schema.
@@ -6431,22 +6488,18 @@ class McpLambdaTargetConfiguration(Boto3Model):
     This structure defines how the gateway uses a Lambda function to communicate with
     the target.
     """
-
     lambdaArn: str
     """
     The Amazon Resource Name (ARN) of the Lambda function.
 
     This function is invoked by the gateway to communicate with the target.
     """
-
     toolSchema: ToolSchema
     """
     The tool schema for the Lambda function.
 
     This schema defines the structure of the tools that the Lambda function provides.
     """
-
-
 class ApiSchemaConfiguration(Boto3Model):
     """
     Configuration for API schema.
@@ -6463,6 +6516,7 @@ class ApiSchemaConfiguration(Boto3Model):
     """
     The inline payload containing the API schema definition.
     """
+
 class McpToolSchemaConfiguration(Boto3Model):
     """
     The MCP tool schema configuration for an MCP server target.
@@ -6519,12 +6573,14 @@ class ApiGatewayToolOverride(Boto3Model):
     """
     Settings to override configurations for a tool.
     """
+
     name: str
     """
     The name of tool.
 
     Identifies the tool in the Model Context Protocol.
     """
+
     description: "str | None" = None
     """
     The description of the tool.
@@ -6567,23 +6623,25 @@ class ApiGatewayToolFilter(Boto3Model):
     The methods to filter for.
     """
 
-
 class ApiGatewayToolConfiguration(Boto3Model):
     """
     The configuration for defining REST API tool filters and overrides for the gateway
     target.
     """
+
     toolOverrides: "builtins.list[ApiGatewayToolOverride] | None" = Field(
         default_factory=list
     )
     """
     A list of explicit tool definitions with optional custom names and descriptions.
     """
+
     toolFilters: "builtins.list[ApiGatewayToolFilter]"
     """
     A list of path and method patterns to expose as tools using metadata from the REST
     API's OpenAPI specification.
     """
+
 class ApiGatewayTargetConfiguration(Boto3Model):
     """
     The configuration for an Amazon API Gateway target.
@@ -6604,17 +6662,17 @@ class ApiGatewayTargetConfiguration(Boto3Model):
     The configuration for defining REST API tool filters and overrides for the gateway
     target.
     """
+
+
 class ConnectorSource(Boto3Model):
     """
     The source identifying the connector integration.
     """
-
     connectorId: str
     """
     The identifier for the connector integration (for example, ``bedrock-knowledge-
     bases``).
     """
-
     version: "str | None" = None
     """
     The version of the connector to use (for example, ``1.1.0``).
@@ -6624,7 +6682,6 @@ class ConnectorSource(Boto3Model):
 
 class AgentCoreDocument(Boto3Model):
     pass
-
 
 class ConnectorParameterOverride(Boto3Model):
     """
@@ -6637,6 +6694,7 @@ class ConnectorParameterOverride(Boto3Model):
     A JSON Pointer path identifying the parameter (for example, ``/numberOfResults`` or
     ``/filter``).
     """
+
     description: "str | None" = None
     """
     An agent-facing description override for this parameter.
@@ -6738,7 +6796,6 @@ class McpTargetConfiguration(Boto3Model):
     """
     The MCP server specified as the gateway target.
     """
-
     apiGateway: "ApiGatewayTargetConfiguration | None" = None
     """
     The configuration for an Amazon API Gateway target.
@@ -6751,6 +6808,7 @@ class McpTargetConfiguration(Boto3Model):
     This configuration defines how the gateway uses a pre-built connector to communicate
     with the target.
     """
+
 class HttpApiSchemaConfiguration(Boto3Model):
     """
     The API schema configuration for an HTTP target.
@@ -6762,6 +6820,8 @@ class HttpApiSchemaConfiguration(Boto3Model):
     """
     Configuration for API schema.
     """
+
+
 class RuntimeTargetConfiguration(Boto3Model):
     """
     Configuration for an AgentCore Runtime target.
@@ -6773,17 +6833,18 @@ class RuntimeTargetConfiguration(Boto3Model):
     """
     The API schema configuration that defines the structure of the runtime target's API.
     """
+
     arn: str
     """
     The Amazon Resource Name (ARN) of the AgentCore Runtime to route requests to.
     """
+
     qualifier: "str | None" = None
     """
     The qualifier for the agent runtime, used to target a specific endpoint version.
 
     If not specified, the default endpoint is used.
     """
-
 class StickinessConfiguration(Boto3Model):
     """
     The configuration for session-sticky routing to a target.
@@ -6805,7 +6866,6 @@ class StickinessConfiguration(Boto3Model):
     After this duration of inactivity, the session affinity expires. Valid values range
     from 1 to 86400.
     """
-
     compositeIdentifier: "builtins.list[str] | None" = Field(default_factory=list)
     """
     Additional headers to include in session affinity routing.
@@ -6813,13 +6873,13 @@ class StickinessConfiguration(Boto3Model):
     When set, requests are only considered part of the same session if both the
     ``identifier`` and all composite identifier values match.
     """
-
 class PassthroughTargetConfiguration(Boto3Model):
     """
     The configuration for an HTTP passthrough target.
 
     A passthrough target forwards requests directly to an external HTTP endpoint.
     """
+
     schemaDefinition: HttpApiSchemaConfiguration = Field(default=None, alias="schema")
     """
     The API schema configuration that defines the structure of the passthrough target's
@@ -6838,6 +6898,7 @@ class PassthroughTargetConfiguration(Boto3Model):
 
     This value is required for passthrough targets:
     """
+
     stickinessConfiguration: "StickinessConfiguration | None" = None
     """
     The session stickiness configuration for the passthrough target.
@@ -6853,6 +6914,7 @@ class PassthroughTargetConfiguration(Boto3Model):
     The total outbound URL length, which includes the endpoint and the percent-encoded
     query parameters, is enforced by the service.
     """
+
     staticQueryParameterConflictResolution: "Literal['CLIENT_OVERRIDE', 'STATIC_OVERRIDE'] | None" = None
     """
     Controls precedence when a client request supplies a query parameter whose name
@@ -6865,10 +6927,13 @@ class HttpConnectorSource(Boto3Model):
     """
     The source identifying the HTTP connector integration.
     """
+
     connectorId: str
     """
     The identifier for the HTTP connector integration.
     """
+
+
 class HttpConnectorTargetConfiguration(Boto3Model):
     """
     The configuration for an HTTP connector target.
@@ -6888,7 +6953,6 @@ class HttpConnectorTargetConfiguration(Boto3Model):
 
     The service validates these parameters against the request path at runtime.
     """
-
 class HttpTargetConfiguration(Boto3Model):
     """
     The HTTP target configuration for a gateway target.
@@ -6901,7 +6965,6 @@ class HttpTargetConfiguration(Boto3Model):
     The AgentCore Runtime target configuration for HTTP-based communication with an
     agent runtime.
     """
-
     passthrough: "PassthroughTargetConfiguration | None" = None
     """
     The passthrough configuration for the HTTP target.
@@ -6916,7 +6979,6 @@ class HttpTargetConfiguration(Boto3Model):
     Use this configuration when you want to route HTTP requests through a managed
     connector.
     """
-
 class InferenceConnectorSource(Boto3Model):
     """
     The source identifying the inference connector.
@@ -6948,7 +7010,6 @@ class ProviderPrefix(Boto3Model):
     The configuration that controls how a provider prefix is applied to model IDs during
     translation.
     """
-
     strip: "bool | None" = None
     """
     Whether clients can omit the provider prefix from model IDs.
@@ -6956,7 +7017,6 @@ class ProviderPrefix(Boto3Model):
     If ``true``, the gateway accepts model IDs without the prefix and restores the full
     prefixed form before forwarding to the provider. The default is ``false``.
     """
-
     separator: "str | None" = None
     """
     The single character that separates the provider prefix from the model name (for
@@ -6986,13 +7046,12 @@ class ModelEntry(Boto3Model):
     The model ID or glob pattern that identifies the model (for example,
     ``anthropic.claude-opus-*`` or ``openai.gpt- oss-*``).
     """
-
-
 class InferenceOperationConfiguration(Boto3Model):
     """
     The configuration for a specific inference operation, including its request path and
     the models that the operation supports.
     """
+
     path: str
     """
     The request path for this operation (for example, ``/v1/messages`` or
@@ -7006,7 +7065,6 @@ class InferenceOperationConfiguration(Boto3Model):
     For example, ``/anthropic/v1/messages`` when the provider expects a different path
     than the client-facing ``/v1/messages``.
     """
-
     models: "builtins.list[ModelEntry] | None" = Field(default_factory=list)
     """
     The list of models supported for this operation.
@@ -7019,12 +7077,10 @@ class InferenceProviderTargetConfiguration(Boto3Model):
     This configuration explicitly defines the endpoint, model mapping, and operations
     used to route requests to a large language model (LLM) provider.
     """
-
     endpoint: str
     """
     The HTTPS endpoint of the inference provider that the gateway forwards requests to.
     """
-
     modelMapping: "ModelMapping | None" = None
     """
     The configuration that translates client-facing model IDs to the model IDs expected
@@ -7054,6 +7110,7 @@ class InferenceTargetConfiguration(Boto3Model):
     Use this option to route requests to an LLM provider through a built-in connector
     that includes predefined provider rules.
     """
+
     provider: "InferenceProviderTargetConfiguration | None" = None
     """
     The provider-based inference configuration.
@@ -7069,14 +7126,12 @@ class TargetConfiguration(Boto3Model):
     This structure defines how the gateway connects to and interacts with the target
     endpoint.
     """
-
     mcp: "McpTargetConfiguration | None" = None
     """
     The Model Context Protocol (MCP) configuration for the target.
 
     This configuration defines how the gateway uses MCP to communicate with the target.
     """
-
     http: "HttpTargetConfiguration | None" = None
     """
     The HTTP target configuration.
@@ -7256,6 +7311,7 @@ class MetadataConfiguration(Boto3Model):
     Configuration for HTTP header and query parameter propagation between the gateway
     and target servers.
     """
+
     allowedRequestHeaders: "builtins.list[str] | None" = Field(default_factory=list)
     """
     A list of HTTP headers that are allowed to be propagated from incoming client
@@ -7267,7 +7323,6 @@ class MetadataConfiguration(Boto3Model):
     A list of URL query parameters that are allowed to be propagated from incoming
     gateway URL to the target.
     """
-
     allowedResponseHeaders: "builtins.list[str] | None" = Field(default_factory=list)
     """
     A list of HTTP headers that are allowed to be propagated from the target response
@@ -7294,7 +7349,6 @@ class ManagedResourceDetails(Boto3Model):
     """
     The ARN of the service network resource association.
     """
-
 class AgentCoreGatewayTarget(PrimaryBoto3Model):
     """
     Contains summary information about a gateway target.
@@ -7315,7 +7369,6 @@ class AgentCoreGatewayTarget(PrimaryBoto3Model):
     """
     The unique identifier of the target.
     """
-
     status: Literal[
         "CREATING",
         "UPDATING",
@@ -7389,6 +7442,7 @@ class AgentCoreGatewayTarget(PrimaryBoto3Model):
     """
     The Amazon Resource Name (ARN) of the gateway target.
     """
+
     statusReasons: "builtins.list[str]" = Field(default_factory=list, frozen=True)
     """
     The status reasons for the target status.
@@ -7414,6 +7468,7 @@ class AgentCoreGatewayTarget(PrimaryBoto3Model):
     The metadata configuration for HTTP header and query parameter propagation to and
     from this gateway target.
     """
+
     privateEndpoint: PrivateEndpoint = Field(default=None, frozen=True)
     """
     The private endpoint configuration for a gateway target.
@@ -7431,17 +7486,18 @@ class AgentCoreGatewayTarget(PrimaryBoto3Model):
     These resources are created in your account when you use a managed VPC Lattice
     resource configuration.
     """
+
     protocolType: "Literal['MCP', 'HTTP'] | None" = Field(default=None, frozen=True)
     """
     The protocol type of the gateway target.
     """
-
     certificateConfigurations: "builtins.list[CertificateConfiguration]" = Field(
         default_factory=list, frozen=True
     )
     """
     The private certificate authority (CA) configurations for the gateway target.
     """
+
     @property
     def pk(self) -> str | None:
         """
@@ -7453,7 +7509,6 @@ class AgentCoreGatewayTarget(PrimaryBoto3Model):
             The primary key of the model instance.
         """
         return self.targetId
-
     @property
     def name(self) -> str | None:
         """
@@ -7465,6 +7520,7 @@ class AgentCoreGatewayTarget(PrimaryBoto3Model):
             The name of the model instance.
         """
         return self.targetName
+
     def __hash__(self) -> int:
         """
         Return the hash of the model.
@@ -7473,8 +7529,6 @@ class AgentCoreGatewayTarget(PrimaryBoto3Model):
         :py:attr:`targetId` attribute.
         """
         return hash(self.targetId)
-
-
 class HarnessBedrockModelConfig(Boto3Model):
     """
     Configuration for an Amazon Bedrock model provider.
@@ -7610,11 +7664,13 @@ class HarnessLiteLlmModelConfig(Boto3Model):
     """
     The LiteLLM model identifier (e.g., "anthropic/claude-3-sonnet").
     """
+
     apiKeyArn: "str | None" = None
     """
     The ARN of the API key in AgentCore Identity for authenticating with the model
     provider.
     """
+
     apiBase: "str | None" = None
     """
     The base URL for the model provider's API endpoint.
@@ -7639,6 +7695,7 @@ class HarnessLiteLlmModelConfig(Boto3Model):
     """
     Provider-specific parameters passed through to the model provider unchanged.
     """
+
 class HarnessModelConfiguration(Boto3Model):
     """
     Specification of which model to use.
@@ -7648,6 +7705,7 @@ class HarnessModelConfiguration(Boto3Model):
     """
     Configuration for an Amazon Bedrock model.
     """
+
     openAiModelConfig: "HarnessOpenAiModelConfig | None" = None
     """
     Configuration for an OpenAI model.
@@ -7675,6 +7733,8 @@ class HarnessSystemContentBlock(Boto3Model):
 
 class Unit(Boto3Model):
     pass
+
+
 class HarnessRemoteMcpOutboundAuth(Boto3Model):
     """
     Authentication method for calling a remote MCP server.
@@ -7687,6 +7747,7 @@ class HarnessRemoteMcpOutboundAuth(Boto3Model):
 
     If you don't specify a Region, the harness Region is used.
     """
+
     none: "Unit | None" = None
     """
     No authentication.
@@ -7696,10 +7757,12 @@ class HarnessRemoteMcpConfig(Boto3Model):
     """
     Configuration for connecting to a remote MCP server.
     """
+
     url: str
     """
     URL of the MCP endpoint.
     """
+
     headers: "dict[str, str] | None" = Field(default_factory=dict)
     """
     Custom headers to include when connecting to the remote MCP server.
@@ -7711,7 +7774,6 @@ class HarnessRemoteMcpConfig(Boto3Model):
 
     Defaults to no authentication.
     """
-
 class HarnessAgentCoreBrowserConfig(Boto3Model):
     """
     Configuration for AgentCore Browser.
@@ -7726,10 +7788,12 @@ class HarnessGatewayOutboundAuth(Boto3Model):
     """
     Authentication method for calling a Gateway.
     """
+
     awsIam: "Unit | None" = None
     """
     SigV4-sign requests using the agent's execution role.
     """
+
     none: "Unit | None" = None
     """
     No authentication.
@@ -7739,7 +7803,6 @@ class HarnessGatewayOutboundAuth(Boto3Model):
     """
     Use OAuth credentials for outbound authentication to the gateway.
     """
-
 class HarnessAgentCoreGatewayConfig(Boto3Model):
     """
     Configuration for AgentCore Gateway.
@@ -7749,14 +7812,18 @@ class HarnessAgentCoreGatewayConfig(Boto3Model):
     """
     The ARN of the desired AgentCore Gateway.
     """
+
     outboundAuth: "HarnessGatewayOutboundAuth | None" = None
     """
     How harness authenticates to this Gateway.
 
     Defaults to AWS_IAM (SigV4) if omitted.
     """
+
 class SensitiveJson(Boto3Model):
     pass
+
+
 class HarnessInlineFunctionConfig(Boto3Model):
     """
     Configuration for an inline function tool.
@@ -7764,12 +7831,10 @@ class HarnessInlineFunctionConfig(Boto3Model):
     When the agent calls this tool, the tool call is returned to the caller for external
     execution.
     """
-
     description: str
     """
     Description of what the tool does, provided to the model.
     """
-
     inputSchema: SensitiveJson
     """
     JSON Schema describing the tool's input parameters.
@@ -7815,12 +7880,10 @@ class HarnessToolConfiguration(Boto3Model):
     """
     Configuration for AgentCore Code Interpreter.
     """
-
 class HarnessTool(Boto3Model):
     """
     A tool available to the agent loop.
     """
-
     type: Literal[
         "remote_mcp",
         "agentcore_browser",
@@ -7854,11 +7917,11 @@ class HarnessSkillS3Source(Boto3Model):
 The S3 URI pointing to the skill directory (e.g., s3://bucket/skills/my-skill/).
     """
 
-
 class HarnessSkillGitAuth(Boto3Model):
     """
     Authentication configuration for accessing a private git repository.
     """
+
     credentialArn: str
     """
     The ARN of the credential in AgentCore Identity containing the password or personal
@@ -7891,7 +7954,6 @@ class HarnessSkillGitSource(Boto3Model):
     """
     Authentication configuration for private repositories.
     """
-
 class HarnessSkillAwsSkillsSource(Boto3Model):
     """
     Passed to show that Amazon Web Services Skills should be included.
@@ -7926,6 +7988,7 @@ class HarnessSkill(Boto3Model):
     """
     Amazon Web Services Skills baked into the harness's underlying Runtime.
     """
+
 class HarnessSlidingWindowConfiguration(Boto3Model):
     """
     Configuration for sliding window truncation strategy.
@@ -7945,14 +8008,17 @@ class HarnessSummarizationConfiguration(Boto3Model):
     """
     The ratio of content to summarize.
     """
+
     preserveRecentMessages: "int | None" = None
     """
     The number of recent messages to preserve without summarization.
     """
+
     summarizationSystemPrompt: "str | None" = None
     """
     The system prompt used for generating summaries.
     """
+
 class HarnessTruncationStrategyConfiguration(Boto3Model):
     """
     Strategy-specific truncation configuration.
@@ -7962,11 +8028,11 @@ class HarnessTruncationStrategyConfiguration(Boto3Model):
     """
     Configuration for sliding window truncation.
     """
+
     summarization: "HarnessSummarizationConfiguration | None" = None
     """
     Configuration for summarization-based truncation.
     """
-
 class HarnessTruncationConfiguration(Boto3Model):
     """
     Configuration for truncating conversation context when it exceeds model limits.
@@ -7976,6 +8042,7 @@ class HarnessTruncationConfiguration(Boto3Model):
     """
     The truncation strategy to use.
     """
+
     config: "HarnessTruncationStrategyConfiguration | None" = None
     """
     The strategy-specific configuration.
@@ -7985,15 +8052,16 @@ class HarnessAgentCoreRuntimeEnvironment(Boto3Model):
     """
     The AgentCore Runtime environment for a harness.
     """
+
     agentRuntimeArn: str
     """
     The ARN of the underlying AgentCore Runtime.
     """
+
     agentRuntimeName: str
     """
     The name of the underlying AgentCore Runtime.
     """
-
     agentRuntimeId: str
     """
     The ID of the underlying AgentCore Runtime.
@@ -8040,15 +8108,16 @@ class HarnessEnvironmentArtifact(Boto3Model):
     """
     Representation of a container configuration.
     """
+
 class HarnessAgentCoreMemoryRetrievalConfig(Boto3Model):
     """
     Configuration for memory retrieval within a namespace.
     """
+
     topK: "int | None" = None
     """
     The maximum number of memory entries to retrieve.
     """
-
     relevanceScore: "float | None" = None
     """
     The minimum relevance score for retrieved memories.
@@ -8058,14 +8127,17 @@ class HarnessAgentCoreMemoryRetrievalConfig(Boto3Model):
     """
     The ID of the retrieval strategy to use.
     """
+
 class HarnessAgentCoreMemoryConfiguration(Boto3Model):
     """
     Configuration for AgentCore Memory integration.
     """
+
     arn: str
     """
     The ARN of the AgentCore Memory resource.
     """
+
     actorId: "str | None" = None
     """
     The actor ID for memory operations.
@@ -8123,6 +8195,8 @@ class HarnessDisabledMemoryConfiguration(Boto3Model):
     """
     Explicitly opt out of memory.
     """
+
+
 class HarnessMemoryConfiguration(Boto3Model):
     """
     The memory configuration for a harness.
@@ -8142,7 +8216,6 @@ class HarnessMemoryConfiguration(Boto3Model):
     """
     Explicitly opt out of memory.
     """
-
 class HarnessHookLambdaTarget(Boto3Model):
     """
     The configuration for an Amazon Web Services Lambda hook target.
@@ -8159,6 +8232,7 @@ class HarnessHookLambdaTarget(Boto3Model):
 
     The default is 60 seconds.
     """
+
     failureMode: "Literal['allow', 'deny'] | None" = None
     """
     The behavior when the Lambda function times out, returns an error, or returns an
@@ -8172,7 +8246,6 @@ class HarnessHookSnsTarget(Boto3Model):
     """
     The configuration for an Amazon SNS hook target.
     """
-
     arn: str
     """
     The ARN of the Amazon SNS topic to publish hook events to.
@@ -8188,12 +8261,15 @@ class HarnessHookEventBridgeTarget(Boto3Model):
     """
     The ARN of the Amazon EventBridge event bus to send hook events to.
     """
+
+
 class HarnessHookTarget(Boto3Model):
     """
     The target that receives lifecycle hook events.
 
     Specify one target type.
     """
+
     lambdaConfiguration: HarnessHookLambdaTarget = Field(default=None, alias="lambda")
     """
     A Lambda hook target that invokes an Amazon Web Services Lambda function
@@ -8205,11 +8281,13 @@ class HarnessHookTarget(Boto3Model):
     An Amazon SNS hook target that publishes the hook event without waiting for a
     response.
     """
+
     eventBridge: "HarnessHookEventBridgeTarget | None" = None
     """
     An Amazon EventBridge hook target that sends the hook event without waiting for a
     response.
     """
+
 class HarnessBeforeInvocationHook(Boto3Model):
     """
     The configuration for a hook that runs before an invocation begins.
@@ -8230,7 +8308,6 @@ class HarnessAfterInvocationHook(Boto3Model):
     """
     The configuration for a hook that runs after an invocation completes.
     """
-
     name: str
     """
     The name of the hook.
@@ -8256,6 +8333,7 @@ class HarnessBeforeToolCallHook(Boto3Model):
     """
     The target that receives the hook event.
     """
+
 
 class HarnessAfterToolCallHook(Boto3Model):
     """
@@ -8294,6 +8372,7 @@ class HarnessHook(Boto3Model):
     """
     A hook that runs before the agent calls a tool.
     """
+
     afterToolCall: "HarnessAfterToolCallHook | None" = None
     """
     A hook that runs after a tool call completes.
@@ -8303,13 +8382,13 @@ class AgentCoreHarness(PrimaryBoto3Model):
     """
     Representation of a harness.
     """
+
     manager_class: ClassVar[ModelType[Boto3ModelManager]] = AgentCoreHarnessManager
 
     Arn: str = Field(default=None, alias="arn")
     """
     The ARN of the harness.
     """
-
     harnessId: str
     """
     The ID of the harness.
@@ -8354,12 +8433,10 @@ class AgentCoreHarness(PrimaryBoto3Model):
     """
     The updatedAt time of the harness.
     """
-
     model: HarnessModelConfiguration
     """
     The configuration of the default model used by the Harness.
     """
-
     systemPrompt: "builtins.list[HarnessSystemContentBlock]"
     """
     The system prompt of the harness.
@@ -8369,6 +8446,7 @@ class AgentCoreHarness(PrimaryBoto3Model):
     """
     The tools of the harness.
     """
+
     skills: "builtins.list[HarnessSkill]"
     """
     The skills of the harness.
@@ -8438,6 +8516,7 @@ class AgentCoreHarness(PrimaryBoto3Model):
     """
     Reason why create or update operations fail.
     """
+
     @property
     def pk(self) -> str | None:
         """
@@ -8461,6 +8540,7 @@ class AgentCoreHarness(PrimaryBoto3Model):
             The ARN of the model instance.
         """
         return self.Arn
+
     @property
     def name(self) -> str | None:
         """
@@ -8481,7 +8561,6 @@ class AgentCoreHarness(PrimaryBoto3Model):
         :py:attr:`harnessId` attribute.
         """
         return hash(self.harnessId)
-
 class AgentCoreHarnessEndpoint(PrimaryBoto3Model):
     """
     Representation of a harness endpoint.
@@ -8532,16 +8611,15 @@ class AgentCoreHarnessEndpoint(PrimaryBoto3Model):
     """
     The timestamp when the endpoint was created.
     """
-
     updatedAt: datetime = Field(frozen=True)
     """
     The timestamp when the endpoint was last updated.
     """
-
     liveVersion: str = Field(default=None, frozen=True)
     """
     The harness version that the endpoint is currently serving.
     """
+
     targetVersion: "str | None" = None
     """
     The harness version that the endpoint points to.
@@ -8559,7 +8637,6 @@ class AgentCoreHarnessEndpoint(PrimaryBoto3Model):
     """
     The reason the endpoint's last create or update operation failed.
     """
-
     @property
     def pk(self) -> str | None:
         """
@@ -8592,6 +8669,8 @@ class AgentCoreHarnessEndpoint(PrimaryBoto3Model):
         :py:attr:`endpointName` attribute.
         """
         return hash(self.endpointName)
+
+
 class PolicyEngine(PrimaryBoto3Model):
     """
     Represents a policy engine resource within the AgentCore Policy system.
@@ -8640,7 +8719,6 @@ class PolicyEngine(PrimaryBoto3Model):
 
     This tracks the most recent changes to the policy engine configuration or metadata.
     """
-
     policyEngineArn: str = Field(frozen=True)
     """
     The Amazon Resource Name (ARN) of the policy engine.
@@ -8648,7 +8726,6 @@ class PolicyEngine(PrimaryBoto3Model):
     This globally unique identifier can be used for cross-service references and IAM
     policy statements.
     """
-
     status: Literal[
         "CREATING",
         "ACTIVE",
@@ -8661,7 +8738,6 @@ class PolicyEngine(PrimaryBoto3Model):
     """
     The current status of the policy engine.
     """
-
     encryptionKeyArn: "str | None" = None
     """
     The Amazon Resource Name (ARN) of the KMS key used to encrypt the policy engine
@@ -8719,6 +8795,7 @@ class PolicyEngine(PrimaryBoto3Model):
             The name of the model instance.
         """
         return self.policyEngineName
+
     def __hash__(self) -> int:
         """
         Return the hash of the model.
@@ -8745,8 +8822,6 @@ class CedarPolicy(Boto3Model):
     This statement follows Cedar syntax and specifies principals, actions, resources,
     and conditions that determine when access should be allowed or denied.
     """
-
-
 class PolicyGenerationDetails(Boto3Model):
     """
     Represents the information identifying a generated policy asset from the AI-powered
@@ -8761,7 +8836,6 @@ class PolicyGenerationDetails(Boto3Model):
     """
     The unique identifier for this policy generation request.
     """
-
     policyGenerationAssetId: str
     """
     The unique identifier for this generated policy asset within the policy generation
@@ -8805,6 +8879,7 @@ class PolicyDefinition(Boto3Model):
     default-deny model where actions are denied unless explicitly permitted, and forbid
     policies always override permit policies.
     """
+
     policyGeneration: "PolicyGenerationDetails | None" = None
     """
     The generated policy asset information within the policy definition structure.
@@ -8840,6 +8915,7 @@ class Policy(PrimaryBoto3Model):
     """
 
     manager_class: ClassVar[ModelType[Boto3ModelManager]] = PolicyManager
+
     policyName: str = Field(default=None, alias="name")
     """
     The customer-assigned immutable name for the policy.
@@ -8862,6 +8938,7 @@ class Policy(PrimaryBoto3Model):
 
     This establishes the policy engine context for policy evaluation and management.
     """
+
     createdAt: datetime = Field(frozen=True)
     """
     The timestamp when the policy was originally created.
@@ -8884,7 +8961,6 @@ class Policy(PrimaryBoto3Model):
     This globally unique identifier can be used for cross-service references and IAM
     policy statements.
     """
-
     status: Literal[
         "CREATING",
         "ACTIVE",
@@ -8902,6 +8978,7 @@ class Policy(PrimaryBoto3Model):
     """
     The current enforcement mode of the policy.
     """
+
     definition: PolicyDefinition
     """
     The Cedar or Dogwood policy statement that defines the access control rules.
@@ -8937,7 +9014,6 @@ class Policy(PrimaryBoto3Model):
             The primary key of the model instance.
         """
         return self.policyId
-
     @property
     def arn(self) -> str | None:
         """
@@ -8949,6 +9025,7 @@ class Policy(PrimaryBoto3Model):
             The ARN of the model instance.
         """
         return self.policyArn
+
     @property
     def name(self) -> str | None:
         """
@@ -8976,6 +9053,7 @@ class AgentCorePolicyGenerationResource(Boto3Model):
     Resources are the targets of policy evaluation. Currently, only AgentCore Gateways
     are supported as resources for policy enforcement.
     """
+
     arn: "str | None" = None
     """
     The Amazon Resource Name (ARN) of the resource.
@@ -9021,6 +9099,7 @@ class AgentCorePolicyGeneration(PrimaryBoto3Model):
     """
     The ARN of this policy generation request.
     """
+
     resource: AgentCorePolicyGenerationResource
     """
     The resource information associated with this policy generation.
@@ -9035,13 +9114,13 @@ class AgentCorePolicyGeneration(PrimaryBoto3Model):
     """
     The timestamp when this policy generation was last updated.
     """
+
     status: Literal["GENERATING", "GENERATED", "GENERATE_FAILED", "DELETE_FAILED"] = (
         Field(frozen=True)
     )
     """
     The current status of this policy generation request.
     """
-
     findings: str = Field(default=None, frozen=True)
     """
     Findings and insights from this policy generation process.
@@ -9051,6 +9130,7 @@ class AgentCorePolicyGeneration(PrimaryBoto3Model):
     """
     Additional information about the generation status.
     """
+
     @property
     def pk(self) -> str | None:
         """
@@ -9062,6 +9142,7 @@ class AgentCorePolicyGeneration(PrimaryBoto3Model):
             The primary key of the model instance.
         """
         return self.policyGenerationId
+
     @property
     def arn(self) -> str | None:
         """
@@ -9073,6 +9154,7 @@ class AgentCorePolicyGeneration(PrimaryBoto3Model):
             The ARN of the model instance.
         """
         return self.policyGenerationArn
+
     @property
     def name(self) -> str | None:
         """
@@ -9084,6 +9166,7 @@ class AgentCorePolicyGeneration(PrimaryBoto3Model):
             The name of the model instance.
         """
         return self.policyGenerationName
+
     def __hash__(self) -> int:
         """
         Return the hash of the model.
@@ -9114,6 +9197,7 @@ class PolicyGenerationAsset(ReadonlyPrimaryBoto3Model):
     This ID can be used to reference specific generated policy options when creating
     actual policies from the generation results.
     """
+
     definition: "PolicyDefinition | None" = None
     """
     Represents the definition structure for policies within the AgentCore Policy system.
@@ -9121,7 +9205,6 @@ class PolicyGenerationAsset(ReadonlyPrimaryBoto3Model):
     This structure encapsulates different policy formats and languages that can be used
     to define access control rules.
     """
-
     rawTextFragment: str
     """
     The portion of the original natural language input that this generated policy asset
@@ -9135,7 +9218,6 @@ class PolicyGenerationAsset(ReadonlyPrimaryBoto3Model):
     addresses. Use this mapping to verify that all parts of your natural language input
     were correctly translated into Dogwood policies.
     """
-
     findings: "builtins.list[Finding]"
     """
     Analysis findings and insights related to this specific generated policy asset.
@@ -9182,6 +9264,7 @@ class CreateAgentRuntimeResponse(Boto3Model):
     """
     The workload identity details for the AgentCore Runtime.
     """
+
     agentRuntimeId: str
     """
     The unique identifier of the AgentCore Runtime.
@@ -9250,7 +9333,6 @@ class GetAgentRuntimeResponse(Boto3Model):
     """
     The network configuration for the AgentCore Runtime.
     """
-
     status: Literal[
         "CREATING",
         "CREATE_FAILED",
@@ -9292,7 +9374,6 @@ class GetAgentRuntimeResponse(Boto3Model):
     """
     The artifact of the AgentCore Runtime.
     """
-
     protocolConfiguration: "ProtocolConfiguration | None" = None
     """
     The protocol configuration for the AgentCore Runtime, including the protocol, port,
@@ -9342,6 +9423,7 @@ class GetAgentRuntimeResponse(Boto3Model):
     The additional ports on the AgentCore Runtime that are reachable through the
     runtime's session URL.
     """
+
     resourceConfigurations: "builtins.list[ResourceConfiguration] | None" = Field(
         default_factory=list
     )
@@ -9365,12 +9447,10 @@ class UpdateAgentRuntimeResponse(Boto3Model):
     """
     The Amazon Resource Name (ARN) of the updated AgentCore Runtime.
     """
-
     agentRuntimeId: str
     """
     The unique identifier of the updated AgentCore Runtime.
     """
-
     workloadIdentityDetails: "WorkloadIdentityDetails | None" = None
     """
     The workload identity details for the updated AgentCore Runtime.
@@ -9385,12 +9465,10 @@ class UpdateAgentRuntimeResponse(Boto3Model):
     """
     The timestamp when the AgentCore Runtime was created.
     """
-
     lastUpdatedAt: datetime
     """
     The timestamp when the AgentCore Runtime was last updated.
     """
-
     status: Literal[
         "CREATING",
         "CREATE_FAILED",
@@ -9417,7 +9495,6 @@ class DeleteAgentRuntimeResponse(Boto3Model):
     """
     The current status of the AgentCore Runtime deletion.
     """
-
     agentRuntimeId: "str | None" = None
     """
     The unique identifier of the AgentCore Runtime.
@@ -9429,6 +9506,7 @@ class DeleteAgentRuntimeResponse(Boto3Model):
 
     This value is present only when you delete a single version.
     """
+
 class CreateAgentRuntimeEndpointResponse(Boto3Model):
     targetVersion: str
     """
@@ -9439,7 +9517,6 @@ class CreateAgentRuntimeEndpointResponse(Boto3Model):
     """
     The Amazon Resource Name (ARN) of the AgentCore Runtime endpoint.
     """
-
     agentRuntimeArn: str
     """
     The Amazon Resource Name (ARN) of the AgentCore Runtime.
@@ -9454,6 +9531,7 @@ class CreateAgentRuntimeEndpointResponse(Boto3Model):
     """
     The name of the AgentCore Runtime endpoint.
     """
+
     status: Literal[
         "CREATING",
         "CREATE_FAILED",
@@ -9466,7 +9544,6 @@ class CreateAgentRuntimeEndpointResponse(Boto3Model):
     """
     The current status of the AgentCore Runtime endpoint.
     """
-
     createdAt: datetime
     """
     The timestamp when the AgentCore Runtime endpoint was created.
@@ -9482,7 +9559,6 @@ class GetAgentRuntimeEndpointResponse(Boto3Model):
     """
     The target version of the AgentCore Runtime for the endpoint.
     """
-
     agentRuntimeEndpointArn: str
     """
     The Amazon Resource Name (ARN) of the AgentCore Runtime endpoint.
@@ -9492,6 +9568,7 @@ class GetAgentRuntimeEndpointResponse(Boto3Model):
     """
     The Amazon Resource Name (ARN) of the AgentCore Runtime.
     """
+
     description: "str | None" = None
     """
     The description of the AgentCore Runtime endpoint.
@@ -9509,12 +9586,10 @@ class GetAgentRuntimeEndpointResponse(Boto3Model):
     """
     The current status of the AgentCore Runtime endpoint.
     """
-
     createdAt: datetime
     """
     The timestamp when the AgentCore Runtime endpoint was created.
     """
-
     lastUpdatedAt: datetime
     """
     The timestamp when the AgentCore Runtime endpoint was last updated.
@@ -9534,7 +9609,6 @@ class GetAgentRuntimeEndpointResponse(Boto3Model):
     """
     The unique identifier of the AgentCore Runtime endpoint.
     """
-
 class ListAgentRuntimeEndpointsResponse(Boto3Model):
     runtimeEndpoints: "builtins.list[AgentCoreAgentRuntimeEndpoint]"
     """
@@ -9550,10 +9624,12 @@ class UpdateAgentRuntimeEndpointResponse(Boto3Model):
     """
     The currently deployed version of the AgentCore Runtime on the endpoint.
     """
+
     targetVersion: "str | None" = None
     """
     The target version of the AgentCore Runtime for the endpoint.
     """
+
     agentRuntimeEndpointArn: str
     """
     The Amazon Resource Name (ARN) of the AgentCore Runtime endpoint.
@@ -9563,6 +9639,7 @@ class UpdateAgentRuntimeEndpointResponse(Boto3Model):
     """
     The Amazon Resource Name (ARN) of the AgentCore Runtime.
     """
+
     status: Literal[
         "CREATING",
         "CREATE_FAILED",
@@ -9580,6 +9657,7 @@ class UpdateAgentRuntimeEndpointResponse(Boto3Model):
     """
     The timestamp when the AgentCore Runtime endpoint was created.
     """
+
     lastUpdatedAt: datetime
     """
     The timestamp when the AgentCore Runtime endpoint was last updated.
@@ -9603,11 +9681,11 @@ class DeleteAgentRuntimeEndpointResponse(Boto3Model):
     """
     The unique identifier of the AgentCore Runtime.
     """
+
     endpointName: "str | None" = None
     """
     The name of the AgentCore Runtime endpoint.
     """
-
 class RecordExpirySpecification(Boto3Model):
     """
     Specifies the record expiry (long-term memory time-to-live) for a memory strategy.
@@ -9631,6 +9709,7 @@ class RecordExpirySpecification(Boto3Model):
     Set to ``REMOVE`` to remove a previously configured time-to-live so that newer
     records no longer expire. This value is not applicable on create paths.
     """
+
 class SemanticMemoryStrategyInput(Boto3Model):
     """
     Input for creating a semantic memory strategy.
@@ -9652,17 +9731,14 @@ class SemanticMemoryStrategyInput(Boto3Model):
 
     The namespaces associated with the semantic memory strategy.
     """
-
     namespaceTemplates: "builtins.list[str] | None" = Field(default_factory=list)
     """
     The namespaceTemplates associated with the semantic memory strategy.
     """
-
     memoryRecordSchema: "MemoryRecordSchema | None" = None
     """
     Schema for metadata on memory records generated by a strategy.
     """
-
     recordExpirySpecification: "RecordExpirySpecification | None" = None
     """
     The record expiry (long-term memory time-to-live) configuration for memory records
@@ -9676,27 +9752,26 @@ class SummaryMemoryStrategyInput(Boto3Model):
     """
     Input for creating a summary memory strategy.
     """
+
     name: str
     """
     The name of the summary memory strategy.
     """
-
     description: "str | None" = None
     """
     The description of the summary memory strategy.
     """
-
     namespaces: "builtins.list[str] | None" = Field(default_factory=list)
     """
     This is a legacy parameter, use ``namespaceTemplates``.
 
     The namespaces associated with the summary memory strategy.
     """
-
     namespaceTemplates: "builtins.list[str] | None" = Field(default_factory=list)
     """
     The namespaceTemplates associated with the summary memory strategy.
     """
+
     memoryRecordSchema: "MemoryRecordSchema | None" = None
     """
     Schema for metadata fields on records generated by this strategy.
@@ -9715,7 +9790,6 @@ class UserPreferenceMemoryStrategyInput(Boto3Model):
     """
     Input for creating a user preference memory strategy.
     """
-
     name: str
     """
     The name of the user preference memory strategy.
@@ -9725,18 +9799,17 @@ class UserPreferenceMemoryStrategyInput(Boto3Model):
     """
     The description of the user preference memory strategy.
     """
-
     namespaces: "builtins.list[str] | None" = Field(default_factory=list)
     """
     This is a legacy parameter, use ``namespaceTemplates``.
 
     The namespaces associated with the user preference memory strategy.
     """
+
     namespaceTemplates: "builtins.list[str] | None" = Field(default_factory=list)
     """
     The namespaceTemplates associated with the user preference memory strategy.
     """
-
     memoryRecordSchema: "MemoryRecordSchema | None" = None
     """
     Schema for metadata fields on records generated by this strategy.
@@ -9781,16 +9854,16 @@ class SemanticOverrideConsolidationConfigurationInput(Boto3Model):
     """
     The model ID to use for semantic consolidation.
     """
-
-
 class SemanticOverrideConfigurationInput(Boto3Model):
     """
     Input for semantic override configuration in a memory strategy.
     """
+
     extraction: "SemanticOverrideExtractionConfigurationInput | None" = None
     """
     The extraction configuration for a semantic override.
     """
+
     consolidation: "SemanticOverrideConsolidationConfigurationInput | None" = None
     """
     The consolidation configuration for a semantic override.
@@ -9805,10 +9878,13 @@ class SummaryOverrideConsolidationConfigurationInput(Boto3Model):
     """
     The text to append to the prompt for summary consolidation.
     """
+
     modelId: str
     """
     The model ID to use for summary consolidation.
     """
+
+
 class SummaryOverrideConfigurationInput(Boto3Model):
     """
     Input for summary override configuration in a memory strategy.
@@ -9818,10 +9894,12 @@ class SummaryOverrideConfigurationInput(Boto3Model):
     """
     The consolidation configuration for a summary override.
     """
+
 class UserPreferenceOverrideExtractionConfigurationInput(Boto3Model):
     """
     Input for user preference override extraction configuration in a memory strategy.
     """
+
     appendToPrompt: str
     """
     The text to append to the prompt for user preference extraction.
@@ -9863,6 +9941,7 @@ class UserPreferenceOverrideConfigurationInput(Boto3Model):
     """
     The consolidation configuration for a user preference override.
     """
+
 class EpisodicOverrideExtractionConfigurationInput(Boto3Model):
     """
     Configurations for overriding the extraction step of the episodic memory strategy.
@@ -9896,17 +9975,17 @@ class EpisodicOverrideConsolidationConfigurationInput(Boto3Model):
     """
     The model ID to use for the consolidation step of the episodic memory strategy.
     """
+
+
 class EpisodicOverrideReflectionConfigurationInput(Boto3Model):
     """
     Configurations for overriding the reflection step of the episodic memory strategy.
     """
-
     appendToPrompt: str
     """
     The text to append to the prompt for reflection step of the episodic memory
     strategy.
     """
-
     modelId: str
     """
     The model ID to use for the reflection step of the episodic memory strategy.
@@ -9926,10 +10005,12 @@ class EpisodicOverrideReflectionConfigurationInput(Boto3Model):
 
     Can be less nested than the episodic namespaces.
     """
+
     memoryRecordSchema: "MemoryRecordSchema | None" = None
     """
     Schema for metadata fields on records generated by this reflection override.
     """
+
 class EpisodicOverrideConfigurationInput(Boto3Model):
     """
     Input for the configuration to override the episodic memory strategy.
@@ -9946,7 +10027,6 @@ class EpisodicOverrideConfigurationInput(Boto3Model):
     Contains configurations for overriding the consolidation step of the episodic memory
     strategy.
     """
-
     reflection: "EpisodicOverrideReflectionConfigurationInput | None" = None
     """
     Contains configurations for overriding the reflection step of the episodic memory
@@ -9957,11 +10037,11 @@ class MessageBasedTriggerInput(Boto3Model):
     """
     The trigger configuration based on a message.
     """
+
     messageCount: "int | None" = None
     """
     The number of messages that trigger memory processing.
     """
-
 class TokenBasedTriggerInput(Boto3Model):
     """
     Trigger configuration based on tokens.
@@ -9971,6 +10051,7 @@ class TokenBasedTriggerInput(Boto3Model):
     """
     Number of tokens that trigger memory processing.
     """
+
 class TimeBasedTriggerInput(Boto3Model):
     """
     Trigger configuration based on time.
@@ -9980,6 +10061,7 @@ class TimeBasedTriggerInput(Boto3Model):
     """
     Idle session timeout (seconds) that triggers memory processing.
     """
+
 class TriggerConditionInput(Boto3Model):
     """
     Condition that triggers memory processing.
@@ -9999,11 +10081,11 @@ class TriggerConditionInput(Boto3Model):
     """
     Time based trigger configuration.
     """
+
 class InvocationConfigurationInput(Boto3Model):
     """
     The configuration to invoke a self-managed memory processing pipeline with.
     """
-
     topicArn: str
     """
     The ARN of the SNS topic for job notifications.
@@ -10026,6 +10108,7 @@ class SelfManagedConfigurationInput(Boto3Model):
     """
     A list of conditions that trigger memory processing.
     """
+
     invocationConfiguration: InvocationConfigurationInput
     """
     Configuration to invoke a self-managed memory processing pipeline with.
@@ -10065,6 +10148,7 @@ class CustomConfigurationInput(Boto3Model):
     """
     The self managed configuration for a custom memory strategy.
     """
+
 class CustomMemoryStrategyInput(Boto3Model):
     """
     Input for creating a custom memory strategy.
@@ -10110,6 +10194,7 @@ class CustomMemoryStrategyInput(Boto3Model):
     Set ``recordExpiryDurationDays`` to the number of days after which records expire.
     If not specified, records generated by this strategy do not expire.
     """
+
 class EpisodicReflectionConfigurationInput(Boto3Model):
     """
     An episodic reflection configuration input.
@@ -10134,6 +10219,7 @@ class EpisodicReflectionConfigurationInput(Boto3Model):
     """
     Schema for metadata fields on records generated by reflections.
     """
+
 class EpisodicMemoryStrategyInput(Boto3Model):
     """
     Input for creating an episodic memory strategy.
@@ -10165,7 +10251,6 @@ class EpisodicMemoryStrategyInput(Boto3Model):
     """
     The configuration for the reflections created with the episodic memory strategy.
     """
-
     memoryRecordSchema: "MemoryRecordSchema | None" = None
     """
     Schema for metadata fields on records generated by this strategy.
@@ -10204,7 +10289,6 @@ class MemoryStrategyInput(Boto3Model):
     """
     Input for creating a custom memory strategy.
     """
-
     episodicMemoryStrategy: "EpisodicMemoryStrategyInput | None" = None
     """
     Input for creating an episodic memory strategy.
@@ -10253,16 +10337,15 @@ class ModifyExtractionConfiguration(Boto3Model):
     """
     The updated custom extraction configuration.
     """
+
 class CustomConsolidationConfigurationInput(Boto3Model):
     """
     Input for a custom consolidation configuration.
     """
-
     semanticConsolidationOverride: "SemanticOverrideConsolidationConfigurationInput | None" = None
     """
     The semantic consolidation override configuration input.
     """
-
     summaryConsolidationOverride: "SummaryOverrideConsolidationConfigurationInput | None" = None
     """
     The summary consolidation override configuration input.
@@ -10272,6 +10355,7 @@ class CustomConsolidationConfigurationInput(Boto3Model):
     """
     The user preference consolidation override configuration input.
     """
+
     episodicConsolidationOverride: "EpisodicOverrideConsolidationConfigurationInput | None" = None
     """
     Configurations to override the consolidation step of the episodic strategy.
@@ -10298,7 +10382,6 @@ class CustomReflectionConfigurationInput(Boto3Model):
     """
     The reflection override configuration input.
     """
-
 class ModifyReflectionConfiguration(Boto3Model):
     """
     Contains information for modifying a reflection configuration.
@@ -10319,6 +10402,7 @@ class ModifyInvocationConfigurationInput(Boto3Model):
     """
     The configuration for updating invocation settings.
     """
+
     topicArn: "str | None" = None
     """
     The updated ARN of the SNS topic for job notifications.
@@ -10350,11 +10434,11 @@ class ModifySelfManagedConfiguration(Boto3Model):
     """
     The updated number of historical messages to include in processing context.
     """
+
 class ModifyStrategyConfiguration(Boto3Model):
     """
     Contains information for modifying a strategy configuration.
     """
-
     extraction: "ModifyExtractionConfiguration | None" = None
     """
     The updated extraction configuration.
@@ -10374,6 +10458,7 @@ class ModifyStrategyConfiguration(Boto3Model):
     """
     The updated self-managed configuration.
     """
+
 class ModifyMemoryStrategyInput(Boto3Model):
     """
     Input for modifying a memory strategy.
@@ -10388,12 +10473,14 @@ class ModifyMemoryStrategyInput(Boto3Model):
     """
     The updated description of the memory strategy.
     """
+
     namespaces: "builtins.list[str] | None" = Field(default_factory=list)
     """
     This is a legacy parameter, use ``namespaceTemplates``.
 
     The updated namespaces for the memory strategy.
     """
+
     namespaceTemplates: "builtins.list[str] | None" = Field(default_factory=list)
     """
     The updated namespaceTemplates for the memory strategy.
@@ -10408,7 +10495,6 @@ class ModifyMemoryStrategyInput(Boto3Model):
     """
     Updated metadata schema for records generated by this strategy.
     """
-
     recordExpirySpecification: "RecordExpirySpecification | None" = None
     """
     Updates or removes the record expiry (long-term memory time-to-live) for this
@@ -10424,26 +10510,32 @@ class DeleteMemoryStrategyInput(Boto3Model):
     """
     Input for deleting a memory strategy.
     """
+
     memoryStrategyId: str
     """
     The unique identifier of the memory strategy to delete.
     """
+
+
 class ModifyMemoryStrategies(Boto3Model):
     """
     Contains information for modifying memory strategies.
     """
+
     addMemoryStrategies: "builtins.list[MemoryStrategyInput] | None" = Field(
         default_factory=list
     )
     """
     The list of memory strategies to add.
     """
+
     modifyMemoryStrategies: "builtins.list[ModifyMemoryStrategyInput] | None" = Field(
         default_factory=list
     )
     """
     The list of memory strategies to modify.
     """
+
     deleteMemoryStrategies: "builtins.list[DeleteMemoryStrategyInput] | None" = Field(
         default_factory=list
     )
@@ -10469,24 +10561,21 @@ class DeleteMemoryOutput(Boto3Model):
     """
     The current status of the AgentCore Memory resource deletion.
     """
+
 class SecretReference(Boto3Model):
     """
     Contains a reference to a secret stored in Amazon Web Services Secrets Manager.
     """
-
     secretId: str
     """
     The ID of the Amazon Web Services Secrets Manager secret that stores the secret
     value.
     """
-
     jsonKey: str
     """
     The JSON key used to extract the secret value from the Amazon Web Services Secrets
     Manager secret.
     """
-
-
 class CreateApiKeyCredentialProviderResponse(Boto3Model):
     apiKeySecretArn: Secret
     """
@@ -10498,6 +10587,7 @@ class CreateApiKeyCredentialProviderResponse(Boto3Model):
     The JSON key used to extract the API key value from the Amazon Web Services Secrets
     Manager secret.
     """
+
     apiKeySecretSource: "Literal['MANAGED', 'EXTERNAL'] | None" = None
     """
     The source type of the API key secret.
@@ -10505,10 +10595,12 @@ class CreateApiKeyCredentialProviderResponse(Boto3Model):
     Either ``MANAGED`` if the secret is managed by the service, or ``EXTERNAL`` if
     managed by the user in Amazon Web Services Secrets Manager.
     """
+
     name: str
     """
     The name of the created API key credential provider.
     """
+
     credentialProviderArn: str
     """
     The Amazon Resource Name (ARN) of the created API key credential provider.
@@ -10520,13 +10612,11 @@ class GetApiKeyCredentialProviderResponse(Boto3Model):
     The Amazon Resource Name (ARN) of the API key secret in Amazon Web Services Secrets
     Manager.
     """
-
     apiKeySecretJsonKey: "str | None" = None
     """
     The JSON key used to extract the API key value from the Amazon Web Services Secrets
     Manager secret.
     """
-
     apiKeySecretSource: "Literal['MANAGED', 'EXTERNAL'] | None" = None
     """
     The source type of the API key secret.
@@ -10539,7 +10629,6 @@ class GetApiKeyCredentialProviderResponse(Boto3Model):
     """
     The name of the API key credential provider.
     """
-
     credentialProviderArn: str
     """
     The Amazon Resource Name (ARN) of the API key credential provider.
@@ -10586,7 +10675,6 @@ class UpdateApiKeyCredentialProviderResponse(Boto3Model):
     Either ``MANAGED`` if the secret is managed by the service, or ``EXTERNAL`` if
     managed by the user in Amazon Web Services Secrets Manager.
     """
-
     name: str
     """
     The name of the API key credential provider.
@@ -10596,6 +10684,7 @@ class UpdateApiKeyCredentialProviderResponse(Boto3Model):
     """
     The Amazon Resource Name (ARN) of the API key credential provider.
     """
+
     createdTime: datetime
     """
     The timestamp when the API key credential provider was created.
@@ -10608,8 +10697,6 @@ class UpdateApiKeyCredentialProviderResponse(Boto3Model):
 
 class DeleteApiKeyCredentialProviderResponse(Boto3Model):
     pass
-
-
 class CustomOauth2ProviderConfigInput(Boto3Model):
     """
     Input configuration for a custom OAuth2 provider.
@@ -10629,6 +10716,7 @@ class CustomOauth2ProviderConfigInput(Boto3Model):
     """
     The client secret for the custom OAuth2 provider.
     """
+
     clientSecretConfig: "SecretReference | None" = None
     """
     A reference to the Amazon Web Services Secrets Manager secret that stores the client
@@ -10645,6 +10733,7 @@ class CustomOauth2ProviderConfigInput(Boto3Model):
     Use ``MANAGED`` if the secret is managed by the service, or ``EXTERNAL`` if you
     manage the secret yourself in Amazon Web Services Secrets Manager.
     """
+
     onBehalfOfTokenExchangeConfig: "OnBehalfOfTokenExchangeConfigType | None" = None
     """
     The configuration for on-behalf-of token exchange.
@@ -10666,17 +10755,20 @@ class CustomOauth2ProviderConfigInput(Boto3Model):
     When specified, the credential provider uses JWT client assertions to authenticate
     with the token endpoint.
     """
+
     privateEndpoint: "PrivateEndpoint | None" = None
     """
     The default private endpoint for the custom OAuth2 provider, enabling secure
     connectivity through a VPC Lattice resource configuration.
     """
+
     privateEndpointOverrides: "builtins.list[PrivateEndpointOverride] | None" = Field(
         default_factory=list
     )
     """
     The private endpoint overrides for the custom OAuth2 provider configuration.
     """
+
     certificateConfigurations: "builtins.list[CertificateConfiguration] | None" = Field(
         default_factory=list
     )
@@ -10689,11 +10781,11 @@ class CustomOauth2ProviderConfigInput(Boto3Model):
     Amazon S3 object or an Amazon Web Services Secrets Manager secret. You can use this
     only together with ``privateEndpoint``.
     """
+
 class GoogleOauth2ProviderConfigInput(Boto3Model):
     """
     Input configuration for a Google OAuth2 provider.
     """
-
     clientId: str
     """
     The client ID for the Google OAuth2 provider.
@@ -10703,6 +10795,7 @@ class GoogleOauth2ProviderConfigInput(Boto3Model):
     """
     The client secret for the Google OAuth2 provider.
     """
+
     clientSecretConfig: "SecretReference | None" = None
     """
     A reference to the Amazon Web Services Secrets Manager secret that stores the client
@@ -10766,6 +10859,7 @@ class SlackOauth2ProviderConfigInput(Boto3Model):
     """
     The client secret for the Slack OAuth2 provider.
     """
+
     clientSecretConfig: "SecretReference | None" = None
     """
     A reference to the Amazon Web Services Secrets Manager secret that stores the client
@@ -10782,11 +10876,11 @@ class SlackOauth2ProviderConfigInput(Boto3Model):
     Use ``MANAGED`` if the secret is managed by the service, or ``EXTERNAL`` if you
     manage the secret yourself in Amazon Web Services Secrets Manager.
     """
+
 class SalesforceOauth2ProviderConfigInput(Boto3Model):
     """
     Input configuration for a Salesforce OAuth2 provider.
     """
-
     clientId: str
     """
     The client ID for the Salesforce OAuth2 provider.
@@ -10796,7 +10890,6 @@ class SalesforceOauth2ProviderConfigInput(Boto3Model):
     """
     The client secret for the Salesforce OAuth2 provider.
     """
-
     clientSecretConfig: "SecretReference | None" = None
     """
     A reference to the Amazon Web Services Secrets Manager secret that stores the client
@@ -10805,7 +10898,6 @@ class SalesforceOauth2ProviderConfigInput(Boto3Model):
     This includes the secret ID and the JSON key used to extract the client secret value
     from the secret. Required when ``clientSecretSource`` is set to ``EXTERNAL``.
     """
-
     clientSecretSource: "Literal['MANAGED', 'EXTERNAL'] | None" = None
     """
     The source type of the client secret.
@@ -10818,6 +10910,7 @@ class MicrosoftOauth2ProviderConfigInput(Boto3Model):
     """
     Input configuration for a Microsoft OAuth2 provider.
     """
+
     clientId: str
     """
     The client ID for the Microsoft OAuth2 provider.
@@ -10827,6 +10920,7 @@ class MicrosoftOauth2ProviderConfigInput(Boto3Model):
     """
     The client secret for the Microsoft OAuth2 provider.
     """
+
     clientSecretConfig: "SecretReference | None" = None
     """
     A reference to the Amazon Web Services Secrets Manager secret that stores the client
@@ -10901,14 +10995,12 @@ class LinkedinOauth2ProviderConfigInput(Boto3Model):
     This includes the client credentials required to authenticate with LinkedIn's OAuth2
     authorization server.
     """
-
     clientId: str
     """
     The client ID for the LinkedIn OAuth2 provider.
 
     This identifier is assigned by LinkedIn when you register your application.
     """
-
     clientSecret: "str | None" = None
     """
     The client secret for the LinkedIn OAuth2 provider.
@@ -10925,6 +11017,7 @@ class LinkedinOauth2ProviderConfigInput(Boto3Model):
     This includes the secret ID and the JSON key used to extract the client secret value
     from the secret. Required when ``clientSecretSource`` is set to ``EXTERNAL``.
     """
+
     clientSecretSource: "Literal['MANAGED', 'EXTERNAL'] | None" = None
     """
     The source type of the client secret.
@@ -10940,6 +11033,7 @@ class IncludedOauth2ProviderConfigInput(Boto3Model):
     This includes client credentials and OAuth2 discovery information for providers that
     have built-in support.
     """
+
     clientId: str
     """
     The client ID for the supported OAuth2 provider.
@@ -10964,6 +11058,7 @@ class IncludedOauth2ProviderConfigInput(Boto3Model):
     This includes the secret ID and the JSON key used to extract the client secret value
     from the secret. Required when ``clientSecretSource`` is set to ``EXTERNAL``.
     """
+
     clientSecretSource: "Literal['MANAGED', 'EXTERNAL'] | None" = None
     """
     The source type of the client secret.
@@ -10978,7 +11073,6 @@ class IncludedOauth2ProviderConfigInput(Boto3Model):
 
     This URL identifies the authorization server that issues tokens for this provider.
     """
-
     authorizationEndpoint: "str | None" = None
     """
     OAuth2 authorization endpoint for your isolated OAuth2 application tenant.
@@ -10986,7 +11080,6 @@ class IncludedOauth2ProviderConfigInput(Boto3Model):
     This is where users are redirected to authenticate and authorize access to their
     resources.
     """
-
     tokenEndpoint: "str | None" = None
     """
     OAuth2 token endpoint for your isolated OAuth2 application tenant.
@@ -10998,6 +11091,7 @@ class Oauth2ProviderConfigInput(Boto3Model):
     """
     Contains the input configuration for an OAuth2 provider.
     """
+
     customOauth2ProviderConfig: "CustomOauth2ProviderConfigInput | None" = None
     """
     The configuration for a custom OAuth2 provider.
@@ -11012,10 +11106,12 @@ class Oauth2ProviderConfigInput(Boto3Model):
     """
     The configuration for a GitHub OAuth2 provider.
     """
+
     slackOauth2ProviderConfig: "SlackOauth2ProviderConfigInput | None" = None
     """
     The configuration for a Slack OAuth2 provider.
     """
+
     salesforceOauth2ProviderConfig: "SalesforceOauth2ProviderConfigInput | None" = None
     """
     The configuration for a Salesforce OAuth2 provider.
@@ -11025,12 +11121,10 @@ class Oauth2ProviderConfigInput(Boto3Model):
     """
     The configuration for a Microsoft OAuth2 provider.
     """
-
     atlassianOauth2ProviderConfig: "AtlassianOauth2ProviderConfigInput | None" = None
     """
     Configuration settings for Atlassian OAuth2 provider integration.
     """
-
     linkedinOauth2ProviderConfig: "LinkedinOauth2ProviderConfigInput | None" = None
     """
     Configuration settings for LinkedIn OAuth2 provider integration.
@@ -11043,6 +11137,7 @@ class Oauth2ProviderConfigInput(Boto3Model):
     This includes settings for supported OAuth2 providers that have built-in integration
     support.
     """
+
 class CreateOauth2CredentialProviderResponse(Boto3Model):
     clientSecretArn: Secret
     """
@@ -11055,7 +11150,6 @@ class CreateOauth2CredentialProviderResponse(Boto3Model):
     The JSON key used to extract the client secret value from the Amazon Web Services
     Secrets Manager secret.
     """
-
     clientSecretSource: "Literal['MANAGED', 'EXTERNAL'] | None" = None
     """
     The source type of the client secret.
@@ -11073,6 +11167,7 @@ class CreateOauth2CredentialProviderResponse(Boto3Model):
     """
     The Amazon Resource Name (ARN) of the OAuth2 credential provider.
     """
+
     callbackUrl: "str | None" = None
     """
     Callback URL to register on the OAuth2 credential provider as an allowed callback
@@ -11086,7 +11181,6 @@ class CreateOauth2CredentialProviderResponse(Boto3Model):
     """
     Contains the output configuration for an OAuth2 provider.
     """
-
     status: "Literal['CREATING', 'CREATE_FAILED', 'UPDATING', 'UPDATE_FAILED', 'READY', 'DELETING', 'DELETE_FAILED'] | None" = None
     """
     The current status of the OAuth2 credential provider.
@@ -11177,6 +11271,7 @@ class GetOauth2CredentialProviderResponse(Boto3Model):
     """
     The timestamp when the OAuth2 credential provider was last updated.
     """
+
     status: "Literal['CREATING', 'CREATE_FAILED', 'UPDATING', 'UPDATE_FAILED', 'READY', 'DELETING', 'DELETE_FAILED'] | None" = None
     """
     The current status of the OAuth2 credential provider.
@@ -11253,12 +11348,10 @@ class UpdateOauth2CredentialProviderResponse(Boto3Model):
     """
     The vendor of the OAuth2 credential provider.
     """
-
     credentialProviderArn: str
     """
     The Amazon Resource Name (ARN) of the OAuth2 credential provider.
     """
-
     callbackUrl: "str | None" = None
     """
     Callback URL to register on the OAuth2 credential provider as an allowed callback
@@ -11282,7 +11375,6 @@ class UpdateOauth2CredentialProviderResponse(Boto3Model):
     """
     The timestamp when the OAuth2 credential provider was last updated.
     """
-
     status: "Literal['CREATING', 'CREATE_FAILED', 'UPDATING', 'UPDATE_FAILED', 'READY', 'DELETING', 'DELETE_FAILED'] | None" = None
     """
     The current status of the updated OAuth2 credential provider.
@@ -11306,6 +11398,7 @@ class CoinbaseCdpConfigurationInput(Boto3Model):
     """
     The API key secret provided by Coinbase Developer Platform.
     """
+
     apiKeySecretSource: "Literal['MANAGED', 'EXTERNAL'] | None" = None
     """
     The source type of the API key secret for the Coinbase Developer Platform.
@@ -11322,7 +11415,6 @@ class CoinbaseCdpConfigurationInput(Boto3Model):
     This includes the secret ID and the JSON key used to extract the API key secret
     value from the secret. Required when ``apiKeySecretSource`` is set to ``EXTERNAL``.
     """
-
     walletSecret: "str | None" = None
     """
     The wallet secret provided by Coinbase Developer Platform.
@@ -11344,7 +11436,6 @@ class CoinbaseCdpConfigurationInput(Boto3Model):
     This includes the secret ID and the JSON key used to extract the wallet secret value
     from the secret. Required when ``walletSecretSource`` is set to ``EXTERNAL``.
     """
-
 class StripePrivyConfigurationInput(Boto3Model):
     """
     Stripe Privy configuration — credentials provided by Stripe and Privy.
@@ -11381,7 +11472,6 @@ class StripePrivyConfigurationInput(Boto3Model):
     """
     The authorization private key for the Stripe Privy integration.
     """
-
     authorizationPrivateKeySource: "Literal['MANAGED', 'EXTERNAL'] | None" = None
     """
     The source type of the authorization private key.
@@ -11389,7 +11479,6 @@ class StripePrivyConfigurationInput(Boto3Model):
     Use ``MANAGED`` if the secret is managed by the service, or ``EXTERNAL`` if you
     manage the secret yourself in Amazon Web Services Secrets Manager.
     """
-
     authorizationPrivateKeyConfig: "SecretReference | None" = None
     """
     A reference to the Amazon Web Services Secrets Manager secret that stores the
@@ -11411,6 +11500,7 @@ class PaymentProviderConfigurationInput(Boto3Model):
 
     Varies by vendor type.
     """
+
     coinbaseCdpConfiguration: "CoinbaseCdpConfigurationInput | None" = None
     """
     The Coinbase CDP configuration.
@@ -11420,17 +11510,16 @@ class PaymentProviderConfigurationInput(Boto3Model):
     """
     The Stripe Privy configuration.
     """
-
 class CreatePaymentCredentialProviderResponse(Boto3Model):
     name: str
     """
     The name of the created payment credential provider.
     """
-
     credentialProviderVendor: Literal["CoinbaseCDP", "StripePrivy"]
     """
     The vendor type for the created payment credential provider.
     """
+
     credentialProviderArn: str
     """
     The Amazon Resource Name (ARN) of the created payment credential provider.
@@ -11453,10 +11542,12 @@ class GetPaymentCredentialProviderResponse(TagsDictMixin, Boto3Model):
     """
     The name of the payment credential provider.
     """
+
     credentialProviderArn: str
     """
     The Amazon Resource Name (ARN) of the payment credential provider.
     """
+
     credentialProviderVendor: Literal["CoinbaseCDP", "StripePrivy"]
     """
     The vendor type for the payment credential provider.
@@ -11476,6 +11567,7 @@ class GetPaymentCredentialProviderResponse(TagsDictMixin, Boto3Model):
     """
     The timestamp when the payment credential provider was last updated.
     """
+
 class ListPaymentCredentialProvidersResponse(Boto3Model):
     credentialProviders: "builtins.list[AgentCorePaymentCredentialProvider]"
     """
@@ -11486,7 +11578,6 @@ class ListPaymentCredentialProvidersResponse(Boto3Model):
     """
     Pagination token for the next page of results.
     """
-
 class UpdatePaymentCredentialProviderResponse(Boto3Model):
     name: str
     """
@@ -11497,6 +11588,7 @@ class UpdatePaymentCredentialProviderResponse(Boto3Model):
     """
     The vendor type for the updated payment credential provider.
     """
+
     credentialProviderArn: str
     """
     The Amazon Resource Name (ARN) of the updated payment credential provider.
@@ -11520,14 +11612,11 @@ class UpdatePaymentCredentialProviderResponse(Boto3Model):
 
 class DeletePaymentCredentialProviderResponse(Boto3Model):
     pass
-
-
 class CreateCodeInterpreterResponse(Boto3Model):
     codeInterpreterId: str
     """
     The unique identifier of the created code interpreter.
     """
-
     codeInterpreterArn: str
     """
     The Amazon Resource Name (ARN) of the created code interpreter.
@@ -11537,6 +11626,7 @@ class CreateCodeInterpreterResponse(Boto3Model):
     """
     The timestamp when the code interpreter was created.
     """
+
     status: Literal[
         "CREATING", "CREATE_FAILED", "READY", "DELETING", "DELETE_FAILED", "DELETED"
     ]
@@ -11560,7 +11650,6 @@ class GetCodeInterpreterResponse(Boto3Model):
     """
     The name of the code interpreter.
     """
-
     description: "str | None" = None
     """
     The description of the code interpreter.
@@ -11570,6 +11659,7 @@ class GetCodeInterpreterResponse(Boto3Model):
     """
     The IAM role ARN that provides permissions for the code interpreter.
     """
+
     networkConfiguration: CodeInterpreterNetworkConfiguration
     """
     The network configuration for a code interpreter.
@@ -11582,7 +11672,6 @@ class GetCodeInterpreterResponse(Boto3Model):
     """
     The current status of the code interpreter.
     """
-
     certificates: "builtins.list[AgentCoreCodeInterpreterCertificate] | None" = Field(
         default_factory=list
     )
@@ -11598,17 +11687,14 @@ class GetCodeInterpreterResponse(Boto3Model):
 
     Each entry describes an access point and its mount path.
     """
-
     failureReason: "str | None" = None
     """
     The reason for failure if the code interpreter is in a failed state.
     """
-
     createdAt: datetime
     """
     The timestamp when the code interpreter was created.
     """
-
     lastUpdatedAt: datetime
     """
     The timestamp when the code interpreter was last updated.
@@ -11619,12 +11705,10 @@ class ListCodeInterpretersResponse(Boto3Model):
     """
     The list of code interpreter summaries.
     """
-
     nextToken: "str | None" = None
     """
     A token to retrieve the next page of results.
     """
-
 class DeleteCodeInterpreterResponse(Boto3Model):
     codeInterpreterId: str
     """
@@ -11637,19 +11721,15 @@ class DeleteCodeInterpreterResponse(Boto3Model):
     """
     The current status of the code interpreter deletion.
     """
-
     lastUpdatedAt: datetime
     """
     The timestamp when the code interpreter was last updated.
     """
-
-
 class CreateGatewayResponse(Boto3Model):
     gatewayArn: str
     """
     The Amazon Resource Name (ARN) of the created gateway.
     """
-
     gatewayId: str
     """
     The unique identifier of the created gateway.
@@ -11669,12 +11749,14 @@ class CreateGatewayResponse(Boto3Model):
     """
     The timestamp when the gateway was last updated.
     """
+
     status: Literal[
         "CREATING", "UPDATING", "UPDATE_UNSUCCESSFUL", "DELETING", "READY", "FAILED"
     ]
     """
     The current status of the gateway.
     """
+
     statusReasons: "builtins.list[str] | None" = Field(default_factory=list)
     """
     The reasons for the current status of the gateway.
@@ -11738,7 +11820,6 @@ class CreateGatewayResponse(Boto3Model):
     """
     The policy engine configuration for the created gateway.
     """
-
     workloadIdentityDetails: "WorkloadIdentityDetails | None" = None
     """
     The workload identity details for the created gateway.
@@ -11753,7 +11834,6 @@ class CreateGatewayResponse(Boto3Model):
     The Amazon Resource Name (ARN) of the Amazon Web Services WAF web ACL associated
     with the gateway.
     """
-
     wafConfiguration: "WafConfiguration | None" = None
     """
     The Amazon Web Services WAF configuration for the gateway.
@@ -11770,10 +11850,12 @@ class GetGatewayResponse(Boto3Model):
     """
     The Amazon Resource Name (ARN) of the gateway.
     """
+
     gatewayId: str
     """
     The unique identifier of the gateway.
     """
+
     gatewayUrl: "str | None" = None
     """
     An endpoint for invoking gateway.
@@ -11795,6 +11877,7 @@ class GetGatewayResponse(Boto3Model):
     """
     The current status of the gateway.
     """
+
     statusReasons: "builtins.list[str] | None" = Field(default_factory=list)
     """
     The reasons for the current status of the gateway.
@@ -11804,7 +11887,6 @@ class GetGatewayResponse(Boto3Model):
     """
     The name of the gateway.
     """
-
     description: "str | None" = None
     """
     The description of the gateway.
@@ -11814,6 +11896,7 @@ class GetGatewayResponse(Boto3Model):
     """
     The IAM role ARN that provides permissions for the gateway.
     """
+
     protocolType: "Literal['MCP'] | None" = None
     """
     Protocol applied to a gateway.
@@ -11859,6 +11942,7 @@ class GetGatewayResponse(Boto3Model):
     """
     The policy engine configuration for the gateway.
     """
+
     workloadIdentityDetails: "WorkloadIdentityDetails | None" = None
     """
     The workload identity details for the gateway.
@@ -11868,6 +11952,7 @@ class GetGatewayResponse(Boto3Model):
     """
     The level of detail in error messages returned when invoking the gateway.
     """
+
     webAclArn: "str | None" = None
     """
     The Amazon Resource Name (ARN) of the Amazon Web Services WAF web ACL associated
@@ -11890,6 +11975,7 @@ class ListGatewaysResponse(Boto3Model):
     """
     The list of gateway summaries.
     """
+
     nextToken: "str | None" = None
     """
     If the total number of results is greater than the ``maxResults`` value provided in
@@ -11907,11 +11993,11 @@ class UpdateGatewayResponse(Boto3Model):
     """
     The unique identifier of the updated gateway.
     """
+
     gatewayUrl: "str | None" = None
     """
     An endpoint for invoking the updated gateway.
     """
-
     createdAt: datetime
     """
     The timestamp when the gateway was created.
@@ -11921,6 +12007,7 @@ class UpdateGatewayResponse(Boto3Model):
     """
     The timestamp when the gateway was last updated.
     """
+
     status: Literal[
         "CREATING", "UPDATING", "UPDATE_UNSUCCESSFUL", "DELETING", "READY", "FAILED"
     ]
@@ -11932,7 +12019,6 @@ class UpdateGatewayResponse(Boto3Model):
     """
     The reasons for the current status of the updated gateway.
     """
-
     name: str
     """
     The name of the gateway.
@@ -11992,7 +12078,6 @@ class UpdateGatewayResponse(Boto3Model):
     """
     The updated policy engine configuration for the gateway.
     """
-
     workloadIdentityDetails: "WorkloadIdentityDetails | None" = None
     """
     The workload identity details for the updated gateway.
@@ -12002,17 +12087,16 @@ class UpdateGatewayResponse(Boto3Model):
     """
     The level of detail in error messages returned when invoking the gateway.
     """
+
     webAclArn: "str | None" = None
     """
     The Amazon Resource Name (ARN) of the Amazon Web Services WAF web ACL associated
     with the gateway.
     """
-
     wafConfiguration: "WafConfiguration | None" = None
     """
     The Amazon Web Services WAF configuration for the gateway.
     """
-
     domainOverride: "DomainOverride | None" = None
     """
     The public domain names that the gateway advertises in its OAuth discovery URLs
@@ -12024,7 +12108,6 @@ class DeleteGatewayResponse(Boto3Model):
     """
     The unique identifier of the deleted gateway.
     """
-
     status: Literal[
         "CREATING", "UPDATING", "UPDATE_UNSUCCESSFUL", "DELETING", "READY", "FAILED"
     ]
@@ -12036,11 +12119,13 @@ class DeleteGatewayResponse(Boto3Model):
     """
     The reasons for the current status of the gateway deletion.
     """
+
 class CreateGatewayRuleResponse(Boto3Model):
     ruleId: str
     """
     The unique identifier of the gateway rule.
     """
+
     gatewayArn: str
     """
     The Amazon Resource Name (ARN) of the gateway that the rule belongs to.
@@ -12067,6 +12152,7 @@ class CreateGatewayRuleResponse(Boto3Model):
     """
     The description of the gateway rule.
     """
+
     createdAt: datetime
     """
     The timestamp when the rule was created.
@@ -12146,6 +12232,7 @@ class ListGatewayRulesResponse(Boto3Model):
     """
     The list of gateway rules.
     """
+
     nextToken: "str | None" = None
     """
     The pagination token to use in a subsequent request.
@@ -12194,16 +12281,15 @@ class UpdateGatewayRuleResponse(Boto3Model):
     """
     The timestamp when the rule was created.
     """
+
     status: Literal["CREATING", "ACTIVE", "UPDATING", "DELETING"]
     """
     The current status of the rule.
     """
-
     system: "SystemManagedBlock | None" = None
     """
     System-managed metadata for rules created by automated processes.
     """
-
     updatedAt: "datetime | None" = None
     """
     The timestamp when the rule was last updated.
@@ -12220,13 +12306,11 @@ class DeleteGatewayRuleResponse(Boto3Model):
     The status of the rule deletion operation.
     """
 
-
 class CreateGatewayTargetResponse(Boto3Model):
     gatewayArn: str
     """
     The Amazon Resource Name (ARN) of the gateway.
     """
-
     targetId: str
     """
     The unique identifier of the created target.
@@ -12241,6 +12325,7 @@ class CreateGatewayTargetResponse(Boto3Model):
     """
     The timestamp when the target was last updated.
     """
+
     status: Literal[
         "CREATING",
         "UPDATING",
@@ -12262,12 +12347,10 @@ class CreateGatewayTargetResponse(Boto3Model):
     """
     The reasons for the current status of the target.
     """
-
     name: str
     """
     The name of the target.
     """
-
     description: "str | None" = None
     """
     The description of the target.
@@ -12367,6 +12450,7 @@ class GetGatewayTargetResponse(Boto3Model):
     """
     The reasons for the current status of the gateway target.
     """
+
     name: str
     """
     The name of the gateway target.
@@ -12420,6 +12504,7 @@ class GetGatewayTargetResponse(Boto3Model):
     This data is returned when a target is configured with a credential provider with
     authorization code grant type and requires user federation.
     """
+
     protocolType: "Literal['MCP', 'HTTP'] | None" = None
     """
     The protocol type of the gateway target.
@@ -12431,13 +12516,11 @@ class GetGatewayTargetResponse(Boto3Model):
     """
     The private certificate authority (CA) configurations for the gateway target.
     """
-
 class ListGatewayTargetsResponse(Boto3Model):
     items: "builtins.list[AgentCoreGatewayTarget]"
     """
     The list of gateway target summaries.
     """
-
     nextToken: "str | None" = None
     """
     If the total number of results is greater than the ``maxResults`` value provided in
@@ -12460,6 +12543,7 @@ class UpdateGatewayTargetResponse(Boto3Model):
     """
     The timestamp when the gateway target was created.
     """
+
     updatedAt: datetime
     """
     The timestamp when the gateway target was last updated.
@@ -12480,10 +12564,12 @@ class UpdateGatewayTargetResponse(Boto3Model):
     """
     The current status of the updated gateway target.
     """
+
     statusReasons: "builtins.list[str] | None" = Field(default_factory=list)
     """
     The reasons for the current status of the updated gateway target.
     """
+
     name: str
     """
     The updated name of the gateway target.
@@ -12516,6 +12602,7 @@ class UpdateGatewayTargetResponse(Boto3Model):
     """
     The metadata configuration that was applied to the gateway target.
     """
+
     privateEndpoint: "PrivateEndpoint | None" = None
     """
     The private endpoint configuration for the gateway target.
@@ -12558,6 +12645,7 @@ class DeleteGatewayTargetResponse(Boto3Model):
     """
     The unique identifier of the deleted gateway target.
     """
+
     status: Literal[
         "CREATING",
         "UPDATING",
@@ -12574,6 +12662,7 @@ class DeleteGatewayTargetResponse(Boto3Model):
     """
     The current status of the gateway target deletion.
     """
+
     statusReasons: "builtins.list[str] | None" = Field(default_factory=list)
     """
     The reasons for the current status of the gateway target deletion.
@@ -12598,6 +12687,7 @@ class HarnessAgentCoreRuntimeEnvironmentRequest(Boto3Model):
     """
     SecurityConfig for the Agent.
     """
+
     filesystemConfigurations: "builtins.list[FilesystemConfiguration] | None" = Field(
         default_factory=list
     )
@@ -12623,7 +12713,6 @@ class CreateHarnessResponse(Boto3Model):
     The harness that was created.
     """
 
-
 class GetHarnessResponse(Boto3Model):
     harness: AgentCoreHarness
     """
@@ -12635,22 +12724,18 @@ class HarnessSummary(Boto3Model):
     """
     Summary information about a harness.
     """
-
     harnessId: str
     """
     The ID of the harness.
     """
-
     harnessName: str
     """
     The name of the harness.
     """
-
     arn: str
     """
     The ARN of the harness.
     """
-
     status: Literal[
         "CREATING",
         "CREATE_FAILED",
@@ -12678,7 +12763,6 @@ class HarnessSummary(Boto3Model):
     """
     The latest version of the harness.
     """
-
 class ListHarnessesResponse(Boto3Model):
     harnesses: "builtins.list[HarnessSummary]"
     """
@@ -12694,7 +12778,6 @@ class UpdatedHarnessEnvironmentArtifact(Boto3Model):
     """
     Wrapper for updating the environment artifact configuration.
     """
-
     optionalValue: "HarnessEnvironmentArtifact | None" = None
     """
     The updated environment artifact value, or null to clear the existing configuration.
@@ -12708,7 +12791,6 @@ class UpdatedAuthorizerConfiguration(Boto3Model):
     optionalValue. When absent, the authorizer configuration is left unchanged. To
     unset, include the wrapper with optionalValue not specified.
     """
-
     optionalValue: "AuthorizerConfiguration | None" = None
     """
     The updated authorizer configuration value.
@@ -12726,6 +12808,7 @@ class UpdatedHarnessMemoryConfiguration(Boto3Model):
     """
     The updated memory configuration value, or null to clear the existing configuration.
     """
+
 class UpdateHarnessResponse(Boto3Model):
     harness: AgentCoreHarness
     """
@@ -12774,6 +12857,8 @@ class DeleteHarnessEndpointResponse(Boto3Model):
     """
     The endpoint that was deleted.
     """
+
+
 class CreatePolicyEngineResponse(Boto3Model):
     policyEngineId: str
     """
@@ -12805,6 +12890,7 @@ class CreatePolicyEngineResponse(Boto3Model):
 
     For newly created policy engines, this matches the ``createdAt`` timestamp.
     """
+
     policyEngineArn: str
     """
     The Amazon Resource Name (ARN) of the created policy engine.
@@ -12812,6 +12898,7 @@ class CreatePolicyEngineResponse(Boto3Model):
     This globally unique identifier can be used for cross- service references and IAM
     policy statements.
     """
+
     status: Literal[
         "CREATING",
         "ACTIVE",
@@ -12837,6 +12924,7 @@ class CreatePolicyEngineResponse(Boto3Model):
     """
     A human-readable description of the policy engine's purpose.
     """
+
     statusReasons: "builtins.list[str]"
     """
     Additional information about the policy engine status.
@@ -12872,7 +12960,6 @@ class GetPolicyEngineResponse(Boto3Model):
 
     This tracks the most recent changes to the policy engine configuration.
     """
-
     policyEngineArn: str
     """
     The Amazon Resource Name (ARN) of the policy engine.
@@ -12880,7 +12967,6 @@ class GetPolicyEngineResponse(Boto3Model):
     This globally unique identifier can be used for cross-service references and IAM
     policy statements.
     """
-
     status: Literal[
         "CREATING",
         "ACTIVE",
@@ -12922,7 +13008,6 @@ class ListPolicyEnginesResponse(Boto3Model):
     Each policy engine object contains the engine metadata, status, and key identifiers
     for further operations.
     """
-
     nextToken: "str | None" = None
     """
 A pagination token that can be used in subsequent `ListPolicyEngines <https://docs.aws.amazon.com/bedrock-agentcore-
@@ -12946,17 +13031,14 @@ class UpdatePolicyEngineResponse(Boto3Model):
     """
     The original creation timestamp of the policy engine.
     """
-
     updatedAt: datetime
     """
     The timestamp when the policy engine was last updated.
     """
-
     policyEngineArn: str
     """
     The ARN of the updated policy engine.
     """
-
     status: Literal[
         "CREATING",
         "ACTIVE",
@@ -12993,7 +13075,6 @@ class UpdatedDescription(Boto3Model):
     When absent, the description is left unchanged. To unset the description, include
     the wrapper with optionalValue not specified.
     """
-
     optionalValue: "str | None" = None
     """
     Represents an optional value that is used to update the human-readable description
@@ -13014,6 +13095,7 @@ class DeletePolicyEngineResponse(Boto3Model):
     """
     The customer-assigned name of the deleted policy engine.
     """
+
     createdAt: datetime
     """
     The timestamp when the deleted policy engine was originally created.
@@ -13025,7 +13107,6 @@ class DeletePolicyEngineResponse(Boto3Model):
     This tracks the final state of the policy engine before it was removed from the
     system.
     """
-
     policyEngineArn: str
     """
     The Amazon Resource Name (ARN) of the deleted policy engine.
@@ -13048,13 +13129,11 @@ class DeletePolicyEngineResponse(Boto3Model):
 
     This provides status about any issues that occurred during the deletion process.
     """
-
     encryptionKeyArn: "str | None" = None
     """
     The Amazon Resource Name (ARN) of the KMS key used to encrypt the policy engine
     data.
     """
-
     description: "str | None" = None
     """
     The human-readable description of the deleted policy engine.
@@ -13067,7 +13146,6 @@ class DeletePolicyEngineResponse(Boto3Model):
     This provides details about the deletion process or any issues that may have
     occurred.
     """
-
 class AgentCoreCreatePolicyResponse(Boto3Model):
     policyId: str
     """

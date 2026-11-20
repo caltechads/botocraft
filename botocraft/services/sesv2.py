@@ -286,9 +286,9 @@ class EmailIdentityManager(SESV2EmailIdentityManagerMixin, Boto3ModelManager):
                 specified in the ``FeedbackForwardingEmailAddress`` parameter.
             DefaultEmailTags: A list of tags, in the form of name/value pairs, to apply
                 to an email that you send using the
-                ``SendEmail`` operation. Tags correspond to characteristics of the email
-                that you define, so that you can publish
-                email sending events.
+                ``SendBulkEmail`` operation. Tags correspond to characteristics of the
+                email that you define, so that you can
+                publish email sending events.
             ConfigurationSetName: The name of the configuration set to use when sending
                 the email.
             EndpointId: The ID of the multi-region endpoint (global-endpoint).
@@ -1108,8 +1108,8 @@ class SESV2DeliveryOptions(Boto3Model):
     Specifies whether messages that use the configuration set are required to use
     Transport Layer Security (TLS).
 
-    If the value is ``Require``, messages are only delivered if a TLS connection can be
-    established. If the value is ``Optional``, messages can be delivered in plain text
+    If the value is ``REQUIRE``, messages are only delivered if a TLS connection can be
+    established. If the value is ``OPTIONAL``, messages can be delivered in plain text
     if a TLS connection can't be established.
     """
 
@@ -1125,6 +1125,15 @@ class SESV2DeliveryOptions(Boto3Model):
 
     If specified, the value must greater than or equal to 300 seconds (5 minutes) and
     less than or equal to 50400 seconds (840 minutes).
+    """
+
+    SharedPoolDeliveryMode: "Literal['GLOBAL', 'REGIONAL', 'ACCOUNT'] | None" = None
+    """
+    The shared pool delivery mode for email that you send with the configuration set
+    from shared IP addresses.
+
+    This setting overrides the shared pool delivery mode of your account. Can be one of
+    the following:
     """
 
 class SESV2ReputationOptions(Boto3Model):
@@ -1365,6 +1374,7 @@ class SESV2SigningScheme(Boto3Model):
 
     This is a union type, so you specify exactly one of its members.
     """
+
     DefaultScheme: "DefaultSigningScheme | None" = None
     """
     Use the default signing behavior.
@@ -1372,6 +1382,7 @@ class SESV2SigningScheme(Boto3Model):
     When you select this option, Amazon SES API v2 doesn't add an S/MIME signature to
     messages sent with the configuration set.
     """
+
     SmimeScheme: "SmimeSigningScheme | None" = None
     """
     Sign messages sent with the configuration set using S/MIME.
@@ -1388,11 +1399,13 @@ class SESV2MessageSecurityOptions(Boto3Model):
     Currently, these options determine whether Amazon SES API v2 adds an S/MIME
     signature to your messages and, if so, the format of that signature.
     """
+
     SigningScheme: "SESV2SigningScheme | None" = None
     """
     The signing scheme that Amazon SES API v2 applies to messages sent with the
     configuration set.
     """
+
 class ConfigurationSet(TagsDictMixin, PrimaryBoto3Model):
     """
     Information about a configuration set.
@@ -1409,6 +1422,7 @@ class ConfigurationSet(TagsDictMixin, PrimaryBoto3Model):
     An object that defines the open and click tracking options for emails that you send
     using the configuration set.
     """
+
     DeliveryOptions: "SESV2DeliveryOptions | None" = None
     """
     An object that defines the dedicated IP pool that is used to send emails that you
@@ -1444,7 +1458,6 @@ class ConfigurationSet(TagsDictMixin, PrimaryBoto3Model):
     An object that contains information about the VDM preferences for your configuration
     set.
     """
-
     ArchivingOptions: "SESV2ArchivingOptions | None" = None
     """
     An object that defines the MailManager archive where sent emails are archived that
@@ -1515,6 +1528,7 @@ class SESV2DkimAttributes(Boto3Model):
     If the value is
     ``false``, then the messages that you send from the identity aren't DKIM-signed.
     """
+
     Status: "Literal['PENDING', 'SUCCESS', 'FAILED', 'TEMPORARY_FAILURE', 'NOT_STARTED'] | None" = None
     """
     Describes whether or not Amazon SES has successfully located the DKIM records in the
@@ -1589,8 +1603,9 @@ class SESV2MailFromAttributes(Boto3Model):
 
     When you set this value to ``USE_DEFAULT_VALUE``, the mail is sent using
     *amazonses.com* as the MAIL FROM domain. When you set this value to
-    ``REJECT_MESSAGE``, the Amazon SES API v2 returns a ``MailFromDomainNotVerified``
-    error, and doesn't attempt to deliver the email.
+    ``REJECT_MESSAGE``, the Amazon SES API v2 returns a
+    ``MailFromDomainNotVerifiedException`` error, and doesn't attempt to deliver the
+    email.
     """
 
 
@@ -1603,6 +1618,7 @@ class SESV2SOARecord(Boto3Model):
     """
     Primary name server specified in the SOA record.
     """
+
     AdminEmail: "str | None" = None
     """
     Administrative contact email from the SOA record.
@@ -1618,6 +1634,7 @@ class SESV2VerificationInfo(Boto3Model):
     An object that contains additional information about the verification status for the
     identity.
     """
+
     LastCheckedTimestamp: "datetime | None" = None
     """
     The last time a verification attempt was made for this identity.
@@ -1636,7 +1653,6 @@ class SESV2VerificationInfo(Boto3Model):
     Below
     are the possible values:
     """
-
     SOARecord: "SESV2SOARecord | None" = None
     """
     An object that contains information about the start of authority (SOA) record
@@ -1736,6 +1752,7 @@ class Attachment(Boto3Model):
     """
     Contains metadata and attachment raw content.
     """
+
     RawContent: bytes
     """
     The raw data of the attachment.
@@ -1751,6 +1768,7 @@ class Attachment(Boto3Model):
     Supported values: ``ATTACHMENT`` or
     ``INLINE``.
     """
+
     FileName: str
     """
     The file name for the attachment as it will appear in the email.
@@ -1764,6 +1782,7 @@ class Attachment(Boto3Model):
     """
     A brief description of the attachment content.
     """
+
     ContentId: "str | None" = None
     """
     Unique identifier for the attachment, used for referencing attachments with INLINE
@@ -1776,7 +1795,6 @@ class Attachment(Boto3Model):
 
     Supported values: ``BASE64``, ``QUOTED_PRINTABLE``, ``SEVEN_BIT``.
     """
-
     ContentType: "str | None" = None
     """
     The MIME type of the attachment.
@@ -1788,6 +1806,7 @@ class SESV2Message(Boto3Model):
 
     The ``Message`` object consists of a subject line and a message body.
     """
+
     Subject: SESV2Content
     """
     The subject line of the email.
@@ -1847,6 +1866,7 @@ class EmailTemplateContent(Boto3Model):
     """
     The HTML body of the email.
     """
+
 class SESV2Template(Boto3Model):
     """
     An object that defines the email template to use for an email message, and the
@@ -1888,7 +1908,6 @@ class SESV2Template(Boto3Model):
     """
     The list of message headers that will be added to the email message.
     """
-
     Attachments: "builtins.list[Attachment] | None" = Field(default_factory=list)
     """
     The List of attachments to include in your email.
@@ -1920,6 +1939,7 @@ class SESV2EmailContent(Boto3Model):
 
     The message has to meet the following criteria:
     """
+
     Template: "SESV2Template | None" = None
     """
     The template to use for the email message.
@@ -1938,6 +1958,7 @@ class SESV2MessageTag(Boto3Model):
 
     The message tag name has to meet the following criteria:
     """
+
     Value: str
     """
     The value of the message tag.
@@ -1951,7 +1972,6 @@ class SESV2ListManagementOptions(Boto3Model):
     An object used to specify a list or topic to which an email belongs, which will be
     used when a contact chooses to unsubscribe.
     """
-
     ContactListName: str
     """
     The name of the contact list.
@@ -2015,6 +2035,7 @@ class ConfigurationOverrides(Boto3Model):
     An object that overrides the open and click tracking settings that would otherwise
     apply to the message.
     """
+
 class SESV2BulkEmailContent(Boto3Model):
     """
     An object that contains the body of the message.
@@ -2042,7 +2063,7 @@ class SESV2ReplacementTemplate(Boto3Model):
 
 class SESV2ReplacementEmailContent(Boto3Model):
     """
-    The ``ReplaceEmailContent`` object to be used for a specific ``BulkEmailEntry``.
+    The ``ReplacementEmailContent`` object to be used for a specific ``BulkEmailEntry``.
 
     The ``ReplacementTemplate`` can be specified within this object.
     """
@@ -2051,6 +2072,7 @@ class SESV2ReplacementEmailContent(Boto3Model):
     """
     The ``ReplacementTemplate`` associated with ``ReplacementEmailContent``.
     """
+
 class SESV2BulkEmailEntry(Boto3Model):
     Destination: SESV2Destination
     """
@@ -2062,7 +2084,7 @@ class SESV2BulkEmailEntry(Boto3Model):
     )
     """
     A list of tags, in the form of name/value pairs, to apply to an email that you send
-    using the ``SendBulkTemplatedEmail`` operation.
+    using the ``SendBulkEmail`` operation.
 
     Tags correspond to characteristics of the email that you define, so that you can
     publish email sending events.
@@ -2305,9 +2327,9 @@ class EmailIdentity(TagsDictMixin, PrimaryBoto3Model):
                 ``FromEmailAddress`` parameter.
             DefaultEmailTags: A list of tags, in the form of name/value pairs, to apply
                 to an email that you send using the
-                ``SendEmail`` operation. Tags correspond to characteristics of the email
-                that you define, so that you can publish
-                email sending events.
+                ``SendBulkEmail`` operation. Tags correspond to characteristics of the
+                email that you define, so that you can
+                publish email sending events.
             ConfigurationSetName: The name of the configuration set to use when sending
                 the email.
             EndpointId: The ID of the multi-region endpoint (global-endpoint).
@@ -2331,8 +2353,6 @@ class EmailIdentity(TagsDictMixin, PrimaryBoto3Model):
                 TenantName=TenantName,
             )
         )
-
-
 class SESV2Topic(Boto3Model):
     """
     An interest group, theme, or label within a list.
@@ -2426,6 +2446,7 @@ class ContactList(TagsDictMixin, PrimaryBoto3Model):
         :py:attr:`ContactListName` attribute.
         """
         return hash(self.ContactListName)
+
 class EmailTemplate(TagsDictMixin, PrimaryBoto3Model):
     """
     The following element is returned by the service.
@@ -2499,6 +2520,7 @@ class SuppressedDestinationAttributes(Boto3Model):
     The unique identifier of the email message that caused the email address to be added
     to the suppression list for your account or for a specific tenant.
     """
+
     FeedbackId: "str | None" = None
     """
     A unique identifier that's generated when an email address is added to the
@@ -2614,6 +2636,7 @@ class DeliverabilityTestReport(TagsDictMixin, PrimaryBoto3Model):
     """
     The date and time when the predictive inbox placement test was created.
     """
+
     DeliverabilityTestStatus: "Literal['IN_PROGRESS', 'COMPLETED'] | None" = Field(
         default=None, frozen=True
     )
@@ -2622,15 +2645,16 @@ class DeliverabilityTestReport(TagsDictMixin, PrimaryBoto3Model):
 
     If the status is ``IN_PROGRESS``, then the predictive inbox placement test is
     currently running. Predictive inbox placement tests are usually complete within 24
-    hours of creating the test. If the status is ``COMPLETE``, then the test is
-    finished, and you can use the ``GetDeliverabilityTestReport`` to view the results of
-    the test.
+    hours of creating the test. If the status is ``COMPLETED``, then the test is
+    finished, and you can use the ``GetDeliverabilityTestReport`` operation to view the
+    results of the test.
     """
 
     Content: Any | None = None
     """
     Email content payload used when creating deliverability tests.
     """
+
     OverallPlacement: "SESV2PlacementStatistics | None" = None
     """
     Aggregate mailbox placement statistics from get operations.
@@ -2727,7 +2751,6 @@ class MultiRegionEndpoint(PrimaryBoto3Model):
     """
     Route detail payload used during endpoint creation.
     """
-
     Routes: list["SESV2MultiRegionEndpointRoute"] | None = None
     """
     Route details returned by get operations.
@@ -2755,7 +2778,6 @@ class MultiRegionEndpoint(PrimaryBoto3Model):
             The name of the model instance.
         """
         return self.EndpointName
-
     def __hash__(self) -> int:
         """
         Return the hash of the model.
@@ -2770,6 +2792,7 @@ class TenantSuppressionAttributes(Boto3Model):
     """
     An object that contains the suppression list preferences for a tenant.
     """
+
     SuppressedReasons: "builtins.list[Literal['BOUNCE', 'COMPLAINT']] | None" = Field(
         default_factory=list
     )
@@ -2793,6 +2816,7 @@ class Tenant(TagsDictMixin, PrimaryBoto3Model):
 
     tag_class: ClassVar[ModelType[Boto3Model]] = SESV2Tag
     manager_class: ClassVar[ModelType[Boto3ModelManager]] = TenantManager
+
     TenantName: "str | None" = None
     """
     The name of the tenant.
@@ -2802,10 +2826,12 @@ class Tenant(TagsDictMixin, PrimaryBoto3Model):
     """
     A unique identifier for the tenant.
     """
+
     TenantArn: str = Field(default=None, frozen=True)
     """
     The Amazon Resource Name (ARN) of the tenant.
     """
+
     CreatedTimestamp: datetime = Field(default=None, frozen=True)
     """
     The date and time when the tenant was created.
@@ -2841,7 +2867,6 @@ The status of sending capability for the tenant:
             The primary key of the model instance.
         """
         return self.TenantName
-
     @property
     def arn(self) -> str | None:
         """
@@ -2881,6 +2906,7 @@ class DedicatedIpPool(PrimaryBoto3Model):
     """
 
     manager_class: ClassVar[ModelType[Boto3ModelManager]] = DedicatedIpPoolManager
+
     PoolName: str
     """
     The name of the dedicated IP pool.
@@ -2901,6 +2927,7 @@ class DedicatedIpPool(PrimaryBoto3Model):
             The primary key of the model instance.
         """
         return self.PoolName
+
     @property
     def name(self) -> str | None:
         """
@@ -2957,6 +2984,7 @@ Indicates the progress of your dedicated IP warm-up:
     """
     The name of the dedicated IP pool that the IP address is associated with.
     """
+
     @property
     def pk(self) -> str | None:
         """
@@ -2979,6 +3007,7 @@ Indicates the progress of your dedicated IP warm-up:
             The name of the model instance.
         """
         return self.Ip
+
     def __hash__(self) -> int:
         """
         Return the hash of the model.
@@ -2994,17 +3023,18 @@ class BulkEmailEntryResult(Boto3Model):
 
     Status: "Literal['SUCCESS', 'MESSAGE_REJECTED', 'MAIL_FROM_DOMAIN_NOT_VERIFIED', 'CONFIGURATION_SET_NOT_FOUND', 'TEMPLATE_NOT_FOUND', 'ACCOUNT_SUSPENDED', 'ACCOUNT_THROTTLED', 'ACCOUNT_DAILY_QUOTA_EXCEEDED', 'INVALID_SENDING_POOL_NAME', 'ACCOUNT_SENDING_PAUSED', 'CONFIGURATION_SET_SENDING_PAUSED', 'INVALID_PARAMETER', 'TRANSIENT_FAILURE', 'FAILED'] | None" = None
     """
-    The status of a message sent using the ``SendBulkTemplatedEmail`` operation.
+    The status of a message sent using the ``SendBulkEmail`` operation.
     """
+
     Error: "str | None" = None
     """
     A description of an error that prevented a message being sent using the
-    ``SendBulkTemplatedEmail`` operation.
+    ``SendBulkEmail`` operation.
     """
+
     MessageId: "str | None" = None
     """
-    The unique message identifier returned from the ``SendBulkTemplatedEmail``
-    operation.
+    The unique message identifier returned from the ``SendBulkEmail`` operation.
     """
 
 class SESV2PlacementStatistics(Boto3Model):
@@ -3047,10 +3077,12 @@ class SESV2IspPlacement(Boto3Model):
     An object that describes how email sent during the predictive inbox placement test
     was handled by a certain email provider.
     """
+
     IspName: "str | None" = None
     """
     The name of the email provider that the inbox placement data applies to.
     """
+
     PlacementStatistics: "SESV2PlacementStatistics | None" = None
     """
     An object that contains inbox placement metrics for a specific email provider.
@@ -3078,6 +3110,7 @@ class ListConfigurationSetsResponse(Boto3Model):
     To view additional configuration sets, issue another request to
     ``ListConfigurationSets``, and pass this token in the ``NextToken`` parameter.
     """
+
 class DeleteConfigurationSetResponse(Boto3Model):
     """
     An HTTP 200 response if the request succeeds, or an error message if the request
@@ -3104,8 +3137,6 @@ class SendBulkEmailResponse(Boto3Model):
 
     Check each response object and retry any messages with a failure status.
     """
-
-
 class ListContactListsResponse(Boto3Model):
     ContactLists: "builtins.list[ContactList] | None" = Field(default_factory=list)
     """
@@ -3171,7 +3202,6 @@ class GetSuppressedDestinationResponse(Boto3Model):
     """
     Information about the suppressed email address.
     """
-
     SuppressedDestinationInstance: SuppressedDestination = Field(
         default=None, alias="SuppressedDestination"
     )
@@ -3263,6 +3293,7 @@ class RouteDetails(Boto3Model):
     The name of an AWS-Region to be a secondary region for the multi-region endpoint
     (global-endpoint).
     """
+
 class Details(Boto3Model):
     """
     An object that contains configuration details of multi-region endpoint (global-
@@ -3297,6 +3328,7 @@ class GetMultiRegionEndpointResponse(Boto3Model):
     """
     The name of the multi-region endpoint (global-endpoint).
     """
+
     EndpointId: "str | None" = None
     """
     The ID of the multi-region endpoint (global-endpoint).
@@ -3328,14 +3360,12 @@ class ListMultiRegionEndpointsResponse(Boto3Model):
     """
     The following elements are returned by the service.
     """
-
     MultiRegionEndpoints: "builtins.list[MultiRegionEndpoint] | None" = Field(
         default_factory=list
     )
     """
     An array that contains key multi-region endpoint (global-endpoint) properties.
     """
-
     NextToken: "str | None" = None
     """
     A token indicating that there are additional multi-region endpoints (global-
@@ -3350,7 +3380,6 @@ class DeleteMultiRegionEndpointResponse(Boto3Model):
     An HTTP 200 response if the request succeeds, or an error message if the request
     fails.
     """
-
     Status: "Literal['CREATING', 'READY', 'FAILED', 'DELETING'] | None" = None
     """
     A status of the multi-region endpoint (global-endpoint) right after the delete
@@ -3360,6 +3389,7 @@ class CreateTenantResponse(TagsDictMixin, Boto3Model):
     """
     Information about a newly created tenant.
     """
+
     tag_class: ClassVar[ModelType[Boto3Model]] = SESV2Tag
     TenantName: "str | None" = None
     """
@@ -3378,12 +3408,12 @@ class CreateTenantResponse(TagsDictMixin, Boto3Model):
     """
     The date and time when the tenant was created.
     """
+
     Tags: "builtins.list[SESV2Tag] | None" = Field(default_factory=list)
     """
     An array of objects that define the tags (keys and values) associated with the
     tenant.
     """
-
     SendingStatus: "Literal['ENABLED', 'REINSTATED', 'DISABLED'] | None" = None
     """
     The status of email sending capability for the tenant.
@@ -3432,11 +3462,11 @@ class TenantInfo(Boto3Model):
     """
 The status of sending capability for the tenant:
     """
+
 class ListTenantsResponse(Boto3Model):
     """
     Information about tenants associated with your account.
     """
-
     Tenants: "builtins.list[TenantInfo] | None" = Field(default_factory=list)
     """
     An array that contains basic information about each tenant.
@@ -3449,6 +3479,7 @@ class ListTenantsResponse(Boto3Model):
     To view additional tenants, issue another request to ``ListTenants``, and pass this
     token in the ``NextToken`` parameter.
     """
+
 class DeleteTenantResponse(Boto3Model):
     """
     If the action is successful, the service sends back an HTTP 200 response with an
@@ -3465,11 +3496,11 @@ class GetDedicatedIpPoolResponse(Boto3Model):
     """
     An object that contains information about a dedicated IP pool.
     """
+
 class ListDedicatedIpPoolsResponse(Boto3Model):
     """
     A list of dedicated IP pools.
     """
-
     DedicatedIpPools: "builtins.list[str] | None" = Field(default_factory=list)
     """
     A list of all of the dedicated IP pools that are associated with your Amazon Web

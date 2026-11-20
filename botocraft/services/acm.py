@@ -124,6 +124,7 @@ class ACMCertificateManager(Boto3ModelManager):
         *,
         CertificateStatuses: "builtins.list[Literal['PENDING_VALIDATION', 'ISSUED', 'INACTIVE', 'EXPIRED', 'VALIDATION_TIMED_OUT', 'REVOKED', 'FAILED']] | None" = None,
         CertificateKeyPairOrigins: "builtins.list[Literal['AWS_MANAGED', 'ACME', 'CUSTOMER_PROVIDED']] | None" = None,
+        RootHierarchyTypes: "builtins.list[Literal['N2_AMAZON_MANAGED', 'N2_SFG2_AMAZON_MANAGED']] | None" = None,
         Includes: "Filters | None" = None,
         MaxItems: "int | None" = None,
         SortBy: "Literal['CREATED_AT'] | None" = None,
@@ -144,6 +145,13 @@ class ACMCertificateManager(Boto3ModelManager):
                 ``CertificateKeyPairOrigin`` values. Default filtering returns only
                 certificates with key pair origin of
                 ``AWS_MANAGED`` and ``CUSTOMER_PROVIDED``.
+            RootHierarchyTypes: Filter the certificate list by root hierarchy type.
+                Specify one or more ``RootHierarchyType``
+                values. By default, this action does not return certificates with a
+                ``RootHierarchyType`` of ``N2_AMAZON_MANAGED``
+                or ``N2_SFG2_AMAZON_MANAGED``. To list only Amazon N2 certificates,
+                specify one or both of these values in the
+                ``RootHierarchyTypes`` filter.
             Includes: Filter the certificate list. For more information, see the Filters
                 structure.
             MaxItems: Use this parameter when paginating results to specify the maximum
@@ -161,6 +169,7 @@ class ACMCertificateManager(Boto3ModelManager):
         args: dict[str, Any] = dict(
             CertificateStatuses=self.serialize(CertificateStatuses),
             CertificateKeyPairOrigins=self.serialize(CertificateKeyPairOrigins),
+            RootHierarchyTypes=self.serialize(RootHierarchyTypes),
             Includes=self.serialize(Includes),
             MaxItems=self.serialize(MaxItems),
             SortBy=self.serialize(SortBy),
@@ -213,6 +222,8 @@ class ACMCertificateManager(Boto3ModelManager):
         Tags: "builtins.list[Tag] | None" = None,
         KeyAlgorithm: "Literal['RSA_1024', 'RSA_2048', 'RSA_3072', 'RSA_4096', 'EC_prime256v1', 'EC_secp384r1', 'EC_secp521r1'] | None" = None,
         ManagedBy: "Literal['CLOUDFRONT'] | None" = None,
+        CertificateUsage: "Literal['CLIENT_AND_SERVER_AUTH', 'CLIENT_AUTH_ONLY'] | None" = None,
+        RootHierarchyType: "Literal['N2_AMAZON_MANAGED', 'N2_SFG2_AMAZON_MANAGED'] | None" = None,
     ) -> str:
         """
         Requests an ACM certificate for use with other Amazon Web Services services.
@@ -284,6 +295,16 @@ class ACMCertificateManager(Boto3ModelManager):
                 <https://docs.aws.amazon.com/acm/latest/userguide/acm-certificate- characteristics.html#algorithms-term>`_.
             ManagedBy: Identifies the Amazon Web Services service that manages the
                 certificate issued by ACM.
+            CertificateUsage: The Extended Key Usage profile of the certificate. You can
+                specify this parameter only when
+                ``RootHierarchyType`` is ``N2_AMAZON_MANAGED`` or
+                ``N2_SFG2_AMAZON_MANAGED``. If you specify ``CertificateUsage``
+                with any other root hierarchy type, or without ``RootHierarchyType``,
+                the request fails with a
+                ``ValidationException``.
+            RootHierarchyType: The root hierarchy from which ACM issues the certificate.
+                Specify one of the following values to
+                request an Amazon N2 certificate:
         """
         args: dict[str, Any] = dict(
             DomainName=self.serialize(DomainName),
@@ -296,6 +317,8 @@ class ACMCertificateManager(Boto3ModelManager):
             Tags=self.serialize(Tags),
             KeyAlgorithm=self.serialize(KeyAlgorithm),
             ManagedBy=self.serialize(ManagedBy),
+            CertificateUsage=self.serialize(CertificateUsage),
+            RootHierarchyType=self.serialize(RootHierarchyType),
         )
         _response = self.client.request_certificate(
             **{k: v for k, v in args.items() if v is not None}
@@ -532,9 +555,10 @@ class CertificateOptions(Boto3Model):
     You can use this structure to change the domain validation method or specify whether
     to export your certificate.
 
-    All public certificates are recorded in a certificate transparency log. For general
-    information, see
-    `Certificate Transparency Logging <https://docs.aws.amazon.com/acm/latest/userguide/acm-concepts.html#concept-transparency>`_.
+    ACM records all public certificates other than Amazon N2 certificates in a
+    certificate transparency log. For general information, see
+    `Certificate Transparency Logging <https://docs.aws.amazon.com/acm/latest/userguide/acm-
+     concepts.html#concept-transparency>`_.
 
     You can export public ACM certificates to use with Amazon Web Services services as
     well as outside Amazon Web Services Cloud. For more information, see
@@ -545,8 +569,9 @@ class CertificateOptions(Boto3Model):
     """
     This parameter has been deprecated.
 
-    Certificate transparency logging opt-out is no longer available. All public
-    certificates are recorded in a certificate transparency log.
+    Certificate transparency logging opt-out is no longer available. ACM records all
+    public certificates other than Amazon N2 certificates in a certificate transparency
+    log.
     """
 
     Export: "Literal['ENABLED', 'DISABLED'] | None" = None
@@ -830,8 +855,9 @@ renewal.html>`_ for the certificate. This field exists only when the certificate
     """
     Contains the certificate options.
 
-    Certificate transparency logging opt-out is no longer available. All public
-    certificates are recorded in a certificate transparency log.
+    Certificate transparency logging opt-out is no longer available. ACM records all
+    public certificates other than Amazon N2 certificates in a certificate transparency
+    log.
     """
 
     UpdateSummary: ACMUpdateSummary = Field(default=None, frozen=True)
@@ -857,6 +883,26 @@ renewal.html>`_ for the certificate. This field exists only when the certificate
     AcmeAccountId: str = Field(default=None, frozen=True)
     """
     The ACME account identifier associated with the certificate.
+    """
+
+    CertificateUsage: "Literal['CLIENT_AND_SERVER_AUTH', 'CLIENT_AUTH_ONLY'] | None" = (
+        Field(default=None, frozen=True)
+    )
+    """
+    The Extended Key Usage profile of the certificate.
+
+    This value exists only for Amazon N2 certificates. If ``CertificateUsage`` was
+    omitted from the request, this value is ``CLIENT_AND_SERVER_AUTH``.
+    """
+
+    RootHierarchyType: "Literal['N2_AMAZON_MANAGED', 'N2_SFG2_AMAZON_MANAGED'] | None" = Field(
+        default=None, frozen=True
+    )
+    """
+    The root hierarchy from which the certificate was issued.
+
+    This value exists only for Amazon N2 certificates, which have a ``Type`` of
+    ``AMAZON_ISSUED``.
     """
 
     Tags: "builtins.list[Tag] | None" = Field(default_factory=list)
@@ -899,7 +945,6 @@ renewal.html>`_ for the certificate. This field exists only when the certificate
             The name of the model instance.
         """
         return self.DomainName
-
     def __hash__(self) -> int:
         """
         Return the hash of the model.
@@ -908,11 +953,9 @@ renewal.html>`_ for the certificate. This field exists only when the certificate
         :py:attr:`CertificateArn` attribute.
         """
         return hash(self.CertificateArn)
-
 # =======================
 # Request/Response Models
 # =======================
-
 
 class ImportCertificateResponse(Boto3Model):
     CertificateArn: "str | None" = None
@@ -920,6 +963,7 @@ class ImportCertificateResponse(Boto3Model):
 The `Amazon Resource Name (ARN) <https://docs.aws.amazon.com/general/latest/gr/aws-arns-and-namespaces.html>`_ of the
 imported certificate.
     """
+
 class DescribeCertificateResponse(Boto3Model):
     Certificate: "ACMCertificate | None" = None
     """
@@ -931,12 +975,14 @@ class Filters(Boto3Model):
     This structure can be used in the ListCertificates action to filter the output of
     the certificate list.
     """
+
     extendedKeyUsage: "builtins.list[Literal['TLS_WEB_SERVER_AUTHENTICATION', 'TLS_WEB_CLIENT_AUTHENTICATION', 'CODE_SIGNING', 'EMAIL_PROTECTION', 'TIME_STAMPING', 'OCSP_SIGNING', 'IPSEC_END_SYSTEM', 'IPSEC_TUNNEL', 'IPSEC_USER', 'ANY', 'NONE', 'CUSTOM']] | None" = Field(
         default_factory=list
     )
     """
     Specify one or more ExtendedKeyUsage extension values.
     """
+
     keyUsage: "builtins.list[Literal['DIGITAL_SIGNATURE', 'NON_REPUDIATION', 'KEY_ENCIPHERMENT', 'DATA_ENCIPHERMENT', 'KEY_AGREEMENT', 'CERTIFICATE_SIGNING', 'CRL_SIGNING', 'ENCIPHER_ONLY', 'DECIPHER_ONLY', 'ANY', 'CUSTOM']] | None" = Field(
         default_factory=list
     )
@@ -966,6 +1012,7 @@ class CertificateSummary(Boto3Model):
     """
     This structure is returned in the response object of ListCertificates action.
     """
+
     KeyAlgorithm: "str | None" = None
     """
     The algorithm that was used to generate the public-private key pair.
@@ -995,7 +1042,6 @@ class CertificateSummary(Boto3Model):
     domain name (CN) of the certificate and additional domain names that can be used to
     connect to the website.
     """
-
     HasAdditionalSubjectAlternativeNames: "bool | None" = None
     """
 When called by `ListCertificates <https://docs.aws.amazon.com/acm/latest/APIReference/API_ListCertificates.html>`_,
@@ -1007,11 +1053,11 @@ response only includes the first
 subject alternative names, use
 `DescribeCertificate <https://docs.aws.amazon.com/acm/latest/APIReference/API_DescribeCertificate.html>`_.
     """
-
     Status: "Literal['PENDING_VALIDATION', 'ISSUED', 'INACTIVE', 'EXPIRED', 'VALIDATION_TIMED_OUT', 'REVOKED', 'FAILED'] | None" = None
     """
     The status of the certificate.
     """
+
     Type: "Literal['IMPORTED', 'AMAZON_ISSUED', 'PRIVATE'] | None" = None
     """
     The source of the certificate.
@@ -1026,6 +1072,7 @@ subject alternative names, use
     in the *Certificate Manager User
     Guide*.
     """
+
     KeyUsages: "builtins.list[Literal['DIGITAL_SIGNATURE', 'NON_REPUDIATION', 'KEY_ENCIPHERMENT', 'DATA_ENCIPHERMENT', 'KEY_AGREEMENT', 'CERTIFICATE_SIGNING', 'CRL_SIGNING', 'ENCIPHER_ONLY', 'DECIPHER_ONLY', 'ANY', 'CUSTOM']] | None" = Field(
         default_factory=list
     )
@@ -1036,6 +1083,7 @@ subject alternative names, use
     contained in the certificate. Possible extension values include DIGITAL_SIGNATURE,
     KEY_ENCHIPHERMENT, NON_REPUDIATION, and more.
     """
+
     ExtendedKeyUsages: "builtins.list[Literal['TLS_WEB_SERVER_AUTHENTICATION', 'TLS_WEB_CLIENT_AUTHENTICATION', 'CODE_SIGNING', 'EMAIL_PROTECTION', 'TIME_STAMPING', 'OCSP_SIGNING', 'IPSEC_END_SYSTEM', 'IPSEC_TUNNEL', 'IPSEC_USER', 'ANY', 'NONE', 'CUSTOM']] | None" = Field(
         default_factory=list
     )
@@ -1045,6 +1093,7 @@ subject alternative names, use
     Each object specifies a purpose for which the certificate public key can be used and
     consists of a name and an object identifier (OID).
     """
+
     ExportOption: "Literal['ENABLED', 'DISABLED'] | None" = None
     """
     Indicates if export is enabled for the certificate.
@@ -1110,9 +1159,28 @@ subject alternative names, use
     Identifies the Amazon Web Services service that manages the certificate issued by
     ACM.
     """
+
     CertificateKeyPairOrigin: "Literal['AWS_MANAGED', 'ACME', 'CUSTOMER_PROVIDED'] | None" = None
     """
     The origin of the certificate's key pair.
+    """
+
+    CertificateUsage: "Literal['CLIENT_AND_SERVER_AUTH', 'CLIENT_AUTH_ONLY'] | None" = (
+        None
+    )
+    """
+    The Extended Key Usage profile of the certificate.
+
+    This value exists only for Amazon N2 certificates. If ``CertificateUsage`` was
+    omitted from the request, this value is ``CLIENT_AND_SERVER_AUTH``.
+    """
+
+    RootHierarchyType: "Literal['N2_AMAZON_MANAGED', 'N2_SFG2_AMAZON_MANAGED'] | None" = None
+    """
+    The root hierarchy from which the certificate was issued.
+
+    This value exists only for Amazon N2 certificates, which have a ``Type`` of
+    ``AMAZON_ISSUED``.
     """
 
 class ListCertificatesResponse(Boto3Model):

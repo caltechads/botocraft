@@ -198,7 +198,10 @@ class CognitoUserPoolClientManager(Boto3ModelManager):
     service_name: str = "cognito-idp"
 
     def create(
-        self, model: "CognitoUserPoolClient", GenerateSecret: "bool | None" = None
+        self,
+        model: "CognitoUserPoolClient",
+        GenerateSecret: "bool | None" = None,
+        PublishSecretsInAWSSecretsManager: "bool | None" = None,
     ) -> "CognitoUserPoolClient":
         """
         Creates an app client in a user pool.
@@ -216,6 +219,16 @@ class CognitoUserPoolClientManager(Boto3ModelManager):
                 value. For more information, see `App client types <https://docs.aws.amazon.com/cognito/latest/developerguide/user-
                 pool-settings-client-
                 apps.html#user-pool-settings-client-app-client-types>`_.
+            PublishSecretsInAWSSecretsManager: Specifies whether Amazon Cognito stores
+                and manages this app client's secret in
+                `Amazon Web Services Secrets Manager <https://docs.aws.amazon.com/secretsmanager/latest/userguide/intro.html>`_
+                instead of returning the plaintext value. Applies only when
+                ``GenerateSecret`` is ``true``. When you set this
+                parameter to ``true``, the response returns ``ClientSecretArn`` instead
+                of ``ClientSecret``. Amazon Cognito starts
+                the first rotation of the secret right away, and then rotates the secret
+                every 7 days by default. You can change the
+                rotation schedule in Secrets Manager.
         """
         data = model.model_dump(exclude_none=True, by_alias=True)
         args = dict(
@@ -245,6 +258,9 @@ class CognitoUserPoolClientManager(Boto3ModelManager):
             ),
             AuthSessionValidity=data.get("AuthSessionValidity"),
             RefreshTokenRotation=data.get("RefreshTokenRotation"),
+            PublishSecretsInAWSSecretsManager=self.serialize(
+                PublishSecretsInAWSSecretsManager
+            ),
         )
         _response = self.client.create_user_pool_client(
             **{k: v for k, v in args.items() if v is not None}
@@ -320,7 +336,11 @@ class CognitoUserPoolClientManager(Boto3ModelManager):
         self.sessionize(results)
         return PrimaryBoto3ModelQuerySet(results)
 
-    def update(self, model: "CognitoUserPoolClient") -> "CognitoUserPoolClient":
+    def update(
+        self,
+        model: "CognitoUserPoolClient",
+        PublishSecretsInAWSSecretsManager: "bool | None" = None,
+    ) -> "CognitoUserPoolClient":
         """
         Given a user pool app client ID, updates the configuration.
 
@@ -331,6 +351,16 @@ class CognitoUserPoolClientManager(Boto3ModelManager):
 
         Args:
             model: The :py:class:`UserPoolClientType` to update.
+
+        Keyword Args:
+            PublishSecretsInAWSSecretsManager: Specifies whether Amazon Cognito stores
+                and manages this app client's secret in
+                `Amazon Web Services Secrets Manager <https://docs.aws.amazon.com/secretsmanager/latest/userguide/intro.html>`_
+                instead of returning the plaintext value. When you set this parameter to
+                ``true``, the response returns
+                ``ClientSecretArn`` instead of ``ClientSecret``. By default, Amazon
+                Cognito rotates the secret every 7 days. You can
+                change the rotation schedule in Secrets Manager.
         """
         data = model.model_dump(exclude_none=True, by_alias=True)
         args = dict(
@@ -359,6 +389,9 @@ class CognitoUserPoolClientManager(Boto3ModelManager):
             ),
             AuthSessionValidity=data.get("AuthSessionValidity"),
             RefreshTokenRotation=data.get("RefreshTokenRotation"),
+            PublishSecretsInAWSSecretsManager=self.serialize(
+                PublishSecretsInAWSSecretsManager
+            ),
         )
         _response = self.client.update_user_pool_client(
             **{k: v for k, v in args.items() if v is not None}
@@ -2673,6 +2706,19 @@ class CognitoUserPoolClient(PrimaryBoto3Model):
     The app client secret.
     """
 
+    ClientSecretArn: str = Field(default=None, frozen=True)
+    """
+The Amazon Resource Name (ARN) of the `Amazon Web Services Secrets
+Manager <https://docs.aws.amazon.com/secretsmanager/latest/userguide/intro.html>`_ secret that stores this app client's
+secret, when Amazon Cognito manages the secret in Secrets Manager. Retrieve the secret
+from Secrets Manager by this ARN.
+The ``SecretString`` value is a JSON object with ``userPoolId``, ``userPoolClientId``,
+and ``clientSecretValue`` fields.
+Use ``clientSecretValue`` as the app client secret. Amazon Cognito returns this ARN
+instead of ``ClientSecret`` for app
+clients whose secret it manages in Secrets Manager.
+    """
+
     LastModifiedDate: datetime = Field(default=None, frozen=True)
     """
     The date and time when the item was modified.
@@ -2681,6 +2727,7 @@ class CognitoUserPoolClient(PrimaryBoto3Model):
     render the output in a human-readable format like ISO 8601 or a Java ``Date``
     object.
     """
+
     CreationDate: datetime = Field(default=None, frozen=True)
     """
     The date and time when the item was created.
@@ -2807,7 +2854,6 @@ define with Lambda functions.
     """
     Set to ``true`` to use OAuth 2.0 authorization server features in your app client.
     """
-
     AnalyticsConfiguration: "AnalyticsConfigurationType | None" = None
     """
     The user pool analytics configuration for collecting metrics and sending them to
@@ -2914,6 +2960,7 @@ class CognitoGroup(PrimaryBoto3Model):
     """
 
     manager_class: ClassVar[ModelType[Boto3ModelManager]] = CognitoGroupManager
+
     GroupName: "str | None" = None
     """
     The name of the group.
@@ -3006,7 +3053,6 @@ class CognitoIdentityProvider(PrimaryBoto3Model):
     """
     The ID of the user pool associated with the IdP.
     """
-
     ProviderName: "str | None" = None
     """
     A friendly name for the IdP.
@@ -3141,7 +3187,6 @@ class CognitoResourceServer(PrimaryBoto3Model):
     ``https://solar-system-data-api.example.com``
     as your identifier.
     """
-
     Name: "str | None" = None
     """
     The name of the resource server.
@@ -3198,7 +3243,6 @@ class AttributeType(Boto3Model):
     """
     The name and value of a user attribute.
     """
-
     Name: str
     """
     The name of the attribute, for example ``email`` or ``custom:department``.
@@ -3281,7 +3325,6 @@ class CognitoUser(PrimaryBoto3Model):
 
     This can be one of the following:
     """
-
     MFAOptions: "builtins.list[MFAOptionType]" = Field(
         default_factory=list, frozen=True
     )
@@ -3303,6 +3346,7 @@ class CognitoUser(PrimaryBoto3Model):
 
     Users can prefer SMS message, email message, or TOTP MFA.
     """
+
     UserMFASettingList: "builtins.list[str]" = Field(default_factory=list, frozen=True)
     """
     The MFA options that are activated for the user.
@@ -3338,6 +3382,7 @@ class CustomDomainConfigType(Boto3Model):
     The configuration for a custom domain, including the SSL certificate and TLS
     security policy.
     """
+
     CertificateArn: str
     """
     The Amazon Resource Name (ARN) of an Certificate Manager SSL certificate.
@@ -3382,6 +3427,7 @@ class RoutingType(Boto3Model):
 
     Contains failover settings for multi-region deployments.
     """
+
     Failover: "FailoverType | None" = None
     """
     The failover configuration that specifies the secondary region and health check
@@ -3405,6 +3451,7 @@ class CognitoUserPoolDomain(PrimaryBoto3Model):
     """
     The Amazon Web Services account that you created the user pool in.
     """
+
     Domain: "str | None" = None
     """
     The domain string.
@@ -3511,10 +3558,12 @@ class UserPoolDescriptionType(Boto3Model):
     """
     The user pool ID.
     """
+
     Name: "str | None" = None
     """
     The user pool name.
     """
+
     LambdaConfig: "LambdaConfigType | None" = None
     """
     A collection of user pool Lambda triggers.
@@ -3536,7 +3585,6 @@ class UserPoolDescriptionType(Boto3Model):
     render the output in a human-readable format like ISO 8601 or a Java ``Date``
     object.
     """
-
     CreationDate: "datetime | None" = None
     """
     The date and time when the item was created.
@@ -3626,7 +3674,6 @@ class ListUserPoolClientsResponse(Boto3Model):
 
     Includes app client ID and name.
     """
-
     NextToken: "str | None" = None
     """
     The identifier that Amazon Cognito returned with the previous request to this
@@ -3647,12 +3694,12 @@ class UpdateUserPoolClientResponse(Boto3Model):
     """
     The updated details of your app client.
     """
-
 class CognitoCreateGroupResponse(Boto3Model):
     Group: "CognitoGroup | None" = None
     """
     The response object for a created group.
     """
+
 class CognitoGetGroupResponse(Boto3Model):
     Group: "CognitoGroup | None" = None
     """
@@ -3697,6 +3744,7 @@ class DescribeIdentityProviderResponse(Boto3Model):
     """
     The details of the requested IdP.
     """
+
 
 class ProviderDescription(Boto3Model):
     """
@@ -3773,6 +3821,7 @@ class DescribeResourceServerResponse(Boto3Model):
     """
     The details of the requested resource server.
     """
+
 class ListResourceServersResponse(Boto3Model):
     ResourceServers: "builtins.list[CognitoResourceServer]"
     """
@@ -3812,6 +3861,7 @@ class AdminGetUserResponse(Boto3Model):
     Represents the response from the server from the request to get the specified user
     as an administrator.
     """
+
     Username: str
     """
     The username of the user that you requested.

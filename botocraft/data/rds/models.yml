@@ -132,3 +132,5 @@ secondary:
     alternate_name: RDSPendingCloudwatchLogsExports
   TagSpecification:
     alternate_name: RDSTagSpecification
+  PrimaryEndpoint:
+    alternate_name: RDSPrimaryEndpoint

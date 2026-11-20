@@ -706,6 +706,7 @@ class IAMLoginProfileManager(Boto3ModelManager):
             UserName=data.get("UserName"),
             Password=data.get("Password"),
             PasswordResetRequired=data.get("PasswordResetRequired"),
+            MaxSigninSessionDuration=data.get("MaxSigninSessionDuration"),
         )
         _response = self.client.create_login_profile(
             **{k: v for k, v in args.items() if v is not None}
@@ -750,7 +751,12 @@ class IAMLoginProfileManager(Boto3ModelManager):
             return response.LoginProfile
         return None
 
-    def update(self, model: "IAMLoginProfile", Password: "str | None" = None) -> None:
+    def update(
+        self,
+        model: "IAMLoginProfile",
+        Password: "str | None" = None,
+        ResetMaxSigninSessionDuration: "bool | None" = None,
+    ) -> None:
         """
         Update a login profile for a user.
 
@@ -759,12 +765,20 @@ class IAMLoginProfileManager(Boto3ModelManager):
 
         Keyword Args:
             Password: The new password for the specified IAM user.
+            ResetMaxSigninSessionDuration: Specifies whether to clear the maximum
+                sign-in session duration for the specified IAM
+                user. Set this value to ``true`` to return the setting to its unset
+                state, so that the existing sign-in session
+                behavior applies. When the setting is unset, the user's
+                ``MaxSigninSessionDuration`` is omitted from responses.
         """
         data = model.model_dump(exclude_none=True, by_alias=True)
         args = dict(
             UserName=data.get("UserName"),
             Password=self.serialize(Password),
             PasswordResetRequired=data.get("PasswordResetRequired"),
+            MaxSigninSessionDuration=data.get("MaxSigninSessionDuration"),
+            ResetMaxSigninSessionDuration=self.serialize(ResetMaxSigninSessionDuration),
         )
         self.client.update_login_profile(
             **{k: v for k, v in args.items() if v is not None}
@@ -1149,6 +1163,7 @@ class IAMRoleManager(Boto3ModelManager):
             Path=data.get("Path"),
             Description=data.get("Description"),
             MaxSessionDuration=data.get("MaxSessionDuration"),
+            MaxSigninSessionDuration=data.get("MaxSigninSessionDuration"),
             PermissionsBoundary=data.get("PermissionsBoundary"),
             Tags=data.get("Tags"),
         )
@@ -1467,18 +1482,30 @@ class IAMRoleManager(Boto3ModelManager):
         self.sessionize(results)
         return cast("builtins.list[InstanceProfile]", results)
 
-    def update(self, model: "IAMRole") -> None:
+    def update(
+        self, model: "IAMRole", ResetMaxSigninSessionDuration: "bool | None" = None
+    ) -> None:
         """
         Update a role.
 
         Args:
             model: The :py:class:`Role` to update.
+
+        Keyword Args:
+            ResetMaxSigninSessionDuration: Specifies whether to clear the role's maximum
+                sign-in session duration. Set this
+                value to ``true`` to return the setting to its unset state, so that the
+                existing sign-in session behavior applies.
+                When the setting is unset, the role's ``MaxSigninSessionDuration`` is
+                omitted from responses.
         """
         data = model.model_dump(exclude_none=True, by_alias=True)
         args = dict(
             RoleName=data.get("RoleName"),
             Description=data.get("Description"),
             MaxSessionDuration=data.get("MaxSessionDuration"),
+            MaxSigninSessionDuration=data.get("MaxSigninSessionDuration"),
+            ResetMaxSigninSessionDuration=self.serialize(ResetMaxSigninSessionDuration),
         )
         self.client.update_role(**{k: v for k, v in args.items() if v is not None})
 
@@ -2664,6 +2691,12 @@ class IAMLoginProfile(PrimaryBoto3Model):
     Specifies whether the user is required to set a new password on next sign-in.
     """
 
+    MaxSigninSessionDuration: "int | None" = None
+    """
+    The maximum duration (in seconds) of an Amazon Web Services Sign-In session for the
+    user.
+    """
+
     @property
     def pk(self) -> str | None:
         """
@@ -2713,6 +2746,7 @@ class IAMPolicy(TagsDictMixin, IAMPolicyMixin, PrimaryBoto3Model):
 
     tag_class: ClassVar[ModelType[Boto3Model]] = IAMTag
     manager_class: ClassVar[ModelType[Boto3ModelManager]] = IAMPolicyManager
+
     PolicyName: "str | None" = None
     """
     The friendly name (not ARN) identifying the policy.
@@ -2750,7 +2784,6 @@ class IAMPolicy(TagsDictMixin, IAMPolicyMixin, PrimaryBoto3Model):
     The number of entities (users and roles) for which the policy is used to set the
     permissions boundary.
     """
-
     IsAttachable: bool = Field(default=None, frozen=True)
     """
     Specifies whether the policy can be attached to an IAM user, group, or role.
@@ -2760,6 +2793,7 @@ class IAMPolicy(TagsDictMixin, IAMPolicyMixin, PrimaryBoto3Model):
     """
     A friendly description of the policy.
     """
+
     CreateDate: datetime = Field(default=None, frozen=True)
     """
 The date and time, in `ISO 8601 date-time format <http://www.iso.org/iso/iso8601>`_, when the policy was created.
@@ -2847,6 +2881,7 @@ The date and time, in `ISO 8601 date-time format <http://www.iso.org/iso/iso8601
                 cast("str", self.Arn),
             )
         )
+
     def set_default_version(self, VersionId: str) -> "None":
         """
         Set the default version of this policy.
@@ -2885,6 +2920,7 @@ class IAMPolicyVersion(PrimaryBoto3Model):
     """
     The policy document.
     """
+
     VersionId: str = Field(default=None, frozen=True)
     """
     The identifier for the policy version.
@@ -3036,7 +3072,6 @@ class IAMRole(TagsDictMixin, PrimaryBoto3Model):
     `IAM identifiers <https://docs.aws.amazon.com/IAM/latest/UserGuide/Using_Identifiers.html>`_
     in the *IAM User Guide*.
     """
-
     Arn: str = Field(frozen=True)
     """
     The Amazon Resource Name (ARN) specifying the role.
@@ -3065,11 +3100,19 @@ The date and time, in `ISO 8601 date-time format <http://www.iso.org/iso/iso8601
     the optional ``DurationSeconds`` API parameter or ``duration-seconds`` CLI
     parameter.
     """
+    MaxSigninSessionDuration: "int | None" = None
+    """
+    The maximum duration (in seconds) of an Amazon Web Services Sign-In session for
+    users who sign in with this role.
+
+    This value is independent of ``MaxSessionDuration``.
+    """
 
     PermissionsBoundary: "AttachedPermissionsBoundary | None" = None
     """
     The ARN of the policy used to set the permissions boundary for the role.
     """
+
     Tags: "builtins.list[IAMTag] | None" = Field(default_factory=list)
     """
     A list of tags that are attached to the role.
@@ -3122,7 +3165,6 @@ The date and time, in `ISO 8601 date-time format <http://www.iso.org/iso/iso8601
             The ARN of the model instance.
         """
         return self.Arn
-
     @property
     def name(self) -> str | None:
         """
@@ -3281,7 +3323,6 @@ class IAMUser(TagsDictMixin, PrimaryBoto3Model):
 
     tag_class: ClassVar[ModelType[Boto3Model]] = IAMTag
     manager_class: ClassVar[ModelType[Boto3ModelManager]] = IAMUserManager
-
     Path: str
     """
     The path to the user.
@@ -3295,6 +3336,7 @@ class IAMUser(TagsDictMixin, PrimaryBoto3Model):
     """
     The friendly name identifying the user.
     """
+
     UserId: str = Field(frozen=True)
     """
     The stable and unique string identifying the user.
@@ -3303,6 +3345,7 @@ class IAMUser(TagsDictMixin, PrimaryBoto3Model):
     `IAM identifiers <https://docs.aws.amazon.com/IAM/latest/UserGuide/Using_Identifiers.html>`_
     in the *IAM User Guide*.
     """
+
     Arn: str = Field(frozen=True)
     """
     The Amazon Resource Name (ARN) that identifies the user.
@@ -3312,7 +3355,6 @@ class IAMUser(TagsDictMixin, PrimaryBoto3Model):
     in the *IAM
     User Guide*.
     """
-
     CreateDate: datetime = Field(frozen=True)
     """
 The date and time, in `ISO 8601 date-time format <http://www.iso.org/iso/iso8601>`_, when the user was created.
@@ -3336,6 +3378,7 @@ This can be because:
 For more information about permissions boundaries, see `Permissions boundaries for IAM
 identities <https://docs.aws.amazon.com/IAM/latest/UserGuide/access_policies_boundaries.html>`_  in the *IAM User Guide*.
     """
+
     Tags: "builtins.list[IAMTag] | None" = Field(default_factory=list)
     """
     A list of tags that are associated with the user.
@@ -3501,13 +3544,12 @@ class IAMSSHPublicKey(PrimaryBoto3Model):
     `GetSSHPublicKey <https://docs.aws.amazon.com/IAM/latest/APIReference/API_GetSSHPublicKey.html>`_ and
     `UploadSSHPublicKey <https://docs.aws.amazon.com/IAM/latest/APIReference/API_UploadSSHPublicKey.html>`_ operations.
     """
-
     manager_class: ClassVar[ModelType[Boto3ModelManager]] = IAMSSHPublicKeyManager
-
     UserName: str
     """
     The name of the IAM user associated with the SSH public key.
     """
+
     SSHPublicKeyId: str
     """
     The unique identifier for the SSH public key.
@@ -3522,7 +3564,6 @@ class IAMSSHPublicKey(PrimaryBoto3Model):
     """
     The SSH public key.
     """
-
     Status: Literal["Active", "Inactive", "Expired"]
     """
     The status of the SSH public key.
@@ -3557,20 +3598,21 @@ The date and time, in `ISO 8601 date-time format <http://www.iso.org/iso/iso8601
                 "SSHPublicKeyId": self.SSHPublicKeyId,
             }
         )
-
 # =======================
 # Request/Response Models
 # =======================
-
 
 class CreateAccessKeyResponse(Boto3Model):
     """Contains the response to a successful
     `CreateAccessKey <https://docs.aws.amazon.com/IAM/latest/APIReference/API_CreateAccessKey.html>`_ request.
     """
+
     AccessKey: IAMAccessKey
     """
     A structure with details about the access key.
     """
+
+
 class AccessKeyMetadata(Boto3Model):
     """
     Contains information about an Amazon Web Services access key, without its secret
@@ -3596,7 +3638,6 @@ class AccessKeyMetadata(Boto3Model):
 
     ``Active`` means that the key is valid for API calls; ``Inactive`` means it is not.
     """
-
     CreateDate: "datetime | None" = None
     """
     The date when the access key was created.
@@ -3630,6 +3671,7 @@ class ListAccessKeysResponse(Boto3Model):
     When ``IsTruncated`` is ``true``, this element is present and contains the value to
     use for the ``Marker`` parameter in a subsequent pagination request.
     """
+
 class IAMAccessKeyLastUsed(Boto3Model):
     """
     Contains information about the last time an Amazon Web Services access key was used
@@ -3638,13 +3680,11 @@ class IAMAccessKeyLastUsed(Boto3Model):
     This data type is used as a response element in the
     `GetAccessKeyLastUsed <https://docs.aws.amazon.com/IAM/latest/APIReference/API_GetAccessKeyLastUsed.html>`_ operation.
     """
-
     LastUsedDate: "datetime | None" = None
     """
 The date and time, in `ISO 8601 date-time format <http://www.iso.org/iso/iso8601>`_, when the access key was most recently
 used. This field is null in the following situations:
     """
-
     ServiceName: str
     """
     The name of the Amazon Web Services service with which this access key was most
@@ -3652,7 +3692,6 @@ used. This field is null in the following situations:
 
     The value of this field is "N/A" in the following situations:
     """
-
     Region: str
     """
     The Amazon Web Services Region where this access key was most recently used.
@@ -3683,10 +3722,13 @@ class CreateGroupResponse(Boto3Model):
     """Contains the response to a successful
     `CreateGroup <https://docs.aws.amazon.com/IAM/latest/APIReference/API_CreateGroup.html>`_ request.
     """
+
     Group: IAMGroup
     """
     A structure containing details about the new group.
     """
+
+
 class GetGroupResponse(Boto3Model):
     """Contains the response to a successful `GetGroup <https://docs.aws.amazon.com/IAM/latest/APIReference/API_GetGroup.html>`_
     request.
@@ -3696,12 +3738,10 @@ class GetGroupResponse(Boto3Model):
     """
     A structure that contains details about the group.
     """
-
     Users: "builtins.list[IAMUser]"
     """
     A list of users in the group.
     """
-
     IsTruncated: "bool | None" = None
     """
     A flag that indicates whether there are more items to return.
@@ -3820,7 +3860,6 @@ class ListGroupPoliciesResponse(Boto3Model):
     When ``IsTruncated`` is ``true``, this element is present and contains the value to
     use for the ``Marker`` parameter in a subsequent pagination request.
     """
-
 class AttachedPolicy(Boto3Model):
     """
     Contains information about an attached policy.
@@ -3873,6 +3912,7 @@ class ListAttachedGroupPoliciesResponse(Boto3Model):
     available. We recommend that you check ``IsTruncated`` after every call to ensure
     that you receive all your results.
     """
+
     Marker: "str | None" = None
     """
     When ``IsTruncated`` is ``true``, this element is present and contains the value to
@@ -3894,7 +3934,6 @@ class GetInstanceProfileResponse(Boto3Model):
     """Contains the response to a successful
     `GetInstanceProfile <https://docs.aws.amazon.com/IAM/latest/APIReference/API_GetInstanceProfile.html>`_ request.
     """
-
     InstanceProfile: "InstanceProfile"
     """
     A structure containing details about the instance profile.
@@ -3905,12 +3944,10 @@ class ListInstanceProfilesResponse(Boto3Model):
     """Contains the response to a successful
     `ListInstanceProfiles <https://docs.aws.amazon.com/IAM/latest/APIReference/API_ListInstanceProfiles.html>`_ request.
     """
-
     InstanceProfiles: "builtins.list[InstanceProfile]"
     """
     A list of instance profiles.
     """
-
     IsTruncated: "bool | None" = None
     """
     A flag that indicates whether there are more items to return.
@@ -3921,7 +3958,6 @@ class ListInstanceProfilesResponse(Boto3Model):
     available. We recommend that you check ``IsTruncated`` after every call to ensure
     that you receive all your results.
     """
-
     Marker: "str | None" = None
     """
     When ``IsTruncated`` is ``true``, this element is present and contains the value to
@@ -3933,6 +3969,7 @@ class ListInstanceProfilesForRoleResponse(Boto3Model):
     `ListInstanceProfilesForRole <https://docs.aws.amazon.com/IAM/latest/APIReference/API_ListInstanceProfilesForRole.html>`_
     request.
     """
+
     InstanceProfiles: "builtins.list[InstanceProfile]"
     """
     A list of instance profiles.
@@ -3975,10 +4012,13 @@ class GetLoginProfileResponse(Boto3Model):
     """
     A structure containing the user name and the profile creation date for the user.
     """
+
+
 class CreatePolicyResponse(Boto3Model):
     """Contains the response to a successful
     `CreatePolicy <https://docs.aws.amazon.com/IAM/latest/APIReference/API_CreatePolicy.html>`_ request.
     """
+
     Policy: "IAMPolicy | None" = None
     """
     A structure containing details about the new policy.
@@ -3988,16 +4028,15 @@ class GetPolicyResponse(Boto3Model):
     """Contains the response to a successful
     `GetPolicy <https://docs.aws.amazon.com/IAM/latest/APIReference/API_GetPolicy.html>`_ request.
     """
-
     Policy: "IAMPolicy | None" = None
     """
     A structure containing details about the policy.
     """
+
 class ListPoliciesResponse(Boto3Model):
     """Contains the response to a successful
     `ListPolicies <https://docs.aws.amazon.com/IAM/latest/APIReference/API_ListPolicies.html>`_ request.
     """
-
     Policies: "builtins.list[IAMPolicy] | None" = Field(default_factory=list)
     """
     A list of policies.
@@ -4019,6 +4058,7 @@ class ListPoliciesResponse(Boto3Model):
     When ``IsTruncated`` is ``true``, this element is present and contains the value to
     use for the ``Marker`` parameter in a subsequent pagination request.
     """
+
 class PolicyGroup(Boto3Model):
     """
     Contains information about a group that a managed policy is attached to.
@@ -4043,6 +4083,7 @@ class PolicyGroup(Boto3Model):
     `IAM identifiers <https://docs.aws.amazon.com/IAM/latest/UserGuide/reference_identifiers.html>`_
     in the *IAM User Guide*.
     """
+
 class PolicyUser(Boto3Model):
     """
     Contains information about a user that a managed policy is attached to.
@@ -4067,6 +4108,7 @@ class PolicyUser(Boto3Model):
     `IAM identifiers <https://docs.aws.amazon.com/IAM/latest/UserGuide/reference_identifiers.html>`_
     in the *IAM User Guide*.
     """
+
 class PolicyRole(Boto3Model):
     """
     Contains information about a role that a managed policy is attached to.
@@ -4077,7 +4119,6 @@ class PolicyRole(Boto3Model):
     For more information about managed policies, refer to `Managed policies and inline
     policies <https://docs.aws.amazon.com/IAM/latest/UserGuide/policies-managed-vs-inline.html>`_ in the *IAM User Guide*.
     """
-
     RoleName: "str | None" = None
     """
     The name (friendly name, not ARN) identifying the role.
@@ -4101,6 +4142,7 @@ class ListEntitiesForPolicyResponse(Boto3Model):
     """
     A list of IAM groups that the policy is attached to.
     """
+
     PolicyUsers: "builtins.list[PolicyUser] | None" = Field(default_factory=list)
     """
     A list of IAM users that the policy is attached to.
@@ -4169,7 +4211,6 @@ class GetPolicyVersionResponse(Boto3Model):
     """Contains the response to a successful
     `GetPolicyVersion <https://docs.aws.amazon.com/IAM/latest/APIReference/API_GetPolicyVersion.html>`_ request.
     """
-
     PolicyVersion: "IAMPolicyVersion | None" = None
     """
     A structure containing details about the policy version.
@@ -4201,8 +4242,6 @@ class DeleteServiceLinkedRoleResponse(Boto3Model):
     This identifier is returned in the
     format ``task/aws-service-role/<service-principal-name>/<role-name>/<task-uuid>``.
     """
-
-
 class GetRoleResponse(Boto3Model):
     """Contains the response to a successful `GetRole <https://docs.aws.amazon.com/IAM/latest/APIReference/API_GetRole.html>`_
     request.
@@ -4212,6 +4251,7 @@ class GetRoleResponse(Boto3Model):
     """
     A structure containing details about the IAM role.
     """
+
 class GetRolePolicyResponse(Boto3Model):
     """Contains the response to a successful
     `GetRolePolicy <https://docs.aws.amazon.com/IAM/latest/APIReference/API_GetRolePolicy.html>`_ request.
@@ -4231,8 +4271,6 @@ class GetRolePolicyResponse(Boto3Model):
     """
     The policy document.
     """
-
-
 class ListRolesResponse(Boto3Model):
     """Contains the response to a successful
     `ListRoles <https://docs.aws.amazon.com/IAM/latest/APIReference/API_ListRoles.html>`_ request.
@@ -4259,7 +4297,6 @@ class ListRolesResponse(Boto3Model):
     When ``IsTruncated`` is ``true``, this element is present and contains the value to
     use for the ``Marker`` parameter in a subsequent pagination request.
     """
-
 class ListRolePoliciesResponse(Boto3Model):
     """Contains the response to a successful
     `ListRolePolicies <https://docs.aws.amazon.com/IAM/latest/APIReference/API_ListRolePolicies.html>`_ request.
@@ -4299,6 +4336,7 @@ class ListAttachedRolePoliciesResponse(Boto3Model):
     """
     A list of the attached policies.
     """
+
     IsTruncated: "bool | None" = None
     """
     A flag that indicates whether there are more items to return.
@@ -4309,6 +4347,7 @@ class ListAttachedRolePoliciesResponse(Boto3Model):
     available. We recommend that you check ``IsTruncated`` after every call to ensure
     that you receive all your results.
     """
+
     Marker: "str | None" = None
     """
     When ``IsTruncated`` is ``true``, this element is present and contains the value to
@@ -4325,7 +4364,6 @@ class CreateUserResponse(Boto3Model):
     """Contains the response to a successful
     `CreateUser <https://docs.aws.amazon.com/IAM/latest/APIReference/API_CreateUser.html>`_ request.
     """
-
     User: "IAMUser | None" = None
     """
     A structure with details about the new IAM user.
@@ -4346,11 +4384,11 @@ class GetUserPolicyResponse(Boto3Model):
     """Contains the response to a successful
     `GetUserPolicy <https://docs.aws.amazon.com/IAM/latest/APIReference/API_GetUserPolicy.html>`_ request.
     """
+
     UserName: str
     """
     The user the policy is associated with.
     """
-
     PolicyName: str
     """
     The name of the policy.
@@ -4360,11 +4398,12 @@ class GetUserPolicyResponse(Boto3Model):
     """
     The policy document.
     """
+
+
 class ListUsersResponse(Boto3Model):
     """Contains the response to a successful
     `ListUsers <https://docs.aws.amazon.com/IAM/latest/APIReference/API_ListUsers.html>`_ request.
     """
-
     Users: "builtins.list[IAMUser]"
     """
     A list of users.
@@ -4391,7 +4430,6 @@ class ListUserPoliciesResponse(Boto3Model):
     """Contains the response to a successful
     `ListUserPolicies <https://docs.aws.amazon.com/IAM/latest/APIReference/API_ListUserPolicies.html>`_ request.
     """
-
     PolicyNames: "builtins.list[str]"
     """
     A list of policy names.
@@ -4407,7 +4445,6 @@ class ListUserPoliciesResponse(Boto3Model):
     available. We recommend that you check ``IsTruncated`` after every call to ensure
     that you receive all your results.
     """
-
     Marker: "str | None" = None
     """
     When ``IsTruncated`` is ``true``, this element is present and contains the value to
@@ -4426,6 +4463,7 @@ class ListAttachedUserPoliciesResponse(Boto3Model):
     """
     A list of the attached policies.
     """
+
     IsTruncated: "bool | None" = None
     """
     A flag that indicates whether there are more items to return.
@@ -4436,6 +4474,7 @@ class ListAttachedUserPoliciesResponse(Boto3Model):
     available. We recommend that you check ``IsTruncated`` after every call to ensure
     that you receive all your results.
     """
+
     Marker: "str | None" = None
     """
     When ``IsTruncated`` is ``true``, this element is present and contains the value to
@@ -4446,6 +4485,7 @@ class UploadSSHPublicKeyResponse(Boto3Model):
     """Contains the response to a successful
     `UploadSSHPublicKey <https://docs.aws.amazon.com/IAM/latest/APIReference/API_UploadSSHPublicKey.html>`_ request.
     """
+
     SSHPublicKey: "IAMSSHPublicKey | None" = None
     """
     Contains information about the SSH public key.
@@ -4486,6 +4526,7 @@ class SSHPublicKeyMetadata(Boto3Model):
     ``Active`` means that the key can be used for authentication with an CodeCommit
     repository. ``Inactive`` means that the key cannot be used.
     """
+
     UploadDate: datetime
     """
 The date and time, in `ISO 8601 date-time format <http://www.iso.org/iso/iso8601>`_, when the SSH public key was uploaded.

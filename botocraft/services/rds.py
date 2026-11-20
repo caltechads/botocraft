@@ -671,6 +671,27 @@ class RDSEndpoint(Boto3Model):
     Specifies the ID that Amazon Route 53 assigns when you create a hosted zone.
     """
 
+class RDSPrimaryEndpoint(Boto3Model):
+    """
+    Contains the information you need to connect to the DB instance that currently has
+    the primary role.
+
+    The endpoint stays the same when the primary role moves to another DB instance, so
+    you don't have to connect to a different DNS name after a switchover.
+    """
+
+    Address: "str | None" = None
+    """
+    Specifies the DNS address of the DB instance that currently has the primary role.
+
+    This address doesn't change when the DB instance is renamed.
+    """
+
+    HostedZoneId: "str | None" = None
+    """
+    Specifies the ID that Amazon Route 53 assigns when you create a hosted zone.
+    """
+
 class DBSecurityGroupMembership(Boto3Model):
     """This data type is used as a response element in the following actions:
 
@@ -1294,6 +1315,7 @@ class DBInstance(TagsDictMixin, RDSInstanceModelMixin, PrimaryBoto3Model):
     Information about the subnet group associated with the DB instance, including the
     name, description, and subnets in the subnet group.
     """
+
     DBInstanceStatus: str = Field(default=None, frozen=True)
     """
     The current state of this database.
@@ -1316,6 +1338,12 @@ class DBInstance(TagsDictMixin, RDSInstanceModelMixin, PrimaryBoto3Model):
     Endpoint: RDSEndpoint = Field(default=None, frozen=True)
     """
     The connection endpoint for the DB instance.
+    """
+
+    PrimaryEndpoint: RDSPrimaryEndpoint = Field(default=None, frozen=True)
+    """
+    Specifies the connection endpoint for the DB instance that currently has the primary
+    role.
     """
 
     AllocatedStorage: "int | None" = None
@@ -1365,6 +1393,7 @@ class DBInstance(TagsDictMixin, RDSInstanceModelMixin, PrimaryBoto3Model):
     The weekly time range during which system maintenance can occur, in Universal
     Coordinated Time (UTC).
     """
+
     UpgradeRolloutOrder: "Literal['first', 'second', 'last'] | None" = Field(
         default=None, frozen=True
     )
@@ -1379,6 +1408,7 @@ class DBInstance(TagsDictMixin, RDSInstanceModelMixin, PrimaryBoto3Model):
     This information is returned only when there are pending changes. Specific changes
     are identified by subelements.
     """
+
     LatestRestorableTime: datetime = Field(default=None, frozen=True)
     """
     The latest time to which a database in this DB instance can be restored with point-
@@ -1431,6 +1461,7 @@ class DBInstance(TagsDictMixin, RDSInstanceModelMixin, PrimaryBoto3Model):
     """
     The Provisioned IOPS (I/O operations per second) value for the DB instance.
     """
+
     StorageThroughput: "int | None" = None
     """
     The storage throughput for the DB instance.
@@ -1509,7 +1540,6 @@ class DBInstance(TagsDictMixin, RDSInstanceModelMixin, PrimaryBoto3Model):
     This identifier is found in Amazon Web Services CloudTrail log entries whenever the
     Amazon Web Services KMS key for the DB instance is accessed.
     """
-
     CACertificateIdentifier: "str | None" = None
     """
     The identifier of the CA certificate for this DB instance.
@@ -1532,7 +1562,6 @@ class DBInstance(TagsDictMixin, RDSInstanceModelMixin, PrimaryBoto3Model):
     The interval, in seconds, between points when Enhanced Monitoring metrics are
     collected for the DB instance.
     """
-
     EnhancedMonitoringResourceArn: str = Field(default=None, frozen=True)
     """
     The Amazon Resource Name (ARN) of the Amazon CloudWatch Logs log stream that
@@ -1544,7 +1573,6 @@ class DBInstance(TagsDictMixin, RDSInstanceModelMixin, PrimaryBoto3Model):
     The ARN for the IAM role that permits RDS to send Enhanced Monitoring metrics to
     Amazon CloudWatch Logs.
     """
-
     PromotionTier: "int | None" = None
     """
     The order of priority in which an Aurora Replica is promoted to the primary instance
@@ -1560,6 +1588,7 @@ class DBInstance(TagsDictMixin, RDSInstanceModelMixin, PrimaryBoto3Model):
     """
     The Amazon Resource Name (ARN) for the DB instance.
     """
+
     Timezone: "str | None" = None
     """
     The time zone of the DB instance.
@@ -1592,6 +1621,7 @@ class DBInstance(TagsDictMixin, RDSInstanceModelMixin, PrimaryBoto3Model):
     The number of CPU cores and the number of threads per core for the DB instance class
     of the DB instance.
     """
+
     DeletionProtection: "bool | None" = None
     """
     Indicates whether the DB instance has deletion protection enabled.
@@ -1657,7 +1687,6 @@ class DBInstance(TagsDictMixin, RDSInstanceModelMixin, PrimaryBoto3Model):
     The Amazon Web Services KMS key identifier is the key ARN, key ID, alias ARN, or
     alias name for the KMS key.
     """
-
     ActivityStreamKinesisStreamName: str = Field(default=None, frozen=True)
     """
     The name of the Amazon Kinesis data stream used for the database activity stream.
@@ -1672,6 +1701,7 @@ class DBInstance(TagsDictMixin, RDSInstanceModelMixin, PrimaryBoto3Model):
     Database events such as a change or access generate an activity stream event. RDS
     for Oracle always handles these events asynchronously.
     """
+
     ActivityStreamEngineNativeAuditFieldsIncluded: bool = Field(
         default=None, frozen=True
     )
@@ -1730,7 +1760,6 @@ class DBInstance(TagsDictMixin, RDSInstanceModelMixin, PrimaryBoto3Model):
     The Oracle SID is also the name of the CDB. This setting is only valid for RDS
     Custom DB instances.
     """
-
     MasterUserSecret: RDSMasterUserSecret = Field(default=None, frozen=True)
     """
     The secret managed by RDS in Amazon Web Services Secrets Manager for the master user
@@ -1740,6 +1769,7 @@ class DBInstance(TagsDictMixin, RDSInstanceModelMixin, PrimaryBoto3Model):
     """
     The identifier of the source DB cluster if this DB instance is a read replica.
     """
+
     PercentProgress: str = Field(default=None, frozen=True)
     """
     The progress of the storage optimization operation as a percentage.
@@ -1796,6 +1826,7 @@ class DBInstance(TagsDictMixin, RDSInstanceModelMixin, PrimaryBoto3Model):
     This field appears only while a storage operation is in progress. It isn't present
     when no storage operation is active. Possible values:
     """
+
     StorageOperationPercentProgress: int = Field(default=None, frozen=True)
     """
     The percentage of the in-progress storage operation on the DB instance that has
@@ -1811,6 +1842,14 @@ class DBInstance(TagsDictMixin, RDSInstanceModelMixin, PrimaryBoto3Model):
 
     Amazon RDS doesn't return this value if the DB instance doesn't use a DB capacity
     reservation.
+    """
+
+    VPCNetworkingEnabled: bool = Field(default=None, frozen=True)
+    """
+    Indicates whether the DB instance uses VPC networking.
+
+    For a DB instance in an Aurora PostgreSQL DB cluster without VPC networking, the
+    value is ``false``.
     """
 
     @property
@@ -1927,6 +1966,7 @@ class DBInstance(TagsDictMixin, RDSInstanceModelMixin, PrimaryBoto3Model):
         except AttributeError:
             return None
         return Vpc.objects.using(self.session).get(**pk)  # type: ignore[arg-type]
+
     @cached_property
     def subnets(self) -> "list[Subnet] | None":
         """
@@ -1952,8 +1992,6 @@ class DBInstance(TagsDictMixin, RDSInstanceModelMixin, PrimaryBoto3Model):
         except AttributeError:
             return []
         return Subnet.objects.using(self.session).list(**pk)  # type: ignore[arg-type]
-
-
 class RDSAvailabilityZone(Boto3Model):
     """
     Contains Availability Zone information.
@@ -1974,6 +2012,7 @@ class Outpost(Boto3Model):
     `Amazon RDS on Amazon Web Services Outposts <https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/rds-on-outposts.html>`_
     in the *Amazon RDS User Guide.*
     """
+
     Arn: "str | None" = None
     """
     The Amazon Resource Name (ARN) of the Outpost.
@@ -2014,7 +2053,6 @@ class RDSDBSubnetGroup(PrimaryBoto3Model):
     """
 
     manager_class: ClassVar[ModelType[Boto3ModelManager]] = RDSDBSubnetGroupManager
-
     DBSubnetGroupName: str
     """
     The name of the DB subnet group.
@@ -2033,6 +2071,7 @@ class RDSDBSubnetGroup(PrimaryBoto3Model):
     the most up-to-date information, we recommend checking your VPC configuration
     directly.
     """
+
     VpcId: str
     """
     Provides the VpcId of the DB subnet group.
@@ -2054,6 +2093,7 @@ class RDSDBSubnetGroup(PrimaryBoto3Model):
     """
     The network type of the DB subnet group.
     """
+
     @property
     def pk(self) -> str | None:
         """
@@ -2098,7 +2138,7 @@ class RDSDBSubnetGroup(PrimaryBoto3Model):
         :py:attr:`DBSubnetGroupArn` attribute.
         """
         return hash(self.DBSubnetGroupArn)
-                         
+# =======================
 # Request/Response Models
 # =======================
 
@@ -2138,7 +2178,6 @@ class ModifyAdditionalStorageVolume(Boto3Model):
     """
     The name of the additional storage volume that you want to modify.
     """
-
     AllocatedStorage: "int | None" = None
     """
     The amount of storage allocated for the additional storage volume, in gibibytes
@@ -2155,7 +2194,6 @@ class ModifyAdditionalStorageVolume(Boto3Model):
     This setting is only supported for Provisioned IOPS SSD (``io1`` and ``io2``)
     storage types.
     """
-
     MaxAllocatedStorage: "int | None" = None
     """
     The upper limit in gibibytes (GiB) to which RDS can automatically scale the storage

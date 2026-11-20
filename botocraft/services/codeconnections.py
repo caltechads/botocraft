@@ -59,6 +59,7 @@ class ConnectionManager(Boto3ModelManager):
             ProviderType=data.get("ProviderType"),
             Tags=data.get("Tags"),
             HostArn=data.get("HostArn"),
+            ProviderEndpoint=data.get("ProviderEndpoint"),
         )
         _response = self.client.create_connection(
             **{k: v for k, v in args.items() if v is not None}
@@ -103,8 +104,8 @@ class ConnectionManager(Boto3ModelManager):
     def list(
         self,
         *,
-        ProviderTypeFilter: "Literal['Bitbucket', 'GitHub', 'GitHubEnterpriseServer', 'GitLab', 'GitLabSelfManaged', 'AzureDevOps'] | None" = None,
         HostArnFilter: "str | None" = None,
+        ProviderTypeFilter: "Literal['Bitbucket', 'GitHub', 'GitHubEnterpriseServer', 'GitLab', 'GitLabSelfManaged', 'AzureDevOps', 'GitHubEnterpriseCloudDataResidency'] | None" = None,
         MaxResults: "int | None" = None,
         NextToken: "str | None" = None,
     ) -> PrimaryBoto3ModelQuerySet["Connection"]:
@@ -112,11 +113,11 @@ class ConnectionManager(Boto3ModelManager):
         Lists the connections associated with your account.
 
         Keyword Args:
+            HostArnFilter: Filters the list of connections to those associated with a
+                specified host.
             ProviderTypeFilter: Filters the list of connections to those associated with
                 a specified provider, such as
                 Bitbucket.
-            HostArnFilter: Filters the list of connections to those associated with a
-                specified host.
             MaxResults: The maximum number of results to return in a single call. To
                 retrieve the remaining results, make
                 another call with the returned ``nextToken`` value.
@@ -125,8 +126,8 @@ class ConnectionManager(Boto3ModelManager):
                 next set of connections in the list.
         """
         args: dict[str, Any] = dict(
-            ProviderTypeFilter=self.serialize(ProviderTypeFilter),
             HostArnFilter=self.serialize(HostArnFilter),
+            ProviderTypeFilter=self.serialize(ProviderTypeFilter),
             MaxResults=self.serialize(MaxResults),
             NextToken=self.serialize(NextToken),
         )
@@ -519,7 +520,7 @@ class Connection(TagsDictMixin, PrimaryBoto3Model):
     Amazon Web Services services.
     """
 
-    ProviderType: "Literal['Bitbucket', 'GitHub', 'GitHubEnterpriseServer', 'GitLab', 'GitLabSelfManaged', 'AzureDevOps'] | None" = None
+    ProviderType: "Literal['Bitbucket', 'GitHub', 'GitHubEnterpriseServer', 'GitLab', 'GitLabSelfManaged', 'AzureDevOps', 'GitHubEnterpriseCloudDataResidency'] | None" = None
     """
     The name of the external provider where your third-party code repository is
     configured.
@@ -542,6 +543,14 @@ class Connection(TagsDictMixin, PrimaryBoto3Model):
     HostArn: "str | None" = None
     """
     The Amazon Resource Name (ARN) of the host associated with the connection.
+    """
+    ProviderEndpoint: "str | None" = None
+    """
+    The endpoint of the ghe.com tenant where your organization resides.
+
+    This value is populated only for a connection with a
+    ``ProviderType`` of ``GitHubEnterpriseCloudDataResidency``. It is empty for all
+    other provider types.
     """
 
     Tags: builtins.list[Tag] | None = Field(default_factory=list)
@@ -650,7 +659,7 @@ class Host(TagsDictMixin, PrimaryBoto3Model):
     The Amazon Resource Name (ARN) of the host.
     """
 
-    ProviderType: "Literal['Bitbucket', 'GitHub', 'GitHubEnterpriseServer', 'GitLab', 'GitLabSelfManaged', 'AzureDevOps'] | None" = None
+    ProviderType: "Literal['Bitbucket', 'GitHub', 'GitHubEnterpriseServer', 'GitLab', 'GitLabSelfManaged', 'AzureDevOps', 'GitHubEnterpriseCloudDataResidency'] | None" = None
     """
     The name of the installed provider to be associated with your connection.
 
@@ -667,7 +676,6 @@ class Host(TagsDictMixin, PrimaryBoto3Model):
     """
     The VPC configuration provisioned for the host.
     """
-
     Status: str = Field(default=None, frozen=True)
     """
     The status of the host, such as PENDING, AVAILABLE, VPC_CONFIG_DELETING,
@@ -682,6 +690,7 @@ class Host(TagsDictMixin, PrimaryBoto3Model):
     """
     Tags associated with this host.
     """
+
     @property
     def pk(self) -> str | None:
         """
@@ -740,7 +749,7 @@ class SyncConfiguration(PrimaryBoto3Model):
     as the owner ID in GitHub.
     """
 
-    ProviderType: "Literal['Bitbucket', 'GitHub', 'GitHubEnterpriseServer', 'GitLab', 'GitLabSelfManaged', 'AzureDevOps'] | None" = None
+    ProviderType: "Literal['Bitbucket', 'GitHub', 'GitHubEnterpriseServer', 'GitLab', 'GitLabSelfManaged', 'AzureDevOps', 'GitHubEnterpriseCloudDataResidency'] | None" = None
     """
     The connection provider type associated with a specific sync configuration, such as
     GitHub.
@@ -750,6 +759,7 @@ class SyncConfiguration(PrimaryBoto3Model):
     """
     The name of the repository associated with a specific sync configuration.
     """
+
     Branch: str
     """
     The branch associated with a specific sync configuration.
@@ -779,6 +789,7 @@ class SyncConfiguration(PrimaryBoto3Model):
     The Amazon Resource Name (ARN) of the IAM role associated with a specific sync
     configuration.
     """
+
     SyncType: Literal["CFN_STACK_SYNC"]
     """
     The type of sync for a specific sync configuration.
@@ -788,7 +799,6 @@ class SyncConfiguration(PrimaryBoto3Model):
     """
     Whether to enable or disable publishing of deployment status to source providers.
     """
-
     TriggerResourceUpdateOn: "Literal['ANY_CHANGE', 'FILE_CHANGE'] | None" = None
     """
     When to trigger Git sync to begin the stack update.
@@ -827,7 +837,6 @@ class RepositorySyncDefinition(ReadonlyPrimaryBoto3Model):
     """
     The definition for a repository with a sync configuration.
     """
-
     manager_class: ClassVar[ModelType[Boto3ModelManager]] = (
         RepositorySyncDefinitionManager
     )
@@ -836,6 +845,7 @@ class RepositorySyncDefinition(ReadonlyPrimaryBoto3Model):
     """
     The branch specified for a repository sync definition.
     """
+
     Directory: str
     """
     The configuration file for a repository sync definition.
@@ -898,12 +908,14 @@ class SyncBlockerContext(Boto3Model):
     The value provided for a context key-value pair for a specific sync blocker.
     """
 
+
 class SyncBlocker(PrimaryBoto3Model):
     """
     Information about a blocker for a sync event.
     """
 
     manager_class: ClassVar[ModelType[Boto3ModelManager]] = SyncBlockerManager
+
     Id: str
     """
     The ID for a specific sync blocker.
@@ -913,7 +925,6 @@ class SyncBlocker(PrimaryBoto3Model):
     """
     The sync blocker type.
     """
-
     Status: Literal["ACTIVE", "RESOLVED"]
     """
     The status for a specific sync blocker.
@@ -928,7 +939,6 @@ class SyncBlocker(PrimaryBoto3Model):
     """
     The creation time for a specific sync blocker.
     """
-
     Contexts: "builtins.list[SyncBlockerContext] | None" = Field(default_factory=list)
     """
     The contexts for a specific sync blocker.
@@ -948,6 +958,7 @@ class SyncBlocker(PrimaryBoto3Model):
     """
     Resource name associated with this sync blocker.
     """
+
     ParentResourceName: str | None = None
     """
     Parent resource name associated with this sync blocker, when present.
@@ -970,6 +981,7 @@ class SyncBlocker(PrimaryBoto3Model):
                 "Id": self.Id,
             }
         )
+
 
 class SyncBlockerSummary(ReadonlyPrimaryBoto3Model):
     """
@@ -1012,6 +1024,7 @@ class SyncBlockerSummary(ReadonlyPrimaryBoto3Model):
 # Request/Response Models
 # =======================
 
+
 class CreateConnectionOutput(TagsDictMixin, Boto3Model):
     tag_class: ClassVar[ModelType[Boto3Model]] = Tag
     ConnectionArn: str
@@ -1051,14 +1064,12 @@ class ListConnectionsOutput(Boto3Model):
     To view all items in the list, continue to call this operation with each subsequent
     token until no more ``nextToken`` values are returned.
     """
-
 class CreateHostOutput(TagsDictMixin, Boto3Model):
     tag_class: ClassVar[ModelType[Boto3Model]] = Tag
     HostArn: "str | None" = None
     """
     The Amazon Resource Name (ARN) of the host to be created.
     """
-
     Tags: "builtins.list[Tag] | None" = Field(default_factory=list)
     """
     Tags for the created host.
@@ -1066,6 +1077,7 @@ class CreateHostOutput(TagsDictMixin, Boto3Model):
 
 class DeleteHostOutput(Boto3Model):
     pass
+
 
 class GetHostOutput(Boto3Model):
     Name: "str | None" = None
@@ -1078,7 +1090,7 @@ class GetHostOutput(Boto3Model):
     The status of the requested host.
     """
 
-    ProviderType: "Literal['Bitbucket', 'GitHub', 'GitHubEnterpriseServer', 'GitLab', 'GitLabSelfManaged', 'AzureDevOps'] | None" = None
+    ProviderType: "Literal['Bitbucket', 'GitHub', 'GitHubEnterpriseServer', 'GitLab', 'GitLabSelfManaged', 'AzureDevOps', 'GitHubEnterpriseCloudDataResidency'] | None" = None
     """
     The provider type of the requested host, such as GitHub Enterprise Server.
     """
@@ -1140,7 +1152,6 @@ class ListSyncConfigurationsOutput(Boto3Model):
     An enumeration token that allows the operation to batch the next results of the
     operation.
     """
-
 class UpdateSyncConfigurationOutput(Boto3Model):
     SyncConfigurationInstance: SyncConfiguration = Field(
         default=None, alias="SyncConfiguration"

@@ -58,3 +58,9 @@ secondary:
     alternate_name: STSProvidedContext
   PolicyDescriptorType:
     alternate_name: STSPolicyDescriptorType
+  OriginIdentity:
+    alternate_name: STSOriginIdentity
+  TransactionContext:
+    alternate_name: STSTransactionContext
+  TrustedIdentityPropagationContext:
+    alternate_name: STSTrustedIdentityPropagationContext

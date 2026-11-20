@@ -1770,59 +1770,62 @@ class CodeRepositoryDetails(Boto3Model):
     """
 class MachineImageDetails(Boto3Model):
     """
-    Details about a machine image resource scanned directly by Inspector.
+    Contains details about an Amazon Machine Image (AMI) that Amazon Inspector scanned
+    directly.
     """
     machineImageId: str
     """
-    The machine image ID (e.g., ami-0abcdef1234567890)
+    The ID of the machine image, for example ``ami-0abcdef1234567890``.
     """
 
     name: "str | None" = None
     """
-    Human-readable image name.
+    The name of the machine image.
     """
 
     ownerAccountId: "str | None" = None
     """
-    Account ID that owns the image.
+    The ID of the account that owns the machine image.
     """
 
     platform: "str | None" = None
     """
-    OS platform (Linux/Windows)
+    The operating system platform of the machine image.
     """
     architecture: "Literal['X86_64', 'ARM64'] | None" = None
     """
-    CPU architecture (x86_64/arm64)
+    The CPU architecture of the machine image, for example ``x86_64`` or ``arm64``.
     """
 
     creationDate: "datetime | None" = None
     """
-    When the image was created.
+    The date and time that the machine image was created.
     """
 
     state: "str | None" = None
     """
-    Image state (available/pending/deregistered)
+    The state of the machine image, for example ``available``, ``pending``, or
+    ``deregistered``.
     """
 
     isPublic: "bool | None" = None
     """
-    Whether the image is publicly shared.
+    Indicates whether the machine image is shared publicly.
     """
 
     rootDeviceType: "str | None" = None
     """
-    Root device type (ebs/instance-store) — AWS-specific.
+    The root device type of the machine image, either ``ebs`` or ``instance-store``.
     """
     virtualizationType: "str | None" = None
     """
-    Virtualization type (hvm/paravirtual) — AWS-specific.
+    The virtualization type of the machine image, either ``hvm`` or ``paravirtual``.
     """
 
     sourceResourceId: "str | None" = None
     """
-    Source resource the image was created from (nullable)
+    The ID of the Amazon EC2 instance that the machine image was created from, if
+    available.
     """
 
 
@@ -2040,7 +2043,8 @@ class ResourceDetails(Boto3Model):
     """
     machineImage: "MachineImageDetails | None" = None
     """
-    Details about a machine image resource scanned directly by Inspector.
+    An object that contains details about the Amazon Machine Image (AMI) involved in the
+    finding.
     """
 
     vm: "Vm | None" = None

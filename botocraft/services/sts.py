@@ -430,11 +430,8 @@ class AssumeRole(ReadonlyPrimaryBoto3Model):
     """
     PackedPolicySize: "int | None" = None
     """
-    A percentage value that indicates the packed size of the session policies and
-    session tags combined passed in the request.
-
-    The request fails if the packed size is greater than 100 percent, which means the
-    policies and tags exceeded the allowed space.
+    The percentage (0-100) of the maximum allowed session token size that the returned
+    session token consumes.
     """
 
     SourceIdentity: "str | None" = None
@@ -634,6 +631,69 @@ class STSProvidedContext(Boto3Model):
 
     The trusted context assertion is signed and encrypted by Amazon Web Services STS.
     """
+class STSOriginIdentity(Boto3Model):
+    """
+    The session's ``aws:OriginIdentity/Subject``, ``aws:OriginIdentity/SubjectType``,
+    ``aws:OriginIdentity/Issuer`` and ``aws:OriginIdentity/FederatedProviderArn`` keys.
+
+    A member is absent when the session does not have the key.
+    """
+
+    Subject: "str | None" = None
+    """
+    The value of the ``aws:OriginIdentity/Subject`` key: the end user's identifier,
+    taken from the token claim that the context provider maps as the subject.
+    """
+
+    SubjectType: "str | None" = None
+    """
+    The value of the ``aws:OriginIdentity/SubjectType`` key, which indicates whether the
+    end user is a person (``user``) or a non-human caller such as an application or
+    service (``workload``).
+    """
+
+    Issuer: "str | None" = None
+    """
+    The value of the ``aws:OriginIdentity/Issuer`` key.
+
+    For ``AssumeRoleWithWebIdentity``, this is the ``iss`` claim of the token without the ``https://`` prefix. For ``AssumeRoleWithSAML``, this is a hash of the key that signed the SAML
+    assertion, not the ``Issuer`` element of the assertion.
+    """
+
+    FederatedProviderArn: "str | None" = None
+    """
+    The value of the ``aws:OriginIdentity/FederatedProviderArn`` key: the ARN of the IAM
+    identity provider that the request federated through.
+    """
+
+class STSTransactionContext(Boto3Model):
+    """
+    The session's ``aws:TransactionContext/IdentityProvider/*`` keys.
+    """
+
+    IdentityProvider: "dict[str, str] | None" = Field(default_factory=dict)
+    """
+    The session's ``aws:TransactionContext/IdentityProvider/*`` keys, keyed by the part
+    of the key name after ``aws:TransactionContext/IdentityProvider/``.
+
+    Each value is up to 128 characters.
+    """
+class STSTrustedIdentityPropagationContext(Boto3Model):
+    """
+    The trusted identity propagation context that Amazon Web Services STS set in a
+    session from the identity provider's token.
+
+    A member is absent when the session has none of its keys.
+    """
+
+    OriginIdentity: "STSOriginIdentity | None" = None
+    """
+    The identity of the end user on whose behalf the session acts.
+    """
+    TransactionContext: "STSTransactionContext | None" = None
+    """
+    Additional claims about the request that the identity provider asserted.
+    """
 class AssumeRoleWithSAMLResponse(Boto3Model):
     """
     Contains the response to a successful AssumeRoleWithSAML request, including
@@ -654,13 +714,9 @@ class AssumeRoleWithSAMLResponse(Boto3Model):
 
     PackedPolicySize: "int | None" = None
     """
-    A percentage value that indicates the packed size of the session policies and
-    session tags combined passed in the request.
-
-    The request fails if the packed size is greater than 100 percent, which means the
-    policies and tags exceeded the allowed space.
+    The percentage (0-100) of the maximum allowed session token size that the returned
+    session token consumes.
     """
-
     Subject: "str | None" = None
     """
     The value of the ``NameID`` element in the ``Subject`` element of the SAML
@@ -673,6 +729,7 @@ class AssumeRoleWithSAMLResponse(Boto3Model):
 
     Typical examples of the format are ``transient`` or ``persistent``.
     """
+
     Issuer: "str | None" = None
     """
     The value of the ``Issuer`` element of the SAML assertion.
@@ -697,16 +754,36 @@ A hash value based on the concatenation of the following:
     `chained role <https://docs.aws.amazon.com/IAM/latest/UserGuide/id_roles.html#iam-term-role-chaining>`_
     sessions.
     """
+
     SessionTokenUtilization: "int | None" = None
     """
     The percentage (0-100) of the maximum allowed session token size that the returned
     session token consumes.
     """
+
     SessionTokenSize: "int | None" = None
     """
     The size, in bytes, of the session token returned in the Credentials for this
     response.
     """
+
+    TrustedIdentityPropagationContext: "STSTrustedIdentityPropagationContext | None" = (
+        None
+    )
+    """
+    The trusted identity propagation context that Amazon Web Services STS set in the
+    session from the SAML assertion, through the context provider attached to the SAML
+    identity provider.
+
+    It is present only when Amazon Web Services STS set such context in the session. It
+    contains the ``aws:OriginIdentity/Subject``, ``aws:OriginIdentity/SubjectType``,
+    ``aws:OriginIdentity/Issuer`` and ``aws:OriginIdentity/FederatedProviderArn`` keys
+    and the ``aws:TransactionContext/IdentityProvider/*`` keys that Amazon Web Services
+    STS set in the session. Other keys in the session, such as
+    ``aws:IdentityCenterInstanceArn`` and ``aws:IdentityStoreArn`` for an identity
+    provider with an Identity Center instance attached, are not returned.
+    """
+
 class AssumeRoleWithWebIdentityResponse(Boto3Model):
     """
     Contains the response to a successful AssumeRoleWithWebIdentity request, including
@@ -719,7 +796,6 @@ class AssumeRoleWithWebIdentityResponse(Boto3Model):
     The temporary security credentials, which include an access key ID, a secret access
     key, and a security token.
     """
-
     SubjectFromWebIdentityToken: "str | None" = None
     """
     The unique user identifier that is returned by the identity provider.
@@ -730,7 +806,6 @@ class AssumeRoleWithWebIdentityResponse(Boto3Model):
     identifier). For OpenID Connect ID tokens, this field contains the value returned by
     the identity provider as the token's ``sub`` (Subject) claim.
     """
-
     AssumedRoleUser: "STSAssumedRoleUser | None" = None
     """
     The Amazon Resource Name (ARN) and the assumed role ID, which are identifiers that
@@ -740,14 +815,13 @@ class AssumeRoleWithWebIdentityResponse(Boto3Model):
     policy by using the ARN or assumed role ID. The ARN and ID include the
     ``RoleSessionName`` that you specified when you called ``AssumeRole``.
     """
+
     PackedPolicySize: "int | None" = None
     """
-    A percentage value that indicates the packed size of the session policies and
-    session tags combined passed in the request.
-
-    The request fails if the packed size is greater than 100 percent, which means the
-    policies and tags exceeded the allowed space.
+    The percentage (0-100) of the maximum allowed session token size that the returned
+    session token consumes.
     """
+
     Provider: "str | None" = None
     """
     The issuing authority of the web identity token presented.
@@ -764,7 +838,6 @@ class AssumeRoleWithWebIdentityResponse(Boto3Model):
     This is traditionally the client identifier issued to the application that requested
     the web identity token.
     """
-
     SourceIdentity: "str | None" = None
     """
     The value of the source identity that is returned in the JSON web token (JWT) from
@@ -781,4 +854,21 @@ class AssumeRoleWithWebIdentityResponse(Boto3Model):
     """
     The size, in bytes, of the session token returned in the Credentials for this
     response.
+    """
+
+    TrustedIdentityPropagationContext: "STSTrustedIdentityPropagationContext | None" = (
+        None
+    )
+    """
+    The trusted identity propagation context that Amazon Web Services STS set in the
+    session from the web identity token, through the context provider attached to the
+    OpenID Connect identity provider.
+
+    It is present only when Amazon Web Services STS set such context in the session. It
+    contains the ``aws:OriginIdentity/Subject``, ``aws:OriginIdentity/SubjectType``,
+    ``aws:OriginIdentity/Issuer`` and ``aws:OriginIdentity/FederatedProviderArn`` keys
+    and the ``aws:TransactionContext/IdentityProvider/*`` keys that Amazon Web Services
+    STS set in the session. Other keys in the session, such as
+    ``aws:IdentityCenterInstanceArn`` and ``aws:IdentityStoreArn`` for an identity
+    provider with an Identity Center instance attached, are not returned.
     """

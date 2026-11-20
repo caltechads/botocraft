@@ -1359,6 +1359,7 @@ class Action(Boto3Model):
 
     Specify only when ``Type`` is ``redirect``.
     """
+
     FixedResponseConfig: "FixedResponseActionConfig | None" = None
     """
     [Application Load Balancer] Information for creating an action that returns a custom
@@ -1382,6 +1383,38 @@ class Action(Boto3Model):
 
     Specify only when ``Type`` is ``jwt- validation``.
     """
+class ClientCertificateIdentityFilter(Boto3Model):
+    """
+    Describes a client certificate identity filter.
+    """
+
+    Field: Literal["subject-cn", "subject-ou", "san-dns", "san-uri"]
+    """
+    The client certificate field to match.
+
+    The possible values are:
+    """
+    Action: Literal["accept"]
+    """
+    The action to take when the client certificate matches the filter.
+
+    The only supported action is ``accept``.
+    """
+
+    MatchType: Literal["exact", "prefix"]
+    """
+    The match type.
+
+    The possible values are ``exact`` and ``prefix``.
+    """
+
+    Value: str
+    """
+    The value to match.
+
+    The value must be 1-256 printable ASCII characters.
+    """
+
 
 class MutualAuthenticationAttributes(Boto3Model):
     """
@@ -1392,14 +1425,13 @@ class MutualAuthenticationAttributes(Boto3Model):
     """
     The client certificate handling method.
 
-    Options are ``off``, ``passthrough`` or ``verify``. The default value is ``off``.
+    The default value is ``off``.
     """
 
     TrustStoreArn: "str | None" = None
     """
     The Amazon Resource Name (ARN) of the trust store.
     """
-
     IgnoreClientCertificateExpiry: "bool | None" = None
     """
     Indicates whether expired client certificates are ignored.
@@ -1415,18 +1447,27 @@ class MutualAuthenticationAttributes(Boto3Model):
     Indicates whether trust store CA certificate names are advertised.
     """
 
+    ClientCertificateIdentityFilters: "builtins.list[ClientCertificateIdentityFilter] | None" = Field(
+        default_factory=list
+    )
+    """
+    [Network Load Balancers] The client certificate identity filters.
+
+    The load balancer admits a connection only if the client certificate matches at
+    least one filter. If you don't specify any filters, the load balancer admits every
+    client certificate that passes trust store validation and revocation checks.
+    """
+
 class Listener(PrimaryBoto3Model):
     """
     Information about a listener.
     """
-
     manager_class: ClassVar[ModelType[Boto3ModelManager]] = ListenerManager
 
     LoadBalancerArn: str
     """
     The Amazon Resource Name (ARN) of the load balancer.
     """
-
     Port: int
     """
     The port on which the load balancer is listening.
@@ -1441,11 +1482,11 @@ class Listener(PrimaryBoto3Model):
     """
     The Amazon Resource Name (ARN) of the listener.
     """
+
     Certificates: "builtins.list[Certificate] | None" = Field(default_factory=list)
     """
     [HTTPS or TLS listener] The default certificate for the listener.
     """
-
     SslPolicy: "str | None" = None
     """
     [HTTPS or TLS listener] The security policy that defines which protocols and ciphers
@@ -1466,6 +1507,7 @@ class Listener(PrimaryBoto3Model):
     """
     The mutual authentication configuration information.
     """
+
     @property
     def pk(self) -> str | None:
         """
@@ -1567,12 +1609,10 @@ class HostHeaderConditionConfig(Boto3Model):
 
     The maximum length of each string is 128 characters.
     """
-
 class PathPatternConditionConfig(Boto3Model):
     """
     Information about a path pattern condition.
     """
-
     Values: "builtins.list[str] | None" = Field(default_factory=list)
     """
     The path patterns to compare against the request URL.
@@ -1581,7 +1621,6 @@ class PathPatternConditionConfig(Boto3Model):
     sensitive. The following wildcard characters are supported: * (matches 0 or more
     characters) and ? (matches exactly 1 character).
     """
-
     RegexValues: "builtins.list[str] | None" = Field(default_factory=list)
     """
     The regular expressions to compare against the request URL.
@@ -1596,6 +1635,7 @@ class HttpHeaderConditionConfig(Boto3Model):
     There is a set of standard HTTP header fields. You can also define custom HTTP
     header fields.
     """
+
     HttpHeaderName: "str | None" = None
     """
     The name of the HTTP header field.
@@ -1619,10 +1659,12 @@ class HttpHeaderConditionConfig(Boto3Model):
 
     The maximum length of each string is 128 characters.
     """
+
 class QueryStringKeyValuePair(Boto3Model):
     """
     Information about a key/value pair.
     """
+
     Key: "str | None" = None
     """
     The key.
@@ -1657,7 +1699,6 @@ class QueryStringConditionConfig(Boto3Model):
     character in a query string, you must escape these characters in ``Values`` using a
     '' character.
     """
-
 class HttpRequestMethodConditionConfig(Boto3Model):
     """
     Information about an HTTP method condition.
@@ -1667,7 +1708,6 @@ class HttpRequestMethodConditionConfig(Boto3Model):
     `HTTP Method Registry <https://www.iana.org/assignments/http-methods/http-methods.xhtml>`_.
     You can also define custom HTTP methods.
     """
-
     Values: "builtins.list[str] | None" = Field(default_factory=list)
     """
     The name of the request method.
@@ -1696,7 +1736,6 @@ class SourceIpConditionConfig(Boto3Model):
 
     You can use both IPv4 and IPv6 addresses. Wildcards are not supported.
     """
-
     IpAddressType: "Literal['ipv4', 'ipv6'] | None" = None
     """
     The IP address type for Network Load Balancers.
@@ -1726,7 +1765,6 @@ class RuleCondition(Boto3Model):
 
     The possible values are:
     """
-
     Values: "builtins.list[str] | None" = Field(default_factory=list)
     """
     The condition value.
@@ -1735,7 +1773,6 @@ class RuleCondition(Boto3Model):
     to specify multiple host names or multiple path patterns, use ``HostHeaderConfig``
     or ``PathPatternConfig``.
     """
-
     HostHeaderConfig: "HostHeaderConditionConfig | None" = None
     """
     Information for a host header condition.
@@ -1792,7 +1829,6 @@ class RewriteConfig(Boto3Model):
 
     This transform matches a pattern and replaces it with the specified string.
     """
-
     Regex: str
     """
     The regular expression to match in the input string.
@@ -1823,7 +1859,6 @@ class ElbV2HostHeaderRewriteConfig(Boto3Model):
 
     Each transform consists of a regular expression to match and a replacement string.
     """
-
 class ElbV2UrlRewriteConfig(Boto3Model):
     """
     Information about a URL rewrite transform.
@@ -1831,7 +1866,6 @@ class ElbV2UrlRewriteConfig(Boto3Model):
     This transform matches a pattern in the request URL and replaces it with the
     specified string.
     """
-
     Rewrites: "builtins.list[RewriteConfig] | None" = Field(default_factory=list)
     """
     The URL rewrite transform to apply to the request.
@@ -1845,10 +1879,12 @@ class RuleTransform(Boto3Model):
 
     Transforms are applied to requests before they are sent to targets.
     """
+
     Type: Literal["host-header-rewrite", "url-rewrite"]
     """
     The type of transform.
     """
+
     HostHeaderRewriteConfig: "ElbV2HostHeaderRewriteConfig | None" = None
     """
     Information about a host header rewrite transform.
@@ -1856,6 +1892,7 @@ class RuleTransform(Boto3Model):
     This transform modifies the host header in an HTTP request. Specify only when
     ``Type`` is ``host-header-rewrite``.
     """
+
     UrlRewriteConfig: "ElbV2UrlRewriteConfig | None" = None
     """
     Information about a URL rewrite transform.
@@ -1868,8 +1905,8 @@ class Rule(PrimaryBoto3Model):
     """
     Information about a rule.
     """
-    manager_class: ClassVar[ModelType[Boto3ModelManager]] = RuleManager
 
+    manager_class: ClassVar[ModelType[Boto3ModelManager]] = RuleManager
     Priority: "str | None" = "1"
     """
     The priority.
@@ -1918,6 +1955,7 @@ class Rule(PrimaryBoto3Model):
             The primary key of the model instance.
         """
         return self.RuleArn
+
     @property
     def arn(self) -> str | None:
         """
@@ -1929,7 +1967,6 @@ class Rule(PrimaryBoto3Model):
             The ARN of the model instance.
         """
         return self.RuleArn
-
     def __hash__(self) -> int:
         """
         Return the hash of the model.
@@ -1938,8 +1975,6 @@ class Rule(PrimaryBoto3Model):
         :py:attr:`RuleArn` attribute.
         """
         return hash(self.RuleArn)
-
-
 class ResponseCodeMatcher(Boto3Model):
     """
     The codes to use when checking for a successful response from a target.
@@ -1969,7 +2004,6 @@ class TargetDescription(Boto3Model):
     """
     Information about a target.
     """
-
     Id: str
     """
     The ID of the target.
@@ -1989,6 +2023,7 @@ class TargetDescription(Boto3Model):
     listener whose port matches the target group port. This parameter is not used if the
     target is a Lambda function.
     """
+
     AvailabilityZone: "str | None" = None
     """
     An Availability Zone or ``all``.
@@ -2012,7 +2047,6 @@ class TargetGroup(PrimaryBoto3Model):
     """
 
     manager_class: ClassVar[ModelType[Boto3ModelManager]] = TargetGroupManager
-
     TargetGroupName: str
     """
     The name of the target group.
@@ -2022,7 +2056,6 @@ class TargetGroup(PrimaryBoto3Model):
     """
     The protocol to use for routing traffic to the targets.
     """
-
     Port: int
     """
     The port on which the targets are listening.
@@ -2051,7 +2084,6 @@ class TargetGroup(PrimaryBoto3Model):
 
     The default value is ``ipv4``.
     """
-
     TargetGroupArn: "str | None" = None
     """
     The Amazon Resource Name (ARN) of the target group.
@@ -2063,6 +2095,7 @@ class TargetGroup(PrimaryBoto3Model):
 
     The GENEVE, TLS, UDP, and TCP_UDP protocols are not supported for health checks.
     """
+
     HealthCheckPort: "str | None" = None
     """
     The port to use to connect with the target.
@@ -2096,7 +2129,6 @@ class TargetGroup(PrimaryBoto3Model):
     The number of consecutive health check failures required before considering the
     target unhealthy.
     """
-
     HealthCheckPath: "str | None" = None
     """
     The destination for health checks on the targets.
@@ -2217,7 +2249,6 @@ class TargetGroup(PrimaryBoto3Model):
         except AttributeError:
             return None
         return Vpc.objects.using(self.session).get(**pk)  # type: ignore[arg-type]
-
     def targets(self) -> "builtins.list[TargetHealthDescription] | None":
         """
         Return the targets for the target group.
@@ -2229,6 +2260,7 @@ class TargetGroup(PrimaryBoto3Model):
                 cast("str", self.arn),
             )
         )
+
 
 # =======================
 # Request/Response Models
@@ -2277,11 +2309,14 @@ class CreateLoadBalancerOutput(Boto3Model):
 
 class DeleteLoadBalancerOutput(Boto3Model):
     pass
+
+
 class DescribeLoadBalancersOutput(Boto3Model):
     LoadBalancers: "builtins.list[LoadBalancer] | None" = Field(default_factory=list)
     """
     Information about the load balancers.
     """
+
     NextMarker: "str | None" = None
     """
     If there are additional results, this is the marker for the next set of results.
@@ -2293,7 +2328,6 @@ class LoadBalancerAttribute(Boto3Model):
     """
     Information about a load balancer attribute.
     """
-
     Key: "str | None" = None
     """
     The name of the attribute.
@@ -2340,6 +2374,7 @@ class DescribeListenersOutput(Boto3Model):
 
     Otherwise, this is null.
     """
+
 class CreateRuleOutput(Boto3Model):
     Rules: "builtins.list[Rule] | None" = Field(default_factory=list)
     """
@@ -2374,6 +2409,7 @@ class CreateTargetGroupOutput(Boto3Model):
     """
     Information about the target group.
     """
+
 class ModifyTargetGroupOutput(Boto3Model):
     TargetGroups: "builtins.list[TargetGroup] | None" = Field(default_factory=list)
     """
@@ -2396,16 +2432,15 @@ class DescribeTargetGroupsOutput(Boto3Model):
 
     Otherwise, this is null.
     """
+
 class TargetHealthInfo(Boto3Model):
     """
     Information about the current health of a target.
     """
-
     State: "Literal['initial', 'healthy', 'unhealthy', 'unhealthy.draining', 'unused', 'draining', 'unavailable'] | None" = None
     """
     The state of the target.
     """
-
     Reason: "Literal['Elb.RegistrationInProgress', 'Elb.InitialHealthChecking', 'Target.ResponseCodeMismatch', 'Target.Timeout', 'Target.FailedHealthChecks', 'Target.NotRegistered', 'Target.NotInUse', 'Target.DeregistrationInProgress', 'Target.InvalidState', 'Target.IpUnusable', 'Target.HealthCheckDisabled', 'Elb.InternalError'] | None" = None
     """
     The reason code.
@@ -2422,7 +2457,6 @@ class AnomalyDetectionInfo(Boto3Model):
     """
     Information about anomaly detection and mitigation.
     """
-
     Result: "Literal['anomalous', 'normal'] | None" = None
     """
     The latest anomaly detection result.
